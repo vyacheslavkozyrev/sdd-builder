@@ -17,3 +17,4 @@ export * from './generate.js';
 export * from './plan.js';
 export * from './reply-check.js';
 export * from './analyze/refusals.js';
+export * from './analyze/reachability.js';

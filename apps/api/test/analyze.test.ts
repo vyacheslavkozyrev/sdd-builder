@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze, type ReviewModel } from '../src/analyze.js';
+import { buildReviewPrompt } from '../src/review/prompt.js';
 
 const IDEA = 'A tool that turns a product idea into a spec-driven project framework.';
 
@@ -198,6 +199,23 @@ describe('F-04 AC-019 the review never changes the structural findings', () => {
     expect(result.review.findings).toEqual([
       { severity: 'warning', subject: 'idea', message: 'Blocks the build.' },
     ]);
+  });
+});
+
+describe('F-04 AC-022 the model receives the structural findings in its prompt', () => {
+  it('F-04 AC-022 passes each structural finding into the prompt the model receives', async () => {
+    const config = configWithStructuralFindings();
+    const structural = analyzeStructure(config);
+    const fake = replyWith('[]');
+
+    await analyze(config, fake.model);
+
+    expect(structural.length).toBeGreaterThan(0);
+    const [prompt] = fake.calls;
+    expect(prompt).toBe(buildReviewPrompt(config, structural));
+    for (const finding of structural) {
+      expect(prompt).toContain(`- [${finding.severity}] ${finding.subject}: ${finding.message}`);
+    }
   });
 });
 

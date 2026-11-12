@@ -5,7 +5,7 @@ import type { ReviewModel } from '../analyze.js';
 export const DEFAULT_ANALYZER_MODEL = 'claude-sonnet-5-5';
 
 /** Upper bound on the reply length of one review. */
-export const REVIEW_MAX_TOKENS = 2048;
+export const REVIEW_MAX_TOKENS = 8192;
 
 /** Time the provider client waits for one review before it fails, in milliseconds. */
 export const REVIEW_TIMEOUT_MS = 60_000;

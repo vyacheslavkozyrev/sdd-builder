@@ -16,7 +16,7 @@ export interface ReviewModel {
  */
 export async function analyze(config: ProjectConfig, model: ReviewModel): Promise<AnalysisResult> {
   const structural = analyzeStructure(config);
-  const prompt = buildReviewPrompt(config);
+  const prompt = buildReviewPrompt(config, structural);
 
   let reply: string;
   try {

@@ -1,4 +1,5 @@
 import type {
+  AnalysisFinding,
   ArchitectureSpec,
   Condition,
   Gate,
@@ -29,6 +30,28 @@ const REVIEW_INSTRUCTIONS = [
 ].join('\n');
 
 const BRIEF_HEADING = 'Brief and process (JSON):';
+
+/** Collapses line breaks and other white space, so text taken from the brief cannot start a new list line. */
+function oneLine(text: string): string {
+  return text.replace(/\s+/g, ' ');
+}
+
+/**
+ * The structural findings the review must not repeat, one per line in the order given.
+ * Returns an empty string when there are none, so no list section is emitted.
+ */
+function structuralSection(structural: readonly AnalysisFinding[]): string {
+  if (structural.length === 0) {
+    return '';
+  }
+  const lines = structural.map(
+    (finding) => `- [${finding.severity}] ${oneLine(finding.subject)}: ${oneLine(finding.message)}`,
+  );
+  return [
+    'The structural check has already found these problems. Do not repeat any of them, and do not restate one in other words: a finding about the same problem is a repeat.',
+    ...lines,
+  ].join('\n');
+}
 
 function pickStack(stack: TechStack) {
   return {
@@ -151,11 +174,14 @@ function pickProject(config: ProjectConfig) {
 }
 
 /**
- * Builds the review prompt: the fixed review task, then the brief and the
- * process as JSON. A pure function of the configuration: it reads no
- * environment, clock or file, so the same configuration gives the same text.
+ * Builds the review prompt: the fixed review task, the structural findings
+ * the review must not repeat (when there are any), then the brief and the
+ * process as JSON. A pure function of its inputs: it reads no environment,
+ * clock or file, so the same configuration and findings give the same text.
  */
-export function buildReviewPrompt(config: ProjectConfig): string {
+export function buildReviewPrompt(config: ProjectConfig, structural: readonly AnalysisFinding[]): string {
   const json = JSON.stringify(pickProject(config), null, 2);
-  return [REVIEW_INSTRUCTIONS, '', BRIEF_HEADING, json].join('\n');
+  const section = structuralSection(structural);
+  const parts = section === '' ? [REVIEW_INSTRUCTIONS] : [REVIEW_INSTRUCTIONS, '', section];
+  return [...parts, '', BRIEF_HEADING, json].join('\n');
 }

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 15 of 16 tasks committed (T016 added by amendment) |
+| Build    | ✅ Complete | 2026-11-12 | 16 of 16 tasks committed (T016 added by amendment) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | analyze: structural findings, one model call, failed review on throw or invalid reply | 0 blockers, 1 warning fixed (non-array JSON replies tested), 0 suggestions fixed, 2 suggestions deferred (timeout to T014; blocker in reply format) | 34 files, 331 passed |
 | T014 | Anthropic adapter on @anthropic-ai/sdk 1.3.0: key from env only, timeout on the client, model default, fake SDK in tests | 0 blockers, 1 warning fixed (missing-key test could not detect an echoed value), 1 suggestion fixed (negative test for process.env), 1 suggestion deferred (SDK retries) | core 34 files, 331 passed; api 4 files, 48 passed |
 | T015 | Docs: architecture §2 and §4 describe the analyzer as built | 0 blockers, 2 warnings fixed (§2 notice wording; §4 retries and invalid reply), 2 suggestions fixed, 1 deferred (mockup label) | 34 files, 331 core; 48 api passed |
+| T016 | Amendment: review prompt lists structural findings and asks not to repeat them; REVIEW_MAX_TOKENS 8192 | 0 blockers, 1 warning fixed (line breaks in finding text collapsed), 2 suggestions fixed | core 34 files, 331 passed; api 4 files, 56 passed |
 
 ---
 

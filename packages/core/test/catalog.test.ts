@@ -39,3 +39,13 @@ describe('F-02 T003 catalog', () => {
     expect(() => getCatalogStep('nope')).toThrow('Unknown catalog step id: nope');
   });
 });
+
+describe('F-03 T002 catalog rule tags', () => {
+  it('F-03 AC-015 Implement and Code review carry code.md, and no catalog step carries typescript.md', () => {
+    expect(getCatalogStep('implement').ruleTags).toEqual(['code.md', 'qa.md']);
+    expect(getCatalogStep('code-review').ruleTags).toEqual(['code.md', 'qa.md']);
+    for (const step of DEFAULT_STEP_CATALOG) {
+      expect(step.ruleTags, step.id).not.toContain('typescript.md');
+    }
+  });
+});

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 1 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 2 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Optional `description` on `Workflow` and `StepDefinition`; no validation beyond the type | 0 blockers, 0 warnings, 1 suggestion fixed (test name), 1 deferred (tsconfig covers src only) | 18 files, 100 passed |
+| T002 | Catalog rule tag `typescript.md` → `code.md` on Implement and Code review; F-02 tests updated | 0 blockers, 0 warnings, 1 suggestion fixed (model.ts doc example); deferred: project files still name typescript.md | 18 files, 101 passed |
 
 ---
 
@@ -34,7 +35,11 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 _Review suggestions intentionally not applied, with the reason._
 
+- `.claude/agents/review.md`, `.claude/agents/implement.md`, `CLAUDE.md` name `.claude/rules/typescript.md` (T002 review): project files, not catalog data. Left for a repository-wide rename decision.
+- `spec/documents/building-blocks.md` and three mockups under `design/mockups/` show `typescript.md` as an example tag (T002 review): documentation and mockups, outside the task.
 - `packages/core/tsconfig.json` (T001 review): `include` covers only `src`, so the test files are not type-checked by `npm run typecheck`. The type-level parts of `packages/core/test/model.test.ts` are therefore not enforced by tsc. The runtime assertions still fail if the field is removed. Deferred: changing the tsconfig affects the whole workspace and is outside T001.
+- `.claude/agents/review.md:35`, `.claude/agents/implement.md:32`, `CLAUDE.md:58` (T002 review): still name `.claude/rules/typescript.md` as the rule file for the agents. Project files, not catalog data; the task forbids changing them. Deferred: align them with the rule file layout in a later task.
+- `spec/documents/building-blocks.md:48`, `design/mockups/01-builder.svg:135`, `design/mockups/04-custom-block.svg:68`, `design/mockups/05-generate.svg:45` (T002 review): show `typescript.md` as an example tag. Documentation and mockups, not catalog data; not changed in this task. Deferred: update in T017 (documents) or with the mockups.
 
 ---
 

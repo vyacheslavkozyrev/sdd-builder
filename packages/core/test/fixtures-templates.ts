@@ -20,7 +20,7 @@ export function fullTemplates(): TemplateSource {
     'steps/commit/command.md': '# Commit\n',
     'steps/verify/agent.md': '# Verify\n',
     'steps/release/command.md': '# Release\n',
-    'rules/typescript.md': '# TypeScript rules\n',
+    'rules/code.md': '# Code rules\n',
     'rules/qa.md': '# QA rules\n',
   });
 }

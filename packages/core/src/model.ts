@@ -27,7 +27,7 @@ export interface StepDefinition {
   consumes: string[];
   /** Files the step writes, e.g. "stories.md". */
   produces: string[];
-  /** Rule-set files attached to the step as context, e.g. "typescript.md". */
+  /** Rule-set files attached to the step as context, e.g. "code.md". */
   ruleTags: string[];
   /** Body text, required for custom steps; catalog steps use templates instead. */
   body?: string;

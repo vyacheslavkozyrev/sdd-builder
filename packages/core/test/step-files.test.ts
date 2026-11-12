@@ -12,7 +12,7 @@ const templates = templateSourceFromRecord({
   'steps/refine/command.md': '# Refine',
   'steps/verify/agent.md': '# Verify',
   'steps/release/command.md': '# Release',
-  'rules/typescript.md': '# TypeScript rules',
+  'rules/code.md': '# Code rules',
   'rules/qa.md': '# QA rules',
 });
 
@@ -45,14 +45,14 @@ describe('F-02 T014 step files', () => {
   it('F-02 AC-021 a rule-set tag lists the rule file in the step and writes the rule file', () => {
     const files = renderStepFiles(baseConfig(), templates);
     const implement = files.find((f) => f.path === '.claude/agents/implement.md');
-    expect(implement?.content).toContain('## Context rules\n- .claude/rules/typescript.md\n- .claude/rules/qa.md');
-    expect(files.map((f) => f.path)).toEqual(expect.arrayContaining(['.claude/rules/typescript.md', '.claude/rules/qa.md']));
+    expect(implement?.content).toContain('## Context rules\n- .claude/rules/code.md\n- .claude/rules/qa.md');
+    expect(files.map((f) => f.path)).toEqual(expect.arrayContaining(['.claude/rules/code.md', '.claude/rules/qa.md']));
   });
 
   it('F-02 AC-021 a rule file missing from the templates is refused, naming the step and the rule', () => {
     const partial = templateSourceFromRecord({ ...Object.fromEntries(['steps/implement/agent.md', 'steps/code-review/agent.md', 'steps/unit-tests/script.sh', 'steps/commit/command.md', 'steps/plan/command.md', 'steps/define-feature/command.md', 'steps/refine/command.md', 'steps/verify/agent.md', 'steps/release/command.md', 'rules/qa.md'].map((p) => [p, templates.get(p) ?? ''])) });
     expect(() => renderStepFiles(baseConfig(), partial)).toThrow(TemplateError);
-    expect(() => renderStepFiles(baseConfig(), partial)).toThrow('steps/implement: rule file "typescript.md" is not in the templates');
+    expect(() => renderStepFiles(baseConfig(), partial)).toThrow('steps/implement: rule file "code.md" is not in the templates');
   });
 
   it('F-02 AC-022 a step used in two workflows yields one file', () => {

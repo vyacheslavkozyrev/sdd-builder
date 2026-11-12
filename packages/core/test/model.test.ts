@@ -12,7 +12,7 @@ describe('F-02 T002 model', () => {
       required: true,
       consumes: ['plan.md'],
       produces: ['code'],
-      ruleTags: ['typescript.md'],
+      ruleTags: ['code.md'],
     };
     const review: Condition = {
       id: 'review-clean',

@@ -9,7 +9,7 @@ Status: draft, reviewed 2026-11-11 against the decisions in [idea.md](idea.md), 
 | F-01 | Domain model and step catalog | MVP | Enabler | packages/core | 0 | — | ✅ Complete (model and catalog replaced in F-02 T002 and T003) |
 | F-02 | Generator core: workflows and steps to file tree | MVP | Enabler | packages/core | 1 | F-01 | ✅ Complete (18 tasks, 34 criteria, 99 tests) |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete (17 tasks, 29 criteria, 174 tests) |
-| F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ⏳ Pending |
+| F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ✅ Complete (16 tasks, 22 criteria, 387 tests) |
 | F-05 | Project brief form | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
 | F-06 | Visual builder: global map and workflow tabs | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
 | F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ⏳ Pending |

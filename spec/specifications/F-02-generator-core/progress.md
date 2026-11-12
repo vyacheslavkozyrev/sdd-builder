@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 15 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 16 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T013 | Gate and branch rules: map gates as preconditions; quality gates as stop rules; retries as branch rules with their round limit or "no limit set". Wording is "unless <condition>, <action>". Templates README updated for the workflow placeholders | self-review: no findings | 71 passed (cumulative) |
 | T014 | Step files by kind; catalog steps from templates, custom steps from their body; rule tags listed and rule files written; one file per step; missing template or rule refused | self-review: no findings | 77 passed (cumulative) |
 | T015 | Mermaid flowchart: a subgraph per enabled workflow with steps, conditions, branch edges labelled with their limit or "no limit set"; map connections with artifact labels; gates as decision nodes; ids cleaned; every edge declared | self-review: no findings | 84 passed (cumulative) |
+| T016 | File list: sorted by path; unsafe paths (leading slash, `..`, backslash) and duplicates refused together; LF, exactly one trailing newline | self-review: no findings | 91 passed (cumulative) |
 
 ---
 

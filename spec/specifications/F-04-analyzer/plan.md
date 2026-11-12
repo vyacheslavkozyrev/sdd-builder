@@ -27,6 +27,7 @@ Paths are under `packages/core/` (structural checks, pure) and `apps/api/` (revi
 - [x] T013 [API] Analysis service: `analyze(config, model)` returns the structural findings from `core` and `review` from one `model.complete` call; a thrown error or an unparsable reply gives `review.status` `failed`; the structural part is never changed by the review; one call per request — `apps/api/src/analyze.ts`, `apps/api/test/analyze.test.ts` — covers AC-013, AC-014, AC-018, AC-019, AC-020
 - [x] T014 [API] Anthropic adapter: `ReviewModel` port with `complete(prompt): Promise<string>`; implementation on `@anthropic-ai/sdk` 1.3.0 (added to `apps/api`), model from `SDDBUILDER_ANALYZER_MODEL` with default `claude-sonnet-5-5`, key from `ANTHROPIC_API_KEY` read at start-up and never logged; tests use a fake SDK client, no network — `apps/api/src/review/anthropic-model.ts`, `apps/api/test/anthropic-model.test.ts`, `apps/api/package.json`, `package-lock.json` — covers AC-021 (device: the real call is checked by the manual checklist)
 - [x] T015 [Docs] Describe the behaviour as built: the analysis result and its `review` field, the failure notice, the model variable — `spec/documents/architecture.md` (§4), `spec/documents/features.md` (F-04 entry, if it changes) — covers: none (documents behaviour, per `general.md`)
+- [ ] T016 [API] Amendment (2026-11-12): the review prompt lists the structural findings and asks the model not to repeat them; `buildReviewPrompt` takes the structural findings, and `analyze` passes them; `REVIEW_MAX_TOKENS` is 8192 (the live reply was cut off at 2048) — `apps/api/src/review/prompt.ts`, `apps/api/src/analyze.ts`, `apps/api/src/review/anthropic-model.ts`, `apps/api/test/prompt.test.ts`, `apps/api/test/analyze.test.ts` — covers AC-022 (and keeps AC-015, AC-019, AC-020 passing)
 
 ## Layer Tags
 
@@ -75,3 +76,4 @@ Paths are under `packages/core/` (structural checks, pure) and `apps/api/` (revi
 | AC-019 | T013 |
 | AC-020 | T013 |
 | AC-021 (device) | T014 |
+| AC-022 | T016 |

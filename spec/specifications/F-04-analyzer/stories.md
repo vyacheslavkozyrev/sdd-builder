@@ -111,6 +111,7 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 - [ ] AC-019 `[auto]`: the review never adds, removes or changes a structural finding, whatever the model returns.
 - [ ] AC-020 `[auto]`: the analysis runs one model call per request; a fake model that fails once is not called again.
 - [ ] AC-021 `[device]`: with a real model provider and the sample reference process, the review returns advice that names at least one real gap and no finding repeats a structural finding. Checked by a person against the checklist.
+- [ ] AC-022 `[auto]`: the review prompt lists every structural finding (its subject and message) and tells the model not to repeat them; the same configuration gives the same list in the same order; a configuration with no structural findings gives a prompt with no list; the model call receives this prompt.
 
 ---
 
@@ -126,6 +127,7 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 | S2 LLM review: advice only | AC-016, AC-019 |
 | S2 LLM review: one call per request | AC-020 |
 | S2 LLM review: real model quality | AC-021 |
+| S2 LLM review: no repeats of structural findings | AC-022 |
 | S3 custom steps | AC-011 |
 | S4 structural findings when the LLM fails | AC-013, AC-014 |
 | S5 deterministic structural result | AC-012 |

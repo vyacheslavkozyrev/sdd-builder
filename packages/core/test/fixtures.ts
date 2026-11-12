@@ -17,3 +17,23 @@ export function baseConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfi
     ...overrides,
   };
 }
+
+import type { MapConnection, Workflow } from '../src/index.js';
+
+/** A minimal workflow with one enabled step and no conditions. */
+export function workflow(id: string, overrides: Partial<Workflow> = {}): Workflow {
+  return {
+    id,
+    name: id,
+    scope: 'project',
+    iterationSource: 'project',
+    enabled: true,
+    steps: [{ stepId: 'release', enabled: true }],
+    conditions: [],
+    ...overrides,
+  };
+}
+
+export function connection(from: string, to: string, id = `${from}-${to}`): MapConnection {
+  return { id, from, to };
+}

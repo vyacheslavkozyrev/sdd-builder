@@ -70,7 +70,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
     name: 'Release',
     scope: 'project',
     iterationSource: 'project',
-    enabled: false,
+    enabled: true,
     steps: [{ stepId: 'release', enabled: true }],
     conditions: [],
   },

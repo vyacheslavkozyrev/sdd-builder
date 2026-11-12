@@ -70,7 +70,7 @@ The file list, paths and order are deterministic: the same config gives the same
 | Concern | Decision |
 |---|---|
 | Provider | Anthropic API |
-| Model | A Claude Sonnet model, set by the `SDDBUILDER_ANALYZER_MODEL` environment variable. The default is set when F-04 starts (open question). |
+| Model | A Claude Sonnet model, set by the `SDDBUILDER_ANALYZER_MODEL` environment variable. The analyzer default is `claude-sonnet-5-5`, used when the variable is not set. |
 | Key | `ANTHROPIC_API_KEY`, server environment only. Never sent to the browser, never logged. |
 | Input | Analysis: the brief and the process. Generation: the block descriptions, the process and the template layout. Both with a size cap (F-13). |
 | Output | JSON in the `AnalysisFinding` shape, validated server-side. |
@@ -102,6 +102,7 @@ No database, no user authentication, no queue in the MVP. Rate limiting is per c
 7. **The LLM writes the final framework at generation, from the block descriptions.** Each block carries a high-level description of what it should do. At `/generate` the LLM turns the built workflow into the final commands, agents, skills, scripts and rules. `core` fixes the file list, paths, step order, gates and branches, and checks the reply before it reaches the zip. This replaces the earlier rule that generation is template-only with no LLM. Recorded 2026-11-11, confirmed by the user. Templates hold the layout and the block descriptions the LLM works from, not final content.
 8. **Custom steps are data, optional, and never required.** A custom step has a kind (command, agent, skill or script), a workflow it belongs to, and a body. Its id must not clash with another id. Required steps come only from the catalog.
 9. **The map has no cycles, and a workflow's steps run in order.** Branches route only inside their workflow. Cross-workflow flow is the map's job.
+10. **One analysis shape, refusals are blockers, and LLM findings are advice.** `analyze(config)` returns `{ findings, review: { status, findings, dropped } }`. `findings` are the structural findings from `core`. `review` is the LLM part from `apps/api`: `status` is `ok` or `failed`, `findings` are the valid model findings, and `dropped` counts model findings that failed the reply check. A configuration refused by `validateConfig` appears as a blocker finding in the analysis; `generate()` keeps refusing the same configuration. Structural severities: an unreachable step is a blocker; an input with no upstream producer is a warning; a retry with no round limit is a warning; a brief missing a required field (`name`, `idea`, `stack.language`) is a blocker; other empty brief fields are warnings; a module that depends on a higher layer is a blocker; a module whose `dependsOn` names no module is a blocker; a custom step whose id clashes with a catalog or workflow id is a blocker; a custom step in no enabled workflow is a warning. LLM findings are advice: a model finding with severity `blocker` is kept as `warning`, and model output is never applied automatically. Recorded 2026-11-12, before the analyzer code (F-04).
 
 ## 7. Out of scope for the MVP
 

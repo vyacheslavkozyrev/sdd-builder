@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 1 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -16,7 +16,9 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+None
+
+_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -24,12 +26,15 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Record analyzer decisions in architecture §4 and §6 (decision 10) | 0 blockers, 1 warning fixed (missing severities for AC-010, AC-011), 1 suggestion deferred (idea.md budget line) | 26 files, 174 passed |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- `spec/documents/idea.md:88` (T001 review): the open question "Analyzer model and daily budget" still says the model is deferred, but the default model is now recorded in `architecture.md` §4. Not changed here because T001 names only `architecture.md` and `plan.md`; the owner should narrow the open question to the daily budget.
 
 ---
 

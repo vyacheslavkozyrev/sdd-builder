@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 2 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 3 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Record analyzer decisions in architecture §4 and §6 (decision 10) | 0 blockers, 1 warning fixed (missing severities for AC-010, AC-011), 1 suggestion deferred (idea.md budget line) | 26 files, 174 passed |
 | T002 | AnalysisResult becomes { findings, review }; AnalysisReview type | 0 blockers, 2 warnings fixed (test moved to F-04 block; non-tautological assertions), 2 suggestions deferred | 26 files, 175 passed |
+| T003 | refusalFindings: validateConfig problems as blocker findings with subject and message | 0 blockers, 1 warning fixed (subject regex limited to known label kinds), 2 suggestions fixed | 27 files, 208 passed |
 
 ---
 

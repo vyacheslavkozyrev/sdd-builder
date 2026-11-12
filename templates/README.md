@@ -11,7 +11,9 @@ Text files the generator renders into a project. Templates are data: changing a 
 | `{{stack.language}}`, `{{stack.framework}}`, `{{stack.testFramework}}` | from `ProjectConfig.stack` |
 | `{{modules}}` | rendered list of `ModuleSpec` |
 | `{{codeRules}}`, `{{testRules}}` | rendered bullet lists |
-| `{{workflow.name}}`, `{{workflow.steps}}`, `{{workflow.branches}}` | inside a workflow command: its name, its ordered steps, and its branch rules with their round limits (or "no limit set") |
+| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | inside a workflow command: its name, its id, and its scope with the iteration source (for example "for each task in plan.md") |
+| `{{workflow.steps}}` | the enabled steps as a numbered list in tab order, each naming the file it generates |
+| `{{workflow.rules}}` | the gate and branch rules as a numbered list: preconditions from map gates first, then rules after steps |
 | `{{#step:<id>}}…{{/step:<id>}}` | content kept only when that step is enabled |
 
 Placeholders with no value fail the generation with a clear error; they are never left in the output.
@@ -47,8 +49,8 @@ Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feat
 
 A branch becomes a numbered rule in the workflow command, for example:
 
-> 2. Code review. If the review reports a blocker and fewer than 2 retries have been made, go back to step 1. If the limit is reached, stop. If the review is clean, go to step 3.
+> 2. After step 2 (Code review): unless the review reports no blocker or warning, go back to step 1 (Implement), retrying at most 2 times; if the limit is reached, stop and report. Otherwise continue.
 
-A branch with no round limit says so: "retry until clean; no limit set". A quality gate becomes a stop rule: "if the check fails, stop and report."
+A branch with no round limit says so: "retrying until it passes (no limit set)". A quality gate becomes a stop rule: "unless the checks pass, stop and report." A gate on a map connection becomes a precondition at the top of the downstream workflow: "Precondition: unless the output of Specify is approved by the user, stop and report."
 
 Where a concept has no native equivalent in a tool, the output says so in the generated `process.md` instead of inventing a feature.

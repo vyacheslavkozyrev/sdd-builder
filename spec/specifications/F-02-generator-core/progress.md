@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 12 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 13 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,7 +35,8 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T009 | Workflows in map order with tab order as tie-break; steps in tab order, disabled steps dropped; conditions after disabled steps not selected | self-review: no findings | 46 passed (cumulative) |
 | T010 | Project placeholder values; one-pass substitution; no value and unknown placeholders refused (the unknown-name rule of AC-026 is here, not in T011) | self-review: no findings | 51 passed (cumulative) |
 | T011 | Conditional sections by step state; nested, unclosed, mismatched, orphan and unknown-step markers refused; malformed markers refused before values are inserted; template pipeline `renderTemplate` | self-review: no findings | 60 passed (cumulative) |
-| T012 | `workflow-<id>.md` from a workflow template: numbered steps in tab order with their files, scope and iteration source. Placeholders `workflow.name`, `workflow.id`, `workflow.scope`, `workflow.steps`, `workflow.rules` (rules text arrives with T013) | self-review: no findings | 65 passed (cumulative) |
+| T012 | `workflow-<id>.md` from a workflow template: numbered steps in tab order with their files, scope and iteration source. Placeholders `workflow.name`, `workflow.id`, `workflow.scope`, `workflow.steps`, `workflow.rules` | self-review: no findings | 65 passed (cumulative) |
+| T013 | Gate and branch rules: map gates as preconditions; quality gates as stop rules; retries as branch rules with their round limit or "no limit set". Wording is "unless <condition>, <action>". Templates README updated for the workflow placeholders | self-review: no findings | 71 passed (cumulative) |
 
 ---
 

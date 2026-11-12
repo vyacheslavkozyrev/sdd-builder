@@ -5,6 +5,7 @@ import { selectSteps } from '../select.js';
 import type { TemplateSource } from '../template-source.js';
 import { renderTemplate } from './template.js';
 import { projectValues } from './placeholders.js';
+import { renderRules } from './rules-text.js';
 import { stepFilePath, workflowFilePath } from './paths.js';
 
 /** The template that frames every workflow command. */
@@ -25,16 +26,8 @@ export function stepsText(config: ProjectConfig, workflow: Workflow): string {
     .join('\n');
 }
 
-/**
- * Renders `.claude/commands/workflow-<id>.md`. `rulesText` carries the gate and
- * branch rules (building-blocks.md §3); it is empty until those rules exist.
- */
-export function renderWorkflowCommand(
-  config: ProjectConfig,
-  workflow: Workflow,
-  templates: TemplateSource,
-  rulesText = '',
-): GeneratedFile {
+/** Renders `.claude/commands/workflow-<id>.md`, including its gate and branch rules. */
+export function renderWorkflowCommand(config: ProjectConfig, workflow: Workflow, templates: TemplateSource): GeneratedFile {
   const text = templates.get(WORKFLOW_TEMPLATE);
   if (text === undefined) {
     throw new TemplateError(WORKFLOW_TEMPLATE, 'missing workflow template');
@@ -47,7 +40,7 @@ export function renderWorkflowCommand(
     'workflow.id': workflow.id,
     'workflow.scope': scopeText(workflow),
     'workflow.steps': stepsText(config, workflow),
-    'workflow.rules': rulesText,
+    'workflow.rules': renderRules(config, workflow),
   };
   const content = renderTemplate(text, { values, scope: { enabled, known }, templatePath: WORKFLOW_TEMPLATE });
   return { path: workflowFilePath(workflow.id), content };

@@ -9,3 +9,4 @@ export * from './render/conditionals.js';
 export * from './render/template.js';
 export * from './render/paths.js';
 export * from './render/workflow-command.js';
+export * from './render/rules-text.js';

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 1 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 2 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -25,6 +25,7 @@ None
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Record the F-07 decisions: Hono, node-server and JSZip pins in architecture §5; generation rules in §6 decision 11 | 0 blockers, 2 warnings fixed (502 wording; 404 and 405 added), 2 suggestions fixed | docs only; task check: 331 core + 56 api passed |
+| T002 | `parseProjectConfig` top level: schemaVersion, strings, arrays, known targets; interim cast until T003; not exported | 0 blockers, 2 warnings fixed (missing error-path tests), 2 suggestions fixed (callback types, interim comment) | 35 files, 352 passed |
 
 ---
 

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 13 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 14 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T011 | apps/api setup: tsconfig, typecheck and test scripts, vitest, smoke test | 0 blockers, 0 warnings, 1 suggestion fixed (smoke assertion), 2 suggestions deferred | 34 files, 331 passed |
 | T012 | buildReviewPrompt: fixed instructions and the brief and process in a fixed key order | 0 blockers, 2 warnings fixed (workflow description picked; ambient test uses process.env), 0 suggestions fixed, 1 suggestion deferred (blocker in reply format) | 34 files, 331 passed |
 | T013 | analyze: structural findings, one model call, failed review on throw or invalid reply | 0 blockers, 1 warning fixed (non-array JSON replies tested), 0 suggestions fixed, 2 suggestions deferred (timeout to T014; blocker in reply format) | 34 files, 331 passed |
+| T014 | Anthropic adapter on @anthropic-ai/sdk 1.3.0: key from env only, timeout on the client, model default, fake SDK in tests | 0 blockers, 1 warning fixed (missing-key test could not detect an echoed value), 1 suggestion fixed (negative test for process.env), 1 suggestion deferred (SDK retries) | core 34 files, 331 passed; api 4 files, 48 passed |
 
 ---
 
@@ -50,6 +51,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `packages/core/src/model.ts` (`AnalysisReview`, T002 review): `status: 'failed'` with non-empty `findings` or `dropped` is not excluded by the type; a discriminated union would enforce it. Not applied because the plan and `architecture.md` §6 decision 10 fix the literal shape `{ status, findings, dropped }`; enforce the failed-state convention in T010 and T013 tests (AC-013, AC-018).
 - `spec/specifications/F-04-analyzer/stories.md:20` (T002 review): the story says the shape change is recorded in `architecture.md` §5; T001 recorded it in §4 and §6 decision 10. Not changed here because T002 names only the core files; the owner should align the wording.
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): two modules with the same name make `dependsOn` resolve to the first one only, and no check reports the duplicate name. Not applied because AC-007 to AC-010 do not cover module names and no task in the plan checks them; the owner should add a module-name check to a plan task.
+- `apps/api/src/review/anthropic-model.ts:31` (T014 review): the SDK default `maxRetries` (2) lets one review take up to three 60 s attempts, not one. The plan sets no retry policy, so the timeout bound is left at the SDK default; the owner decides whether to set `maxRetries` explicitly (for example `0`) for a single 60 s bound.
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): a `dependsOn` entry repeated in one module gives the same finding twice. Not applied because AC-009 and AC-010 do not say how repeats are reported; the owner should decide whether repeats are one finding.
 - `packages/core/src/analyze/index.ts` (`SEVERITY_RANK`, T009 review): the `info` rank is untested, and no planned task emits an `info` finding (`plan.md` names none, and AC-002 only requires that a valid configuration adds none). `analyzeStructure` cannot return `info` yet, so no test can reach that rank through the public API. Not applied because a test would need an info-producing check the plan does not have; the owner should add one to a plan task or amend AC-012, and that task must test info ordering.
 - `apps/api/tsconfig.json` (T011 review): `plan.md` T011 says `rootDir src`, but the smoke test sits in `test/`, and with `rootDir src` tsc fails with TS6059. The staged file uses `rootDir "."`, the same as `packages/core/tsconfig.json`. Not changed because the plan wording is inconsistent with its own include; the owner should amend T011 to `rootDir "."`.

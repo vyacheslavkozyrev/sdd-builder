@@ -6,8 +6,8 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
+| Build    | ⏳ Pending  |      | 0 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

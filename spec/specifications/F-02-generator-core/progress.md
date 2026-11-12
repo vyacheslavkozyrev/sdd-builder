@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 17 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 18 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T015 | Mermaid flowchart: a subgraph per enabled workflow with steps, conditions, branch edges labelled with their limit or "no limit set"; map connections with artifact labels; gates as decision nodes; ids cleaned; every edge declared | self-review: no findings | 84 passed (cumulative) |
 | T016 | File list: sorted by path; unsafe paths (leading slash, `..`, backslash) and duplicates refused together; LF, exactly one trailing newline | self-review: no findings | 91 passed (cumulative) |
 | T017 | `generate(config, templates)`: validation first (InvalidConfigError with all problems); base files, workflow commands and step files; template problems collected into GenerationError. Step-file problems are collected as one group, since that renderer stops at its first error | self-review: no findings | 97 passed (cumulative) |
+| T018 | Purity scan of packages/core/src: no Node built-ins, I/O, network or LLM imports; no process globals | self-review: no findings (scan first matched comments; narrowed to real globals) | 99 passed (cumulative) |
 
 ---
 

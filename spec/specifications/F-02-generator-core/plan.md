@@ -29,7 +29,7 @@ Paths are under `packages/core/`. Tests live in `packages/core/test/`. Every tes
 - [x] T015 [Core] `process.md` Mermaid flowchart of the enabled map: workflow nodes, artifact-labelled edges, gate decision nodes, branch edges with round limit or "no limit set", ids sanitised, every edge declared (AC-028, AC-029, AC-030) — `packages/core/src/render/mermaid.ts`, `packages/core/test/mermaid.test.ts` — covers AC-028, AC-029, AC-030
 - [x] T016 [Core] File list rules: sorted by path, relative forward-slash paths with no leading slash or `..`, duplicate path refused (AC-032); UTF-8, LF, exactly one trailing newline, no timestamps or random ids (AC-033) — `packages/core/src/file-list.ts`, `packages/core/test/file-list.test.ts` — covers AC-032, AC-033
 - [x] T017 [Core] `generate(config, templates)` assembles tasks T005–T016, collects generation errors together, and returns the file list; generating the same input twice gives identical output — `packages/core/src/generate.ts`, `packages/core/src/index.ts`, `packages/core/test/generate.test.ts` — covers AC-031
-- [ ] T018 [Core] Purity scan: a test reads `packages/core/src` and fails on any import of `node:*`, `fs`, `http`, `process` or an LLM SDK — `packages/core/test/purity.test.ts` — covers AC-034
+- [x] T018 [Core] Purity scan: a test reads `packages/core/src` and fails on any import of `node:*`, `fs`, `http`, `process` or an LLM SDK — `packages/core/test/purity.test.ts` — covers AC-034
 
 ## Rationale
 

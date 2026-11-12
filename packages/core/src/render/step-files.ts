@@ -10,7 +10,7 @@ import type { StepScope } from './conditionals.js';
 
 /** The template file a catalog step is rendered from, by kind. */
 function templateFileName(step: StepDefinition): string {
-  return step.kind === 'script' ? 'script.sh' : `${step.kind}.md`;
+  return `${step.kind}.md`;
 }
 
 /**

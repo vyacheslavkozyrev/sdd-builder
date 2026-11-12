@@ -19,7 +19,6 @@ export const BASE_FILES: readonly { template: string; path: string }[] = [
   { template: 'base/spec-template/stories.md', path: 'spec/specifications/F-00-template/stories.md' },
   { template: 'base/spec-template/plan.md', path: 'spec/specifications/F-00-template/plan.md' },
   { template: 'base/spec-template/progress.md', path: 'spec/specifications/F-00-template/progress.md' },
-  { template: 'base/task-check.sh', path: 'scripts/task-check.sh' },
 ];
 
 /** Every enabled step of every enabled workflow, with the catalog and custom ids that exist. */

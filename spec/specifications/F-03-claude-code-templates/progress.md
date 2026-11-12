@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 2 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 3 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Optional `description` on `Workflow` and `StepDefinition`; no validation beyond the type | 0 blockers, 0 warnings, 1 suggestion fixed (test name), 1 deferred (tsconfig covers src only) | 18 files, 100 passed |
 | T002 | Catalog rule tag `typescript.md` → `code.md` on Implement and Code review; F-02 tests updated | 0 blockers, 0 warnings, 1 suggestion fixed (model.ts doc example); deferred: project files still name typescript.md | 18 files, 101 passed |
+| T003 | Script steps render `script.md` to `scripts/<id>.sh`; base checks-script template removed from generation | 0 blockers, 0 warnings, 0 suggestions | 18 files, 103 passed |
 
 ---
 
@@ -40,6 +41,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `packages/core/tsconfig.json` (T001 review): `include` covers only `src`, so the test files are not type-checked by `npm run typecheck`. The type-level parts of `packages/core/test/model.test.ts` are therefore not enforced by tsc. The runtime assertions still fail if the field is removed. Deferred: changing the tsconfig affects the whole workspace and is outside T001.
 - `.claude/agents/review.md:35`, `.claude/agents/implement.md:32`, `CLAUDE.md:58` (T002 review): still name `.claude/rules/typescript.md` as the rule file for the agents. Project files, not catalog data; the task forbids changing them. Deferred: align them with the rule file layout in a later task.
 - `spec/documents/building-blocks.md:48`, `design/mockups/01-builder.svg:135`, `design/mockups/04-custom-block.svg:68`, `design/mockups/05-generate.svg:45` (T002 review): show `typescript.md` as an example tag. Documentation and mockups, not catalog data; not changed in this task. Deferred: update in T017 (documents) or with the mockups.
+- `spec/documents/building-blocks.md:46,97`, `design/mockups/05-generate.svg:47` (T003 review): show `task-check.sh` as an example script or as generated output. The base no longer generates it (the script step writes `scripts/unit-tests.sh`). Documentation and mockups, outside the code change. Deferred: update in T017 (documents) or with the mockups.
 
 ---
 

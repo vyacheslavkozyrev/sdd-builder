@@ -26,6 +26,12 @@ describe('F-02 T017 generate', () => {
     );
   });
 
+  it('F-03 AC-011 the base files include no script, so scripts/task-check.sh is never read from a template', () => {
+    const paths = generate(baseConfig(), fullTemplates()).files.map((f) => f.path);
+    expect(paths).not.toContain('scripts/task-check.sh');
+    expect(paths).toContain('scripts/unit-tests.sh');
+  });
+
   it('F-02 AC-028 the process document carries the Mermaid view of the map', () => {
     const process = generate(baseConfig(), fullTemplates()).files.find((f) => f.path === 'spec/documents/process.md');
     expect(process?.content).toContain('```mermaid\nflowchart TD');

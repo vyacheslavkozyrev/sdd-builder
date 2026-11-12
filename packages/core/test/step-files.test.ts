@@ -5,7 +5,7 @@ import { baseConfig, workflow } from './fixtures.js';
 const templates = templateSourceFromRecord({
   'steps/implement/agent.md': '# Implement\nWrite the task for {{projectName}}.',
   'steps/code-review/agent.md': '# Code review',
-  'steps/unit-tests/script.sh': '#!/usr/bin/env bash\nnpm test',
+  'steps/unit-tests/script.md': '# Unit tests\n\nRun the unit checks.',
   'steps/commit/command.md': '# Commit',
   'steps/plan/command.md': '# Plan',
   'steps/define-feature/command.md': '# Define feature',
@@ -35,6 +35,11 @@ describe('F-02 T014 step files', () => {
     expect(steps).not.toContain('scripts/e2e-tests.sh');
   });
 
+  it('F-03 AC-008 a script step is rendered from its script.md layout to scripts/<id>.sh', () => {
+    const file = renderStepFiles(baseConfig(), templates).find((f) => f.path === 'scripts/unit-tests.sh');
+    expect(file?.content).toBe('# Unit tests\n\nRun the unit checks.');
+  });
+
   it('F-02 AC-020 a skill step writes .claude/skills/<id>/SKILL.md, from a custom body', () => {
     const skill: StepDefinition = { id: 'scan', name: 'Scan', summary: '', kind: 'skill', origin: 'custom', required: false, consumes: [], produces: [], ruleTags: [], body: 'Scan the repo.' };
     const config = baseConfig({ customSteps: [skill], workflows: [...baseConfig().workflows, workflow('security', { steps: [{ stepId: 'scan', enabled: true }] })] });
@@ -50,7 +55,7 @@ describe('F-02 T014 step files', () => {
   });
 
   it('F-02 AC-021 a rule file missing from the templates is refused, naming the step and the rule', () => {
-    const partial = templateSourceFromRecord({ ...Object.fromEntries(['steps/implement/agent.md', 'steps/code-review/agent.md', 'steps/unit-tests/script.sh', 'steps/commit/command.md', 'steps/plan/command.md', 'steps/define-feature/command.md', 'steps/refine/command.md', 'steps/verify/agent.md', 'steps/release/command.md', 'rules/qa.md'].map((p) => [p, templates.get(p) ?? ''])) });
+    const partial = templateSourceFromRecord({ ...Object.fromEntries(['steps/implement/agent.md', 'steps/code-review/agent.md', 'steps/unit-tests/script.md', 'steps/commit/command.md', 'steps/plan/command.md', 'steps/define-feature/command.md', 'steps/refine/command.md', 'steps/verify/agent.md', 'steps/release/command.md', 'rules/qa.md'].map((p) => [p, templates.get(p) ?? ''])) });
     expect(() => renderStepFiles(baseConfig(), partial)).toThrow(TemplateError);
     expect(() => renderStepFiles(baseConfig(), partial)).toThrow('steps/implement: rule file "code.md" is not in the templates');
   });

@@ -1,19 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { validateConfig, type Condition, type Workflow } from '../src/index.js';
+import { validateConfig, type Condition, type RouteTarget, type Workflow } from '../src/index.js';
 import { baseConfig, withDefaults, workflow } from './fixtures.js';
 
 const gate = (id: string) => ({ id, type: 'checks' as const, required: false });
 
+/** Overrides for a malformed condition: an output may be left unwired (undefined). */
+type ConditionOverrides = Omit<Partial<Condition>, 'pass' | 'fail'> & {
+  pass?: RouteTarget | undefined;
+  fail?: RouteTarget | undefined;
+};
+
 /** A workflow with steps a, b, c in order and one condition after b. */
-function threeSteps(condition: Partial<Condition>, steps?: Workflow['steps']): Workflow {
+function threeSteps(condition: ConditionOverrides, steps?: Workflow['steps']): Workflow {
   return workflow('w', {
     steps: steps ?? [
       { stepId: 'release', enabled: true },
       { stepId: 'verify', enabled: true },
       { stepId: 'commit', enabled: true },
     ],
+    // The cast builds the unwired output the validator must refuse; the model type requires `pass`.
     conditions: [
-      { id: 'c1', afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition },
+      { id: 'c1', afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition } as Condition,
     ],
   });
 }

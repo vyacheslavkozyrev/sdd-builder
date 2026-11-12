@@ -1,58 +1,100 @@
-// Domain model shared by the configurator (apps/web), the API (apps/api)
-// and the generator (this package). Pure types, no runtime code.
+// Domain model shared by the builder (apps/web), the API (apps/api) and the
+// generator (this package). Pure types, no runtime code.
+// Source of truth: spec/documents/building-blocks.md.
 
-/** Output formats the generator can emit. Claude is the reference target. */
+/** Output formats the generator can emit. Claude Code is the only MVP target. */
 export type TargetTool = 'claude' | 'cursor' | 'copilot';
 
-/** Where a block's work happens: once per project, once per feature, or once per task. */
-export type BlockScope = 'project' | 'feature' | 'task';
+/** What a workflow repeats over. The iteration source is the artifact it reads. */
+export type Scope = 'project' | 'feature' | 'task';
 
-/**
- * One SDLC phase, as defined in the block catalog (catalog.ts).
- * A block emits a command, an optional agent and the rules it needs.
- */
-export interface BlockDefinition {
+/** The fixed set of gate types. User-written check commands are not allowed. */
+export type GateType = 'approval' | 'checks' | 'review' | 'diff-size';
+
+/** How a step runs in the generated project. */
+export type StepKind = 'command' | 'agent' | 'skill' | 'script';
+
+/** A step definition: from the catalog, or written by the user (custom). */
+export interface StepDefinition {
   id: string;
   name: string;
   summary: string;
-  /** Position in the default lifecycle. The constructor may reorder blocks. */
-  defaultOrder: number;
-  scope: BlockScope;
-  /** Required blocks cannot be disabled (e.g. commit, the step that makes work durable). */
+  kind: StepKind;
+  origin: 'catalog' | 'custom';
+  /** Catalog steps may be required. Custom steps are never required. */
   required: boolean;
-  /** Slash-command name emitted for this block, e.g. "implement". */
-  commandName: string;
-  /** Agent name emitted for this block, or null when the block runs in the main session. */
-  agentName: string | null;
-  /** Block ids whose artifacts this block reads. Used to check ordering. */
+  /** Artifacts or steps the step reads. Used for structural checks. */
   consumes: string[];
-  /** Artifacts this block writes, e.g. "stories.md", "plan.md". */
+  /** Files the step writes, e.g. "stories.md". */
   produces: string[];
+  /** Rule-set files attached to the step as context, e.g. "typescript.md". */
+  ruleTags: string[];
+  /** Body text, required for custom steps; catalog steps use templates instead. */
+  body?: string;
+}
+
+/** A gate: a fixed-type check. `threshold` applies to diff-size only (lines). */
+export interface Gate {
+  id: string;
+  type: GateType;
+  threshold?: number;
+  /** Catalog gates may be required; custom gates are never required. */
+  required: boolean;
 }
 
 /**
- * A block written by the user. It has the same shape as a catalog block, plus
- * the text the generator writes into the command and agent files.
- * Custom blocks are always optional: the framework's own checks never depend on them.
+ * Where a route goes. `next` is the following step in the workflow's order;
+ * `step` is a named step in the same workflow; `stop` ends the process.
  */
-export interface CustomBlockDefinition extends Omit<BlockDefinition, 'required'> {
-  origin: 'custom';
-  required: false;
-  body: CustomBlockBody;
+export type RouteTarget =
+  | { kind: 'next' }
+  | { kind: 'step'; stepId: string }
+  | { kind: 'stop' };
+
+/**
+ * A condition placed after a step. Its pass and fail outputs are routed.
+ * A quality gate is a condition whose fail output is `stop`.
+ * A branch is a condition whose fail output goes back to an earlier step.
+ */
+export interface Condition {
+  id: string;
+  /** The step this condition follows. */
+  afterStepId: string;
+  gate: Gate;
+  pass: RouteTarget;
+  /** Undefined means the output is not wired; that is a structural error. */
+  fail: RouteTarget | undefined;
+  /** Optional round limit for a backward fail route. The user sets it; no default. */
+  roundLimit?: number;
 }
 
-export interface CustomBlockBody {
-  /** Markdown for `.claude/commands/<commandName>.md`. May use the placeholders in templates/README.md. */
-  command: string;
-  /** Markdown for `.claude/agents/<agentName>.md`, or null when the block runs in the main session. */
-  agent: string | null;
-}
-
-/** A block as placed in one project's lifecycle. */
-export interface BlockInstance {
-  blockId: string;
+/** A step placed in one workflow's ordered list. Tab order is list order. */
+export interface WorkflowStep {
+  stepId: string;
   enabled: boolean;
-  order: number;
+}
+
+/** One workflow: one diagram on its own tab. Workflows do not nest. */
+export interface Workflow {
+  id: string;
+  name: string;
+  scope: Scope;
+  /** The artifact the workflow iterates over, e.g. "features.md" or "plan.md"; "project" for once. */
+  iterationSource: string;
+  enabled: boolean;
+  steps: WorkflowStep[];
+  conditions: Condition[];
+}
+
+/** A connection on the global map: `to` runs after `from`. */
+export interface MapConnection {
+  id: string;
+  from: string;
+  to: string;
+  /** Artifact handed over, e.g. "plan.md". Optional. */
+  artifact?: string;
+  /** Gate that holds `to` until it passes. Optional. */
+  gate?: Gate;
 }
 
 export interface TechStack {
@@ -77,9 +119,9 @@ export interface ArchitectureSpec {
   notes?: string;
 }
 
-/** Everything the user enters in the configurator. Serialised to JSON for save and load. */
+/** Everything the user enters in the builder. Serialised to JSON when saved (post-MVP). */
 export interface ProjectConfig {
-  /** Schema version of this document, so saved configurations stay readable. */
+  /** Schema version of this document. */
   schemaVersion: 1;
   name: string;
   /** Free-text description of the product idea. */
@@ -88,9 +130,10 @@ export interface ProjectConfig {
   architecture: ArchitectureSpec;
   codeRules: string[];
   testRules: string[];
-  /** Blocks written by the user. Ids must not clash with catalog ids. */
-  customBlocks: CustomBlockDefinition[];
-  blocks: BlockInstance[];
+  /** Steps written by the user. Ids must not clash with catalog ids. */
+  customSteps: StepDefinition[];
+  workflows: Workflow[];
+  connections: MapConnection[];
   targets: TargetTool[];
 }
 
@@ -103,7 +146,6 @@ export interface AnalysisFinding {
 
 export interface AnalysisResult {
   findings: AnalysisFinding[];
-  suggestedBlocks: BlockInstance[];
 }
 
 export interface GeneratedFile {

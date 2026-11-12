@@ -13,7 +13,7 @@ Paths are under `packages/core/`. Tests live in `packages/core/test/`. Every tes
 ## Tasks
 
 - [x] T001 [Build] Add Vitest and a `test` script to `packages/core` and the root; a smoke test proves the runner works — `packages/core/package.json`, `packages/core/vitest.config.ts`, `packages/core/test/smoke.test.ts` — covers: none (enabler for `scripts/task-check.sh`)
-- [ ] T002 [Core] Replace the flat block model with workflows, ordered steps, gates, branch routes, map connections and custom steps; `schemaVersion` stays 1 — `packages/core/src/model.ts`, `packages/core/test/model.test.ts` — covers: none (prerequisite for all criteria; type tests only)
+- [x] T002 [Core] Replace the flat block model with workflows, ordered steps, gates, branch routes, map connections and custom steps; `schemaVersion` stays 1 — `packages/core/src/model.ts`, `packages/core/test/model.test.ts` — covers: none (prerequisite for all criteria; type tests only)
 - [ ] T003 [Core] Default step catalog for the reference workflows (Specify, Implement, Verify, Release) and their required steps and gates, per `building-blocks.md` §4 — `packages/core/src/catalog.ts`, `packages/core/test/catalog.test.ts` — covers AC-006 (catalog data)
 - [ ] T004 [Core] `InvalidConfigError` that collects a list of problems; the `TemplateSource` interface; `GenerationResult` error handling — `packages/core/src/errors.ts`, `packages/core/src/template-source.ts`, `packages/core/test/errors.test.ts` — covers AC-011 (error shape)
 - [ ] T005 [Core] Refuse duplicate ids across workflows, catalog steps and custom steps, naming both occurrences; collect every problem before throwing — `packages/core/src/validate/ids.ts`, `packages/core/test/validate-ids.test.ts` — covers AC-001, AC-011

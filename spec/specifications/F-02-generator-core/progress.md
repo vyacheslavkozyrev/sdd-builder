@@ -5,9 +5,9 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user. Commit waits for `git init`. |
+| Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 1 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 2 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -25,6 +25,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Vitest test runner and `test` script; task check fixed to detect the script | self-review: no findings | 1 passed |
+| T002 | Model replaced: workflows, steps, gates, routes, conditions, map, custom steps; flat catalog removed until T003 | self-review: no findings | 3 passed, typecheck clean |
 
 ---
 

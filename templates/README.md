@@ -22,10 +22,10 @@ Placeholders with no value fail the generation with a clear error; they are neve
 
 ```
 templates/
-  base/           files every project gets (CLAUDE.md, process.md, spec template, checks script)
-  workflows/      one template for the workflow command, filled per workflow
-  steps/          one folder per step id: command, agent, skill or script text
-  rules/          rule files by stack (general, qa, language-specific)
+  base/           files every project gets (CLAUDE.md, process.md, spec template)
+  workflows/      one layout for the workflow command, filled per workflow
+  steps/          one folder per step id: a layout for its command, agent, skill or script
+  rules/          rule-file layouts (general, qa, code); the content comes from the brief
   claude/         Claude Code file layout (the MVP target)
 ```
 
@@ -42,8 +42,10 @@ Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feat
 | `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled command step |
 | `.claude/agents/<name>.md` | `steps/<id>/agent.md` for each enabled agent step |
 | `.claude/skills/<name>/SKILL.md` | `steps/<id>/skill.md` for each enabled skill step |
-| `.claude/rules/<name>.md` | `rules/` by stack; referenced from the steps that carry the tag |
-| `scripts/<name>.sh` | `steps/<id>/script.sh` for each enabled script step |
+| `.claude/rules/<name>.md` | `rules/` layouts; referenced from the steps that carry the tag |
+| `scripts/<name>.sh` | `steps/<id>/script.md`, a layout for each enabled script step; the LLM writes the script at generation |
+
+Every file in the table above except `scripts/` is a layout the LLM fills at generation. Templates never contain a script.
 
 ## Branch and gate text
 

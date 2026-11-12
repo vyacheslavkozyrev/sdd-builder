@@ -60,7 +60,7 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 - [ ] AC-001 `[auto]`: a configuration that `generate()` refuses (duplicate id, unknown reference, cycle, unwired output, unknown gate type, invalid round limit, missing required step, route to a disabled step) gives one `blocker` finding per problem, whose `subject` names the element and whose `message` names the problem, in the same order as `validateConfig`.
 - [ ] AC-002 `[auto]`: a valid configuration with nothing to advise gives an empty `findings` list, with no `info` findings added.
 - [ ] AC-003 `[auto]`: a step no route can reach gives a `blocker` finding naming the step and its workflow.
-- [ ] AC-004 `[auto]`: a step input that no earlier step in the same workflow produces gives a `warning` finding naming the step and the input.
+- [ ] AC-004 `[auto]`: a step input that no earlier enabled step of the same workflow produces, no enabled step of an upstream workflow on the map produces, and that is not the workflow's iteration source, gives a `warning` finding naming the step and the input.
 - [ ] AC-005 `[auto]`: a retry route with no round limit gives a `warning` finding naming the condition and saying "no limit set"; a retry with a limit gives no finding.
 - [ ] AC-006 `[auto]`: a disabled step is not checked for reachability or inputs, so it gives no finding from AC-003 or AC-004.
 

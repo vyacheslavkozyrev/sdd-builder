@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 9 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 10 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T007 | Outputs wired; routes stay in the workflow; fail routes go back, pass routes go forward; no route into a disabled step; conditions after disabled steps are dropped | self-review: no findings | 31 passed (cumulative) |
 | T008 | Required workflows (specify, implement-cycle, verify-feature), required steps and gates from the catalog, fixed gate types, positive integer round limits, custom steps never required. Fixture `withDefaults` for tests that change workflows | self-review: no findings | 41 passed (cumulative) |
 | T009 | Workflows in map order with tab order as tie-break; steps in tab order, disabled steps dropped; conditions after disabled steps not selected | self-review: no findings | 46 passed (cumulative) |
+| T010 | Project placeholder values; one-pass substitution; no value and unknown placeholders refused (the unknown-name rule of AC-026 is here, not in T011) | self-review: no findings | 51 passed (cumulative) |
 
 ---
 

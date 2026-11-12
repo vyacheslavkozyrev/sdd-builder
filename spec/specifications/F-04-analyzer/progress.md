@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 12 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 13 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T010 | checkReview: reply check, blocker to warning, drop and count invalid entries, failed for non-array | 0 blockers, 1 warning fixed (non-criterion test separated), 3 suggestions fixed | 34 files, 331 passed |
 | T011 | apps/api setup: tsconfig, typecheck and test scripts, vitest, smoke test | 0 blockers, 0 warnings, 1 suggestion fixed (smoke assertion), 2 suggestions deferred | 34 files, 331 passed |
 | T012 | buildReviewPrompt: fixed instructions and the brief and process in a fixed key order | 0 blockers, 2 warnings fixed (workflow description picked; ambient test uses process.env), 0 suggestions fixed, 1 suggestion deferred (blocker in reply format) | 34 files, 331 passed |
+| T013 | analyze: structural findings, one model call, failed review on throw or invalid reply | 0 blockers, 1 warning fixed (non-array JSON replies tested), 0 suggestions fixed, 2 suggestions deferred (timeout to T014; blocker in reply format) | 34 files, 331 passed |
 
 ---
 
@@ -55,6 +56,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `apps/api/package.json` (T011 review): `packages/core` has `@types/node` as a dev dependency and `apps/api` does not. The smoke test needs no Node types and `plan.md` T011 lists only Vitest. Not added here; the task that first uses Node globals (`process.env` in T014, or `fs`-free code in T013) should add `@types/node` to match core.
 
 - `apps/api/src/review/prompt.ts` (`REVIEW_INSTRUCTIONS`, T012 review): the reply format lets the model send `severity: 'blocker'` while the task says the review is advice only. Not changed because `checkReview` (T010) accepts `blocker` and downgrades it to `warning`, so the three severities match the reply check exactly; removing `blocker` from the prompt is a change to the reply contract that the owner should decide in T013 or by amending AC-016.
+- `apps/api/src/analyze.ts` (`analyze`, T013 review): the model call has no timeout of its own. Not applied here because `analyze` calls only the `ReviewModel` port and holds no SDK client; the timeout belongs to the adapter that makes the external call. T014 must set a timeout on the `@anthropic-ai/sdk` request and test it with a fake client.
+- `apps/api/src/review/prompt.ts` (`REVIEW_INSTRUCTIONS`, T013 review, decision recorded): the prompt keeps `blocker` as a reply severity. Not changed because AC-016 expects a model `blocker` to be kept as `warning`, so the reply contract must accept it; the prompt matches the reply check.
 
 ---
 

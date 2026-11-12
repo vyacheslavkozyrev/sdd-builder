@@ -4,7 +4,14 @@
   "private": true,
   "description": "HTTP API: analyzes a project brief and returns a zip of the generated SDD framework.",
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
   "dependencies": {
     "@sddbuilder/core": "*"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
   }
 }

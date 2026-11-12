@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 10 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 11 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | customStepFindings: custom steps placed in no enabled workflow as warnings | 0 blockers, 1 warning fixed (comment on clashing ids corrected; edge test added), 0 suggestions | 32 files, 292 passed |
 | T009 | analyzeStructure: fixed concatenation, severity then subject then message, no mutation | 0 blockers, 2 warnings fixed (test fixture trimmed; severity row exercises the rank), 1 suggestion fixed, 1 suggestion deferred (info untested) | 33 files, 300 passed |
 | T010 | checkReview: reply check, blocker to warning, drop and count invalid entries, failed for non-array | 0 blockers, 1 warning fixed (non-criterion test separated), 3 suggestions fixed | 34 files, 331 passed |
+| T011 | apps/api setup: tsconfig, typecheck and test scripts, vitest, smoke test | 0 blockers, 0 warnings, 1 suggestion fixed (smoke assertion), 2 suggestions deferred | 34 files, 331 passed |
 
 ---
 
@@ -49,6 +50,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): two modules with the same name make `dependsOn` resolve to the first one only, and no check reports the duplicate name. Not applied because AC-007 to AC-010 do not cover module names and no task in the plan checks them; the owner should add a module-name check to a plan task.
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): a `dependsOn` entry repeated in one module gives the same finding twice. Not applied because AC-009 and AC-010 do not say how repeats are reported; the owner should decide whether repeats are one finding.
 - `packages/core/src/analyze/index.ts` (`SEVERITY_RANK`, T009 review): the `info` rank is untested, and no planned task emits an `info` finding (`plan.md` names none, and AC-002 only requires that a valid configuration adds none). `analyzeStructure` cannot return `info` yet, so no test can reach that rank through the public API. Not applied because a test would need an info-producing check the plan does not have; the owner should add one to a plan task or amend AC-012, and that task must test info ordering.
+- `apps/api/tsconfig.json` (T011 review): `plan.md` T011 says `rootDir src`, but the smoke test sits in `test/`, and with `rootDir src` tsc fails with TS6059. The staged file uses `rootDir "."`, the same as `packages/core/tsconfig.json`. Not changed because the plan wording is inconsistent with its own include; the owner should amend T011 to `rootDir "."`.
+- `apps/api/package.json` (T011 review): `packages/core` has `@types/node` as a dev dependency and `apps/api` does not. The smoke test needs no Node types and `plan.md` T011 lists only Vitest. Not added here; the task that first uses Node globals (`process.env` in T014, or `fs`-free code in T013) should add `@types/node` to match core.
 
 ---
 

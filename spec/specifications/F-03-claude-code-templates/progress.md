@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 5 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 6 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T003 | Script steps render `script.md` to `scripts/<id>.sh`; base checks-script template removed from generation | 0 blockers, 0 warnings, 0 suggestions | 18 files, 103 passed |
 | T004 | Base layouts: `CLAUDE.md` and `process.md` (Process diagram section) | 0 blockers, 1 warning fixed (README placeholder row), 1 suggestion fixed (test body offset) | 19 files, 106 passed |
 | T005 | Spec-template layouts, byte-identical to the F-00 template | 0 blockers, 0 warnings, 1 suggestion fixed (constants moved up) | 19 files, 108 passed |
+| T006 | Workflow layout with the five workflow placeholders, each in its section; no catalog step id as fixed text | 0 blockers, 2 warnings fixed (negative cases added), 0 suggestions fixed; 1 deferred (placeholder list repeated) | 20 files, 114 passed |
 
 ---
 
@@ -44,6 +45,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `.claude/agents/review.md:35`, `.claude/agents/implement.md:32`, `CLAUDE.md:58` (T002 review): still name `.claude/rules/typescript.md` as the rule file for the agents. Project files, not catalog data; the task forbids changing them. Deferred: align them with the rule file layout in a later task.
 - `spec/documents/building-blocks.md:48`, `design/mockups/01-builder.svg:135`, `design/mockups/04-custom-block.svg:68`, `design/mockups/05-generate.svg:45` (T002 review): show `typescript.md` as an example tag. Documentation and mockups, not catalog data; not changed in this task. Deferred: update in T017 (documents) or with the mockups.
 - `spec/documents/building-blocks.md:46,97`, `design/mockups/05-generate.svg:47` (T003 review): show `task-check.sh` as an example script or as generated output. The base no longer generates it (the script step writes `scripts/unit-tests.sh`). Documentation and mockups, outside the code change. Deferred: update in T017 (documents) or with the mockups.
+- `packages/core/test/templates-workflow.test.ts` `WORKFLOW_PLACEHOLDERS` (T006 review): repeats the five workflow placeholders from `templates/README.md` instead of parsing that file. The list matches the README today. Deferred: reading it from the README would tie the test to a Markdown table format; revisit if the placeholder list changes.
 
 ---
 

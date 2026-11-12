@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 9 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 10 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | briefFindings: required fields, empty optional fields, layer rule, unknown dependsOn | 0 blockers, 0 warnings, 3 suggestions fixed (duplicate tests removed), 2 suggestions deferred | 31 files, 284 passed |
 | T008 | customStepFindings: custom steps placed in no enabled workflow as warnings | 0 blockers, 1 warning fixed (comment on clashing ids corrected; edge test added), 0 suggestions | 32 files, 292 passed |
 | T009 | analyzeStructure: fixed concatenation, severity then subject then message, no mutation | 0 blockers, 2 warnings fixed (test fixture trimmed; severity row exercises the rank), 1 suggestion fixed, 1 suggestion deferred (info untested) | 33 files, 300 passed |
+| T010 | checkReview: reply check, blocker to warning, drop and count invalid entries, failed for non-array | 0 blockers, 1 warning fixed (non-criterion test separated), 3 suggestions fixed | 34 files, 331 passed |
 
 ---
 

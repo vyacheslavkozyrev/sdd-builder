@@ -37,3 +37,8 @@ export function workflow(id: string, overrides: Partial<Workflow> = {}): Workflo
 export function connection(from: string, to: string, id = `${from}-${to}`): MapConnection {
   return { id, from, to };
 }
+
+/** The default workflows plus extra ones, so required-workflow rules are satisfied. */
+export function withDefaults(extra: Workflow[]): Workflow[] {
+  return [...structuredClone([...DEFAULT_WORKFLOWS]), ...extra];
+}

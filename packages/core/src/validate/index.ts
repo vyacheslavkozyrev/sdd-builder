@@ -3,10 +3,11 @@ import { InvalidConfigError } from '../errors.js';
 import { checkDuplicateIds } from './ids.js';
 import { checkMap } from './map.js';
 import { checkRoutes } from './routes.js';
+import { checkPolicy } from './policy.js';
 
 /** Every structural problem in a configuration, in the order the checks run. */
 export function validateConfig(config: ProjectConfig): string[] {
-  return [...checkDuplicateIds(config), ...checkMap(config), ...checkRoutes(config)];
+  return [...checkDuplicateIds(config), ...checkMap(config), ...checkRoutes(config), ...checkPolicy(config)];
 }
 
 /** Throws InvalidConfigError listing every problem; does nothing for a valid configuration. */

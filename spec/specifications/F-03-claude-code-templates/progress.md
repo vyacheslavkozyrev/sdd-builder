@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 11 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 12 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T009 | Script layouts for unit-tests and e2e-tests (sections only, no commands) | 0 blockers, 2 warnings fixed (e2e exit and no-suite wording), 1 suggestion fixed (Checks names items) | 21 files, 123 passed |
 | T010 | Rule layouts general, qa and code; `{{codeRules}}` and `{{testRules}}` each once in code.md | 0 blockers, 1 warning fixed (code-sample check widened), 0 suggestions | 22 files, 126 passed |
 | T011 | `planGeneration`: layout, block description and rule tags per output file, in file-list order | 0 blockers, 2 warnings fixed (blank description falls back to summary; error-path test), 1 suggestion fixed (fixture rationale) | 23 files, 132 passed |
+| T012 | Tests for input refusals and selection (AC-018, AC-019, AC-020); no source change | 0 blockers, 3 warnings fixed (required-step refusal, positive controls, exact problems), 2 suggestions fixed; 1 deferred (duplicate AC-016 test) | 23 files, 136 passed |
 
 ---
 
@@ -51,6 +52,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `spec/documents/building-blocks.md:48`, `design/mockups/01-builder.svg:135`, `design/mockups/04-custom-block.svg:68`, `design/mockups/05-generate.svg:45` (T002 review): show `typescript.md` as an example tag. Documentation and mockups, not catalog data; not changed in this task. Deferred: update in T017 (documents) or with the mockups.
 - `spec/documents/building-blocks.md:46,97`, `design/mockups/05-generate.svg:47` (T003 review): show `task-check.sh` as an example script or as generated output. The base no longer generates it (the script step writes `scripts/unit-tests.sh`). Documentation and mockups, outside the code change. Deferred: update in T017 (documents) or with the mockups.
 - `packages/core/test/templates-workflow.test.ts` `WORKFLOW_PLACEHOLDERS` (T006 review): repeats the five workflow placeholders from `templates/README.md` instead of parsing that file. The list matches the README today. Deferred: reading it from the README would tie the test to a Markdown table format; revisit if the placeholder list changes.
+- `packages/core/test/plan.test.ts` "F-03 AC-016 refuses an invalid configuration with the same error as generate" (T012 review): duplicates the AC-019 test now in the file, outside the T012 change. Left in place; remove when the T011 tests are next touched.
 
 ---
 

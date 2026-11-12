@@ -1,7 +1,27 @@
 import { describe, expect, it } from 'vitest';
-import { generate, InvalidConfigError, planGeneration, type StepDefinition } from '../src/index.js';
+import {
+  DEFAULT_STEP_CATALOG,
+  generate,
+  GenerationError,
+  InvalidConfigError,
+  planGeneration,
+  stepFilePath,
+  type ProjectConfig,
+  type StepDefinition,
+  type TemplateSource,
+} from '../src/index.js';
 import { baseConfig, connection, workflow } from './fixtures.js';
 import { fullTemplates } from './fixtures-templates.js';
+
+/** The error an action throws. Fails the test when the action returns normally. */
+function captureError(action: () => unknown): unknown {
+  try {
+    action();
+  } catch (error) {
+    return error;
+  }
+  throw new Error('expected the action to throw');
+}
 
 // A custom step, because only a custom step can carry a description in a config:
 // catalog steps are referenced by id, and the shared catalog has no description set.
@@ -92,5 +112,62 @@ describe('F-03 T011 planGeneration', () => {
     const first = planGeneration(config, fullTemplates());
     const second = planGeneration(config, fullTemplates());
     expect(second).toEqual(first);
+  });
+
+  it('F-03 AC-018 a disabled step has no entry, and a required step always has one', () => {
+    const withScan = (enabled: boolean): ProjectConfig =>
+      baseConfig({
+        customSteps: [scan],
+        workflows: [...baseConfig().workflows, workflow('security', { steps: [{ stepId: 'scan', enabled }] })],
+      });
+    const withE2e = (enabled: boolean): ProjectConfig =>
+      baseConfig({
+        workflows: baseConfig().workflows.map((w) =>
+          w.id === 'implement-cycle' ? { ...w, steps: w.steps.map((s) => (s.stepId === 'e2e-tests' ? { ...s, enabled } : s)) } : w,
+        ),
+      });
+    const pathsOf = (config: ProjectConfig): string[] => planGeneration(config, fullTemplates()).map((entry) => entry.path);
+
+    // Positive controls: enabled, the same steps do get entries, so the paths below are not vacuous.
+    expect(pathsOf(withScan(true))).toContain('.claude/skills/scan/SKILL.md');
+    expect(pathsOf(withE2e(true))).toContain('scripts/e2e-tests.sh');
+
+    // Disabled: no entry for the custom scan step or the catalog e2e-tests step.
+    const paths = pathsOf(withScan(false));
+    expect(paths).not.toContain('.claude/skills/scan/SKILL.md');
+    expect(pathsOf(withE2e(false))).not.toContain('scripts/e2e-tests.sh');
+
+    // Required: every required catalog step has an entry in the default configuration.
+    const required = DEFAULT_STEP_CATALOG.filter((step) => step.required);
+    expect(required.length).toBeGreaterThan(0);
+    for (const step of required) {
+      expect(paths).toContain(stepFilePath(step));
+    }
+  });
+
+  it('F-03 AC-018 a required step cannot be disabled, so the planner never omits it', () => {
+    const workflows = baseConfig().workflows.map((w) =>
+      w.id === 'specify' ? { ...w, steps: w.steps.map((s) => (s.stepId === 'plan' ? { ...s, enabled: false } : s)) } : w,
+    );
+    const error = captureError(() => planGeneration(baseConfig({ workflows }), fullTemplates()));
+    expect(error).toBeInstanceOf(InvalidConfigError);
+    expect(error).toMatchObject({ problems: ['workflow "specify": required step "plan" is disabled'] });
+  });
+
+  it('F-03 AC-019 an invalid configuration throws InvalidConfigError naming the problem, and returns no plan', () => {
+    const config = baseConfig({ connections: [...baseConfig().connections, connection('specify', 'nowhere')] });
+    const error = captureError(() => planGeneration(config, fullTemplates()));
+    expect(error).toBeInstanceOf(InvalidConfigError);
+    expect(error).toMatchObject({ problems: ['connection "specify-nowhere": unknown workflow "nowhere"'] });
+  });
+
+  it('F-03 AC-020 an enabled step with no layout in the templates fails with an error that names the step id', () => {
+    const templates = fullTemplates();
+    const withoutPlanLayout: TemplateSource = {
+      get: (path: string) => (path === 'steps/plan/command.md' ? undefined : templates.get(path)),
+    };
+    const error = captureError(() => planGeneration(baseConfig(), withoutPlanLayout));
+    expect(error).toBeInstanceOf(GenerationError);
+    expect(error).toMatchObject({ problems: ['steps/plan/command.md: missing template for step "plan"'] });
   });
 });

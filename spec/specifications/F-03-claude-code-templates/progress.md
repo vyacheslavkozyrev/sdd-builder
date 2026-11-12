@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 13 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 14 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T011 | `planGeneration`: layout, block description and rule tags per output file, in file-list order | 0 blockers, 2 warnings fixed (blank description falls back to summary; error-path test), 1 suggestion fixed (fixture rationale) | 23 files, 132 passed |
 | T012 | Tests for input refusals and selection (AC-018, AC-019, AC-020); no source change | 0 blockers, 3 warnings fixed (required-step refusal, positive controls, exact problems), 2 suggestions fixed; 1 deferred (duplicate AC-016 test) | 23 files, 136 passed |
 | T013 | `checkReply`: unsafe paths, missing and extra files in one pass, leftover markers, unknown reply types never throw | 0 blockers, 1 warning fixed (public surface narrowed), 2 suggestions fixed | 24 files, 147 passed |
+| T014 | `checkReply` part 2: required `##` headings for Markdown entries; SDDBuilder path findings; findings sorted by path then message | 0 blockers, 3 warnings fixed (heading substring, `###`, layout trim tests), 1 suggestion fixed (Finding.path doc). AC-026 expected order updated to the sorted order | 24 files, 152 passed |
 
 ---
 

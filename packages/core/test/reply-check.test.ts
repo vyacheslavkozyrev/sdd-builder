@@ -69,11 +69,12 @@ describe('checkReply', () => {
 
     const findings = checkReply(plan, reply);
 
+    // Sorted by file path (AC-028): the empty path, then "../", "/", "a".
     expect(findings).toEqual([
-      'file path "/etc/passwd" must not start with "/"',
-      'file path "../escape.md" must not contain ".."',
-      'file path "a\\b.md" must use forward slashes',
       'file path is empty',
+      'file path "../escape.md" must not contain ".."',
+      'file path "/etc/passwd" must not start with "/"',
+      'file path "a\\b.md" must use forward slashes',
     ]);
   });
 
@@ -113,5 +114,84 @@ describe('checkReply', () => {
     const findings = checkReply(plan, reply);
 
     expect(findings).toEqual(['file "CLAUDE.md" must be text']);
+  });
+
+  it('F-03 AC-024 a Markdown file missing a required layout heading is a finding naming the heading', () => {
+    const headingPlan: GenerationPlan = [
+      { path: '.claude/commands/plan.md', layout: '# Plan\n\n## Steps\n\n## Rules\n', description: '', ruleTags: [] },
+    ];
+
+    const missing = checkReply(headingPlan, { '.claude/commands/plan.md': '# Plan\n\n## Steps\n' });
+    expect(missing).toEqual(['file ".claude/commands/plan.md" is missing the required heading "## Rules"']);
+
+    // Headings are compared after trimming: indented or padded headings count as present.
+    const trimmed = checkReply(headingPlan, { '.claude/commands/plan.md': '# Plan\n   ## Steps  \n\t## Rules\n' });
+    expect(trimmed).toEqual([]);
+
+    // A heading must equal the required text: a deeper heading or a longer line does not count.
+    const notExact = checkReply(headingPlan, { '.claude/commands/plan.md': '## Steps\n### Rules and more\n' });
+    expect(notExact).toEqual(['file ".claude/commands/plan.md" is missing the required heading "## Rules"']);
+  });
+
+  it('F-03 AC-024 only ## headings are required; the title and ### subsections are not', () => {
+    const sectionPlan: GenerationPlan = [
+      { path: 'CLAUDE.md', layout: '# Project\n\n### Detail\n\n  ## Steps\n', description: '', ruleTags: [] },
+    ];
+
+    expect(checkReply(sectionPlan, { 'CLAUDE.md': '## Steps\n' })).toEqual([]);
+    // The layout's indented `## Steps` is a required heading, compared trimmed.
+    expect(checkReply(sectionPlan, { 'CLAUDE.md': '# Project\n' })).toEqual([
+      'file "CLAUDE.md" is missing the required heading "## Steps"',
+    ]);
+  });
+
+  it('F-03 AC-024 a shell output is not checked for headings', () => {
+    const shellPlan: GenerationPlan = [
+      { path: 'scripts/check.sh', layout: '#!/bin/sh\n## Steps\necho ok\n', description: '', ruleTags: [] },
+    ];
+
+    expect(checkReply(shellPlan, { 'scripts/check.sh': '#!/bin/sh\necho ok\n' })).toEqual([]);
+  });
+
+  it('F-03 AC-025 a reply that mentions an SDDBuilder path is a finding', () => {
+    const reply = {
+      ...exactReply,
+      'CLAUDE.md': '# Project\nSee apps/web and the SDDBuilder docs.\n',
+    };
+
+    // Sorted by message: "SDDBuilder" (capital S) sorts before "apps/web".
+    expect(checkReply(plan, reply)).toEqual([
+      'file "CLAUDE.md" mentions "SDDBuilder"',
+      'file "CLAUDE.md" mentions "apps/web"',
+    ]);
+    expect(checkReply(plan, { ...exactReply, '.claude/agents/review.md': '# Review\npackages/core/x\n' })).toEqual([
+      'file ".claude/agents/review.md" mentions "packages/core"',
+    ]);
+  });
+
+  it('F-03 AC-028 findings are sorted by path then message, and the same reply gives the same findings', () => {
+    const reply = {
+      '.claude/commands/scan.md': '# Scan\nsee apps/api\n',
+      'CLAUDE.md': '# Project\n{{x}}\n',
+      'notes/extra.md': 'x\n',
+      '/abs.md': 'x\n',
+    };
+
+    const expected = [
+      'planned file ".claude/agents/review.md" is missing from the reply',
+      'file ".claude/commands/scan.md" mentions "apps/api"',
+      'file path "/abs.md" must not start with "/"',
+      'file "CLAUDE.md" still contains "{{", "}}"',
+      'file "notes/extra.md" is not in the plan',
+    ];
+
+    const first = checkReply(plan, reply);
+    const second = checkReply(plan, reply);
+    // Same reply with its keys in reverse insertion order must give the same findings.
+    const reversed = checkReply(plan, Object.fromEntries(Object.entries(reply).reverse()));
+
+    expect(first).toEqual(expected);
+    expect(second).toEqual(first);
+    expect(reversed).toEqual(first);
   });
 });

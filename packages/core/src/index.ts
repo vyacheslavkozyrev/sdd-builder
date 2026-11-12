@@ -11,3 +11,4 @@ export * from './render/paths.js';
 export * from './render/workflow-command.js';
 export * from './render/rules-text.js';
 export * from './render/step-files.js';
+export * from './render/mermaid.js';

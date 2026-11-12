@@ -14,3 +14,4 @@ export * from './render/step-files.js';
 export * from './render/mermaid.js';
 export * from './file-list.js';
 export * from './generate.js';
+export * from './plan.js';

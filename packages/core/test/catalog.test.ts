@@ -34,7 +34,7 @@ describe('F-02 T003 catalog', () => {
   });
 
   it('describes the map as Specify, Implement, Verify and Release', () => {
-    expect(DEFAULT_CONNECTIONS.map((c) => `${c.from}>${c.to}`)).toEqual(['specify>implement', 'implement>verify', 'verify>release']);
+    expect(DEFAULT_CONNECTIONS.map((c) => `${c.from}>${c.to}`)).toEqual(['specify>implement-cycle', 'implement-cycle>verify-feature', 'verify-feature>release-project']);
     expect(getCatalogStep('plan').kind).toBe('command');
     expect(() => getCatalogStep('nope')).toThrow('Unknown catalog step id: nope');
   });

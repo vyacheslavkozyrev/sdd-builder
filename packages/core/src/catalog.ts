@@ -35,7 +35,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
     ],
   },
   {
-    id: 'implement',
+    id: 'implement-cycle',
     name: 'Implement',
     scope: 'task',
     iterationSource: 'plan.md',
@@ -55,7 +55,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
     ],
   },
   {
-    id: 'verify',
+    id: 'verify-feature',
     name: 'Verify',
     scope: 'feature',
     iterationSource: 'features.md',
@@ -66,7 +66,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
     ],
   },
   {
-    id: 'release',
+    id: 'release-project',
     name: 'Release',
     scope: 'project',
     iterationSource: 'project',
@@ -76,11 +76,11 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
   },
 ];
 
-/** Default map connections: Specify → Implement → Verify → Release. */
+/** Default map connections: Specify → Implement → Verify → Release. Workflow ids differ from step ids (AC-001). */
 export const DEFAULT_CONNECTIONS: readonly MapConnection[] = [
-  { id: 'specify-implement', from: 'specify', to: 'implement', artifact: 'plan.md' },
-  { id: 'implement-verify', from: 'implement', to: 'verify' },
-  { id: 'verify-release', from: 'verify', to: 'release', artifact: 'checklist.md' },
+  { id: 'specify-implement', from: 'specify', to: 'implement-cycle', artifact: 'plan.md' },
+  { id: 'implement-verify', from: 'implement-cycle', to: 'verify-feature' },
+  { id: 'verify-release', from: 'verify-feature', to: 'release-project', artifact: 'checklist.md' },
 ];
 
 /** Conditions that the defaults place after steps; exported for tests. */

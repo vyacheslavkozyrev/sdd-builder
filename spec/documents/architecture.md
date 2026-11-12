@@ -40,7 +40,7 @@ Dependency direction: `web → core`, `api → core`, `core → templates` (read
    1. `core` runs the structural checks (instant, no cost). These include the workflow rules in `building-blocks.md` §1 and §3.
    2. `apps/api` sends the brief and the process to the LLM with a fixed review prompt, and asks for output in the `AnalysisFinding` shape.
    3. The API validates the model output against the schema. Invalid output is dropped and counted, not shown.
-   4. The response merges both lists. If the LLM step fails or is over budget, the response still contains the structural findings plus a notice that the semantic review did not run.
+   4. The response is `{ findings, review: { status, findings, dropped } }`: the structural findings, and the valid model findings under `review`. If the LLM step fails, `review.status` is `failed` with no review findings, and the structural findings are still returned. Budget limits are F-13.
 3. `POST /generate` with the config returns a zip. `core` builds the generation input from the config (the block descriptions, the process and the template layout). `apps/api` sends it to the LLM, which writes the final command, agent, skill, script and rule files. `core` then checks the output (§3). Nothing is stored on the server.
 4. The MVP keeps the config in the browser session only. Save, import and export are post-MVP (F-08).
 
@@ -73,8 +73,8 @@ The file list, paths and order are deterministic: the same config gives the same
 | Model | A Claude Sonnet model, set by the `SDDBUILDER_ANALYZER_MODEL` environment variable. The analyzer default is `claude-sonnet-5-5`, used when the variable is not set. |
 | Key | `ANTHROPIC_API_KEY`, server environment only. Never sent to the browser, never logged. |
 | Input | Analysis: the brief and the process. Generation: the block descriptions, the process and the template layout. Both with a size cap (F-13). |
-| Output | JSON in the `AnalysisFinding` shape, validated server-side. |
-| Failure | Timeout, error or budget exhausted → structural findings only, with a notice. |
+| Output | JSON in the `AnalysisFinding` shape, validated server-side. The analysis result is `{ findings, review: { status, findings, dropped } }`: `findings` are the structural findings from `core`; `review.status` is `ok` or `failed`; `review.findings` are the valid model findings (a model `blocker` is kept as `warning`); `review.dropped` counts the invalid ones. Structural findings are returned even when the review fails. |
+| Failure | A timeout (60 s per attempt on the SDK client; the SDK retries twice by default), a provider error, or a reply that is not a JSON array → `review.status` is `failed` with no review findings; the structural findings are still returned. Invalid single findings are dropped, not a failure. Budget exhaustion is F-13. |
 | Privacy | The browser shows a notice before analysis: the brief is sent to the model provider. The server does not store or log brief content. |
 
 ## 5. Technology (proposed)

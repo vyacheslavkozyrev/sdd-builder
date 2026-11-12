@@ -31,6 +31,8 @@ export interface StepDefinition {
   ruleTags: string[];
   /** Body text, required for custom steps; catalog steps use templates instead. */
   body?: string;
+  /** The user's high-level description of what the step should do. Unset uses the summary. */
+  description?: string;
 }
 
 /** A gate: a fixed-type check. `threshold` applies to diff-size only (lines). */
@@ -84,6 +86,8 @@ export interface Workflow {
   enabled: boolean;
   steps: WorkflowStep[];
   conditions: Condition[];
+  /** The user's high-level description of what the workflow does. Unset means none. */
+  description?: string;
 }
 
 /** A connection on the global map: `to` runs after `from`. */

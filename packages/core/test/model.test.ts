@@ -49,6 +49,36 @@ describe('F-02 T002 model', () => {
     expectTypeOf(review.fail).toEqualTypeOf<Condition['fail']>();
   });
 
+  it('F-03 T001 lets a workflow and a step omit their description, and keeps one when given', () => {
+    const plain: StepDefinition = {
+      id: 'review',
+      name: 'Review',
+      summary: 'Check the diff.',
+      kind: 'agent',
+      origin: 'catalog',
+      required: true,
+      consumes: [],
+      produces: [],
+      ruleTags: [],
+    };
+    const described: StepDefinition = { ...plain, id: 'review-2', description: 'Check the diff against the plan.' };
+    const bareWorkflow: Workflow = {
+      id: 'plan',
+      name: 'Plan',
+      scope: 'feature',
+      iterationSource: 'features.md',
+      enabled: true,
+      steps: [],
+      conditions: [],
+    };
+    const describedWorkflow: Workflow = { ...bareWorkflow, description: 'Plans each feature.' };
+
+    expect('description' in plain).toBe(false);
+    expect(described.description).toBe('Check the diff against the plan.');
+    expect('description' in bareWorkflow).toBe(false);
+    expect(describedWorkflow.description).toBe('Plans each feature.');
+  });
+
   it('keeps a condition without a fail route representable, so validation can refuse it', () => {
     const unwired: Condition = {
       id: 'checks',

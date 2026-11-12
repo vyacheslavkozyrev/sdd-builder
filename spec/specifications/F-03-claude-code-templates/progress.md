@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 4 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 5 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Catalog rule tag `typescript.md` → `code.md` on Implement and Code review; F-02 tests updated | 0 blockers, 0 warnings, 1 suggestion fixed (model.ts doc example); deferred: project files still name typescript.md | 18 files, 101 passed |
 | T003 | Script steps render `script.md` to `scripts/<id>.sh`; base checks-script template removed from generation | 0 blockers, 0 warnings, 0 suggestions | 18 files, 103 passed |
 | T004 | Base layouts: `CLAUDE.md` and `process.md` (Process diagram section) | 0 blockers, 1 warning fixed (README placeholder row), 1 suggestion fixed (test body offset) | 19 files, 106 passed |
+| T005 | Spec-template layouts, byte-identical to the F-00 template | 0 blockers, 0 warnings, 1 suggestion fixed (constants moved up) | 19 files, 108 passed |
 
 ---
 

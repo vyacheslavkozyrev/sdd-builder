@@ -2,7 +2,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const BASE = join(import.meta.dirname, '..', '..', '..', 'templates', 'base');
+const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
+const BASE = join(REPO_ROOT, 'templates', 'base');
+const SPEC_TEMPLATE = join(BASE, 'spec-template');
+const F00_TEMPLATE = join(REPO_ROOT, 'spec', 'specifications', 'F-00-template');
+const SPEC_FILES = ['stories.md', 'plan.md', 'progress.md'];
 
 function read(name: string): string {
   return readFileSync(join(BASE, name), 'utf8');
@@ -45,5 +49,28 @@ describe('F-03 T004 base layouts', () => {
     const text = read('process.md');
     expect(sectionHeadings(text)).toContain('Process diagram');
     expect(sectionBody(text, 'Process diagram')).toContain('{{process.diagram}}');
+  });
+});
+
+describe('F-03 T005 spec-template layouts', () => {
+  it('F-03 AC-001 the spec-template layouts exist and are non-empty Markdown', () => {
+    for (const name of SPEC_FILES) {
+      const text = readFileSync(join(SPEC_TEMPLATE, name), 'utf8');
+      expect(text.trim().length, name).toBeGreaterThan(0);
+      expect(text.startsWith('# '), name).toBe(true);
+    }
+  });
+
+  it('F-03 AC-004 each spec-template layout is byte-identical to the F-00 template', () => {
+    for (const name of SPEC_FILES) {
+      const layout = readFileSync(join(SPEC_TEMPLATE, name));
+      const original = readFileSync(join(F00_TEMPLATE, name));
+      expect(layout.length, name).toBe(original.length);
+      for (let i = 0; i < original.length; i++) {
+        if (layout[i] !== original[i]) {
+          expect.fail(`${name} differs from the F-00 template at byte ${i}`);
+        }
+      }
+    }
   });
 });

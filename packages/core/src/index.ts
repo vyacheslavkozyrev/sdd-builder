@@ -19,3 +19,4 @@ export * from './reply-check.js';
 export * from './analyze/refusals.js';
 export * from './analyze/reachability.js';
 export * from './analyze/inputs.js';
+export * from './analyze/retries.js';

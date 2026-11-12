@@ -13,7 +13,7 @@
 
 ## Purity
 - `packages/core` has no I/O: no `fs`, `http`, `window`, `process.env`. Pass data in, return data out.
-- Output is deterministic. No timestamps or random ids inside generated files.
+- Generator structure is deterministic: the file list, paths and order come from `packages/core`. No timestamps or random ids are added to generated files by code. LLM-written content is validated before it is returned.
 
 ## Errors
 - Throw for programmer errors (unknown block id). Return findings for user errors (an incomplete brief). Never swallow an error silently.

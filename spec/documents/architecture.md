@@ -41,7 +41,7 @@ Dependency direction: `web → core`, `api → core`, `core → templates` (read
    2. `apps/api` sends the brief and the process to the LLM with a fixed review prompt, and asks for output in the `AnalysisFinding` shape.
    3. The API validates the model output against the schema. Invalid output is dropped and counted, not shown.
    4. The response merges both lists. If the LLM step fails or is over budget, the response still contains the structural findings plus a notice that the semantic review did not run.
-3. `POST /generate` with the config returns a zip. The generator does not call the LLM, so the zip is deterministic. Nothing is stored on the server.
+3. `POST /generate` with the config returns a zip. `core` builds the generation input from the config (the block descriptions, the process and the template layout). `apps/api` sends it to the LLM, which writes the final command, agent, skill, script and rule files. `core` then checks the output (§3). Nothing is stored on the server.
 4. The MVP keeps the config in the browser session only. Save, import and export are post-MVP (F-08).
 
 Findings never change the configuration. The user decides what to apply.
@@ -53,10 +53,10 @@ Findings never change the configuration. The user decides what to apply.
 - **Step 2, select:** enabled workflows and steps, in the order of the map and of each workflow's tab. Required steps and gates are always present.
 - **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (with the Mermaid view of the process), placeholder values.
 - **Step 4, render per workflow:** one `workflow-<name>.md` command that calls the workflow's steps in order and writes its branches as numbered rules, with their round limits (or "no limit set").
-- **Step 5, render per step:** the command, agent, skill or script the step uses, and the rule-set files it carries.
-- **Step 6, check:** every path mentioned in a generated file must exist in the output (F-10). Failures are warnings, and the zip is still produced.
+- **Step 5, write per step (LLM):** the LLM writes the content of the command, agent, skill or script the step uses, from its block description and its template, and the rule-set files it carries. `core` fixes the file path and the place of each file in the output.
+- **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The rules for a reply that fails the checks, including any retry, are set in F-03.
 
-Output is deterministic: the same config gives byte-identical files. Tests rely on this.
+The file list, paths and order are deterministic: the same config gives the same set of files. The wording of LLM-written content may differ between runs. Tests use a fake model with fixed replies, so they stay deterministic.
 
 ## 4. LLM analysis
 
@@ -65,7 +65,7 @@ Output is deterministic: the same config gives byte-identical files. Tests rely 
 | Provider | Anthropic API |
 | Model | A Claude Sonnet model, set by the `SDDBUILDER_ANALYZER_MODEL` environment variable. The default is set when F-04 starts (open question). |
 | Key | `ANTHROPIC_API_KEY`, server environment only. Never sent to the browser, never logged. |
-| Input | The brief and the process, with a size cap (F-13). |
+| Input | Analysis: the brief and the process. Generation: the block descriptions, the process and the template layout. Both with a size cap (F-13). |
 | Output | JSON in the `AnalysisFinding` shape, validated server-side. |
 | Failure | Timeout, error or budget exhausted → structural findings only, with a notice. |
 | Privacy | The browser shows a notice before analysis: the brief is sent to the model provider. The server does not store or log brief content. |
@@ -92,7 +92,7 @@ No database, no user authentication, no queue in the MVP. Rate limiting is per c
 4. **Claude Code is the only target in the MVP.** Spec Kit and OpenSpec outputs are planned right after it (§8). Cursor and Copilot are later. Gaps between formats are stated rather than invented.
 5. **Generated projects follow the reference layout** (`CLAUDE.md`, `spec/documents`, `spec/specifications/F-XX-*`, `.claude/`, `scripts/`), so a project set up here can be run with the same commands as ComEd and PhotoSync.
 6. **The LLM advises, the structure decides.** Structural checks are authoritative. LLM findings are labelled as advice and never applied automatically.
-7. **The LLM is not used for generation.** Generation stays template-based so output is reproducible and testable.
+7. **The LLM writes the final framework at generation, from the block descriptions.** Each block carries a high-level description of what it should do. At `/generate` the LLM turns the built workflow into the final commands, agents, skills, scripts and rules. `core` fixes the file list, paths, step order, gates and branches, and checks the reply before it reaches the zip. This replaces the earlier rule that generation is template-only with no LLM. Recorded 2026-11-11, confirmed by the user. Templates hold the layout and the block descriptions the LLM works from, not final content.
 8. **Custom steps are data, optional, and never required.** A custom step has a kind (command, agent, skill or script), a workflow it belongs to, and a body. Its id must not clash with another id. Required steps come only from the catalog.
 9. **The map has no cycles, and a workflow's steps run in order.** Branches route only inside their workflow. Cross-workflow flow is the map's job.
 

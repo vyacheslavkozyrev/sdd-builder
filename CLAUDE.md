@@ -28,7 +28,7 @@ spec/specifications/  one folder per feature; F-00-template is the starting poin
 
 - Dependency direction: `web → core`, `api → core`. `core` never imports from `apps/`.
 - `packages/core` is pure: no file system, HTTP, LLM or UI code. I/O and LLM calls belong in `apps/api`.
-- The LLM is called only from `apps/api`, only in `/analyze`, never in generation.
+- The LLM is called only from `apps/api`, only in `/analyze` (review) and `/generate` (writing the final framework files from the block descriptions). `packages/core` sets the structure of the output and checks what the model returns (`architecture.md` §6, decision 7).
 - `ANTHROPIC_API_KEY` lives in the server environment only. Never put it in the browser bundle, a log line, a fixture or a commit.
 - Brief content is never stored or logged by the server.
 - The process is data: workflow and step definitions and templates change the output without changing generator code.

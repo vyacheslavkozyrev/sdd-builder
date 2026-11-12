@@ -43,7 +43,7 @@ A pure function `generate(config, templates) → GenerationResult`. It checks th
 
 ### F-03 Claude Code templates
 
-Templates for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), the spec template, one `workflow-<name>.md` command per workflow, step commands, agents, skills, rule files and the checks script. Taken from the reference projects and made stack-neutral.
+Templates for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), the spec template, one `workflow-<name>.md` command per workflow, step commands, agents, skills, rule files and the checks script. Taken from the reference projects and made stack-neutral. The templates hold the layout and the block descriptions; at generation the LLM writes the final content (architecture §6, decision 7). No templates contain scripts.
 
 ### F-04 Analyzer: structural checks and LLM review
 

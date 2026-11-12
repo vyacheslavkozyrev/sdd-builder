@@ -19,6 +19,6 @@ Every task adds or updates the tests for the code it changes, in the same task. 
 ## What to test
 - Pure logic with table-driven tests, including edge and negative cases.
 - Error paths, not only the happy path.
-- Generated output is deterministic: a test generates twice and compares.
+- Generated structure is deterministic: a test generates twice from the same config and compares the file list and paths. LLM-written content is tested with a fake model that returns fixed replies.
 - No test calls the real LLM provider, the real network or the wall clock. Use fakes and fixed inputs.
 - No test depends on another test's state.

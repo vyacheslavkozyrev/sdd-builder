@@ -1,6 +1,6 @@
 # Templates
 
-Text files the generator renders into a project. Templates are data: changing a template changes the output, not the generator code.
+Text files that describe the layout of a project and what each file should contain. The generator fills their placeholders and fixes the file list; at generation the LLM writes the final content from these texts and the block descriptions. Templates are data: changing a template changes the output, not the generator code. Templates contain no scripts.
 
 ## Placeholders
 

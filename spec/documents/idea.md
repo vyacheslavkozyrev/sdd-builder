@@ -39,7 +39,7 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 6. **Analysis, in two layers.**
    - *Structural checks (deterministic):* required steps present, module layers respect the dependency direction, the workflow rules (no cycles on the map, every input produced upstream, both outputs of each condition wired, every step reachable), and a warning on retries with no round limit.
    - *Semantic review (LLM, advice only):* gaps in the idea, rules that contradict each other or the stack, test rules that name tools outside the stack, and suggested steps.
-7. **Generation.** Renders the framework from the brief and the process into a file tree. Template-based, no LLM, so the same input always gives the same zip.
+7. **Generation.** Renders the framework from the brief and the process into a file tree. The LLM writes the final commands, agents, skills, scripts and rules from the high-level description of each block; the generator fixes the file layout and the process structure and checks the model's reply.
 8. **Download.** One zip with the project structure, ready to unpack into a repository.
 
 ## Product direction

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .lbl{fill:#52525b;font-size:12px;font-weight:600}
+    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .box{fill:#ffffff;stroke:#d4d4d8}
+    .chip{fill:#eff6ff;stroke:#93c5fd}
+    .tag{fill:#f4f4f5;stroke:#d4d4d8}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .primary{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .seg{fill:#f4f4f5;stroke:#d4d4d8}
+    .segOn{fill:#2563eb}
+    .ok{fill:#15803d}
+    .bg{fill:#d4d4d8}
+    .lane{fill:#e4e4e7}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <!-- Dimmed builder behind the modal -->
+  <rect x="0" y="0" width="1280" height="56" class="bg"/>
+  <rect x="36" y="120" width="1208" height="300" rx="8" class="lane"/>
+  <rect x="60" y="180" width="120" height="56" rx="8" class="bg"/>
+  <rect x="210" y="180" width="120" height="56" rx="8" class="bg"/>
+  <rect x="410" y="180" width="120" height="56" rx="8" class="bg"/>
+  <rect width="1280" height="800" fill="#18181b" opacity="0.45"/>
+
+  <!-- Modal -->
+  <rect x="300" y="36" width="680" height="728" rx="12" class="panel"/>
+  <text x="328" y="74" class="h1">New step in workflow Implement</text>
+  <text x="940" y="74" class="muted">✕</text>
+  <text x="328" y="94" class="muted">Written by you. Steps are always optional; required steps stay fixed.</text>
+
+  <text x="328" y="126" class="lbl">Kind</text>
+  <rect x="328" y="134" width="600" height="32" rx="8" class="seg"/>
+  <rect x="332" y="138" width="130" height="24" rx="6" class="segOn"/><text x="368" y="155" class="onPrimary">Command</text>
+  <text x="482" y="155">Agent</text>
+  <text x="572" y="155">Skill</text>
+  <text x="652" y="155">Script</text>
+  <text x="732" y="155" class="muted">(the kind sets how it runs)</text>
+
+  <text x="328" y="186" class="lbl">Name</text>
+  <rect x="328" y="194" width="600" height="32" rx="6" class="box"/>
+  <text x="342" y="215">Security review</text>
+
+  <text x="328" y="244" class="lbl">ID</text>
+  <rect x="328" y="252" width="600" height="32" rx="6" class="box"/>
+  <text x="342" y="273" class="mono">security-review</text>
+  <text x="328" y="300" class="ok" style="font-size:12px">✓ free: not used by another step or workflow</text>
+
+  <text x="328" y="330" class="lbl">Summary</text>
+  <rect x="328" y="338" width="600" height="32" rx="6" class="box"/>
+  <text x="342" y="359">Checks dependencies and secrets before commit.</text>
+
+  <text x="328" y="390" class="lbl">Consumes (files or steps it reads)</text>
+  <rect x="328" y="398" width="70" height="26" rx="13" class="chip"/><text x="346" y="415">plan.md</text>
+  <rect x="408" y="398" width="90" height="26" rx="13" class="btn"/><text x="422" y="415" class="small">+ add</text>
+
+  <text x="328" y="446" class="lbl">Produces (files it writes)</text>
+  <rect x="328" y="454" width="200" height="26" rx="13" class="chip"/><text x="342" y="471">security-notes.md</text>
+
+  <text x="328" y="502" class="lbl">Rule tags (context files)</text>
+  <rect x="328" y="510" width="92" height="24" rx="12" class="tag"/><text x="340" y="526" class="small">typescript.md</text>
+  <rect x="428" y="510" width="62" height="24" rx="12" class="btn"/><text x="442" y="526" class="small">+ add</text>
+
+  <text x="328" y="558" class="lbl">Body (Markdown, becomes the command or agent file)</text>
+  <rect x="328" y="566" width="600" height="92" rx="6" class="box"/>
+  <text x="342" y="588" class="mono"># Security review</text>
+  <text x="342" y="606" class="mono">Run the dependency audit and secret scan.</text>
+  <text x="342" y="624" class="mono">Write findings to security-notes.md.</text>
+
+  <text x="328" y="680" class="small">Output file: .claude/commands/security-review.md · included in workflow Implement</text>
+  <text x="328" y="698" class="small">Required: no. Custom steps cannot be required.</text>
+
+  <rect x="788" y="716" width="90" height="34" rx="6" class="btn"/><text x="818" y="738">Cancel</text>
+  <rect x="888" y="716" width="70" height="34" rx="6" class="primary"/><text x="906" y="738" class="onPrimary">Save</text>
+</svg>

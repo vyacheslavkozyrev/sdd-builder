@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#71717a"/>
+    </marker>
+    <marker id="retry" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .b{font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .block{fill:#ffffff;stroke:#18181b;stroke-width:1.5}
+    .agent{stroke:#2563eb;stroke-width:1.5}
+    .script{stroke:#18181b;stroke-width:1.5;stroke-dasharray:0}
+    .off{fill:#fafafa;stroke:#a1a1aa;stroke-dasharray:5 4}
+    .gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .tab{fill:#f4f4f5}
+    .tabOn{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .primary{fill:#2563eb}
+    .warn{fill:#fffbeb;stroke:#f59e0b}
+    .box{fill:#ffffff;stroke:#e4e4e7}
+    .pillW{fill:#fde68a}
+    .pillI{fill:#dbeafe}
+    .tag{fill:#f4f4f5;stroke:#d4d4d8}
+    .line{stroke:#71717a;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+    .retryLine{stroke:#ea580c;stroke-width:1.5;fill:none;stroke-dasharray:5 4;marker-end:url(#retry)}
+    .toggle{fill:#2563eb}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <!-- Top bar -->
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <text x="170" y="34" class="muted">Demo project · Claude Code · 4 workflows</text>
+  <rect x="760" y="14" width="80" height="28" rx="6" class="btn"/><text x="782" y="33">Brief</text>
+  <rect x="850" y="14" width="90" height="28" rx="6" class="btn"/><text x="872" y="33">Analyze</text>
+  <rect x="950" y="14" width="90" height="28" rx="6" class="btn"/><text x="972" y="33">Present</text>
+  <rect x="1060" y="14" width="150" height="28" rx="6" class="primary"/><text x="1084" y="33" class="onPrimary">Generate zip</text>
+
+  <!-- Workflow tabs: one tab per workflow; Map is the global view -->
+  <rect x="16" y="66" width="70" height="30" rx="6" class="tab"/><text x="36" y="86">Map</text>
+  <rect x="96" y="66" width="90" height="30" rx="6" class="tab"/><text x="116" y="86">Specify</text>
+  <rect x="196" y="66" width="110" height="30" rx="6" class="tabOn"/><text x="216" y="86" class="onPrimary">Implement</text>
+  <rect x="316" y="66" width="80" height="30" rx="6" class="tab"/><text x="336" y="86">Verify</text>
+  <rect x="406" y="66" width="90" height="30" rx="6" class="tab"/><text x="426" y="86">Release</text>
+  <rect x="506" y="66" width="150" height="30" rx="6" fill="none" stroke="#a1a1aa" stroke-dasharray="5 4"/><text x="524" y="86" class="muted">+ New workflow</text>
+
+  <!-- Workflow canvas -->
+  <rect x="16" y="108" width="900" height="404" rx="12" class="panel"/>
+  <text x="36" y="136" class="h2">Implement</text>
+  <rect x="110" y="122" width="330" height="22" rx="11" class="pillI"/>
+  <text x="122" y="137" class="small">scope: task · for each task in plan.md</text>
+  <text x="600" y="136" class="muted">drag steps · click a condition to edit its outputs</text>
+
+  <!-- Start / End -->
+  <circle cx="56" cy="250" r="10" fill="#18181b"/>
+  <circle cx="896" cy="250" r="10" fill="none" stroke="#18181b" stroke-width="2"/>
+
+  <!-- Steps -->
+  <rect x="84" y="222" width="110" height="56" rx="8" class="block agent"/>
+  <text x="96" y="246">Implement</text><text x="96" y="264" class="small">agent · implement</text>
+  <rect x="58" y="210" width="0" height="0"/>
+  <rect x="136" y="210" width="56" height="16" rx="8" class="tag"/><text x="142" y="222" class="small" style="font-size:10px">ts rules</text>
+
+  <rect x="228" y="222" width="110" height="56" rx="8" class="block agent"/>
+  <text x="240" y="246">Code review</text><text x="240" y="264" class="small">agent · review</text>
+
+  <!-- Branch 1: review -->
+  <path d="M350,250 L372,228 L394,250 L372,272 Z" class="gate"/>
+  <text x="372" y="296" class="small" text-anchor="middle">review</text>
+  <path d="M372,228 L372,196 L110,196 L110,220" class="retryLine"/>
+  <text x="230" y="186" class="small" style="font-size:10px;fill:#ea580c">blockers → back to Implement · no round limit set</text>
+
+  <rect x="410" y="222" width="110" height="56" rx="8" class="block script"/>
+  <text x="422" y="246">Unit tests</text><text x="422" y="264" class="small">script · checks</text>
+  <rect x="436" y="210" width="56" height="16" rx="8" class="tag"/><text x="442" y="222" class="small" style="font-size:10px">qa rules</text>
+
+  <!-- Branch 2: checks -->
+  <path d="M530,250 L552,228 L574,250 L552,272 Z" class="gate"/>
+  <text x="552" y="296" class="small" text-anchor="middle">checks</text>
+  <path d="M552,272 L552,378 L176,378 L176,280" class="retryLine"/>
+  <text x="330" y="394" class="small" style="font-size:10px;fill:#ea580c">checks fail → back to Implement · limit 2 (set by you)</text>
+
+  <!-- Included step (design-time include, switched on) -->
+  <rect x="588" y="222" width="110" height="56" rx="8" class="block script"/>
+  <text x="600" y="246">E2E tests</text><text x="600" y="264" class="small">script · if UI</text>
+
+  <!-- Quality gate before commit -->
+  <path d="M728,228 L750,250 L728,272 L706,250 Z" class="gate"/>
+  <text x="728" y="206" class="small" text-anchor="middle">diff ≤ 400</text>
+  <text x="728" y="296" class="small" text-anchor="middle">fail → stop</text>
+
+  <rect x="766" y="222" width="110" height="56" rx="8" class="block"/>
+  <text x="778" y="246">Commit</text><text x="778" y="264" class="small">command · /commit</text>
+
+  <!-- Flow arrows -->
+  <line x1="66" y1="250" x2="84" y2="250" class="line"/>
+  <line x1="194" y1="250" x2="228" y2="250" class="line"/>
+  <line x1="338" y1="250" x2="350" y2="250" class="line"/>
+  <line x1="394" y1="250" x2="410" y2="250" class="line"/>
+  <line x1="520" y1="250" x2="530" y2="250" class="line"/>
+  <line x1="574" y1="250" x2="588" y2="250" class="line"/>
+  <line x1="698" y1="250" x2="706" y2="250" class="line"/>
+  <line x1="750" y1="250" x2="766" y2="250" class="line"/>
+  <line x1="876" y1="250" x2="886" y2="250" class="line"/>
+
+  <!-- Workflow footer: what this workflow produces -->
+  <text x="36" y="438" class="b">Output of this workflow</text>
+  <text x="36" y="460" class="muted">one commit per task · the review notes are kept in progress.md</text>
+  <text x="36" y="482" class="small">Rule tags (ts rules, qa rules) show context files for a step. Click a tag to edit the rule set.</text>
+
+  <!-- Inspector: selected step -->
+  <rect x="932" y="108" width="332" height="404" rx="12" class="panel"/>
+  <text x="952" y="136" class="h2">Inspector</text>
+  <text x="952" y="162" class="h1">Code review</text>
+  <text x="952" y="180" class="muted">agent · review · in Implement</text>
+
+  <text x="952" y="210" class="h2">Outputs</text>
+  <rect x="952" y="220" width="292" height="30" rx="6" class="box"/><text x="964" y="240">clean → Unit tests</text>
+  <rect x="952" y="256" width="292" height="30" rx="6" class="box"/><text x="964" y="276" style="fill:#ea580c">blockers → Implement (retry)</text>
+  <text x="952" y="308" class="small">Round limit for the retry</text>
+  <rect x="952" y="316" width="200" height="30" rx="6" class="box"/><text x="964" y="336" class="muted">none set (optional)</text>
+  <text x="1164" y="336" class="small">you decide</text>
+
+  <text x="952" y="370" class="h2">Context</text>
+  <rect x="952" y="380" width="92" height="22" rx="11" class="tag"/><text x="964" y="395" class="small">typescript.md</text>
+  <rect x="1052" y="380" width="62" height="22" rx="11" class="tag"/><text x="1064" y="395" class="small">qa.md</text>
+
+  <text x="952" y="426" class="h2">Generated as</text>
+  <text x="952" y="446" class="mono" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">.claude/agents/review.md</text>
+  <text x="952" y="466" class="mono" style="font-family:ui-monospace,Menlo,monospace;font-size:12px">.claude/commands/workflow-implement.md</text>
+
+  <text x="952" y="496" class="small">Connections to other workflows are on the Map tab.</text>
+
+  <!-- Analysis tray -->
+  <rect x="16" y="528" width="1248" height="256" rx="12" class="panel"/>
+  <text x="36" y="556" class="h2">Analysis</text>
+  <text x="110" y="556" class="muted">structural checks run first · LLM review follows</text>
+
+  <text x="36" y="584" class="b">Structural checks</text>
+  <rect x="36" y="598" width="580" height="40" rx="6" class="warn"/>
+  <rect x="46" y="608" width="70" height="20" rx="10" class="pillW"/><text x="58" y="622" class="small">warning</text>
+  <text x="128" y="622">Retry from Code review has no round limit. Set one, or accept none.</text>
+  <rect x="36" y="646" width="580" height="40" rx="6" class="box"/>
+  <rect x="46" y="656" width="70" height="20" rx="10" class="pillI"/><text x="60" y="670" class="small">info</text>
+  <text x="128" y="670">Iteration source plan.md is produced upstream by workflow Specify.</text>
+  <rect x="36" y="694" width="580" height="40" rx="6" class="box"/>
+  <rect x="46" y="704" width="70" height="20" rx="10" class="pillI"/><text x="60" y="718" class="small">info</text>
+  <text x="128" y="718">Every condition has both outputs wired. No unreachable steps.</text>
+
+  <text x="640" y="584" class="b">LLM review</text>
+  <text x="730" y="584" class="small">advice only · never edits the config</text>
+  <rect x="640" y="598" width="604" height="40" rx="6" class="warn"/>
+  <rect x="650" y="608" width="70" height="20" rx="10" class="pillW"/><text x="662" y="622" class="small">warning</text>
+  <text x="732" y="622">The idea does not say who the users are.</text>
+  <rect x="640" y="646" width="604" height="40" rx="6" class="box"/>
+  <rect x="650" y="656" width="70" height="20" rx="10" class="pillI"/><text x="664" y="670" class="small">info</text>
+  <text x="732" y="670">E2E tests are included because the brief mentions a UI, but no screen is described.</text>
+</svg>

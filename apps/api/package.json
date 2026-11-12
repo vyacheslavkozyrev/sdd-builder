@@ -1,0 +1,10 @@
+{
+  "name": "@sddbuilder/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HTTP API: analyzes a project brief and returns a zip of the generated SDD framework.",
+  "type": "module",
+  "dependencies": {
+    "@sddbuilder/core": "*"
+  }
+}

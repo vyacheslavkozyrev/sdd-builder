@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="900" viewBox="0 0 1280 900">
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .box{fill:#ffffff;stroke:#d4d4d8}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .disabled{fill:#e4e4e7}
+    .onDisabled{fill:#71717a;font-weight:600}
+    .primary{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .err{fill:#fef2f2;stroke:#dc2626}
+    .warn{fill:#fffbeb;stroke:#f59e0b}
+    .empty{fill:#fafafa;stroke:#a1a1aa;stroke-dasharray:6 5}
+    .pillE{fill:#fecaca}
+    .pillW{fill:#fde68a}
+  </style>
+
+  <rect width="1280" height="900" fill="#fafafa"/>
+  <text x="40" y="44" class="h1">States the user will see (MVP)</text>
+  <text x="40" y="64" class="muted">Each state keeps the user's edits. None of them leaves the page.</text>
+
+  <!-- A: rate limit -->
+  <rect x="40" y="90" width="590" height="380" rx="10" class="panel"/>
+  <text x="60" y="120" class="h2">A. Rate limit reached (analyze or generate)</text>
+  <rect x="60" y="140" width="550" height="92" rx="8" class="err"/>
+  <text x="80" y="170" style="font-weight:600">Too many requests from this browser.</text>
+  <text x="80" y="194">Try again in 40 seconds. Your brief and lifecycle are unchanged.</text>
+  <text x="80" y="216" class="small">Limits are per client address, in memory. No account is involved.</text>
+  <rect x="60" y="250" width="120" height="34" rx="6" class="disabled"/><text x="84" y="272" class="onDisabled">Retry in 40s</text>
+  <rect x="192" y="250" width="110" height="34" rx="6" class="btn"/><text x="214" y="272">Back to brief</text>
+  <text x="60" y="320" class="small">Shown only for the affected button. Other actions still work.</text>
+
+  <!-- B: invalid configuration -->
+  <rect x="650" y="90" width="590" height="380" rx="10" class="panel"/>
+  <text x="670" y="120" class="h2">B. Invalid configuration (generate refused)</text>
+  <rect x="670" y="140" width="550" height="176" rx="8" class="err"/>
+  <text x="690" y="168" style="font-weight:600">Fix 3 problems before generating:</text>
+  <text x="690" y="194">1  Required step "Commit" is switched off.</text>
+  <text x="690" y="216">2  Custom block id "implement" clashes with a catalog step.</text>
+  <text x="690" y="238">3  Connection Release → Verify closes a cycle on the map.</text>
+  <text x="690" y="270" class="small">Each line links to the block it refers to.</text>
+  <rect x="670" y="334" width="150" height="34" rx="6" class="disabled"/><text x="700" y="356" class="onDisabled">Generate zip</text>
+  <text x="670" y="392" class="small">Nothing is generated while any problem is open.</text>
+
+  <!-- C: LLM review unavailable -->
+  <rect x="40" y="490" width="590" height="380" rx="10" class="panel"/>
+  <text x="60" y="520" class="h2">C. LLM review unavailable (budget or timeout)</text>
+  <rect x="60" y="540" width="550" height="56" rx="8" class="warn"/>
+  <text x="80" y="564" style="font-weight:600">The AI review did not run today.</text>
+  <text x="80" y="584">Showing structural checks only. You can still generate.</text>
+  <text x="60" y="622" class="small">STRUCTURAL CHECKS</text>
+  <rect x="60" y="632" width="550" height="36" rx="6" class="box"/>
+  <rect x="70" y="641" width="66" height="18" rx="9" class="pillW"/><text x="80" y="654" class="small">warning</text>
+  <text x="146" y="655">Test rule names XCTest; stack is TypeScript.</text>
+  <rect x="60" y="676" width="550" height="36" rx="6" class="box"/>
+  <rect x="70" y="685" width="66" height="18" rx="9" class="pillW"/><text x="80" y="698" class="small">warning</text>
+  <text x="146" y="699">Module web depends on api at the same layer.</text>
+  <text x="60" y="744" class="small">Retry the review later from the Analysis tray. Findings from earlier runs are not shown as current.</text>
+
+  <!-- D: empty brief -->
+  <rect x="650" y="490" width="590" height="380" rx="10" class="panel"/>
+  <text x="670" y="520" class="h2">D. Empty brief (first visit)</text>
+  <rect x="670" y="540" width="550" height="150" rx="8" class="empty"/>
+  <text x="694" y="580" style="font-weight:600">Start with your idea.</text>
+  <text x="694" y="604" class="muted">A sentence on what the product is and who uses it</text>
+  <text x="694" y="622" class="muted">is enough. Add a stack language to unlock the analysis.</text>
+  <text x="694" y="660" class="small">Example: "A widget that shows electricity prices so households can plan." </text>
+  <rect x="670" y="710" width="150" height="34" rx="6" class="disabled"/><text x="706" y="732" class="onDisabled">Analyze</text>
+  <text x="670" y="770" class="small">Disabled until the idea and the stack language are filled in.</text>
+</svg>

@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .big{font-size:32px;font-weight:600}
+    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+    .dir{font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .box{fill:#ffffff;stroke:#d4d4d8}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .primary{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .warn{fill:#fffbeb;stroke:#f59e0b}
+    .tab{fill:#f4f4f5}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <rect x="400" y="14" width="110" height="28" rx="6" class="tab"/><text x="418" y="33" class="h2">Generate</text>
+  <text x="530" y="33" class="muted">step 3 of 3</text>
+
+  <!-- File tree preview -->
+  <rect x="40" y="80" width="560" height="680" rx="10" class="panel"/>
+  <text x="60" y="110" class="h2">Files that will be created</text>
+  <text x="60" y="130" class="small">23 files. Preview only; the zip is built on the server.</text>
+  <text x="60" y="160" class="mono">project-root/</text>
+  <text x="76" y="180" class="mono">CLAUDE.md</text>
+  <text x="76" y="200" class="dir">spec/</text>
+  <text x="92" y="218" class="mono">documents/process.md</text>
+  <text x="92" y="236" class="mono">specifications/F-00-template/</text>
+  <text x="108" y="254" class="small">stories.md · plan.md · progress.md</text>
+  <text x="76" y="274" class="dir">.claude/</text>
+  <text x="92" y="292" class="dir">commands/</text>
+  <text x="108" y="310" class="mono">specify.md · plan.md · implement.md</text>
+  <text x="108" y="328" class="mono">review.md · test.md · commit.md</text>
+  <text x="108" y="346" class="mono">workflow-specify.md · workflow-implement.md</text>
+  <text x="92" y="366" class="dir">agents/</text>
+  <text x="108" y="384" class="mono">implement.md · review.md · test.md</text>
+  <text x="92" y="404" class="dir">rules/</text>
+  <text x="108" y="422" class="mono">general.md · typescript.md · qa.md</text>
+  <text x="76" y="442" class="dir">scripts/</text>
+  <text x="92" y="460" class="mono">task-check.sh</text>
+  <text x="60" y="490" class="small">Custom step files appear under commands/, agents/ or skills/. Each workflow adds one workflow-*.md command.</text>
+
+  <!-- Summary and download -->
+  <rect x="620" y="80" width="620" height="200" rx="10" class="panel"/>
+  <text x="640" y="110" class="h2">Summary</text>
+  <text x="640" y="160" class="big">23 files</text>
+  <text x="640" y="186" class="muted">4 workflow commands · 3 agents · 3 rules · 1 script · 1 spec template · 1 process doc</text>
+  <text x="640" y="208" class="muted">4 workflows · 3 map connections · 4 gates · 2 branches · 1 custom step</text>
+  <rect x="640" y="226" width="300" height="38" rx="8" class="primary"/>
+  <text x="668" y="250" class="onPrimary">Download project.zip</text>
+  <text x="960" y="250" class="small">nothing is kept on the server</text>
+
+  <!-- Warnings -->
+  <rect x="620" y="300" width="620" height="120" rx="10" class="warn"/>
+  <text x="640" y="330" class="h2">1 warning</text>
+  <text x="640" y="354">The generated checks script expects an npm test script.</text>
+  <text x="640" y="374" class="muted">Add one before the first task; the generated check fails until then.</text>
+  <text x="640" y="398" class="small">Warnings never block the download.</text>
+
+  <!-- Next steps -->
+  <rect x="620" y="440" width="620" height="320" rx="10" class="panel"/>
+  <text x="640" y="470" class="h2">Next steps in your project</text>
+  <text x="640" y="500" class="b" style="font-weight:600">1  Unzip into an empty folder</text>
+  <text x="664" y="520" class="muted">The folder becomes the repository root.</text>
+  <text x="640" y="554" style="font-weight:600">2  Run git init, then commit on main</text>
+  <text x="664" y="574" class="muted">The process needs a clean main branch.</text>
+  <text x="640" y="608" style="font-weight:600">3  Open Claude Code and start a feature</text>
+  <text x="664" y="628" class="mono">/specify F-01</text>
+  <text x="640" y="662" style="font-weight:600">4  Read the process once</text>
+  <text x="664" y="682" class="muted">spec/documents/process.md explains each step and gate.</text>
+  <rect x="640" y="700" width="200" height="34" rx="6" class="btn"/><text x="668" y="722">Back to builder</text>
+</svg>

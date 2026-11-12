@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#71717a"/>
+    </marker>
+    <marker id="arrB" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2563eb"/>
+    </marker>
+  </defs>
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .b{font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .wf{fill:#ffffff;stroke:#18181b;stroke-width:1.5}
+    .wfSel{fill:#eff6ff;stroke:#2563eb;stroke-width:2}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .tab{fill:#f4f4f5}
+    .tabOn{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .primary{fill:#2563eb}
+    .pillI{fill:#dbeafe}
+    .pillG{fill:#dcfce7}
+    .pillW{fill:#fde68a}
+    .pillB{fill:#ffedd5}
+    .warn{fill:#fffbeb;stroke:#f59e0b}
+    .box{fill:#ffffff;stroke:#e4e4e7}
+    .gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+    .edge{stroke:#71717a;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+    .edgeSel{stroke:#2563eb;stroke-width:2;fill:none;marker-end:url(#arrB)}
+    .mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <!-- Top bar -->
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <text x="170" y="34" class="muted">Demo project · Claude Code · 4 workflows · 4 gates</text>
+  <rect x="760" y="14" width="80" height="28" rx="6" class="btn"/><text x="782" y="33">Brief</text>
+  <rect x="850" y="14" width="90" height="28" rx="6" class="btn"/><text x="872" y="33">Analyze</text>
+  <rect x="950" y="14" width="90" height="28" rx="6" class="btn"/><text x="972" y="33">Present</text>
+  <rect x="1060" y="14" width="150" height="28" rx="6" class="primary"/><text x="1084" y="33" class="onPrimary">Generate zip</text>
+
+  <!-- Tabs: Map is the global view, one tab per workflow -->
+  <rect x="16" y="66" width="70" height="30" rx="6" class="tabOn"/><text x="36" y="86" class="onPrimary">Map</text>
+  <rect x="96" y="66" width="90" height="30" rx="6" class="tab"/><text x="116" y="86">Specify</text>
+  <rect x="196" y="66" width="110" height="30" rx="6" class="tab"/><text x="216" y="86">Implement</text>
+  <rect x="316" y="66" width="80" height="30" rx="6" class="tab"/><text x="336" y="86">Verify</text>
+  <rect x="406" y="66" width="90" height="30" rx="6" class="tab"/><text x="426" y="86">Release</text>
+  <rect x="506" y="66" width="150" height="30" rx="6" fill="none" stroke="#a1a1aa" stroke-dasharray="5 4"/><text x="524" y="86" class="muted">+ New workflow</text>
+
+  <!-- Map canvas -->
+  <rect x="16" y="108" width="900" height="404" rx="12" class="panel"/>
+  <text x="36" y="136" class="h2">Global map</text>
+  <text x="130" y="136" class="muted">drag workflows · drag from a side dot to connect · click a gate to edit</text>
+
+  <!-- Workflow nodes: counts of steps, gates and branches -->
+  <rect x="60" y="180" width="220" height="110" rx="10" class="wf"/>
+  <text x="80" y="206" class="b">Specify</text>
+  <rect x="80" y="216" width="150" height="20" rx="10" class="pillI"/><text x="90" y="230" class="small">scope: feature</text>
+  <text x="80" y="256" class="small">for each feature in features.md</text>
+  <text x="80" y="274" class="small">3 steps · 1 branch · exit approval</text>
+
+  <rect x="380" y="180" width="220" height="110" rx="10" class="wfSel"/>
+  <text x="400" y="206" class="b">Implement</text>
+  <rect x="400" y="216" width="150" height="20" rx="10" class="pillI"/><text x="410" y="230" class="small">scope: task</text>
+  <text x="400" y="256" class="small">for each task in plan.md</text>
+  <text x="400" y="274" class="small">4 steps · 2 branches · 1 gate</text>
+
+  <rect x="700" y="180" width="200" height="110" rx="10" class="wf"/>
+  <text x="720" y="206" class="b">Verify</text>
+  <rect x="720" y="216" width="150" height="20" rx="10" class="pillI"/><text x="730" y="230" class="small">scope: feature</text>
+  <text x="720" y="256" class="small">for each feature in features.md</text>
+  <text x="720" y="274" class="small">1 step · 1 gate (all tests pass)</text>
+
+  <rect x="700" y="360" width="200" height="110" rx="10" class="wf"/>
+  <text x="720" y="386" class="b">Release</text>
+  <rect x="720" y="396" width="150" height="20" rx="10" class="pillG"/><text x="730" y="410" class="small">scope: project</text>
+  <text x="720" y="436" class="small">runs once</text>
+  <text x="720" y="454" class="small">1 step</text>
+
+  <!-- Connection Specify -> Implement, carries an approval gate -->
+  <line x1="280" y1="235" x2="318" y2="235" class="edgeSel"/>
+  <path d="M330,223 L342,235 L330,247 L318,235 Z" class="gate"/>
+  <line x1="342" y1="235" x2="380" y2="235" class="edgeSel"/>
+  <text x="330" y="212" class="small" text-anchor="middle">stories.md, plan.md</text>
+  <text x="330" y="264" class="small" text-anchor="middle">approval</text>
+
+  <!-- Connection Implement -> Verify, matched per feature -->
+  <line x1="600" y1="235" x2="700" y2="235" class="edge"/>
+  <text x="650" y="222" class="small" text-anchor="middle">commits</text>
+  <text x="650" y="252" class="small" text-anchor="middle" style="font-size:10px">same feature</text>
+
+  <!-- Connection Verify -> Release, gate: all verified -->
+  <line x1="800" y1="290" x2="800" y2="312" class="edge"/>
+  <path d="M800,312 L812,325 L800,338 L788,325 Z" class="gate"/>
+  <line x1="800" y1="338" x2="800" y2="360" class="edge"/>
+  <text x="824" y="330" class="small">all verified</text>
+
+  <!-- Connection handles -->
+  <circle cx="280" cy="235" r="4" fill="#2563eb"/><circle cx="380" cy="235" r="4" fill="#2563eb"/>
+  <circle cx="600" cy="235" r="4" fill="#71717a"/><circle cx="700" cy="235" r="4" fill="#71717a"/>
+
+  <!-- Legend -->
+  <path d="M40,470 L48,478 L40,486 L32,478 Z" class="gate"/><text x="58" y="482" class="small">gate: the next workflow waits until it passes</text>
+  <text x="36" y="504" class="small">Arrows read "runs after". Labels show what is handed over. Branches stay inside each workflow.</text>
+
+  <!-- Inspector: selected connection -->
+  <rect x="932" y="108" width="332" height="404" rx="12" class="panel"/>
+  <text x="952" y="136" class="h2">Connection</text>
+  <text x="952" y="162" class="h1">Specify → Implement</text>
+  <text x="952" y="182" class="muted">runs after · hands over stories.md, plan.md</text>
+
+  <text x="952" y="214" class="h2">Gate</text>
+  <rect x="952" y="224" width="292" height="58" rx="6" class="box"/>
+  <text x="964" y="246" class="b">approval · you sign off the plan (Specify exit)</text>
+  <text x="964" y="266" class="small">pass → Implement starts</text>
+  <text x="964" y="280" class="small">fail → stays in Specify (Refine)</text>
+
+  <text x="952" y="308" class="h2">How it matches items</text>
+  <rect x="952" y="318" width="292" height="56" rx="6" class="box"/>
+  <text x="964" y="340">Each task waits for the feature</text>
+  <text x="964" y="358">that produced it. Implement for F1</text>
+  <text x="964" y="372">never waits for feature F2.</text>
+
+  <text x="952" y="398" class="h2">Checks</text>
+  <rect x="952" y="408" width="92" height="22" rx="11" class="pillG"/><text x="964" y="423" class="small">no cycles</text>
+  <rect x="1052" y="408" width="130" height="22" rx="11" class="pillG"/><text x="1064" y="423" class="small">inputs produced upstream</text>
+
+  <rect x="952" y="450" width="110" height="30" rx="6" class="btn"/><text x="972" y="470">Edit gate</text>
+  <rect x="1074" y="450" width="110" height="30" rx="6" class="btn"/><text x="1094" y="470">Delete link</text>
+
+  <!-- Analysis tray -->
+  <rect x="16" y="528" width="1248" height="256" rx="12" class="panel"/>
+  <text x="36" y="556" class="h2">Analysis</text>
+  <text x="110" y="556" class="muted">map checks run first · LLM review follows</text>
+
+  <text x="36" y="584" class="b">Structural checks</text>
+  <rect x="36" y="598" width="580" height="40" rx="6" class="box"/>
+  <rect x="46" y="608" width="70" height="20" rx="10" class="pillG"/><text x="58" y="622" class="small">passed</text>
+  <text x="128" y="622">No cycles on the map.</text>
+  <rect x="36" y="646" width="580" height="40" rx="6" class="box"/>
+  <rect x="46" y="656" width="70" height="20" rx="10" class="pillG"/><text x="58" y="670" class="small">passed</text>
+  <text x="128" y="670">Every iteration source is produced by an upstream workflow.</text>
+  <rect x="36" y="694" width="580" height="40" rx="6" class="box"/>
+  <rect x="46" y="704" width="70" height="20" rx="10" class="pillI"/><text x="60" y="718" class="small">info</text>
+  <text x="128" y="718">The approval gate has no named approver. You are the default.</text>
+
+  <text x="640" y="584" class="b">LLM review</text>
+  <text x="730" y="584" class="small">advice only · never edits the config</text>
+  <rect x="640" y="598" width="604" height="40" rx="6" class="box"/>
+  <rect x="650" y="608" width="70" height="20" rx="10" class="pillI"/><text x="664" y="622" class="small">info</text>
+  <text x="732" y="622">Verify runs per feature, but nothing says what a failed feature blocks.</text>
+  <rect x="640" y="646" width="604" height="40" rx="6" class="box"/>
+  <rect x="650" y="656" width="70" height="20" rx="10" class="pillI"/><text x="664" y="670" class="small">info</text>
+  <text x="732" y="670">Release waits for all features. Say so in the client summary if it matters.</text>
+</svg>

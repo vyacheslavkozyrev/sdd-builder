@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDDBuilder MVP screens</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #18181b; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    header p { margin: 0; color: #52525b; font-size: 14px; }
+    section { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #52525b; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #e4e4e7; border-radius: 8px; }
+    nav { max-width: 1280px; margin: 0 auto 24px; font-size: 14px; }
+    nav a { margin-right: 14px; color: #2563eb; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SDDBuilder: MVP screens (layout mockups)</h1>
+    <p><strong>These are wireframes, not the final UI.</strong> They agree the layout before any code is written. Colours, fonts, icons and wording are placeholders. Each screen is also a standalone SVG in this folder.</p>
+  </header>
+
+  <nav>
+    <a href="#07">07 Global map</a>
+    <a href="#01">01 Workflow tab</a>
+    <a href="#02">02 Brief</a>
+    <a href="#03">03 Presentation</a>
+    <a href="#04">04 Custom step</a>
+    <a href="#05">05 Generate</a>
+    <a href="#06">06 States</a>
+  </nav>
+
+  <section id="07">
+    <h2>07 · Global map (the process overview)</h2>
+    <p>One diagram per project. Workflows are connected; each shows its scope and what it iterates over. Connection labels show what is handed over. A gate on a connection holds the next workflow until it passes. The inspector explains the gate and how a connection matches items.</p>
+    <img src="07-map.svg" alt="Global map with four workflows and labelled connections">
+  </section>
+
+  <section id="01">
+    <h2>01 · Workflow tab (Implement)</h2>
+    <p>One tab per workflow. Ordered steps, quality gates and branch arrows that go back to an earlier step. Round limits are optional and shown as "none set" until the user sets one.</p>
+    <img src="01-builder.svg" alt="Implement workflow tab with branches, gates and inspector">
+  </section>
+
+  <section id="02">
+    <h2>02 · Brief (step 1)</h2>
+    <p>Idea, stack, architecture modules, code and test rules. The privacy notice sits next to the Analyze button and must be accepted before the brief is sent.</p>
+    <img src="02-brief.svg" alt="Brief form with privacy notice">
+  </section>
+
+  <section id="03">
+    <h2>03 · Presentation mode</h2>
+    <p>Full-screen, read-only global map for a client conversation, with a plain-language key.</p>
+    <img src="03-presentation.svg" alt="Presentation mode with the global map and a plain-language key">
+  </section>
+
+  <section id="04">
+    <h2>04 · Custom step editor</h2>
+    <p>Writes one custom step: its kind (command, agent, skill or script), the workflow it belongs to, its inputs and outputs, and its body. Custom steps are always optional.</p>
+    <img src="04-custom-block.svg" alt="Custom step modal">
+  </section>
+
+  <section id="05">
+    <h2>05 · Generate (step 3)</h2>
+    <p>Preview of the file tree, a summary, warnings that do not block the download, and next steps for the user's own repository.</p>
+    <img src="05-generate.svg" alt="Generate screen with file tree and download">
+  </section>
+
+  <section id="06">
+    <h2>06 · States</h2>
+    <p>Rate limit, invalid configuration, LLM review unavailable, and an empty brief. Each keeps the user's edits.</p>
+    <img src="06-states.svg" alt="Four error and empty states">
+  </section>
+</body>
+</html>

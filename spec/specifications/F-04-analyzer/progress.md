@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-12 | 16 of 16 tasks committed (T016 added by amendment) |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-12 | 22 criteria: 21 `[auto]` covered by named passing tests; AC-021 `[device]` passed on the live run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -98,7 +98,7 @@ _Criteria coverage matrix and manual checklist outcome._
 | AC-018 | auto | `packages/core/test/analyze-review-reply.test.ts`, `F-04 AC-018 …`; `apps/api/test/analyze.test.ts`, `F-04 AC-018 …` (22 tests in total; dropped is 0) | pass |
 | AC-019 | auto | `apps/api/test/analyze.test.ts`, `F-04 AC-019 …` (16 tests; structural findings equal analyzeStructure for each reply) | pass |
 | AC-020 | auto | `apps/api/test/analyze.test.ts`, `F-04 AC-020 …` (6 tests; one call on success, on failure, on invalid reply) | pass |
-| AC-021 | device | No automated test proves it. Goes to `checklist.md`. The tests in `apps/api/test/anthropic-model.test.ts` named `F-04 AC-021 …` (32 tests) test the adapter with a fake SDK client (key handling, timeout, model default, request shape). They do not call the real provider and are not evidence for AC-021. | pending: manual |
+| AC-021 | device | No automated test proves it. Goes to `checklist.md`. The tests in `apps/api/test/anthropic-model.test.ts` named `F-04 AC-021 …` (32 tests) test the adapter with a fake SDK client (key handling, timeout, model default, request shape). They do not call the real provider and are not evidence for AC-021. | pass: live run 2026-11-12 (checklist.md, all five checks) |
 
 **Scope check** (`spec/documents/features.md`, F-04): the structural items (missing required steps, layers, unknown ids, empty fields, cycles, inputs, both outputs wired, reachability, retry limit) are covered by AC-001 to AC-011. The review items (fixed prompt, validated output, dropped and counted, advice only, failure keeps structure) are covered by AC-013 to AC-020. The quality of the advice on a real model is AC-021. Scope is covered.
 
@@ -108,9 +108,9 @@ _Criteria coverage matrix and manual checklist outcome._
 - The 32 tests named `F-04 AC-021 …` in `apps/api/test/anthropic-model.test.ts` prove adapter behaviour only. Because AC-021 is `[device]`, the name suggests automated evidence that does not exist. The owner should rename them (for example `F-04 T014 …`) or accept this note.
 - The reachability and inputs tests render the criterion as `F-04 'AC-003' …` or from a `$ac` template. A grep for the literal `F-04 AC-006` finds no source line. The tests pass and name the criterion when rendered, so this is a naming note only.
 
-**Manual checklist:** `spec/specifications/F-04-analyzer/checklist.md` (AC-021, 5 checks). Status: not yet run, result pending.
+**Manual checklist:** `spec/specifications/F-04-analyzer/checklist.md` (AC-021, 5 checks). Status: pass on 2026-11-12, all five checks recorded.
 
-**Verify status: AWAITING CONFIRMATION.** Verify is not set to Complete until the AC-021 result is recorded.
+**Verify status: complete.** 22 criteria: 21 `[auto]` with passing tests, 1 `[device]` (AC-021) passed on the live run of 2026-11-12.
 
 ---
 

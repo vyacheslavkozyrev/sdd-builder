@@ -5,3 +5,5 @@ export * from './template-source.js';
 export * from './validate/index.js';
 export * from './select.js';
 export * from './render/placeholders.js';
+export * from './render/conditionals.js';
+export * from './render/template.js';

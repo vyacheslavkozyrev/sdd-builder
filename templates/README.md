@@ -10,6 +10,7 @@ Text files that describe the layout of a project and what each file should conta
 | `{{idea}}` | `ProjectConfig.idea` |
 | `{{stack.language}}`, `{{stack.framework}}`, `{{stack.testFramework}}` | from `ProjectConfig.stack` |
 | `{{modules}}` | rendered list of `ModuleSpec` |
+| `{{process.diagram}}` | the Mermaid process flowchart, in a fenced `mermaid` block, rendered from the map |
 | `{{codeRules}}`, `{{testRules}}` | rendered bullet lists |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | inside a workflow command: its name, its id, and its scope with the iteration source (for example "for each task in plan.md") |
 | `{{workflow.steps}}` | the enabled steps as a numbered list in tab order, each naming the file it generates |

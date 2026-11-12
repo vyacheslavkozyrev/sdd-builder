@@ -148,8 +148,19 @@ export interface AnalysisFinding {
   message: string;
 }
 
+/** The LLM review part of an analysis. Its findings are kept apart from the structural ones. */
+export interface AnalysisReview {
+  /** 'failed' when the review could not be used; the structural findings still stand. */
+  status: 'ok' | 'failed';
+  findings: AnalysisFinding[];
+  /** Model findings removed because they did not pass the reply check. */
+  dropped: number;
+}
+
+/** The result of `/analyze`: structural findings from core, and the LLM review. */
 export interface AnalysisResult {
   findings: AnalysisFinding[];
+  review: AnalysisReview;
 }
 
 export interface GeneratedFile {

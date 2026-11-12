@@ -1,5 +1,13 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type { Condition, ProjectConfig, StepDefinition, Workflow } from '../src/index.js';
+import type {
+  AnalysisFinding,
+  AnalysisResult,
+  AnalysisReview,
+  Condition,
+  ProjectConfig,
+  StepDefinition,
+  Workflow,
+} from '../src/index.js';
 
 describe('F-02 T002 model', () => {
   it('describes a workflow with ordered steps, a gate and a branch route', () => {
@@ -88,5 +96,23 @@ describe('F-02 T002 model', () => {
       fail: undefined,
     };
     expect(unwired.fail).toBeUndefined();
+  });
+
+});
+
+describe('F-04 T002 analysis result shape', () => {
+  it('F-04 T002 keeps structural findings and the LLM review as separate parts of the result', () => {
+    const finding: AnalysisFinding = { severity: 'warning', subject: 'workflow "plan"', message: 'No steps.' };
+    const review: AnalysisReview = { status: 'failed', findings: [], dropped: 2 };
+    const result: AnalysisResult = { findings: [finding], review };
+
+    expect(Object.keys(result).sort()).toEqual(['findings', 'review']);
+    expect(Object.keys(review).sort()).toEqual(['dropped', 'findings', 'status']);
+    expect(result.findings).toEqual([finding]);
+    expect(result.review.dropped).toBe(2);
+    expectTypeOf(result.review.status).toEqualTypeOf<'ok' | 'failed'>();
+    expectTypeOf(result.review.dropped).toEqualTypeOf<number>();
+    expectTypeOf(result.review.findings).toEqualTypeOf<AnalysisFinding[]>();
+    expectTypeOf<AnalysisResult>().toEqualTypeOf<{ findings: AnalysisFinding[]; review: AnalysisReview }>();
   });
 });

@@ -93,3 +93,39 @@ describe('F-03 T008 agent step layouts', () => {
     }
   });
 });
+
+const scriptSteps = DEFAULT_STEP_CATALOG.filter((step) => step.kind === 'script');
+
+/** The body of the Checks section of a Markdown text, up to the next level-2 heading or the end. */
+function checksSection(text: string): string {
+  const match = /^## Checks\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(text);
+  return match?.[1] ?? '';
+}
+
+describe('F-03 T009 script step layouts', () => {
+  it('F-03 AC-008 script steps have a script layout', () => {
+    expect(scriptSteps.length).toBeGreaterThan(0);
+    for (const step of scriptSteps) {
+      expect(existsSync(layoutPath(step.id, 'script.md')), `missing templates/steps/${step.id}/script.md`).toBe(true);
+      expect(layoutFiles(step.id), `${step.id}: exactly one layout expected`).toEqual(['script.md']);
+    }
+  });
+
+  it('F-03 AC-009 script layouts have the sections Purpose, Inputs, Outputs, Rules and Checks in order', () => {
+    for (const step of scriptSteps) {
+      const text = readFileSync(layoutPath(step.id, 'script.md'), 'utf8');
+      expect(sectionHeadings(text), step.id).toEqual(COMMAND_SECTIONS);
+    }
+  });
+
+  it('F-03 AC-009 the Checks section of a script layout names what the script verifies and contains no command', () => {
+    for (const step of scriptSteps) {
+      const checks = checksSection(readFileSync(layoutPath(step.id, 'script.md'), 'utf8'));
+      expect(checks.trim(), `${step.id}: empty Checks section`).not.toBe('');
+      expect(checks, `${step.id}: Checks has no list item`).toMatch(/^- \S/m);
+      expect(checks, `${step.id}: code fence in Checks`).not.toMatch(/```|~~~/);
+      expect(checks, `${step.id}: inline code in Checks`).not.toContain('`');
+      expect(checks, `${step.id}: shell prompt or shebang in Checks`).not.toMatch(/^\s*(\$ |#!)/m);
+    }
+  });
+});

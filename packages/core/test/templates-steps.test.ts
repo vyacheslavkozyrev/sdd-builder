@@ -62,3 +62,34 @@ describe('F-03 T007 command step layouts', () => {
     }
   });
 });
+
+const agentSteps = DEFAULT_STEP_CATALOG.filter((step) => step.kind === 'agent');
+const AGENT_FIELDS = ['name', 'description', 'tools'];
+
+describe('F-03 T008 agent step layouts', () => {
+  it('F-03 AC-008 agent steps have an agent layout', () => {
+    expect(agentSteps.length).toBeGreaterThan(0);
+    for (const step of agentSteps) {
+      expect(existsSync(layoutPath(step.id, 'agent.md')), `missing templates/steps/${step.id}/agent.md`).toBe(true);
+      expect(layoutFiles(step.id), `${step.id}: exactly one layout expected`).toEqual(['agent.md']);
+    }
+  });
+
+  it('F-03 AC-010 agent layouts have frontmatter name, description and tools', () => {
+    for (const step of agentSteps) {
+      const fields = frontmatter(readFileSync(layoutPath(step.id, 'agent.md'), 'utf8'));
+      expect(fields, `${step.id}: no frontmatter block`).toBeDefined();
+      for (const field of AGENT_FIELDS) {
+        expect(fields?.[field] ?? '', `${step.id}: empty ${field}`).not.toBe('');
+      }
+      expect(fields?.['name'], `${step.id}: name is the step id`).toBe(step.id);
+    }
+  });
+
+  it('F-03 AC-009 agent layouts have the sections Purpose, Inputs, Outputs, Rules and Checks in order', () => {
+    for (const step of agentSteps) {
+      const text = readFileSync(layoutPath(step.id, 'agent.md'), 'utf8');
+      expect(sectionHeadings(text), step.id).toEqual(COMMAND_SECTIONS);
+    }
+  });
+});

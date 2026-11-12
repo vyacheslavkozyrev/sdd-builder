@@ -22,3 +22,14 @@ export class TemplateError extends Error {
     this.templatePath = templatePath;
   }
 }
+
+/** Generation failed on template problems. Carries every problem found across the outputs. */
+export class GenerationError extends Error {
+  readonly problems: readonly string[];
+
+  constructor(problems: readonly string[]) {
+    super(`Generation failed (${problems.length} problem${problems.length === 1 ? '' : 's'}):\n- ${problems.join('\n- ')}`);
+    this.name = 'GenerationError';
+    this.problems = [...problems];
+  }
+}

@@ -2,7 +2,7 @@ import type { GeneratedFile } from './model.js';
 import { InvalidConfigError } from './errors.js';
 
 /** Why a path is not allowed in the output, or undefined when it is fine. */
-function pathProblem(path: string): string | undefined {
+export function pathProblem(path: string): string | undefined {
   if (path.length === 0) {
     return 'file path is empty';
   }

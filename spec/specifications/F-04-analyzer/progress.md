@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 8 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 9 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T006 | retryFindings: backward fail routes with no round limit as warnings | 0 blockers, 1 warning fixed (forward and self routes are not retries), 2 suggestions fixed | 30 files, 259 passed |
 | T007 | briefFindings: required fields, empty optional fields, layer rule, unknown dependsOn | 0 blockers, 0 warnings, 3 suggestions fixed (duplicate tests removed), 2 suggestions deferred | 31 files, 284 passed |
 | T008 | customStepFindings: custom steps placed in no enabled workflow as warnings | 0 blockers, 1 warning fixed (comment on clashing ids corrected; edge test added), 0 suggestions | 32 files, 292 passed |
+| T009 | analyzeStructure: fixed concatenation, severity then subject then message, no mutation | 0 blockers, 2 warnings fixed (test fixture trimmed; severity row exercises the rank), 1 suggestion fixed, 1 suggestion deferred (info untested) | 33 files, 300 passed |
 
 ---
 
@@ -46,6 +47,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `spec/specifications/F-04-analyzer/stories.md:20` (T002 review): the story says the shape change is recorded in `architecture.md` §5; T001 recorded it in §4 and §6 decision 10. Not changed here because T002 names only the core files; the owner should align the wording.
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): two modules with the same name make `dependsOn` resolve to the first one only, and no check reports the duplicate name. Not applied because AC-007 to AC-010 do not cover module names and no task in the plan checks them; the owner should add a module-name check to a plan task.
 - `packages/core/src/analyze/brief.ts` (`dependencyFindings`, T007 review): a `dependsOn` entry repeated in one module gives the same finding twice. Not applied because AC-009 and AC-010 do not say how repeats are reported; the owner should decide whether repeats are one finding.
+- `packages/core/src/analyze/index.ts` (`SEVERITY_RANK`, T009 review): the `info` rank is untested, and no planned task emits an `info` finding (`plan.md` names none, and AC-002 only requires that a valid configuration adds none). `analyzeStructure` cannot return `info` yet, so no test can reach that rank through the public API. Not applied because a test would need an info-producing check the plan does not have; the owner should add one to a plan task or amend AC-012, and that task must test info ordering.
 
 ---
 

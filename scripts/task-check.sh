@@ -10,7 +10,7 @@ echo "==> typecheck"
 npm run typecheck
 
 echo "==> test"
-if npm pkg get scripts.test | grep -q '"test"'; then
+if [ "$(npm pkg get scripts.test)" != "{}" ]; then
   npm test
 else
   echo "No 'test' script configured in package.json yet (added with F-02)." >&2

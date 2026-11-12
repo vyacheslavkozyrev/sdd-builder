@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user. Commit waits for `git init`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 0 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 1 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -24,6 +24,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Vitest test runner and `test` script; task check fixed to detect the script | self-review: no findings | 1 passed |
 
 ---
 

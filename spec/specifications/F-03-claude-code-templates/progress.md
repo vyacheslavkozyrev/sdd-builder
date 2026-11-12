@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 6 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 7 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T004 | Base layouts: `CLAUDE.md` and `process.md` (Process diagram section) | 0 blockers, 1 warning fixed (README placeholder row), 1 suggestion fixed (test body offset) | 19 files, 106 passed |
 | T005 | Spec-template layouts, byte-identical to the F-00 template | 0 blockers, 0 warnings, 1 suggestion fixed (constants moved up) | 19 files, 108 passed |
 | T006 | Workflow layout with the five workflow placeholders, each in its section; no catalog step id as fixed text | 0 blockers, 2 warnings fixed (negative cases added), 0 suggestions fixed; 1 deferred (placeholder list repeated) | 20 files, 114 passed |
+| T007 | Command layouts for define-feature, refine, plan, commit, release | 0 blockers, 2 warnings fixed (exactly-one-layout check; tautological assertion removed), 1 suggestion fixed (release default case) | 21 files, 117 passed |
 
 ---
 

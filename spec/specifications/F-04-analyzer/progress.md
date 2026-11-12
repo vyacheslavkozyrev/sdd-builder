@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 7 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 8 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T005 | inputFindings: step inputs with no producer upstream or in the iteration source as warnings | 0 blockers, 1 warning fixed (repeated step ids keyed by step and input), 2 suggestions fixed | 29 files, 246 passed |
 | T006 | retryFindings: backward fail routes with no round limit as warnings | 0 blockers, 1 warning fixed (forward and self routes are not retries), 2 suggestions fixed | 30 files, 259 passed |
 | T007 | briefFindings: required fields, empty optional fields, layer rule, unknown dependsOn | 0 blockers, 0 warnings, 3 suggestions fixed (duplicate tests removed), 2 suggestions deferred | 31 files, 284 passed |
+| T008 | customStepFindings: custom steps placed in no enabled workflow as warnings | 0 blockers, 1 warning fixed (comment on clashing ids corrected; edge test added), 0 suggestions | 32 files, 292 passed |
 
 ---
 

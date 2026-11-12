@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 21 criteria (20 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-12 | 4 of 15 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-12 | 5 of 15 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | AnalysisResult becomes { findings, review }; AnalysisReview type | 0 blockers, 2 warnings fixed (test moved to F-04 block; non-tautological assertions), 2 suggestions deferred | 26 files, 175 passed |
 | T003 | refusalFindings: validateConfig problems as blocker findings with subject and message | 0 blockers, 1 warning fixed (subject regex limited to known label kinds), 2 suggestions fixed | 27 files, 208 passed |
 | T004 | reachabilityFindings: unreachable enabled steps as blockers; disabled steps and workflows skipped | 0 blockers, 1 warning fixed (duplicate step ids keyed by id), 3 suggestions fixed | 28 files, 225 passed |
+| T005 | inputFindings: step inputs with no producer upstream or in the iteration source as warnings | 0 blockers, 1 warning fixed (repeated step ids keyed by step and input), 2 suggestions fixed | 29 files, 246 passed |
 
 ---
 

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories re-specified for the workflow model (34 criteria); approved by the user; committed (33e8859). |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-11 | 6 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 7 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T004 | InvalidConfigError with all problems; TemplateError; TemplateSource interface and in-memory source | self-review: no findings | 12 passed (cumulative) |
 | T005 | Duplicate ids across workflows, catalog steps and custom steps; default workflow ids renamed to implement-cycle, verify-feature, release-project (display names unchanged) | self-review: no findings | 16 passed (cumulative) |
 | T006 | Unknown workflows, steps and conditions' steps; connections to disabled workflows; map cycles. Default Release workflow enabled (the reference process releases) | self-review: no findings | 23 passed (cumulative) |
+| T007 | Outputs wired; routes stay in the workflow; fail routes go back, pass routes go forward; no route into a disabled step; conditions after disabled steps are dropped | self-review: no findings | 31 passed (cumulative) |
 
 ---
 

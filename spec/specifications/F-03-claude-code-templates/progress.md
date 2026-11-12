@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
-| Build    | 🔄 In Progress | 2026-11-11 | 15 of 17 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-11 | 16 of 17 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | `checkReply`: unsafe paths, missing and extra files in one pass, leftover markers, unknown reply types never throw | 0 blockers, 1 warning fixed (public surface narrowed), 2 suggestions fixed | 24 files, 147 passed |
 | T014 | `checkReply` part 2: required `##` headings for Markdown entries; SDDBuilder path findings; findings sorted by path then message | 0 blockers, 3 warnings fixed (heading substring, `###`, layout trim tests), 1 suggestion fixed (Finding.path doc). AC-026 expected order updated to the sorted order | 24 files, 152 passed |
 | T015 | Template scans: no scripts or shebangs, banned words, placeholders in the README table, workflow layout uses only workflow placeholders | 0 blockers, 6 warnings fixed (marker, BOM, case, README coverage, dead import), 4 suggestions fixed | 25 files, 162 passed |
+| T016 | README layout table: every source exists; skill row exempt (no catalog skill step) by decision; parser reads only the Claude Code table | 0 blockers, 3 warnings fixed (per-step check, strict parser, table scope), 4 suggestions fixed | 26 files, 174 passed |
 
 ---
 

@@ -54,7 +54,14 @@ Findings never change the configuration. The user decides what to apply.
 - **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (with the Mermaid view of the process), placeholder values.
 - **Step 4, render per workflow:** one `workflow-<name>.md` command that calls the workflow's steps in order and writes its branches as numbered rules, with their round limits (or "no limit set").
 - **Step 5, write per step (LLM):** the LLM writes the content of the command, agent, skill or script the step uses, from its block description and its template, and the rule-set files it carries. `core` fixes the file path and the place of each file in the output.
-- **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The rules for a reply that fails the checks, including any retry, are set in F-03.
+- **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The checks a reply must pass are set in F-03 (see below); the retry for a reply that fails them belongs to F-07.
+
+Two pure functions in `packages/core` serve steps 5 and 6 (F-03): `planGeneration` gives step 5 its input, and `checkReply` is step 6.
+
+- **`planGeneration(config, templates)`** returns one entry per output file, in the order of the file list: its path, its rendered layout, its block description (a step's `description`, or its `summary` when the description is unset or empty; a workflow's `description`, or empty) and its rule-set tags (steps only).
+- **`checkReply(plan, reply)`** checks the model's reply against the plan: each planned file is present, no extra file is returned, no path is unsafe, no placeholder or step marker is left, each required `##` heading of a Markdown output is present, and no file mentions SDDBuilder or its own paths (`apps/web`, `apps/api`, `packages/core`). It returns the findings sorted by path, then by message.
+
+The model call and the one-retry rule belong to F-07 (`apps/api`), not to `core`.
 
 The file list, paths and order are deterministic: the same config gives the same set of files. The wording of LLM-written content may differ between runs. Tests use a fake model with fixed replies, so they stay deterministic.
 

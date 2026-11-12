@@ -27,6 +27,7 @@ Status: decided 2026-11-11 with the owner. Supersedes the earlier "container" wo
   - Verify for feature F1 waits for the tasks of F1 only.
   - Implement for a task waits for the feature that produced it.
   - A project-scope workflow waits for all of its feature and task items.
+- A workflow may carry a user-written `description` saying what the workflow does. Unset means none.
 - Validation: the map has no cycles; each task workflow is fed by a feature workflow that produces its task list; each iteration source is produced by an upstream workflow; no workflow is unconnected.
 
 ### Workflow tab
@@ -34,6 +35,7 @@ Status: decided 2026-11-11 with the owner. Supersedes the earlier "container" wo
 - One diagram: an ordered sequence of steps, with conditions after steps, and branch arrows that go back to an earlier step.
 - The header shows the scope and its iteration source, for example "Scope: task · for each task in plan.md".
 - Rule tags sit on the nodes that use them.
+- A step may carry a user-written `description` saying what the step should do. Unset (or empty), the catalog summary is used. The description is part of the input the LLM uses to write the step's file (F-07).
 
 ## 2. Node kinds (inside a workflow)
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-11 | Stories approved by the user; 29 criteria, all `[auto]`. |
 | Plan     | ✅ Complete | 2026-11-11 | Approved by the user before any code is written. Approved as written, including T001. |
 | Build    | ✅ Complete | 2026-11-12 | 17 of 17 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-12 | 29 of 29 criteria covered by named passing tests; no device criteria |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -66,6 +66,46 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run: `scripts/task-check.sh` passed (typecheck clean; 26 files, 174 tests passed, 0 failed, 0 skipped). Every criterion is `[auto]`, so there is no manual checklist. Test names are prefixed `F-03 AC-###` in `packages/core/test/`.
+
+| Criterion | Covering tests (file: test name) | Result |
+| --------- | -------------------------------- | ------ |
+| AC-001 | templates-base: "F-03 AC-001 the base CLAUDE.md and process.md layouts exist and are non-empty Markdown"; "F-03 AC-001 the spec-template layouts exist and are non-empty Markdown" | Pass |
+| AC-002 | templates-base: "F-03 AC-002 the base CLAUDE.md has Overview, Layout, Working rules, Commands and agents, Rules, in that order" | Pass |
+| AC-003 | templates-base: "F-03 AC-003 the process.md layout has a Process diagram section that holds the diagram placeholder" | Pass |
+| AC-004 | templates-base: "F-03 AC-004 each spec-template layout is byte-identical to the F-00 template" | Pass |
+| AC-005 | templates-workflow: "F-03 AC-005 the workflow layout has the sections Purpose, Steps, Rules and Scope" | Pass |
+| AC-006 | templates-workflow: "F-03 AC-006 the workflow layout uses only the five workflow placeholders" (+ 3 negative/section tests); templates-scan: "F-03 AC-006 the workflow layout uses only the workflow placeholders of templates/README.md" | Pass |
+| AC-007 | templates-workflow: "F-03 AC-007 the workflow layout names no catalog step id as fixed text" (+ negative test) | Pass |
+| AC-008 | templates-steps: "F-03 AC-008 every command step in the catalog has a command layout", "F-03 AC-008 agent steps have an agent layout", "F-03 AC-008 script steps have a script layout"; step-files: "F-03 AC-008 a script step is rendered from its script.md layout to scripts/<id>.sh" | Pass |
+| AC-009 | templates-steps: "F-03 AC-009 command layouts have the sections Purpose, Inputs, Outputs, Rules and Checks in order", "F-03 AC-009 agent layouts have the sections ...", "F-03 AC-009 script layouts have the sections ...", "F-03 AC-009 the Checks section of a script layout names what the script verifies and contains no command" | Pass |
+| AC-010 | templates-steps: "F-03 AC-010 command layouts have a frontmatter description", "F-03 AC-010 agent layouts have frontmatter name, description and tools" | Pass |
+| AC-011 | templates-scan: "F-03 AC-011 no file under templates/ is a script: ..." (+ 2 negative/scan tests); generate: "F-03 AC-011 the base files include no script, so scripts/task-check.sh is never read from a template" | Pass |
+| AC-012 | templates-scan: "F-03 AC-012 no file under templates/ contains a banned word (whole word, case-sensitive)" (+ 2 scan tests) | Pass |
+| AC-013 | templates-rules: "F-03 AC-013 the rule layouts exist with their sections" | Pass |
+| AC-014 | templates-rules: "F-03 AC-014 code.md holds the codeRules and testRules placeholders, each once", "F-03 AC-014 no rule layout contains a code sample ..." | Pass |
+| AC-015 | catalog: "F-03 AC-015 Implement and Code review carry code.md, and no catalog step carries typescript.md" | Pass |
+| AC-016 | plan: "F-03 AC-016 one entry per output file, in the file-list order, with path, layout, description and ruleTags" (+ 4 description and workflow-description tests) | Pass |
+| AC-017 | plan: "F-03 AC-017 the same config gives the same plan (generate it twice and compare)" | Pass |
+| AC-018 | plan: "F-03 AC-018 a disabled step has no entry, and a required step always has one"; "F-03 AC-018 a required step cannot be disabled, so the planner never omits it" | Pass |
+| AC-019 | plan: "F-03 AC-019 an invalid configuration throws InvalidConfigError naming the problem, and returns no plan" | Pass |
+| AC-020 | plan: "F-03 AC-020 an enabled step with no layout in the templates fails with an error that names the step id" | Pass |
+| AC-021 | reply-check: "F-03 AC-021 returns no findings for a reply with exactly the planned files and no marker" | Pass |
+| AC-022 | reply-check: "F-03 AC-022 reports a missing planned file and an extra reply file in one pass" | Pass |
+| AC-023 | reply-check: "F-03 AC-023 names the file and the leftover marker when a placeholder remains"; "F-03 AC-023 names the file for a leftover step marker and a closing brace marker" | Pass |
+| AC-024 | reply-check: "F-03 AC-024 a Markdown file missing a required layout heading is a finding naming the heading"; "F-03 AC-024 only ## headings are required ..."; "F-03 AC-024 a shell output is not checked for headings" | Pass |
+| AC-025 | reply-check: "F-03 AC-025 a reply that mentions an SDDBuilder path is a finding" | Pass |
+| AC-026 | reply-check: "F-03 AC-026 reports each unsafe path and ignores that file"; "F-03 AC-026 does not report an ignored unsafe file as missing or extra" | Pass |
+| AC-027 | reply-check: "F-03 AC-027 returns findings for an empty reply without throwing" and 4 more non-throwing negative tests (object, array, null, non-string value) | Pass |
+| AC-028 | reply-check: "F-03 AC-028 findings are sorted by path then message, and the same reply gives the same findings" | Pass |
+| AC-029 | templates-readme: "F-03 AC-029 every source in the Claude Code layout table exists under templates/, or is a scripts/ output from a script.md layout" (+ 11 table-parser and row tests) | Pass |
+
+**Gaps:** none. All 29 criteria have at least one passing covering test.
+
+**Manual checklist:** none. All criteria are `[auto]`, so `checklist.md` was not written.
+
+**Scope (features.md F-03):** covered by AC-001 to AC-029 (base layouts, workflow command, step layouts by kind, rule layouts, generation input, reply check, README). Note: the feature text lists "skills", but the catalog has no skill step, so no `skill.md` layout exists; the README skill row is exempt by design (T016, stories design decisions).
 
 ---
 

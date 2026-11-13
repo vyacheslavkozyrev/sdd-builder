@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze, type ReviewModel, type ReviewReply } from '../src/analyze.js';
+import type { LogPort } from '../src/log.js';
 import { buildReviewPrompt } from '../src/review/prompt.js';
+
+/** A log port that discards its lines: these tests do not check the log. */
+const quietLog: LogPort = { write: () => undefined };
 
 const IDEA = 'A tool that turns a product idea into a spec-driven project framework.';
 
@@ -89,7 +93,7 @@ describe('F-13 AC-025 a truncated review reply counts as failed', () => {
   it('F-13 AC-025 gives review.status failed when the reply reached max_tokens', async () => {
     const config = configWithStructuralFindings();
 
-    const result = await analyze(config, truncatedReplyWith('[]').model);
+    const result = await analyze(config, truncatedReplyWith('[]').model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -99,7 +103,7 @@ describe('F-13 AC-025 a truncated review reply counts as failed', () => {
     const config = configWithStructuralFindings();
     const reply = '[{"severity":"info","subject":"testRules","message":"Name the coverage tool."}]';
 
-    const result = await analyze(config, truncatedReplyWith(reply).model);
+    const result = await analyze(config, truncatedReplyWith(reply).model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
   });
@@ -108,7 +112,7 @@ describe('F-13 AC-025 a truncated review reply counts as failed', () => {
     const config = configWithStructuralFindings();
     const fake = truncatedReplyWith('[');
 
-    await analyze(config, fake.model);
+    await analyze(config, fake.model, quietLog);
 
     expect(fake.calls).toHaveLength(1);
   });
@@ -121,7 +125,7 @@ describe('F-04 AC-013 review failure keeps the structural findings', () => {
       throw new Error('provider unavailable');
     });
 
-    const result = await analyze(config, fake.model);
+    const result = await analyze(config, fake.model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -131,7 +135,7 @@ describe('F-04 AC-013 review failure keeps the structural findings', () => {
     const config = configWithStructuralFindings();
     const fake = fakeModel(() => Promise.reject(new Error('timeout')));
 
-    const result = await analyze(config, fake.model);
+    const result = await analyze(config, fake.model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -142,7 +146,7 @@ describe('F-04 AC-014 review with findings and without', () => {
   it('F-04 AC-014 gives an ok review with no findings for an empty array, structural findings unchanged', async () => {
     const config = configWithStructuralFindings();
 
-    const result = await analyze(config, replyWith('[]').model);
+    const result = await analyze(config, replyWith('[]').model, quietLog);
 
     expect(result.review).toEqual({ status: 'ok', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -155,7 +159,7 @@ describe('F-04 AC-014 review with findings and without', () => {
       { severity: 'info', subject: 'testRules', message: 'Name the coverage tool.' },
     ]);
 
-    const result = await analyze(config, replyWith(reply).model);
+    const result = await analyze(config, replyWith(reply).model, quietLog);
 
     expect(result.review).toEqual({
       status: 'ok',
@@ -170,7 +174,7 @@ describe('F-04 AC-018 unusable reply gives a failed review', () => {
   it('F-04 AC-018 gives a failed review with dropped 0 for a reply that is not JSON', async () => {
     const config = configWithStructuralFindings();
 
-    const result = await analyze(config, replyWith('Here are my thoughts: none.').model);
+    const result = await analyze(config, replyWith('Here are my thoughts: none.').model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -180,7 +184,7 @@ describe('F-04 AC-018 unusable reply gives a failed review', () => {
     const config = configWithStructuralFindings();
     const reply = JSON.stringify({ findings: [{ severity: 'info', subject: 'a', message: 'b' }] });
 
-    const result = await analyze(config, replyWith(reply).model);
+    const result = await analyze(config, replyWith(reply).model, quietLog);
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
     expect(result.findings).toEqual(analyzeStructure(config));
@@ -192,7 +196,7 @@ describe('F-04 AC-018 unusable reply gives a failed review', () => {
     it(`F-04 AC-018 gives a failed review with dropped 0 for the JSON value ${reply}`, async () => {
       const config = configWithStructuralFindings();
 
-      const result = await analyze(config, replyWith(reply).model);
+      const result = await analyze(config, replyWith(reply).model, quietLog);
 
       expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
       expect(result.findings).toEqual(analyzeStructure(config));
@@ -216,7 +220,7 @@ describe('F-04 AC-019 the review never changes the structural findings', () => {
       const config = configWithStructuralFindings();
       const expected = analyzeStructure(config);
 
-      const result = await analyze(config, replyWith(reply).model);
+      const result = await analyze(config, replyWith(reply).model, quietLog);
 
       expect(result.findings).toEqual(expected);
     });
@@ -226,7 +230,7 @@ describe('F-04 AC-019 the review never changes the structural findings', () => {
     const config = configWithStructuralFindings();
     const reply = '[{"severity":"blocker","subject":"idea","message":"Blocks the build."}]';
 
-    const result = await analyze(config, replyWith(reply).model);
+    const result = await analyze(config, replyWith(reply).model, quietLog);
 
     expect(result.findings).toEqual(analyzeStructure(config));
     expect(result.review.findings).toEqual([
@@ -241,7 +245,7 @@ describe('F-04 AC-022 the model receives the structural findings in its prompt',
     const structural = analyzeStructure(config);
     const fake = replyWith('[]');
 
-    await analyze(config, fake.model);
+    await analyze(config, fake.model, quietLog);
 
     expect(structural.length).toBeGreaterThan(0);
     const [prompt] = fake.calls;
@@ -256,7 +260,7 @@ describe('F-04 AC-020 one model call per request', () => {
   it('F-04 AC-020 calls the model exactly once for a valid reply', async () => {
     const fake = replyWith('[]');
 
-    await analyze(configWithStructuralFindings(), fake.model);
+    await analyze(configWithStructuralFindings(), fake.model, quietLog);
 
     expect(fake.calls).toHaveLength(1);
   });
@@ -264,7 +268,7 @@ describe('F-04 AC-020 one model call per request', () => {
   it('F-04 AC-020 calls the model exactly once when its reply is invalid', async () => {
     const fake = replyWith('not json');
 
-    await analyze(configWithStructuralFindings(), fake.model);
+    await analyze(configWithStructuralFindings(), fake.model, quietLog);
 
     expect(fake.calls).toHaveLength(1);
   });
@@ -272,7 +276,7 @@ describe('F-04 AC-020 one model call per request', () => {
   it('F-04 AC-020 calls the model exactly once when it fails', async () => {
     const fake = fakeModel(() => Promise.reject(new Error('down')));
 
-    await analyze(configWithStructuralFindings(), fake.model);
+    await analyze(configWithStructuralFindings(), fake.model, quietLog);
 
     expect(fake.calls).toHaveLength(1);
   });

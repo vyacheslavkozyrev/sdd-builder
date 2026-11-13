@@ -97,7 +97,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
         findings: analyzeStructure(config),
         review: { status: 'failed', findings: [], dropped: 0 },
       });
-      expect(log.lines).toEqual(['event=review_key_missing']);
+      expect(log.lines).toEqual(['event=review_key_missing', 'event=review_model_failed route=/analyze error=Error']);
     });
   }
 
@@ -128,7 +128,10 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ review: { status: 'failed' } });
-    expect(log.lines).toEqual(['event=review_model_disabled error=TypeError']);
+    expect(log.lines).toEqual([
+      'event=review_model_disabled error=TypeError',
+      'event=review_model_failed route=/analyze error=Error',
+    ]);
   });
 });
 

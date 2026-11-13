@@ -5,7 +5,7 @@ import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
 import { errorBody } from './http/errors.js';
 import { readConfig } from './http/read-config.js';
-import { errorNameOf, formatLogLine, routeOf, type LogPort } from './log.js';
+import { errorNameOf, formatLogLine, routeOf, type LogPort, type LogRoute } from './log.js';
 import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
 import type { DailyCeiling } from './limits/daily-ceiling.js';
 import { packageZip } from './zip.js';
@@ -48,11 +48,13 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
    */
   const admitRequest = (
     c: Context,
+    route: LogRoute,
   ): { ok: true; reservation: Reservation } | { ok: false; response: Response } => {
     const decision = limits.limiter.admit(limits.clientAddress(c));
     if (decision.allowed) {
       return { ok: true, reservation: decision };
     }
+    log.write(formatLogLine({ event: 'rate_limited', route, status: 429 }));
     const response = c.json(errorBody('rate limit exceeded'), 429, { 'Retry-After': String(decision.retryAfterSeconds) });
     return { ok: false, response };
   };
@@ -64,6 +66,7 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
   const readWithinCaps = async (
     c: Context,
     reservation: Reservation,
+    route: LogRoute,
   ): Promise<{ ok: true; config: ProjectConfig } | { ok: false; response: Response }> => {
     const read = await readConfig(c.req.raw);
     if (!read.ok) {
@@ -72,35 +75,37 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     const problems = capProblems(read.config);
     if (problems.length > 0) {
       limits.limiter.refund(reservation);
+      log.write(formatLogLine({ event: 'input_refused', route, status: 422 }));
       return { ok: false, response: c.json(errorBody('project config is over the input caps', problems), 422) };
     }
     return { ok: true, config: read.config };
   };
 
   app.post('/analyze', async (c) => {
-    const admitted = admitRequest(c);
+    const admitted = admitRequest(c, '/analyze');
     if (!admitted.ok) {
       return admitted.response;
     }
-    const read = await readWithinCaps(c, admitted.reservation);
+    const read = await readWithinCaps(c, admitted.reservation, '/analyze');
     if (!read.ok) {
       return read.response;
     }
     if (!limits.reviewCeiling.admit()) {
+      log.write(formatLogLine({ event: 'daily_ceiling_reached', route: '/analyze', status: 200 }));
       return c.json(skippedAnalysis(read.config), 200);
     }
-    const result = await analyze(read.config, review);
+    const result = await analyze(read.config, review, log);
     return c.json(result, 200);
   });
 
   app.all('/analyze', (c) => c.json(errorBody('method not allowed'), 405, { Allow: 'POST' }));
 
   app.post('/generate', async (c) => {
-    const admitted = admitRequest(c);
+    const admitted = admitRequest(c, '/generate');
     if (!admitted.ok) {
       return admitted.response;
     }
-    const read = await readWithinCaps(c, admitted.reservation);
+    const read = await readWithinCaps(c, admitted.reservation, '/generate');
     if (!read.ok) {
       return read.response;
     }
@@ -112,6 +117,7 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
       return c.json(errorBody(REFUSED_MESSAGE, problems), 422);
     }
     if (!limits.generateCeiling.admit()) {
+      log.write(formatLogLine({ event: 'daily_ceiling_reached', route: '/generate', status: 429 }));
       return c.json(errorBody('daily generation limit reached'), 429);
     }
     const result = await generateProject(read.config, { templates: generation.templates, model: generation.model, log });

@@ -1,6 +1,7 @@
 import { analyzeStructure, checkReview } from '@sddbuilder/core';
 import type { AnalysisResult, ProjectConfig } from '@sddbuilder/core';
 import { buildReviewPrompt } from './review/prompt.js';
+import { errorNameOf, formatLogLine, type LogPort } from './log.js';
 
 /** The result of one review call: the reply text, and whether the length limit cut it short. */
 export interface ReviewReply {
@@ -18,16 +19,18 @@ export interface ReviewModel {
  * The structural findings are computed first and returned as produced; the review never changes them.
  * The model is called once. A thrown error, a rejection, a truncated reply (it reached the output
  * limit, so it is not parsed), a reply that is not JSON, or a reply that the reply check fails gives
- * `review.status` `failed` with no review findings; the structural findings still stand.
+ * `review.status` `failed` with no review findings; the structural findings still stand. A rejected call
+ * is logged by its error name only, never by its message.
  */
-export async function analyze(config: ProjectConfig, model: ReviewModel): Promise<AnalysisResult> {
+export async function analyze(config: ProjectConfig, model: ReviewModel, log: LogPort): Promise<AnalysisResult> {
   const structural = analyzeStructure(config);
   const prompt = buildReviewPrompt(config, structural);
 
   let reply: ReviewReply;
   try {
     reply = await model.complete(prompt);
-  } catch {
+  } catch (error) {
+    log.write(formatLogLine({ event: 'review_model_failed', route: '/analyze', error: errorNameOf(error) }));
     return failedResult(structural);
   }
 

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 9 of 10 tasks committed |
+| Build    | ✅ Complete | 2026-11-13 | 10 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None.
 | T007 | Daily ceiling counter (`DailyCeiling`, UTC day, counted before the call, forward-only reset) and `dailyLimitsFrom` for `SDDBUILDER_REVIEW_DAILY_LIMIT` (500) and `SDDBUILDER_GENERATE_DAILY_LIMIT` (50); an invalid value stops startup naming the variable | 0 blockers, 2 warnings fixed (backward clock step no longer reopens a spent day; AC-017 test reads the default), 0 suggestions | 37 core files, 492 tests and 18 api files, 306 tests passed |
 | T008 | Route wiring: the limiter runs first on both POST routes (429 with `Retry-After`), then the body is read, then `capProblems` gives 422 before any model call; cap refusals refund their slot; remote address from the connection, never headers | 0 blockers, 1 warning fixed by the user's decision (422 cap refusals refunded), 0 suggestions in round 2; size guard waived by the user (567 lines, not split) | 37 core files, 492 tests and 19 api files, 331 tests passed |
 | T009 | Daily ceilings on the routes: at the review ceiling `/analyze` answers 200 `skipped` with no model call; at the generation ceiling `/generate` answers 429; failed calls count; cap and rate refusals do not count; structural `/generate` refusals are refused before the ceiling and do not count | 0 blockers, 1 warning fixed by the user's decision (structural `/generate` refusals not counted), 0 suggestions fixed, 1 suggestion deferred (see Deferred Findings) | 37 core files, 492 tests and 20 api files, 342 tests passed |
+| T010 | Privacy of logs and errors: log events `rate_limited`, `input_refused`, `daily_ceiling_reached` and `review_model_failed`, each with event, route and status (or the error name) only; sentinel tests on every route status | 0 blockers, 0 warnings, 2 suggestions fixed (long lines wrapped; setup folded into a helper), 1 suggestion deferred (see Deferred Findings); size guard waived by the user (485 lines) | 37 core files, 492 tests and 21 api files, 374 tests passed |
 
 ---
 
@@ -50,3 +51,5 @@ None.
 - T008 review, `apps/api/src/app.ts` (`readWithinCaps`) (WARNING, resolved by the user's decision): 422 cap refusals are refunded. `admit` still counts before the body is read, and a cap refusal calls `ClientLimiter.refund` on the request's reservation before the 422 is returned, so architecture §6 decision 12 (requests refused by an input cap do not count) holds. 400s (invalid JSON) still count, as recorded in the T001 line above.
 - T009 review, `apps/api/src/app.ts` `/generate` (WARNING, resolved by the user's decision): a `/generate` request refused by the structural check is refused before the generation ceiling and is not counted. `validateConfig` runs after the caps and the 503 check and before `generateCeiling.admit`, and returns the same 422 as `generateProject` for reason `refused`. Only real model calls use a slot of the daily generation ceiling. `generateProject` in `apps/api/src/generate/service.ts` is unchanged. Covered by `F-13 AC-020 does not count a structural refusal from generation toward the generation ceiling` in `apps/api/test/ceiling-route.test.ts`.
 - T009 review, `apps/api/src/app.ts` `/analyze` (SUGGESTION): with no review key (or a disabled review model), `admit` still counts a review call that never reaches the provider, so after the review ceiling the response reads `skipped` instead of `failed`. No cost is incurred and the structural findings are unchanged. Gating the count on a configured model is a wiring change and a user decision, not applied in review.
+- T010: size guard (400 lines) waived by the user; staged change is 485 lines, not split.
+- T010 review, `apps/api/test/privacy-limits.test.ts` (`ROUTE_ERROR_STATUSES`, SUGGESTION): the status table is hand-kept; the coverage test checks table to cases only, so a status added to a route without a table entry is not caught. The app cannot be read for its statuses without parsing source; each case already asserts its own status, so the gap is in the table, not in what is checked.

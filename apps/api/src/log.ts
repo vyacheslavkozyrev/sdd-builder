@@ -9,6 +9,10 @@ export type LogEvent =
   | 'generation_model_disabled'
   | 'review_key_missing'
   | 'review_model_disabled'
+  | 'review_model_failed'
+  | 'rate_limited'
+  | 'input_refused'
+  | 'daily_ceiling_reached'
   | 'server_started';
 
 /** A request path that is not a route is logged as `other`, so a path never reaches the log. */

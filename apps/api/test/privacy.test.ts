@@ -138,7 +138,7 @@ const cases: Case[] = [
       const failure = new Error(`${IDEA} ${REPLY} ${KEY}`);
       return post(createApp({ limits: fixedLimits(), review: { complete: () => Promise.reject(failure) }, log, generation: null }), ANALYZE_URL, configBody);
     },
-    lines: [],
+    lines: ['event=review_model_failed route=/analyze error=Error'],
   },
   {
     label: 'analyze with the wrong method',
@@ -305,7 +305,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
 
     expect(response.status).toBe(200);
     expect(sent).toEqual([]);
-    expect(log.lines).toEqual(['event=review_key_missing']);
+    expect(log.lines).toEqual(['event=review_key_missing', 'event=review_model_failed route=/analyze error=Error']);
     expect(text).not.toContain(KEY);
   });
 });

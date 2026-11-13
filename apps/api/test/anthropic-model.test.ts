@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { analyzeStructure, DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze } from '../src/analyze.js';
+import type { LogPort } from '../src/log.js';
 import {
   DEFAULT_ANALYZER_MODEL,
   REVIEW_MAX_TOKENS,
@@ -9,6 +10,9 @@ import {
   createAnthropicReviewModel,
 } from '../src/review/anthropic-model.js';
 import type { AnthropicClientOptions, AnthropicLike } from '../src/review/anthropic-model.js';
+
+/** A log port that discards its lines: these tests do not check the log. */
+const quietLog: LogPort = { write: () => undefined };
 
 /** A valid configuration with the default workflows and connections. */
 function reviewSampleConfig(): ProjectConfig {
@@ -239,7 +243,7 @@ describe('F-13 AC-024 review rejection gives failed with the structural findings
     };
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
-    const result = await analyze(config, model);
+    const result = await analyze(config, model, quietLog);
 
     expect(result).toEqual({
       findings: analyzeStructure(config),

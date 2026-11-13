@@ -2,9 +2,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze, type ReviewModel, type ReviewReply } from '../src/analyze.js';
+import type { LogPort } from '../src/log.js';
 import { createApp } from '../src/app.js';
 import { fixedLimits } from './fixed-limits.js';
-import type { LogPort } from '../src/log.js';
+
+/** A log port that discards its lines: these tests do not check the log. */
+const quietLog: LogPort = { write: () => undefined };
 
 // The analysis is wrapped so one case can make it throw an unexpected error; otherwise it runs as built.
 vi.mock('../src/analyze.js', async (importOriginal) => {
@@ -121,7 +124,7 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
     const reply = JSON.stringify([
       { severity: 'info', subject: 'testRules', message: 'Name the coverage tool.' },
     ]);
-    const expected = await analyze(config, replyWith(reply).model);
+    const expected = await analyze(config, replyWith(reply).model, quietLog);
     vi.mocked(analyze).mockClear();
     const app = createApp({ limits: fixedLimits(), review: replyWith(reply).model, log: recordingLog(), generation: null });
 

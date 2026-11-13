@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | ✅ Complete | 2026-11-12 | 22 of 22 tasks committed; T019 added by the verify gap (Amendment 2026-11-12, verify gap) |
-| Verify   | 🔄 In Progress | 2026-11-12 | Automated criteria: all covered. Manual AC-029 pending (checklist.md) |
+| Build    | 🔄 In Progress | 2026-11-12 | 22 of 23 tasks committed; T020 added by the device-check failure (Amendment 2026-11-12, device check failure) |
+| Verify   | 🔄 In Progress | 2026-11-12 | Automated criteria: all covered. Manual AC-029 failed at step 3; re-run after T020 |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -66,7 +66,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 **Automated (verify, 2026-11-12):** all 28 `[auto]` criteria (AC-001 to AC-028) have at least one passing test named with their criterion; no gaps. Task check: typecheck clean, 35 core test files (468 tests), 15 api test files (245 tests). AC-013 route-level coverage added by T019 after the first verify run.
 
-**Manual (`[device]`):** AC-029 is pending. The steps and the sample configuration are in `checklist.md` and `device-config.json` in this folder. Result: pending (see the checklist).
+**Manual (`[device]`):** AC-029 failed at step 3 (`POST /generate` returned 502: invisible characters in the model's reply keys). Fix in T020; the whole checklist is run again after T020. The steps and the sample configuration are in `checklist.md` and `device-config.json` in this folder.
 
 **Observations for a later tidy-up (not gaps):** a describe block in `apps/api/test/generate-service.test.ts` is labelled `F-07 AC-008` but tests the refusal of a reply that does not match the plan (AC-013 to AC-016 behaviour); AC-023 spies only on `/generate`, not on `/analyze`.
 
@@ -97,3 +97,9 @@ _Review suggestions intentionally not applied, with the reason._
 **Changed**: `plan.md` — T015 split into T015a (route and first half of the tests) and T015b (second half of the tests and the plan and progress updates); the Build total is now 21 tasks. `progress.md` — this record.
 **Reason**: the T015 change is 550 changed lines (535 added, 15 deleted), over the 400-line guard. The user approved the split.
 **Impact**: T015a is committed first from the working tree, with the full T015 version kept in the scratchpad; T015b follows. T016 to T018 are unchanged.
+
+### Amendment — 2026-11-12 (device check failure)
+
+**Changed**: `plan.md` — T020 added; the Build total is now 23 tasks. `progress.md` — this record and the Manual line under Test Results. `checklist.md` — step 3 recorded as failed.
+**Reason**: device check step 3 (`POST /generate` with a real key) returned 502. The model's reply keys for the 14 `.claude/...` files carried a zero-width space (U+200B) in front of the path, so `checkReply` refused them on both calls; the other files matched. The saved response was inspected.
+**Impact**: T020 removes the invisible characters from reply keys before `checkReply` runs, with tests. Build returns to in progress; verify and the device check run again after T020 is committed.

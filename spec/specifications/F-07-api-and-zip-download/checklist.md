@@ -73,4 +73,4 @@ Record the result in `progress.md` under Test Results. Do not write the key into
 
 | Criterion | Result | What happened |
 |---|---|---|
-| AC-029 `[device]` | pending | |
+| AC-029 `[device]` | failed | Step 3 returned 502: the model's reply keys for the `.claude/...` files carried a zero-width space, so the planned paths were not matched. Fixed by T020 (Amendment 2026-11-12, device check); re-run the whole checklist after T020. |

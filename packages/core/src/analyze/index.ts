@@ -1,4 +1,4 @@
-import type { AnalysisFinding, ProjectConfig } from '../model.js';
+import type { AnalysisFinding, AnalysisResult, ProjectConfig } from '../model.js';
 import { briefFindings } from './brief.js';
 import { customStepFindings } from './custom-steps.js';
 import { inputFindings } from './inputs.js';
@@ -43,4 +43,16 @@ function compareText(a: string, b: string): number {
     return -1;
   }
   return a > b ? 1 : 0;
+}
+
+/**
+ * The analysis when the LLM review is not asked for (the daily review ceiling is reached): the structural
+ * findings from `analyzeStructure`, and a review with status `skipped`, no findings and no dropped entries.
+ * The model is not involved, so the configuration is not sent anywhere.
+ */
+export function skippedAnalysis(config: ProjectConfig): AnalysisResult {
+  return {
+    findings: analyzeStructure(config),
+    review: { status: 'skipped', findings: [], dropped: 0 },
+  };
 }

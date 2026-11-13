@@ -110,7 +110,7 @@ describe('F-04 T002 analysis result shape', () => {
     expect(Object.keys(review).sort()).toEqual(['dropped', 'findings', 'status']);
     expect(result.findings).toEqual([finding]);
     expect(result.review.dropped).toBe(2);
-    expectTypeOf(result.review.status).toEqualTypeOf<'ok' | 'failed'>();
+    expectTypeOf(result.review.status).toEqualTypeOf<'ok' | 'failed' | 'skipped'>();
     expectTypeOf(result.review.dropped).toEqualTypeOf<number>();
     expectTypeOf(result.review.findings).toEqualTypeOf<AnalysisFinding[]>();
     expectTypeOf<AnalysisResult>().toEqualTypeOf<{ findings: AnalysisFinding[]; review: AnalysisReview }>();

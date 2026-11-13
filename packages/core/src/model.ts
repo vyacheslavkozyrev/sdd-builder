@@ -150,8 +150,11 @@ export interface AnalysisFinding {
 
 /** The LLM review part of an analysis. Its findings are kept apart from the structural ones. */
 export interface AnalysisReview {
-  /** 'failed' when the review could not be used; the structural findings still stand. */
-  status: 'ok' | 'failed';
+  /**
+   * 'failed' when the review could not be used; 'skipped' when it was not asked for (the daily review
+   * ceiling is reached). In both cases the structural findings still stand.
+   */
+  status: 'ok' | 'failed' | 'skipped';
   findings: AnalysisFinding[];
   /** Model findings removed because they did not pass the reply check. */
   dropped: number;

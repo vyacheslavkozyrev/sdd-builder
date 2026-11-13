@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 5 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 6 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,12 +29,16 @@ None
 | T003a | `parseProjectConfig` workflow fields and steps (split of T003 by Amendment 2026-11-12); other parts still unchecked and not exported | 0 blockers, 1 warning fixed (deferred `description` check recorded in plan), 0 suggestions | 376 core tests passed |
 | T003b | `parseProjectConfig` conditions, gates, routes (absent `fail` accepted, `fail: null` refused) and optional workflow `description`; connections, custom steps, stack, architecture still unchecked | 0 blockers, 0 warnings, 2 suggestions fixed (long test row wrapped; helper return type) | 35 files, 415 core tests passed |
 | T003c | `parseProjectConfig` connections, custom steps, stack, architecture; unknown fields refused; guard `isProjectConfig` replaces the cast; export of the parser and its types | 0 blockers, 2 warnings fixed (unknown fields refused; casts removed from the trust path), 2 suggestions fixed (shared list checks; typed test helpers). Staged change 502 lines, over the 400 guard: committed by user override | 35 files, 467 core tests and 56 api tests passed |
+| T004 | Runtime dependencies pinned: hono 4.13.14, @hono/node-server 2.1.5, jszip 3.10.2 | 0 blockers; the audit advisories on the new packages were accepted by the user and recorded under Deferred Findings | 35 files, 467 tests passed |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- WARNING T004 `npm audit --omit=dev` (unresolved, needs a user decision): `hono` 4.13.14 is affected by GHSA-4m76-xfj5-7975 (`mount()` path can bypass scoped middleware), GHSA-h7mg-cq63-vhpq (RegExpRouter skips wildcard middleware for encoded line terminators) and GHSA-3gg2-335m-rxc6 (`css` helper HTML injection); `@hono/node-server` 2.1.5 is affected by GHSA-qv5m-9pm6-hqp3 (ECONNRESET during WebSocket upgrade crashes the process) and GHSA-jpvv-r467-5p4w (backslash path bypass behind a reverse proxy). Both are new in this task; HEAD audits clean (0 vulnerabilities). Fix is `npm audit fix --force` to hono 4.13.18 and @hono/node-server 2.1.8, which are outside the exact pins the plan requires. Not applied: changing the pins contradicts the plan. Exposure depends on whether the API uses `mount()`, the `css` helper, WebSocket upgrades or a path-based proxy rule; confirm in T005–T006 or approve a pin change.
+  - **Accepted by the user (2026-11-12) for now.** Pins stay. Revisit when versions at least two weeks old carry the fixes, and confirm in T005–T006 that the API does not use the affected features.
 
 ---
 

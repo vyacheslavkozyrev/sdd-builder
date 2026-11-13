@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { parseProjectConfig, type ConfigProblem } from '../src/parse-config.js';
+import type { ProjectConfig } from '../src/index.js';
 import { baseConfig } from './fixtures.js';
 
 /** A valid submission as untrusted input: a JSON round trip gives an `unknown`, as a request body does. */
 function submission(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return { ...(JSON.parse(JSON.stringify(baseConfig())) as Record<string, unknown>), ...overrides };
+  const copy: Record<string, unknown> = JSON.parse(JSON.stringify(baseConfig()));
+  return { ...copy, ...overrides };
+}
+
+/** The workflows of a valid submission, as untrusted input. */
+function baseWorkflows(): Record<string, unknown>[] {
+  const workflows: Record<string, unknown>[] = JSON.parse(JSON.stringify(baseConfig().workflows));
+  return workflows;
 }
 
 /** A valid submission with one field removed. */
@@ -124,18 +132,16 @@ describe('F-07 AC-003 top-level config checks', () => {
 
 /** A valid submission whose first workflow has `changes` applied over it. */
 function withFirstWorkflow(changes: Record<string, unknown>): Record<string, unknown> {
-  const value = submission();
-  const [first, ...rest] = value['workflows'] as Record<string, unknown>[];
-  return { ...value, workflows: [{ ...first, ...changes }, ...rest] };
+  const [first, ...rest] = baseWorkflows();
+  return submission({ workflows: [{ ...first, ...changes }, ...rest] });
 }
 
 /** A valid submission whose first workflow has one field removed. */
 function withoutWorkflowField(field: string): Record<string, unknown> {
-  const value = withFirstWorkflow({});
-  const [first, ...rest] = value['workflows'] as Record<string, unknown>[];
+  const [first, ...rest] = baseWorkflows();
   const workflow = { ...first };
   delete workflow[field];
-  return { ...value, workflows: [workflow, ...rest] };
+  return submission({ workflows: [workflow, ...rest] });
 }
 
 describe('F-07 AC-003 workflow checks', () => {
@@ -496,5 +502,176 @@ describe('F-07 AC-003 workflow description and condition checks', () => {
     );
     expect(problems.length).toBeGreaterThan(0);
     expect(JSON.stringify(problems)).not.toContain(secret);
+  });
+});
+
+/** A valid custom step as untrusted input. */
+function validCustomStep(): Record<string, unknown> {
+  return {
+    id: 'threat-model',
+    name: 'Threat model',
+    summary: 'Lists the threats of the feature.',
+    kind: 'command',
+    origin: 'custom',
+    required: false,
+    consumes: ['features.md'],
+    produces: ['threats.md'],
+    ruleTags: ['code.md'],
+  };
+}
+
+/** A valid module as untrusted input. */
+function validModule(): Record<string, unknown> {
+  return { name: 'core', layer: 0, responsibility: 'Domain model and checks.', dependsOn: [] };
+}
+
+/** A valid connection with a gate, as untrusted input. */
+function validConnection(): Record<string, unknown> {
+  return { id: 'design-build', from: 'design', to: 'build', artifact: 'plan.md', gate: validGate() };
+}
+
+/** A submission whose first custom step, first module or first connection has `changes` applied. */
+function withStep(changes: Record<string, unknown>): Record<string, unknown> {
+  return submission({ customSteps: [objectWith(validCustomStep(), changes)] });
+}
+
+function withModule(changes: Record<string, unknown>): Record<string, unknown> {
+  return submission({ architecture: { style: 'layered', modules: [objectWith(validModule(), changes)] } });
+}
+
+function withConnection(changes: Record<string, unknown>): Record<string, unknown> {
+  return submission({ connections: [objectWith(validConnection(), changes)] });
+}
+
+describe('F-07 AC-003 connection, custom step, stack and architecture checks', () => {
+  const rows: { name: string; value: unknown; expected: ConfigProblem[] }[] = [
+    { name: 'a connection that is not an object names its index', value: submission({ connections: ['x'] }), expected: [{ path: 'connections[0]', reason: 'must be an object' }] },
+    { name: 'a connection without an id names the id field', value: submission({ connections: [objectWith(validConnection(), {}, ['id'])] }), expected: [{ path: 'connections[0].id', reason: 'is required' }] },
+    { name: 'a connection whose from is a number names the from field', value: withConnection({ from: 1 }), expected: [{ path: 'connections[0].from', reason: 'must be a string' }] },
+    { name: 'a connection without a to names the to field', value: submission({ connections: [objectWith(validConnection(), {}, ['to'])] }), expected: [{ path: 'connections[0].to', reason: 'is required' }] },
+    { name: 'a connection whose artifact is a list names the artifact field', value: withConnection({ artifact: ['plan.md'] }), expected: [{ path: 'connections[0].artifact', reason: 'must be a string' }] },
+    { name: 'a connection gate that is text names the gate field', value: withConnection({ gate: 'approval' }), expected: [{ path: 'connections[0].gate', reason: 'must be an object' }] },
+    { name: 'a connection gate without a type names the gate type field', value: withConnection({ gate: objectWith(validGate(), {}, ['type']) }), expected: [{ path: 'connections[0].gate.type', reason: 'is required' }] },
+    { name: 'a connection gate with an unknown type names the gate type field', value: withConnection({ gate: objectWith(validGate(), { type: 'lint' }) }), expected: [{ path: 'connections[0].gate.type', reason: 'must be one of approval, checks, review, diff-size' }] },
+    { name: 'a connection gate whose threshold is text names the threshold field', value: withConnection({ gate: objectWith(validGate(), { threshold: '400' }) }), expected: [{ path: 'connections[0].gate.threshold', reason: 'must be a number' }] },
+    { name: 'connections that are not an array name the connections field', value: submission({ connections: { id: 'x' } }), expected: [{ path: 'connections', reason: 'must be an array' }] },
+    { name: 'a custom step that is not an object names its index', value: submission({ customSteps: ['x'] }), expected: [{ path: 'customSteps[0]', reason: 'must be an object' }] },
+    { name: 'a custom step without a summary names the summary field', value: submission({ customSteps: [objectWith(validCustomStep(), {}, ['summary'])] }), expected: [{ path: 'customSteps[0].summary', reason: 'is required' }] },
+    { name: 'a custom step whose description is null names the description field', value: withStep({ description: null }), expected: [{ path: 'customSteps[0].description', reason: 'must be a string' }] },
+    { name: 'a custom step with an unknown kind names the kind field', value: withStep({ kind: 'plugin' }), expected: [{ path: 'customSteps[0].kind', reason: 'must be one of command, agent, skill, script' }] },
+    { name: 'a custom step with an unknown origin names the origin field', value: withStep({ origin: 'remote' }), expected: [{ path: 'customSteps[0].origin', reason: 'must be one of catalog, custom' }] },
+    { name: 'a custom step whose required flag is text names the required field', value: withStep({ required: 'no' }), expected: [{ path: 'customSteps[0].required', reason: 'must be a boolean' }] },
+    { name: 'a custom step whose produces is text names the produces field', value: withStep({ produces: 'threats.md' }), expected: [{ path: 'customSteps[0].produces', reason: 'must be an array' }] },
+    { name: 'a custom step whose consumes item is a number names the item index', value: withStep({ consumes: ['features.md', 2] }), expected: [{ path: 'customSteps[0].consumes[1]', reason: 'must be a string' }] },
+    { name: 'a custom step without ruleTags names the ruleTags field', value: submission({ customSteps: [objectWith(validCustomStep(), {}, ['ruleTags'])] }), expected: [{ path: 'customSteps[0].ruleTags', reason: 'is required' }] },
+    { name: 'a custom step whose body is a number names the body field', value: withStep({ body: 5 }), expected: [{ path: 'customSteps[0].body', reason: 'must be a string' }] },
+    { name: 'a stack without a language names the language field', value: submission({ stack: { framework: 'Express' } }), expected: [{ path: 'stack.language', reason: 'is required' }] },
+    { name: 'a stack whose language is a number names the language field', value: submission({ stack: { language: 3 } }), expected: [{ path: 'stack.language', reason: 'must be a string' }] },
+    { name: 'a stack whose testFramework is null names the testFramework field', value: submission({ stack: { language: 'TypeScript', testFramework: null } }), expected: [{ path: 'stack.testFramework', reason: 'must be a string' }] },
+    { name: 'an architecture without a style names the style field', value: submission({ architecture: { modules: [] } }), expected: [{ path: 'architecture.style', reason: 'is required' }] },
+    { name: 'an architecture without modules names the modules field', value: submission({ architecture: { style: 'layered' } }), expected: [{ path: 'architecture.modules', reason: 'is required' }] },
+    { name: 'a module that is not an object names its index', value: submission({ architecture: { style: 'layered', modules: ['core'] } }), expected: [{ path: 'architecture.modules[0]', reason: 'must be an object' }] },
+    { name: 'a module without a name names the name field', value: submission({ architecture: { style: 'layered', modules: [objectWith(validModule(), {}, ['name'])] } }), expected: [{ path: 'architecture.modules[0].name', reason: 'is required' }] },
+    { name: 'a module whose layer is not a number names the layer field', value: withModule({ layer: 'two' }), expected: [{ path: 'architecture.modules[0].layer', reason: 'must be a number' }] },
+    { name: 'a module without a layer names the layer field', value: submission({ architecture: { style: 'layered', modules: [objectWith(validModule(), {}, ['layer'])] } }), expected: [{ path: 'architecture.modules[0].layer', reason: 'is required' }] },
+    { name: 'a module whose dependsOn is text names the dependsOn field', value: withModule({ dependsOn: 'core' }), expected: [{ path: 'architecture.modules[0].dependsOn', reason: 'must be an array' }] },
+    { name: 'a module whose dependsOn item is a number names the item index', value: withModule({ dependsOn: [4] }), expected: [{ path: 'architecture.modules[0].dependsOn[0]', reason: 'must be a string' }] },
+    { name: 'an architecture whose notes are a number names the notes field', value: submission({ architecture: { style: 'layered', modules: [], notes: 7 } }), expected: [{ path: 'architecture.notes', reason: 'must be a string' }] },
+  ];
+
+  it.each(rows)('F-07 AC-003 $name', ({ value, expected }) => {
+    expect(problemsOf(value)).toEqual(expected);
+  });
+
+  it.each([
+    { name: 'a connection with an artifact and a gate', value: withConnection({}) },
+    { name: 'a custom step with a description and a body', value: withStep({ description: 'Models threats.', body: '# Threats' }) },
+    { name: 'a custom step with catalog origin', value: withStep({ origin: 'catalog' }) },
+    { name: 'a stack with every optional field', value: submission({ stack: { language: 'TypeScript', framework: 'Express', platform: 'Node', buildTool: 'tsc', testFramework: 'Vitest' } }) },
+    { name: 'an architecture with modules and notes', value: submission({ architecture: { style: 'layered', modules: [validModule()], notes: 'Core has no I/O.' } }) },
+  ])('F-07 AC-003 accepts $name', ({ value }) => {
+    expect(parseProjectConfig(value)).toMatchObject({ ok: true });
+  });
+
+  it('F-07 AC-003 a problem in these sections never contains the submitted value', () => {
+    const secret = 'sk-test-SECRET-VALUE-321';
+    const problems = problemsOf(
+      submission({
+        connections: [{ id: secret, from: secret, to: secret, artifact: 9, gate: { id: secret, type: secret, required: secret } }],
+        customSteps: [{ ...validCustomStep(), kind: secret, origin: secret, consumes: [secret, 1], body: 3 }],
+        stack: { language: secret, framework: 4 },
+        architecture: { style: secret, modules: [{ name: secret, layer: secret, responsibility: secret, dependsOn: [secret, 2] }] },
+      }),
+    );
+    expect(problems.length).toBeGreaterThan(0);
+    expect(JSON.stringify(problems)).not.toContain(secret);
+  });
+
+  it('F-07 AC-003 a full catalog-style configuration is accepted and returned unchanged', () => {
+    const catalogStyle: ProjectConfig = baseConfig({
+      stack: { language: 'TypeScript', framework: 'Express', platform: 'Node', buildTool: 'tsc', testFramework: 'Vitest' },
+      architecture: {
+        style: 'layered',
+        modules: [
+          { name: 'core', layer: 0, responsibility: 'Domain model and checks.', dependsOn: [] },
+          { name: 'api', layer: 1, responsibility: 'HTTP routes.', dependsOn: ['core'] },
+        ],
+        notes: 'Core has no I/O.',
+      },
+      customSteps: [
+        {
+          id: 'threat-model',
+          name: 'Threat model',
+          summary: 'Lists the threats of the feature.',
+          description: 'Models threats before design.',
+          kind: 'command',
+          origin: 'custom',
+          required: false,
+          consumes: ['features.md'],
+          produces: ['threats.md'],
+          ruleTags: ['code.md'],
+          body: '# Threat model',
+        },
+      ],
+      connections: [
+        { id: 'design-build', from: 'design', to: 'build', artifact: 'plan.md', gate: { id: 'review-gate', type: 'review', required: true } },
+      ],
+    });
+    const json: Record<string, unknown> = JSON.parse(JSON.stringify(catalogStyle));
+    expect(parseProjectConfig(json)).toEqual({ ok: true, config: json });
+  });
+});
+
+describe('F-07 AC-003 unknown fields are refused', () => {
+  const unknownField = { extra: 'x' };
+  const rows: { name: string; value: unknown; expected: ConfigProblem[] }[] = [
+    { name: 'a top-level field the config does not define names the top level', value: submission(unknownField), expected: [{ path: '$', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown stack field names the stack', value: submission({ stack: { language: 'TypeScript', ...unknownField } }), expected: [{ path: 'stack', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown architecture field names the architecture', value: submission({ architecture: { style: 'layered', modules: [], ...unknownField } }), expected: [{ path: 'architecture', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown module field names the module', value: withModule(unknownField), expected: [{ path: 'architecture.modules[0]', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown custom step field names the custom step', value: withStep(unknownField), expected: [{ path: 'customSteps[0]', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown connection field names the connection', value: withConnection(unknownField), expected: [{ path: 'connections[0]', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown gate field on a connection names the gate', value: withConnection({ gate: objectWith(validGate(), unknownField) }), expected: [{ path: 'connections[0].gate', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown workflow field names the workflow', value: withFirstWorkflow(unknownField), expected: [{ path: 'workflows[0]', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown workflow step field names the step', value: withFirstWorkflow({ steps: [{ stepId: 'design', enabled: true, ...unknownField }] }), expected: [{ path: 'workflows[0].steps[0]', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown route field names the route', value: withFirstWorkflow({ conditions: [objectWith(validCondition(), { pass: { kind: 'next', ...unknownField } })] }), expected: [{ path: 'workflows[0].conditions[0].pass', reason: 'has a field the config does not define' }] },
+    { name: 'an unknown condition field names the condition', value: withFirstWorkflow({ conditions: [objectWith(validCondition(), unknownField)] }), expected: [{ path: 'workflows[0].conditions[0]', reason: 'has a field the config does not define' }] },
+  ];
+
+  it.each(rows)('F-07 AC-003 refuses $name', ({ value, expected }) => {
+    expect(problemsOf(value)).toEqual(expected);
+  });
+
+  it('F-07 AC-003 a field name is submitted text, so it never appears in a problem', () => {
+    const secret = 'sk-test-SECRET-KEY-456';
+    const problems = problemsOf(withStep({ [secret]: 'x' }));
+    expect(problems).toEqual([{ path: 'customSteps[0]', reason: 'has a field the config does not define' }]);
+    expect(JSON.stringify(problems)).not.toContain(secret);
+  });
+
+  it('F-07 AC-003 one problem is added per object, however many unknown fields it has', () => {
+    expect(problemsOf(withStep({ a: 1, b: 2 }))).toEqual([
+      { path: 'customSteps[0]', reason: 'has a field the config does not define' },
+    ]);
   });
 });

@@ -24,3 +24,4 @@ export * from './analyze/brief.js';
 export * from './analyze/custom-steps.js';
 export * from './analyze/index.js';
 export * from './analyze/review-reply.js';
+export { parseProjectConfig, type ConfigProblem, type ParseConfigResult } from './parse-config.js';

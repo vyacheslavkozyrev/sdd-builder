@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 4 of 20 tasks committed (T003 split into T003a–c) |
+| Build    | 🔄 In Progress | 2026-11-12 | 5 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ None
 | T002 | `parseProjectConfig` top level: schemaVersion, strings, arrays, known targets; interim cast until T003; not exported | 0 blockers, 2 warnings fixed (missing error-path tests), 2 suggestions fixed (callback types, interim comment) | 35 files, 352 passed |
 | T003a | `parseProjectConfig` workflow fields and steps (split of T003 by Amendment 2026-11-12); other parts still unchecked and not exported | 0 blockers, 1 warning fixed (deferred `description` check recorded in plan), 0 suggestions | 376 core tests passed |
 | T003b | `parseProjectConfig` conditions, gates, routes (absent `fail` accepted, `fail: null` refused) and optional workflow `description`; connections, custom steps, stack, architecture still unchecked | 0 blockers, 0 warnings, 2 suggestions fixed (long test row wrapped; helper return type) | 35 files, 415 core tests passed |
+| T003c | `parseProjectConfig` connections, custom steps, stack, architecture; unknown fields refused; guard `isProjectConfig` replaces the cast; export of the parser and its types | 0 blockers, 2 warnings fixed (unknown fields refused; casts removed from the trust path), 2 suggestions fixed (shared list checks; typed test helpers). Staged change 502 lines, over the 400 guard: committed by user override | 35 files, 467 core tests and 56 api tests passed |
 
 ---
 
@@ -50,3 +51,9 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md` — T003 split into T003a, T003b and T003c; the Build total is now 20 tasks. `progress.md` — this record.
 **Reason**: the staged T003 diff was 788 changed lines (722 added, 66 deleted), over the 400-line size guard.
 **Impact**: T003 is re-cut from the staged work into three commits, each reviewed, checked and committed in order. T004 onward are unchanged. Also recorded here: `GENERATION_MAX_TOKENS` (T010) starts at 32,000 for a single whole-plan generation call; to be checked once the product runs end to end.
+
+### Amendment — 2026-11-12 (size guard override)
+
+**Changed**: `progress.md` only.
+**Reason**: T003c's staged change is 502 changed lines (411 added, 91 deleted) after review fixes, over the 400-line guard. The user chose to accept one commit at this size rather than split it.
+**Impact**: T003c is committed as one commit. This is a one-time override for T003c; the guard applies to the tasks that follow.

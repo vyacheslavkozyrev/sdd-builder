@@ -18,7 +18,7 @@ Status: draft, reviewed 2026-11-11 against the decisions in [idea.md](idea.md), 
 | F-10 | Generated-project self-check | Post-MVP | Enabler | packages/core | 3 | F-03 | ⏳ Pending |
 | F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not planned |
 | F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not planned |
-| F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ⏳ Pending |
+| F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ✅ Complete (10 tasks, 29 criteria: 28 automated, 1 device; device check passed on a real-key run) |
 | F-14 | Custom steps | MVP | User | packages/core, apps/web | 3 | F-06, F-02 | ⏳ Pending |
 | F-15 | Configurable quality gates | MVP | User | packages/core, apps/web | 2 | F-06 | ⏳ Pending |
 | F-16 | GitHub Spec Kit output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |

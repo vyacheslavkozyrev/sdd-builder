@@ -40,8 +40,8 @@ Dependency direction: `web → core`, `api → core`, `core → templates` (read
    1. `core` runs the structural checks (instant, no cost). These include the workflow rules in `building-blocks.md` §1 and §3.
    2. `apps/api` sends the brief and the process to the LLM with a fixed review prompt, and asks for output in the `AnalysisFinding` shape.
    3. The API validates the model output against the schema. Invalid output is dropped and counted, not shown.
-   4. The response is `{ findings, review: { status, findings, dropped } }`: the structural findings, and the valid model findings under `review`. If the LLM step fails, `review.status` is `failed` with no review findings, and the structural findings are still returned. Budget limits are F-13.
-3. `POST /generate` with the config returns a zip. `core` builds the generation input from the config (the block descriptions, the process and the template layout). `apps/api` sends it to the LLM, which writes the final command, agent, skill, script and rule files. `core` then checks the output (§3). Nothing is stored on the server.
+   4. The response is `{ findings, review: { status, findings, dropped } }`: the structural findings, and the valid model findings under `review`. If the LLM step fails, `review.status` is `failed` with no review findings, and the structural findings are still returned. Budget limits are F-13. The request body is the `ProjectConfig` itself. A body that is not a valid `ProjectConfig` gets 400; a valid config gets 200 even when the model fails.
+3. `POST /generate` with the `ProjectConfig` as the body returns a zip. `core` builds the generation input from the config (the block descriptions, the process and the template layout). `apps/api` makes one model call for the whole plan, which writes the final command, agent, skill, script and rule files; `core` then checks the reply (§3). A failed reply gets one retry. Nothing is stored on the server.
 4. The MVP keeps the config in the browser session only. Save, import and export are post-MVP (F-08).
 
 Findings never change the configuration. The user decides what to apply.
@@ -54,14 +54,20 @@ Findings never change the configuration. The user decides what to apply.
 - **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (with the Mermaid view of the process), placeholder values.
 - **Step 4, render per workflow:** one `workflow-<name>.md` command that calls the workflow's steps in order and writes its branches as numbered rules, with their round limits (or "no limit set").
 - **Step 5, write per step (LLM):** the LLM writes the content of the command, agent, skill or script the step uses, from its block description and its template, and the rule-set files it carries. `core` fixes the file path and the place of each file in the output.
-- **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The checks a reply must pass are set in F-03 (see below); the retry for a reply that fails them belongs to F-07.
+- **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The checks a reply must pass are set in F-03 (see below); the retry for a reply that fails them is made by `apps/api` (F-07).
 
 Two pure functions in `packages/core` serve steps 5 and 6 (F-03): `planGeneration` gives step 5 its input, and `checkReply` is step 6.
 
 - **`planGeneration(config, templates)`** returns one entry per output file, in the order of the file list: its path, its rendered layout, its block description (a step's `description`, or its `summary` when the description is unset or empty; a workflow's `description`, or empty) and its rule-set tags (steps only).
 - **`checkReply(plan, reply)`** checks the model's reply against the plan: each planned file is present, no extra file is returned, no path is unsafe, no placeholder or step marker is left, each required `##` heading of a Markdown output is present, and no file mentions SDDBuilder or its own paths (`apps/web`, `apps/api`, `packages/core`). It returns the findings sorted by path, then by message.
 
-The model call and the one-retry rule belong to F-07 (`apps/api`), not to `core`.
+The model call and the one-retry rule live in `apps/api` (F-07), not in `core`.
+
+As built (F-07), `/generate` makes one model call for the whole plan. The reply must be one JSON object mapping each planned path to its text; it goes through `parseReply` and `checkReply`. If either fails, one retry is made with the findings in the prompt. A second failure returns the findings and paths only, never file text. A provider error is not retried.
+
+The zip is named `sddbuilder-project.zip` (`application/zip`, `Content-Disposition: attachment`). It holds file entries only, in plan order, DEFLATE-compressed, each stamped with the fixed date 2020-01-01 00:00 UTC, so the same files give the same bytes.
+
+Status codes of `/generate`: 200 zip; 400 invalid JSON or a body that is not a `ProjectConfig`; 422 configuration refused (every problem listed, no model call); 502 model call failed, or the reply failed the checks twice; 503 generation model not configured; 500 unexpected error (generic message). Unknown paths give 404; any other method on `/analyze` or `/generate` gives 405 with `Allow: POST`.
 
 The file list, paths and order are deterministic: the same config gives the same set of files. The wording of LLM-written content may differ between runs. Tests use a fake model with fixed replies, so they stay deterministic.
 
@@ -72,9 +78,11 @@ The file list, paths and order are deterministic: the same config gives the same
 | Provider | Anthropic API |
 | Model | A Claude Sonnet model, set by the `SDDBUILDER_ANALYZER_MODEL` environment variable. The analyzer default is `claude-sonnet-5-5`, used when the variable is not set. |
 | Key | `ANTHROPIC_API_KEY`, server environment only. Never sent to the browser, never logged. |
+| Environment | `ANTHROPIC_API_KEY` (server only); `SDDBUILDER_ANALYZER_MODEL` (model for analysis and generation, default `claude-sonnet-5-5`); `PORT` (listen port, default 3000; a value that is not a whole number from 1 to 65535 stops startup). |
 | Input | Analysis: the brief and the process. Generation: the block descriptions, the process and the template layout. Both with a size cap (F-13). |
 | Output | JSON in the `AnalysisFinding` shape, validated server-side. The analysis result is `{ findings, review: { status, findings, dropped } }`: `findings` are the structural findings from `core`; `review.status` is `ok` or `failed`; `review.findings` are the valid model findings (a model `blocker` is kept as `warning`); `review.dropped` counts the invalid ones. Structural findings are returned even when the review fails. |
 | Failure | A timeout (60 s per attempt on the SDK client; the SDK retries twice by default), a provider error, or a reply that is not a JSON array → `review.status` is `failed` with no review findings; the structural findings are still returned. Invalid single findings are dropped, not a failure. Budget exhaustion is F-13. |
+| Generation call | One call per `/generate`, for the whole plan. `max_tokens` 32000 (`GENERATION_MAX_TOKENS`); client timeout 300 s (`GENERATION_TIMEOUT_MS`, not the review's 60 s). A timeout or provider error fails after that call; the SDK's own retries apply inside the adapter. The retry for a bad reply is in §3. |
 | Privacy | The browser shows a notice before analysis: the brief is sent to the model provider. The server does not store or log brief content. |
 
 ## 5. Technology (proposed)

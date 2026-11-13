@@ -1,5 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import JSZip from 'jszip';
+import * as fs from 'node:fs';
+import * as fsp from 'node:fs/promises';
 import {
   DEFAULT_CONNECTIONS,
   DEFAULT_WORKFLOWS,
@@ -12,12 +14,117 @@ import type { ReviewModel } from '../src/analyze.js';
 import { createApp, type LogPort } from '../src/app.js';
 import type { GenerationModel, GenerationReply } from '../src/generate/generation-model.js';
 
+// Every node:fs write function is wrapped so a test can prove that a request wrote nothing; the wrapped call still runs.
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  return {
+    ...actual,
+    write: vi.fn(actual.write),
+    writeSync: vi.fn(actual.writeSync),
+    writev: vi.fn(actual.writev),
+    writevSync: vi.fn(actual.writevSync),
+    writeFileSync: vi.fn(actual.writeFileSync),
+    appendFileSync: vi.fn(actual.appendFileSync),
+    mkdirSync: vi.fn(actual.mkdirSync),
+    mkdtempSync: vi.fn(actual.mkdtempSync),
+    copyFileSync: vi.fn(actual.copyFileSync),
+    cpSync: vi.fn(actual.cpSync),
+    renameSync: vi.fn(actual.renameSync),
+    rmSync: vi.fn(actual.rmSync),
+    rmdirSync: vi.fn(actual.rmdirSync),
+    unlinkSync: vi.fn(actual.unlinkSync),
+    truncateSync: vi.fn(actual.truncateSync),
+    ftruncateSync: vi.fn(actual.ftruncateSync),
+    symlinkSync: vi.fn(actual.symlinkSync),
+    linkSync: vi.fn(actual.linkSync),
+    chmodSync: vi.fn(actual.chmodSync),
+    chownSync: vi.fn(actual.chownSync),
+    utimesSync: vi.fn(actual.utimesSync),
+    openSync: vi.fn(actual.openSync),
+    createWriteStream: vi.fn(actual.createWriteStream),
+    promises: await import('node:fs/promises'),
+  };
+});
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>();
+  return {
+    ...actual,
+    writeFile: vi.fn(actual.writeFile),
+    appendFile: vi.fn(actual.appendFile),
+    mkdir: vi.fn(actual.mkdir),
+    mkdtemp: vi.fn(actual.mkdtemp),
+    copyFile: vi.fn(actual.copyFile),
+    cp: vi.fn(actual.cp),
+    rename: vi.fn(actual.rename),
+    rm: vi.fn(actual.rm),
+    rmdir: vi.fn(actual.rmdir),
+    unlink: vi.fn(actual.unlink),
+    truncate: vi.fn(actual.truncate),
+    symlink: vi.fn(actual.symlink),
+    link: vi.fn(actual.link),
+    chmod: vi.fn(actual.chmod),
+    chown: vi.fn(actual.chown),
+    utimes: vi.fn(actual.utimes),
+    open: vi.fn(actual.open),
+  };
+});
+
 const GENERATE_URL = 'http://localhost/generate';
 const ANALYZE_URL = 'http://localhost/analyze';
 const ZIP_DISPOSITION = 'attachment; filename="sddbuilder-project.zip"';
 const UNUSED_REVIEW: ReviewModel = {
   complete: () => Promise.reject(new Error('the review model is not used by /generate')),
 };
+
+const fileWriters = [
+  fs.write,
+  fs.writeSync,
+  fs.writev,
+  fs.writevSync,
+  fs.writeFileSync,
+  fs.appendFileSync,
+  fs.mkdirSync,
+  fs.mkdtempSync,
+  fs.copyFileSync,
+  fs.cpSync,
+  fs.renameSync,
+  fs.rmSync,
+  fs.rmdirSync,
+  fs.unlinkSync,
+  fs.truncateSync,
+  fs.ftruncateSync,
+  fs.symlinkSync,
+  fs.linkSync,
+  fs.chmodSync,
+  fs.chownSync,
+  fs.utimesSync,
+  fs.openSync,
+  fs.createWriteStream,
+  fsp.writeFile,
+  fsp.appendFile,
+  fsp.mkdir,
+  fsp.mkdtemp,
+  fsp.copyFile,
+  fsp.cp,
+  fsp.rename,
+  fsp.rm,
+  fsp.rmdir,
+  fsp.unlink,
+  fsp.truncate,
+  fsp.symlink,
+  fsp.link,
+  fsp.chmod,
+  fsp.chown,
+  fsp.utimes,
+  fsp.open,
+];
+
+beforeEach(() => {
+  for (const writer of fileWriters) {
+    vi.mocked(writer).mockClear();
+  }
+});
 
 /** A valid configuration with the default workflows and connections. */
 function sampleConfig(name = 'Sample Project'): ProjectConfig {
@@ -260,4 +367,144 @@ describe('F-07 AC-019 the 502 body carries findings and paths only, never file t
     const json = JSON.parse(text) as { problems: string[] };
     expect(json.problems.join('\n')).toContain(firstPath);
   });
+});
+
+describe('F-07 AC-022 requests do not share results', () => {
+  it('F-07 AC-022 the same body twice gives two independent 200 results with equal bytes', async () => {
+    const config = sampleConfig();
+    const model = scriptedModel([replyFor(config), replyFor(config)]);
+    const app = appWith(model);
+
+    const first = await postJson(app, GENERATE_URL, config);
+    const second = await postJson(app, GENERATE_URL, config);
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    expect(model.prompts).toHaveLength(2);
+    expect(Buffer.from(await second.arrayBuffer()).equals(Buffer.from(await first.arrayBuffer()))).toBe(true);
+  });
+
+  it('F-07 AC-022 the second request sees only its own configuration', async () => {
+    const alpha = sampleConfig('Alpha Project');
+    const beta = sampleConfig('Beta Project');
+    const model = scriptedModel([replyFor(alpha), replyFor(beta)]);
+    const app = appWith(model);
+
+    await postJson(app, GENERATE_URL, alpha);
+    const second = await postJson(app, GENERATE_URL, beta);
+
+    expect(second.status).toBe(200);
+    expect(model.prompts[1]).toContain('Beta Project');
+    expect(model.prompts[1]).not.toContain('Alpha Project');
+  });
+});
+
+describe('F-07 AC-023 a request writes no file', () => {
+  it('F-07 AC-023 a successful request calls no node:fs write function', async () => {
+    const config = sampleConfig();
+    const app = appWith(scriptedModel([replyFor(config)]));
+
+    const response = await postJson(app, GENERATE_URL, config);
+    await response.arrayBuffer();
+
+    expect(response.status).toBe(200);
+    for (const writer of fileWriters) {
+      expect(writer).not.toHaveBeenCalled();
+    }
+  });
+
+  it('F-07 AC-023 a refused request calls no node:fs write function', async () => {
+    const app = appWith(scriptedModel([]));
+
+    const response = await postJson(app, GENERATE_URL, duplicateIdConfig());
+    await response.text();
+
+    expect(response.status).toBe(422);
+    for (const writer of fileWriters) {
+      expect(writer).not.toHaveBeenCalled();
+    }
+  });
+});
+
+describe('F-07 AC-025 unknown paths and wrong methods on /generate', () => {
+  it('F-07 AC-025 returns 404 with a JSON error for an unknown path', async () => {
+    const response = await appWith(scriptedModel([])).request('http://localhost/nowhere');
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get('content-type')).toMatch(/application\/json/);
+    expect(await response.json()).toEqual({ error: 'not found' });
+  });
+
+  it('F-07 AC-025 returns 405 with Allow: POST for GET on /generate', async () => {
+    const response = await appWith(scriptedModel([])).request(GENERATE_URL, { method: 'GET' });
+
+    expect(response.status).toBe(405);
+    expect(response.headers.get('allow')).toBe('POST');
+    expect(await response.json()).toEqual({ error: 'method not allowed' });
+  });
+});
+
+describe('F-07 AC-026 every error response has the one error shape', () => {
+  const secret = 'secret detail at /srv/app/internal.ts';
+
+  const scenarios: [string, boolean, () => Response | Promise<Response>][] = [
+    ['400 for a body that is not JSON', false, () => postJson(appWith(scriptedModel([])), GENERATE_URL, '{not json')],
+    ['405 for GET', false, () => appWith(scriptedModel([])).request(GENERATE_URL)],
+    ['404 for an unknown path', false, () => appWith(scriptedModel([])).request('http://localhost/nowhere')],
+    [
+      '422 for a refused configuration',
+      true,
+      () => postJson(appWith(scriptedModel([])), GENERATE_URL, duplicateIdConfig()),
+    ],
+    ['502 for a failed reply', true, () => postJson(appWith(scriptedModel(['x', 'y'])), GENERATE_URL, sampleConfig())],
+    [
+      '503 when generation is not configured',
+      false,
+      () =>
+        postJson(createApp({ review: UNUSED_REVIEW, generation: null, log: recordingLog() }), GENERATE_URL, sampleConfig()),
+    ],
+    [
+      '500 when the templates throw',
+      false,
+      () =>
+        postJson(
+          createApp({
+            review: UNUSED_REVIEW,
+            generation: {
+              templates: {
+                get: () => {
+                  throw new Error(secret);
+                },
+              },
+              model: scriptedModel([]),
+            },
+            log: recordingLog(),
+          }),
+          GENERATE_URL,
+          sampleConfig(),
+        ),
+    ],
+  ];
+
+  for (const [label, hasProblems, run] of scenarios) {
+    it(`F-07 AC-026 ${label} is JSON with error, problems as strings where there are problems, and no stack or path`, async () => {
+      const response = await run();
+      const text = await response.text();
+
+      expect(response.headers.get('content-type')).toMatch(/application\/json/);
+      const json = JSON.parse(text) as Record<string, unknown>;
+      expect(Object.keys(json).every((key) => key === 'error' || key === 'problems')).toBe(true);
+      expect(typeof json['error']).toBe('string');
+      expect(json['problems'] !== undefined).toBe(hasProblems);
+      if (hasProblems) {
+        expect(Array.isArray(json['problems'])).toBe(true);
+        for (const problem of json['problems'] as unknown[]) {
+          expect(typeof problem).toBe('string');
+        }
+      }
+      expect(text).not.toContain(secret);
+      expect(text).not.toContain('stack');
+      expect(text).not.toMatch(/\bat\s+\S+\s+\(|\.[cm]?[jt]s:\d+|node_modules/);
+    });
+  }
 });

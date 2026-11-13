@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 17 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
+| Build    | 🔄 In Progress | 2026-11-12 | 18 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
+| T015b | `POST /generate` route, second part (split of T015): statelessness; no file written during a request; 405 and 404 bodies; error shape and no stack or server path in every error body | 0 blockers, 2 warnings fixed (write spies cover the full write-capable set; problems asserted per scenario), 2 suggestions fixed (stack frames refused; fs.promises covered) | 215 api tests, 468 core tests passed |
 | T015a | `POST /generate` route, first part (split of T015 by Amendment 2026-11-12): readConfig, 503 without a model, 422 refused, 502 model or reply with findings only, 200 zip with attachment headers; first-half route tests | 0 blockers, 2 warnings fixed (AC-019 test now sees a finding that would echo a value; AC-014 test returns the last reply's findings), 1 suggestion fixed (AC-017 label) | 202 api tests, 468 core tests passed |
 | T014 | Zip packaging (`packageZip`): file entries only; paths refused if absolute, drive-letter, backslash, `..` or empty; one fixed UTC date on every entry | 0 blockers, 1 warning fixed (stored-date read-back test added), 1 suggestion fixed (constant comment); the review's local-midnight request not applied (JSZip stores UTC fields) | 185 api tests, 468 core tests passed |
 | T013 | Retry rules in the generation service: one retry with the first findings; second failure returns findings and paths only after two calls; model error gives `model` with no third call | 0 blockers, 1 warning fixed (reply-check quoted long model keys in findings; now shortened, with a test), 1 suggestion fixed (explicit AC-015 labels) | 173 api tests, 468 core tests passed |

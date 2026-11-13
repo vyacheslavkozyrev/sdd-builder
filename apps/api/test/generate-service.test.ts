@@ -301,8 +301,8 @@ describe('F-07 AC-012 the retry prompt holds each finding of the first reply', (
   });
 });
 
-describe('F-07 AC-013 a second failure is refused with the last reply findings after two calls', () => {
-  it.each(FAILING_REPLIES)('F-07 AC-013 refuses when the retry reply %s, with its findings and two calls', async (_label, reply, findings) => {
+describe('F-07 AC-014 a second failure is refused with the last reply findings after two calls', () => {
+  it.each(FAILING_REPLIES)('F-07 AC-014 refuses when the retry reply %s, with its findings and two calls', async (_label, reply, findings) => {
     const config = sampleConfig();
     const model = scriptedModel([reply(config), reply(config)]);
 
@@ -312,7 +312,7 @@ describe('F-07 AC-013 a second failure is refused with the last reply findings a
     expect(model.prompts).toHaveLength(2);
   });
 
-  it('F-07 AC-013 reports only the findings of the second reply, not those of the first', async () => {
+  it('F-07 AC-014 reports only the findings of the second reply, not those of the first', async () => {
     const config = sampleConfig();
     const [first] = plannedPaths(config);
     const model = scriptedModel([
@@ -334,7 +334,7 @@ describe('F-07 AC-013 a second failure is refused with the last reply findings a
         throw new Error('provider unreachable');
       },
     ],
-  ])('F-07 AC-013 gives reason model when %s on the retry, after two calls and no third', async (_label, failing) => {
+  ])('F-07 AC-014 gives reason model when %s on the retry, after two calls and no third', async (_label, failing) => {
     const config = sampleConfig();
     const model = scriptedModel([{ text: 'Not JSON', truncated: false }, failing]);
 
@@ -345,8 +345,8 @@ describe('F-07 AC-013 a second failure is refused with the last reply findings a
   });
 });
 
-describe('F-07 AC-014 a first failure followed by a passing reply gives the files after two calls', () => {
-  it.each(FAILING_REPLIES)('F-07 AC-014 accepts the retry when the first reply %s', async (_label, reply) => {
+describe('F-07 AC-013 a first failure followed by a passing reply gives the files after two calls', () => {
+  it.each(FAILING_REPLIES)('F-07 AC-013 accepts the retry when the first reply %s', async (_label, reply) => {
     const config = sampleConfig();
     const model = scriptedModel([reply(config), jsonReply(passingObject(config))]);
 

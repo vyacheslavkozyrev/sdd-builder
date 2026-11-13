@@ -248,6 +248,28 @@ describe('F-07 AC-007 POST /generate returns the zip of the planned files', () =
   });
 });
 
+describe('F-07 AC-013 a failed reply and a passing retry give the zip after two calls', () => {
+  it('F-07 AC-013 returns 200 with the zip after a failed reply and a passing retry, after two calls', async () => {
+    const config = sampleConfig();
+    const plan = planGeneration(config, sampleTemplates());
+    const firstPath = plan[0]?.path ?? '';
+    const incomplete: Record<string, string> = JSON.parse(replyFor(config)) as Record<string, string>;
+    delete incomplete[firstPath];
+    const model = scriptedModel([JSON.stringify(incomplete), replyFor(config)]);
+    const app = appWith(model);
+
+    const response = await postJson(app, GENERATE_URL, config);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toBe('application/zip');
+    expect(response.headers.get('content-disposition')).toBe(ZIP_DISPOSITION);
+    const zip = await JSZip.loadAsync(await response.arrayBuffer());
+    expect(Object.keys(zip.files)).toEqual(plan.map((entry) => entry.path));
+    expect(model.prompts).toHaveLength(2);
+    expect(model.prompts[1]).toContain(`planned file "${firstPath}" is missing from the reply`);
+  });
+});
+
 describe('F-07 AC-010 a refused configuration gives 422 with every problem and no model call', () => {
   it('F-07 AC-010 returns 422 listing every structural problem', async () => {
     const config = duplicateIdConfig();

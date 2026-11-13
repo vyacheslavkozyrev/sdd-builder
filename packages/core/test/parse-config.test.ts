@@ -121,3 +121,155 @@ describe('F-07 AC-003 top-level config checks', () => {
     expect(problemsOf(value)).toEqual([{ path: '$', reason: 'must be a JSON object' }]);
   });
 });
+
+/** A valid submission whose first workflow has `changes` applied over it. */
+function withFirstWorkflow(changes: Record<string, unknown>): Record<string, unknown> {
+  const value = submission();
+  const [first, ...rest] = value['workflows'] as Record<string, unknown>[];
+  return { ...value, workflows: [{ ...first, ...changes }, ...rest] };
+}
+
+/** A valid submission whose first workflow has one field removed. */
+function withoutWorkflowField(field: string): Record<string, unknown> {
+  const value = withFirstWorkflow({});
+  const [first, ...rest] = value['workflows'] as Record<string, unknown>[];
+  const workflow = { ...first };
+  delete workflow[field];
+  return { ...value, workflows: [workflow, ...rest] };
+}
+
+describe('F-07 AC-003 workflow checks', () => {
+  it('F-07 AC-003 accepts workflows whose steps are well formed', () => {
+    expect(parseProjectConfig(withFirstWorkflow({ steps: [{ stepId: 'design', enabled: false }] }))).toMatchObject({
+      ok: true,
+    });
+  });
+
+  const rows: { name: string; value: unknown; expected: ConfigProblem[] }[] = [
+    {
+      name: 'a step enabled that is not a boolean names the step path',
+      value: withFirstWorkflow({ steps: [{ stepId: 'design', enabled: 'yes' }] }),
+      expected: [{ path: 'workflows[0].steps[0].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a step enabled that is missing is required',
+      value: withFirstWorkflow({ steps: [{ stepId: 'design' }] }),
+      expected: [{ path: 'workflows[0].steps[0].enabled', reason: 'is required' }],
+    },
+    {
+      name: 'a step enabled that is 1 is not a boolean',
+      value: withFirstWorkflow({ steps: [{ stepId: 'design', enabled: 1 }] }),
+      expected: [{ path: 'workflows[0].steps[0].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a bad step names its own index',
+      value: withFirstWorkflow({
+        steps: [
+          { stepId: 'design', enabled: true },
+          { stepId: 'build', enabled: 'no' },
+        ],
+      }),
+      expected: [{ path: 'workflows[0].steps[1].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a step that is not an object is a problem at its path',
+      value: withFirstWorkflow({ steps: ['design'] }),
+      expected: [{ path: 'workflows[0].steps[0]', reason: 'must be an object' }],
+    },
+    {
+      name: 'a stepId that is not a string is a problem',
+      value: withFirstWorkflow({ steps: [{ stepId: 7, enabled: true }] }),
+      expected: [{ path: 'workflows[0].steps[0].stepId', reason: 'must be a string' }],
+    },
+    {
+      name: 'a step without stepId is required',
+      value: withFirstWorkflow({ steps: [{ enabled: true }] }),
+      expected: [{ path: 'workflows[0].steps[0].stepId', reason: 'is required' }],
+    },
+    {
+      name: 'workflow steps that are not an array are a problem',
+      value: withFirstWorkflow({ steps: 'design' }),
+      expected: [{ path: 'workflows[0].steps', reason: 'must be an array' }],
+    },
+    {
+      name: 'a workflow without steps is required',
+      value: withoutWorkflowField('steps'),
+      expected: [{ path: 'workflows[0].steps', reason: 'is required' }],
+    },
+    {
+      name: 'a workflow without an id is required',
+      value: withoutWorkflowField('id'),
+      expected: [{ path: 'workflows[0].id', reason: 'is required' }],
+    },
+    {
+      name: 'a workflow id that is not a string is a problem',
+      value: withFirstWorkflow({ id: 3 }),
+      expected: [{ path: 'workflows[0].id', reason: 'must be a string' }],
+    },
+    {
+      name: 'a workflow without a name is required',
+      value: withoutWorkflowField('name'),
+      expected: [{ path: 'workflows[0].name', reason: 'is required' }],
+    },
+    {
+      name: 'a workflow name that is not a string is a problem',
+      value: withFirstWorkflow({ name: null }),
+      expected: [{ path: 'workflows[0].name', reason: 'must be a string' }],
+    },
+    {
+      name: 'a workflow without a scope is required',
+      value: withoutWorkflowField('scope'),
+      expected: [{ path: 'workflows[0].scope', reason: 'is required' }],
+    },
+    {
+      name: 'an unknown scope is a problem listing the scopes',
+      value: withFirstWorkflow({ scope: 'epic' }),
+      expected: [{ path: 'workflows[0].scope', reason: 'must be one of project, feature, task' }],
+    },
+    {
+      name: 'an iterationSource that is not a string is a problem',
+      value: withFirstWorkflow({ iterationSource: ['plan.md'] }),
+      expected: [{ path: 'workflows[0].iterationSource', reason: 'must be a string' }],
+    },
+    {
+      name: 'a workflow without iterationSource is required',
+      value: withoutWorkflowField('iterationSource'),
+      expected: [{ path: 'workflows[0].iterationSource', reason: 'is required' }],
+    },
+    {
+      name: 'a workflow enabled that is the string "true" is a problem',
+      value: withFirstWorkflow({ enabled: 'true' }),
+      expected: [{ path: 'workflows[0].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a workflow without enabled is required',
+      value: withoutWorkflowField('enabled'),
+      expected: [{ path: 'workflows[0].enabled', reason: 'is required' }],
+    },
+    {
+      name: 'a workflow that is not an object is a problem at its index',
+      value: submission({ workflows: ['design'] }),
+      expected: [{ path: 'workflows[0]', reason: 'must be an object' }],
+    },
+    {
+      name: 'workflows that are not an array are a problem',
+      value: submission({ workflows: 'design' }),
+      expected: [{ path: 'workflows', reason: 'must be an array' }],
+    },
+    {
+      name: 'a missing workflows list is required',
+      value: withoutField('workflows'),
+      expected: [{ path: 'workflows', reason: 'is required' }],
+    },
+  ];
+
+  it.each(rows)('F-07 AC-003 $name', ({ value, expected }) => {
+    expect(problemsOf(value)).toEqual(expected);
+  });
+
+  it('F-07 AC-003 a workflow problem never contains the submitted value', () => {
+    const secret = 'sk-test-SECRET-VALUE-456';
+    const problems = problemsOf(withFirstWorkflow({ name: secret, steps: [{ stepId: secret, enabled: secret }] }));
+    expect(JSON.stringify(problems)).not.toContain(secret);
+  });
+});

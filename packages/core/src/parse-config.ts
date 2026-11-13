@@ -1,4 +1,4 @@
-import type { ProjectConfig, TargetTool } from './model.js';
+import type { ProjectConfig, Scope, TargetTool } from './model.js';
 
 /** One problem with untrusted input: the field path and the reason. Never the submitted value. */
 export interface ConfigProblem {
@@ -13,6 +13,12 @@ export type ParseConfigResult =
 /** The target tools the service knows. Must cover every `TargetTool`. */
 const KNOWN_TARGETS: readonly TargetTool[] = ['claude', 'cursor', 'copilot'];
 
+/** The scopes a workflow can have. Must cover every `Scope`. */
+const SCOPES: readonly Scope[] = ['project', 'feature', 'task'];
+
+/** A check on one value: true when the value is acceptable. */
+type Check = (value: unknown) => boolean;
+
 /** True for a plain object: not null, not an array. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -22,10 +28,78 @@ function isKnownTarget(value: unknown): value is TargetTool {
   return typeof value === 'string' && (KNOWN_TARGETS as readonly string[]).includes(value);
 }
 
+function isScope(value: unknown): value is Scope {
+  return typeof value === 'string' && (SCOPES as readonly string[]).includes(value);
+}
+
+const isString: Check = (value) => typeof value === 'string';
+const isBoolean: Check = (value) => typeof value === 'boolean';
+
 /**
- * Checks the top level of an untrusted `ProjectConfig`. Only the shape of the
- * top-level fields is checked here; the workflow, connection and custom step
- * contents are checked by the full parser. Every problem is collected.
+ * Checks one required field of an object: it must be present and pass `isValid`.
+ * The field's path is the object's path plus the field name.
+ */
+function checkRequired(
+  object: Record<string, unknown>,
+  key: string,
+  base: string,
+  problems: ConfigProblem[],
+  isValid: Check,
+  reason: string,
+): void {
+  const path = `${base}.${key}`;
+  if (!(key in object)) {
+    problems.push({ path, reason: 'is required' });
+  } else if (!isValid(object[key])) {
+    problems.push({ path, reason });
+  }
+}
+
+/** Checks a list: it must be an array, and every item is checked by `checkItem` at its indexed path. */
+function checkList(
+  value: unknown,
+  path: string,
+  problems: ConfigProblem[],
+  checkItem: (item: unknown, itemPath: string, problems: ConfigProblem[]) => void,
+): void {
+  if (!Array.isArray(value)) {
+    problems.push({ path, reason: 'must be an array' });
+    return;
+  }
+  const items: unknown[] = value;
+  items.forEach((item, index) => checkItem(item, `${path}[${index}]`, problems));
+}
+
+function checkWorkflowStep(value: unknown, path: string, problems: ConfigProblem[]): void {
+  if (!isPlainObject(value)) {
+    problems.push({ path, reason: 'must be an object' });
+    return;
+  }
+  checkRequired(value, 'stepId', path, problems, isString, 'must be a string');
+  checkRequired(value, 'enabled', path, problems, isBoolean, 'must be a boolean');
+}
+
+/** Checks the fields of one workflow and its steps. The workflow's conditions are not checked yet. */
+function checkWorkflow(value: unknown, path: string, problems: ConfigProblem[]): void {
+  if (!isPlainObject(value)) {
+    problems.push({ path, reason: 'must be an object' });
+    return;
+  }
+  checkRequired(value, 'id', path, problems, isString, 'must be a string');
+  checkRequired(value, 'name', path, problems, isString, 'must be a string');
+  checkRequired(value, 'scope', path, problems, isScope, `must be one of ${SCOPES.join(', ')}`);
+  checkRequired(value, 'iterationSource', path, problems, isString, 'must be a string');
+  checkRequired(value, 'enabled', path, problems, isBoolean, 'must be a boolean');
+  if (!('steps' in value)) {
+    problems.push({ path: `${path}.steps`, reason: 'is required' });
+  } else {
+    checkList(value['steps'], `${path}.steps`, problems, checkWorkflowStep);
+  }
+}
+
+/**
+ * Checks the top level of an untrusted `ProjectConfig`, and the workflow fields
+ * and steps. Every problem is collected.
  */
 export function parseProjectConfig(value: unknown): ParseConfigResult {
   if (!isPlainObject(value)) {
@@ -71,12 +145,18 @@ export function parseProjectConfig(value: unknown): ParseConfigResult {
     }
   }
 
-  for (const field of ['customSteps', 'workflows', 'connections'] as const) {
+  for (const field of ['customSteps', 'connections'] as const) {
     if (!(field in value)) {
       problems.push({ path: field, reason: 'is required' });
     } else if (!Array.isArray(value[field])) {
       problems.push({ path: field, reason: 'must be an array' });
     }
+  }
+
+  if (!('workflows' in value)) {
+    problems.push({ path: 'workflows', reason: 'is required' });
+  } else {
+    checkList(value['workflows'], 'workflows', problems, checkWorkflow);
   }
 
   if (!('targets' in value)) {
@@ -94,10 +174,10 @@ export function parseProjectConfig(value: unknown): ParseConfigResult {
   if (problems.length > 0) {
     return { ok: false, problems };
   }
-  // INTERIM (F-07 T002): only the top level is checked above. The nested contents
-  // (stack, architecture, workflows, connections, custom steps) are NOT checked yet,
-  // so this cast is unsafe for callers. F-07 T003 completes the nested checks and
-  // removes the cast. Until then this module is not exported from index.ts and
-  // must not be used by any caller.
+  // INTERIM (F-07 T003a): the top level, and the workflow fields and steps, are checked
+  // above. The contents of stack, architecture, workflow conditions, connections and
+  // custom steps are NOT checked yet, so this cast is unsafe for callers. F-07 T003b and
+  // T003c complete the nested checks and remove the cast. Until then this module is not
+  // exported from index.ts and must not be used by any caller.
   return { ok: true, config: value as unknown as ProjectConfig };
 }

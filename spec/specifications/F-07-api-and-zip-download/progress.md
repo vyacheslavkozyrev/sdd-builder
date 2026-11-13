@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 13 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 14 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
+| T012 | Generation service, first pass (`generateProject`): refusal with no model call; one model call; model error gives reason `model`; reply parsed and checked; files in plan order | 0 blockers, 2 warnings fixed (planning throw documented and tested; first-pass reply failures tested), 1 suggestion fixed (typed reply) | 148 api tests, 467 core tests passed |
 | T011 | Templates from disk (`loadTemplates`): recursive read with forward-slash keys; missing directory or non-file entry throws naming it | 0 blockers, 2 warnings fixed (symlinks refused, not skipped; repository plan asserts CLAUDE.md and a command file), 0 suggestions | 3 api template tests, 467 core tests passed |
 | T010 | Generation model adapter (`GenerationModel`, `createAnthropicGenerationModel`): truncated from `stop_reason`, `GENERATION_MAX_TOKENS` 32000, `GENERATION_TIMEOUT_MS` 300 s; missing key throws naming the variable; constants recorded in architecture §6 decision 11 | 0 blockers, 3 warnings fixed (timeout reason documented; blank-key assertion corrected; AC-017 adapter test added), 1 warning resolved (constants in architecture), 1 suggestion deferred (shared adapter module) | 135 api tests, 467 core tests passed |
 

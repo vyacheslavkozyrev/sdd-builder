@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 15 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 16 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
+| T014 | Zip packaging (`packageZip`): file entries only; paths refused if absolute, drive-letter, backslash, `..` or empty; one fixed UTC date on every entry | 0 blockers, 1 warning fixed (stored-date read-back test added), 1 suggestion fixed (constant comment); the review's local-midnight request not applied (JSZip stores UTC fields) | 185 api tests, 468 core tests passed |
 | T013 | Retry rules in the generation service: one retry with the first findings; second failure returns findings and paths only after two calls; model error gives `model` with no third call | 0 blockers, 1 warning fixed (reply-check quoted long model keys in findings; now shortened, with a test), 1 suggestion fixed (explicit AC-015 labels) | 173 api tests, 468 core tests passed |
 | T012 | Generation service, first pass (`generateProject`): refusal with no model call; one model call; model error gives reason `model`; reply parsed and checked; files in plan order | 0 blockers, 2 warnings fixed (planning throw documented and tested; first-pass reply failures tested), 1 suggestion fixed (typed reply) | 148 api tests, 467 core tests passed |
 | T011 | Templates from disk (`loadTemplates`): recursive read with forward-slash keys; missing directory or non-file entry throws naming it | 0 blockers, 2 warnings fixed (symlinks refused, not skipped; repository plan asserts CLAUDE.md and a command file), 0 suggestions | 3 api template tests, 467 core tests passed |
@@ -50,6 +51,7 @@ _Review suggestions intentionally not applied, with the reason._
   - **Accepted by the user (2026-11-12) for now.** Pins stay. Revisit when versions at least two weeks old carry the fixes, and confirm in T005–T006 that the API does not use the affected features.
 - SUGGESTION T008 `apps/api/src/generate/prompt.ts:2`: `oneLine` and `pickProject` are imported from `review/prompt.ts`; a shared prompt helper module would be cleaner. Not moved here because it would edit the review prompt file beyond the export change this task makes; revisit with the reply-side tasks (T009) if they need the same helpers.
 - WARNING T010 (resolved in the T010 commit): `GENERATION_MAX_TOKENS` (32000) and `GENERATION_TIMEOUT_MS` (300 s) are now named in `architecture.md` §6 decision 11, as the plan requires.
+- WARNING T014 `apps/api/src/zip.ts` (resolved, kept UTC): the review asked for local midnight `new Date(2020, 0, 1)`; not applied. JSZip 3.10.2 writes the `getUTC*` fields of the entry date (`lib/generate/ZipFileWorker.js`, checked), so local midnight stores different bytes per time zone (probe: `00002150` under UTC, `00402150` under America/Los_Angeles, a different value under Asia/Tokyo), which breaks AC-009 and AC-021. The constant stays `Date.UTC(2020, 0, 1)`, which stores 2020-01-01 00:00 on every machine; the read-back test checks that. The "Dec 31 2019" seen in negative-offset zones is only a local display of the UTC value.
 - SUGGESTION T010 `apps/api/src/generate/generation-model.ts:1-2`: the adapter duplicates the structure of `review/anthropic-model.ts` and imports `DEFAULT_ANALYZER_MODEL` and `AnalyzerEnv` from it. A shared provider-adapter module would be cleaner. Not moved here because it would edit the review adapter, which is outside T010.
 
 ---

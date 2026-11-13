@@ -4,7 +4,13 @@ export const CLIENT_LIMITS = { perMinute: 10, perDay: 100 } as const;
 const MINUTE_MS = 60_000;
 const DAY_MS = 86_400_000;
 
-export type LimitDecision = { allowed: true } | { allowed: false; retryAfterSeconds: number };
+/**
+ * An accepted request's count. The address and windows it was counted in are kept inside the limiter;
+ * the holder hands it back through `refund`.
+ */
+export type Reservation = { readonly allowed: true };
+
+export type LimitDecision = Reservation | { allowed: false; retryAfterSeconds: number };
 
 interface Usage {
   /** UTC day index (days since the epoch) of the current day window. */
@@ -15,6 +21,13 @@ interface Usage {
   minuteCount: number;
 }
 
+/** The address and windows a reservation was counted in. */
+interface Counted {
+  address: string;
+  day: number;
+  minute: number;
+}
+
 /**
  * In-memory fixed-window limiter. `admit` decides and counts in one synchronous step: an accepted request
  * is counted in the same call that accepts it, and a refused request counts nothing. JavaScript runs the
@@ -23,6 +36,7 @@ interface Usage {
  */
 export class ClientLimiter {
   private readonly usage = new Map<string, Usage>();
+  private readonly counted = new WeakMap<Reservation, Counted>();
   private day: number | null = null;
 
   constructor(private readonly clock: () => number) {}
@@ -34,7 +48,8 @@ export class ClientLimiter {
 
   /**
    * Admits or refuses one request from this address. When allowed, the request is counted in the current
-   * minute and day windows; when refused, nothing is counted and no entry is created or changed.
+   * minute and day windows and the returned reservation can be refunded once; when refused, nothing is
+   * counted and no entry is created or changed.
    */
   admit(address: string): LimitDecision {
     const now = this.clock();
@@ -59,7 +74,28 @@ export class ClientLimiter {
       minute,
       minuteCount: minuteUsed + 1,
     });
-    return { allowed: true };
+    const reservation: Reservation = { allowed: true };
+    this.counted.set(reservation, { address, day, minute });
+    return reservation;
+  }
+
+  /**
+   * Gives back the one count a reservation added, for a request that an input cap then refused. The count is
+   * returned only if the address's entry still holds the minute and day the reservation was counted in; a
+   * window that has since rolled is left alone. A reservation gives back its count once; later calls do nothing.
+   */
+  refund(reservation: Reservation): void {
+    const counted = this.counted.get(reservation);
+    if (counted === undefined) {
+      return;
+    }
+    this.counted.delete(reservation);
+    const current = this.usage.get(counted.address);
+    if (current === undefined || current.minute !== counted.minute || current.day !== counted.day) {
+      return;
+    }
+    current.minuteCount -= 1;
+    current.dayCount -= 1;
   }
 
   /** On the first call of a new UTC day, drops every entry that belongs to an earlier day. */

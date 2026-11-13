@@ -1,11 +1,12 @@
-import { Hono } from 'hono';
-import type { TemplateSource } from '@sddbuilder/core';
+import { Hono, type Context } from 'hono';
+import { capProblems, type ProjectConfig, type TemplateSource } from '@sddbuilder/core';
 import { analyze, type ReviewModel } from './analyze.js';
 import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
 import { errorBody } from './http/errors.js';
 import { readConfig } from './http/read-config.js';
 import { errorNameOf, formatLogLine, routeOf, type LogPort } from './log.js';
+import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
 import { packageZip } from './zip.js';
 
 /** What `/generate` needs to write the project. `null` in `AppDeps` means the generation model is not configured. */
@@ -14,20 +15,66 @@ export interface GenerationPorts {
   model: GenerationModel;
 }
 
+/** The per-client limit: the limiter, and the address it counts for a request (the connection's, in production). */
+export interface LimitPorts {
+  limiter: ClientLimiter;
+  clientAddress: (c: Context) => string;
+}
+
 export interface AppDeps {
   review: ReviewModel;
   generation: GenerationPorts | null;
   log: LogPort;
+  limits: LimitPorts;
 }
 
-/** Builds the HTTP app. Routes are stateless: nothing from a request is kept after the response. */
-export function createApp({ review, generation, log }: AppDeps): Hono {
+/** Builds the HTTP app. Routes are stateless: nothing from a request is kept after the response, apart from the limiter's counts. */
+export function createApp({ review, generation, log, limits }: AppDeps): Hono {
   const app = new Hono();
 
-  app.post('/analyze', async (c) => {
+  /**
+   * The per-client limit, checked before the body is read. A refused request gets 429 and is not counted;
+   * an accepted one is counted, and gets its reservation back if an input cap refuses it.
+   */
+  const admitRequest = (
+    c: Context,
+  ): { ok: true; reservation: Reservation } | { ok: false; response: Response } => {
+    const decision = limits.limiter.admit(limits.clientAddress(c));
+    if (decision.allowed) {
+      return { ok: true, reservation: decision };
+    }
+    const response = c.json(errorBody('rate limit exceeded'), 429, { 'Retry-After': String(decision.retryAfterSeconds) });
+    return { ok: false, response };
+  };
+
+  /**
+   * Reads the body, then applies the input caps. Both run before any model call. A request refused by a cap
+   * (422) is refunded its count; a request refused as invalid JSON (400) keeps it.
+   */
+  const readWithinCaps = async (
+    c: Context,
+    reservation: Reservation,
+  ): Promise<{ ok: true; config: ProjectConfig } | { ok: false; response: Response }> => {
     const read = await readConfig(c.req.raw);
     if (!read.ok) {
-      return c.json(read.body, read.status);
+      return { ok: false, response: c.json(read.body, read.status) };
+    }
+    const problems = capProblems(read.config);
+    if (problems.length > 0) {
+      limits.limiter.refund(reservation);
+      return { ok: false, response: c.json(errorBody('project config is over the input caps', problems), 422) };
+    }
+    return { ok: true, config: read.config };
+  };
+
+  app.post('/analyze', async (c) => {
+    const admitted = admitRequest(c);
+    if (!admitted.ok) {
+      return admitted.response;
+    }
+    const read = await readWithinCaps(c, admitted.reservation);
+    if (!read.ok) {
+      return read.response;
     }
     const result = await analyze(read.config, review);
     return c.json(result, 200);
@@ -36,9 +83,13 @@ export function createApp({ review, generation, log }: AppDeps): Hono {
   app.all('/analyze', (c) => c.json(errorBody('method not allowed'), 405, { Allow: 'POST' }));
 
   app.post('/generate', async (c) => {
-    const read = await readConfig(c.req.raw);
+    const admitted = admitRequest(c);
+    if (!admitted.ok) {
+      return admitted.response;
+    }
+    const read = await readWithinCaps(c, admitted.reservation);
     if (!read.ok) {
-      return c.json(read.body, read.status);
+      return read.response;
     }
     if (generation === null) {
       return c.json(errorBody('generation is not configured on this server'), 503);

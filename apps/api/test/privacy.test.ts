@@ -8,6 +8,7 @@ import {
 } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
+import { fixedLimits } from './fixed-limits.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
 import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
@@ -114,20 +115,20 @@ const cases: Case[] = [
   {
     label: 'analyze success',
     status: 200,
-    run: (log, review) => post(createApp({ review, log, generation: null }), ANALYZE_URL, configBody),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, configBody),
     lines: [],
   },
   {
     label: 'analyze body that is not JSON',
     status: 400,
-    run: (log, review) => post(createApp({ review, log, generation: null }), ANALYZE_URL, `{"idea": "${IDEA}"`),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, `{"idea": "${IDEA}"`),
     lines: [],
   },
   {
     label: 'analyze config the parser refuses',
     status: 400,
     run: (log, review) =>
-      post(createApp({ review, log, generation: null }), ANALYZE_URL, JSON.stringify({ ...config, schemaVersion: 2 })),
+      post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, JSON.stringify({ ...config, schemaVersion: 2 })),
     lines: [],
   },
   {
@@ -135,38 +136,38 @@ const cases: Case[] = [
     status: 200,
     run: (log) => {
       const failure = new Error(`${IDEA} ${REPLY} ${KEY}`);
-      return post(createApp({ review: { complete: () => Promise.reject(failure) }, log, generation: null }), ANALYZE_URL, configBody);
+      return post(createApp({ limits: fixedLimits(), review: { complete: () => Promise.reject(failure) }, log, generation: null }), ANALYZE_URL, configBody);
     },
     lines: [],
   },
   {
     label: 'analyze with the wrong method',
     status: 405,
-    run: (log, review) => createApp({ review, log, generation: null }).request(ANALYZE_URL, { method: 'GET' }),
+    run: (log, review) => createApp({ limits: fixedLimits(), review, log, generation: null }).request(ANALYZE_URL, { method: 'GET' }),
     lines: [],
   },
   {
     label: 'generate success',
     status: 200,
-    run: (log, review) => post(createApp({ review, log, generation: ports(replying) }), GENERATE_URL, configBody),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: ports(replying) }), GENERATE_URL, configBody),
     lines: [],
   },
   {
     label: 'generate body that is not JSON',
     status: 400,
-    run: (log, review) => post(createApp({ review, log, generation: null }), GENERATE_URL, `{"name": "${NAME}"`),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), GENERATE_URL, `{"name": "${NAME}"`),
     lines: [],
   },
   {
     label: 'generate config the structural rules refuse',
     status: 422,
-    run: (log, review) => post(createApp({ review, log, generation: ports(failing(new Error(IDEA))) }), GENERATE_URL, JSON.stringify(duplicated)),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: ports(failing(new Error(IDEA))) }), GENERATE_URL, JSON.stringify(duplicated)),
     lines: [],
   },
   {
     label: 'generate with no generation model configured',
     status: 503,
-    run: (log, review) => post(createApp({ review, log, generation: null }), GENERATE_URL, configBody),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), GENERATE_URL, configBody),
     lines: [],
   },
   {
@@ -174,7 +175,7 @@ const cases: Case[] = [
     status: 502,
     run: (log, review) =>
       post(
-        createApp({ review, log, generation: ports(failing(new TypeError(`${IDEA} ${NAME} ${REPLY} ${KEY}`))) }),
+        createApp({ limits: fixedLimits(), review, log, generation: ports(failing(new TypeError(`${IDEA} ${NAME} ${REPLY} ${KEY}`))) }),
         GENERATE_URL,
         configBody,
       ),
@@ -185,20 +186,20 @@ const cases: Case[] = [
     status: 502,
     run: (log, review) => {
       const notJson: GenerationModel = { complete: () => Promise.resolve({ text: `not json ${REPLY}`, truncated: false }) };
-      return post(createApp({ review, log, generation: ports(notJson) }), GENERATE_URL, configBody);
+      return post(createApp({ limits: fixedLimits(), review, log, generation: ports(notJson) }), GENERATE_URL, configBody);
     },
     lines: [],
   },
   {
     label: 'generate with a template source that throws the brief',
     status: 500,
-    run: (log, review) => post(createApp({ review, log, generation: ports(replying, throwing) }), GENERATE_URL, configBody),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: ports(replying, throwing) }), GENERATE_URL, configBody),
     lines: ['event=unexpected_error route=/generate status=500 error=RangeError'],
   },
   {
     label: 'generate with the wrong method',
     status: 405,
-    run: (log, review) => createApp({ review, log, generation: null }).request(GENERATE_URL, { method: 'GET' }),
+    run: (log, review) => createApp({ limits: fixedLimits(), review, log, generation: null }).request(GENERATE_URL, { method: 'GET' }),
     lines: [],
   },
 ];
@@ -224,7 +225,7 @@ describe('F-07 AC-024 the log never holds the brief, the reply text or the reque
 describe('F-07 AC-027 an unexpected error is logged by its name only', () => {
   it('F-07 AC-027 logs the error name, the route and the status, with no message or stack', async () => {
     const log = recordingLog();
-    const app = createApp({ review: reviewReturning('[]'), log, generation: ports(replying, throwing) });
+    const app = createApp({ limits: fixedLimits(), review: reviewReturning('[]'), log, generation: ports(replying, throwing) });
 
     const response = await post(app, GENERATE_URL, configBody);
 
@@ -269,7 +270,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
   it('F-07 AC-028 the key is sent to the provider on a successful analysis and kept out of the response', async () => {
     const sent = stubProvider(200, providerReply);
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
 
     const response = await post(app, ANALYZE_URL, configBody);
     const text = await response.text();
@@ -283,7 +284,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
   it('F-07 AC-028 a provider refusal answers 200 with the key out of the body and the log', async () => {
     stubProvider(400, providerRefusal);
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
 
     const response = await post(app, ANALYZE_URL, configBody);
     const text = await response.text();
@@ -297,7 +298,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
   it('F-07 AC-028 the missing-key path sends nothing to the provider and logs one line', async () => {
     const sent = stubProvider(200, providerReply);
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: undefined }, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: undefined }, log), log, generation: null });
 
     const response = await post(app, ANALYZE_URL, configBody);
     const text = await response.text();

@@ -3,6 +3,7 @@ import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
+import { fixedLimits } from './fixed-limits.js';
 import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
 import { createAnthropicReviewModel } from '../src/review/anthropic-model.js';
@@ -86,7 +87,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
     it(`F-07 AC-006 answers 200 with review.status failed and the structural findings when the key is ${label}`, async () => {
       const config = duplicateIdConfig();
       const log = recordingLog();
-      const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log, generation: null });
+      const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log, generation: null });
 
       const response = await postAnalyze(app, config);
       const text = await response.text();
@@ -103,7 +104,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
   it('F-07 AC-006 never logs or returns the key value', async () => {
     const config = duplicateIdConfig();
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log, generation: null });
 
     const response = await postAnalyze(app, config);
     const text = await response.text();
@@ -121,7 +122,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
       throw new TypeError(`bad value ${KEY_SENTINEL}`);
     });
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: 'sk-test' }, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: 'sk-test' }, log), log, generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 
@@ -143,7 +144,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is set', () => {
     vi.mocked(createAnthropicReviewModel).mockImplementationOnce(() => fake);
     const env = { ANTHROPIC_API_KEY: 'sk-test-key' };
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom(env, log), log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: reviewModelFrom(env, log), log, generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 

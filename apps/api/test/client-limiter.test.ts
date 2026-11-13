@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ClientLimiter, type LimitDecision } from '../src/limits/client-limiter.js';
+import { ClientLimiter, type LimitDecision, type Reservation } from '../src/limits/client-limiter.js';
 
 const MINUTE = 60_000;
 const DAY = 86_400_000;
@@ -149,5 +149,69 @@ describe('F-13 AC-001 refusal shape', () => {
     const { limiter } = setup(START + 1);
     accept(limiter, ADDRESS, 10);
     expect(limiter.admit(ADDRESS)).toEqual({ allowed: false, retryAfterSeconds: 60 });
+  });
+});
+
+/** Admits one request, asserting it is allowed, and returns its reservation. */
+function admitted(limiter: ClientLimiter, address: string): Reservation {
+  const decision = limiter.admit(address);
+  if (!decision.allowed) {
+    throw new Error('expected the request to be admitted');
+  }
+  return decision;
+}
+
+describe('F-13 AC-001 a refund gives back the count of a refused request', () => {
+  it('F-13 AC-001 a refunded reservation frees its slot in the same minute window', () => {
+    const { limiter } = setup();
+    accept(limiter, ADDRESS, 9);
+    const reservation = admitted(limiter, ADDRESS);
+    expect(limiter.admit(ADDRESS).allowed).toBe(false);
+
+    limiter.refund(reservation);
+
+    accept(limiter, ADDRESS, 1);
+    expect(limiter.admit(ADDRESS).allowed).toBe(false);
+  });
+
+  it('F-13 AC-001 a reservation gives back its count once, so a second refund frees nothing more', () => {
+    const { limiter } = setup();
+    accept(limiter, ADDRESS, 9);
+    const reservation = admitted(limiter, ADDRESS);
+
+    limiter.refund(reservation);
+    limiter.refund(reservation);
+
+    accept(limiter, ADDRESS, 1);
+    expect(limiter.admit(ADDRESS).allowed).toBe(false);
+  });
+});
+
+describe('F-13 AC-006 a refund after the window rolled leaves the new window alone', () => {
+  it('F-13 AC-006 a refund after the minute rolled does not reduce the new minute count', () => {
+    const { limiter, move } = setup();
+    const reservation = admitted(limiter, ADDRESS);
+    move(START + MINUTE);
+    accept(limiter, ADDRESS, 10);
+
+    limiter.refund(reservation);
+
+    expect(limiter.admit(ADDRESS).allowed).toBe(false);
+  });
+
+  it('F-13 AC-006 a refund after the UTC day rolled does not reduce the new day count', () => {
+    const { limiter, move } = setup(NEXT_DAY - MINUTE);
+    const reservation = admitted(limiter, ADDRESS);
+    for (let minute = 0; minute < 9; minute += 1) {
+      move(NEXT_DAY + minute * MINUTE);
+      accept(limiter, ADDRESS, 10);
+    }
+    move(NEXT_DAY + 9 * MINUTE);
+    accept(limiter, ADDRESS, 9);
+
+    limiter.refund(reservation);
+
+    expect(limiter.admit(ADDRESS).allowed).toBe(true);
+    expect(limiter.admit(ADDRESS).allowed).toBe(false);
   });
 });

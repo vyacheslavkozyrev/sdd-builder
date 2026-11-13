@@ -12,6 +12,7 @@ import {
 } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
+import { fixedLimits } from './fixed-limits.js';
 import type { LogPort } from '../src/log.js';
 import {
   createAnthropicGenerationModel,
@@ -215,7 +216,7 @@ function recordingLog(): LogPort & { lines: string[] } {
 }
 
 function appWith(model: GenerationModel, log: LogPort = recordingLog()): ReturnType<typeof createApp> {
-  return createApp({ review: UNUSED_REVIEW, generation: { templates: sampleTemplates(), model }, log });
+  return createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: { templates: sampleTemplates(), model }, log });
 }
 
 function postJson(app: ReturnType<typeof createApp>, url: string, body: unknown): Response | Promise<Response> {
@@ -342,7 +343,7 @@ describe('F-07 AC-011 bad input gives 400 through the same rules as /analyze, wi
   }
 
   it('F-07 AC-011 checks the input before the generation configuration: 400, not 503', async () => {
-    const app = createApp({ review: UNUSED_REVIEW, generation: null, log: recordingLog() });
+    const app = createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: null, log: recordingLog() });
 
     const response = await postJson(app, GENERATE_URL, '{not json');
 
@@ -413,7 +414,7 @@ describe('F-13 AC-024 a generation timeout gives 502 with no file text', () => {
 describe('F-07 AC-018 generation not configured gives 503 and no model call', () => {
   it('F-07 AC-018 returns 503 with the generation error and no zip', async () => {
     const log = recordingLog();
-    const app = createApp({ review: UNUSED_REVIEW, generation: null, log });
+    const app = createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: null, log });
 
     const response = await postJson(app, GENERATE_URL, sampleConfig());
 
@@ -534,7 +535,7 @@ describe('F-07 AC-026 every error response has the one error shape', () => {
       '503 when generation is not configured',
       false,
       () =>
-        postJson(createApp({ review: UNUSED_REVIEW, generation: null, log: recordingLog() }), GENERATE_URL, sampleConfig()),
+        postJson(createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: null, log: recordingLog() }), GENERATE_URL, sampleConfig()),
     ],
     [
       '500 when the templates throw',
@@ -552,6 +553,7 @@ describe('F-07 AC-026 every error response has the one error shape', () => {
               model: scriptedModel([]),
             },
             log: recordingLog(),
+            limits: fixedLimits(),
           }),
           GENERATE_URL,
           sampleConfig(),

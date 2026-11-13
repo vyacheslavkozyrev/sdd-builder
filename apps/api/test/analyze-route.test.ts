@@ -3,6 +3,7 @@ import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze, type ReviewModel, type ReviewReply } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
+import { fixedLimits } from './fixed-limits.js';
 import type { LogPort } from '../src/log.js';
 
 // The analysis is wrapped so one case can make it throw an unexpected error; otherwise it runs as built.
@@ -122,7 +123,7 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
     ]);
     const expected = await analyze(config, replyWith(reply).model);
     vi.mocked(analyze).mockClear();
-    const app = createApp({ review: replyWith(reply).model, log: recordingLog(), generation: null });
+    const app = createApp({ limits: fixedLimits(), review: replyWith(reply).model, log: recordingLog(), generation: null });
 
     const response = await postAnalyze(app, config);
 
@@ -134,7 +135,7 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
   it('F-07 AC-001 calls the review model and analyze exactly once per request', async () => {
     const fake = replyWith('[]');
     vi.mocked(analyze).mockClear();
-    const app = createApp({ review: fake.model, log: recordingLog(), generation: null });
+    const app = createApp({ limits: fixedLimits(), review: fake.model, log: recordingLog(), generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 
@@ -147,7 +148,7 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
 describe('F-07 AC-004 a refused configuration is an analysis, not an HTTP error', () => {
   it('F-07 AC-004 returns 200 with blocker findings for a duplicate id', async () => {
     const config = duplicateIdConfig();
-    const app = createApp({ review: replyWith('[]').model, log: recordingLog(), generation: null });
+    const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
     const response = await postAnalyze(app, config);
 
@@ -176,7 +177,7 @@ describe('F-07 AC-005 a failed review still returns 200 with the structural find
   for (const [label, behaviour] of failures) {
     it(`F-07 AC-005 returns 200 with review.status failed when ${label}`, async () => {
       const config = duplicateIdConfig();
-      const app = createApp({ review: fakeModel(behaviour).model, log: recordingLog(), generation: null });
+      const app = createApp({ limits: fixedLimits(), review: fakeModel(behaviour).model, log: recordingLog(), generation: null });
 
       const response = await postAnalyze(app, config);
 
@@ -193,7 +194,7 @@ describe('F-13 AC-025 a truncated review reply gives 200 with review.status fail
   it('F-13 AC-025 returns 200 with the structural findings and review.status failed', async () => {
     const config = duplicateIdConfig();
     const truncated = fakeModel(() => Promise.resolve({ text: '[{"severity":"info"', truncated: true }));
-    const app = createApp({ review: truncated.model, log: recordingLog(), generation: null });
+    const app = createApp({ limits: fixedLimits(), review: truncated.model, log: recordingLog(), generation: null });
 
     const response = await postAnalyze(app, config);
 
@@ -207,7 +208,7 @@ describe('F-13 AC-025 a truncated review reply gives 200 with review.status fail
 
 describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {
   it('F-07 AC-025 returns 404 with a JSON error for an unknown path', async () => {
-    const app = createApp({ review: replyWith('[]').model, log: recordingLog(), generation: null });
+    const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
     const response = await app.request('http://localhost/nowhere');
 
@@ -220,7 +221,7 @@ describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {
 
   for (const method of methods) {
     it(`F-07 AC-025 returns 405 with Allow: POST for ${method} on /analyze`, async () => {
-      const app = createApp({ review: replyWith('[]').model, log: recordingLog(), generation: null });
+      const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
       const response = await app.request(ANALYZE_URL, { method });
 
@@ -236,7 +237,7 @@ describe('F-07 AC-027 an unexpected exception gives a generic 500', () => {
     const secret = 'secret detail at /srv/app/internal.ts';
     vi.mocked(analyze).mockRejectedValueOnce(new TypeError(secret));
     const log = recordingLog();
-    const app = createApp({ review: replyWith('[]').model, log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log, generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 
@@ -251,7 +252,7 @@ describe('F-07 AC-027 an unexpected exception gives a generic 500', () => {
     const secret = 'secret detail at /srv/app/internal.ts';
     vi.mocked(analyze).mockRejectedValueOnce(new RangeError(secret));
     const log = recordingLog();
-    const app = createApp({ review: replyWith('[]').model, log, generation: null });
+    const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log, generation: null });
 
     await postAnalyze(app, sampleConfig());
 

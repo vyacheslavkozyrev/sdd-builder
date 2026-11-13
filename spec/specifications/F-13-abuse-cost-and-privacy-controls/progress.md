@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 7 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 8 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ None.
 | T005 | Timeouts and output limits testable: injectable client factories; review 60 s and 8192 tokens, generation 300 s and 32000 tokens asserted; review rejection gives failed; generation timeout gives 502 with no text | 0 blockers, 0 warnings, 2 suggestions fixed (unused text assertion removed; long line wrapped), 1 suggestion deferred (see Deferred Findings) | 37 core files, 492 tests and 15 api files, 267 tests passed |
 | T006 | Per-client limiter: `ClientLimiter.admit` counts an accepted request atomically; 10 per minute and 100 per UTC day per address; `Retry-After` in whole seconds; clock injected; expired days pruned | 0 blockers, 0 warnings, 2 suggestions fixed (test name made exact; redundant assertion removed), 2 suggestions deferred (see Deferred Findings) | 37 files, 492 tests passed (limiter file 13 of 13) |
 | T007 | Daily ceiling counter (`DailyCeiling`, UTC day, counted before the call, forward-only reset) and `dailyLimitsFrom` for `SDDBUILDER_REVIEW_DAILY_LIMIT` (500) and `SDDBUILDER_GENERATE_DAILY_LIMIT` (50); an invalid value stops startup naming the variable | 0 blockers, 2 warnings fixed (backward clock step no longer reopens a spent day; AC-017 test reads the default), 0 suggestions | 37 core files, 492 tests and 18 api files, 306 tests passed |
+| T008 | Route wiring: the limiter runs first on both POST routes (429 with `Retry-After`), then the body is read, then `capProblems` gives 422 before any model call; cap refusals refund their slot; remote address from the connection, never headers | 0 blockers, 1 warning fixed by the user's decision (422 cap refusals refunded), 0 suggestions in round 2; size guard waived by the user (567 lines, not split) | 37 core files, 492 tests and 19 api files, 331 tests passed |
 
 ---
 
@@ -41,3 +42,6 @@ None.
 - T006 review, `apps/api/src/limits/client-limiter.ts:56` (`admit`) (SUGGESTION): the table holds one entry per distinct client address per UTC day with no cap, so many distinct addresses (for example IPv6 rotation) grow memory within a day. AC-009 and architecture decision 12 accept in-memory fixed windows; a cap or eviction policy is a user decision, not applied in review.
 - T005 review, `apps/api/src/review/anthropic-model.ts` and `apps/api/src/generate/generation-model.ts` (SUGGESTION): the SDK's default `maxRetries` (2) still applies, so a timed-out call can wait up to three attempts (about 180 s review, 900 s generation) before it fails. AC-023 and AC-024 hold per attempt and the failure path is unchanged. Setting `maxRetries` changes the factory options and the AC-023 assertions, so it is a user decision, not applied in review.
 - T001, decided in the build: a request that gets 400 (invalid JSON or an unparseable body) counts toward the per-minute and per-day limits. The limiter runs before the body is read (plan T008), so it cannot tell a valid request from an invalid one; decision 12 is read this way. Recorded here; architecture §6 decision 12 is unchanged.
+- T008: size guard (400 lines) waived by the user; staged change is 567 lines, not split.
+- T008 review, open question for the user (not a finding): a `/generate` 422 with reason `refused` from `generateProject` (apps/api/src/generate/service.ts) is a structural refusal, not an input cap, so it is not refunded and still counts. Confirm or ask for a refund.
+- T008 review, `apps/api/src/app.ts` (`readWithinCaps`) (WARNING, resolved by the user's decision): 422 cap refusals are refunded. `admit` still counts before the body is read, and a cap refusal calls `ClientLimiter.refund` on the request's reservation before the 422 is returned, so architecture §6 decision 12 (requests refused by an input cap do not count) holds. 400s (invalid JSON) still count, as recorded in the T001 line above.

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 16 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 17 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
+| T015a | `POST /generate` route, first part (split of T015 by Amendment 2026-11-12): readConfig, 503 without a model, 422 refused, 502 model or reply with findings only, 200 zip with attachment headers; first-half route tests | 0 blockers, 2 warnings fixed (AC-019 test now sees a finding that would echo a value; AC-014 test returns the last reply's findings), 1 suggestion fixed (AC-017 label) | 202 api tests, 468 core tests passed |
 | T014 | Zip packaging (`packageZip`): file entries only; paths refused if absolute, drive-letter, backslash, `..` or empty; one fixed UTC date on every entry | 0 blockers, 1 warning fixed (stored-date read-back test added), 1 suggestion fixed (constant comment); the review's local-midnight request not applied (JSZip stores UTC fields) | 185 api tests, 468 core tests passed |
 | T013 | Retry rules in the generation service: one retry with the first findings; second failure returns findings and paths only after two calls; model error gives `model` with no third call | 0 blockers, 1 warning fixed (reply-check quoted long model keys in findings; now shortened, with a test), 1 suggestion fixed (explicit AC-015 labels) | 173 api tests, 468 core tests passed |
 | T012 | Generation service, first pass (`generateProject`): refusal with no model call; one model call; model error gives reason `model`; reply parsed and checked; files in plan order | 0 blockers, 2 warnings fixed (planning throw documented and tested; first-pass reply failures tested), 1 suggestion fixed (typed reply) | 148 api tests, 467 core tests passed |
@@ -75,3 +76,9 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `progress.md` only.
 **Reason**: T003c's staged change is 502 changed lines (411 added, 91 deleted) after review fixes, over the 400-line guard. The user chose to accept one commit at this size rather than split it.
 **Impact**: T003c is committed as one commit. This is a one-time override for T003c; the guard applies to the tasks that follow.
+
+### Amendment — 2026-11-12 (split of T015)
+
+**Changed**: `plan.md` — T015 split into T015a (route and first half of the tests) and T015b (second half of the tests and the plan and progress updates); the Build total is now 21 tasks. `progress.md` — this record.
+**Reason**: the T015 change is 550 changed lines (535 added, 15 deleted), over the 400-line guard. The user approved the split.
+**Impact**: T015a is committed first from the working tree, with the full T015 version kept in the scratchpad; T015b follows. T016 to T018 are unchanged.

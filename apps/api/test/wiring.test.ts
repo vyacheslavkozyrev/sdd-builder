@@ -85,7 +85,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
     it(`F-07 AC-006 answers 200 with review.status failed and the structural findings when the key is ${label}`, async () => {
       const config = duplicateIdConfig();
       const log = recordingLog();
-      const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log });
+      const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log, generation: null });
 
       const response = await postAnalyze(app, config);
       const text = await response.text();
@@ -103,7 +103,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
   it('F-07 AC-006 never logs or returns the key value', async () => {
     const config = duplicateIdConfig();
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log });
+    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log, generation: null });
 
     const response = await postAnalyze(app, config);
     const text = await response.text();
@@ -121,7 +121,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
       throw new TypeError(`bad value ${KEY_SENTINEL}`);
     });
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: 'sk-test' }, log), log });
+    const app = createApp({ review: reviewModelFrom({ ANTHROPIC_API_KEY: 'sk-test' }, log), log, generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 
@@ -143,7 +143,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is set', () => {
     vi.mocked(createAnthropicReviewModel).mockImplementationOnce(() => fake);
     const env = { ANTHROPIC_API_KEY: 'sk-test-key' };
     const log = recordingLog();
-    const app = createApp({ review: reviewModelFrom(env, log), log });
+    const app = createApp({ review: reviewModelFrom(env, log), log, generation: null });
 
     const response = await postAnalyze(app, sampleConfig());
 

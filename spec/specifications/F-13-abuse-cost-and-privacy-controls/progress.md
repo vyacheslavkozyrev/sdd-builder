@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 6 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 7 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -16,7 +16,9 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task.
+While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task.
+
+None.
 
 ---
 
@@ -30,6 +32,7 @@ None. While a task is in flight, this holds its ID and the step reached: `implem
 | T004 | Review reply truncation: a reply cut short at `max_tokens` counts as a failed review, not parsed | 0 blockers, 1 warning fixed (architecture §4 failure row now lists the truncated reply), 0 suggestions | 37 files, 492 tests passed |
 | T005 | Timeouts and output limits testable: injectable client factories; review 60 s and 8192 tokens, generation 300 s and 32000 tokens asserted; review rejection gives failed; generation timeout gives 502 with no text | 0 blockers, 0 warnings, 2 suggestions fixed (unused text assertion removed; long line wrapped), 1 suggestion deferred (see Deferred Findings) | 37 core files, 492 tests and 15 api files, 267 tests passed |
 | T006 | Per-client limiter: `ClientLimiter.admit` counts an accepted request atomically; 10 per minute and 100 per UTC day per address; `Retry-After` in whole seconds; clock injected; expired days pruned | 0 blockers, 0 warnings, 2 suggestions fixed (test name made exact; redundant assertion removed), 2 suggestions deferred (see Deferred Findings) | 37 files, 492 tests passed (limiter file 13 of 13) |
+| T007 | Daily ceiling counter (`DailyCeiling`, UTC day, counted before the call, forward-only reset) and `dailyLimitsFrom` for `SDDBUILDER_REVIEW_DAILY_LIMIT` (500) and `SDDBUILDER_GENERATE_DAILY_LIMIT` (50); an invalid value stops startup naming the variable | 0 blockers, 2 warnings fixed (backward clock step no longer reopens a spent day; AC-017 test reads the default), 0 suggestions | 37 core files, 492 tests and 18 api files, 306 tests passed |
 
 ---
 

@@ -6,6 +6,7 @@ import { errorNameOf, formatLogLine, type LogPort } from './log.js';
 import { reviewModelFrom } from './wiring.js';
 import type { AnalyzerEnv } from './review/anthropic-model.js';
 import { loadTemplates } from './templates.js';
+import { dailyLimitsFrom } from './limits/env.js';
 
 /** The port used when PORT is unset or empty. */
 const DEFAULT_PORT = 3000;
@@ -51,6 +52,12 @@ function generationPortsFrom(env: AnalyzerEnv): GenerationPorts | null {
 
 const env = envFromProcess();
 const port = portFrom(process.env['PORT']);
+// Reads the daily ceilings at startup, so an invalid value stops the server before it listens (F-13 AC-017).
+// The routes that count them are wired in F-13 T008 and T009.
+dailyLimitsFrom({
+  SDDBUILDER_REVIEW_DAILY_LIMIT: process.env['SDDBUILDER_REVIEW_DAILY_LIMIT'],
+  SDDBUILDER_GENERATE_DAILY_LIMIT: process.env['SDDBUILDER_GENERATE_DAILY_LIMIT'],
+});
 const app = createApp({
   review: reviewModelFrom(env, log),
   generation: generationPortsFrom(env),

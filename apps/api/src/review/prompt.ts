@@ -32,7 +32,7 @@ const REVIEW_INSTRUCTIONS = [
 const BRIEF_HEADING = 'Brief and process (JSON):';
 
 /** Collapses line breaks and other white space, so text taken from the brief cannot start a new list line. */
-function oneLine(text: string): string {
+export function oneLine(text: string): string {
   return text.replace(/\s+/g, ' ');
 }
 
@@ -158,7 +158,7 @@ function pickStep(step: StepDefinition) {
  * only on the values, never on how the object was built. Fields not listed
  * here (for example schemaVersion, or anything added at runtime) are left out.
  */
-function pickProject(config: ProjectConfig) {
+export function pickProject(config: ProjectConfig) {
   return {
     name: config.name,
     idea: config.idea,

@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 9 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 10 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ None
 | T005 | Request reading (`readConfig`: text, JSON, `parseProjectConfig`) and the one error shape (`errorBody`) | 0 blockers, 2 warnings fixed (exact problem strings in the tests instead of substring and count checks), 0 suggestions | 76 api tests, 467 core tests passed |
 | T006 | App (`createApp`) and `POST /analyze`; 404 and 405 with the error shape; generic 500 that logs the error name only | 0 blockers, 2 warnings fixed (mocks reset between tests; analyze called once asserted), 1 suggestion fixed (exact findings assertion) | 88 api tests, 467 core tests passed |
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
+| T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 
 ---
 
@@ -42,6 +43,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - WARNING T004 `npm audit --omit=dev` (unresolved, needs a user decision): `hono` 4.13.14 is affected by GHSA-4m76-xfj5-7975 (`mount()` path can bypass scoped middleware), GHSA-h7mg-cq63-vhpq (RegExpRouter skips wildcard middleware for encoded line terminators) and GHSA-3gg2-335m-rxc6 (`css` helper HTML injection); `@hono/node-server` 2.1.5 is affected by GHSA-qv5m-9pm6-hqp3 (ECONNRESET during WebSocket upgrade crashes the process) and GHSA-jpvv-r467-5p4w (backslash path bypass behind a reverse proxy). Both are new in this task; HEAD audits clean (0 vulnerabilities). Fix is `npm audit fix --force` to hono 4.13.18 and @hono/node-server 2.1.8, which are outside the exact pins the plan requires. Not applied: changing the pins contradicts the plan. Exposure depends on whether the API uses `mount()`, the `css` helper, WebSocket upgrades or a path-based proxy rule; confirm in T005–T006 or approve a pin change.
   - **Accepted by the user (2026-11-12) for now.** Pins stay. Revisit when versions at least two weeks old carry the fixes, and confirm in T005–T006 that the API does not use the affected features.
+- SUGGESTION T008 `apps/api/src/generate/prompt.ts:2`: `oneLine` and `pickProject` are imported from `review/prompt.ts`; a shared prompt helper module would be cleaner. Not moved here because it would edit the review prompt file beyond the export change this task makes; revisit with the reply-side tasks (T009) if they need the same helpers.
 
 ---
 

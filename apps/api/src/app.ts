@@ -5,12 +5,8 @@ import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
 import { errorBody } from './http/errors.js';
 import { readConfig } from './http/read-config.js';
+import { errorNameOf, formatLogLine, routeOf, type LogPort } from './log.js';
 import { packageZip } from './zip.js';
-
-/** The port the app writes log lines to. A line never carries a submitted value or an exception message. */
-export interface LogPort {
-  write(line: string): void;
-}
 
 /** What `/generate` needs to write the project. `null` in `AppDeps` means the generation model is not configured. */
 export interface GenerationPorts {
@@ -69,8 +65,7 @@ export function createApp({ review, generation, log }: AppDeps): Hono {
   app.notFound((c) => c.json(errorBody('not found'), 404));
 
   app.onError((err, c) => {
-    const name = err instanceof Error ? err.name : 'UnknownError';
-    log.write(`unexpected error: ${name}`);
+    log.write(formatLogLine({ event: 'unexpected_error', route: routeOf(c.req.path), status: 500, error: errorNameOf(err) }));
     return c.json(errorBody('internal error'), 500);
   });
 

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import { analyze, type ReviewModel } from '../src/analyze.js';
-import { createApp, type LogPort } from '../src/app.js';
+import { createApp } from '../src/app.js';
+import type { LogPort } from '../src/log.js';
 
 // The analysis is wrapped so one case can make it throw an unexpected error; otherwise it runs as built.
 vi.mock('../src/analyze.js', async (importOriginal) => {
@@ -235,7 +236,7 @@ describe('F-07 AC-027 an unexpected exception gives a generic 500', () => {
 
     await postAnalyze(app, sampleConfig());
 
-    expect(log.lines).toEqual(['unexpected error: RangeError']);
+    expect(log.lines).toEqual(['event=unexpected_error route=/analyze status=500 error=RangeError']);
     expect(log.lines.join('\n')).not.toContain(secret);
   });
 });

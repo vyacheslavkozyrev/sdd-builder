@@ -1,6 +1,6 @@
 import { checkReply, planGeneration, validateConfig } from '@sddbuilder/core';
 import type { GenerationPlan, ProjectConfig, TemplateSource } from '@sddbuilder/core';
-import type { LogPort } from '../app.js';
+import { errorNameOf, formatLogLine, type LogPort } from '../log.js';
 import { buildGenerationPrompt } from './prompt.js';
 import { parseReply } from './parse-reply.js';
 import type { GenerationModel, GenerationReply } from './generation-model.js';
@@ -40,8 +40,7 @@ async function attempt(prompt: string, plan: GenerationPlan, { model, log }: Pic
   try {
     raw = await model.complete(prompt);
   } catch (error) {
-    const name = error instanceof Error ? error.name : 'UnknownError';
-    log.write(`generation model call failed: ${name}`);
+    log.write(formatLogLine({ event: 'generation_model_failed', route: '/generate', error: errorNameOf(error) }));
     return { kind: 'model' };
   }
 

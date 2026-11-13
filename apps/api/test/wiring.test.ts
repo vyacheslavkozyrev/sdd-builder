@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
-import { createApp, type LogPort } from '../src/app.js';
+import { createApp } from '../src/app.js';
+import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
 import { createAnthropicReviewModel } from '../src/review/anthropic-model.js';
 
@@ -95,8 +96,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
         findings: analyzeStructure(config),
         review: { status: 'failed', findings: [], dropped: 0 },
       });
-      expect(log.lines).toHaveLength(1);
-      expect(log.lines[0]).toContain('ANTHROPIC_API_KEY');
+      expect(log.lines).toEqual(['event=review_key_missing']);
     });
   }
 
@@ -127,7 +127,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
 
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ review: { status: 'failed' } });
-    expect(log.lines).toEqual(['review model disabled: TypeError']);
+    expect(log.lines).toEqual(['event=review_model_disabled error=TypeError']);
   });
 });
 

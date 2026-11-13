@@ -169,7 +169,7 @@ describe('F-07 AC-017 a model error gives a model failure after exactly one call
 
     await generateProject(sampleConfig(), { templates: sampleTemplates(), model, log });
 
-    expect(log.lines).toEqual(['generation model call failed: TypeError']);
+    expect(log.lines).toEqual(['event=generation_model_failed route=/generate error=TypeError']);
     expect(log.lines.join('\n')).not.toContain('secret brief text');
   });
 });

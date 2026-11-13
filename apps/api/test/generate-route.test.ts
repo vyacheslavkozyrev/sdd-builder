@@ -11,7 +11,8 @@ import {
   type TemplateSource,
 } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
-import { createApp, type LogPort } from '../src/app.js';
+import { createApp } from '../src/app.js';
+import type { LogPort } from '../src/log.js';
 import type { GenerationModel, GenerationReply } from '../src/generate/generation-model.js';
 
 // Every node:fs write function is wrapped so a test can prove that a request wrote nothing; the wrapped call still runs.

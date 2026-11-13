@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { ReviewModel } from '../analyze.js';
+import type { ReviewModel, ReviewReply } from '../analyze.js';
 
 /** The model used when SDDBUILDER_ANALYZER_MODEL is unset or empty (architecture.md §4). */
 export const DEFAULT_ANALYZER_MODEL = 'claude-sonnet-5-5';
@@ -23,7 +23,10 @@ export interface AnthropicLike {
       model: string;
       max_tokens: number;
       messages: Array<{ role: 'user'; content: string }>;
-    }): Promise<{ content: ReadonlyArray<{ type: string; text?: string }> }>;
+    }): Promise<{
+      content: ReadonlyArray<{ type: string; text?: string }>;
+      stop_reason?: string | null | undefined;
+    }>;
   };
 }
 
@@ -42,14 +45,17 @@ export function createAnthropicReviewModel(env: AnalyzerEnv, client?: AnthropicL
   const api: AnthropicLike = client ?? new Anthropic({ apiKey, timeout: REVIEW_TIMEOUT_MS });
 
   return {
-    async complete(prompt: string): Promise<string> {
+    async complete(prompt: string): Promise<ReviewReply> {
       const message = await api.messages.create({
         model,
         max_tokens: REVIEW_MAX_TOKENS,
         messages: [{ role: 'user', content: prompt }],
       });
       const text = message.content.find((block) => block.type === 'text');
-      return text?.text ?? '';
+      return {
+        text: text?.text ?? '',
+        truncated: message.stop_reason === 'max_tokens',
+      };
     },
   };
 }

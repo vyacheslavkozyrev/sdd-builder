@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
-import { analyze, type ReviewModel } from '../src/analyze.js';
+import { analyze, type ReviewModel, type ReviewReply } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
 import type { LogPort } from '../src/log.js';
 
@@ -78,7 +78,7 @@ interface FakeModel {
 }
 
 /** A fake model that records each prompt and answers with the given behaviour. */
-function fakeModel(behaviour: () => Promise<string>): FakeModel {
+function fakeModel(behaviour: () => Promise<ReviewReply>): FakeModel {
   const calls: string[] = [];
   return {
     calls,
@@ -92,7 +92,7 @@ function fakeModel(behaviour: () => Promise<string>): FakeModel {
 }
 
 function replyWith(text: string): FakeModel {
-  return fakeModel(() => Promise.resolve(text));
+  return fakeModel(() => Promise.resolve({ text, truncated: false }));
 }
 
 /** A log port that keeps every line it receives. */
@@ -159,7 +159,7 @@ describe('F-07 AC-004 a refused configuration is an analysis, not an HTTP error'
 });
 
 describe('F-07 AC-005 a failed review still returns 200 with the structural findings', () => {
-  const failures: [string, () => Promise<string>][] = [
+  const failures: [string, () => Promise<ReviewReply>][] = [
     [
       'the model throws',
       () => {
@@ -167,7 +167,10 @@ describe('F-07 AC-005 a failed review still returns 200 with the structural find
       },
     ],
     ['the model times out', () => Promise.reject(new Error('timeout'))],
-    ['the model replies with text that is not JSON', () => Promise.resolve('Here are my thoughts.')],
+    [
+      'the model replies with text that is not JSON',
+      () => Promise.resolve({ text: 'Here are my thoughts.', truncated: false }),
+    ],
   ];
 
   for (const [label, behaviour] of failures) {
@@ -184,6 +187,22 @@ describe('F-07 AC-005 a failed review still returns 200 with the structural find
       });
     });
   }
+});
+
+describe('F-13 AC-025 a truncated review reply gives 200 with review.status failed', () => {
+  it('F-13 AC-025 returns 200 with the structural findings and review.status failed', async () => {
+    const config = duplicateIdConfig();
+    const truncated = fakeModel(() => Promise.resolve({ text: '[{"severity":"info"', truncated: true }));
+    const app = createApp({ review: truncated.model, log: recordingLog(), generation: null });
+
+    const response = await postAnalyze(app, config);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      findings: analyzeStructure(config),
+      review: { status: 'failed', findings: [], dropped: 0 },
+    });
+  });
 });
 
 describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {

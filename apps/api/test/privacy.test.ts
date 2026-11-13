@@ -78,7 +78,7 @@ function ports(model: GenerationModel, source: TemplateSource = templates): Gene
 }
 
 function reviewReturning(text: string): ReviewModel {
-  return { complete: () => Promise.resolve(text) };
+  return { complete: () => Promise.resolve({ text, truncated: false }) };
 }
 
 /** A log port that keeps every line it receives. */

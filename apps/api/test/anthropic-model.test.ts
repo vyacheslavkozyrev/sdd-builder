@@ -31,7 +31,10 @@ interface RecordedCall {
   messages: Array<{ role: 'user'; content: string }>;
 }
 
-function fakeClient(content: ReadonlyArray<{ type: string; text?: string }>): {
+function fakeClient(
+  content: ReadonlyArray<{ type: string; text?: string }>,
+  stopReason?: string | null,
+): {
   client: AnthropicLike;
   calls: RecordedCall[];
 } {
@@ -40,7 +43,7 @@ function fakeClient(content: ReadonlyArray<{ type: string; text?: string }>): {
     messages: {
       create: (params) => {
         calls.push(params);
-        return Promise.resolve({ content });
+        return Promise.resolve({ content, stop_reason: stopReason });
       },
     },
   };
@@ -147,7 +150,7 @@ describe('F-04 AC-021 request and reply', () => {
     const { client } = fakeClient([{ type: 'text', text: 'Add a rollback step.' }]);
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
 
-    await expect(model.complete('prompt')).resolves.toBe('Add a rollback step.');
+    await expect(model.complete('prompt')).resolves.toEqual({ text: 'Add a rollback step.', truncated: false });
   });
 
   it('F-04 AC-021 returns the first text block when other blocks come first', async () => {
@@ -158,20 +161,43 @@ describe('F-04 AC-021 request and reply', () => {
     ]);
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
 
-    await expect(model.complete('prompt')).resolves.toBe('first text');
+    await expect(model.complete('prompt')).resolves.toEqual({ text: 'first text', truncated: false });
   });
 
   it('F-04 AC-021 returns an empty string when the reply has no text block', async () => {
     const { client } = fakeClient([{ type: 'thinking' }]);
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
 
-    await expect(model.complete('prompt')).resolves.toBe('');
+    await expect(model.complete('prompt')).resolves.toEqual({ text: '', truncated: false });
   });
 
   it('F-04 AC-021 returns an empty string when the reply has no content', async () => {
     const { client } = fakeClient([]);
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
 
-    await expect(model.complete('prompt')).resolves.toBe('');
+    await expect(model.complete('prompt')).resolves.toEqual({ text: '', truncated: false });
+  });
+});
+
+describe('F-13 AC-025 adapter sets truncated from the stop reason', () => {
+  it('F-13 AC-025 sets truncated to true when the stop reason is max_tokens', async () => {
+    const { client } = fakeClient([{ type: 'text', text: '[{"severity":' }], 'max_tokens');
+    const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
+
+    await expect(model.complete('prompt')).resolves.toEqual({ text: '[{"severity":', truncated: true });
+  });
+
+  it('F-13 AC-025 sets truncated to false when the stop reason is end_turn', async () => {
+    const { client } = fakeClient([{ type: 'text', text: '[]' }], 'end_turn');
+    const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
+
+    await expect(model.complete('prompt')).resolves.toEqual({ text: '[]', truncated: false });
+  });
+
+  it('F-13 AC-025 treats a missing stop reason as not truncated', async () => {
+    const { client } = fakeClient([{ type: 'text', text: '[]' }]);
+    const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
+
+    await expect(model.complete('prompt')).resolves.toEqual({ text: '[]', truncated: false });
   });
 });

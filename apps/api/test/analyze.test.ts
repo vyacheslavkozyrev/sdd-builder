@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeStructure } from '@sddbuilder/core';
 import type { ProjectConfig } from '@sddbuilder/core';
-import { analyze, type ReviewModel } from '../src/analyze.js';
+import { analyze, type ReviewModel, type ReviewReply } from '../src/analyze.js';
 import { buildReviewPrompt } from '../src/review/prompt.js';
 
 const IDEA = 'A tool that turns a product idea into a spec-driven project framework.';
@@ -64,7 +64,7 @@ interface FakeModel {
 }
 
 /** A fake model that records each prompt and answers with the given behaviour. */
-function fakeModel(behaviour: () => Promise<string>): FakeModel {
+function fakeModel(behaviour: () => Promise<ReviewReply>): FakeModel {
   const calls: string[] = [];
   return {
     calls,
@@ -78,8 +78,41 @@ function fakeModel(behaviour: () => Promise<string>): FakeModel {
 }
 
 function replyWith(text: string): FakeModel {
-  return fakeModel(() => Promise.resolve(text));
+  return fakeModel(() => Promise.resolve({ text, truncated: false }));
 }
+
+function truncatedReplyWith(text: string): FakeModel {
+  return fakeModel(() => Promise.resolve({ text, truncated: true }));
+}
+
+describe('F-13 AC-025 a truncated review reply counts as failed', () => {
+  it('F-13 AC-025 gives review.status failed when the reply reached max_tokens', async () => {
+    const config = configWithStructuralFindings();
+
+    const result = await analyze(config, truncatedReplyWith('[]').model);
+
+    expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
+    expect(result.findings).toEqual(analyzeStructure(config));
+  });
+
+  it('F-13 AC-025 does not parse a truncated reply that looks like a valid array', async () => {
+    const config = configWithStructuralFindings();
+    const reply = '[{"severity":"info","subject":"testRules","message":"Name the coverage tool."}]';
+
+    const result = await analyze(config, truncatedReplyWith(reply).model);
+
+    expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
+  });
+
+  it('F-13 AC-025 still calls the model once for a truncated reply', async () => {
+    const config = configWithStructuralFindings();
+    const fake = truncatedReplyWith('[');
+
+    await analyze(config, fake.model);
+
+    expect(fake.calls).toHaveLength(1);
+  });
+});
 
 describe('F-04 AC-013 review failure keeps the structural findings', () => {
   it('F-04 AC-013 gives a failed review with no findings when the model throws', async () => {

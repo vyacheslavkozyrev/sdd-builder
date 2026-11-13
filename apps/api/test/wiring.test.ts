@@ -137,7 +137,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is set', () => {
     const fake: ReviewModel = {
       complete: (prompt: string) => {
         calls.push(prompt);
-        return Promise.resolve('[]');
+        return Promise.resolve({ text: '[]', truncated: false });
       },
     };
     vi.mocked(createAnthropicReviewModel).mockImplementationOnce(() => fake);

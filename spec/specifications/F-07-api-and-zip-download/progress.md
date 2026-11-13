@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 8 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
+| Build    | 🔄 In Progress | 2026-11-12 | 9 of 20 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ None
 | T004 | Runtime dependencies pinned: hono 4.13.14, @hono/node-server 2.1.5, jszip 3.10.2 | 0 blockers; the audit advisories on the new packages were accepted by the user and recorded under Deferred Findings | 35 files, 467 tests passed |
 | T005 | Request reading (`readConfig`: text, JSON, `parseProjectConfig`) and the one error shape (`errorBody`) | 0 blockers, 2 warnings fixed (exact problem strings in the tests instead of substring and count checks), 0 suggestions | 76 api tests, 467 core tests passed |
 | T006 | App (`createApp`) and `POST /analyze`; 404 and 405 with the error shape; generic 500 that logs the error name only | 0 blockers, 2 warnings fixed (mocks reset between tests; analyze called once asserted), 1 suggestion fixed (exact findings assertion) | 88 api tests, 467 core tests passed |
+| T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 
 ---
 

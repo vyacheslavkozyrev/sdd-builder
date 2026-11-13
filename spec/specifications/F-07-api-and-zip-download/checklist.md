@@ -73,4 +73,4 @@ Record the result in `progress.md` under Test Results. Do not write the key into
 
 | Criterion | Result | What happened |
 |---|---|---|
-| AC-029 `[device]` | failed | Step 3 returned 502: the model's reply keys for the `.claude/...` files carried a zero-width space, so the planned paths were not matched. Fixed by T020 (Amendment 2026-11-12, device check); re-run the whole checklist after T020. |
+| AC-029 `[device]` | passed (after T020) | First run failed at step 3 (502: zero-width spaces in the model's reply keys), fixed by T020. Re-run: step 2 returned 200 with the zip; the unpacked project had 20 files, no SDDBuilder reference and no `{{` placeholder; the user reviewed the files and confirmed the result (2026-11-13). |

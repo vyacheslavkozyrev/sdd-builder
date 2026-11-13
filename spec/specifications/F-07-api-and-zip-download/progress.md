@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
 | Build    | ✅ Complete | 2026-11-12 | 23 of 23 tasks committed; T020 added by the device-check failure (Amendment 2026-11-12, device check failure) |
-| Verify   | 🔄 In Progress | 2026-11-12 | Automated criteria: all covered. Manual AC-029 failed at step 3; re-run after T020 |
+| Verify   | ✅ Complete | 2026-11-13 | 28 `[auto]` criteria covered by named passing tests; AC-029 `[device]` passed on the live run after T020 |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -67,7 +67,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 **Automated (verify, 2026-11-12):** all 28 `[auto]` criteria (AC-001 to AC-028) have at least one passing test named with their criterion; no gaps. Task check: typecheck clean, 35 core test files (468 tests), 15 api test files (245 tests). AC-013 route-level coverage added by T019 after the first verify run.
 
-**Manual (`[device]`):** AC-029 failed at step 3 (`POST /generate` returned 502: invisible characters in the model's reply keys). Fix in T020; the whole checklist is run again after T020. The steps and the sample configuration are in `checklist.md` and `device-config.json` in this folder.
+**Manual (`[device]`):** AC-029 failed at step 3 on the first run (`POST /generate` returned 502: invisible characters in the model's reply keys; fixed by T020). On the re-run after T020, `POST /generate` returned 200 with the zip; the unpacked project had 20 files, no SDDBuilder reference and no template placeholder; the user confirmed the result and asked for the feature to be closed (2026-11-13). The steps and the sample configuration are in `checklist.md` and `device-config.json` in this folder.
 
 **Observations for a later tidy-up (not gaps):** a describe block in `apps/api/test/generate-service.test.ts` is labelled `F-07 AC-008` but tests the refusal of a reply that does not match the plan (AC-013 to AC-016 behaviour); AC-023 spies only on `/generate`, not on `/analyze`.
 

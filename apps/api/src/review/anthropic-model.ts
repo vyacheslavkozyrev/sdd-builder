@@ -30,19 +30,31 @@ export interface AnthropicLike {
   };
 }
 
+/** The options the adapter gives to the client factory: the key and the timeout of one call, in milliseconds. */
+export interface AnthropicClientOptions {
+  apiKey: string;
+  timeout: number;
+}
+
+/** Builds the provider client for the given options. The default builds the SDK client; a test passes its own. */
+export type AnthropicClientFactory = (options: AnthropicClientOptions) => AnthropicLike;
+
 /**
  * Builds the review model on the Anthropic SDK. Throws at creation time when the
  * API key is missing or empty; the error names the variable, never its value.
- * The client is created here unless one is passed in.
+ * The client is created here by `createClient`, which receives the key and REVIEW_TIMEOUT_MS.
  */
-export function createAnthropicReviewModel(env: AnalyzerEnv, client?: AnthropicLike): ReviewModel {
+export function createAnthropicReviewModel(
+  env: AnalyzerEnv,
+  createClient: AnthropicClientFactory = (options) => new Anthropic(options),
+): ReviewModel {
   const apiKey = env.ANTHROPIC_API_KEY?.trim() ?? '';
   if (apiKey === '') {
     throw new Error('ANTHROPIC_API_KEY is not set; the analyzer needs it to call the model provider');
   }
 
   const model = env.SDDBUILDER_ANALYZER_MODEL?.trim() || DEFAULT_ANALYZER_MODEL;
-  const api: AnthropicLike = client ?? new Anthropic({ apiKey, timeout: REVIEW_TIMEOUT_MS });
+  const api: AnthropicLike = createClient({ apiKey, timeout: REVIEW_TIMEOUT_MS });
 
   return {
     async complete(prompt: string): Promise<ReviewReply> {

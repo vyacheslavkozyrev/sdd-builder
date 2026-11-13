@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { DEFAULT_ANALYZER_MODEL } from '../review/anthropic-model.js';
-import type { AnalyzerEnv } from '../review/anthropic-model.js';
+import type { AnalyzerEnv, AnthropicClientOptions } from '../review/anthropic-model.js';
 
 /** Upper bound on the reply length of one generation call (Amendment 2026-11-12 in F-07 progress). */
 export const GENERATION_MAX_TOKENS = 32000;
@@ -38,14 +38,17 @@ export interface GenerationClientLike {
   };
 }
 
+/** Builds the provider client for the given options. The default builds the SDK client; a test passes its own. */
+export type GenerationClientFactory = (options: AnthropicClientOptions) => GenerationClientLike;
+
 /**
  * Builds the generation model on the Anthropic SDK. Throws at creation time when the
  * API key is missing or empty; the error names the variable, never its value.
- * The client is created here unless one is passed in.
+ * The client is created here by `createClient`, which receives the key and GENERATION_TIMEOUT_MS.
  */
 export function createAnthropicGenerationModel(
   env: AnalyzerEnv,
-  client?: GenerationClientLike,
+  createClient: GenerationClientFactory = (options) => new Anthropic(options),
 ): GenerationModel {
   const apiKey = env.ANTHROPIC_API_KEY?.trim() ?? '';
   if (apiKey === '') {
@@ -53,8 +56,7 @@ export function createAnthropicGenerationModel(
   }
 
   const model = env.SDDBUILDER_ANALYZER_MODEL?.trim() || DEFAULT_ANALYZER_MODEL;
-  const api: GenerationClientLike =
-    client ?? new Anthropic({ apiKey, timeout: GENERATION_TIMEOUT_MS });
+  const api: GenerationClientLike = createClient({ apiKey, timeout: GENERATION_TIMEOUT_MS });
 
   return {
     async complete(prompt: string): Promise<GenerationReply> {

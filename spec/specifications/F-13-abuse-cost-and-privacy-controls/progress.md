@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 4 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 5 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,4 +32,5 @@ None. While a task is in flight, this holds its ID and the step reached: `implem
 ---
 
 ## Deferred Findings
+- T005 review, `apps/api/src/review/anthropic-model.ts` and `apps/api/src/generate/generation-model.ts` (SUGGESTION): the SDK's default `maxRetries` (2) still applies, so a timed-out call can wait up to three attempts (about 180 s review, 900 s generation) before it fails. AC-023 and AC-024 hold per attempt and the failure path is unchanged. Setting `maxRetries` changes the factory options and the AC-023 assertions, so it is a user decision, not applied in review.
 - T001, decided in the build: a request that gets 400 (invalid JSON or an unparseable body) counts toward the per-minute and per-day limits. The limiter runs before the body is read (plan T008), so it cannot tell a valid request from an invalid one; decision 12 is read this way. Recorded here; architecture §6 decision 12 is unchanged.

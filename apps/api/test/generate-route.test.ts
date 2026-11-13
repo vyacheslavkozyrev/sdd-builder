@@ -13,7 +13,12 @@ import {
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
 import type { LogPort } from '../src/log.js';
-import type { GenerationModel, GenerationReply } from '../src/generate/generation-model.js';
+import {
+  createAnthropicGenerationModel,
+  type GenerationClientLike,
+  type GenerationModel,
+  type GenerationReply,
+} from '../src/generate/generation-model.js';
 
 // Every node:fs write function is wrapped so a test can prove that a request wrote nothing; the wrapped call still runs.
 vi.mock('node:fs', async (importOriginal) => {
@@ -382,6 +387,27 @@ describe('F-07 AC-014 and AC-017 model failures give 502 with problems and no zi
       expect(model.prompts).toHaveLength(1);
     });
   }
+});
+
+describe('F-13 AC-024 a generation timeout gives 502 with no file text', () => {
+  it('F-13 AC-024 returns 502 with the generic problem and no file text when the provider call times out', async () => {
+    const timeout = Object.assign(new Error('Request timed out.'), { name: 'APIConnectionTimeoutError' });
+    const client: GenerationClientLike = { messages: { create: () => Promise.reject(timeout) } };
+    const model = createAnthropicGenerationModel({ ANTHROPIC_API_KEY: 'test-key-value-0123456789' }, () => client);
+    const log = recordingLog();
+    const app = appWith(model, log);
+
+    const response = await postJson(app, GENERATE_URL, sampleConfig());
+    const text = await response.text();
+
+    expect(response.status).toBe(502);
+    expect(JSON.parse(text)).toEqual({
+      error: 'the model did not return the project',
+      problems: ['the model call failed'],
+    });
+    expect(log.lines.join('\n')).toContain('APIConnectionTimeoutError');
+    expect(log.lines.join('\n')).not.toContain('Request timed out');
+  });
 });
 
 describe('F-07 AC-018 generation not configured gives 503 and no model call', () => {

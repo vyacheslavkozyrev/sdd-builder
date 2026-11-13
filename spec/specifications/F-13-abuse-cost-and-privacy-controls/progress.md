@@ -28,6 +28,7 @@ None. While a task is in flight, this holds its ID and the step reached: `implem
 | T002 | `AnalysisReview.status` gains `skipped`; `skippedAnalysis(config)` in core | 0 blockers, 0 warnings, 1 suggestion fixed (test renamed to what it asserts) | 36 files, 476 core and api tests passed |
 | T003 | Input caps as data in core: `INPUT_CAPS` and `capProblems(config)` in a fixed order | 0 blockers, 1 warning fixed (AC-014 test asserted no length), 2 suggestions fixed (non-null assertion removed; long line wrapped) | 37 files, 492 tests passed |
 | T004 | Review reply truncation: a reply cut short at `max_tokens` counts as a failed review, not parsed | 0 blockers, 1 warning fixed (architecture §4 failure row now lists the truncated reply), 0 suggestions | 37 files, 492 tests passed |
+| T005 | Timeouts and output limits testable: injectable client factories; review 60 s and 8192 tokens, generation 300 s and 32000 tokens asserted; review rejection gives failed; generation timeout gives 502 with no text | 0 blockers, 0 warnings, 2 suggestions fixed (unused text assertion removed; long line wrapped), 1 suggestion deferred (see Deferred Findings) | 37 core files, 492 tests and 15 api files, 267 tests passed |
 
 ---
 

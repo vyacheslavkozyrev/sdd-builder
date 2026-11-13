@@ -12,7 +12,7 @@ Status: draft, reviewed 2026-11-11 against the decisions in [idea.md](idea.md), 
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ✅ Complete (16 tasks, 22 criteria, 387 tests) |
 | F-05 | Project brief form | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
 | F-06 | Visual builder: global map and workflow tabs | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
-| F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ⏳ Pending |
+| F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ✅ Complete (23 tasks, 29 criteria: 28 automated, 1 device; device check passed after T020) |
 | F-08 | Save, import and export of projects | Post-MVP | User | apps/web | — | F-05, F-06 | Not started |
 | F-09 | Presets: Light, Standard, Full | Post-MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Pending |
 | F-10 | Generated-project self-check | Post-MVP | Enabler | packages/core | 3 | F-03 | ⏳ Pending |

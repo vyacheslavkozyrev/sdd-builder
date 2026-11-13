@@ -4,7 +4,6 @@ import {
   REVIEW_MAX_TOKENS,
   REVIEW_TIMEOUT_MS,
   createAnthropicReviewModel,
-  fromProcessEnv,
 } from '../src/review/anthropic-model.js';
 import type { AnthropicLike } from '../src/review/anthropic-model.js';
 
@@ -118,16 +117,6 @@ describe('F-04 AC-021 API key', () => {
     createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, client);
 
     expect(constructorOptions).toEqual([]);
-  });
-
-  it('F-04 AC-021 reads the key and model from process.env in fromProcessEnv', () => {
-    vi.stubEnv('ANTHROPIC_API_KEY', KEY);
-    vi.stubEnv('SDDBUILDER_ANALYZER_MODEL', 'claude-test-model-2');
-
-    expect(fromProcessEnv()).toEqual({
-      ANTHROPIC_API_KEY: KEY,
-      SDDBUILDER_ANALYZER_MODEL: 'claude-test-model-2',
-    });
   });
 
   it('F-04 AC-021 ignores process.env when the environment passed in has no key', () => {

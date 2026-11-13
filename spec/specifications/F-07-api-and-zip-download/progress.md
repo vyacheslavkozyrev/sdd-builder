@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 19 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
+| Build    | 🔄 In Progress | 2026-11-12 | 20 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None
 | T007 | Review model wiring when the key is missing: `/analyze` answers with review failed; one log line naming `ANTHROPIC_API_KEY`, never its value | 0 blockers, 1 warning fixed (escaped-form check for the key sentinel), 0 suggestions | 94 api tests, 467 core tests passed |
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
+| T017 | Server entry (`server.ts`): the only code that reads `process.env` and the templates directory; generation `null` when the key is missing; `PORT` validated; start-up line logged on bind | 0 blockers, 2 warnings fixed (`process.env` read moved out of the review adapter into `server.ts`; start-up line logged on bind), 0 suggestions | 244 api tests, 468 core tests passed; AC-029 is the device check |
 | T016 | Logs and secrets: every log call passes only the event, route, status and error name through `log.ts`; privacy tests across success, failure and missing-key paths (brief, reply and key sentinels) | 0 blockers, 1 warning fixed (key sentinel added to the failure messages it was not in), 1 suggestion fixed (single identifier guard) | 245 api tests, 468 core tests passed |
 | T015b | `POST /generate` route, second part (split of T015): statelessness; no file written during a request; 405 and 404 bodies; error shape and no stack or server path in every error body | 0 blockers, 2 warnings fixed (write spies cover the full write-capable set; problems asserted per scenario), 2 suggestions fixed (stack frames refused; fs.promises covered) | 215 api tests, 468 core tests passed |
 | T015a | `POST /generate` route, first part (split of T015 by Amendment 2026-11-12): readConfig, 503 without a model, 422 refused, 502 model or reply with findings only, 200 zip with attachment headers; first-half route tests | 0 blockers, 2 warnings fixed (AC-019 test now sees a finding that would echo a value; AC-014 test returns the last reply's findings), 1 suggestion fixed (AC-017 label) | 202 api tests, 468 core tests passed |

@@ -53,11 +53,3 @@ export function createAnthropicReviewModel(env: AnalyzerEnv, client?: AnthropicL
     },
   };
 }
-
-/** Production entry point: the only place that reads process.env for the analyzer. */
-export function fromProcessEnv(): AnalyzerEnv {
-  return {
-    ANTHROPIC_API_KEY: process.env['ANTHROPIC_API_KEY'],
-    SDDBUILDER_ANALYZER_MODEL: process.env['SDDBUILDER_ANALYZER_MODEL'],
-  };
-}

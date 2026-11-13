@@ -3,7 +3,13 @@ export interface LogPort {
   write(line: string): void;
 }
 
-export type LogEvent = 'unexpected_error' | 'generation_model_failed' | 'review_key_missing' | 'review_model_disabled';
+export type LogEvent =
+  | 'unexpected_error'
+  | 'generation_model_failed'
+  | 'generation_model_disabled'
+  | 'review_key_missing'
+  | 'review_model_disabled'
+  | 'server_started';
 
 /** A request path that is not a route is logged as `other`, so a path never reaches the log. */
 export type LogRoute = '/analyze' | '/generate' | 'other';

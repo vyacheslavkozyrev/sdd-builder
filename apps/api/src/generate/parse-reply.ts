@@ -8,6 +8,9 @@ export interface ParseReplyOptions {
   truncated: boolean;
 }
 
+/** Zero-width space, zero-width non-joiner, zero-width joiner and byte order mark: invisible in a key, never part of a path. */
+const INVISIBLE_CHARACTERS = /[\u200B-\u200D\uFEFF]/g;
+
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -15,7 +18,8 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 /**
  * Reads the text of a model reply. A truncated reply is refused before it is parsed, so a partial
  * object is never read. Text that is not JSON, or JSON that is not an object, is refused too.
- * The values inside the object are not checked here; `checkReply` in core does that.
+ * Invisible characters are removed from every key; two keys that become the same path are refused.
+ * The values inside the object are not changed or checked here; `checkReply` in core does that.
  */
 export function parseReply(text: string, options: ParseReplyOptions): ParseReplyResult {
   if (options.truncated) {
@@ -30,5 +34,13 @@ export function parseReply(text: string, options: ParseReplyOptions): ParseReply
   if (!isPlainObject(value)) {
     return { ok: false, findings: ['reply must be a JSON object mapping file paths to text'] };
   }
-  return { ok: true, reply: value };
+  const cleaned = new Map<string, unknown>();
+  for (const [key, fileText] of Object.entries(value)) {
+    const path = key.replace(INVISIBLE_CHARACTERS, '');
+    if (cleaned.has(path)) {
+      return { ok: false, findings: [`reply has more than one key for the path "${path}"`] };
+    }
+    cleaned.set(path, fileText);
+  }
+  return { ok: true, reply: Object.fromEntries(cleaned) };
 }

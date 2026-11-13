@@ -59,6 +59,47 @@ describe('F-07 AC-016 parseReply never parses a truncated reply', () => {
   });
 });
 
+describe('F-07 AC-015 parseReply removes invisible characters from every key', () => {
+  it.each([
+    ['a zero-width space', '​'],
+    ['a zero-width non-joiner', '‌'],
+    ['a zero-width joiner', '‍'],
+    ['a byte order mark', '﻿'],
+  ])('F-07 AC-015 cleans a key that starts with %s', (_label, invisible) => {
+    const text = JSON.stringify({ [`${invisible}.claude/rules/general.md`]: 'Rule text' });
+    expect(parseReply(text, { truncated: false })).toEqual({
+      ok: true,
+      reply: { '.claude/rules/general.md': 'Rule text' },
+    });
+  });
+
+  it('F-07 AC-015 cleans invisible characters inside a key and leaves the values unchanged', () => {
+    const text = JSON.stringify({ 'spec​/﻿plan.md': 'Text with a​zero-width space' });
+    expect(parseReply(text, { truncated: false })).toEqual({
+      ok: true,
+      reply: { 'spec/plan.md': 'Text with a​zero-width space' },
+    });
+  });
+
+  it.each([
+    ['one clean and one with a zero-width space', 'CLAUDE.md', '\u200BCLAUDE.md', 'CLAUDE.md'],
+    ['two keys with different invisible characters', '\uFEFF.claude/a.md', '\u200B.claude/a.md', '.claude/a.md'],
+  ])('F-07 AC-015 refuses %s that clean to the same path, with one finding naming the path', (_label, first, second, expectedPath) => {
+    const text = `{"${first}":"one","${second}":"two"}`;
+    expect(parseReply(text, { truncated: false })).toEqual({
+      ok: false,
+      findings: [`reply has more than one key for the path "${expectedPath}"`],
+    });
+  });
+
+  it('F-07 AC-015 leaves a key with no invisible character unchanged', () => {
+    expect(parseReply(VALID_OBJECT, { truncated: false })).toEqual({
+      ok: true,
+      reply: { 'CLAUDE.md': '# Project\n', 'spec/plan.md': 'Plan text' },
+    });
+  });
+});
+
 describe('F-07 AC-015 parseReply passes a JSON object through unchecked', () => {
   it.each([
     ['a valid object of text values', VALID_OBJECT],

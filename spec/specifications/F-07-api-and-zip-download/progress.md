@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-12 | 22 of 23 tasks committed; T020 added by the device-check failure (Amendment 2026-11-12, device check failure) |
+| Build    | ✅ Complete | 2026-11-12 | 23 of 23 tasks committed; T020 added by the device-check failure (Amendment 2026-11-12, device check failure) |
 | Verify   | 🔄 In Progress | 2026-11-12 | Automated criteria: all covered. Manual AC-029 failed at step 3; re-run after T020 |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ None
 | T008 | Generation prompt (`buildGenerationPrompt`): fixed instructions, brief and process in fixed key order, planned files in plan order, findings of the previous reply | 0 blockers, 2 warnings fixed (per-file and key-order assertions added), 1 suggestion fixed (empty plan tested); 1 suggestion deferred (shared helper module) | 103 api tests, 467 core tests passed |
 | T009 | Reply parsing (`parseReply`): a truncated reply is refused before parsing; invalid JSON and non-object JSON are failed replies; never throws | 0 blockers, 2 warnings fixed (JSON.parse not called for truncated input; never-throws table), 1 suggestion fixed (AC-016 block separated) | 125 api tests, 467 core tests passed |
 | T019 | Verify gap: route test for AC-013 (failed reply, passing retry, 200 zip after two calls); AC-013 and AC-014 labels corrected in the service tests | 0 blockers, 0 warnings, 0 suggestions | 245 api tests, 468 core tests passed |
+| T020 | Device-check fix: invisible characters (U+200B, U+200C, U+200D, U+FEFF) removed from reply keys before the path check; two keys that become one path refused with a finding | 0 blockers, 0 warnings, 2 suggestions fixed (regex written as escapes; duplicate-path test expects a literal path) | 254 api tests, 468 core tests passed |
 | T018 | Documentation of the behaviour as built: routes, status codes, zip, environment variables, timeouts; decision 11 not restated | 0 blockers, 1 warning fixed (a valid config gets 200 from /analyze, except an unexpected error, which is 500) | docs only; task check: 35 files, 468 tests passed |
 | T017 | Server entry (`server.ts`): the only code that reads `process.env` and the templates directory; generation `null` when the key is missing; `PORT` validated; start-up line logged on bind | 0 blockers, 2 warnings fixed (`process.env` read moved out of the review adapter into `server.ts`; start-up line logged on bind), 0 suggestions | 244 api tests, 468 core tests passed; AC-029 is the device check |
 | T016 | Logs and secrets: every log call passes only the event, route, status and error name through `log.ts`; privacy tests across success, failure and missing-key paths (brief, reply and key sentinels) | 0 blockers, 1 warning fixed (key sentinel added to the failure messages it was not in), 1 suggestion fixed (single identifier guard) | 245 api tests, 468 core tests passed |

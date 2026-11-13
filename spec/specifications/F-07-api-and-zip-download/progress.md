@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
-| Build    | ✅ Complete | 2026-11-12 | 21 of 21 tasks committed (T003 split into T003a–c; T003c committed at 502 lines by user override; T015 split into T015a–b) |
+| Build    | 🔄 In Progress | 2026-11-12 | 21 of 22 tasks committed; T019 added by the verify gap (Amendment 2026-11-12, verify gap) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -80,6 +80,12 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `progress.md` only.
 **Reason**: T003c's staged change is 502 changed lines (411 added, 91 deleted) after review fixes, over the 400-line guard. The user chose to accept one commit at this size rather than split it.
 **Impact**: T003c is committed as one commit. This is a one-time override for T003c; the guard applies to the tasks that follow.
+
+### Amendment — 2026-11-12 (verify gap)
+
+**Changed**: `plan.md` — T019 added at the end of the task list; the Build total is now 22 tasks. `progress.md` — this record.
+**Reason**: the verify run found AC-013 with no route-level test (a first reply that fails and a passing retry, giving 200 with the zip after two calls). Two labels in `apps/api/test/generate-service.test.ts` are also swapped between AC-013 and AC-014.
+**Impact**: T019 adds the route test and corrects the labels. Build returns to in progress; verify runs again after T019 is committed.
 
 ### Amendment — 2026-11-12 (split of T015)
 

@@ -34,6 +34,8 @@ Paths are under `packages/core/` (pure parsing) and `apps/api/` (HTTP, model cal
 - [x] T017 [API] Server entry: `apps/api/src/server.ts` builds the app from the environment (`reviewModelFrom`, the generation model or `null`, `loadTemplates` of `templates/`) and serves it on `PORT` with `@hono/node-server`; no test imports it, and it is checked by the manual run in the device criterion — `apps/api/src/server.ts` — covers AC-029 (device: a real key and one `/generate` call are checked in the manual checklist)
 - [x] T018 [Docs] Describe the behaviour as built: the two routes, status codes, the zip name and the one retry, in `architecture.md` §2 (data flow) and §3 (generation), and the environment variables in §4 — `spec/documents/architecture.md` — covers: none (documents behaviour, per `general.md`)
 
+- [ ] T019 [API] Gap from verify (Amendment 2026-11-12, verify gap): a route test proves AC-013 at HTTP level — a first reply that fails and a passing retry give 200 with the zip after exactly two model calls, in `apps/api/test/generate-route.test.ts`; and the two labels swapped in `apps/api/test/generate-service.test.ts` are corrected (the block that tests the second failure is AC-014, the block that tests the passing retry is AC-013) — covers AC-013
+
 ## Layer Tags
 
 | Tag | Scope |

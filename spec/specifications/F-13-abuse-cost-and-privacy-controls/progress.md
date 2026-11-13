@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-13 | 10 of 10 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-13 | 29 of 29 criteria: 28 `[auto]` covered by passing tests; AC-029 `[device]` passed on a real-key run (checklist.md) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -39,6 +39,50 @@ None.
 
 ---
 
+## Test Results
+
+Verify run on 2026-11-13 on `main`, clean tree, Current Task None, all 10 tasks ticked.
+
+`scripts/task-check.sh`: typecheck passed; tests passed. API: 21 files, 374 tests. Core: 37 files, 492 tests. Nothing skipped or todo in F-13 tests.
+
+| Criterion | Tag | Covering tests (file: name) | Result |
+| --- | --- | --- | --- |
+| AC-001 | auto | limits-route, client-limiter: per-minute limit, 429 with `Retry-After` on the 11th | pass |
+| AC-002 | auto | client-limiter: 101st request of a UTC day refused after the minute reset | pass |
+| AC-003 | auto | client-limiter: per-address counts; limits-route: second address unaffected | pass |
+| AC-004 | auto | limits-route: one count covers both routes | pass |
+| AC-005 | auto | limits-route: refused body not read, zero model calls | pass |
+| AC-006 | auto | client-limiter: minute and day boundaries with injected clock | pass |
+| AC-007 | auto | limits-route: 405 and 404 not counted; client-limiter: only accepted requests count | pass |
+| AC-008 | auto | limits-route: remote address counted, forwarded header ignored | pass |
+| AC-009 | auto | client-limiter: expired entries pruned, current day kept | pass |
+| AC-010 | auto | core limits; limits-route: 8,000 accepted, 8,001 refused 422 on both routes | pass |
+| AC-011 | auto | core limits; limits-route: 12 accepted, 13 refused 422 | pass |
+| AC-012 | auto | core limits; limits-route: 60 accepted, 61 refused 422 (code and test rules together) | pass |
+| AC-013 | auto | core limits: JavaScript string length, no trimming | pass |
+| AC-014 | auto | core limits: problems in fixed order, no submitted text | pass |
+| AC-015 | auto | limits-route: caps shared by both routes | pass |
+| AC-016 | auto | ceiling-route: review ceiling gives 200 `skipped`, no model call | pass |
+| AC-017 | auto | limits-env: default 500, invalid value names the variable only; daily-ceiling: env default | pass |
+| AC-018 | auto | ceiling-route: generation ceiling gives 429, no model call; daily-ceiling and limits-env: 50, env | pass |
+| AC-019 | auto | daily-ceiling: both ceilings reset at the UTC day boundary | pass |
+| AC-020 | auto | ceiling-route: failed review and failed generation still counted | pass |
+| AC-021 | auto | ceiling-route: rate-limit and cap refusals not counted | pass |
+| AC-022 | auto | core analyze-skipped; ceiling-route: `skipped` accepted, `ok` unchanged | pass |
+| AC-023 | auto | anthropic-model, generation-model: 8192 / 60 s and 32000 / 300 s asserted | pass |
+| AC-024 | auto | anthropic-model: review rejection gives `failed` with structural findings; generate-route: timeout gives 502 with no file text | pass |
+| AC-025 | auto | analyze, anthropic-model, analyze-route: truncated reply gives `failed` | pass |
+| AC-026 | auto | privacy-limits: sentinel case per route and status (400, 404, 405, 422, 429, 500, 502, 503), table coverage test | pass |
+| AC-027 | auto | privacy-limits: review and generation failures log the error name only | pass |
+| AC-028 | auto | privacy-limits: refusal log lines exact, no client address | pass |
+| AC-029 | device | Manual checklist | pass (`checklist.md`, real-key run 2026-11-13) |
+
+Scope in `features.md` (F-13): per-client rate limit (AC-001 to AC-009), input caps (AC-010 to AC-015), daily ceiling (AC-016 to AC-022), timeout and output limits (AC-023 to AC-025), no brief content in logs or errors (AC-026 to AC-029). All five items are covered.
+
+Gaps: none for automated criteria.
+
+---
+
 ## Deferred Findings
 - T006 review, `apps/api/src/limits/client-limiter.ts:66-70` (`roll`) (SUGGESTION): if the server clock steps backwards to an earlier UTC day, `roll` drops every current-day entry, so counts reset early. It is not a bypass (the client cannot move the server clock), and a fix changes behaviour the spec does not cover.
 - T006 review, `apps/api/src/limits/client-limiter.ts:56` (`admit`) (SUGGESTION): the table holds one entry per distinct client address per UTC day with no cap, so many distinct addresses (for example IPv6 rotation) grow memory within a day. AC-009 and architecture decision 12 accept in-memory fixed windows; a cap or eviction policy is a user decision, not applied in review.
@@ -52,4 +96,5 @@ None.
 - T009 review, `apps/api/src/app.ts` `/generate` (WARNING, resolved by the user's decision): a `/generate` request refused by the structural check is refused before the generation ceiling and is not counted. `validateConfig` runs after the caps and the 503 check and before `generateCeiling.admit`, and returns the same 422 as `generateProject` for reason `refused`. Only real model calls use a slot of the daily generation ceiling. `generateProject` in `apps/api/src/generate/service.ts` is unchanged. Covered by `F-13 AC-020 does not count a structural refusal from generation toward the generation ceiling` in `apps/api/test/ceiling-route.test.ts`.
 - T009 review, `apps/api/src/app.ts` `/analyze` (SUGGESTION): with no review key (or a disabled review model), `admit` still counts a review call that never reaches the provider, so after the review ceiling the response reads `skipped` instead of `failed`. No cost is incurred and the structural findings are unchanged. Gating the count on a configured model is a wiring change and a user decision, not applied in review.
 - T010: size guard (400 lines) waived by the user; staged change is 485 lines, not split.
+- Verify, AC-029 real-key run: `/generate` returned 502 for the sentinel brief because the model's reply failed the reply checks twice (planned files missing, one absolute path). This is in the F-07 generation path, not in F-13's controls. The response body and log contain no brief text. Open for the user: whether to investigate the generation reply failure as a separate task.
 - T010 review, `apps/api/test/privacy-limits.test.ts` (`ROUTE_ERROR_STATUSES`, SUGGESTION): the status table is hand-kept; the coverage test checks table to cases only, so a status added to a route without a table entry is not caught. The app cannot be read for its statuses without parsing source; each case already asserts its own status, so the gap is in the table, not in what is checked.

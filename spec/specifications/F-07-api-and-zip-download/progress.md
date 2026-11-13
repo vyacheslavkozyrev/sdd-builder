@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-12 | Stories approved by the user; 29 criteria (28 `[auto]`, 1 `[device]`). |
 | Plan     | ✅ Complete | 2026-11-12 | Approved by the user |
 | Build    | ✅ Complete | 2026-11-12 | 22 of 22 tasks committed; T019 added by the verify gap (Amendment 2026-11-12, verify gap) |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | 🔄 In Progress | 2026-11-12 | Automated criteria: all covered. Manual AC-029 pending (checklist.md) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -64,7 +64,11 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+**Automated (verify, 2026-11-12):** all 28 `[auto]` criteria (AC-001 to AC-028) have at least one passing test named with their criterion; no gaps. Task check: typecheck clean, 35 core test files (468 tests), 15 api test files (245 tests). AC-013 route-level coverage added by T019 after the first verify run.
+
+**Manual (`[device]`):** AC-029 is pending. The steps and the sample configuration are in `checklist.md` and `device-config.json` in this folder. Result: pending (see the checklist).
+
+**Observations for a later tidy-up (not gaps):** a describe block in `apps/api/test/generate-service.test.ts` is labelled `F-07 AC-008` but tests the refusal of a reply that does not match the plan (AC-013 to AC-016 behaviour); AC-023 spies only on `/generate`, not on `/analyze`.
 
 ---
 

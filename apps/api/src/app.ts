@@ -1,5 +1,5 @@
 import { Hono, type Context } from 'hono';
-import { capProblems, type ProjectConfig, type TemplateSource } from '@sddbuilder/core';
+import { capProblems, skippedAnalysis, validateConfig, type ProjectConfig, type TemplateSource } from '@sddbuilder/core';
 import { analyze, type ReviewModel } from './analyze.js';
 import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
@@ -7,7 +7,11 @@ import { errorBody } from './http/errors.js';
 import { readConfig } from './http/read-config.js';
 import { errorNameOf, formatLogLine, routeOf, type LogPort } from './log.js';
 import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
+import type { DailyCeiling } from './limits/daily-ceiling.js';
 import { packageZip } from './zip.js';
+
+/** The 422 message for a configuration that the structural check refuses, on `/generate` and in `generateProject`. */
+const REFUSED_MESSAGE = 'project config cannot be generated';
 
 /** What `/generate` needs to write the project. `null` in `AppDeps` means the generation model is not configured. */
 export interface GenerationPorts {
@@ -15,10 +19,16 @@ export interface GenerationPorts {
   model: GenerationModel;
 }
 
-/** The per-client limit: the limiter, and the address it counts for a request (the connection's, in production). */
+/**
+ * The limits: the per-client limiter and the address it counts for a request (the connection's, in production),
+ * and the two daily ceilings. Each ceiling is counted right before its model call, after the request has passed
+ * the rate limit and the input caps.
+ */
 export interface LimitPorts {
   limiter: ClientLimiter;
   clientAddress: (c: Context) => string;
+  reviewCeiling: DailyCeiling;
+  generateCeiling: DailyCeiling;
 }
 
 export interface AppDeps {
@@ -76,6 +86,9 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     if (!read.ok) {
       return read.response;
     }
+    if (!limits.reviewCeiling.admit()) {
+      return c.json(skippedAnalysis(read.config), 200);
+    }
     const result = await analyze(read.config, review);
     return c.json(result, 200);
   });
@@ -94,6 +107,13 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     if (generation === null) {
       return c.json(errorBody('generation is not configured on this server'), 503);
     }
+    const problems = validateConfig(read.config);
+    if (problems.length > 0) {
+      return c.json(errorBody(REFUSED_MESSAGE, problems), 422);
+    }
+    if (!limits.generateCeiling.admit()) {
+      return c.json(errorBody('daily generation limit reached'), 429);
+    }
     const result = await generateProject(read.config, { templates: generation.templates, model: generation.model, log });
     if (result.ok) {
       const zip = await packageZip(result.files);
@@ -103,7 +123,7 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
       });
     }
     if (result.reason === 'refused') {
-      return c.json(errorBody('project config cannot be generated', result.problems), 422);
+      return c.json(errorBody(REFUSED_MESSAGE, result.problems), 422);
     }
     if (result.reason === 'model') {
       return c.json(errorBody('the model did not return the project', ['the model call failed']), 502);

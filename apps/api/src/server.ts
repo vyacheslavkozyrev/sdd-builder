@@ -8,6 +8,7 @@ import type { AnalyzerEnv } from './review/anthropic-model.js';
 import { loadTemplates } from './templates.js';
 import { dailyLimitsFrom } from './limits/env.js';
 import { ClientLimiter } from './limits/client-limiter.js';
+import { DailyCeiling } from './limits/daily-ceiling.js';
 import { connectionAddress } from './http/client-address.js';
 
 /** The port used when PORT is unset or empty. */
@@ -55,16 +56,21 @@ function generationPortsFrom(env: AnalyzerEnv): GenerationPorts | null {
 const env = envFromProcess();
 const port = portFrom(process.env['PORT']);
 // Reads the daily ceilings at startup, so an invalid value stops the server before it listens (F-13 AC-017).
-// The routes that apply them are wired in F-13 T009.
-dailyLimitsFrom({
+const daily = dailyLimitsFrom({
   SDDBUILDER_REVIEW_DAILY_LIMIT: process.env['SDDBUILDER_REVIEW_DAILY_LIMIT'],
   SDDBUILDER_GENERATE_DAILY_LIMIT: process.env['SDDBUILDER_GENERATE_DAILY_LIMIT'],
 });
+const now = (): number => Date.now();
 const app = createApp({
   review: reviewModelFrom(env, log),
   generation: generationPortsFrom(env),
   log,
-  limits: { limiter: new ClientLimiter(() => Date.now()), clientAddress: connectionAddress },
+  limits: {
+    limiter: new ClientLimiter(now),
+    clientAddress: connectionAddress,
+    reviewCeiling: new DailyCeiling(daily.reviewDailyLimit, now),
+    generateCeiling: new DailyCeiling(daily.generateDailyLimit, now),
+  },
 });
 
 serve({ fetch: app.fetch, port }, () => {

@@ -6,6 +6,7 @@ import { createApp, type GenerationPorts } from '../src/app.js';
 import { connectionAddress } from '../src/http/client-address.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
 import { ClientLimiter } from '../src/limits/client-limiter.js';
+import { DailyCeiling } from '../src/limits/daily-ceiling.js';
 import type { LogPort } from '../src/log.js';
 
 const ANALYZE_URL = 'http://localhost/analyze';
@@ -81,6 +82,8 @@ function buildApp(
     limits: {
       limiter: new ClientLimiter(clock.read),
       clientAddress: options.address ?? (() => ADDRESS),
+      reviewCeiling: new DailyCeiling(Number.MAX_SAFE_INTEGER, clock.read),
+      generateCeiling: new DailyCeiling(Number.MAX_SAFE_INTEGER, clock.read),
     },
   });
   return { app, review };

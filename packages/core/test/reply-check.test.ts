@@ -116,6 +116,22 @@ describe('checkReply', () => {
     expect(findings).toEqual(['file "CLAUDE.md" must be text']);
   });
 
+  it('F-07 AC-019 shortens a long reply key in each finding, so a key carrying file text is not echoed in full', () => {
+    const longKey = `${'a'.repeat(200)} SECRET FILE TEXT`;
+    const reply = {
+      ...exactReply,
+      [longKey]: 'extra\n',
+      'CLAUDE.md': 42,
+    };
+
+    const findings = checkReply(plan, reply);
+
+    expect(findings).toHaveLength(2);
+    expect(findings.some((f) => f.includes('SECRET FILE TEXT'))).toBe(false);
+    expect(findings).toContain(`file "${'a'.repeat(120)}..." is not in the plan`);
+    expect(findings).toContain('file "CLAUDE.md" must be text');
+  });
+
   it('F-03 AC-024 a Markdown file missing a required layout heading is a finding naming the heading', () => {
     const headingPlan: GenerationPlan = [
       { path: '.claude/commands/plan.md', layout: '# Plan\n\n## Steps\n\n## Rules\n', description: '', ruleTags: [] },

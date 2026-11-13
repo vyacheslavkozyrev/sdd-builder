@@ -14,6 +14,14 @@ interface Finding {
   readonly message: string;
 }
 
+/** The longest reply key a finding quotes in full; a longer one is shortened, so no file text is echoed (F-07 AC-019). */
+const MAX_SHOWN_PATH = 120;
+
+/** A reply key as a finding shows it: the key itself when short, otherwise its first characters and an ellipsis. */
+function shownPath(path: string): string {
+  return path.length > MAX_SHOWN_PATH ? `${path.slice(0, MAX_SHOWN_PATH)}...` : path;
+}
+
 /** True for a plain object whose values are not checked yet: not null, not an array. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -55,12 +63,12 @@ export function checkReply(plan: GenerationPlan, reply: unknown): string[] {
   for (const [path, text] of Object.entries(reply)) {
     const problem = pathProblem(path);
     if (problem) {
-      findings.push({ path, message: problem });
+      findings.push({ path, message: problem.split(path).join(shownPath(path)) });
       continue;
     }
     present.add(path);
     if (typeof text !== 'string') {
-      findings.push({ path, message: `file "${path}" must be text` });
+      findings.push({ path, message: `file "${shownPath(path)}" must be text` });
       continue;
     }
     files.set(path, text);
@@ -74,7 +82,7 @@ export function checkReply(plan: GenerationPlan, reply: unknown): string[] {
   }
   for (const path of present) {
     if (!planned.has(path)) {
-      findings.push({ path, message: `file "${path}" is not in the plan` });
+      findings.push({ path, message: `file "${shownPath(path)}" is not in the plan` });
     }
   }
 
@@ -83,7 +91,7 @@ export function checkReply(plan: GenerationPlan, reply: unknown): string[] {
     if (markers.length > 0) {
       findings.push({
         path,
-        message: `file "${path}" still contains ${markers.map((marker) => `"${marker}"`).join(', ')}`,
+        message: `file "${shownPath(path)}" still contains ${markers.map((marker) => `"${marker}"`).join(', ')}`,
       });
     }
   }
@@ -104,7 +112,7 @@ export function checkReply(plan: GenerationPlan, reply: unknown): string[] {
   for (const [path, text] of files) {
     for (const word of SDDBUILDER_WORDS) {
       if (text.includes(word)) {
-        findings.push({ path, message: `file "${path}" mentions "${word}"` });
+        findings.push({ path, message: `file "${shownPath(path)}" mentions "${word}"` });
       }
     }
   }

@@ -1,10 +1,12 @@
 # SDDBuilder — Working Process
 
-Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`). Adapted to TypeScript: the check is `scripts/task-check.sh`, not Swift tooling.
+Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`).
+
+Phases of a feature: Specify → Plan → **UX** (SVG screens, approved by the user) → Build → Verify. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `scripts/task-check.sh`, not Swift tooling.
 
 ## Principles
 
-1. **Humans decide, agents execute.** The user approves stories and plans; the rest runs on its own.
+1. **Humans decide, agents execute.** The user approves stories, plans and screens; the rest runs on its own.
 2. **Commit is the last step.** Cycle: implement → review → test → commit, one task at a time.
 3. **Every commit is green.** Build and tests pass after each commit.
 4. **Tests travel with the code.** A task includes the tests for its own code.
@@ -17,6 +19,7 @@ Status: adopted from the ComEd and PhotoSync projects. The commands and agents a
 | Project documents | `spec/documents/` |
 | Feature list | `spec/documents/features.md` |
 | One folder per feature | `spec/specifications/F-XX-<slug>/` |
+| UX screens per feature (SVG) | `design/features/F-XX-<slug>/` |
 | Spec template | `spec/specifications/F-00-template/` |
 | Commands, agents, rules | `.claude/` |
 | Project instructions for Claude | `CLAUDE.md` |

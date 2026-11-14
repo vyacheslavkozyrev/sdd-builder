@@ -1,5 +1,5 @@
 ---
-description: Run a whole feature — specify, plan, then implement → review → test → commit for every task, then verify — pausing only where you must decide.
+description: Run a whole feature — specify, plan, UX screens (approved by you before any code), then implement → review → test → commit for every task, then verify — pausing only where you must decide.
 argument-hint: F-XX [research]
 ---
 
@@ -11,8 +11,9 @@ You are the orchestrator and run in the main session. Follow the steps in order.
 
 1. Specify: clarifying questions and approval of the stories.
 2. Plan: approval of the task list.
-3. Verify: results of the manual checklist.
-4. Any stop condition (see the end of this file).
+3. UX: approval of the screens. Nothing is implemented before this approval.
+4. Verify: results of the manual checklist.
+5. Any stop condition (see the end of this file).
 
 ## Step 0 — Preflight
 
@@ -26,6 +27,7 @@ You are the orchestrator and run in the main session. Follow the steps in order.
 Glob `spec/specifications/F-XX-*/progress.md` (glob the file, not the folder). If none exists, start at Step 2. Otherwise read the Phase Status table and **Current Task**:
 
 - Specify pending → Step 2. Plan pending → Step 3.
+- UX pending → Step 3a (a feature with no user-facing criteria marks UX ➖ Not needed and moves on).
 - Build pending or in progress → Step 4. If Current Task is set, resume that task at its next step (`implemented` → review, `reviewed` → test, `tested` → commit).
 - Verify pending → Step 5.
 - Every phase ✅ Complete → tell the user the feature is already complete and stop.
@@ -40,11 +42,15 @@ Run the steps of the `/specify` command in this session (clarify, write `stories
 
 Run the steps of the `/plan` command in this session (write `plan.md`, coverage check, user approval, commit). No code is written before the plan is approved.
 
+## Step 3a — UX (pause point 3)
+
+Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Build starts only after the user approves the screens.
+
 ## Step 4 — Build: one task at a time
 
 Repeat for every unchecked task in `plan.md`, in order. **A task is finished only when it is committed; never start the next before that.**
 
-1. **Implement** — spawn the `implement` agent with the feature ID and the task ID. It writes the code and its tests, runs the checks, ticks the task, and stages the change. Not committed.
+1. **Implement** — spawn the `implement` agent with the feature ID and the task ID. It writes the code and its tests, runs the checks, ticks the task, and stages the change. Not committed. For a feature with approved screens, the agent builds the layout and states shown in `design/features/F-XX-*/` (not the older mockups).
 2. **Review** — spawn the `review` agent. It reviews the staged diff, fixes all findings (at most 2 review rounds), and re-stages.
 3. **Test** — no agent. Run `scripts/task-check.sh` yourself and wait for it. On PASS, set **Current Task** in `progress.md` to `T### — tested: <totals from the output>`. On FAIL:
    - send the failure (the output tail) to the `implement` agent as a targeted fix for the same task (do not start a new task),
@@ -54,7 +60,7 @@ Repeat for every unchecked task in `plan.md`, in order. **A task is finished onl
 
 No user prompts between tasks. Print a one-line progress note after each commit (`T004 committed — 4 of 12`).
 
-## Step 5 — Verify (pause point 3)
+## Step 5 — Verify (pause point 4)
 
 When every task is committed, spawn the `test` agent in **verify** mode.
 

@@ -35,10 +35,10 @@ describe('F-05 AC-013 progress panel', () => {
   it('shows the four entries in panel order with their labels', () => {
     const entries = progressEntries(emptyBrief());
     expect(entries.map((entry) => [entry.key, entry.label])).toEqual([
-      ['idea', 'idea'],
-      ['stack', 'stack'],
-      ['modules', 'modules'],
-      ['rules', 'rules'],
+      ['idea', 'Idea written'],
+      ['stack', 'Stack chosen'],
+      ['modules', 'Modules listed'],
+      ['rules', 'Rules (optional)'],
     ]);
   });
 

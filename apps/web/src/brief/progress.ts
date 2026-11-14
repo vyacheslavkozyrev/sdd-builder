@@ -9,7 +9,7 @@ import { validateBrief } from './validate.js';
  */
 export type ProgressStatus = 'valid' | 'incomplete' | 'optional';
 
-/** One row of the progress panel. */
+/** One row of the progress panel: `label` is the text the panel shows (F-05 AC-013). */
 export interface ProgressEntry {
   key: 'idea' | 'stack' | 'modules' | 'rules';
   label: string;
@@ -36,9 +36,9 @@ export function progressEntries(brief: BriefState): ProgressEntry[] {
   const problems = validateBrief(brief);
   const ruleCount = buildRules(brief.codeRules).length + buildRules(brief.testRules).length;
   return [
-    { key: 'idea', label: 'idea', status: requiredStatus(problems, ['idea']) },
-    { key: 'stack', label: 'stack', status: requiredStatus(problems, ['stack']) },
-    { key: 'modules', label: 'modules', status: requiredStatus(problems, ['architecture.modules']) },
-    { key: 'rules', label: 'rules', status: ruleCount === 0 ? 'optional' : 'valid' },
+    { key: 'idea', label: 'Idea written', status: requiredStatus(problems, ['idea']) },
+    { key: 'stack', label: 'Stack chosen', status: requiredStatus(problems, ['stack']) },
+    { key: 'modules', label: 'Modules listed', status: requiredStatus(problems, ['architecture.modules']) },
+    { key: 'rules', label: 'Rules (optional)', status: ruleCount === 0 ? 'optional' : 'valid' },
   ];
 }

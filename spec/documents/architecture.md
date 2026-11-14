@@ -92,6 +92,7 @@ The file list, paths and order are deterministic: the same config gives the same
 | Language | TypeScript, strict | Matches the existing ComEd backend; shared types between web and API |
 | Monorepo | npm workspaces | No extra tool needed for three packages |
 | Web | Vite + React for `apps/web`; the Vite dev server forwards `/analyze` to `apps/api` | Standard, small, static build. Decided 2026-11-13 (F-05) |
+| Diagrams (map and workflow tabs) | React Flow, `@xyflow/react` 12.x (the 12 line; 13 is not used), in `apps/web` only | Renders nodes and connectors with drag and pointer connect for the global map (F-06) and the tab diagram (F-06, F-18). Decided 2026-11-13 (F-06) |
 | API | Hono 4.13.14 with `@hono/node-server` 2.1.5 (peer `hono` `^4 \|\| ^5.0.0-0`, we pin 4.x) on Node | Small surface: two endpoints; Web-standard `Request`/`Response`, so routes test without a network port. Decided 2026-11-12 (F-07) |
 | LLM SDK | Official Anthropic TypeScript SDK | First-party, typed |
 | Zip | JSZip 3.10.2, in memory | Works in memory for project-sized output; ships its own types. Decided 2026-11-12 (F-07) |

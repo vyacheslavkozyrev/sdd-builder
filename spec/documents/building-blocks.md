@@ -57,6 +57,7 @@ Status: decided 2026-11-11 with the owner. Supersedes the earlier "container" wo
 - **Script exists because a check should not cost a model call.**
 - **Skill is separate from command** because the invocation differs: a command is typed, a skill is picked by the model. Claude Code and OpenSpec both have skills (`architecture.md` §8).
 - **Rule set is a tag** so the diagram stays readable. The inspector lists the rule files.
+- **A disabled condition is left out.** A gate or branch route switched off (`enabled: false`) is not checked, not analysed (retry and reachability), not drawn in the process diagram, not written into the command's rules, and not sent to the review. It keeps its place and its round limit, so it can be switched back on. A new or reference condition is on by default. Decided 2026-11-13 (F-06).
 
 ## 3. Conditions and branching
 

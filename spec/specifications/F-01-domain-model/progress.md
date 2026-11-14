@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user as written; 26 criteria, all `[auto]`. Decisions: scope is types, default pipeline and parsing; ids user-given and file-safe; default pipeline in `templates/pipeline/default.json`, imported at build time; one pipeline per project; schemaVersion 2 |
 | UX       | ➖ Not needed |      | No user interface in F-01 |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 9 tasks; transition: the new model lives in `packages/core/src/pipeline/` beside the flat model until F-02 to F-07 are rebuilt |
+| Build    | ⏳ Pending  |      | 0 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

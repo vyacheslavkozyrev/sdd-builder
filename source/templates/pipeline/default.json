@@ -209,5 +209,6 @@
       },
       { "kind": "end", "id": "pipeline-end", "enabled": true, "outcome": "done" }
     ]
-  }
+  },
+  "rules": []
 }

@@ -31,6 +31,7 @@ function configWith(blocks: unknown[]): Record<string, unknown> {
     idea: 'A tool that tracks reading lists.',
     stack: { language: 'TypeScript' },
     pipeline: { name: 'main-pipeline', blocks: [...blocks, END] },
+    rules: [],
   };
 }
 

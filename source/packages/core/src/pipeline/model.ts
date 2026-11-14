@@ -12,6 +12,15 @@ export interface ProjectConfig {
   stack: ProjectStack;
   /** The one pipeline of the project: its Start, its child flows, and the connections and gates between them. */
   pipeline: Pipeline;
+  /** Project rules. Each entry becomes `.claude/rules/<id>.md` (architecture.md §6, decision 20). */
+  rules: Rule[];
+}
+
+/** A project rule: its id is the file name, its title and text are the file's content. */
+export interface Rule {
+  id: string;
+  title: string;
+  text: string;
 }
 
 /** The technology the project is built with. Free text per field; only `language` is required. */

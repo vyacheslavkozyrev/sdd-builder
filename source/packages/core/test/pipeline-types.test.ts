@@ -104,6 +104,7 @@ const config: ProjectConfig = {
   idea: 'A small example project',
   stack: { language: 'TypeScript' },
   pipeline: { name: 'Default', blocks: pipelineBlocks },
+  rules: [],
 };
 
 describe('F-01 AC-001 the model typechecks a pipeline with child flows and blocks', () => {

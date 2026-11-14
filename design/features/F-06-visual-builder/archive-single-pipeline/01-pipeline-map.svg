@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#71717a"/>
+    </marker>
+    <marker id="retry" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#ea580c"/>
+    </marker>
+  </defs>
+
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .tiny{fill:#71717a;font-size:10px}
+    .bold{font-weight:600;font-size:12px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .node{fill:#ffffff;stroke:#18181b;stroke-width:1.5}
+    .nodeSel{fill:#eff6ff;stroke:#2563eb;stroke-width:2.5}
+    .nodeOff{fill:#fafafa;stroke:#a1a1aa;stroke-width:1.5;stroke-dasharray:5 4}
+    .gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+    .gateReq{fill:#fff7ed;stroke:#ea580c;stroke-width:3.5}
+    .gateSel{fill:#fff7ed;stroke:#2563eb;stroke-width:2.5}
+    .gateOff{fill:#fafafa;stroke:#a1a1aa;stroke-width:1.5;stroke-dasharray:5 4}
+    .box{fill:#f4f4f5;stroke:#d4d4d8}
+    .boxSel{fill:#eff6ff;stroke:#2563eb;stroke-width:2}
+    .start{fill:#dbeafe;stroke:#2563eb;stroke-width:1.5}
+    .endc{fill:#ffffff;stroke:#18181b;stroke-width:3}
+    .line{stroke:#71717a;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+    .retry{stroke:#ea580c;stroke-width:1.5;fill:none;stroke-dasharray:5 4;marker-end:url(#retry)}
+    .warnT{fill:#b45309;font-size:11px}
+    .errT{fill:#991b1b;font-size:12px}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .btnOn{fill:#2563eb}
+    .primary{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .off{fill:#fafafa;stroke:#a1a1aa;stroke-dasharray:5 4}
+    .alert{fill:#fef2f2;stroke:#dc2626}
+    .warnBox{fill:#fffbeb;stroke:#f59e0b}
+    .stepOn{fill:#2563eb}
+    .stepDone{fill:#dbeafe;stroke:#2563eb}
+    .stepTodo{fill:#ffffff;stroke:#a1a1aa}
+    .rule{stroke:#2563eb;stroke-width:1.5}
+    .ruleTodo{stroke:#d4d4d8;stroke-width:1.5}
+    .lock{fill:#18181b;font-size:10px}
+  </style>
+  <rect width="1280" height="800" fill="#fafafa"/>
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <text x="170" y="34" class="muted">New project · Map tab: the pipeline</text>
+
+  <line x1="276" y1="92" x2="504" y2="92" class="rule"/>
+  <line x1="536" y1="92" x2="764" y2="92" class="rule"/>
+  <line x1="796" y1="92" x2="1024" y2="92" class="ruleTodo"/>
+  <rect x="282" y="80" width="182" height="24" fill="#fafafa"/>
+  <rect x="542" y="80" width="122" height="24" fill="#fafafa"/>
+  <rect x="802" y="80" width="80" height="24" fill="#fafafa"/>
+  <rect x="1062" y="80" width="166" height="24" fill="#fafafa"/>
+  <circle cx="260" cy="92" r="16" class="stepDone"/><text x="256" y="97" class="h2">✓</text>
+  <text x="286" y="97" class="muted">Project name and idea</text>
+  <circle cx="520" cy="92" r="16" class="stepDone"/><text x="516" y="97" class="h2">✓</text>
+  <text x="546" y="97" class="muted">Technical details</text>
+  <circle cx="780" cy="92" r="16" class="stepOn"/><text x="776" y="97" class="onPrimary">3</text>
+  <text x="806" y="97" class="h2">Workflow</text>
+  <circle cx="1040" cy="92" r="16" class="stepTodo"/><text x="1036" y="97" class="muted">4</text>
+  <text x="1066" y="97" class="muted">Analyze and generate</text>
+  <rect x="16" y="120" width="180" height="570" rx="8" class="panel"/>
+  <text x="32" y="146" class="h2">Toolbox</text>
+  <text x="32" y="164" class="small">Drag onto the map,</text>
+  <text x="32" y="178" class="small">or click to add at the end.</text>
+  <rect x="32" y="196" width="148" height="48" rx="6" class="box"/>
+  <text x="42" y="215" class="bold">Start</text>
+  <text x="42" y="232" class="tiny">arguments of the pipeline</text>
+  <rect x="32" y="252" width="148" height="48" rx="6" class="box"/>
+  <text x="42" y="271" class="bold">Agent</text>
+  <text x="42" y="288" class="tiny">runs an agent</text>
+  <rect x="32" y="308" width="148" height="48" rx="6" class="box"/>
+  <text x="42" y="327" class="bold">Condition</text>
+  <text x="42" y="344" class="tiny">check with pass and fail</text>
+  <rect x="32" y="364" width="148" height="48" rx="6" class="box"/>
+  <text x="42" y="383" class="bold">Connection</text>
+  <text x="42" y="400" class="tiny">artifact handed over</text>
+  <rect x="32" y="420" width="148" height="48" rx="6" class="box"/>
+  <text x="42" y="439" class="bold">End</text>
+  <text x="42" y="456" class="tiny">done or stopped</text>
+  <text x="32" y="500" class="small">Thick outline: required.</text>
+  <text x="32" y="516" class="small">Dashed: switched off.</text>
+  <text x="32" y="532" class="small">Scope is set on Agent</text>
+  <text x="32" y="548" class="small">blocks: once, per feature,</text>
+  <text x="32" y="564" class="small">or per task.</text>
+  <rect x="212" y="120" width="694" height="570" rx="8" class="panel"/>
+  <line x1="266" y1="196" x2="284" y2="196" class="line"/>
+  <line x1="388" y1="196" x2="406" y2="196" class="line"/>
+  <line x1="456" y1="196" x2="474" y2="196" class="line"/>
+  <line x1="562" y1="196" x2="580" y2="196" class="line"/>
+  <line x1="684" y1="196" x2="702" y2="196" class="line"/>
+  <line x1="752" y1="196" x2="770" y2="196" class="line"/>
+  <line x1="336" y1="306" x2="354" y2="306" class="line"/>
+  <line x1="404" y1="306" x2="422" y2="306" class="line"/>
+  <line x1="489" y1="306" x2="507" y2="306" class="line"/>
+  <line x1="611" y1="306" x2="629" y2="306" class="line"/>
+  <line x1="733" y1="306" x2="751" y2="306" class="line"/>
+  <line x1="801" y1="306" x2="819" y2="306" class="line"/>
+  <line x1="336" y1="416" x2="354" y2="416" class="line"/>
+  <line x1="404" y1="416" x2="422" y2="416" class="line"/>
+  <line x1="472" y1="416" x2="490" y2="416" class="line"/>
+  <line x1="336" y1="526" x2="354" y2="526" class="line"/>
+  <line x1="404" y1="526" x2="422" y2="526" class="line"/>
+  <line x1="526" y1="526" x2="544" y2="526" class="line"/>
+  <path d="M803.5,208 V242 H284 V276" class="line"/>
+  <path d="M851,318 V352 H284 V386" class="line"/>
+  <path d="M542,446 V471 H284 V496" class="line"/>
+  <circle cx="249" cy="196" r="17" class="start"/>
+  <text x="249" y="232" class="small" text-anchor="middle">Start</text>
+  <rect x="284" y="166" width="104" height="60" rx="8" class="node"/>
+  <text x="336" y="192" class="bold" text-anchor="middle">specify</text>
+  <text x="336" y="210" class="tiny" text-anchor="middle">per feature</text>
+  <polygon points="431,171 456,196 431,221 406,196" class="gateReq"/>
+  <text x="431" y="236" class="tiny" text-anchor="middle">approval · human</text>
+  <rect x="474" y="184" width="88" height="24" rx="12" class="box"/>
+  <text x="518" y="200" class="small" text-anchor="middle">stories.md</text>
+  <rect x="580" y="166" width="104" height="60" rx="8" class="node"/>
+  <text x="632" y="192" class="bold" text-anchor="middle">plan</text>
+  <text x="632" y="210" class="tiny" text-anchor="middle">per feature</text>
+  <polygon points="727,171 752,196 727,221 702,196" class="gateReq"/>
+  <text x="727" y="236" class="tiny" text-anchor="middle">approval · human</text>
+  <rect x="770" y="184" width="67" height="24" rx="12" class="box"/>
+  <text x="803.5" y="200" class="small" text-anchor="middle">plan.md</text>
+  <rect x="232" y="276" width="104" height="60" rx="8" class="node"/>
+  <text x="284" y="302" class="bold" text-anchor="middle">ux</text>
+  <text x="284" y="320" class="tiny" text-anchor="middle">per feature</text>
+  <polygon points="379,281 404,306 379,331 354,306" class="gateReq"/>
+  <text x="379" y="346" class="tiny" text-anchor="middle">approval · human</text>
+  <rect x="422" y="294" width="67" height="24" rx="12" class="box"/>
+  <text x="455.5" y="310" class="small" text-anchor="middle">screens</text>
+  <rect x="507" y="276" width="104" height="60" rx="8" class="node"/>
+  <text x="559" y="302" class="bold" text-anchor="middle">implement</text>
+  <text x="559" y="320" class="tiny" text-anchor="middle">per task</text>
+  <rect x="629" y="276" width="104" height="60" rx="8" class="node"/>
+  <text x="681" y="302" class="bold" text-anchor="middle">review</text>
+  <text x="681" y="320" class="tiny" text-anchor="middle">per task</text>
+  <polygon points="776,281 801,306 776,331 751,306" class="gate"/>
+  <text x="776" y="346" class="tiny" text-anchor="middle">review</text>
+  <rect x="819" y="294" width="64" height="24" rx="12" class="box"/>
+  <text x="851" y="310" class="small" text-anchor="middle">clean</text>
+  <rect x="232" y="386" width="104" height="60" rx="8" class="node"/>
+  <text x="284" y="412" class="bold" text-anchor="middle">test</text>
+  <text x="284" y="430" class="tiny" text-anchor="middle">per task</text>
+  <polygon points="379,391 404,416 379,441 354,416" class="gate"/>
+  <text x="379" y="456" class="tiny" text-anchor="middle">checks</text>
+  <text x="379" y="469" class="warnT" text-anchor="middle">fail: implement</text>
+  <polygon points="447,391 472,416 447,441 422,416" class="gateReq"/>
+  <text x="447" y="456" class="tiny" text-anchor="middle">diff-size</text>
+  <text x="447" y="469" class="warnT" text-anchor="middle">fail: stop</text>
+  <rect x="490" y="386" width="104" height="60" rx="8" class="node"/>
+  <text x="542" y="412" class="bold" text-anchor="middle">commit</text>
+  <text x="542" y="430" class="tiny" text-anchor="middle">per task</text>
+  <rect x="232" y="496" width="104" height="60" rx="8" class="node"/>
+  <text x="284" y="522" class="bold" text-anchor="middle">verify</text>
+  <text x="284" y="540" class="tiny" text-anchor="middle">per feature</text>
+  <polygon points="379,501 404,526 379,551 354,526" class="gate"/>
+  <text x="379" y="566" class="tiny" text-anchor="middle">checks</text>
+  <text x="379" y="579" class="warnT" text-anchor="middle">fail: stop</text>
+  <rect x="422" y="496" width="104" height="60" rx="8" class="node"/>
+  <text x="474" y="522" class="bold" text-anchor="middle">complete</text>
+  <text x="474" y="540" class="tiny" text-anchor="middle">per feature</text>
+  <circle cx="561" cy="526" r="17" class="endc"/>
+  <text x="561" y="562" class="small" text-anchor="middle">End</text>
+  <path d="M431,171 C431,124 336,124 336,164" class="retry"/>
+  <text x="383.5" y="130" class="warnT" text-anchor="middle">fail: back</text>
+  <path d="M727,171 C727,124 632,124 632,164" class="retry"/>
+  <text x="679.5" y="130" class="warnT" text-anchor="middle">fail: back</text>
+  <path d="M379,281 C379,234 284,234 284,274" class="retry"/>
+  <text x="331.5" y="240" class="warnT" text-anchor="middle">fail: back</text>
+  <path d="M776,281 C776,234 559,234 559,274" class="retry"/>
+  <text x="667.5" y="240" class="warnT" text-anchor="middle">fail: back</text>
+  <text x="226" y="650" class="small">Arrows: runs after.  Orange dashed: retry (a fail goes back).  Thick outline: required.  Dashed: switched off.</text>
+  <rect x="930" y="120" width="334" height="570" rx="8" class="panel"/>
+  <text x="946" y="150" class="h2">Pipeline</text>
+  <text x="946" y="168" class="small">command · the one container</text>
+  <text x="946" y="194" class="small">Name</text>
+  <text x="946" y="210">pipeline</text>
+  <text x="946" y="236" class="small">Description</text>
+  <text x="946" y="252">Runs one feature from specification</text>
+  <text x="946" y="268">to completion.</text>
+  <text x="946" y="294" class="small">Arguments</text>
+  <text x="946" y="310">feature-id (required): the feature to run</text>
+  <text x="946" y="336" class="small">Model</text>
+  <text x="946" y="352">inherit</text>
+  <text x="946" y="378" class="small">Rule tags</text>
+  <text x="946" y="394">general.md, qa.md</text>
+  <text x="946" y="420" class="small">Body</text>
+  <text x="946" y="436">Run the phases in order. Ask the human</text>
+  <text x="946" y="452">at each approval.</text>
+  <text x="946" y="486" class="h2">Blocks: 22</text>
+  <text x="946" y="504" class="small">Start 1 · Agents 9 · Conditions 7</text>
+  <text x="946" y="520" class="small">Connections 4 · End 1</text>
+  <text x="946" y="550" class="small">Select a block on the map to edit it.</text>
+  <text x="946" y="566" class="small">Generated as .claude/commands/pipeline.md</text>
+  <rect x="16" y="706" width="110" height="38" rx="6" class="btn"/>
+  <text x="50" y="730">Back</text>
+  <rect x="1134" y="706" width="130" height="38" rx="6" class="primary"/>
+  <text x="1174" y="730" class="onPrimary">Next</text>
+  <text x="150" y="730" class="small">Next opens step 4: analyze the brief, then generate the project files.</text>
+</svg>

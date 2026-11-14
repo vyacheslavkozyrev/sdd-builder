@@ -6,8 +6,8 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
-| Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
 | UX       | 🔄 In Progress | 2026-11-14 | Layout rework: the built layout is replaced. Global map screen (01) approved by the user on 2026-11-14. Workflow tab and other screens still to review (`design/features/F-06-visual-builder/`). Build reopens by amendment once all screens are approved |
+| Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-13 | 14 of 14 tasks committed (first layout; reworked after UX approval) |
 | Verify   | 🔄 In Progress | 2026-11-14 | Matrix recorded: 34 `[auto]` covered, 0 gaps. AWAITING CONFIRMATION for AC-019 and AC-036 (`checklist.md`) |
 

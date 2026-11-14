@@ -1,38 +1,45 @@
-# UX screens — Visual builder: global map (F-06)
+# UX screens — Visual builder: the Map tab and the flow tabs (F-06)
 
-Scope of this approval: the **global map layout** only (screen 01). The workflow tab and the other states come after this layout is approved.
+Scope: the builder is step 3 of the project wizard (`design/features/F-05-project-brief-form/`). The model is in `spec/documents/building-blocks.md`: the **pipeline** is the one flow that contains other flows (one nesting level); a **flow** contains blocks only; gates and checks sit between flows. Desktop, 1280 × 800. Wireframes in SVG; colours and wording are placeholders.
 
-Layout rework. The first build followed the MVP wireframes in `design/mockups/07-map.svg`; that is a reference only. This layout replaces it for the map. It is a wireframe in SVG: layout, content and states are shown, colours and wording are placeholders.
+The tab row is the same on every screen: **Map** (the pipeline), one tab per flow, and **+** to add a flow.
 
-Format: SVG, 1280 × 800 (desktop). Desktop is the target for this feature (AC-036).
+## Legend
 
-## Screen
+- **Rounded box:** a flow (on the Map tab) or an Agent block (in a flow). Under an Agent, its scope.
+- **Diamond on an arrow:** a gate or check between flows, or a Condition inside a flow. The label is the check and who decides (`· human` is a decision the main session asks).
+- **Pill:** a Connection, with the artifact it hands over.
+- **Circles:** Start and End.
+- **Orange arc, "fail: back":** a retry to an earlier block or flow. **"fail: stop":** a fail that ends the pipeline.
+- **Thick outline:** required (cannot be removed or switched off).
+- **Dashed grey:** switched off.
 
-| # | File | What it shows | Criteria it shows or proves | States shown |
-|---|---|---|---|---|
-| 01 | `01-map.svg` | Global map with the reference process; nothing selected; legend; selection panel on the right | AC-001, AC-004, AC-005, AC-006, AC-007, AC-008, AC-012, AC-019 `[device]` | Default; counts on each workflow node; artifact label on a connection; a gate shown by its badge (legend); drag from a handle to connect |
+## Screens
 
-## Coverage
+| # | File | What it shows | States shown |
+|---|---|---|---|
+| 01 | `01-map-pipeline.svg` | Map tab: the pipeline's six flows in order (specify, ux, plan, build, verify, complete), with the approvals and the check between them | The pipeline selected: its properties, its flow count and gates |
+| 02 | `02-map-gate.svg` | Map tab: the check between build and verify selected | The check's type, decider, description and routes (pass to verify, fail stops) |
+| 03 | `03-flow-agent.svg` | Flow tab `build`: the `implement` agent selected | Its scope (per task), model, tools, reads and writes, rule tags, generated file |
+| 04 | `04-flow-condition.svg` | Flow tab `build`: the `review` condition selected | Round limit "none set", with a warning that each round costs a model call |
+| 05 | `05-flow-states.svg` | Flow tab `build`: refusals and a switched-off block | `implement` cannot be removed (two retries route to it); a flow cannot be added inside a flow; `diff-size` is required; `test` is switched off (dashed) |
 
-Every map criterion of `stories.md` that a person sees is on screen 01:
+## Decisions these screens take
 
-- AC-001 (reference process), AC-004 (a new session starts from it): the four nodes and their connections.
-- AC-005 and AC-006 (node name, scope, iteration source, counts): each node.
-- AC-007 (artifact label): `plan.md` and `checklist.md` on the lines. AC-008 (gate on a connection): the legend's gate badge; the connection editor (02) shows it on a line.
-- AC-012 (connect by dragging from a handle): the handles and the legend line.
-- AC-019 `[device]` (layout, no overlap, drag, connect): screen 01 is the layout to check in the browser.
-
-Not on this screen, and drawn later with the other states: AC-009 to AC-011 and AC-013 to AC-018 (screens 02, 03, 06, 07). AC-002 and AC-003 are about the data and storage rules, not about a view; they are checked by the automated tests. AC-032 is the model rule, with no screen.
-
-## Drafts for later (not for approval yet)
-
-`02-map-connection.svg` to `07-map-refused-link.svg` are drafts of the next screens. They are kept in the folder and will be re-checked after this layout is approved. The workflow tab (`04-tab.svg`, `05-tab-states.svg`) is part of the same rework and is also not yet for approval.
+1. **The Map tab is the pipeline.** Its nodes are flows, and the arrows between them are connections. Gates and checks sit on those arrows.
+2. **Each flow has its own tab.** Its blocks are Start, Agent, Condition, Connection and End; the toolbox shows only these.
+3. **One nesting level.** The pipeline's toolbox offers Flow; a flow's toolbox does not. A flow cannot hold a flow (screen 05).
+4. **Gates between flows are the phase approvals and the check** of `pipeline.md`: approval after specify, ux and plan; checks between build and verify; the manual checklist between verify and complete.
+5. **Scope is on each Agent block** (per feature, per task), so the build flow repeats its agents per task.
 
 ## Open points for layout review
 
-1. **Canvas and selection panel.** The map takes the left part of the page, and the right panel holds the selected workflow or connection. Is a fixed right panel right, or should the editor float over the canvas?
-2. **Legend on the canvas.** The legend sits at the bottom left of the canvas and explains lines, gates and handles. Should it be a collapsed help control instead?
-3. **Node content.** Each node shows its name, scope, iteration source and counts (steps, gates, routes). Is that the right amount for a node at 200 px wide?
-4. **Gate shown on the line.** A gate appears as an orange badge on the connection, under the artifact label. The reference process has no gate, so the default map shows the badge only in the legend.
-5. **Width.** The layout is drawn for 1280 px. A narrower desktop width would need the panel to move below the canvas; say whether that is needed for the MVP.
-6. **Words.** "Artifact handed over", "gate", "runs after" and "Selected" are the labels on this screen. Check them against the wording you want users to see.
+1. **Two rows on the Map tab.** The six flows wrap after plan. Is that the right reading order, or should the map run in a single row with a horizontal scroll?
+2. **Gate labels.** The artifact handed over is under each diamond (for example `stories.md`), and the decision is above it. Should the artifact sit on the arrow instead?
+3. **Refusal of a nested flow.** The refusal is shown as a message in the panel (screen 05). Should the toolbox hide Flow in flow tabs instead of refusing a drop?
+4. **Required markers.** Approvals between flows and the diff-size guard are required (thick outline). Confirm, as in `building-blocks.md` §9, question 1.
+5. **Clarifying questions.** The main session asks them before each agent starts, and the answers are handed over as an artifact. That Connection is not drawn yet; it is added when the flows are re-specified.
+
+## Archive
+
+`archive-single-pipeline/` holds the earlier screens, where the whole pipeline was one diagram of blocks. `archive-flat-model/` holds the tab-based screens of the flat model. Both are history.

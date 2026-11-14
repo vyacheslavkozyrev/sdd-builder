@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>F-06 global map layout</title>
+  <title>F-06 builder screens</title>
   <style>
     :root { color-scheme: light; }
     body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #18181b; }
@@ -18,14 +18,38 @@
 </head>
 <body>
   <header>
-    <h1>F-06 Global map layout (for approval)</h1>
-    <p>Desktop layout, 1280 px. Wireframe only: colours and wording are placeholders. Read <code>screens.md</code> for the criteria shown and the open points.</p>
+    <h1>F-06 Visual builder: the Map tab and the flow tabs (wireframes)</h1>
+    <p>Step 3 of the wizard. The pipeline is the Map tab: its flows in order, with the gates and checks between them. Each flow has its own tab with its blocks. Wireframes only; read <code>screens.md</code> for the legend, the states and the open points.</p>
   </header>
 
   <section>
-    <h2>01 Global map</h2>
-    <p>The reference process on the map, nothing selected. Lines carry the artifact they hand over; the legend explains gates and drag handles.</p>
-    <img src="01-map.svg" alt="Global map with the reference process, legend and selection panel">
+    <h2>01 The pipeline on the Map tab</h2>
+    <p>Six flows in order (specify, ux, plan, build, verify, complete); the approvals and the check between them are gates on the arrows.</p>
+    <img src="01-map-pipeline.svg" alt="The pipeline on the Map tab with its flows and gates">
+  </section>
+
+  <section>
+    <h2>02 A check between flows selected</h2>
+    <p>The check between build and verify: its decider, its description and its routes.</p>
+    <img src="02-map-gate.svg" alt="A check between flows selected on the Map tab">
+  </section>
+
+  <section>
+    <h2>03 Flow tab: an agent selected</h2>
+    <p>The build flow with the implement agent selected: scope per task, model, tools, reads and writes.</p>
+    <img src="03-flow-agent.svg" alt="The build flow with an agent selected">
+  </section>
+
+  <section>
+    <h2>04 Flow tab: a condition selected</h2>
+    <p>The review condition in the build flow, with a round-limit warning.</p>
+    <img src="04-flow-condition.svg" alt="The build flow with a condition selected">
+  </section>
+
+  <section>
+    <h2>05 Flow tab: refusals and a switched-off block</h2>
+    <p>A referenced block cannot be removed; a flow cannot hold a flow; a required gate cannot be switched off; a switched-off block stays in place, dashed.</p>
+    <img src="05-flow-states.svg" alt="The build flow with refusals and a switched-off block">
   </section>
 </body>
 </html>

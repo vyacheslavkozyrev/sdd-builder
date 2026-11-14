@@ -10,7 +10,7 @@ Text files that describe the layout of a project and what each file should conta
 | `{{idea}}` | `ProjectConfig.idea` |
 | `{{stack.language}}`, `{{stack.framework}}`, `{{stack.testFramework}}` | from `ProjectConfig.stack` |
 | `{{modules}}` | rendered list of `ModuleSpec` |
-| `{{process.diagram}}` | the Mermaid process flowchart, in a fenced `mermaid` block, rendered from the map |
+| `{{process.diagram}}` | the Mermaid process flowchart, in a fenced `mermaid` block, rendered from the map; not rendered before F-18 |
 | `{{codeRules}}`, `{{testRules}}` | rendered bullet lists |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | inside a workflow command: its name, its id, and its scope with the iteration source (for example "for each task in plan.md") |
 | `{{workflow.steps}}` | the enabled steps as a numbered list in tab order, each naming the file it generates |
@@ -37,7 +37,7 @@ Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feat
 | Output file | Source |
 |---|---|
 | `CLAUDE.md` | `base/CLAUDE.md` |
-| `spec/documents/process.md` | `base/process.md`, with the Mermaid view of the process |
+| `spec/documents/process.md` | `base/process.md`, text listing the flows, blocks and gates (the Mermaid view is F-18) |
 | `spec/specifications/F-00-template/*` | `base/spec-template/` |
 | `.claude/commands/workflow-<name>.md` | `workflows/`, one per workflow: calls its steps in order and writes its branches as numbered rules |
 | `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled command step |

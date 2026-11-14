@@ -6,8 +6,8 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
+| Build    | ⏳ Pending  |      | 0 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

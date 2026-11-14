@@ -1,13 +1,13 @@
 // Global map: React Flow shows the workflows and connections; the state and every rule
 // live in map-state.ts and the read model in map-view.ts. The view only calls them.
-// The map is held in React memory only (F-06 AC-003); a reload starts from the reference process.
+// The map state is owned by the builder view (Builder.tsx) and passed in; it stays in React memory only (F-06 AC-003).
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Background, Controls, ReactFlow } from '@xyflow/react';
 import type { Connection, Edge, Node, NodeChange, XYPosition } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import type { Scope } from '@sddbuilder/core';
-import { addWorkflow, connect, removeWorkflow, startState } from './map-state.js';
+import { addWorkflow, connect, removeWorkflow } from './map-state.js';
 import { ConnectionEditor } from './ConnectionEditor.js';
 import type { MapState } from './map-state.js';
 import { edgeText, mapEdges, mapNodes } from './map-view.js';
@@ -41,8 +41,12 @@ function NodeLabel({ node }: { node: MapNode }) {
   );
 }
 
-export function MapView() {
-  const [map, setMap] = useState<MapState>(startState);
+interface MapViewProps {
+  map: MapState;
+  onChange: (state: MapState) => void;
+}
+
+export function MapView({ map, onChange: setMap }: MapViewProps) {
   const [layout, setLayout] = useState<Readonly<Record<string, Layout>>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [name, setName] = useState('');

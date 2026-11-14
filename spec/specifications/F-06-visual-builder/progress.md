@@ -7,8 +7,9 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | ✅ Complete | 2026-11-13 | 14 of 14 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| UX       | 🔄 In Progress | 2026-11-14 | Layout rework: the built layout is replaced. Global map screen (01) approved by the user on 2026-11-14. Workflow tab and other screens still to review (`design/features/F-06-visual-builder/`). Build reopens by amendment once all screens are approved |
+| Build    | ✅ Complete | 2026-11-13 | 14 of 14 tasks committed (first layout; reworked after UX approval) |
+| Verify   | 🔄 In Progress | 2026-11-14 | Matrix recorded: 34 `[auto]` covered, 0 gaps. AWAITING CONFIRMATION for AC-019 and AC-036 (`checklist.md`) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -69,7 +70,60 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+Verify run 2026-11-14 on `main`, working tree clean, all 14 tasks ticked and committed, Current Task None.
+
+**Automated run:** `scripts/task-check.sh` exit code 0. Typecheck passed in all workspaces. Tests: `apps/api` 375 passed (21 files), `apps/web` 348 passed (14 files), `packages/core` 529 passed (37 files). Total 1252 passed, 0 failed.
+
+**Criteria matrix** (34 `[auto]`, 2 `[device]`; test files are repo-relative, `F-06 AC-###` in each test name):
+
+| Criterion | Tag | Covering test (file: test name) | Result |
+|---|---|---|---|
+| AC-001 | auto | `apps/web/test/builder-map-state.test.ts`: starts with the default workflows and connections of the reference process | covered |
+| AC-002 | auto | `apps/web/test/brief-config.test.ts`: a configuration built from the start state equals the one built from the core defaults | covered |
+| AC-003 | auto | `apps/web/test/builder-map-state.test.ts`: a full edit session never touches localStorage, sessionStorage or indexedDB | covered |
+| AC-004 | auto | `apps/web/test/builder-map-state.test.ts`: a new session after edits starts again from the reference process; `apps/web/test/brief-config.test.ts`: a new session built after an edited session starts again from the reference process | covered (see note 1) |
+| AC-005 | auto | `apps/web/test/builder-map-view.test.ts`: shows the name, scope and iteration source of each workflow; counts enabled steps, gates and branch routes | covered |
+| AC-006 | auto | `apps/web/test/builder-map-view.test.ts`: a disabled step does not count its conditions | covered |
+| AC-007 | auto | `apps/web/test/builder-map-view.test.ts`: shows the artifact label of a connection; shows no label for a connection without an artifact | covered |
+| AC-008 | auto | `apps/web/test/builder-map-view.test.ts`: shows the gate type of a connection with a gate; shows no gate type for a connection without a gate | covered |
+| AC-009 | auto | `apps/web/test/builder-map-state.test.ts`: a %s workflow iterates over %s with no steps or conditions (one case per scope) | covered |
+| AC-010 | auto | `apps/web/test/builder-map-state.test.ts`: refuses %s with a message and leaves the state unchanged (empty, blank, duplicate) | covered |
+| AC-011 | auto | `apps/web/test/builder-map-state.test.ts`: removes the workflow and every connection to and from it, and nothing else | covered |
+| AC-012 | auto | `apps/web/test/builder-map-state.test.ts`: creates a connection from A to B with neither a label nor a gate | covered |
+| AC-013 | auto | `apps/web/test/builder-map-state.test.ts`: refuses a connection from a workflow to itself; `packages/core/test/validate-map.test.ts`: refuses a self-link | covered |
+| AC-014 | auto | `apps/web/test/builder-map-state.test.ts`: refuses C → A when A → B → C exists and leaves the state unchanged; `packages/core/test/validate-map.test.ts`: refuses a connection that closes a cycle | covered |
+| AC-015 | auto | `apps/web/test/builder-map-state.test.ts`: refuses a second connection between the same two workflows in the same direction | covered |
+| AC-016 | auto | `apps/web/test/builder-map-state.test.ts`: removes only the connection and leaves both workflows in place | covered |
+| AC-017 | auto | `apps/web/test/builder-map-state.test.ts`: stores the artifact label trimmed; clears the label when it is empty or only spaces | covered |
+| AC-018 | auto | `apps/web/test/builder-map-state.test.ts`: sets a approval/checks/review gate with no threshold; sets a diff-size gate with a whole-number threshold; refuses the diff-size threshold and the gate type not in the four | covered |
+| AC-019 | device | Built in T010. No automated proof of layout or drag | AWAITING CONFIRMATION (checklist) |
+| AC-020 | auto | `apps/web/test/builder-tab-state.test.ts`: gives exactly one tab per workflow, in map order; adding a tab creates a workflow with no steps and one more tab | covered |
+| AC-021 | auto | `apps/web/test/builder-step-state.test.ts`: appends the added step at the end of the list, enabled | covered |
+| AC-022 | auto | `apps/web/test/builder-step-state.test.ts`: refuses a step already in the list and does not change it | covered |
+| AC-023 | auto | `apps/web/test/builder-step-state.test.ts`: moves %s %s by swapping with its neighbour; moving the first step up / last step down changes nothing | covered |
+| AC-024 | auto | `apps/web/test/builder-step-state.test.ts`: a condition keeps its afterStepId when its step moves | covered |
+| AC-025 | auto | `apps/web/test/builder-step-state.test.ts`: removes the step and the conditions placed after it, and keeps the others | covered |
+| AC-026 | auto | `apps/web/test/builder-step-state.test.ts`: refuses while a fail route points to the step, naming the route; refuses while a pass route points to it; refuses while a switched-off condition routes to it | covered |
+| AC-027 | auto | `apps/web/test/builder-step-state.test.ts`: refuses to remove the required step %s and leaves the state unchanged | covered |
+| AC-028 | auto | `apps/web/test/builder-step-state.test.ts`: switching a step off keeps it in the list marked off; switching it on again restores it at the same position | covered |
+| AC-029 | auto | `apps/web/test/builder-tab-state.test.ts`: switches a non-required gate off and sets enabled to false; switches a branch route off and back on. Also `packages/core/test/validate-routes.test.ts`, `mermaid.test.ts`, `rules-text.test.ts`, `analyze-retries.test.ts`, `analyze-reachability.test.ts`, `validate-map.test.ts`, `validate-policy.test.ts` and `apps/api/test/prompt.test.ts`: a switched-off condition is left out of checks and output | covered |
+| AC-030 | auto | `apps/web/test/builder-tab-state.test.ts`: refuses to switch a required gate off and leaves the state unchanged | covered |
+| AC-031 | auto | `apps/web/test/builder-tab-state.test.ts`: keeps the round limit when a branch route is switched off; restores the same round limit when switched on again | covered |
+| AC-032 | auto | `packages/core/test/parse-config.test.ts`: accepts a condition switched on and one switched off; refuses a condition without enabled, with a string, number or null enabled; `packages/core/test/select.test.ts`: selectConditions leaves out a switched-off condition | covered |
+| AC-033 | auto | `apps/web/test/builder-inspector-view.test.ts`: lists the produced files of a catalog step; of a custom step | covered |
+| AC-034 | auto | `apps/web/test/builder-inspector-view.test.ts`: lists the rule-set tags of a catalog step; shows no tags for a step with no tags | covered |
+| AC-035 | auto | `apps/web/test/builder-inspector-view.test.ts`: gives the no-file text, not an empty text, when produces is empty | covered |
+| AC-036 | device | Read model tests exist in `apps/web/test/builder-tab-diagram-view.test.ts` (diagram order, edges, labels). They do not prove readability or that the inspector sits beside the diagram | AWAITING CONFIRMATION (checklist) |
+
+**Gaps:** none. All 34 `[auto]` criteria have at least one named test that passed in this run.
+
+**Notes for the caller:**
+1. AC-004 (reload): the tests prove that `startState()` returns the reference process after an edited session. The reset on reload is `useState(startState)` in `apps/web/src/App.tsx`, which no test renders (`qa.md` keeps web tests to view-model logic). The reload behaviour is confirmed only by the supporting check for AC-004 in `checklist.md` (not a device criterion).
+2. AC-036: its automated tests are for the diagram's read model only, so the criterion stays `[device]`.
+3. Scope in `features.md` F-06 (map add/remove/connect, scope and counts, labels and gates, cycles, tabs, add/remove/reorder/switch, required steps, inspector, session-only state) is covered by the criteria above. Requirement R-01 to R-10 coverage matches `stories.md`.
+4. Open notes from the build (`## Deferred Findings`, T007 and T014) are not criteria: the switch-off of a required step in `setStepEnabled` is not refused, and the builder is mounted hidden before it is shown (checked in `checklist.md`, AC-019 step 10).
+
+**Manual checklist:** `spec/specifications/F-06-visual-builder/checklist.md`. Status: 0 of 2 `[device]` entries recorded. AWAITING CONFIRMATION.
 
 ---
 

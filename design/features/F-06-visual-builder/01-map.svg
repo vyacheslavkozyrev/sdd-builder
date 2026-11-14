@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#71717a"/>
+    </marker>
+  </defs>
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .node{fill:#ffffff;stroke:#18181b;stroke-width:1.5}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .tab{fill:#f4f4f5}
+    .tabOn{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .primary{fill:#2563eb}
+    .line{stroke:#71717a;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+    .handle{fill:#2563eb}
+    .gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <!-- Top bar: the Brief / Builder switch -->
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <text x="170" y="34" class="muted">Demo project · Claude Code · reference process</text>
+  <rect x="760" y="14" width="80" height="28" rx="6" class="btn"/><text x="782" y="33">Brief</text>
+  <rect x="850" y="14" width="90" height="28" rx="6" class="primary"/><text x="872" y="33" class="onPrimary">Builder</text>
+
+  <!-- Map and workflow tabs -->
+  <rect x="16" y="66" width="70" height="30" rx="6" class="tabOn"/><text x="36" y="86" class="onPrimary">Map</text>
+  <rect x="96" y="66" width="90" height="30" rx="6" class="tab"/><text x="116" y="86">Specify</text>
+  <rect x="196" y="66" width="110" height="30" rx="6" class="tab"/><text x="216" y="86">Implement</text>
+  <rect x="316" y="66" width="90" height="30" rx="6" class="tab"/><text x="336" y="86">Verify</text>
+  <rect x="416" y="66" width="100" height="30" rx="6" class="tab"/><text x="436" y="86">Release</text>
+  <rect x="530" y="66" width="110" height="30" rx="6" class="btn"/><text x="546" y="86">+ Add tab</text>
+
+  <!-- Toolbar -->
+  <rect x="16" y="110" width="150" height="30" rx="6" class="btn"/><text x="34" y="130">+ Add workflow</text>
+  <text x="186" y="130" class="muted">Drag to move · drag from a handle to connect · select a connection or a workflow to edit it</text>
+
+  <!-- Canvas -->
+  <rect x="16" y="152" width="884" height="608" rx="8" class="panel"/>
+
+  <!-- Workflow nodes: name, scope, iteration source, counts -->
+  <rect x="60" y="230" width="200" height="130" rx="8" class="node"/>
+  <text x="76" y="256" class="h2">Specify</text>
+  <text x="76" y="278" class="muted">Scope: feature</text>
+  <text x="76" y="296" class="muted">Iterates: features.md</text>
+  <text x="76" y="326" class="small">Steps 3 · Gates 0 · Routes 1</text>
+  <circle cx="260" cy="295" r="5" class="handle"/>
+
+  <rect x="340" y="230" width="200" height="130" rx="8" class="node"/>
+  <text x="356" y="256" class="h2">Implement</text>
+  <text x="356" y="278" class="muted">Scope: task</text>
+  <text x="356" y="296" class="muted">Iterates: plan.md</text>
+  <text x="356" y="326" class="small">Steps 4 · Gates 1 · Routes 2</text>
+  <circle cx="540" cy="295" r="5" class="handle"/>
+
+  <rect x="620" y="230" width="200" height="130" rx="8" class="node"/>
+  <text x="636" y="256" class="h2">Verify</text>
+  <text x="636" y="278" class="muted">Scope: feature</text>
+  <text x="636" y="296" class="muted">Iterates: features.md</text>
+  <text x="636" y="326" class="small">Steps 1 · Gates 1 · Routes 0</text>
+  <circle cx="820" cy="295" r="5" class="handle"/>
+
+  <rect x="620" y="470" width="200" height="130" rx="8" class="node"/>
+  <text x="636" y="496" class="h2">Release</text>
+  <text x="636" y="518" class="muted">Scope: project</text>
+  <text x="636" y="536" class="muted">Iterates: project</text>
+  <text x="636" y="566" class="small">Steps 1 · Gates 0 · Routes 0</text>
+  <circle cx="820" cy="535" r="5" class="handle"/>
+
+  <!-- Connections: label is the artifact handed over -->
+  <line x1="260" y1="295" x2="340" y2="295" class="line"/>
+  <text x="268" y="284" class="small">plan.md</text>
+  <line x1="540" y1="295" x2="620" y2="295" class="line"/>
+  <line x1="720" y1="360" x2="720" y2="470" class="line"/>
+  <text x="728" y="418" class="small">checklist.md</text>
+
+  <!-- Legend inside the canvas -->
+  <line x1="40" y1="664" x2="92" y2="664" class="line"/>
+  <text x="104" y="668" class="small">a line means "runs after"; its label is the artifact handed over</text>
+  <rect x="40" y="680" width="52" height="20" rx="10" class="gate"/>
+  <text x="48" y="694" class="small">approval</text>
+  <text x="104" y="694" class="small">a gate on a connection holds the next workflow until it passes</text>
+  <circle cx="46" cy="716" r="5" class="handle"/>
+  <text x="104" y="720" class="small">drag from a handle to another workflow to add a connection</text>
+
+  <!-- Selection panel: nothing selected -->
+  <rect x="920" y="152" width="344" height="608" rx="8" class="panel"/>
+  <text x="940" y="184" class="h2">Selected</text>
+  <text x="940" y="210" class="muted">Nothing selected.</text>
+  <text x="940" y="230" class="muted">Pick a workflow or a connection on the map to edit it here.</text>
+  <text x="940" y="290" class="h2">Process</text>
+  <text x="940" y="316">Workflows: 4</text>
+  <text x="940" y="338">Connections: 3</text>
+  <text x="940" y="360">Cycles: none</text>
+  <text x="940" y="730" class="small">Edits stay in this browser session only. Reloading clears them.</text>
+</svg>

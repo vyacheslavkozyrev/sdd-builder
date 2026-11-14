@@ -42,13 +42,29 @@ function buildStack(stack: BriefState['stack']): TechStack {
   return built;
 }
 
+/**
+ * Splits a comma-separated depends-on text into module names, in order. Each name is trimmed
+ * and blanks are dropped; duplicates are kept. A name that matches no module is kept too, so
+ * `/analyze` reports it (F-05 AC-011).
+ */
+export function splitDependsOn(text: string): string[] {
+  return text
+    .split(',')
+    .map((name) => name.trim())
+    .filter((name) => name !== '');
+}
+
+/** Trims each rule and drops the blank ones, keeping the order (F-05 AC-012). */
+export function buildRules(rules: readonly string[]): string[] {
+  return rules.map((rule) => rule.trim()).filter((rule) => rule !== '');
+}
+
 function buildModule(row: BriefModuleRow, layer: number): ModuleSpec {
   return {
     name: row.name.trim(),
     layer,
     responsibility: row.responsibility.trim(),
-    // Placeholder: F-05 T004 splits depends-on into module names.
-    dependsOn: [],
+    dependsOn: splitDependsOn(row.dependsOn),
   };
 }
 
@@ -81,9 +97,8 @@ export function toProjectConfig(brief: BriefState): ConfigBuild {
         style: brief.architecture.style.trim(),
         modules,
       },
-      // Placeholders: F-05 T004 drops blank rules and fills these lists.
-      codeRules: [],
-      testRules: [],
+      codeRules: buildRules(brief.codeRules),
+      testRules: buildRules(brief.testRules),
       customSteps: [],
       workflows: DEFAULT_WORKFLOWS.map((workflow) => structuredClone(workflow)),
       connections: DEFAULT_CONNECTIONS.map((connection) => structuredClone(connection)),

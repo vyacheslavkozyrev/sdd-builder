@@ -5,7 +5,7 @@ import { emptyBrief } from '../src/brief/state.js';
 import type { BriefState } from '../src/brief/state.js';
 import { parseLayer, toProjectConfig } from '../src/brief/to-config.js';
 
-/** The brief as the wireframe 02-brief.svg shows it. Depends-on and rule lists are blank until T004. */
+/** The brief as the wireframe 02-brief.svg shows it, with blank depends-on and no rules. */
 function wireframeBrief(): BriefState {
   return {
     name: 'Hourly Tracker',

@@ -10,7 +10,7 @@ import { createInFlightGuard } from '../src/analyze/in-flight.js';
 import type { InFlightGuard } from '../src/analyze/in-flight.js';
 import { startState } from '../src/builder/map-state.js';
 
-/** The brief as the wireframe 02-brief.svg shows it, with blank depends-on and no rules. */
+/** The brief as the F-05 brief screen shows it, with blank depends-on and no rules. */
 function wireframeBrief(): BriefState {
   return {
     ...emptyBrief(),

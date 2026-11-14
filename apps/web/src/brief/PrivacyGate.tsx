@@ -11,7 +11,7 @@ interface PrivacyGateProps {
 
 /**
  * The privacy notice, the checkbox and the Analyze button, as the "Before you analyze" block of
- * `02-brief.svg` (F-05 AC-014, AC-015, AC-016, AC-017, AC-020). The caller decides whether Analyze
+ * the F-05 brief screen (F-05 AC-014, AC-015, AC-016, AC-017, AC-020). The caller decides whether Analyze
  * is enabled; this component only shows it.
  */
 export function PrivacyGate({

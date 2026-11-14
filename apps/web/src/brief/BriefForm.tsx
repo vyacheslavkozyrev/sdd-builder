@@ -41,7 +41,7 @@ function TextField({ id, label, value, messages, onChange }: TextFieldProps) {
 }
 
 /**
- * The brief form, sections 1 to 5 of `02-brief.svg`, then the progress panel. The form only
+ * The brief form, sections 1 to 5 of the F-05 brief screen, then the progress panel. The form only
  * renders the state it is given; every change goes back through `onChange` (F-05 AC-001 to AC-013).
  */
 export function BriefForm({ brief, map, onChange }: BriefFormProps) {

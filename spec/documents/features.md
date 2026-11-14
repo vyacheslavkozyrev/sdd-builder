@@ -1,6 +1,6 @@
 # SDDBuilder — Features
 
-Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting level) and blocks ([building-blocks.md](building-blocks.md)), the decisions in [idea.md](idea.md) and the architecture in [architecture.md](architecture.md). Screens referenced here are wireframes in `design/features/` (the earlier MVP set is in `design/mockups/`). Each feature becomes stories and tasks later, following [process.md](process.md).
+Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting level) and blocks ([building-blocks.md](building-blocks.md)), the decisions in [idea.md](idea.md) and the architecture in [architecture.md](architecture.md). Screens referenced here are wireframes in `design/features/`. Each feature becomes stories and tasks later, following [process.md](process.md).
 
 ## Overview
 

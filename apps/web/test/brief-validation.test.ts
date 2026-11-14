@@ -7,7 +7,7 @@ import { validateBrief } from '../src/brief/validate.js';
 import { ideaCounter } from '../src/brief/counter.js';
 import { startState } from '../src/builder/map-state.js';
 
-/** The brief as the wireframe 02-brief.svg shows it: the module table, depends-on and both rule lists. */
+/** The brief as the F-05 brief screen shows it: the module table, depends-on and both rule lists. */
 function wireframeBrief(): BriefState {
   return {
     name: 'Hourly Tracker',

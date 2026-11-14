@@ -7,7 +7,7 @@ import { parseLayer, toProjectConfig } from '../src/brief/to-config.js';
 import { removeWorkflow, setArtifact, startState } from '../src/builder/map-state.js';
 import type { MapState } from '../src/builder/map-state.js';
 
-/** The brief as the wireframe 02-brief.svg shows it, with blank depends-on and no rules. */
+/** The brief as the F-05 brief screen shows it, with blank depends-on and no rules. */
 function wireframeBrief(): BriefState {
   return {
     name: 'Hourly Tracker',

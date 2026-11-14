@@ -1,4 +1,4 @@
-/** The notice above the Analyze button, as the wireframe 02-brief.svg shows it (F-05 AC-014). */
+/** The notice above the Analyze button, as the F-05 brief screen shows it (F-05 AC-014). */
 export const PRIVACY_NOTICE =
   'Your brief is sent to an AI model provider for review. The service does not store or log it, and the review only advises. It never edits your setup.';
 

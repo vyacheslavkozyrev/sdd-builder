@@ -6,7 +6,7 @@ import type { BriefState } from '../src/brief/state.js';
 import { buildRules, splitDependsOn, toProjectConfig } from '../src/brief/to-config.js';
 import { startState } from '../src/builder/map-state.js';
 
-/** The brief as the wireframe 02-brief.svg shows it, with api and web depending on core. */
+/** The brief as the F-05 brief screen shows it, with api and web depending on core. */
 function wireframeBrief(): BriefState {
   return {
     name: 'Hourly Tracker',

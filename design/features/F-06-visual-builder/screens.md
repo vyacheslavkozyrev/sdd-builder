@@ -39,7 +39,3 @@ The tab row is the same on every screen: **Map** (the pipeline), one tab per flo
 3. **Refusal of a nested flow.** The refusal is shown as a message in the panel (screen 05). Should the toolbox hide Flow in flow tabs instead of refusing a drop?
 4. **Required markers.** Approvals between flows and the diff-size guard are required (thick outline). Confirm, as in `building-blocks.md` §9, question 1.
 5. **Clarifying questions.** The main session asks them before each agent starts, and the answers are handed over as an artifact. That Connection is not drawn yet; it is added when the flows are re-specified.
-
-## Archive
-
-`archive-single-pipeline/` holds the earlier screens, where the whole pipeline was one diagram of blocks. `archive-flat-model/` holds the tab-based screens of the flat model. Both are history.

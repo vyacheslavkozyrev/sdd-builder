@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 8 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 9 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T006 | Map read model (pure): `mapNodes` gives name, scope, iteration source and counts of enabled steps, gates and branch routes; `mapEdges` gives artifact label and gate type, or none | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (label simplified) | `scripts/task-check.sh` passed: typecheck, core 529 tests, web map-view 21 tests |
 | T007 | Step edit state for a tab (pure): `addStep`, `moveStep`, `removeStep` (refused for a required step or while another route points at it), `setStepEnabled`. Size guard overridden by the user (one commit, 418 lines) | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (test line length, non-null assertion); required-step switch-off left open for the user | `scripts/task-check.sh` passed: typecheck, core 529 tests, web step-state 36 tests |
 | T008 | Tab list and condition switches (pure): `tabsFor` in map order; `addTab` uses the addWorkflow rules; `setConditionEnabled` keeps round limits and refuses switching off a required gate | reviewed: 0 blockers, 4 warnings fixed (refusal tests assert unchanged input and messages), 0 suggestions fixed; 2 suggestions deferred | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests (web tab-state tests) |
+| T009 | Inspector read model (pure): `stepInspector` gives produced files, a no-file text when there are none, and rule-set tags; returns copies | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (test names); 1 suggestion deferred (catalog `produces` values are not all file names) | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests (inspector 12 tests) |
 
 ---
 
@@ -45,6 +46,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T007 review, NOTE for the user (not a finding against the spec): `apps/web/src/builder/step-state.ts` `setStepEnabled` does not refuse a required step, so a required step can be switched off. AC-027 covers removal only; the implementer kept this and it is left for the user to decide.
 - T005 review, SUGGESTION: `apps/web/src/builder/map-state.ts` `removeWorkflow` and `removeConnection` return `MapState` while the other edits return `EditResult`; they cannot be refused (an unknown id throws), so the signatures stay as they are. Revisit if the UI needs a refusal message for removal.
 - T008 review, SUGGESTION: `apps/web/src/builder/tab-state.ts` `refuse` duplicates the helper in `map-state.ts` and `step-state.ts`. Kept to match the sibling modules; extracting it would touch T005 and T007 files outside this task.
+- T009 review, SUGGESTION for the user: `apps/web/src/builder/inspector-view.ts` `files` and `producesText` show catalog `produces` values that are not file names (`code`, `tests`, `review notes`, `test results`, `commit`, `release notes`, see `packages/core/src/catalog.ts`). AC-033 says "files it produces, taken from its catalog", so the values are shown as the catalog gives them; a label or a catalog change is a decision for the user, left open for T013.
 - T008 review, SUGGESTION: `apps/web/test/builder-tab-state.test.ts` the reference non-required gate test (`criteria-covered`) sits under the AC-030 heading; it proves the negative side of AC-030. Relabelling is cosmetic and left as is.
 
 ---

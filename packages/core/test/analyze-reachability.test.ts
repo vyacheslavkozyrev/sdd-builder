@@ -20,7 +20,7 @@ const to = (stepId: string): RouteTarget => ({ kind: 'step', stepId });
 const gate = (id: string): Gate => ({ id, type: 'checks', required: false });
 
 function cond(id: string, afterStepId: string, pass: RouteTarget, fail: RouteTarget | undefined): Condition {
-  return { id, afterStepId, gate: gate(id), pass, fail };
+  return { id, enabled: true, afterStepId, gate: gate(id), pass, fail };
 }
 
 function flow(id: string, steps: WorkflowStep[], conditions: Condition[] = [], enabled = true): Workflow {

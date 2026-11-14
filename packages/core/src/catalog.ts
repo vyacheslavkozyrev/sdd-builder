@@ -31,7 +31,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
       { stepId: 'plan', enabled: true },
     ],
     conditions: [
-      { id: 'approve-plan', afterStepId: 'plan', gate: { id: 'approve-plan', type: 'approval', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'refine' } },
+      { id: 'approve-plan', enabled: true, afterStepId: 'plan', gate: { id: 'approve-plan', type: 'approval', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'refine' } },
     ],
   },
   {
@@ -48,10 +48,10 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
       { stepId: 'commit', enabled: true },
     ],
     conditions: [
-      { id: 'diff-size', afterStepId: 'implement', gate: { id: 'diff-size', type: 'diff-size', threshold: 400, required: true }, pass: { kind: 'next' }, fail: { kind: 'stop' } },
-      { id: 'review-clean', afterStepId: 'code-review', gate: { id: 'review-clean', type: 'review', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
-      { id: 'checks-unit', afterStepId: 'unit-tests', gate: { id: 'checks-unit', type: 'checks', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
-      { id: 'checks-e2e', afterStepId: 'e2e-tests', gate: { id: 'checks-e2e', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
+      { id: 'diff-size', enabled: true, afterStepId: 'implement', gate: { id: 'diff-size', type: 'diff-size', threshold: 400, required: true }, pass: { kind: 'next' }, fail: { kind: 'stop' } },
+      { id: 'review-clean', enabled: true, afterStepId: 'code-review', gate: { id: 'review-clean', type: 'review', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
+      { id: 'checks-unit', enabled: true, afterStepId: 'unit-tests', gate: { id: 'checks-unit', type: 'checks', required: true }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
+      { id: 'checks-e2e', enabled: true, afterStepId: 'e2e-tests', gate: { id: 'checks-e2e', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'implement' } },
     ],
   },
   {
@@ -62,7 +62,7 @@ export const DEFAULT_WORKFLOWS: readonly Workflow[] = [
     enabled: true,
     steps: [{ stepId: 'verify', enabled: true }],
     conditions: [
-      { id: 'criteria-covered', afterStepId: 'verify', gate: { id: 'criteria-covered', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'stop' } },
+      { id: 'criteria-covered', enabled: true, afterStepId: 'verify', gate: { id: 'criteria-covered', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'stop' } },
     ],
   },
   {

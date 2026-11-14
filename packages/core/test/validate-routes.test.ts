@@ -20,7 +20,7 @@ function threeSteps(condition: ConditionOverrides, steps?: Workflow['steps']): W
     ],
     // The cast builds the unwired output the validator must refuse; the model type requires `pass`.
     conditions: [
-      { id: 'c1', afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition } as Condition,
+      { id: 'c1', enabled: true, afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition } as Condition,
     ],
   });
 }

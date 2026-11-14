@@ -17,6 +17,7 @@ const off = (stepId: string): WorkflowStep => ({ stepId, enabled: false });
 function condition(id: string, afterStepId: string, fail: RouteTarget | undefined, roundLimit?: number): Condition {
   return {
     id,
+    enabled: true,
     afterStepId,
     gate: { id: `${id}-gate`, type: 'checks', required: false },
     pass: { kind: 'next' },

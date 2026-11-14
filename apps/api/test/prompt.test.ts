@@ -48,6 +48,7 @@ function sampleConfig(): ProjectConfig {
         conditions: [
           {
             id: 'tests-pass',
+            enabled: true,
             afterStepId: 'unit-tests',
             gate: { id: 'tests-pass', type: 'checks', required: true },
             pass: { kind: 'next' },

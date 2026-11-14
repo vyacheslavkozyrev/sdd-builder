@@ -300,7 +300,7 @@ function validGate(): Record<string, unknown> {
 
 /** A valid condition: a review gate, a pass route to the next step and a fail route that stops. */
 function validCondition(): Record<string, unknown> {
-  return { id: 'review', afterStepId: 'design', gate: validGate(), pass: { kind: 'next' }, fail: { kind: 'stop' } };
+  return { id: 'review', enabled: true, afterStepId: 'design', gate: validGate(), pass: { kind: 'next' }, fail: { kind: 'stop' } };
 }
 
 /** A valid submission whose first workflow has one condition: `changes` applied, `removed` keys deleted. */
@@ -673,5 +673,41 @@ describe('F-07 AC-003 unknown fields are refused', () => {
     expect(problemsOf(withStep({ a: 1, b: 2 }))).toEqual([
       { path: 'customSteps[0]', reason: 'has a field the config does not define' },
     ]);
+  });
+});
+
+describe('F-06 AC-032 condition enabled flag', () => {
+  it('F-06 AC-032 accepts a condition switched on and one switched off, and returns the flag', () => {
+    expect(parseProjectConfig(withCondition({ enabled: true }))).toMatchObject({ ok: true });
+    const result = parseProjectConfig(withCondition({ enabled: false }));
+    if (!result.ok) {
+      throw new Error('expected the submission to be accepted');
+    }
+    expect(result.config.workflows[0]?.conditions[0]?.enabled).toBe(false);
+  });
+
+  it.each([
+    {
+      name: 'a condition without enabled is refused',
+      value: withCondition({}, ['enabled']),
+      expected: [{ path: 'workflows[0].conditions[0].enabled', reason: 'is required' }],
+    },
+    {
+      name: 'a condition enabled as a string is refused',
+      value: withCondition({ enabled: 'true' }),
+      expected: [{ path: 'workflows[0].conditions[0].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a condition enabled as a number is refused',
+      value: withCondition({ enabled: 1 }),
+      expected: [{ path: 'workflows[0].conditions[0].enabled', reason: 'must be a boolean' }],
+    },
+    {
+      name: 'a condition enabled as null is refused',
+      value: withCondition({ enabled: null }),
+      expected: [{ path: 'workflows[0].conditions[0].enabled', reason: 'must be a boolean' }],
+    },
+  ])('F-06 AC-032 $name', ({ value, expected }) => {
+    expect(problemsOf(value)).toEqual(expected);
   });
 });

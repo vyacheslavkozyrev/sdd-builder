@@ -25,7 +25,7 @@ describe('F-02 T006 map references and cycles', () => {
       workflows: withDefaults([
         workflow('solo', {
           steps: [{ stepId: 'release', enabled: true }],
-          conditions: [{ id: 'orphan', afterStepId: 'plan', gate: { id: 'orphan', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'stop' } }],
+          conditions: [{ id: 'orphan', enabled: true, afterStepId: 'plan', gate: { id: 'orphan', type: 'checks', required: false }, pass: { kind: 'next' }, fail: { kind: 'stop' } }],
         }),
       ]),
       connections: [],

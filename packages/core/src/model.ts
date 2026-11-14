@@ -60,6 +60,8 @@ export type RouteTarget =
  */
 export interface Condition {
   id: string;
+  /** A switched-off condition takes no part in checks or generated output (building-blocks.md §2). */
+  enabled: boolean;
   /** The step this condition follows. */
   afterStepId: string;
   gate: Gate;

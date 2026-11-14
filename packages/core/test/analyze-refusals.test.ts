@@ -22,7 +22,7 @@ function withCondition(condition: Record<string, unknown>): ProjectConfig {
       { stepId: 'commit', enabled: true },
     ],
     conditions: [
-      { id: 'c1', afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition } as unknown as Condition,
+      { id: 'c1', enabled: true, afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'stop' }, ...condition } as unknown as Condition,
     ],
   });
   return baseConfig({ workflows: withDefaults([w]), connections: [] });
@@ -115,7 +115,7 @@ const refused: { name: string; config: ProjectConfig; subjects: string[] }[] = [
             { stepId: 'verify', enabled: true },
             { stepId: 'commit', enabled: true },
           ],
-          conditions: [{ id: 'c1', afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'release' } }],
+          conditions: [{ id: 'c1', enabled: true, afterStepId: 'verify', gate: gate('c1'), pass: { kind: 'next' }, fail: { kind: 'step', stepId: 'release' } }],
         }),
       ]),
       connections: [],

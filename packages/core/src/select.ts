@@ -59,12 +59,13 @@ export function selectSteps(workflow: Workflow, config: ProjectConfig): Selected
 }
 
 /**
- * Conditions that take part: those whose step is enabled. A condition after
- * a disabled step is dropped, as building-blocks.md §3 states.
+ * Conditions that take part: those that are switched on and whose step is enabled. A condition
+ * after a disabled step is dropped, as building-blocks.md §3 states; a switched-off one is dropped
+ * as building-blocks.md §2 states.
  */
 export function selectConditions(workflow: Workflow): Condition[] {
   const enabled = new Set(workflow.steps.filter((s) => s.enabled).map((s) => s.stepId));
-  return workflow.conditions.filter((c) => enabled.has(c.afterStepId));
+  return workflow.conditions.filter((c) => c.enabled && enabled.has(c.afterStepId));
 }
 
 function findStep(stepId: string, config: ProjectConfig): StepDefinition {

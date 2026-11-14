@@ -232,8 +232,9 @@ function checkCondition(value: unknown, path: string, problems: ConfigProblem[])
     problems.push({ path, reason: 'must be an object' });
     return;
   }
-  checkKnownKeys(value, ['id', 'afterStepId', 'gate', 'pass', 'fail', 'roundLimit'], path, problems);
+  checkKnownKeys(value, ['id', 'enabled', 'afterStepId', 'gate', 'pass', 'fail', 'roundLimit'], path, problems);
   checkRequired(value, 'id', path, problems, isString, 'must be a string');
+  checkRequired(value, 'enabled', path, problems, isBoolean, 'must be a boolean');
   checkRequired(value, 'afterStepId', path, problems, isString, 'must be a string');
   checkNested(value, 'gate', path, problems, checkGate);
   checkNested(value, 'pass', path, problems, checkRoute);

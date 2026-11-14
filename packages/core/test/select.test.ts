@@ -39,3 +39,24 @@ describe('F-02 T009 select and order', () => {
     expect(ids).not.toContain('checks-e2e');
   });
 });
+
+describe('F-06 AC-032 switched-off conditions', () => {
+  it('F-06 AC-032 selectConditions leaves out a condition that is switched off', () => {
+    const config = baseConfig();
+    const implement = config.workflows.find((w) => w.id === 'implement-cycle');
+    expect(implement).toBeDefined();
+    const switched = {
+      ...implement!,
+      conditions: implement!.conditions.map((c) => (c.id === 'review-clean' ? { ...c, enabled: false } : c)),
+    };
+    const ids = selectConditions(switched).map((c) => c.id);
+    expect(ids).not.toContain('review-clean');
+    expect(ids).toContain('checks-unit');
+  });
+
+  it('F-06 AC-032 every catalog condition is switched on by default', () => {
+    const conditions = baseConfig().workflows.flatMap((w) => w.conditions);
+    expect(conditions.length).toBeGreaterThan(0);
+    expect(conditions.every((c) => c.enabled === true)).toBe(true);
+  });
+});

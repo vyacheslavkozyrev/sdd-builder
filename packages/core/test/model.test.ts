@@ -24,6 +24,7 @@ describe('F-02 T002 model', () => {
     };
     const review: Condition = {
       id: 'review-clean',
+      enabled: true,
       afterStepId: 'review',
       gate: { id: 'review', type: 'review', required: true },
       pass: { kind: 'next' },
@@ -90,6 +91,7 @@ describe('F-02 T002 model', () => {
   it('keeps a condition without a fail route representable, so validation can refuse it', () => {
     const unwired: Condition = {
       id: 'checks',
+      enabled: true,
       afterStepId: 'test',
       gate: { id: 'checks', type: 'checks', required: true },
       pass: { kind: 'next' },

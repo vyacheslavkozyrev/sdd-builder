@@ -1,4 +1,4 @@
-# Implementation Plan — [Feature Name] ([F-XX])
+# Implementation Plan — Generator core: pipeline, agents and rules to file tree (F-02)
 
 Each task is **one implement → review → test → commit cycle** and produces exactly one commit. Rules for tasks:
 
@@ -8,14 +8,36 @@ Each task is **one implement → review → test → commit cycle** and produces
 - **Ordered:** a task never depends on a later task.
 - **Traceable:** each task names the acceptance criteria it covers.
 
+The new generator lives in `source/packages/core/src/pipeline/generate/`, beside the flat generator (`src/generate.ts`) that the API still uses (decision 19). It is exported from `src/pipeline/index.ts` as `generate`. It is not re-exported from the package root, because the root name `generate` belongs to the flat generator until F-07 switches the API.
+
 ## Tasks
 
-- [ ] T001 [Layer] [Short action] — `source/[path]`, `source/[test path]` — covers AC-001
-- [ ] T002 [Layer] [Short action] — `source/[path]` — covers AC-002
+- [ ] T001 [Core] Rules in the model: `ProjectConfig.rules` (entries `id`, `title`, `text`), parsed with the id rule and unique among rules; unknown keys in a rule are refused; `source/templates/pipeline/default.json` gets `"rules": []`; parse tests — `source/packages/core/src/pipeline/model.ts`, `source/packages/core/src/pipeline/parse.ts`, `source/templates/pipeline/default.json`, `source/packages/core/test/pipeline-rules.test.ts` — covers AC-008, AC-028 (parse part)
+- [ ] T002 [Core] Refusal collector and flow shape: `generate(config, templates)` in `source/packages/core/src/pipeline/generate/generate.ts` runs the checks, collects every problem sorted by path, throws `InvalidConfigError` and returns no files; checks exactly one Start per flow and in the pipeline, at least one End per flow and the pipeline, Connections that join two blocks of one flow or two flows of the pipeline, and both Condition outputs wired — `source/packages/core/src/pipeline/generate/refusals-shape.ts`, `source/packages/core/test/pipeline-generate-refusals-shape.test.ts` — covers AC-001, AC-002, AC-003, AC-004, AC-012
+- [ ] T003 [Core] Refusal of reachability and routes: every block and flow reachable from the pipeline Start; a back route that goes to a later block, goes outside its child flow or leaves it; an enabled route into a disabled block or flow; the content of disabled blocks and flows is not checked — `source/packages/core/src/pipeline/generate/refusals-routes.ts`, `source/packages/core/test/pipeline-generate-refusals-routes.test.ts` — covers AC-005, AC-006, AC-007, AC-014
+- [ ] T004 [Core] Refusal of names, required blocks and checks: ids file-safe and unique across flows, blocks and arguments; agent names unique; a custom block id clashing with another id; required blocks present and enabled; check type from the four fixed values; `diff-size` threshold a whole number of at least 1, and no threshold on other types; an Agent block with no description is refused; advice (retry with no limit, agent input with no upstream producer) does not refuse — `source/packages/core/src/pipeline/generate/refusals-names.ts`, `source/packages/core/test/pipeline-generate-refusals-names.test.ts` — covers AC-008, AC-009, AC-010, AC-011, AC-013, AC-029
+- [ ] T005 [Core] Selection and order: enabled flows in pipeline order; enabled blocks in block order inside each flow; disabled items produce nothing; a custom block is selected like a default block; Start, End and gate Conditions of an enabled flow are always selected — `source/packages/core/src/pipeline/generate/select.ts`, `source/packages/core/test/pipeline-generate-select.test.ts` — covers AC-015, AC-016, AC-017
+- [ ] T006 [Core] Template renderer: `{{name}}` replaced by a value from the config (a missing value fails with the file and the placeholder named); `{{#enabled:<id>}}…{{/enabled:<id>}}` kept only when that block or flow is enabled; a nested section is refused; a template path the `TemplateSource` does not hold fails with its path named; every failure returns no files — `source/packages/core/src/pipeline/generate/render.ts`, `source/packages/core/test/pipeline-generate-render.test.ts` — covers AC-019, AC-020, AC-021
+- [ ] T007 [Core] Base files: `CLAUDE.md`, `spec/documents/process.md` (text listing the flows, blocks and gates in order, no Mermaid block) and the spec template files, rendered through the renderer with values from the config — `source/packages/core/src/pipeline/generate/base-files.ts`, `source/packages/core/test/pipeline-generate-base.test.ts` — covers AC-018, AC-022
+- [ ] T008 [Core] Flow command files: each enabled child flow produces `.claude/commands/<flow-id>.md` with its enabled blocks as numbered steps in order, each naming the file it calls; no disabled block or flow is mentioned — `source/packages/core/src/pipeline/generate/flow-commands.ts`, `source/packages/core/test/pipeline-generate-flow-commands.test.ts` — covers AC-023, AC-026
+- [ ] T009 [Core] Pipeline command and rules text: `.claude/commands/pipeline.md` lists its arguments (name, required flag), its child flows in order and the gates and checks between them; a back route becomes a numbered rule naming its target and its round limit, or "no limit set"; a `diff-size` Condition shows its threshold, the other checks show their decider — `source/packages/core/src/pipeline/generate/pipeline-command.ts`, `source/packages/core/src/pipeline/generate/rules-text.ts`, `source/packages/core/test/pipeline-generate-pipeline-command.test.ts` — covers AC-024, AC-025
+- [ ] T010 [Core] Agent and rule files: each enabled Agent block produces `.claude/agents/<name>.md` with its description as stub text; each entry of `rules` produces `.claude/rules/<id>.md` with its title and text — `source/packages/core/src/pipeline/generate/agent-rule-files.ts`, `source/packages/core/test/pipeline-generate-agent-rule-files.test.ts` — covers AC-027, AC-028
+- [ ] T011 [Core] Sorted, deterministic file list: `generate` returns `GenerationResult` files sorted by path; two outputs with one path are an error, not an overwrite; no timestamp, random id or environment value is written; two runs with the same input give the same paths, order and content — `source/packages/core/src/pipeline/generate/generate.ts`, `source/packages/core/test/pipeline-generate-file-list.test.ts` — covers AC-030, AC-031, AC-032
+- [ ] T012 [Core] Purity and fake-source run: the purity test scans all of `source/packages/core/src/` and its criteria are renamed to F-02 AC-033 and AC-034 (the existing test carries an older F-02 label); a test runs `generate` with a fake `TemplateSource` and fixed input with no file or network access — `source/packages/core/test/purity.test.ts`, `source/packages/core/test/pipeline-generate-pure.test.ts` — covers AC-033, AC-034
+- [ ] T013 [Docs] Templates README for the pipeline model: the placeholder table lists `{{name}}` values from the config and `{{#enabled:<id>}}` sections; the rules layout comes from `ProjectConfig.rules` — `source/templates/README.md` — covers no criterion
 
 ## Rationale
 
-[Why the tasks are in this order; dependencies and architecture constraints that shaped it.]
+- **The model before the generator (T001).** Rules are project data that the generator reads. The parser and the default pipeline must accept them before any file is generated from them, and the default pipeline stays valid (`rules: []`).
+- **Refusal before output (T002 to T004).** The stories refuse a configuration before any file is produced. The refusal is the first part of `generate`, so the collector and the shape checks come first (T002). Reachability and routes (T003) and names, required blocks and checks (T004) add to the same collector. Each commit keeps one group of rules with its tests.
+- **Advice is not refused (T004).** The no-refusal criterion (AC-013) is tested with the refusal code that could wrongly refuse it, so the test stays next to the rule.
+- **Selection before rendering (T005).** Rendering reads the selected flows and blocks, so selection comes first.
+- **Renderer before files (T006 to T010).** The base files, the command files, the pipeline command and the agent and rule files all use the renderer and the placeholder rules. The renderer is built once, with its errors, and the files use it.
+- **Sorted list after the files (T011).** The sort and the duplicate check cover the whole output, so they come when all files exist.
+- **Purity last (T012).** The scan and the fake-source run cover the finished folder. The existing purity test is renamed to the new criteria, so its label matches this feature.
+- **Docs last (T013).** The placeholder syntax is final only after the renderer exists. The Mermaid change and decision 20 are already in `architecture.md` and the README's process rows (commit `dd0d485`).
+- **No device criteria.** Every criterion in F-02 is `[auto]`, so the verify step needs no manual checklist.
+- **No new libraries.** The feature uses TypeScript and Vitest only (`architecture.md` §5).
 
 ## Layer Tags
 
@@ -23,5 +45,4 @@ Each task is **one implement → review → test → commit cycle** and produces
 |-----|-------|
 | `[Build]` | Project setup, manifests, scripts |
 | `[Docs]` | Documentation changes required by the feature |
-
-Add layer tags matching the modules in `architecture.md` §3.
+| `[Core]` | `source/packages/core`: the pipeline model, refusal, selection, rendering and the file list |

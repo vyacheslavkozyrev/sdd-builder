@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |      | No user interface in F-01 |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 9 tasks; transition: the new model lives in `packages/core/src/pipeline/` beside the flat model until F-02 to F-07 are rebuilt |
 | Build    | ✅ Complete | 2026-11-14 | 9 of 9 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-14 | 27 criteria, all `[auto]`, each with a passing test named by its ID; no manual checklist. AC-027 added by the owner for the connection, End and gate-link rules; back routes may go to an earlier flow at pipeline level |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

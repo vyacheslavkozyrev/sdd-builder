@@ -285,7 +285,7 @@ function pipelineBlockAt(value: unknown, index: number): PipelineBlock {
   return block;
 }
 
-describe('F-01 pipeline gate: a Condition between flows names the pipeline connection it sits on', () => {
+describe('F-01 AC-027 pipeline gate: a Condition between flows names the pipeline connection it sits on', () => {
   it('accepts a gate that names a connection of the pipeline and keeps the name', () => {
     expect(pipelineBlockAt(gateWith(gate()), 2)).toMatchObject({ kind: 'condition', onConnection: 'build-to-review' });
   });

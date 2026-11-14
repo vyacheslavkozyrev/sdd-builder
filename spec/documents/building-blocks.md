@@ -11,9 +11,9 @@ Status: decided 2026-11-14 with the owner, revised the same day three times. The
 5. **Agents run agents, never flows.** An Agent block runs an agent (`.claude/agents/<name>.md`). Only the pipeline runs flows.
 6. **Scope is an attribute of an Agent block.** It says what the block repeats over: `project` (once), `feature` (for each feature in `features.md`), or `task` (for each task in `plan.md`). Start blocks carry the arguments.
 7. **Arguments are on the pipeline's Start block:** name, required or optional, hint. They become the pipeline command's argument hint.
-8. **A Condition has a fixed check type** (`approval`, `checks`, `review`, `diff-size`). Its pass output and fail output are both wired. A fail output goes to the next block, back to an earlier block in the same flow (a retry), or stops the process. A condition whose fail output stops is a quality gate.
+8. **A Condition has a fixed check type** (`approval`, `checks`, `review`, `diff-size`). Its pass output and fail output are both wired. A fail output goes to the next block, back to an earlier block in the same flow (a retry), or, at pipeline level, to an earlier flow; or stops the process. A condition whose fail output stops is a quality gate.
 9. **A Connection is a "runs after" link** between two blocks, or between two flows in the pipeline. It carries the artifact it hands over, as a label. A gate on a connection is a Condition placed on it.
-10. **No cycles.** Flows and their connections form an acyclic order, except for retries of Conditions, which go back to an earlier block of the same flow.
+10. **No cycles.** Flows and their connections form an acyclic order, except for retries of Conditions, which go back to an earlier block of the same flow or, at pipeline level, to an earlier flow.
 11. **Rule sets are tags** on Agent blocks and on flows. They point at files in `.claude/rules/`.
 12. **Round limits are optional and set by the user.** The framework sets no default. The analyzer warns when a retry has no limit, because each round can cost a model call.
 13. **A disabled block or flow is left out.** Switched off (`enabled: false`), it is not checked, not drawn, not generated and not sent to review. It keeps its properties, so it can be switched back on.
@@ -101,7 +101,7 @@ Post-MVP: skills and scripts as blocks; custom agent blocks (F-14); presets (F-0
 - Every Connection joins two blocks of the same flow, or two flows of the pipeline.
 - Both outputs of every Condition are wired.
 - Every block and every flow is reachable from the pipeline's Start.
-- A back route goes to an earlier block of the same flow and never leaves it.
+- A back route goes to an earlier block of the same flow, or in the pipeline to an earlier flow. A back route in a child flow never leaves the flow.
 - Every Agent block has a name that is file-safe and unique in the project, and a description.
 - Argument names are unique.
 - An Agent block with scope `task` or `feature` reads an iteration source that an upstream block produces.

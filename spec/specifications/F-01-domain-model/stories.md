@@ -1,7 +1,7 @@
 # User Stories — Domain model: pipeline, flows, blocks and the default pipeline (F-01)
 
 Feature entry: `spec/documents/features.md` → F-01
-Requirements owned by this feature: R-01 to R-10 (listed in the Requirement Coverage table)
+Requirements owned by this feature: R-01 to R-11 (listed in the Requirement Coverage table)
 
 ## Out of Scope
 
@@ -60,7 +60,7 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 - [ ] AC-005 `[auto]`: the check type is one of `approval`, `checks`, `review`, `diff-size`; any other value is refused with a problem at the condition's path.
 - [ ] AC-006 `[auto]`: `diff-size` requires a whole-number threshold of at least 1; the other check types take no threshold, and one given is refused.
 - [ ] AC-007 `[auto]`: `decided by` is `human` or `agent` and is required; a missing or other value is refused.
-- [ ] AC-008 `[auto]`: the pass route and the fail route are required. Each is `next`, `stop`, or `back` to a block of the same flow that comes earlier; a route to a block of another flow, or a back route to a later block, is refused.
+- [ ] AC-008 `[auto]`: the pass route and the fail route are required. Each is `next`, `stop`, or `back` to an earlier item of its own list: a block of the same child flow, or, for a pipeline gate, an earlier flow. A route to a block inside another flow, or a back route to a later item, is refused.
 - [ ] AC-009 `[auto]`: the round limit is optional; when given it is a whole number of at least 1; when absent the model holds no limit.
 
 ### US-003: Scope and arguments are attributes of blocks
@@ -135,6 +135,18 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 
 - [ ] AC-026 `[auto]`: no source file in `packages/core/src` imports `node:fs`, `http`, `https`, `process`, `window` or the network; a test scans the sources and fails on a match.
 
+### US-008: Connections, End blocks and gates between flows
+
+**As a** developer
+**I want to** check the links between blocks and flows, the End outcome, and the connection a gate sits on
+**So that** every handover and every gate in the pipeline refers to something that exists
+
+**Requirements:** R-11
+
+#### Acceptance Criteria
+
+- [ ] AC-027 `[auto]`: (a) a Connection's `from` and `to` name blocks of the same list (a flow's blocks, or the pipeline's flows and gates), and `artifact` is a required string; (b) an End block's `outcome` is required and is `done` or `stopped`, and `produced` is optional and a string when given; (c) a pipeline Condition's `onConnection` is required and names a Connection block of the pipeline, and inside a child flow the key is refused as unknown. An unknown key on any of these blocks is refused with its path.
+
 ---
 
 ## Requirement Coverage
@@ -151,3 +163,4 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 | R-08 | Stable, file-safe ids | AC-011, AC-021, AC-022 |
 | R-09 | AnalysisResult and GenerationResult shapes | AC-024, AC-025 |
 | R-10 | Pure core, no I/O | AC-026 |
+| R-11 | Connections, End blocks and gates between flows | AC-027 |

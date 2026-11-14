@@ -6,7 +6,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | packages/core | 0 | — | ↻ Built on the flat model (steps, tabs); re-scope to the pipeline and blocks |
+| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | packages/core | 0 | — | ✅ Complete in `packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
 | F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | packages/core | 1 | F-01 | ↻ Built on the flat model (18 tasks, 34 criteria, 99 tests); re-scope |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ↻ Built on the flat model (17 tasks, 29 criteria, 174 tests); re-scope |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |

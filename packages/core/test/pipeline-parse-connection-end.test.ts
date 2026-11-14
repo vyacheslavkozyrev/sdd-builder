@@ -78,7 +78,7 @@ function twoFlows(connection: Record<string, unknown>): Record<string, unknown> 
   ]);
 }
 
-describe('F-01 (no numbered criterion, progress.md deviation 3) a Connection between two blocks of a flow has from, to and an artifact', () => {
+describe('F-01 AC-027 a Connection between two blocks of a flow has from, to and an artifact', () => {
   it('accepts a connection between two blocks of the same flow and keeps its fields', () => {
     const block = childBlockAt(configWith([START, flow('build', [agent('implement'), flowConnection()])]), 2);
     expect(block).toEqual({ kind: 'connection', id: 'hand-over', enabled: true, from: 'build-start', to: 'implement', artifact: 'plan' });
@@ -124,7 +124,7 @@ describe('F-01 (no numbered criterion, progress.md deviation 3) a Connection bet
   });
 });
 
-describe('F-01 (no numbered criterion, progress.md deviation 3) an End block has an outcome of done or stopped and an optional produced artifact', () => {
+describe('F-01 AC-027 an End block has an outcome of done or stopped and an optional produced artifact', () => {
   it.each(['done', 'stopped'])('accepts outcome %s and keeps it', (outcome) => {
     expect(childBlockAt(configWith([START, flow('build', [agent('implement'), flowEnd({ outcome })])]), 2)).toEqual({
       kind: 'end',

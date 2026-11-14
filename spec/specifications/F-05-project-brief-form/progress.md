@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 26 criteria (24 `[auto]`, 2 `[device]`). Decisions: Project name field added; Analyze needs a valid brief and the checkbox. |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 2 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 2 of 11 tasks committed (plan amended: former T003 split into T003 and T004) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ None.
 _Review suggestions intentionally not applied, with the reason._
 
 - `package.json:9` (root `engines.node` `>=20`): Vite 7 requires Node `^20.19.0 || >=22.12.0`, so `npm run dev` or `build` can fail on Node 20.0 to 20.18. Not changed in T002 because the root engines range is a repo-wide decision; to be recorded in `architecture.md` §5 before the range changes.
+- For T005 (idea length, AC-002): the trimmed idea goes into the configuration, but the 8,000-character check must run on the raw submitted text, so trimming cannot hide an over-limit idea. Recorded here as a note for T005.
 
 ---
 
@@ -46,8 +47,8 @@ _Criteria coverage matrix and manual checklist outcome._
 ## Amendments
 
 ```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
+### Amendment — 2026-11-13
+**Changed**: plan.md. Former T003 (brief state and configuration building, 446 staged lines) split into T003 (state, configuration body, `ConfigBuild` union, `parseLayer`; covers AC-006, AC-007, AC-010, AC-018) and T004 (depends-on and rule lists; covers AC-009, AC-011, AC-012). Tasks T004 to T010 renumbered T005 to T011, with their criteria unchanged. Rationale section still uses the old numbers for the tasks it describes.
+**Reason**: the staged diff of the former T003 was 446 changed lines, over the 400-line size guard. The test file alone was 294 lines; splitting by criterion keeps each test with its code. The uncommitted T003 work was not committed; it was set aside and reused as reference for T003 and T004.
+**Impact**: T003 and T004 run in order; T005 to T011 run after them. No committed task changes.
 ```

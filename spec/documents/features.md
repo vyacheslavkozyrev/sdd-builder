@@ -11,7 +11,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ↻ Built on the flat model (17 tasks, 29 criteria, 174 tests); re-scope |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |
 | F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | apps/web | 2 | F-01 | ⏳ Pending (re-scope to the wizard) |
-| F-06 | Visual builder: the pipeline on the Map tab | MVP | User | apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope |
+| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope; absorbs F-14 and F-15 |
 | F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ↻ Built on the flat model (23 tasks, 29 criteria); re-scope |
 | F-08 | Save, import and export of projects | Post-MVP | User | apps/web | — | F-05, F-06 | Not started |
 | F-09 | Presets: other starting pipelines | Post-MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Pending (re-scope to pipelines) |
@@ -19,15 +19,17 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not planned |
 | F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not planned |
 | F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ↻ Built (10 tasks, 29 criteria); caps re-scope to rule blocks, no modules |
-| F-14 | Custom blocks: agents | MVP | User | packages/core, apps/web | 3 | F-06, F-02 | ⏳ Pending (re-scope to custom agents) |
-| F-15 | Configurable quality gates: conditions | MVP | User | packages/core, apps/web | 2 | F-06 | ⏳ Pending (re-scope to conditions) |
+| F-14 | Custom blocks: agents | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a custom agent is a toolbox item in F-06 |
+| F-15 | Configurable quality gates: conditions | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a gate or check is a Condition block in F-06 |
 | F-16 | GitHub Spec Kit output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
 | F-17 | OpenSpec output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | packages/core, apps/web | 3 | F-06, F-15 | ⏳ Proposed |
+| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Proposed |
 | F-19 | Read-only share link for clients | Post-MVP | User | apps/web | — | F-18 | Not planned |
 | F-20 | Browser-local autosave | Post-MVP | User | apps/web | — | F-06 | Not planned |
 
-**Totals:** 20 features. MVP: 11 (F-01 to F-07, F-13, F-14, F-15, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
+**Totals:** 20 features, two of them merged into F-06 (F-14, F-15). MVP: 9 (F-01 to F-07, F-13, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
+
+**Build order (2026-11-14):** F-01 first, since everything depends on the domain model. Then F-02 and F-03 together, F-04, F-07, F-05, F-06 (with gates and custom agents), F-13 (caps update), F-18.
 
 **↻ Built on the previous model.** The rows marked ↻ were built or specified on the flat model (workflows as tabs of steps, nine node kinds). Their code and their specs are not reused as they are: each is re-specified after F-01 is reworked, and its stories and tasks are rewritten to the new model. Completed work stays in the history.
 
@@ -64,7 +66,9 @@ Four steps (`design/features/F-05-project-brief-form/`):
 
 The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only. A Project name field maps to `name`.
 
-### F-06 Visual builder: the Map tab and the flow tabs
+### F-06 Visual builder: the Map tab, flow tabs, gates and checks, custom agents
+
+Absorbs F-14 (custom agents) and F-15 (gates and checks), merged 2026-11-14.
 
 Screens: `design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
 
@@ -110,17 +114,13 @@ Needed because the service is anonymous and calls a paid model:
 
 The limits are as in `architecture.md` §6, decision 12. The module cap is removed with the module list.
 
-### F-14 Custom blocks: agents
+### F-14 Custom blocks: agents (merged into F-06)
 
-- Authoring: a form for an agent (name, description, scope, model, tools, body), placed in a flow. Ids are checked against the other ids in the project.
-- Always optional; the form does not offer the option to make a custom block required.
-- Size-capped body (the cap is set when the feature is specified).
-- Generation writes custom agents into `.claude/agents/`.
-- The analyzer (F-04) checks custom blocks structurally and, in the LLM review, for contradictions with the brief.
+Merged 2026-11-14 into F-06. A custom agent is a toolbox item on a flow tab, with the same properties as a catalog agent (name, description, scope, model, tools, body). Always optional. Its body size cap and its checks are set in F-06.
 
-### F-15 Configurable quality gates: conditions
+### F-15 Configurable quality gates: conditions (merged into F-06)
 
-Four check types, fixed (`architecture.md` §9): `approval`, `checks`, `review`, `diff-size`. The user sets the description, the threshold (diff size), the decider, the pass and fail routes, and the round limit. A condition's fail output stops the process, unless it is used as a branch (`building-blocks.md` §3). Gates sit between blocks of a flow, or on a connection between two flows of the pipeline. Generation writes the conditions into the command file of their flow (or into the pipeline command, between flows) and into `process.md`. A condition decided by a human is asked by the pipeline command in the main session; agents never ask.
+Merged 2026-11-14 into F-06. A gate or check is a Condition block with a fixed check type (`approval`, `checks`, `review`, `diff-size`), placed on a connection between flows or inside a flow. Its threshold, decider, routes and round limit are set in F-06 (`architecture.md` §9, `building-blocks.md` §3).
 
 ### F-16 GitHub Spec Kit output (post-MVP, first after the MVP)
 

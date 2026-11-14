@@ -1,11 +1,14 @@
 // Workflow tabs: a tab bar from tabsFor, an add-tab form and the step list of the selected tab.
 // The view only calls the state functions in tab-state.ts; a refused edit shows its message and
-// leaves the map as it was.
+// leaves the map as it was. The selected step is kept in React memory only, and a tab switch clears it.
 import { useState } from 'react';
 import type { FormEvent } from 'react';
+import { DEFAULT_STEP_CATALOG } from '@sddbuilder/core';
 import type { Scope } from '@sddbuilder/core';
 import { addTab, tabsFor } from './tab-state.js';
 import { StepList } from './StepList.js';
+import { TabDiagram } from './TabDiagram.js';
+import { Inspector } from './Inspector.js';
 import type { MapState } from './map-state.js';
 
 const SCOPES: readonly Scope[] = ['project', 'feature', 'task'];
@@ -21,10 +24,16 @@ export function TabView({ map, onChange }: TabViewProps) {
   const [name, setName] = useState('');
   const [scope, setScope] = useState<Scope>('feature');
   const [message, setMessage] = useState<string | null>(null);
+  const [selectedStepId, setSelectedStepId] = useState<string | null>(null);
 
   // A workflow removed on the map may have been selected here; fall back to the first tab.
   const selected = tabs.find((tab) => tab.id === selectedId) ?? tabs[0];
   const workflow = map.workflows.find((w) => w.id === selected?.id);
+  // The inspector shows the selected step only while the workflow still has it.
+  const inspected =
+    workflow?.steps.some((step) => step.stepId === selectedStepId) === true
+      ? DEFAULT_STEP_CATALOG.find((item) => item.id === selectedStepId)
+      : undefined;
 
   function handleAdd(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,7 +62,10 @@ export function TabView({ map, onChange }: TabViewProps) {
             key={tab.id}
             type="button"
             aria-pressed={tab.id === selected?.id}
-            onClick={() => setSelectedId(tab.id)}
+            onClick={() => {
+              setSelectedId(tab.id);
+              setSelectedStepId(null);
+            }}
           >
             {tab.name}
           </button>
@@ -78,6 +90,18 @@ export function TabView({ map, onChange }: TabViewProps) {
         <button type="submit">Add tab</button>
       </form>
       {message !== null && <p role="alert">{message}</p>}
+
+      {workflow !== undefined && (
+        <div className="tab-workspace">
+          <TabDiagram
+            key={workflow.id}
+            workflow={workflow}
+            selectedStepId={selectedStepId}
+            onSelectStep={setSelectedStepId}
+          />
+          <Inspector step={inspected} />
+        </div>
+      )}
 
       {workflow !== undefined && <StepList key={workflow.id} map={map} workflow={workflow} onChange={onChange} />}
     </section>

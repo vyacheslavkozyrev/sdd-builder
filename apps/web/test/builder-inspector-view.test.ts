@@ -94,4 +94,10 @@ describe('F-06 AC-035 a step that produces no file shows that no file is generat
     expect(inspector.producesText).toBe('no file generated');
     expect(inspector.ruleTags).toEqual(['qa.md']);
   });
+
+  it('F-06 AC-033 gives the heading and summary the inspector shows for a step', () => {
+    const inspector = stepInspector(custom({ name: 'Review', summary: 'Checks the diff.' }));
+    expect(inspector.name).toBe('Review');
+    expect(inspector.summary).toBe('Checks the diff.');
+  });
 });

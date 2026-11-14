@@ -8,6 +8,8 @@ export const NO_FILE_TEXT = 'no file generated';
 
 /** What the inspector shows for one step. Empty lists are kept as lists; the text is for display. */
 export interface StepInspector {
+  name: string;
+  summary: string;
   /** Files the step produces, in the order of the definition. */
   files: string[];
   /** The files joined for display, or `NO_FILE_TEXT` when the step produces none. */
@@ -20,6 +22,8 @@ export interface StepInspector {
 export function stepInspector(step: StepDefinition): StepInspector {
   const files = [...step.produces];
   return {
+    name: step.name,
+    summary: step.summary,
     files,
     producesText: files.length === 0 ? NO_FILE_TEXT : files.join(', '),
     ruleTags: [...step.ruleTags],

@@ -53,7 +53,7 @@ Layouts for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), th
 
 ### F-05 Project brief form
 
-Idea and structured fields for stack, architecture modules, code rules and test rules. Validation matches `model.ts`. The privacy notice is shown before analysis, and Analyze stays disabled until it is accepted (wireframe `02-brief.svg`).
+Idea and structured fields for stack, architecture modules, code rules and test rules. Validation matches `model.ts`. The privacy notice is shown before analysis, and Analyze stays disabled until it is accepted (wireframe `02-brief.svg`). A Project name field is required and maps to `name`. The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` to `apps/api` (`architecture.md` §6, decision 13).
 
 ### F-06 Visual builder: global map and workflow tabs
 

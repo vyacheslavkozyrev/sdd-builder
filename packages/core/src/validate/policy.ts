@@ -44,6 +44,9 @@ export function checkPolicy(config: ProjectConfig): string[] {
 
   for (const workflow of config.workflows) {
     for (const condition of workflow.conditions) {
+      if (!condition.enabled) {
+        continue;
+      }
       problems.push(...checkCondition(condition));
     }
   }

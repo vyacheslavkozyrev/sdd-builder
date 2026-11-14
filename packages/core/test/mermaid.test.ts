@@ -79,4 +79,43 @@ describe('F-02 T015 Mermaid process view', () => {
   it('F-02 AC-028 is the same for the same input', () => {
     expect(renderMermaid(baseConfig())).toBe(renderMermaid(baseConfig()));
   });
+
+  it('F-06 AC-029 a switched-off condition with an unwired output gives no node and no edge', () => {
+    const base = baseConfig();
+    const offConfig = {
+      ...base,
+      workflows: base.workflows.map((w) =>
+        w.id === 'implement-cycle'
+          ? {
+              ...w,
+              conditions: w.conditions.map((c) =>
+                c.id === 'review-clean' ? { ...c, enabled: false, fail: undefined } : c,
+              ),
+            }
+          : w,
+      ),
+    };
+    const text = renderMermaid(offConfig);
+    expect(text).not.toContain('review_clean');
+    expect(text).not.toContain('{"review"}');
+  });
+
+  it('F-06 AC-029 a switched-off condition draws the same diagram as a removed one', () => {
+    const base = baseConfig();
+    const offConfig = {
+      ...base,
+      workflows: base.workflows.map((w) =>
+        w.id === 'implement-cycle'
+          ? { ...w, conditions: w.conditions.map((c) => (c.id === 'review-clean' ? { ...c, enabled: false } : c)) }
+          : w,
+      ),
+    };
+    const removedConfig = {
+      ...base,
+      workflows: base.workflows.map((w) =>
+        w.id === 'implement-cycle' ? { ...w, conditions: w.conditions.filter((c) => c.id !== 'review-clean') } : w,
+      ),
+    };
+    expect(renderMermaid(offConfig)).toBe(renderMermaid(removedConfig));
+  });
 });

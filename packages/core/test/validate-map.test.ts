@@ -33,6 +33,74 @@ describe('F-02 T006 map references and cycles', () => {
     expect(validateConfig(config)).toEqual(['condition "orphan": follows step "plan", which is not in workflow "solo"']);
   });
 
+  it('F-06 AC-029 a switched-off condition that follows a step outside its workflow gives no finding', () => {
+    const config = baseConfig({
+      workflows: withDefaults([
+        workflow('solo', {
+          steps: [{ stepId: 'release', enabled: true }],
+          conditions: [
+            {
+              id: 'orphan',
+              enabled: false,
+              afterStepId: 'plan',
+              gate: { id: 'orphan', type: 'checks', required: false },
+              pass: { kind: 'next' },
+              fail: { kind: 'stop' },
+            },
+          ],
+        }),
+      ]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-off condition with an unwired output and an orphan step gives no finding', () => {
+    const config = baseConfig({
+      workflows: withDefaults([
+        workflow('solo', {
+          steps: [{ stepId: 'release', enabled: true }],
+          conditions: [
+            {
+              id: 'orphan',
+              enabled: false,
+              afterStepId: 'plan',
+              gate: { id: 'orphan', type: 'checks', required: false },
+              pass: { kind: 'next' },
+              fail: undefined,
+            },
+          ],
+        }),
+      ]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-on condition that follows a step outside its workflow is still refused', () => {
+    const config = baseConfig({
+      workflows: withDefaults([
+        workflow('solo', {
+          steps: [{ stepId: 'release', enabled: true }],
+          conditions: [
+            {
+              id: 'orphan',
+              enabled: true,
+              afterStepId: 'plan',
+              gate: { id: 'orphan', type: 'checks', required: false },
+              pass: { kind: 'next' },
+              fail: { kind: 'stop' },
+            },
+          ],
+        }),
+      ]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual([
+      'condition "orphan": follows step "plan", which is not in workflow "solo"',
+    ]);
+  });
+
   it('F-02 AC-010 a connection to or from a disabled workflow is refused', () => {
     const config = baseConfig({
       workflows: withDefaults([workflow('a'), workflow('b', { enabled: false })]),

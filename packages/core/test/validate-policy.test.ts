@@ -68,6 +68,43 @@ describe('F-02 T008 required steps, gates, limits and custom steps', () => {
     expect(validateConfig(baseConfig({ customSteps: [custom] }))).toEqual(['custom step "security-review" cannot be required']);
   });
 
+  it('F-06 AC-029 a switched-off condition with an unwired output and an orphan step gives no finding', () => {
+    const config = withWorkflow(baseConfig(), 'implement-cycle', (w) => ({
+      ...w,
+      conditions: w.conditions.map((c) =>
+        c.id === 'review-clean' ? { ...c, enabled: false, afterStepId: 'nowhere', fail: undefined } : c,
+      ),
+    }));
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-off condition with a bad gate type and round limit gives no finding', () => {
+    const config = withWorkflow(baseConfig(), 'implement-cycle', (w) => ({
+      ...w,
+      conditions: w.conditions.map((c) =>
+        c.id === 'review-clean'
+          ? { ...c, enabled: false, roundLimit: 0, gate: { ...c.gate, type: 'shell' as never } }
+          : c,
+      ),
+    }));
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-on condition with a bad gate type and round limit is still refused', () => {
+    const config = withWorkflow(baseConfig(), 'implement-cycle', (w) => ({
+      ...w,
+      conditions: w.conditions.map((c) =>
+        c.id === 'review-clean'
+          ? { ...c, enabled: true, roundLimit: 0, gate: { ...c.gate, type: 'shell' as never } }
+          : c,
+      ),
+    }));
+    expect(validateConfig(config)).toEqual([
+      'condition "review-clean": gate type "shell" is not one of approval, checks, review, diff-size',
+      'condition "review-clean": round limit must be a positive integer, got 0',
+    ]);
+  });
+
   it('F-02 AC-007 a connection gate with an unknown type is refused', () => {
     const config = baseConfig();
     const connections = config.connections.map((c) => (c.id === 'specify-implement' ? { ...c, gate: { id: 'g', type: 'wish' as never, required: false } } : c));

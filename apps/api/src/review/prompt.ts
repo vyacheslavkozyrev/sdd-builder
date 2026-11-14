@@ -123,7 +123,7 @@ function pickWorkflow(workflow: Workflow) {
     enabled: workflow.enabled,
     description: workflow.description,
     steps: workflow.steps.map(pickWorkflowStep),
-    conditions: workflow.conditions.map(pickCondition),
+    conditions: workflow.conditions.filter((condition) => condition.enabled).map(pickCondition),
   };
 }
 

@@ -8,7 +8,8 @@ import type { AnalysisFinding, Condition, ProjectConfig, Workflow } from '../mod
  * and so do `next` and `stop` fail routes. Only enabled workflows are checked, and a condition is
  * checked only when the step it follows is enabled in its workflow, as `selectConditions` drops it
  * otherwise. A condition that follows a step the workflow does not hold is skipped here:
- * `validateConfig` reports it and `refusalFindings` makes it a blocker.
+ * `validateConfig` reports it and `refusalFindings` makes it a blocker. A switched-off condition
+ * (`enabled: false`) is skipped too, so it gives no finding (AC-029).
  */
 export function retryFindings(config: ProjectConfig): AnalysisFinding[] {
   return config.workflows
@@ -16,7 +17,10 @@ export function retryFindings(config: ProjectConfig): AnalysisFinding[] {
     .flatMap((workflow) =>
       workflow.conditions.flatMap((condition) => {
         const fail = condition.fail;
-        if (fail?.kind !== 'step' || condition.roundLimit !== undefined || !isRetry(condition, fail.stepId, workflow)) {
+        if (!condition.enabled || fail?.kind !== 'step' || condition.roundLimit !== undefined) {
+          return [];
+        }
+        if (!isRetry(condition, fail.stepId, workflow)) {
           return [];
         }
         return [unlimitedRetryFinding(workflow.id, condition.id, fail.stepId)];

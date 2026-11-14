@@ -57,4 +57,30 @@ describe('F-02 T013 gate and branch rules', () => {
     const verify = config.workflows.find((w) => w.id === 'verify-feature')!;
     expect(renderRules(config, verify)).not.toContain('Precondition');
   });
+
+  it('F-06 AC-029 a switched-off condition with an unwired output gives no rule', () => {
+    const base = baseConfig();
+    const cycle = implementCycle();
+    const offCycle = {
+      ...cycle,
+      conditions: cycle.conditions.map((c) =>
+        c.id === 'review-clean' ? { ...c, enabled: false, fail: undefined } : c,
+      ),
+    };
+    const text = renderRules(base, offCycle);
+    expect(text).not.toContain('review reports no blocker or warning');
+    expect(text).toContain('1. After step 1 (Implement)');
+    expect(text).not.toContain('After step 2 (Code review)');
+  });
+
+  it('F-06 AC-029 a switched-off condition gives the same rules as a removed one', () => {
+    const base = baseConfig();
+    const cycle = implementCycle();
+    const offCycle = {
+      ...cycle,
+      conditions: cycle.conditions.map((c) => (c.id === 'review-clean' ? { ...c, enabled: false } : c)),
+    };
+    const removed = { ...cycle, conditions: cycle.conditions.filter((c) => c.id !== 'review-clean') };
+    expect(renderRules(base, offCycle)).toBe(renderRules(base, removed));
+  });
 });

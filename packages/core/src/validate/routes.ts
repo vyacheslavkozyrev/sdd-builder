@@ -8,11 +8,15 @@ import type { Condition, ProjectConfig, RouteTarget, Workflow } from '../model.j
  * - A pass route to a step must go forward.
  * - No route may target a disabled step (AC-010).
  * A condition after a disabled step is dropped, so its routes are not checked.
+ * A switched-off condition (`enabled: false`) is dropped the same way: no wiring finding, no route finding (AC-029).
  */
 export function checkRoutes(config: ProjectConfig): string[] {
   const problems: string[] = [];
   for (const workflow of config.workflows) {
     for (const condition of workflow.conditions) {
+      if (!condition.enabled) {
+        continue;
+      }
       if (condition.pass === undefined) {
         problems.push(`condition "${condition.id}": pass output is not wired`);
       }

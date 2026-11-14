@@ -134,4 +134,16 @@ describe('F-04 T006 retries', () => {
     expect(retryFindings(config)).toEqual(first);
     expect(first).toHaveLength(1);
   });
+
+  it('F-06 AC-029 a switched-off retry with no round limit gives no finding', () => {
+    const off = { ...condition('tests-pass', 'verify', retry('implement')), enabled: false };
+    expect(retryFindings(configWith([flow('w', [off])]))).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-off retry does not hide a switched-on one in the same workflow', () => {
+    const disabled = { ...condition('first', 'verify', retry('implement')), enabled: false };
+    const enabled = condition('second', 'verify', retry('implement'));
+    const config = configWith([flow('w', [disabled, enabled])]);
+    expect(retryFindings(config)).toEqual([unlimited('w', 'second', 'implement')]);
+  });
 });

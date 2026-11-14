@@ -34,8 +34,14 @@ export function checkMap(config: ProjectConfig): string[] {
     }
     const inWorkflow = new Set(workflow.steps.map((s) => s.stepId));
     for (const condition of workflow.conditions) {
+      if (!condition.enabled) {
+        continue;
+      }
       if (!inWorkflow.has(condition.afterStepId)) {
-        problems.push(`condition "${condition.id}": follows step "${condition.afterStepId}", which is not in workflow "${workflow.id}"`);
+        problems.push(
+          `condition "${condition.id}": follows step "${condition.afterStepId}", ` +
+            `which is not in workflow "${workflow.id}"`,
+        );
       }
     }
   }

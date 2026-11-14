@@ -79,4 +79,28 @@ describe('F-02 T007 routes and wired outputs', () => {
     const config = baseConfig({ workflows: withDefaults([threeSteps({ fail: { kind: 'step', stepId: 'commit' } }, steps)]), connections: [] });
     expect(validateConfig(config)).toEqual([]);
   });
+
+  it('F-06 AC-029 a switched-off condition with an unwired output gives no finding', () => {
+    const config = baseConfig({
+      workflows: withDefaults([threeSteps({ enabled: false, fail: undefined })]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-off condition with a forward fail route gives no finding', () => {
+    const config = baseConfig({
+      workflows: withDefaults([threeSteps({ enabled: false, fail: { kind: 'step', stepId: 'commit' } })]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-on condition with the same unwired output is still refused', () => {
+    const config = baseConfig({
+      workflows: withDefaults([threeSteps({ enabled: true, fail: undefined })]),
+      connections: [],
+    });
+    expect(validateConfig(config)).toEqual(['condition "c1": fail output is not wired']);
+  });
 });

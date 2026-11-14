@@ -240,4 +240,33 @@ describe('F-04 AC-022 review prompt lists the structural findings', () => {
 
     expect(second).toBe(first);
   });
+
+  it('F-06 AC-029 a switched-off condition is left out of the review prompt', () => {
+    const base = sampleConfig();
+    const step = base.workflows[0]?.steps[0]?.stepId ?? 'release';
+    const withOff: ProjectConfig = {
+      ...base,
+      workflows: base.workflows.map((w, index) =>
+        index === 0
+          ? {
+              ...w,
+              conditions: [
+                ...w.conditions,
+                {
+                  id: 'switched-off',
+                  enabled: false,
+                  afterStepId: step,
+                  gate: { id: 'g', type: 'checks', required: false },
+                  pass: { kind: 'next' },
+                  fail: undefined,
+                },
+              ],
+            }
+          : w,
+      ),
+    };
+    const prompt = buildReviewPrompt(withOff, STRUCTURAL);
+    expect(prompt).not.toContain('switched-off');
+    expect(prompt).toBe(buildReviewPrompt(base, STRUCTURAL));
+  });
 });

@@ -8,8 +8,9 @@ import type { AnalysisFinding, ProjectConfig, RouteTarget, Workflow } from '../m
  * `next` to the following enabled step. A step with conditions routes only through their pass and
  * fail outputs: `next` is the following enabled step, `step` a named enabled step, `stop` ends the
  * process, and an unwired fail output (undefined) has no target. Disabled steps and disabled
- * workflows are never checked and never followed. A step id listed twice is reported once, and is
- * reached if any of its occurrences is.
+ * workflows are never checked and never followed. A switched-off condition (`enabled: false`) is
+ * not a route: its step routes `next` as if it had no condition (AC-029). A step id listed twice is
+ * reported once, and is reached if any of its occurrences is.
  */
 export function reachabilityFindings(config: ProjectConfig): AnalysisFinding[] {
   return config.workflows.filter((workflow) => workflow.enabled).flatMap(unreachableFindings);
@@ -49,7 +50,7 @@ function successors(workflow: Workflow, order: readonly string[], index: number)
   if (stepId === undefined) {
     return [];
   }
-  const conditions = workflow.conditions.filter((condition) => condition.afterStepId === stepId);
+  const conditions = workflow.conditions.filter((condition) => condition.enabled && condition.afterStepId === stepId);
   const routes: RouteTarget[] =
     conditions.length === 0
       ? [{ kind: 'next' }]

@@ -177,4 +177,17 @@ describe('F-04 T004 reachability', () => {
     expect(first).toEqual([unreachable('w', 'plan'), unreachable('w', 'verify'), unreachable('x', 'commit')]);
     expect(reachabilityFindings(config)).toEqual(first);
   });
+
+  it('F-06 AC-029 a switched-off condition is not a route, so the steps after its step stay reachable', () => {
+    // With the condition on, its pass route stops the process and nothing after `specify` is reached.
+    const disabled = { ...cond('c1', 'specify', STOP, undefined), enabled: false };
+    const config = configWith(flow('w', [on('specify'), on('plan'), on('verify')], [disabled]));
+    expect(reachabilityFindings(config)).toEqual([]);
+  });
+
+  it('F-06 AC-029 a switched-on condition with the same routes still cuts the process off', () => {
+    const enabled = cond('c1', 'specify', STOP, undefined);
+    const config = configWith(flow('w', [on('specify'), on('plan'), on('verify')], [enabled]));
+    expect(reachabilityFindings(config)).toEqual([unreachable('w', 'plan'), unreachable('w', 'verify')]);
+  });
 });

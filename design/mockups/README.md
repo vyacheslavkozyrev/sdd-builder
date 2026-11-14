@@ -1,5 +1,7 @@
 # MVP screen mockups
 
+> **Superseded (2026-11-14).** These screens show the flat model (workflows as tabs of steps, a global map of workflows). The model is now commands and blocks (`spec/documents/building-blocks.md`), and the screens are in `design/features/`: the wizard in `F-05-project-brief-form/` and the map and command tabs in `F-06-visual-builder/`. Keep these files only as history.
+
 **These are wireframes, not the final UI.** They show layout, content and states, drawn before any code. Colours, fonts, icons and wording are placeholders and will change.
 
 Open `index.html` in a browser to see all screens together, or open each SVG directly.

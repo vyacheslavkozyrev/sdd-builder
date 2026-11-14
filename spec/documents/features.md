@@ -1,87 +1,94 @@
 # SDDBuilder — Features
 
-Status: draft, reviewed 2026-11-11 against the decisions in [idea.md](idea.md), [building-blocks.md](building-blocks.md) and [architecture.md](architecture.md). Screens referenced here are wireframes in `design/mockups/`, not the final UI. Each feature becomes stories and tasks later, following [process.md](process.md).
+Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting level) and blocks ([building-blocks.md](building-blocks.md)), the decisions in [idea.md](idea.md) and the architecture in [architecture.md](architecture.md). Screens referenced here are wireframes in `design/features/` (the earlier MVP set is in `design/mockups/`). Each feature becomes stories and tasks later, following [process.md](process.md).
 
 ## Overview
 
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| F-01 | Domain model and step catalog | MVP | Enabler | packages/core | 0 | — | ✅ Complete (model and catalog replaced in F-02 T002 and T003) |
-| F-02 | Generator core: workflows and steps to file tree | MVP | Enabler | packages/core | 1 | F-01 | ✅ Complete (18 tasks, 34 criteria, 99 tests) |
-| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete (17 tasks, 29 criteria, 174 tests) |
-| F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ✅ Complete (16 tasks, 22 criteria, 387 tests) |
-| F-05 | Project brief form | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
-| F-06 | Visual builder: global map and workflow tabs | MVP | User | apps/web | 2 | F-01 | ⏳ Pending |
-| F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ✅ Complete (23 tasks, 29 criteria: 28 automated, 1 device; device check passed after T020) |
+| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | packages/core | 0 | — | ↻ Built on the flat model (steps, tabs); re-scope to the pipeline and blocks |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | packages/core | 1 | F-01 | ↻ Built on the flat model (18 tasks, 34 criteria, 99 tests); re-scope |
+| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ↻ Built on the flat model (17 tasks, 29 criteria, 174 tests); re-scope |
+| F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |
+| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | apps/web | 2 | F-01 | ⏳ Pending (re-scope to the wizard) |
+| F-06 | Visual builder: the pipeline on the Map tab | MVP | User | apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope |
+| F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ↻ Built on the flat model (23 tasks, 29 criteria); re-scope |
 | F-08 | Save, import and export of projects | Post-MVP | User | apps/web | — | F-05, F-06 | Not started |
-| F-09 | Presets: Light, Standard, Full | Post-MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Pending |
+| F-09 | Presets: other starting pipelines | Post-MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Pending (re-scope to pipelines) |
 | F-10 | Generated-project self-check | Post-MVP | Enabler | packages/core | 3 | F-03 | ⏳ Pending |
 | F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not planned |
 | F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not planned |
-| F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ✅ Complete (10 tasks, 29 criteria: 28 automated, 1 device; device check passed on a real-key run) |
-| F-14 | Custom steps | MVP | User | packages/core, apps/web | 3 | F-06, F-02 | ⏳ Pending |
-| F-15 | Configurable quality gates | MVP | User | packages/core, apps/web | 2 | F-06 | ⏳ Pending |
+| F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ↻ Built (10 tasks, 29 criteria); caps re-scope to rule blocks, no modules |
+| F-14 | Custom blocks: agents | MVP | User | packages/core, apps/web | 3 | F-06, F-02 | ⏳ Pending (re-scope to custom agents) |
+| F-15 | Configurable quality gates: conditions | MVP | User | packages/core, apps/web | 2 | F-06 | ⏳ Pending (re-scope to conditions) |
 | F-16 | GitHub Spec Kit output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
 | F-17 | OpenSpec output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-18 | Process diagrams: global map, workflow tabs, presentation mode; Mermaid in process.md | MVP | User | packages/core, apps/web | 3 | F-06, F-15 | ⏳ Proposed |
+| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | packages/core, apps/web | 3 | F-06, F-15 | ⏳ Proposed |
 | F-19 | Read-only share link for clients | Post-MVP | User | apps/web | — | F-18 | Not planned |
 | F-20 | Browser-local autosave | Post-MVP | User | apps/web | — | F-06 | Not planned |
 
 **Totals:** 20 features. MVP: 11 (F-01 to F-07, F-13, F-14, F-15, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
 
+**↻ Built on the previous model.** The rows marked ↻ were built or specified on the flat model (workflows as tabs of steps, nine node kinds). Their code and their specs are not reused as they are: each is re-specified after F-01 is reworked, and its stories and tasks are rewritten to the new model. Completed work stays in the history.
+
 **Phases** are the order of work inside each scope. A feature starts only when its dependencies are complete.
 
 ## Features
 
-### F-01 Domain model and step catalog
+### F-01 Domain model: the pipeline, blocks and the default pipeline
 
-The types for `ProjectConfig`, workflows, steps, gates, branches, the map, `AnalysisResult` and `GenerationResult`, and the default step catalog (Specify, Implement, Verify and Release workflows with their steps; see `building-blocks.md` §4). The scaffold in `packages/core/src/` still has the earlier flat model and must be changed to match `building-blocks.md` before F-02.
+The types for `ProjectConfig`, the pipeline and its flows (one nesting level), the five block kinds (start, agent, condition, connection, end) and the Flow block, conditions with their fixed check types and routes, scope on agent blocks, the `AnalysisResult` and `GenerationResult`, and the default pipeline (`building-blocks.md` §4). The scaffold in `packages/core/src/` still has the flat model and must be changed to match `building-blocks.md` before F-02.
 
 ### F-02 Generator core
 
-A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules, selects the enabled workflows and steps in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. Specified in `spec/specifications/F-02-generator-core/`; that draft describes the earlier flat model and is rewritten before approval.
+A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules (`building-blocks.md` §7), selects the enabled blocks in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. Specified in `spec/specifications/F-02-generator-core/`; that draft describes the flat model and is rewritten before approval.
 
 ### F-03 Claude Code templates
 
-Layouts for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), the spec template, one `workflow-<name>.md` command per workflow, step commands, agents, skills, rule files and script steps. Taken from both reference projects (ComEd and PhotoSync) and made stack-neutral: a layout gives the file's sections, never its content. Core builds the generation input for each file and checks the model's reply against the plan. The templates hold the layout and the block descriptions; at generation the LLM writes the final content (architecture §6, decision 7). No templates contain scripts.
+Layouts for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), the spec template, the pipeline command file, one command file per flow, one agent file per Agent block, and one rule file per rule block. Taken from both reference projects (ComEd and PhotoSync) and made stack-neutral: a layout gives the file's sections, never its content. Core builds the generation input for each file and checks the model's reply against the plan. The LLM writes the final content (architecture §6, decision 7). Templates contain no scripts; a check's command is written from the brief's stack.
 
 ### F-04 Analyzer: structural checks and LLM review
 
-- *Structural (in `core`, deterministic):* missing required steps; module layers that break the dependency direction; unknown ids; empty required fields; and the workflow rules of `building-blocks.md`: no cycles on the map, every input produced upstream, both outputs of every condition wired, every step reachable, and a warning on retries with no round limit.
-- *Semantic (in `apps/api`, LLM):* a fixed review prompt over the brief and the process; output validated against the `AnalysisFinding` shape; invalid output dropped and counted. Covers gaps in the idea, contradictory or unverifiable rules, test rules that name tools outside the stack, and suggested steps. Advice only.
+- *Structural (in `core`, deterministic):* the rules of `building-blocks.md` §7: one Start block per flow, connections that join two blocks or two flows, only the pipeline contains flows, both outputs of every condition wired, every block reachable, no cycles apart from retries, unique agent names, and a warning on a retry with no round limit. Plus empty required fields and unknown ids.
+- *Semantic (in `apps/api`, LLM):* a fixed review prompt over the brief and the process; output validated against the `AnalysisFinding` shape; invalid output dropped and counted. Covers gaps in the idea, contradictory or unverifiable rules, test rules that name tools outside the stack, and suggested blocks. Advice only.
 - Structural findings are returned even when the LLM step fails.
 
-### F-05 Project brief form
+### F-05 Project wizard
 
-Idea and structured fields for stack, architecture modules, code rules and test rules. Validation matches `model.ts`. The privacy notice is shown before analysis, and Analyze stays disabled until it is accepted (wireframe `02-brief.svg`). A Project name field is required and maps to `name`. The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` to `apps/api` (`architecture.md` §6, decision 13).
+Four steps (`design/features/F-05-project-brief-form/`):
 
-### F-06 Visual builder: global map and workflow tabs
+1. **Project name and idea.** The name is required. The idea has a counter (8,000 characters).
+2. **Technical details.** Architecture style; language, framework, test framework and build tool. Code rules are rule blocks: each has a title and a body, and becomes one Markdown file in `.claude/rules/`. No module list.
+3. **Workflow.** The builder (F-06), showing the pipeline on the Map tab.
+4. **Analyze and generate.** The privacy notice with a checkbox before Analyze; the findings; Generate; the file tree; Download zip after generation (F-07).
 
-- **Global map:** add, remove and connect workflows. Each workflow shows its scope, its iteration source and counts of steps, gates and branches. Connections carry an optional artifact label and an optional gate. Cycles are refused (wireframe `07-map.svg`).
-- **Workflow tabs:** one tab per workflow. Adding a tab creates a workflow. Within a tab: add, remove, reorder and switch on or off steps, gates and branch routes. Required steps cannot be removed. Each step's inspector shows the file it generates and its rule-set tags (wireframe `01-builder.svg`).
+The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only. A Project name field maps to `name`.
+
+### F-06 Visual builder: the Map tab and the flow tabs
+
+Screens: `design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
+
+- **Map tab (the pipeline).** The pipeline's child flows in order, as nodes. Connections between flows carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. A toolbox holds Flow, Condition and Connection. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are shown above the diagram.
+- **Flow tabs.** One tab per child flow, with its blocks in order and a toolbox of Start, Agent, Condition, Connection and End. A flow has one Start and at least one End.
+- **Property panels** for each block (Start, Agent, Condition, Connection, End, Flow), as `building-blocks.md` §3 lists them. Every block shows its generated file and its rule tags.
+- Blocks and flows can be switched off; a switched-off item stays in place with its properties.
 - The state lives in the browser session only. Reloading clears it (see F-20).
 
 ### F-07 API and zip download
 
-`POST /analyze` and `POST /generate`. Generation returns a zip with the file tree. Stateless. Input is validated against the model.
+`POST /analyze` and `POST /generate`. Generation returns a zip with the file tree. Stateless. Input is validated against the model. The wizard's step 4 calls analyze, then generate, then the zip download.
 
 ### F-08 Save, import and export (post-MVP)
 
 Export the project as JSON, import it back, and check `schemaVersion` on import. Not in the MVP: the MVP keeps no state between visits. Its design (file format, migration, what is stored) is specified when it is planned.
 
-### F-09 Presets (post-MVP)
+### F-09 Presets: other starting pipelines (post-MVP)
 
-Starting points for a new project, as sets of workflows and steps:
-
-- **Light:** Specify and Implement, with the approval and commit gates.
-- **Standard:** adds the review and test branches.
-- **Full:** adds Verify, Release and optional Research.
-
-Presets are starting points; the builder can change them.
+Starting pipelines other than the default one, as sets of blocks, for example a lighter pipeline without the UX phase or without the review loop. The default pipeline is in F-01. Presets are starting points; the builder can change them.
 
 ### F-10 Generated-project self-check (post-MVP)
 
-After generation, every path named in a generated command, agent, skill or script must exist in the output. Mismatches are reported as warnings.
+After generation, every path named in a generated command or agent file must exist in the output. Mismatches are reported as warnings.
 
 ### F-11 Cursor target (post-MVP)
 
@@ -96,28 +103,28 @@ Maps the Claude layout to `.github/copilot-instructions.md`, `.github/instructio
 Needed because the service is anonymous and calls a paid model:
 
 - Per-client rate limit on `/analyze` and `/generate`, in memory.
-- Input caps on the idea text, the number of modules and the number of rules; requests over the cap are rejected before any LLM call.
+- Input caps on the idea text (8,000 characters) and on the number of rule blocks (60); requests over the cap are rejected before any LLM call.
 - A configured daily ceiling on analyzer calls; once reached, analysis returns structural findings only.
 - Timeout and maximum output size on each LLM call.
 - No brief content in logs or error reports; the privacy notice in F-05 is tested.
 
-Numeric limits are set when the feature is specified.
+The limits are as in `architecture.md` §6, decision 12. The module cap is removed with the module list.
 
-### F-14 Custom steps
+### F-14 Custom blocks: agents
 
-- Authoring: a form for id, name, summary, kind (command, agent, skill or script), the workflow it belongs to, `consumes`, `produces`, and the body (Markdown; for an agent, its tools and model). Ids are checked against the catalog and other custom steps (wireframe `04-custom-block.svg`).
-- Always optional (`required: false`); the form does not offer the option.
+- Authoring: a form for an agent (name, description, scope, model, tools, body), placed in a flow. Ids are checked against the other ids in the project.
+- Always optional; the form does not offer the option to make a custom block required.
 - Size-capped body (the cap is set when the feature is specified).
-- Generation writes custom steps like catalog steps, into `.claude/commands/`, `.claude/agents/` or `.claude/skills/`.
-- The analyzer (F-04) checks custom steps structurally and, in the LLM review, for contradictions with the brief.
+- Generation writes custom agents into `.claude/agents/`.
+- The analyzer (F-04) checks custom blocks structurally and, in the LLM review, for contradictions with the brief.
 
-### F-15 Configurable quality gates
+### F-15 Configurable quality gates: conditions
 
-Four gate types, fixed (`architecture.md` §9): `approval`, `checks`, `review`, `diff-size`. The user sets thresholds, moves gates, adds or removes optional gates, and can place a gate on a map connection. Each gate's fail output stops the process, unless the gate is used as a branch (see `building-blocks.md` §3). Generation writes the gates into the workflow commands and `process.md`.
+Four check types, fixed (`architecture.md` §9): `approval`, `checks`, `review`, `diff-size`. The user sets the description, the threshold (diff size), the decider, the pass and fail routes, and the round limit. A condition's fail output stops the process, unless it is used as a branch (`building-blocks.md` §3). Gates sit between blocks of a flow, or on a connection between two flows of the pipeline. Generation writes the conditions into the command file of their flow (or into the pipeline command, between flows) and into `process.md`. A condition decided by a human is asked by the pipeline command in the main session; agents never ask.
 
 ### F-16 GitHub Spec Kit output (post-MVP, first after the MVP)
 
-An adapter that writes the Spec Kit layout (`.specify/` artifacts, the constitution, `/speckit-*` commands) from the same model. Covers the steps that map; gaps are written into the generated notes. Verify paths and command names against the repository first.
+An adapter that writes the Spec Kit layout (`.specify/` artifacts, the constitution, `/speckit-*` commands) from the same model. Covers the blocks that map; gaps are written into the generated notes. Verify paths and command names against the repository first.
 
 ### F-17 OpenSpec output (post-MVP, first after the MVP)
 
@@ -125,7 +132,7 @@ An adapter that writes `openspec/` (specs, changes with `proposal.md`, `design.m
 
 ### F-18 Process diagrams (MVP)
 
-The global map and the workflow tabs are drawn from the model as they are edited. Gates are decision points; disabled steps are greyed out. The presentation mode shows the global map full-screen for client conversations, with a plain-language key (wireframe `03-presentation.svg`). The generated `process.md` carries the same process as a Mermaid flowchart. No Miro step and no image export in the MVP.
+The Map tab is drawn from the model as it is edited. Conditions are decision points; switched-off blocks are greyed out. The presentation mode shows the pipeline full-screen for client conversations, with a plain-language key (wireframe to be drawn for the new map). Connections may be hidden there. The generated `process.md` carries the pipeline as a Mermaid flowchart. No Miro step and no image export in the MVP.
 
 ### F-19 Read-only share link (post-MVP)
 
@@ -133,4 +140,4 @@ A link a client can open to see the process without editing it. Proposed design:
 
 ### F-20 Browser-local autosave (post-MVP)
 
-Keeps the builder state in the browser between reloads, as a per-viewer convenience. It is not a saved project and it is not shared. Post-MVP, so the MVP keeps nothing between visits (the brief screen says so).
+Keeps the builder state in the browser between reloads, as a per-viewer convenience. It is not a saved project and it is not shared. Post-MVP, so the MVP keeps nothing between visits (the wizard says so).

@@ -2,7 +2,16 @@
 
 Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`).
 
-Phases of a feature: Specify → Plan → **UX** (SVG screens, approved by the user) → Build → Verify. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `scripts/task-check.sh`, not Swift tooling.
+Phases of a feature: Specify → **UX** (SVG screens, approved by the user) → Plan → Build → Verify → Complete. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `scripts/task-check.sh`, not Swift tooling.
+
+## The default process: the pipeline as commands
+
+The default process of SDDBuilder is the pipeline in `.claude/commands/pipeline.md`, defined on the Map tab as flows (`building-blocks.md` §4). Only the pipeline contains flows; a flow contains blocks.
+
+- The pipeline takes a feature ID and runs the phases `specify`, `ux` and `plan` (each with a human approval), `build` (once per task in `plan.md`: `implement`, `review`, `test`, the diff-size guard, `commit`), `verify` and `complete`.
+- Each phase is a flow; the approvals and checks between the flows are gates.
+
+A project that uses another process edits the pipeline on the Map tab; the pipeline is the default, not a requirement.
 
 ## Principles
 

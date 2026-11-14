@@ -206,6 +206,7 @@ describe('F-05 AC-001 to AC-010 field problems together', () => {
       'idea',
       'stack.language',
       'architecture.style',
+      'architecture.modules',
     ]);
   });
 
@@ -230,5 +231,76 @@ describe('F-05 AC-019 valid brief builds an accepted configuration', () => {
     }
     const result = parseProjectConfig(built.config);
     expect(result.ok).toBe(true);
+  });
+});
+
+describe('F-05 AC-027 module name is required', () => {
+  it.each([
+    ['an empty name', ''],
+    ['a whitespace-only name', '   '],
+    ['a tab-only name', '\t'],
+  ])('F-05 AC-027 gives a problem at the name path of the module for %s', (_label, name) => {
+    const brief = wireframeBrief();
+    brief.architecture.modules[1] = { name, layer: '1', responsibility: 'HTTP', dependsOn: '' };
+    expect(validateBrief(brief)).toEqual([
+      { path: 'architecture.modules[1].name', reason: 'module 2 name is required' },
+    ]);
+  });
+
+  it('F-05 AC-027 treats a name of only spaces as blank, not as a name', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules[0] = { name: '    ', layer: '0', responsibility: 'Types', dependsOn: '' };
+    expect(validateBrief(brief).map((problem) => problem.path)).toEqual([
+      'architecture.modules[0].name',
+    ]);
+  });
+
+  it('F-05 AC-027 runs even when the idea is blank, and reports both in form order', () => {
+    const brief = wireframeBrief();
+    brief.idea = '';
+    brief.architecture.modules[1]!.name = '';
+    expect(validateBrief(brief).map((problem) => problem.path)).toEqual([
+      'idea',
+      'architecture.modules[1].name',
+    ]);
+  });
+
+  it('F-05 AC-027 runs alongside a bad layer and reports both', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules[2] = { name: '', layer: '-1', responsibility: 'Visual', dependsOn: '' };
+    expect(validateBrief(brief)).toEqual([
+      { path: 'architecture.modules[2].name', reason: 'module 3 name is required' },
+      { path: 'architecture.modules[2].layer', reason: 'module 3 layer must be a whole number of 0 or more' },
+    ]);
+  });
+
+  it('F-05 AC-027 gives a fixed reason that does not depend on the typed spaces', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules[0]!.name = '  ';
+    expect(validateBrief(brief)).toEqual([
+      { path: 'architecture.modules[0].name', reason: 'module 1 name is required' },
+    ]);
+  });
+
+  it('F-05 AC-027 accepts a real module name padded with spaces', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules[0]!.name = '  core  ';
+    expect(validateBrief(brief)).toEqual([]);
+  });
+});
+
+describe('F-05 AC-028 at least one module is required', () => {
+  it('F-05 AC-028 gives a problem at architecture.modules for an empty module list', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules = [];
+    expect(validateBrief(brief)).toEqual([
+      { path: 'architecture.modules', reason: 'needs at least one module' },
+    ]);
+  });
+
+  it('F-05 AC-028 accepts a single module', () => {
+    const brief = wireframeBrief();
+    brief.architecture.modules = [wireframeBrief().architecture.modules[0]!];
+    expect(validateBrief(brief)).toEqual([]);
   });
 });

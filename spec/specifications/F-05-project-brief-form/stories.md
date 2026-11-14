@@ -74,6 +74,8 @@ Decisions taken in this specification (the user is asked to approve them):
 - [ ] AC-009 `[auto]`: "Add module" adds one row with name, layer, responsibility and depends-on. Depends-on is a comma-separated list of module names: blanks are dropped and the order is kept.
 - [ ] AC-010 `[auto]`: A layer that is not a whole number of 0 or more gives a problem at that module's layer path and disables Analyze. The problem names the module's position in the list, not the value typed.
 - [ ] AC-011 `[auto]`: Removing a module removes its row. A depends-on entry that names no module is kept in the configuration, so `/analyze` reports it; the form does not drop it silently.
+- [ ] AC-027 `[auto]`: A module row with a blank name gives a problem at that module's name path and disables Analyze, even though the model accepts an empty name. The check runs even when another field has a problem.
+- [ ] AC-028 `[auto]`: With no modules at all, the modules entry in the progress panel is not ✓; it shows as incomplete until at least one module is listed and valid.
 
 ### US-004: Describe the code and test rules
 
@@ -153,7 +155,7 @@ Decisions taken in this specification (the user is asked to approve them):
 |---|---|
 | Idea and structured fields: the idea, and the project name the model requires | AC-001, AC-002, AC-003, AC-004 |
 | Structured fields for stack | AC-005, AC-006, AC-007 |
-| Structured fields for architecture modules | AC-008, AC-009, AC-010, AC-011 |
+| Structured fields for architecture modules | AC-008, AC-009, AC-010, AC-011, AC-027, AC-028 |
 | Structured fields for code rules and test rules | AC-012, AC-013 |
 | Validation matches `model.ts` (checked with `parseProjectConfig`) | AC-004, AC-005, AC-008, AC-010, AC-016, AC-019 |
 | Privacy notice shown before analysis | AC-014, AC-015 |

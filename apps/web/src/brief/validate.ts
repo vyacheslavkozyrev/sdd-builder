@@ -28,6 +28,17 @@ function layerProblem(index: number): ConfigProblem {
   };
 }
 
+/**
+ * The problem of one module's name that is blank or whitespace-only. The core model accepts an
+ * empty name, so this check is the form's own (F-05 AC-027). It does not echo the typed value.
+ */
+function moduleNameProblem(index: number): ConfigProblem {
+  return {
+    path: `architecture.modules[${index}].name`,
+    reason: `module ${index + 1} name is required`,
+  };
+}
+
 /** The problems of the fields the form owns, in form order. Layers are checked by the build. */
 function fieldProblems(brief: BriefState): ConfigProblem[] {
   const problems: ConfigProblem[] = [];
@@ -41,15 +52,24 @@ function fieldProblems(brief: BriefState): ConfigProblem[] {
   if (brief.architecture.style.trim() === '') {
     problems.push({ path: 'architecture.style', reason: 'is required' });
   }
+  if (brief.architecture.modules.length === 0) {
+    problems.push({ path: 'architecture.modules', reason: 'needs at least one module' });
+  }
+  brief.architecture.modules.forEach((row, index) => {
+    if (row.name.trim() === '') {
+      problems.push(moduleNameProblem(index));
+    }
+  });
   return problems;
 }
 
 /**
  * Validates the brief and returns one problem per failing field, in form order (F-05 AC-001,
- * AC-004, AC-005, AC-008, AC-010). The layers are checked by the same build that makes the
- * configuration, so a bad layer and its problem cannot disagree. When the fields and layers pass,
- * the built configuration is checked by `parseProjectConfig`, and its problems are returned at
- * their own paths, which are the form field paths. An empty list means the brief is valid (AC-019).
+ * AC-004, AC-005, AC-008, AC-010, AC-027, AC-028). The field checks, including the module names
+ * and the presence of at least one module, always run, so no problem hides another. The layers are
+ * checked by the same build that makes the configuration, so a bad layer and its problem cannot
+ * disagree. `parseProjectConfig` runs only when no field problem exists; its problems are returned
+ * at their own paths, which are the form field paths. An empty list means the brief is valid (AC-019).
  */
 export function validateBrief(brief: BriefState): ConfigProblem[] {
   const problems = fieldProblems(brief);

@@ -4,7 +4,22 @@
   "private": true,
   "description": "Visual configurator: SDLC block editor and project brief form.",
   "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "dev": "vite",
+    "build": "vite build"
+  },
   "dependencies": {
-    "@sddbuilder/core": "*"
+    "@sddbuilder/core": "*",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "vite": "^7.3.8",
+    "vitest": "^3.2.4"
   }
 }

@@ -5,6 +5,8 @@ import { checkMap } from './map.js';
 import { checkRoutes } from './routes.js';
 import { checkPolicy } from './policy.js';
 
+export { wouldCreateCycle } from './map.js';
+
 /** Every structural problem in a configuration, in the order the checks run. */
 export function validateConfig(config: ProjectConfig): string[] {
   return [...checkDuplicateIds(config), ...checkMap(config), ...checkRoutes(config), ...checkPolicy(config)];

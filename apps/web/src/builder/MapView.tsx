@@ -8,6 +8,7 @@ import type { Connection, Edge, Node, NodeChange, XYPosition } from '@xyflow/rea
 import '@xyflow/react/dist/style.css';
 import type { Scope } from '@sddbuilder/core';
 import { addWorkflow, connect, removeWorkflow, startState } from './map-state.js';
+import { ConnectionEditor } from './ConnectionEditor.js';
 import type { MapState } from './map-state.js';
 import { edgeText, mapEdges, mapNodes } from './map-view.js';
 import type { MapNode } from './map-view.js';
@@ -46,6 +47,9 @@ export function MapView() {
   const [message, setMessage] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [scope, setScope] = useState<Scope>('feature');
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+  // A removed workflow takes its connections with it, so the panel may have nothing to show.
+  const selectedConnection = map.connections.find((c) => c.id === selectedEdgeId);
 
   const nodes: Node[] = mapNodes(map.workflows).map((node, index) => ({
     id: node.id,
@@ -145,6 +149,8 @@ export function MapView() {
           edges={edges}
           onNodesChange={handleNodesChange}
           onConnect={handleConnect}
+          onEdgeClick={(_event, edge) => setSelectedEdgeId(edge.id)}
+          onPaneClick={() => setSelectedEdgeId(null)}
           deleteKeyCode={null}
           fitView
         >
@@ -152,6 +158,15 @@ export function MapView() {
           <Controls />
         </ReactFlow>
       </div>
+
+      {selectedConnection !== undefined && (
+        <ConnectionEditor
+          key={selectedConnection.id}
+          map={map}
+          connection={selectedConnection}
+          onChange={setMap}
+        />
+      )}
 
       <ul>
         {map.workflows.map((workflow) => (

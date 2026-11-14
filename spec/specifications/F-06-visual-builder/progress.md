@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 10 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 11 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | Tab list and condition switches (pure): `tabsFor` in map order; `addTab` uses the addWorkflow rules; `setConditionEnabled` keeps round limits and refuses switching off a required gate | reviewed: 0 blockers, 4 warnings fixed (refusal tests assert unchanged input and messages), 0 suggestions fixed; 2 suggestions deferred | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests (web tab-state tests) |
 | T009 | Inspector read model (pure): `stepInspector` gives produced files, a no-file text when there are none, and rule-set tags; returns copies | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (test names); 1 suggestion deferred (catalog `produces` values are not all file names) | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests (inspector 12 tests) |
 | T010 | Global map view with React Flow (`@xyflow/react` 12.12.1, exact): add, remove and connect workflows through the tested state; edge text from the read model; layout kept in React memory. AC-019 device check pending | reviewed: 0 blockers, 3 warnings fixed (edge text moved to `map-view.ts`; position and selection kept across re-renders; removed workflow's layout dropped), 0 suggestions applied; 1 suggestion deferred | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests; `apps/web` build passed |
+| T011 | Connection editor: sets the artifact label and gate of the selected connection through `setArtifact` and `setGate`; refusals shown and state kept | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (input shows the stored label); 2 suggestions deferred (gate list repeated in the view; refusal stays until next save) | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests; `apps/web` build passed |
 
 ---
 
@@ -49,6 +50,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T008 review, SUGGESTION: `apps/web/src/builder/tab-state.ts` `refuse` duplicates the helper in `map-state.ts` and `step-state.ts`. Kept to match the sibling modules; extracting it would touch T005 and T007 files outside this task.
 - T009 review, SUGGESTION for the user: `apps/web/src/builder/inspector-view.ts` `files` and `producesText` show catalog `produces` values that are not file names (`code`, `tests`, `review notes`, `test results`, `commit`, `release notes`, see `packages/core/src/catalog.ts`). AC-033 says "files it produces, taken from its catalog", so the values are shown as the catalog gives them; a label or a catalog change is a decision for the user, left open for T013.
 - T010 review, SUGGESTION: `apps/web/src/builder/MapView.tsx` `SCOPES` repeats the scope list that `packages/core/src/parse-config.ts` keeps private. Left in the view, as a list of select options; exporting it from core would touch a core file outside T010.
+- T011 review, SUGGESTION: `apps/web/src/builder/ConnectionEditor.tsx` `GATE_OPTIONS` repeats the four gate types of `GATE_TYPES` in `map-state.ts`. Left as select options; exporting the list from map-state would touch a T005 file outside T011.
+- T011 review, SUGGESTION: `apps/web/src/builder/ConnectionEditor.tsx` the refusal alert stays until the next save rather than clearing on each keystroke. Clearing it would add handlers to three inputs for little gain; no rule or criterion is affected.
 - T008 review, SUGGESTION: `apps/web/test/builder-tab-state.test.ts` the reference non-required gate test (`criteria-covered`) sits under the AC-030 heading; it proves the negative side of AC-030. Relabelling is cosmetic and left as is.
 
 ---

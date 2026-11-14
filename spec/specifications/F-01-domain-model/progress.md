@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user as written; 26 criteria, all `[auto]`. Decisions: scope is types, default pipeline and parsing; ids user-given and file-safe; default pipeline in `templates/pipeline/default.json`, imported at build time; one pipeline per project; schemaVersion 2 |
 | UX       | ➖ Not needed |      | No user interface in F-01 |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 9 tasks; transition: the new model lives in `packages/core/src/pipeline/` beside the flat model until F-02 to F-07 are rebuilt |
-| Build    | 🔄 In Progress | 2026-11-14 | 5 of 9 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 6 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T003 | Pipeline model types in `packages/core/src/pipeline/model.ts`: ProjectConfig v2, pipeline, flows (blocks only), block kinds, conditions with fixed check types, routes; pipeline gates link to their connection | reviewed: 0 blockers, 2 warnings fixed (gate link; AC-002 tag), 3 suggestions deferred | task check passed (exit 0), core 544 tests |
 | T004 | Problem list `parsePipelineConfig`, id rule for block, flow, argument and agent ids, unknown keys refused, schemaVersion 2; blocks returned unchecked until T005 to T007 | reviewed: 1 blocker, 2 warnings, 2 suggestions fixed (no cast of unchecked blocks; pipeline name is free text) | task check passed (exit 0), 588 tests |
 | T005 | Structure of the parse: block kinds per list, one Start and at least one End per flow, one nesting level, enabled, unique ids and agent names; structural types, no cast (Amendment 1) | reviewed: 0 blockers, 4 warnings, 3 suggestions fixed (tests for enabled, repeated ids, invalid ids; AC tags) | task check passed (exit 0), 643 tests |
+| T006 | Scope on Agent blocks; pipeline Start arguments (name, required, hint); child Start refuses arguments; Start and Agent converted to model types, no cast | reviewed: 0 blockers, 3 warnings, 1 suggestion fixed (tests: dropped-block paths, pipeline Start unknown key) | task check passed (exit 0), 671 tests |
 
 ---
 

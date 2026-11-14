@@ -2,7 +2,7 @@
 // the Start and End rules, and the uniqueness of ids and agent names. The own fields of a block
 // are kept as read here; the field-level rules of Agent and Condition blocks are checked later
 // (parse-scope.ts, parse-condition.ts), which type them as the model types.
-import { isValidId } from './ids.js';
+import { ID_MESSAGE, isValidId } from './ids.js';
 import {
   childPath,
   indexPath,
@@ -21,8 +21,6 @@ type BlockKind = (typeof ALL_KINDS)[number];
 const PIPELINE_KINDS: readonly BlockKind[] = ['flow', 'condition', 'connection', 'start', 'end'];
 const CHILD_KINDS: readonly BlockKind[] = ['start', 'agent', 'condition', 'connection', 'end'];
 
-const ID_MESSAGE = 'must be lowercase letters, digits and hyphens, starting with a letter';
-
 /** The own fields of a block as read, including `kind`, `id` and `enabled`. */
 export type Fields = Readonly<Obj>;
 
@@ -31,6 +29,8 @@ export interface Structure<K extends BlockKind> {
   kind: K;
   id: string;
   enabled: boolean;
+  /** The dotted path of the block, for the problems its own fields add later. */
+  path: string;
   fields: Fields;
 }
 
@@ -175,13 +175,13 @@ function parseChild(value: unknown, path: string, registry: Registry, problems: 
   switch (kind) {
     case 'agent': {
       const name = readUniqueId(obj, 'name', path, registry.agentNames, 'is already used by another agent', problems);
-      return name === undefined ? undefined : { kind, id, enabled, name, fields: obj };
+      return name === undefined ? undefined : { kind, id, enabled, name, path, fields: obj };
     }
     case 'start':
     case 'condition':
     case 'connection':
     case 'end':
-      return { kind, id, enabled, fields: obj };
+      return { kind, id, enabled, path, fields: obj };
     case 'flow':
       return undefined;
   }
@@ -200,7 +200,7 @@ function parseFlow(head: Head, path: string, registry: Registry, problems: Pipel
   const list = readList(head.obj, 'blocks', path, problems);
   const blocks = list === undefined ? undefined : parseChildList(list, childPath(path, 'blocks'), registry, problems);
   if (head.id === undefined || head.enabled === undefined || blocks === undefined) return undefined;
-  return { kind: 'flow', id: head.id, enabled: head.enabled, fields: head.obj, blocks };
+  return { kind: 'flow', id: head.id, enabled: head.enabled, path, fields: head.obj, blocks };
 }
 
 function parsePipelineBlock(
@@ -219,7 +219,7 @@ function parsePipelineBlock(
     case 'condition':
     case 'connection':
     case 'end':
-      return { kind, id, enabled, fields: obj };
+      return { kind, id, enabled, path, fields: obj };
     case 'agent':
       return undefined;
   }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Condition, Gate, MapConnection, RouteTarget, Workflow, WorkflowStep } from '@sddbuilder/core';
-import { mapEdges, mapNodes } from '../src/builder/map-view.js';
+import { edgeText, mapEdges, mapNodes } from '../src/builder/map-view.js';
 
 function gate(type: Gate['type'] = 'checks'): Gate {
   return { id: `${type}-gate`, type, required: true };
@@ -176,5 +176,29 @@ describe('F-06 AC-008 connection gate type', () => {
 
   it('F-06 AC-008 returns no edges for no connections', () => {
     expect(mapEdges([])).toEqual([]);
+  });
+});
+
+describe('F-06 AC-007 AC-008 edge text on the map', () => {
+  const base = { id: 'c', from: 'a', to: 'b' };
+
+  it('F-06 AC-007 AC-008 joins the artifact label and the gate type', () => {
+    const [edge] = mapEdges([{ ...base, artifact: 'plan.md', gate: gate('review') }]);
+    expect(edgeText(edge!)).toBe('plan.md · review');
+  });
+
+  it('F-06 AC-007 shows only the label when there is no gate', () => {
+    const [edge] = mapEdges([{ ...base, artifact: 'plan.md' }]);
+    expect(edgeText(edge!)).toBe('plan.md');
+  });
+
+  it('F-06 AC-008 shows only the gate type when there is no label', () => {
+    const [edge] = mapEdges([{ ...base, gate: gate('diff-size') }]);
+    expect(edgeText(edge!)).toBe('diff-size');
+  });
+
+  it('F-06 AC-007 AC-008 is empty for a connection with neither label nor gate', () => {
+    const [edge] = mapEdges([{ ...base, artifact: '  ' }]);
+    expect(edgeText(edge!)).toBe('');
   });
 });

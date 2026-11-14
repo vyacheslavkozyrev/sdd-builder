@@ -43,6 +43,11 @@ export function mapNodes(workflows: readonly Workflow[]): MapNode[] {
   });
 }
 
+/** The text drawn on an edge: the artifact label, the gate type, or both joined; empty when neither. */
+export function edgeText(edge: MapEdge): string {
+  return [edge.label, edge.gateType].filter((part) => part !== null).join(' · ');
+}
+
 /** One edge per connection. A blank artifact label is no label. */
 export function mapEdges(connections: readonly MapConnection[]): MapEdge[] {
   return connections.map((connection) => ({

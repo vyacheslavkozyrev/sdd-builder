@@ -7,7 +7,7 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 36 criteria (34 `[auto]`, 2 `[device]`). Decisions: React Flow for the map; reference process as the start state; model gets `enabled` on conditions; step removal refused while a route points to it. |
 | Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-13 | 3 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-13 | 4 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T001 | Record the F-06 decisions: React Flow row in `architecture.md` §5; disabled-condition rule in `building-blocks.md` §2 | reviewed: 0 blockers, 1 warning fixed (log entry moved to this table), 0 suggestions | `scripts/task-check.sh` passed: typecheck, 37 files, 492 tests (no code changed) |
 | T002 | Condition gets a required `enabled` flag: model, parser (required boolean), catalog defaults on, `selectConditions` skips switched-off conditions; fixtures updated | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (fixture field order) | `scripts/task-check.sh` passed: typecheck, 37 files, 499 tests |
 | T003 | Disabled conditions are left out of every check and output: routes, orphan `afterStepId`, policy, retries, reachability, review prompt (mermaid and rules text via `selectConditions`); amendment 1 added `validate/map.ts` and `validate/policy.ts` | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (over-long test lines); amendment 1 re-reviewed | `scripts/task-check.sh` passed: typecheck, core 516 tests, other packages green |
+| T004 | `wouldCreateCycle(connections, from, to)` in `validate/map.ts`: self-links and cycle-closing connections refused; table-driven tests | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (test name) | `scripts/task-check.sh` passed: typecheck, 37 files, 529 tests |
 
 ---
 

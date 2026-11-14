@@ -145,7 +145,7 @@ Decisions taken in this specification (the user is asked to approve them):
 
 #### Acceptance Criteria
 
-- [ ] AC-026 `[device]`: At phone width the form has a 16px side gutter and no horizontal page scroll. The five numbered sections, the progress panel, the privacy notice and Analyze appear in the order of `02-brief.svg`.
+- [ ] AC-026 `[device]`: At phone width the form has a 16px side gutter and no horizontal page scroll. The five numbered sections, the privacy notice, Analyze and then the progress panel appear in the order of `02-brief.svg`. The "Other problems to fix" list appears only when a problem has no field of its own.
 
 ---
 

@@ -54,7 +54,64 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+_Criteria coverage matrix and manual checklist outcome. Verify run on 2026-11-13 (branch `main`, clean tree, all 11 tasks committed)._
+
+**Check:** `scripts/task-check.sh` passed (exit 0). Core 37 files, 492 tests; web 8 files, 191 tests (`apps/web/test`); typecheck ok.
+
+**Gaps:** none. All 24 `[auto]` criteria have at least one passing test. The two `[device]` criteria are in `checklist.md`.
+
+### Coverage matrix
+
+Test files are in `apps/web/test/`. Each name below is the criterion prefix `F-05 AC-###` followed by the test title.
+
+| Criterion | Tag | Covering tests (file: test) | Result |
+|---|---|---|---|
+| AC-001 | auto | brief-validation: idea is required; gives a problem at idea for blank and whitespace text | pass |
+| AC-002 | auto | brief-validation: accepts an idea of exactly 8,000 characters; gives a problem at idea for 8,001 characters | pass |
+| AC-003 | auto | brief-validation: idea counter; reads the counter for each length (312 gives `312 / 8,000`) | pass |
+| AC-004 | auto | brief-validation: project name is required; gives a problem at name for blank text | pass |
+| AC-005 | auto | brief-validation: stack language is required; gives a problem at stack.language for blank text | pass |
+| AC-006 | auto | brief-config: optional stack fields; leaves each blank optional field out of stack | pass |
+| AC-007 | auto | brief-config: trimmed values; stores the framework trimmed | pass |
+| AC-008 | auto | brief-validation: architecture style is required; gives a problem at architecture.style for blank text | pass |
+| AC-009 | auto | brief-depends: depends-on split; splits the text into names in order; gives an empty array for no dependencies | pass (row add is UI, see note) |
+| AC-010 | auto | brief-validation: module layer is a whole number of 0 or more; reports the position of the row, not the value typed; brief-config: parse layer text; brief-placement | pass |
+| AC-011 | auto | brief-depends: unmatched depends-on names; keeps a name that matches no module, in place | pass (row remove is UI, see note) |
+| AC-012 | auto | brief-depends: rule lists; sets the code and test rules, dropping blanks; gives empty arrays when there are no rules | pass (add and remove are UI, see note) |
+| AC-013 | auto | brief-gate: progress panel | pass |
+| AC-014 | auto | brief-gate: privacy notice (compares with `PRIVACY_NOTICE` from `src/brief/privacy.ts`) | pass |
+| AC-015 | auto | brief-gate: checkbox starts unticked | pass |
+| AC-016 | auto | brief-gate: Analyze needs a valid brief | pass |
+| AC-017 | auto | brief-gate: unticking the checkbox disables Analyze again | pass |
+| AC-018 | auto | analyze-request: sends POST /analyze with a JSON content type and the built configuration; sends the configuration for the wireframe brief. brief-config: builds the wireframe brief into the expected configuration; copies the core workflows and connections | pass |
+| AC-019 | auto | brief-validation: valid brief builds an accepted configuration; gives a configuration that parseProjectConfig accepts. brief-config: builds a body that the core model accepts | pass |
+| AC-020 | auto | analyze-request: refuses a second start while the first request is pending; releases the guard on success and on failure | pass (disabled button and waiting text are UI, see note) |
+| AC-021 | auto | analyze-result: structural findings as table rows; does not sort the rows by severity | pass |
+| AC-022 | auto | analyze-result: failed notice names the status; skipped notice names the status; ok with review findings gives them in order | pass |
+| AC-023 | auto | analyze-request: gives ok false with the fixed message for a network error and non-200 replies; leaves the brief untouched after a failure | pass (on-page display is UI, see note) |
+| AC-024 | auto | analyze-request: writes nothing to localStorage, sessionStorage or indexedDB when the brief is filled in and analyzed | pass |
+| AC-025 | device | checklist.md, AC-025 | pending (manual) |
+| AC-026 | device | checklist.md, AC-026 | pending (manual) |
+| AC-027 | auto | brief-validation: module name is required; gives a problem at the name path; runs even when the idea is blank. brief-gate: keeps Analyze disabled for a blank module name even when ticked | pass |
+| AC-028 | auto | brief-validation: at least one module is required; gives a problem at architecture.modules for an empty list. brief-gate: progress shows modules incomplete with no modules; keeps Analyze disabled with the box ticked | pass |
+
+**Scope (`features.md` F-05):** covered by the criteria. Idea and structured fields (AC-001 to AC-004, AC-005 to AC-012); validation against `model.ts` (AC-019); privacy notice and Analyze gate (AC-014 to AC-017); Analyze request and review (AC-018 and AC-020 to AC-023); nothing saved (AC-024, AC-025); phone layout (AC-026).
+
+**Notes (not gaps):**
+
+- Rows add and remove (AC-009, AC-011, AC-012), the disabled Analyze button and the waiting text (AC-015 to AC-017, AC-020), and the on-page error (AC-023) are wired in `ModuleRows.tsx`, `RuleList.tsx`, `PrivacyGate.tsx` and `AnalysisPanel.tsx`. The tests cover the logic they call, not the rendered elements, because `qa.md` allows no component or browser tests in the MVP. The device run in `checklist.md` observes them.
+- AC-003's example text is 312 characters; the test uses 312 repeated characters and checks the count, not the sentence.
+- AC-026 wording lists the progress panel before the privacy notice. `design/mockups/02-brief.svg` and the code put Progress after Analyze. The checklist asks the user to confirm which order is wanted.
+- Deferred from T010 (client timeout) and T011 (plan wording) are unchanged; see Deferred Findings.
+
+### Manual checklist
+
+Full steps are in `checklist.md` in this folder. Status:
+
+- AC-025 (reload clears the brief and the checkbox): pending, not run.
+- AC-026 (phone width 360 to 390 px, gutter, no horizontal scroll, order): pending, not run.
+
+Verify stays Pending until the user confirms both entries.
 
 ---
 

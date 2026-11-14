@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user as written; 26 criteria, all `[auto]`. Decisions: scope is types, default pipeline and parsing; ids user-given and file-safe; default pipeline in `templates/pipeline/default.json`, imported at build time; one pipeline per project; schemaVersion 2 |
 | UX       | ➖ Not needed |      | No user interface in F-01 |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 9 tasks; transition: the new model lives in `packages/core/src/pipeline/` beside the flat model until F-02 to F-07 are rebuilt |
-| Build    | 🔄 In Progress | 2026-11-14 | 8 of 9 tasks committed |
+| Build    | ✅ Complete | 2026-11-14 | 9 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T006 | Scope on Agent blocks; pipeline Start arguments (name, required, hint); child Start refuses arguments; Start and Agent converted to model types, no cast | reviewed: 0 blockers, 3 warnings, 1 suggestion fixed (tests: dropped-block paths, pipeline Start unknown key) | task check passed (exit 0), 671 tests |
 | T007 | Conditions (check type, decider, routes, round limit, pipeline gate onConnection); Connection and End; every parsed block is a model type, no cast | reviewed: 0 blockers, 2 warnings fixed, 2 suggestions fixed. Open for the owner: criterion for Connection/End/onConnection rules; pipeline back route to an earlier flow. Size 959 lines, committed as one change by the owner's approval | task check passed (exit 0), 748 tests |
 | T008 | Default pipeline as `templates/pipeline/default.json`: six flows, scopes, five gates on connections, build-flow routes; `defaultProjectConfig` parsed at build time | reviewed: 0 blockers, 1 warning fixed (build-flow test), 1 suggestion deferred (agent iteration source has no field) | task check passed (exit 0), 755 tests |
+| T009 | Result shapes (AnalysisResult, GenerationResult) type tests; purity scan extended to the pipeline folder | reviewed: 1 blocker and 1 warning fixed (scan false negatives; shape tests read real producers) | task check passed (exit 0), 784 tests |
 
 ---
 

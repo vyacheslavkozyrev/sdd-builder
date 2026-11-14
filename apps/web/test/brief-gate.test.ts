@@ -6,6 +6,7 @@ import { canAnalyze } from '../src/brief/gate.js';
 import { PRIVACY_CHECKBOX_LABEL, PRIVACY_NOTICE } from '../src/brief/privacy.js';
 import { progressEntries } from '../src/brief/progress.js';
 import type { ProgressStatus } from '../src/brief/progress.js';
+import { startState } from '../src/builder/map-state.js';
 
 /** A brief that passes validation: name, idea, stack language, style and one module. */
 function validBrief(): BriefState {
@@ -28,12 +29,13 @@ function withRules(codeRules: string[], testRules: string[]): BriefState {
 }
 
 function statusOf(brief: BriefState): Record<string, ProgressStatus> {
-  return Object.fromEntries(progressEntries(brief).map((entry) => [entry.key, entry.status]));
+  const entries = progressEntries(brief, startState());
+  return Object.fromEntries(entries.map((entry) => [entry.key, entry.status]));
 }
 
 describe('F-05 AC-013 progress panel', () => {
   it('shows the four entries in panel order with their labels', () => {
-    const entries = progressEntries(emptyBrief());
+    const entries = progressEntries(emptyBrief(), startState());
     expect(entries.map((entry) => [entry.key, entry.label])).toEqual([
       ['idea', 'Idea written'],
       ['stack', 'Stack chosen'],
@@ -93,7 +95,7 @@ describe('F-05 AC-015 checkbox starts unticked', () => {
     ['a valid brief', validBrief()],
     ['a valid brief with rules', withRules(['Strict types'], [])],
   ])('keeps Analyze disabled for %s while the box is unticked', (_case, brief) => {
-    expect(canAnalyze(brief, brief.privacyAccepted)).toBe(false);
+    expect(canAnalyze(brief, brief.privacyAccepted, startState())).toBe(false);
   });
 });
 
@@ -108,11 +110,11 @@ describe('F-05 AC-016 Analyze needs a valid brief', () => {
   ])('keeps Analyze disabled for %s even when the box is ticked', (_case, change) => {
     const brief = validBrief();
     change(brief);
-    expect(canAnalyze(brief, true)).toBe(false);
+    expect(canAnalyze(brief, true, startState())).toBe(false);
   });
 
   it('keeps Analyze disabled for an empty brief even when the box is ticked', () => {
-    expect(canAnalyze(emptyBrief(), true)).toBe(false);
+    expect(canAnalyze(emptyBrief(), true, startState())).toBe(false);
   });
 
   it.each<[string, (brief: BriefState) => void]>([
@@ -123,20 +125,23 @@ describe('F-05 AC-016 Analyze needs a valid brief', () => {
   ])('enables Analyze for a valid brief with %s when the box is ticked', (_case, change) => {
     const brief = validBrief();
     change(brief);
-    expect(canAnalyze(brief, true)).toBe(true);
+    expect(canAnalyze(brief, true, startState())).toBe(true);
   });
 });
 
 describe('F-05 AC-017 unticking the checkbox disables Analyze again', () => {
   it('goes enabled, disabled, enabled as the box is ticked and unticked', () => {
     const brief = validBrief();
-    const states = [false, true, false, true].map((accepted) => canAnalyze(brief, accepted));
+    const states = [false, true, false, true].map((accepted) =>
+      canAnalyze(brief, accepted, startState()),
+    );
     expect(states).toEqual([false, true, false, true]);
   });
 
   it('stays disabled when the box is unticked for an invalid brief', () => {
     const brief = emptyBrief();
-    expect([canAnalyze(brief, true), canAnalyze(brief, false)]).toEqual([false, false]);
+    const map = startState();
+    expect([canAnalyze(brief, true, map), canAnalyze(brief, false, map)]).toEqual([false, false]);
   });
 });
 
@@ -175,12 +180,12 @@ describe('F-05 AC-027 AC-028 Analyze stays disabled for a blank module name or n
   it('F-05 AC-027 keeps Analyze disabled for a blank module name even when the box is ticked', () => {
     const brief = validBrief();
     brief.architecture.modules[0]!.name = '  ';
-    expect(canAnalyze(brief, true)).toBe(false);
+    expect(canAnalyze(brief, true, startState())).toBe(false);
   });
 
   it('F-05 AC-028 keeps Analyze disabled for an empty module list even when the box is ticked', () => {
     const brief = validBrief();
     brief.architecture.modules = [];
-    expect(canAnalyze(brief, true)).toBe(false);
+    expect(canAnalyze(brief, true, startState())).toBe(false);
   });
 });

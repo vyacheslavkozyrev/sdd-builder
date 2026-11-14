@@ -1,6 +1,7 @@
 import { INPUT_CAPS, parseProjectConfig } from '@sddbuilder/core';
 import type { ConfigProblem } from '@sddbuilder/core';
 import { groupThousands } from './counter.js';
+import type { MapState } from '../builder/map-state.js';
 import type { BriefState } from './state.js';
 import { toProjectConfig } from './to-config.js';
 
@@ -68,12 +69,14 @@ function fieldProblems(brief: BriefState): ConfigProblem[] {
  * AC-004, AC-005, AC-008, AC-010, AC-027, AC-028). The field checks, including the module names
  * and the presence of at least one module, always run, so no problem hides another. The layers are
  * checked by the same build that makes the configuration, so a bad layer and its problem cannot
- * disagree. `parseProjectConfig` runs only when no field problem exists; its problems are returned
- * at their own paths, which are the form field paths. An empty list means the brief is valid (AC-019).
+ * disagree. `parseProjectConfig` runs only when no field problem exists, on the configuration that
+ * includes the builder's workflows and connections (F-06 AC-002); its problems are returned at their
+ * own paths, which are the form field paths or, for the map, the `workflows` and `connections` paths.
+ * An empty list means the brief and the map are valid (AC-019).
  */
-export function validateBrief(brief: BriefState): ConfigProblem[] {
+export function validateBrief(brief: BriefState, map: MapState): ConfigProblem[] {
   const problems = fieldProblems(brief);
-  const built = toProjectConfig(brief);
+  const built = toProjectConfig(brief, map);
   if (!built.ok) {
     return [...problems, ...built.badLayers.map(layerProblem)];
   }

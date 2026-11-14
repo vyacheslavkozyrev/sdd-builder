@@ -8,6 +8,7 @@ import { ANALYZE_FAILED_MESSAGE, analyzeBrief } from '../src/analyze/request.js'
 import type { AnalyzeOutcome, AnalyzeRequest, FetchFn } from '../src/analyze/request.js';
 import { createInFlightGuard } from '../src/analyze/in-flight.js';
 import type { InFlightGuard } from '../src/analyze/in-flight.js';
+import { startState } from '../src/builder/map-state.js';
 
 /** The brief as the wireframe 02-brief.svg shows it, with blank depends-on and no rules. */
 function wireframeBrief(): BriefState {
@@ -35,7 +36,7 @@ function wireframeBrief(): BriefState {
 
 /** Returns the configuration, failing the test when the build reports bad layers. */
 function configOf(brief: BriefState): ProjectConfig {
-  const built = toProjectConfig(brief);
+  const built = toProjectConfig(brief, startState());
   if (!built.ok) {
     throw new Error(`expected a configuration, got bad layers at ${built.badLayers.join(', ')}`);
   }

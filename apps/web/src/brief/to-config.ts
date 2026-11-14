@@ -1,5 +1,5 @@
-import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS } from '@sddbuilder/core';
 import type { ModuleSpec, ProjectConfig, TechStack } from '@sddbuilder/core';
+import type { MapState } from '../builder/map-state.js';
 import type { BriefModuleRow, BriefState } from './state.js';
 
 /**
@@ -70,9 +70,10 @@ function buildModule(row: BriefModuleRow, layer: number): ModuleSpec {
 
 /**
  * Builds the configuration the API receives. Workflows and connections are deep copies of the
- * core defaults, so the shared constants are never mutated. Modules keep their list order.
+ * builder's map state (F-06 AC-002), so the state is never shared with the configuration.
+ * Modules keep their list order.
  */
-export function toProjectConfig(brief: BriefState): ConfigBuild {
+export function toProjectConfig(brief: BriefState, map: MapState): ConfigBuild {
   const modules: ModuleSpec[] = [];
   const badLayers: number[] = [];
   brief.architecture.modules.forEach((row, position) => {
@@ -100,8 +101,8 @@ export function toProjectConfig(brief: BriefState): ConfigBuild {
       codeRules: buildRules(brief.codeRules),
       testRules: buildRules(brief.testRules),
       customSteps: [],
-      workflows: DEFAULT_WORKFLOWS.map((workflow) => structuredClone(workflow)),
-      connections: DEFAULT_CONNECTIONS.map((connection) => structuredClone(connection)),
+      workflows: map.workflows.map((workflow) => structuredClone(workflow)),
+      connections: map.connections.map((connection) => structuredClone(connection)),
       targets: ['claude'],
     },
   };

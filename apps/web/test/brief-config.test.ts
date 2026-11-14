@@ -4,6 +4,8 @@ import type { ProjectConfig } from '@sddbuilder/core';
 import { emptyBrief } from '../src/brief/state.js';
 import type { BriefState } from '../src/brief/state.js';
 import { parseLayer, toProjectConfig } from '../src/brief/to-config.js';
+import { removeWorkflow, setArtifact, startState } from '../src/builder/map-state.js';
+import type { MapState } from '../src/builder/map-state.js';
 
 /** The brief as the wireframe 02-brief.svg shows it, with blank depends-on and no rules. */
 function wireframeBrief(): BriefState {
@@ -31,8 +33,8 @@ function wireframeBrief(): BriefState {
 }
 
 /** Returns the configuration, failing the test when the build reports bad layers. */
-function configOf(brief: BriefState): ProjectConfig {
-  const built = toProjectConfig(brief);
+function configOf(brief: BriefState, map: MapState): ProjectConfig {
+  const built = toProjectConfig(brief, map);
   if (!built.ok) {
     throw new Error(`expected a configuration, got bad layers at ${built.badLayers.join(', ')}`);
   }
@@ -41,7 +43,7 @@ function configOf(brief: BriefState): ProjectConfig {
 
 describe('F-05 AC-018 configuration body', () => {
   it('F-05 AC-018 builds the wireframe brief into the expected configuration', () => {
-    expect(configOf(wireframeBrief())).toEqual({
+    expect(configOf(wireframeBrief(), startState())).toEqual({
       schemaVersion: 1,
       name: 'Hourly Tracker',
       idea: 'Hourly Tracker helps a household see when electricity is cheap.',
@@ -69,7 +71,7 @@ describe('F-05 AC-018 configuration body', () => {
   });
 
   it('F-05 AC-018 copies the core workflows and connections rather than sharing them', () => {
-    const config = configOf(wireframeBrief());
+    const config = configOf(wireframeBrief(), startState());
 
     expect(config.workflows).toEqual(DEFAULT_WORKFLOWS);
     expect(config.connections).toEqual(DEFAULT_CONNECTIONS);
@@ -78,13 +80,13 @@ describe('F-05 AC-018 configuration body', () => {
   });
 
   it('F-05 AC-018 builds a body that the core model accepts (checked with parseProjectConfig)', () => {
-    const result = parseProjectConfig(configOf(wireframeBrief()));
+    const result = parseProjectConfig(configOf(wireframeBrief(), startState()));
 
     expect(result.ok).toBe(true);
   });
 
   it('F-05 AC-018 builds an empty brief into a configuration with the fixed fields', () => {
-    const config = configOf(emptyBrief());
+    const config = configOf(emptyBrief(), startState());
 
     expect(config.schemaVersion).toBe(1);
     expect(config.customSteps).toEqual([]);
@@ -111,7 +113,7 @@ describe('F-05 AC-018 configuration body', () => {
   it('F-05 AC-018 leaves the core default constants unchanged when a built configuration is mutated', () => {
     const workflowsBefore = structuredClone(DEFAULT_WORKFLOWS);
     const connectionsBefore = structuredClone(DEFAULT_CONNECTIONS);
-    const config = configOf(wireframeBrief());
+    const config = configOf(wireframeBrief(), startState());
 
     const [firstWorkflow] = config.workflows;
     const [firstConnection] = config.connections;
@@ -137,11 +139,11 @@ describe('F-05 AC-006 optional stack fields', () => {
     const brief = wireframeBrief();
     brief.stack[field] = value;
 
-    expect(field in configOf(brief).stack).toBe(false);
+    expect(field in configOf(brief, startState()).stack).toBe(false);
   });
 
   it('F-05 AC-006 keeps every optional stack key when each is filled', () => {
-    expect(configOf(wireframeBrief()).stack).toEqual({
+    expect(configOf(wireframeBrief(), startState()).stack).toEqual({
       language: 'TypeScript',
       framework: 'Node.js + Fastify',
       testFramework: 'Vitest',
@@ -155,7 +157,7 @@ describe('F-05 AC-007 trimmed values', () => {
     const brief = wireframeBrief();
     brief.stack.framework = '  Node.js + Fastify ';
 
-    expect(configOf(brief).stack.framework).toBe('Node.js + Fastify');
+    expect(configOf(brief, startState()).stack.framework).toBe('Node.js + Fastify');
   });
 
   it.each([
@@ -203,7 +205,7 @@ describe('F-05 AC-007 trimmed values', () => {
     const brief = wireframeBrief();
     change(brief);
 
-    expect(read(configOf(brief))).toBe(expected);
+    expect(read(configOf(brief, startState()))).toBe(expected);
   });
 });
 
@@ -241,10 +243,55 @@ describe('F-05 AC-010 layer parsing', () => {
       { name: 'web', layer: '-1', responsibility: 'UI', dependsOn: '' },
     ];
 
-    expect(toProjectConfig(brief)).toEqual({ ok: false, badLayers: [1, 2] });
+    expect(toProjectConfig(brief, startState())).toEqual({ ok: false, badLayers: [1, 2] });
   });
 
   it('F-05 AC-010 builds a configuration when every layer is a whole number of 0 or more', () => {
-    expect(toProjectConfig(wireframeBrief()).ok).toBe(true);
+    expect(toProjectConfig(wireframeBrief(), startState()).ok).toBe(true);
+  });
+});
+
+describe('F-06 AC-002 workflows and connections come from the builder state', () => {
+  it('F-06 AC-002 a configuration built from the start state equals the one built from the core defaults', () => {
+    const fromState = configOf(wireframeBrief(), startState());
+    const fromDefaults = configOf(wireframeBrief(), {
+      workflows: DEFAULT_WORKFLOWS,
+      connections: DEFAULT_CONNECTIONS,
+    });
+
+    expect(fromState).toEqual(fromDefaults);
+  });
+
+  it('F-06 AC-002 sends a connection label edited in the builder state', () => {
+    const state = setArtifact(startState(), 'verify-release', 'report.md');
+    const config = configOf(wireframeBrief(), state);
+
+    expect(config.connections.find((connection) => connection.id === 'verify-release')).toEqual({
+      id: 'verify-release',
+      from: 'verify-feature',
+      to: 'release-project',
+      artifact: 'report.md',
+    });
+  });
+
+  it('F-06 AC-002 takes the workflows and connections from the state passed in, not from the defaults', () => {
+    const state = removeWorkflow(startState(), 'implement-cycle');
+    const config = configOf(wireframeBrief(), state);
+
+    expect(config.workflows.map((workflow) => workflow.id)).not.toContain('implement-cycle');
+    expect(config.connections).toEqual(state.connections);
+    expect(config.connections).not.toEqual(DEFAULT_CONNECTIONS);
+  });
+});
+
+describe('F-06 AC-004 a new session starts from the reference process', () => {
+  it('F-06 AC-004 a new session built after an edited session starts again from the reference process', () => {
+    const edited = removeWorkflow(startState(), 'implement-cycle');
+    expect(configOf(wireframeBrief(), edited).workflows).not.toEqual(DEFAULT_WORKFLOWS);
+
+    const fresh = configOf(wireframeBrief(), startState());
+
+    expect(fresh.workflows).toEqual(DEFAULT_WORKFLOWS);
+    expect(fresh.connections).toEqual(DEFAULT_CONNECTIONS);
   });
 });

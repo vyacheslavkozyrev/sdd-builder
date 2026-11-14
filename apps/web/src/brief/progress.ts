@@ -1,4 +1,5 @@
 import type { ConfigProblem } from '@sddbuilder/core';
+import type { MapState } from '../builder/map-state.js';
 import type { BriefState } from './state.js';
 import { buildRules } from './to-config.js';
 import { validateBrief } from './validate.js';
@@ -32,8 +33,8 @@ function requiredStatus(problems: readonly ConfigProblem[], paths: readonly stri
  * the validation finds no problem at their own paths. Rules are optional until one or more
  * non-blank rules exist across both lists, then valid.
  */
-export function progressEntries(brief: BriefState): ProgressEntry[] {
-  const problems = validateBrief(brief);
+export function progressEntries(brief: BriefState, map: MapState): ProgressEntry[] {
+  const problems = validateBrief(brief, map);
   const ruleCount = buildRules(brief.codeRules).length + buildRules(brief.testRules).length;
   return [
     { key: 'idea', label: 'Idea written', status: requiredStatus(problems, ['idea']) },

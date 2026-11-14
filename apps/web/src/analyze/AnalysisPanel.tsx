@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { MapState } from '../builder/map-state.js';
 import { canAnalyze } from '../brief/gate.js';
 import { PrivacyGate } from '../brief/PrivacyGate.js';
 import type { BriefState } from '../brief/state.js';
@@ -12,6 +13,7 @@ import type { FindingRow, ReviewView } from './result.js';
 
 interface AnalysisPanelProps {
   brief: BriefState;
+  map: MapState;
   onChange: (brief: BriefState) => void;
 }
 
@@ -60,16 +62,16 @@ function ReviewPart({ view }: { view: ReviewView }) {
  * The Analyze block: the privacy gate, then the outcome of the last request. The brief is only
  * read here; a failed request leaves it as it was (F-05 AC-014 to AC-023).
  */
-export function AnalysisPanel({ brief, onChange }: AnalysisPanelProps) {
+export function AnalysisPanel({ brief, map, onChange }: AnalysisPanelProps) {
   const [guard] = useState<InFlightGuard>(createInFlightGuard);
   const [waiting, setWaiting] = useState(false);
   const [outcome, setOutcome] = useState<AnalyzeOutcome | null>(null);
 
-  const analyzeEnabled = canAnalyze(brief, brief.privacyAccepted) && !waiting;
+  const analyzeEnabled = canAnalyze(brief, brief.privacyAccepted, map) && !waiting;
 
   async function analyze() {
-    const build = toProjectConfig(brief);
-    if (build.ok === false || !canAnalyze(brief, brief.privacyAccepted) || !guard.start()) {
+    const build = toProjectConfig(brief, map);
+    if (build.ok === false || !canAnalyze(brief, brief.privacyAccepted, map) || !guard.start()) {
       return;
     }
     setWaiting(true);

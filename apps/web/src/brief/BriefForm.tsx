@@ -1,4 +1,5 @@
 import { AnalysisPanel } from '../analyze/AnalysisPanel.js';
+import type { MapState } from '../builder/map-state.js';
 import { ideaCounter } from './counter.js';
 import { Messages } from './Messages.js';
 import { ModuleRows } from './ModuleRows.js';
@@ -11,6 +12,7 @@ import { validateBrief } from './validate.js';
 
 interface BriefFormProps {
   brief: BriefState;
+  map: MapState;
   onChange: (brief: BriefState) => void;
 }
 
@@ -42,8 +44,8 @@ function TextField({ id, label, value, messages, onChange }: TextFieldProps) {
  * The brief form, sections 1 to 5 of `02-brief.svg`, then the progress panel. The form only
  * renders the state it is given; every change goes back through `onChange` (F-05 AC-001 to AC-013).
  */
-export function BriefForm({ brief, onChange }: BriefFormProps) {
-  const problems = validateBrief(brief);
+export function BriefForm({ brief, map, onChange }: BriefFormProps) {
+  const problems = validateBrief(brief, map);
   const others = problems.filter((problem) => !isShownBeside(problem.path));
 
   const setStack = (field: keyof BriefState['stack'], value: string) =>
@@ -159,12 +161,12 @@ export function BriefForm({ brief, onChange }: BriefFormProps) {
         </section>
       )}
 
-      <AnalysisPanel brief={brief} onChange={onChange} />
+      <AnalysisPanel brief={brief} map={map} onChange={onChange} />
 
       <section aria-labelledby="section-progress">
         <h2 id="section-progress">Progress</h2>
         <ul className="progress">
-          {progressEntries(brief).map((entry) => (
+          {progressEntries(brief, map).map((entry) => (
             <li key={entry.key}>
               <span aria-hidden="true">{PROGRESS_MARKS[entry.status]}</span> {entry.label}
               {entry.status === 'incomplete' ? ' (incomplete)' : ''}

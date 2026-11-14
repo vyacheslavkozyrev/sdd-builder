@@ -4,6 +4,7 @@ import type { ProjectConfig } from '@sddbuilder/core';
 import { emptyBrief } from '../src/brief/state.js';
 import type { BriefState } from '../src/brief/state.js';
 import { buildRules, splitDependsOn, toProjectConfig } from '../src/brief/to-config.js';
+import { startState } from '../src/builder/map-state.js';
 
 /** The brief as the wireframe 02-brief.svg shows it, with api and web depending on core. */
 function wireframeBrief(): BriefState {
@@ -32,7 +33,7 @@ function wireframeBrief(): BriefState {
 
 /** Returns the configuration, failing the test when the build reports bad layers. */
 function configOf(brief: BriefState): ProjectConfig {
-  const built = toProjectConfig(brief);
+  const built = toProjectConfig(brief, startState());
   if (!built.ok) {
     throw new Error(`expected a configuration, got bad layers at ${built.badLayers.join(', ')}`);
   }

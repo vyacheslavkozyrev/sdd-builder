@@ -38,6 +38,7 @@ spec/                 idea, architecture, features, building blocks, process, fe
 ## Setup
 
 ```
+cd source
 npm install
 npm run typecheck
 ```

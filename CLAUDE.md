@@ -40,6 +40,7 @@ spec/specifications/  one folder per feature; F-00-template is the starting poin
 ## Setup
 
 ```
+cd source
 npm install
 npm run typecheck
 source/scripts/task-check.sh      # type check + tests; fails until the test script exists (F-02)

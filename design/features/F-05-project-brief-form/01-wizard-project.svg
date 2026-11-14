@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <style>
+    text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#18181b;font-size:13px}
+    .muted{fill:#71717a;font-size:12px}
+    .small{fill:#71717a;font-size:11px}
+    .h1{font-size:18px;font-weight:600}
+    .h2{font-size:14px;font-weight:600}
+    .panel{fill:#ffffff;stroke:#e4e4e7}
+    .input{fill:#ffffff;stroke:#a1a1aa}
+    .btn{fill:#ffffff;stroke:#d4d4d8}
+    .off{fill:#fafafa;stroke:#a1a1aa;stroke-dasharray:5 4}
+    .primary{fill:#2563eb}
+    .onPrimary{fill:#ffffff;font-weight:600}
+    .stepOn{fill:#2563eb}
+    .stepDone{fill:#dbeafe;stroke:#2563eb}
+    .stepTodo{fill:#ffffff;stroke:#a1a1aa}
+    .rule{stroke:#2563eb;stroke-width:1.5}
+    .ruleTodo{stroke:#d4d4d8;stroke-width:1.5}
+  </style>
+
+  <rect width="1280" height="800" fill="#fafafa"/>
+
+  <!-- Top bar: no Brief / Builder switch; the wizard is the whole flow -->
+  <rect x="0" y="0" width="1280" height="56" class="panel"/>
+  <text x="24" y="34" class="h1">SDDBuilder</text>
+  <text x="170" y="34" class="muted">New project · Claude Code</text>
+
+  <!-- Stepper: 4 steps, step 1 is current -->
+  <line x1="276" y1="92" x2="504" y2="92" class="ruleTodo"/>
+  <line x1="536" y1="92" x2="764" y2="92" class="ruleTodo"/>
+  <line x1="796" y1="92" x2="1024" y2="92" class="ruleTodo"/>
+  <rect x="282" y="80" width="182" height="24" fill="#fafafa"/>
+  <rect x="542" y="80" width="122" height="24" fill="#fafafa"/>
+  <rect x="802" y="80" width="80" height="24" fill="#fafafa"/>
+  <rect x="1062" y="80" width="166" height="24" fill="#fafafa"/>
+  <circle cx="260" cy="92" r="16" class="stepOn"/><text x="256" y="97" class="onPrimary">1</text>
+  <text x="286" y="97" class="h2">Project name and idea</text>
+  <circle cx="520" cy="92" r="16" class="stepTodo"/><text x="516" y="97" class="muted">2</text>
+  <text x="546" y="97" class="muted">Technical details</text>
+  <circle cx="780" cy="92" r="16" class="stepTodo"/><text x="776" y="97" class="muted">3</text>
+  <text x="806" y="97" class="muted">Workflow</text>
+  <circle cx="1040" cy="92" r="16" class="stepTodo"/><text x="1036" y="97" class="muted">4</text>
+  <text x="1066" y="97" class="muted">Analyze and generate</text>
+
+  <!-- Step card -->
+  <rect x="240" y="130" width="800" height="570" rx="10" class="panel"/>
+  <text x="272" y="172" class="h2">Project name and idea</text>
+  <text x="272" y="194" class="muted">Step 1 of 4. The name and idea describe what you are building. The rest of the process follows from them.</text>
+
+  <text x="272" y="232" class="muted">Project name</text>
+  <rect x="272" y="240" width="736" height="38" rx="6" class="input"/>
+  <text x="286" y="264">Demo project</text>
+
+  <text x="272" y="312" class="muted">Idea</text>
+  <rect x="272" y="320" width="736" height="200" rx="6" class="input"/>
+  <text x="286" y="346">A tracker for hourly work. Freelancers log time against</text>
+  <text x="286" y="366">clients, see totals per week, and export a monthly summary</text>
+  <text x="286" y="386">for invoicing.</text>
+  <text x="940" y="506" class="small">142 / 8,000</text>
+  <text x="272" y="540" class="small">Describe the product and who uses it. Keep it to what the product does, not how it is built.</text>
+
+  <!-- Footer: Back is off on the first step -->
+  <rect x="272" y="630" width="110" height="38" rx="6" class="off"/>
+  <text x="312" y="654" class="muted">Back</text>
+  <rect x="898" y="630" width="110" height="38" rx="6" class="primary"/>
+  <text x="936" y="654" class="onPrimary">Next</text>
+
+  <text x="272" y="690" class="small">Nothing is stored between visits. Reloading clears the wizard.</text>
+</svg>

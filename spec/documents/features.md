@@ -7,25 +7,25 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
 | F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
-| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ↻ Built on the flat model (18 tasks, 34 criteria, 99 tests); re-scope |
-| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ↻ Built on the flat model (17 tasks, 29 criteria, 174 tests); re-scope |
-| F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |
-| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | ⏳ Pending (re-scope to the wizard) |
-| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope; absorbs F-14 and F-15 |
-| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ↻ Built on the flat model (23 tasks, 29 criteria); re-scope |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | Not started |
+| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | Not started |
+| F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | Not started |
+| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | Not started |
+| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
+| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | Not started |
 | F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06 | Not started |
-| F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | ⏳ Pending (re-scope to pipelines) |
-| F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | ⏳ Pending |
-| F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not planned |
-| F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not planned |
-| F-13 | Abuse, cost and privacy controls | MVP | Enabler | source/apps/api, source/apps/web | 2 | F-04, F-07 | ↻ Built (10 tasks, 29 criteria); caps re-scope to rule blocks, no modules |
+| F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
+| F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | Not started |
+| F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not started |
+| F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not started |
+| F-13 | Abuse, cost and privacy controls | MVP | Enabler | source/apps/api, source/apps/web | 2 | F-04, F-07 | Not started |
 | F-14 | Custom blocks: agents | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a custom agent is a toolbox item in F-06 |
 | F-15 | Configurable quality gates: conditions | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a gate or check is a Condition block in F-06 |
-| F-16 | GitHub Spec Kit output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-17 | OpenSpec output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | source/packages/core, source/apps/web | 3 | F-06 | ⏳ Proposed |
-| F-19 | Read-only share link for clients | Post-MVP | User | source/apps/web | — | F-18 | Not planned |
-| F-20 | Browser-local autosave | Post-MVP | User | source/apps/web | — | F-06 | Not planned |
+| F-16 | GitHub Spec Kit output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | Not started |
+| F-17 | OpenSpec output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | Not started |
+| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
+| F-19 | Read-only share link for clients | Post-MVP | User | source/apps/web | — | F-18 | Not started |
+| F-20 | Browser-local autosave | Post-MVP | User | source/apps/web | — | F-06 | Not started |
 
 **Totals:** 20 features, two of them merged into F-06 (F-14, F-15). MVP: 9 (F-01 to F-07, F-13, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
 
@@ -43,7 +43,7 @@ The types for `ProjectConfig`, the pipeline and its flows (one nesting level), t
 
 ### F-02 Generator core
 
-A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules (`building-blocks.md` §7), selects the enabled blocks in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. Specified in `spec/specifications/F-02-generator-core/`; that draft describes the flat model and is rewritten before approval.
+A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules (`building-blocks.md` §7), selects the enabled blocks in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. No specification folder yet; it is written with `/specify` when F-02 starts.
 
 ### F-03 Claude Code templates
 

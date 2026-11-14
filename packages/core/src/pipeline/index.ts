@@ -7,6 +7,7 @@ export type {
   ConnectionBlock,
   DecidedBy,
   EndBlock,
+  EndOutcome,
   Flow,
   FlowBlock,
   Pipeline,

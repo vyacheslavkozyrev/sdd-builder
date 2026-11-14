@@ -1,90 +1,71 @@
-import type { PipelineStartBlock, ProjectConfig, ProjectStack, StartBlock, AgentBlock } from './model.js';
-import {
-  parsePipelineStructure,
-  type ChildStructure,
-  type ConditionStructure,
-  type ConnectionStructure,
-  type EndStructure,
-  type FlowStructure,
-  type PipelineStructure,
-} from './parse-structure.js';
+import type { ChildBlock, FlowBlock, Pipeline, PipelineBlock, ProjectConfig, ProjectStack } from './model.js';
+import { parsePipelineStructure, type ChildStructure, type FlowStructure, type PipelineStructure } from './parse-structure.js';
 import { toAgentBlock, toChildStart, toPipelineStart } from './parse-scope.js';
+import { toCondition, toPipelineCondition } from './parse-condition.js';
+import { toConnection, toEnd } from './parse-connection-end.js';
 import {
   checkKeys,
   childPath,
-  readObject,
+  describeList,
   readList,
+  readObject,
   readOptionalString,
   readString,
   requirePresent,
+  type ListIds,
   type PipelineProblem,
 } from './parse-util.js';
 
 export type { PipelineProblem } from './parse-util.js';
 
-/** A block of a child flow as parsed so far: Start and Agent are model types; Condition, Connection and End stay structural until T007. */
-export type ParsedChildBlock = StartBlock | AgentBlock | ConditionStructure | ConnectionStructure | EndStructure;
-
-/** A child flow as parsed so far, with its blocks converted as far as the parse goes. */
-export interface ParsedFlow extends Omit<FlowStructure, 'blocks'> {
-  blocks: ParsedChildBlock[];
-}
-
-/** A block of the pipeline as parsed so far: Start is a model type; the rest stay structural until T007. */
-export type ParsedPipelineBlock = PipelineStartBlock | ConditionStructure | ConnectionStructure | EndStructure | ParsedFlow;
-
-/** A pipeline as parsed so far: its name, and its blocks that passed the checks. */
-export interface ParsedPipeline {
-  name: string;
-  blocks: ParsedPipelineBlock[];
-}
-
-/** A config as parsed so far: every field is checked, the Start and Agent blocks are model types. */
-export interface ParsedConfig extends Omit<ProjectConfig, 'pipeline'> {
-  pipeline: ParsedPipeline;
-}
-
-export type ParsePipelineResult =
-  | { ok: true; config: ParsedConfig }
-  | { ok: false; problems: PipelineProblem[] };
+export type ParsePipelineResult = { ok: true; config: ProjectConfig } | { ok: false; problems: PipelineProblem[] };
 
 const ROOT_KEYS: readonly string[] = ['schemaVersion', 'name', 'idea', 'stack', 'pipeline'];
 const STACK_KEYS: readonly string[] = ['language', 'framework', 'platform', 'buildTool', 'testFramework'];
 const PIPELINE_KEYS: readonly string[] = ['name', 'blocks'];
+const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'enabled', 'blocks'];
 
 /** Converts one block of a child flow. Blocks that fail their own rules are dropped; the problem is already recorded. */
-function convertChild(block: ChildStructure, problems: PipelineProblem[]): ParsedChildBlock | undefined {
+function convertChild(block: ChildStructure, ids: ListIds, problems: PipelineProblem[]): ChildBlock | undefined {
   switch (block.kind) {
     case 'start':
       return toChildStart(block, problems);
     case 'agent':
       return toAgentBlock(block, problems);
     case 'condition':
+      return toCondition(block, ids, problems);
     case 'connection':
+      return toConnection(block, ids, problems);
     case 'end':
-      return block;
+      return toEnd(block, problems);
   }
 }
 
-function convertFlow(flow: FlowStructure, problems: PipelineProblem[]): ParsedFlow {
+/** Converts a child flow: its own name and keys, then its blocks. A flow whose name fails is dropped. */
+function convertFlow(flow: FlowStructure, problems: PipelineProblem[]): FlowBlock | undefined {
+  checkKeys(flow.fields, FLOW_KEYS, flow.path, problems);
+  const name = readString(flow.fields, 'name', flow.path, problems);
   const blocks = flow.blocks.flatMap((block) => {
-    const converted = convertChild(block, problems);
+    const converted = convertChild(block, flow.ids, problems);
     return converted === undefined ? [] : [converted];
   });
-  return { ...flow, blocks };
+  if (name === undefined) return undefined;
+  return { kind: 'flow', id: flow.id, name, enabled: flow.enabled, blocks };
 }
 
 /** Converts one block of the pipeline. Blocks that fail their own rules are dropped; the problem is already recorded. */
-function convertPipelineBlock(block: PipelineStructure, problems: PipelineProblem[]): ParsedPipelineBlock | undefined {
+function convertPipelineBlock(block: PipelineStructure, ids: ListIds, problems: PipelineProblem[]): PipelineBlock | undefined {
   switch (block.kind) {
     case 'start':
       return toPipelineStart(block, problems);
     case 'flow':
       return convertFlow(block, problems);
     case 'condition':
+      return toPipelineCondition(block, ids, problems);
     case 'connection':
+      return toConnection(block, ids, problems);
     case 'end':
-      return block;
+      return toEnd(block, problems);
   }
 }
 
@@ -107,7 +88,7 @@ function parseStack(value: unknown, path: string, problems: PipelineProblem[]): 
   };
 }
 
-function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]): ParsedPipeline | undefined {
+function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]): Pipeline | undefined {
   const obj = readObject(value, path, problems);
   if (obj === undefined) return undefined;
   checkKeys(obj, PIPELINE_KEYS, path, problems);
@@ -115,9 +96,10 @@ function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]
   const name = readString(obj, 'name', path, problems);
   const list = readList(obj, 'blocks', path, problems);
   const structures = list === undefined ? undefined : parsePipelineStructure(list, childPath(path, 'blocks'), problems);
-  if (name === undefined || structures === undefined) return undefined;
+  if (name === undefined || list === undefined || structures === undefined) return undefined;
+  const ids = describeList(list);
   const blocks = structures.flatMap((block) => {
-    const converted = convertPipelineBlock(block, problems);
+    const converted = convertPipelineBlock(block, ids, problems);
     return converted === undefined ? [] : [converted];
   });
   return { name, blocks };
@@ -126,9 +108,8 @@ function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]
 /**
  * Parses an untrusted project config at the top level: schemaVersion, name, idea, stack and
  * pipeline, and the unknown keys. Returns every problem found, never throws on bad input.
- * The pipeline blocks are checked for kind, id, the enabled flag and structure; the Start and Agent
- * blocks are checked for their own fields and typed as the model types. Condition blocks are checked
- * by the later parse step (T007).
+ * Every block is checked for its own fields and returned as its model type; a block with a
+ * problem is dropped, and the result is then refused.
  */
 export function parsePipelineConfig(value: unknown): ParsePipelineResult {
   const problems: PipelineProblem[] = [];

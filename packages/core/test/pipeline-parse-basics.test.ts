@@ -6,7 +6,7 @@ import { parsePipelineConfig, type PipelineProblem } from '../src/pipeline/parse
 function validBlocks(): Record<string, unknown>[] {
   return [
     { kind: 'start', id: 'start', enabled: true, arguments: [] },
-    { kind: 'end', id: 'end', enabled: true },
+    { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
   ];
 }
 

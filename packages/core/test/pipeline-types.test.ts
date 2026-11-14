@@ -73,7 +73,7 @@ const connectionBlock: ChildBlock = {
   artifact: 'stories.md',
 };
 
-const endBlock: ChildBlock = { kind: 'end', id: 'end', enabled: true };
+const endBlock: ChildBlock = { kind: 'end', id: 'end', enabled: true, outcome: 'done' };
 
 const specifyFlow: Flow = {
   id: 'specify',
@@ -95,7 +95,7 @@ const pipelineBlocks: PipelineBlock[] = [
   { kind: 'condition', id: 'between', enabled: true, checkType: 'approval', decidedBy: 'human', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' }, onConnection: 'specify-to-build' },
   { kind: 'connection', id: 'specify-to-build', enabled: true, from: 'specify', to: 'build', artifact: 'plan.md' },
   { kind: 'flow', ...buildFlow },
-  { kind: 'end', id: 'pipeline-end', enabled: true },
+  { kind: 'end', id: 'pipeline-end', enabled: true, outcome: 'done' },
 ];
 
 const config: ProjectConfig = {
@@ -204,7 +204,7 @@ describe('F-01 AC-004 every block and flow has an enabled flag', () => {
 
   it('refuses a block or flow without enabled, or with a non-boolean value', () => {
     // @ts-expect-error enabled is required
-    const missingEnabled: ChildBlock = { kind: 'end', id: 'end' };
+    const missingEnabled: ChildBlock = { kind: 'end', id: 'end', outcome: 'done' };
     // @ts-expect-error enabled is a boolean, not a string
     const stringEnabled: Flow = { id: 'f', name: 'f', enabled: 'yes', blocks: [] };
     expect(missingEnabled).toBeDefined();

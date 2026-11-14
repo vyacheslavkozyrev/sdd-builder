@@ -11,7 +11,7 @@ function flow(id: string, extra: Record<string, unknown>[] = []): Record<string,
     blocks: [
       { kind: 'start', id: `${id}-start`, enabled: true },
       ...extra,
-      { kind: 'end', id: `${id}-end`, enabled: true },
+      { kind: 'end', id: `${id}-end`, enabled: true, outcome: 'done' },
     ],
   };
 }
@@ -32,7 +32,7 @@ function validBlocks(): Record<string, unknown>[] {
   return [
     { kind: 'start', id: 'start', enabled: true, arguments: [] },
     flow('build', [{ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope: 'task' }]),
-    { kind: 'end', id: 'end', enabled: true },
+    { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
   ];
 }
 
@@ -51,7 +51,7 @@ describe('F-01 AC-002 a Flow block is allowed in the pipeline and refused inside
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       flow('build', [flow('inner')]),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].blocks[1].kind', message: 'is not allowed in a child flow' },
@@ -70,7 +70,7 @@ describe('F-01 AC-003 the block kinds are the six of the model; any other kind i
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       { kind, id: `b-${kind}`, enabled: true, from: 'start', to: 'end', artifact: 'x' },
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(paths(parsePipelineConfig(configWith(blocks)))).not.toContain('pipeline.blocks[1].kind');
   });
@@ -127,7 +127,7 @@ describe('F-01 AC-004 every block and flow has an enabled flag that is a boolean
   });
 
   it('refuses a missing enabled flag on a pipeline block at its path', () => {
-    const blocks = [{ kind: 'start', id: 'start', arguments: [] }, { kind: 'end', id: 'end', enabled: true }];
+    const blocks = [{ kind: 'start', id: 'start', arguments: [] }, { kind: 'end', id: 'end', enabled: true, outcome: 'done' }];
     expect(problemsOf(configWith(blocks))).toEqual([{ path: 'pipeline.blocks[0].enabled', message: 'is required' }]);
   });
 
@@ -140,7 +140,7 @@ describe('F-01 AC-004 every block and flow has an enabled flag that is a boolean
   });
 
   it.each(['yes', 1, 0, null, 'true'])('refuses the non-boolean enabled %j on a pipeline block', (enabled) => {
-    const blocks = [{ kind: 'start', id: 'start', enabled, arguments: [] }, { kind: 'end', id: 'end', enabled: true }];
+    const blocks = [{ kind: 'start', id: 'start', enabled, arguments: [] }, { kind: 'end', id: 'end', enabled: true, outcome: 'done' }];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[0].enabled', message: 'must be true or false' },
     ]);
@@ -160,7 +160,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       flow('build', [{ kind: 'agent', id: 'review', enabled: true, name: 'review', scope: 'task' }]),
       flow('verify', [{ kind: 'agent', id: 'review', enabled: true, name: 'check', scope: 'feature' }]),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[2].blocks[1].id', message: 'is already used by another block or flow' },
@@ -188,7 +188,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
     const blocks = [
       { kind: 'start', id: 'build', enabled: true, arguments: [] },
       flow('build'),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].id', message: 'is already used by another block or flow' },
@@ -200,7 +200,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task' }]),
       flow('verify', [{ kind: 'agent', id: 'a2', enabled: true, name: 'review', scope: 'feature' }]),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[2].blocks[1].name', message: 'is already used by another agent' },
@@ -214,7 +214,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
         { kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task' },
         { kind: 'agent', id: 'a2', enabled: true, name: 'test', scope: 'task' },
       ]),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(parsePipelineConfig(configWith(blocks)).ok).toBe(true);
   });
@@ -223,7 +223,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'Review Agent', scope: 'task' }]),
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       {
@@ -259,7 +259,7 @@ describe('F-01 AC-021 block and flow ids follow the id rule', () => {
   });
 
   it('refuses a pipeline block id that is not an id, at the id path', () => {
-    const blocks = [{ kind: 'start', id: 'Start Here', enabled: true, arguments: [] }, { kind: 'end', id: 'end', enabled: true }];
+    const blocks = [{ kind: 'start', id: 'Start Here', enabled: true, arguments: [] }, { kind: 'end', id: 'end', enabled: true, outcome: 'done' }];
     expect(problemsOf(configWith(blocks))).toEqual([
       {
         path: 'pipeline.blocks[0].id',
@@ -271,7 +271,7 @@ describe('F-01 AC-021 block and flow ids follow the id rule', () => {
 
 describe('F-01 AC-012 each list of blocks has exactly one Start and at least one End', () => {
   it('refuses a pipeline without a Start, at the blocks path', () => {
-    expect(problemsOf(configWith([{ kind: 'end', id: 'end', enabled: true }]))).toEqual([
+    expect(problemsOf(configWith([{ kind: 'end', id: 'end', enabled: true, outcome: 'done' }]))).toEqual([
       { path: 'pipeline.blocks', message: 'must contain exactly one start block' },
     ]);
   });
@@ -290,7 +290,7 @@ describe('F-01 AC-012 each list of blocks has exactly one Start and at least one
   });
 
   it('refuses a child flow without a Start, at its blocks path', () => {
-    const build = { kind: 'flow', id: 'build', name: 'build', enabled: true, blocks: [{ kind: 'end', id: 'build-end', enabled: true }] };
+    const build = { kind: 'flow', id: 'build', name: 'build', enabled: true, blocks: [{ kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] };
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks', message: 'must contain exactly one start block' },
     ]);
@@ -330,7 +330,7 @@ describe('F-01 AC-003 a block that is not an object, or a blocks value that is n
 function startEnd(): Record<string, unknown>[] {
   return [
     { kind: 'start', id: 'start', enabled: true, arguments: [] },
-    { kind: 'end', id: 'end', enabled: true },
+    { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
   ];
 }
 

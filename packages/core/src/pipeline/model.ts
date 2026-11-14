@@ -103,10 +103,16 @@ export interface ConnectionBlock {
   artifact: string;
 }
 
+/** How a flow or the pipeline ends: `done` when its work is complete, `stopped` when a gate stopped it. */
+export type EndOutcome = 'done' | 'stopped';
+
+/** Exit of a flow, or of the pipeline. The produced artifact is optional. */
 export interface EndBlock {
   kind: 'end';
   id: string;
   enabled: boolean;
+  outcome: EndOutcome;
+  produced?: string;
 }
 
 /** The blocks a child flow holds. A flow cannot hold another flow (one nesting level). */

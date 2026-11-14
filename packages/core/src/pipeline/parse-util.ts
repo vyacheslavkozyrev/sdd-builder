@@ -21,7 +21,8 @@ export function isPlainObject(value: unknown): value is Obj {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function has(obj: Obj, key: string): boolean {
+/** True when the key is present, whatever its value. */
+export function has(obj: Obj, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, key);
 }
 
@@ -68,4 +69,24 @@ export function readList(obj: Obj, key: string, path: string, problems: Pipeline
   if (Array.isArray(value)) return value;
   problems.push({ path: childPath(path, key), message: 'must be a list' });
   return undefined;
+}
+
+/** The ids of one list of blocks, in order, and the ids of its connections. Read from the raw list, for the references between blocks. */
+export interface ListIds {
+  ids: readonly string[];
+  connections: readonly string[];
+}
+
+/** Collects the ids and connection ids of a raw list. Items without a string id are left out. */
+export function describeList(list: readonly unknown[]): ListIds {
+  const ids: string[] = [];
+  const connections: string[] = [];
+  for (const item of list) {
+    if (!isPlainObject(item)) continue;
+    const id = item['id'];
+    if (typeof id !== 'string') continue;
+    ids.push(id);
+    if (item['kind'] === 'connection') connections.push(id);
+  }
+  return { ids, connections };
 }

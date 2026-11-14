@@ -1,15 +1,17 @@
 // Structure of the pipeline's blocks: block kinds, ids, the enabled flag, one nesting level,
 // the Start and End rules, and the uniqueness of ids and agent names. The own fields of a block
-// are kept as read here; the field-level rules of Agent and Condition blocks are checked later
-// (parse-scope.ts, parse-condition.ts), which type them as the model types.
+// are kept as read here; the field-level rules of the other blocks are checked later
+// (parse-scope.ts, parse-condition.ts, parse-connection-end.ts), which type them as the model types.
 import { ID_MESSAGE, isValidId } from './ids.js';
 import {
   childPath,
+  describeList,
   indexPath,
   isPlainObject,
   readList,
   readObject,
   requirePresent,
+  type ListIds,
   type Obj,
   type PipelineProblem,
 } from './parse-util.js';
@@ -49,6 +51,8 @@ export type ChildStructure = StartStructure | AgentStructure | ConditionStructur
 /** A child flow placed in the pipeline, with the child blocks that passed the checks. */
 export interface FlowStructure extends Structure<'flow'> {
   blocks: ChildStructure[];
+  /** The ids of the flow's blocks as read, for the references between them. */
+  ids: ListIds;
 }
 
 /** The blocks the pipeline holds that passed the checks. */
@@ -199,8 +203,8 @@ function parseChildList(list: unknown[], path: string, registry: Registry, probl
 function parseFlow(head: Head, path: string, registry: Registry, problems: PipelineProblem[]): FlowStructure | undefined {
   const list = readList(head.obj, 'blocks', path, problems);
   const blocks = list === undefined ? undefined : parseChildList(list, childPath(path, 'blocks'), registry, problems);
-  if (head.id === undefined || head.enabled === undefined || blocks === undefined) return undefined;
-  return { kind: 'flow', id: head.id, enabled: head.enabled, path, fields: head.obj, blocks };
+  if (list === undefined || head.id === undefined || head.enabled === undefined || blocks === undefined) return undefined;
+  return { kind: 'flow', id: head.id, enabled: head.enabled, path, fields: head.obj, blocks, ids: describeList(list) };
 }
 
 function parsePipelineBlock(

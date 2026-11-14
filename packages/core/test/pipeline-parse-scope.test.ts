@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parsePipelineConfig, type ParsedChildBlock, type PipelineProblem } from '../src/pipeline/parse.js';
+import type { ChildBlock } from '../src/pipeline/model.js';
+import { parsePipelineConfig, type PipelineProblem } from '../src/pipeline/parse.js';
 
 /** A child flow with one Agent block of the given scope, plus its Start and End. */
 function flow(id: string, extra: Record<string, unknown>[] = []): Record<string, unknown> {
@@ -11,7 +12,7 @@ function flow(id: string, extra: Record<string, unknown>[] = []): Record<string,
     blocks: [
       { kind: 'start', id: `${id}-start`, enabled: true },
       ...extra,
-      { kind: 'end', id: `${id}-end`, enabled: true },
+      { kind: 'end', id: `${id}-end`, enabled: true, outcome: 'done' },
     ],
   };
 }
@@ -43,7 +44,7 @@ function validBlocks(childBlocks: Record<string, unknown>[] = [agent('task')]): 
   return [
     pipelineStart([FEATURE_ARGUMENT]),
     flow('build', childBlocks),
-    { kind: 'end', id: 'end', enabled: true },
+    { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
   ];
 }
 
@@ -54,7 +55,7 @@ function problemsOf(value: unknown): PipelineProblem[] {
 }
 
 /** The blocks of the child flow at pipeline index 1, as parsed. */
-function childBlocksOf(value: unknown): ParsedChildBlock[] {
+function childBlocksOf(value: unknown): ChildBlock[] {
   const result = parsePipelineConfig(value);
   if (!result.ok) throw new Error('expected the config to pass');
   const second = result.config.pipeline.blocks[1];
@@ -120,7 +121,7 @@ describe('F-01 AC-011 the pipeline Start carries arguments with unique names', (
 
   it('refuses a pipeline Start with no arguments key at the path of the key', () => {
     const start = { kind: 'start', id: 'start', enabled: true };
-    expect(problemsOf(configWith([start, flow('build', [agent('task')]), { kind: 'end', id: 'end', enabled: true }]))).toEqual([
+    expect(problemsOf(configWith([start, flow('build', [agent('task')]), { kind: 'end', id: 'end', enabled: true, outcome: 'done' }]))).toEqual([
       { path: 'pipeline.blocks[0].arguments', message: 'is required' },
     ]);
   });
@@ -189,8 +190,8 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
     const childStart = { kind: 'start', id: 'build-start', enabled: true, arguments: [FEATURE_ARGUMENT] };
     const blocks = [
       pipelineStart([FEATURE_ARGUMENT]),
-      { kind: 'flow', id: 'build', name: 'build flow', enabled: true, blocks: [childStart, { kind: 'end', id: 'build-end', enabled: true }] },
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'flow', id: 'build', name: 'build flow', enabled: true, blocks: [childStart, { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].blocks[0].arguments', message: 'is not a known key' },
@@ -206,9 +207,9 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
         id: 'build',
         name: 'build flow',
         enabled: true,
-        blocks: [childStart, agent('global'), { kind: 'end', id: 'build-end', enabled: true }],
+        blocks: [childStart, agent('global'), { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }],
       },
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].blocks[0].arguments', message: 'is not a known key' },
@@ -224,9 +225,9 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
         id: 'build',
         name: 'build flow',
         enabled: true,
-        blocks: [agent('task'), { kind: 'end', id: 'build-end', enabled: true }],
+        blocks: [agent('task'), { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }],
       },
-      { kind: 'end', id: 'end', enabled: true },
+      { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].blocks', message: 'must contain exactly one start block' },
@@ -234,7 +235,7 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
   });
 
   it('refuses a pipeline with no Start block at the path of its block list', () => {
-    const blocks = [flow('build', [agent('task')]), { kind: 'end', id: 'end', enabled: true }];
+    const blocks = [flow('build', [agent('task')]), { kind: 'end', id: 'end', enabled: true, outcome: 'done' }];
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks', message: 'must contain exactly one start block' },
     ]);

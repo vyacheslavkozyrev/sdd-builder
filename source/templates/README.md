@@ -22,7 +22,7 @@ Placeholders with no value fail the generation with a clear error; they are neve
 ## Layout
 
 ```
-templates/
+source/templates/
   base/           files every project gets (CLAUDE.md, process.md, spec template)
   workflows/      one layout for the workflow command, filled per workflow
   steps/          one folder per step id: a layout for its command, agent, skill or script

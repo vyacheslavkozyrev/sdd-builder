@@ -15,7 +15,7 @@ You are acting as a Principal Software Engineer. You run in the main session so 
 
 ## Step 2 — Read
 
-Read `stories.md`, `progress.md` and the approved screens in `design/features/F-XX-*/` (`screens.md` and the SVG files) of the feature, `spec/documents/architecture.md` (in particular §1 components, §3 generation model, §5 technology), the rule files in `.claude/rules/`, and the feature entry in `features.md`. Check other specs in `spec/specifications/` for overlap and for **prerequisite features that must be complete first**; list any that are not.
+Read `stories.md`, `progress.md` and the approved screens in `spec/design/features/F-XX-*/` (`screens.md` and the SVG files) of the feature, `spec/documents/architecture.md` (in particular §1 components, §3 generation model, §5 technology), the rule files in `.claude/rules/`, and the feature entry in `features.md`. Check other specs in `spec/specifications/` for overlap and for **prerequisite features that must be complete first**; list any that are not.
 
 ## Step 3 — Write the plan
 
@@ -23,7 +23,7 @@ Fill `plan.md` following its template. Each task is one implement → review →
 
 - **Small** (about 50–200 changed lines, one purpose) and **green** (the checks pass after the task).
 - **Tests travel with the code:** a task adds the tests for its own code; there are no "tests later" tasks. Tests are named with the feature and criterion, e.g. `F-04 AC-003`.
-- **Ordered:** dependencies never appear after the tasks that depend on them. Follow the layer order of `architecture.md` §1 (`packages/core` first, then `apps/api` and `apps/web`); the layer tags are listed in `spec/specifications/F-00-template/plan.md`.
+- **Ordered:** dependencies never appear after the tasks that depend on them. Follow the layer order of `architecture.md` §1 (`source/packages/core` first, then `source/apps/api` and `source/apps/web`); the layer tags are listed in `spec/specifications/F-00-template/plan.md`.
 - Each task has an ID (`T001`, `T002`, …), a layer tag, a short action, the target file paths (code and tests), and the acceptance criteria it covers.
 - Every `[auto]` criterion is covered by a task that includes a test for it. Every `[device]` criterion is covered by the task that builds the behaviour.
 - Do not add libraries beyond those approved in `architecture.md` §5; if one is needed, raise it with the user.

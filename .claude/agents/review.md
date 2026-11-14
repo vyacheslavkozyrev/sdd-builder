@@ -35,7 +35,7 @@ Locate `spec/specifications/F-XX-*/`. Read narrowly — these files grow with ev
 Run `git diff --cached` and read the rule files that apply: `.claude/rules/typescript.md`, `qa.md`, and any area rule file that applies. Read only the `architecture.md` or feature sections the change touches (`grep -n '^## '` to find them). Produce findings, not summaries. Evaluate every hunk for:
 
 1. **Correctness** — satisfies the criteria it claims; logic errors, off-by-one, wrong error handling.
-2. **Architecture** — dependency direction (`architecture.md` §1), `packages/core` purity, the LLM called only from `apps/api`, required blocks enforced in the model.
+2. **Architecture** — dependency direction (`architecture.md` §1), `source/packages/core` purity, the LLM called only from `source/apps/api`, required blocks enforced in the model.
 3. **Security and privacy** — API keys, secrets, brief content logged or stored, user input reaching the file system or an LLM prompt without validation, path traversal in generated file names.
 4. **Tests** — present in the same change; named with feature and criterion (`F-04 AC-003`); deterministic (no wall clock, no real network, no LLM calls in tests — use fakes); negative and edge cases. A test that cannot fail is a defect.
 5. **Determinism and resources** — generated output is byte-identical for the same input; no unbounded memory on large input; timeouts on external calls; no unclosed handles.
@@ -47,7 +47,7 @@ Severity: **BLOCKER** (wrong behaviour, broken guarantee, security or privacy pr
 
 For every finding (BLOCKER, WARNING, SUGGESTION) apply the fix to the source. Do not ask for confirmation between fixes. If a fix would contradict the specification or plan, do not apply it: record it under **Deferred Findings** in `progress.md` with the reason (for a BLOCKER or WARNING this counts as unresolved).
 
-Then re-run `scripts/task-check.sh`, fix failures, and `git add -A`.
+Then re-run `source/scripts/task-check.sh`, fix failures, and `git add -A`.
 
 Re-review only the lines your fixes changed (against what you reviewed) to confirm nothing new was introduced. **At most 2 review rounds in total** (initial + one re-run). Do not loop further.
 

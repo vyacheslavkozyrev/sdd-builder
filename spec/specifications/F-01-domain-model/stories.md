@@ -17,7 +17,7 @@ Requirements owned by this feature: R-01 to R-11 (listed in the Requirement Cove
 
 - **Scope:** types, the default pipeline and parsing with validation. Structural rules stay in F-04.
 - **Ids:** user-given, lowercase letters, digits and hyphens, starting with a letter, unique in the project. Agent names are file names, so they follow the same rule.
-- **Default pipeline:** a JSON file, `templates/pipeline/default.json`, imported into `packages/core` at build time (a typed JSON import, no runtime file read). Core stays free of file-system and network code.
+- **Default pipeline:** a JSON file, `source/templates/pipeline/default.json`, imported into `source/packages/core` at build time (a typed JSON import, no runtime file read). Core stays free of file-system and network code.
 - **One pipeline per project** in the MVP.
 - **`schemaVersion` is 2.** No saved configurations exist, so there is nothing to migrate. The flat model is removed, with no compatibility layer.
 
@@ -91,7 +91,7 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 - [ ] AC-014 `[auto]`: the build flow has agents implement, review, test and commit, each with scope `task`; verify and complete have scope `feature`; the specify, ux and plan agents have scope `feature`.
 - [ ] AC-015 `[auto]`: the pipeline has the five gates and checks of `building-blocks.md` §4 between its flows, with their check type, decider and fail route. Test: the gate list equals the table in that section.
 - [ ] AC-016 `[auto]`: the default pipeline is a valid configuration: the parser accepts it without problems.
-- [ ] AC-017 `[auto]`: the default pipeline is imported at build time from `templates/pipeline/default.json`; a test changes a copy of it and the parser refuses the change with the path of the problem.
+- [ ] AC-017 `[auto]`: the default pipeline is imported at build time from `source/templates/pipeline/default.json`; a test changes a copy of it and the parser refuses the change with the path of the problem.
 
 ### US-005: Parsing refuses bad input with a problem list
 
@@ -126,14 +126,14 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 ### US-007: The core stays pure
 
 **As a** developer
-**I want to** keep `packages/core` free of I/O
+**I want to** keep `source/packages/core` free of I/O
 **So that** it runs the same in the browser, the API and the tests
 
 **Requirements:** R-10
 
 #### Acceptance Criteria
 
-- [ ] AC-026 `[auto]`: no source file in `packages/core/src` imports `node:fs`, `http`, `https`, `process`, `window` or the network; a test scans the sources and fails on a match.
+- [ ] AC-026 `[auto]`: no source file in `source/packages/core/src` imports `node:fs`, `http`, `https`, `process`, `window` or the network; a test scans the sources and fails on a match.
 
 ### US-008: Connections, End blocks and gates between flows
 

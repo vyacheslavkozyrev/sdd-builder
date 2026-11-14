@@ -6,20 +6,20 @@ You draw the process as a pipeline: a map of flows (for example specify, UX, pla
 
 The process it packages comes from the ComEd and PhotoSync projects in `../ComEd` and `../PhotoSync`.
 
-The screens in `design/features/` are wireframes, not the final UI.
+The screens in `spec/design/features/` are wireframes, not the final UI.
 
 ## Status
 
-Scaffold. The domain model and the step catalog exist in `packages/core`; the model is being changed to a pipeline with flows, blocks, gates and checks. The generator, the UI and the API are planned in [spec/documents/features.md](spec/documents/features.md).
+Scaffold. The domain model and the step catalog exist in `source/packages/core`; the model is being changed to a pipeline with flows, blocks, gates and checks. The generator, the UI and the API are planned in [spec/documents/features.md](spec/documents/features.md).
 
 ## Layout
 
 ```
-apps/web/             wizard: brief, pipeline builder (Map tab and flow tabs), analyze and generate (planned)
-apps/api/             analyze and generate endpoints (planned)
-packages/core/        model, step catalog, structural checks, generator
-templates/            templates for the Claude Code layout
-design/features/      wireframes per feature (UX screens, approved before Build)
+source/apps/web/             wizard: brief, pipeline builder (Map tab and flow tabs), analyze and generate (planned)
+source/apps/api/             analyze and generate endpoints (planned)
+source/packages/core/        model, step catalog, structural checks, generator
+source/templates/            templates for the Claude Code layout
+spec/design/features/      wireframes per feature (UX screens, approved before Build)
 spec/                 idea, architecture, features, building blocks, process, feature specs
 .claude/              commands, agents and rules for building SDDBuilder itself
 ```
@@ -31,9 +31,9 @@ spec/                 idea, architecture, features, building blocks, process, fe
 - [Architecture](spec/documents/architecture.md)
 - [Features](spec/documents/features.md)
 - [Working process](spec/documents/process.md)
-- [Templates and placeholders](templates/README.md)
+- [Templates and placeholders](source/templates/README.md)
 - [Market research](spec/documents/market-research.md)
-- [Screen wireframes](design/features/)
+- [Screen wireframes](spec/design/features/)
 
 ## Setup
 

@@ -7,9 +7,9 @@ Every task adds or updates the tests for the code it changes, in the same task. 
 
 | Level | Location |
 |---|---|
-| Unit (a package) | `packages/<name>/test/` |
-| API | `apps/api/test/` (HTTP-level tests with fakes for the LLM) |
-| Web | `apps/web/test/` for view-model and logic; no browser tests in the MVP unless a feature asks for them |
+| Unit (a package) | `source/packages/<name>/test/` |
+| API | `source/apps/api/test/` (HTTP-level tests with fakes for the LLM) |
+| Web | `source/apps/web/test/` for view-model and logic; no browser tests in the MVP unless a feature asks for them |
 
 ## Naming acceptance criteria
 - Criterion IDs restart in every feature; every test that proves one carries the feature and criterion, e.g. `F-04 AC-003 rejects a block id that clashes with the catalog`.

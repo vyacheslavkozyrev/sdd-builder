@@ -39,7 +39,7 @@ Run the steps of the `/specify` command in this session (clarify, write `stories
 
 ## Step 3 — UX (pause point 2)
 
-Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Plan starts only after the user approves the screens.
+Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `spec/design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Plan starts only after the user approves the screens.
 
 ## Step 3a — Plan (pause point 3)
 
@@ -49,9 +49,9 @@ Run the steps of the `/plan` command in this session (write `plan.md` from the s
 
 Repeat for every unchecked task in `plan.md`, in order. **A task is finished only when it is committed; never start the next before that.**
 
-1. **Implement** — spawn the `implement` agent with the feature ID and the task ID. It writes the code and its tests, runs the checks, ticks the task, and stages the change. Not committed. For a feature with approved screens, the agent builds the layout and states shown in `design/features/F-XX-*/` (not the older mockups).
+1. **Implement** — spawn the `implement` agent with the feature ID and the task ID. It writes the code and its tests, runs the checks, ticks the task, and stages the change. Not committed. For a feature with approved screens, the agent builds the layout and states shown in `spec/design/features/F-XX-*/` (not the older mockups).
 2. **Review** — spawn the `review` agent. It reviews the staged diff, fixes all findings (at most 2 review rounds), and re-stages.
-3. **Test** — no agent. Run `scripts/task-check.sh` yourself and wait for it. On PASS, set **Current Task** in `progress.md` to `T### — tested: <totals from the output>`. On FAIL:
+3. **Test** — no agent. Run `source/scripts/task-check.sh` yourself and wait for it. On PASS, set **Current Task** in `progress.md` to `T### — tested: <totals from the output>`. On FAIL:
    - send the failure (the output tail) to the `implement` agent as a targeted fix for the same task (do not start a new task),
    - then run **review** again on the changed lines and the check again,
    - allow at most **2** such fix cycles, then stop.

@@ -1,6 +1,6 @@
 ---
 name: test
-description: Verify a whole feature's acceptance criteria and prepare the manual checklist (verify mode). Task-level checks are run by the orchestrator with scripts/task-check.sh, not by this agent. Never edits production code. Input - feature ID (F-04) and the word verify.
+description: Verify a whole feature's acceptance criteria and prepare the manual checklist (verify mode). Task-level checks are run by the orchestrator with source/scripts/task-check.sh, not by this agent. Never edits production code. Input - feature ID (F-04) and the word verify.
 tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
@@ -8,7 +8,7 @@ Act as a Senior QA Engineer.
 
 ## Input
 
-The prompt has a feature ID (`F-04`, `04` or `4`) and optionally the word `verify`. If the feature ID is missing or unknown, stop and tell the caller. This agent only runs **verify mode**; task-level checks are run by the orchestrator with `scripts/task-check.sh`.
+The prompt has a feature ID (`F-04`, `04` or `4`) and optionally the word `verify`. If the feature ID is missing or unknown, stop and tell the caller. This agent only runs **verify mode**; task-level checks are run by the orchestrator with `source/scripts/task-check.sh`.
 
 ## Step 1 — Find the feature
 
@@ -27,7 +27,7 @@ You never modify production code or tests. You may edit `progress.md` and `check
 
 ## Step 3 — Run everything
 
-Run `scripts/task-check.sh` (type check and the full test suite of the workspace). Capture the output.
+Run `source/scripts/task-check.sh` (type check and the full test suite of the workspace). Capture the output.
 
 ## Step 4 — Acceptance criteria matrix
 

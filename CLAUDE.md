@@ -8,17 +8,17 @@ Documents are **not** auto-loaded. Read only the part you need, with `grep -n '^
 - Components, data flow, LLM analysis, technology: `spec/documents/architecture.md`
 - Feature list and dependencies: `spec/documents/features.md`
 - Building blocks: commands, blocks (start, agent, condition, connection, end), the map: `spec/documents/building-blocks.md`
-- Screen wireframes (not the final UI): `design/features/F-XX-<slug>/` (one folder per feature, with its `screens.md`)
+- Screen wireframes (not the final UI): `spec/design/features/F-XX-<slug>/` (one folder per feature, with its `screens.md`)
 - Working process: `spec/documents/process.md`
-- Template placeholders: `templates/README.md`
+- Template placeholders: `source/templates/README.md`
 
 ## Layout
 
 ```
-apps/web/             wizard (brief, workflow builder on the Map tab, analyze and generate), Vite + React
-apps/api/             HTTP API: analyze (structural + LLM), generate, zip (stateless)
-packages/core/        domain model, block catalog, structural checks, generator (pure TypeScript)
-templates/            text templates for the Claude Code layout (data, not code)
+source/apps/web/             wizard (brief, workflow builder on the Map tab, analyze and generate), Vite + React
+source/apps/api/             HTTP API: analyze (structural + LLM), generate, zip (stateless)
+source/packages/core/        domain model, block catalog, structural checks, generator (pure TypeScript)
+source/templates/            text templates for the Claude Code layout (data, not code)
 spec/documents/       project documentation
 spec/specifications/  one folder per feature; F-00-template is the starting point
 .claude/rules/        coding and QA rules
@@ -26,9 +26,9 @@ spec/specifications/  one folder per feature; F-00-template is the starting poin
 
 ## Working rules
 
-- Dependency direction: `web → core`, `api → core`. `core` never imports from `apps/`.
-- `packages/core` is pure: no file system, HTTP, LLM or UI code. I/O and LLM calls belong in `apps/api`.
-- The LLM is called only from `apps/api`, only in `/analyze` (review) and `/generate` (writing the final framework files from the block descriptions). `packages/core` sets the structure of the output and checks what the model returns (`architecture.md` §6, decision 7).
+- Dependency direction: `web → core`, `api → core`. `core` never imports from `source/apps/`.
+- `source/packages/core` is pure: no file system, HTTP, LLM or UI code. I/O and LLM calls belong in `source/apps/api`.
+- The LLM is called only from `source/apps/api`, only in `/analyze` (review) and `/generate` (writing the final framework files from the block descriptions). `source/packages/core` sets the structure of the output and checks what the model returns (`architecture.md` §6, decision 7).
 - `ANTHROPIC_API_KEY` lives in the server environment only. Never put it in the browser bundle, a log line, a fixture or a commit.
 - Brief content is never stored or logged by the server.
 - The process is data: command and block definitions and templates change the output without changing generator code.
@@ -42,12 +42,12 @@ spec/specifications/  one folder per feature; F-00-template is the starting poin
 ```
 npm install
 npm run typecheck
-scripts/task-check.sh      # type check + tests; fails until the test script exists (F-02)
+source/scripts/task-check.sh      # type check + tests; fails until the test script exists (F-02)
 ```
 
 ## Commands and agents
 
-The working cycle is the same as in the ComEd and PhotoSync projects. Commands in `.claude/commands/`: `/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`. The UX step (`/ux`) draws the feature's screens as SVG under `design/features/F-XX-<slug>/` after Specify and waits for the user's approval before Plan and Build. Agents in `.claude/agents/`: `implement`, `review`, `test` (verify mode). Details in `spec/documents/process.md`.
+The working cycle is the same as in the ComEd and PhotoSync projects. Commands in `.claude/commands/`: `/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`. The UX step (`/ux`) draws the feature's screens as SVG under `spec/design/features/F-XX-<slug>/` after Specify and waits for the user's approval before Plan and Build. Agents in `.claude/agents/`: `implement`, `review`, `test` (verify mode). Details in `spec/documents/process.md`.
 
 Commands and agents run only after the repository is a git repository on `main` with a clean tree (`git init` first).
 

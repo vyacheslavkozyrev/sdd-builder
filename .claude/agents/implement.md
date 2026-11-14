@@ -36,12 +36,12 @@ Read `.claude/rules/typescript.md`, `general.md` and `qa.md`, and any area rule 
 - Write the code **and its tests** in the same task. Tests are named with the feature and criterion (`F-04 AC-003 …`).
 - Touch the files listed for the task. If another file is genuinely needed, keep the change minimal and mention it in your report.
 - Follow the architecture and rules exactly. Respect the dependency direction (`architecture.md` §1). Do not add abstractions or dependencies that are not already approved (`architecture.md` §5).
-- `packages/core` stays pure: no file system, HTTP, LLM or UI code.
+- `source/packages/core` stays pure: no file system, HTTP, LLM or UI code.
 - If the task cannot be done as written (the plan is wrong, a prerequisite is missing, the requirement conflicts), **stop and report** what is wrong and propose an amendment. Do not redesign silently.
 
 ## Step 6 — Run the checks
 
-Run from the repository root: `scripts/task-check.sh`. It runs the type check and the test suite of the whole workspace. If a check reports that a script is not configured yet (for example no test script before F-02), stop and report it — a missing check is never a pass.
+Run from the repository root: `source/scripts/task-check.sh`. It runs the type check and the test suite of the whole workspace. If a check reports that a script is not configured yet (for example no test script before F-02), stop and report it — a missing check is never a pass.
 
 If a check fails, fix the cause and re-run it. Try at most 3 times; then stop and report the failure with the output.
 

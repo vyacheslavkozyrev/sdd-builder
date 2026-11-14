@@ -1,31 +1,31 @@
 # SDDBuilder — Features
 
-Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting level) and blocks ([building-blocks.md](building-blocks.md)), the decisions in [idea.md](idea.md) and the architecture in [architecture.md](architecture.md). Screens referenced here are wireframes in `design/features/`. Each feature becomes stories and tasks later, following [process.md](process.md).
+Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting level) and blocks ([building-blocks.md](building-blocks.md)), the decisions in [idea.md](idea.md) and the architecture in [architecture.md](architecture.md). Screens referenced here are wireframes in `spec/design/features/`. Each feature becomes stories and tasks later, following [process.md](process.md).
 
 ## Overview
 
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | packages/core | 0 | — | ✅ Complete in `packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
-| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | packages/core | 1 | F-01 | ↻ Built on the flat model (18 tasks, 34 criteria, 99 tests); re-scope |
+| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ↻ Built on the flat model (18 tasks, 34 criteria, 99 tests); re-scope |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ↻ Built on the flat model (17 tasks, 29 criteria, 174 tests); re-scope |
-| F-04 | Analyzer: structural checks and LLM review | MVP | User | packages/core, apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |
-| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | apps/web | 2 | F-01 | ⏳ Pending (re-scope to the wizard) |
-| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope; absorbs F-14 and F-15 |
-| F-07 | API: analyze and generate, zip download | MVP | User | apps/api | 2 | F-02, F-03, F-04 | ↻ Built on the flat model (23 tasks, 29 criteria); re-scope |
-| F-08 | Save, import and export of projects | Post-MVP | User | apps/web | — | F-05, F-06 | Not started |
-| F-09 | Presets: other starting pipelines | Post-MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Pending (re-scope to pipelines) |
-| F-10 | Generated-project self-check | Post-MVP | Enabler | packages/core | 3 | F-03 | ⏳ Pending |
+| F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ↻ Built on the flat model (16 tasks, 22 criteria, 387 tests); re-scope |
+| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | ⏳ Pending (re-scope to the wizard) |
+| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | ↻ Built on the tab model (14 tasks); layout rework and re-scope; absorbs F-14 and F-15 |
+| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ↻ Built on the flat model (23 tasks, 29 criteria); re-scope |
+| F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06 | Not started |
+| F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | ⏳ Pending (re-scope to pipelines) |
+| F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | ⏳ Pending |
 | F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not planned |
 | F-12 | Copilot target | Post-MVP | User | templates, core | — | F-03 | Not planned |
-| F-13 | Abuse, cost and privacy controls | MVP | Enabler | apps/api, apps/web | 2 | F-04, F-07 | ↻ Built (10 tasks, 29 criteria); caps re-scope to rule blocks, no modules |
+| F-13 | Abuse, cost and privacy controls | MVP | Enabler | source/apps/api, source/apps/web | 2 | F-04, F-07 | ↻ Built (10 tasks, 29 criteria); caps re-scope to rule blocks, no modules |
 | F-14 | Custom blocks: agents | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a custom agent is a toolbox item in F-06 |
 | F-15 | Configurable quality gates: conditions | Merged into F-06 | User | — | — | — | Merged 2026-11-14: a gate or check is a Condition block in F-06 |
-| F-16 | GitHub Spec Kit output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-17 | OpenSpec output | Post-MVP | User | packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
-| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | packages/core, apps/web | 3 | F-06 | ⏳ Proposed |
-| F-19 | Read-only share link for clients | Post-MVP | User | apps/web | — | F-18 | Not planned |
-| F-20 | Browser-local autosave | Post-MVP | User | apps/web | — | F-06 | Not planned |
+| F-16 | GitHub Spec Kit output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
+| F-17 | OpenSpec output | Post-MVP | User | source/packages/core, templates | 4 | F-03 | ⏳ Proposed, first after MVP |
+| F-18 | Process diagrams: the Map tab, presentation mode; Mermaid in process.md | MVP | User | source/packages/core, source/apps/web | 3 | F-06 | ⏳ Proposed |
+| F-19 | Read-only share link for clients | Post-MVP | User | source/apps/web | — | F-18 | Not planned |
+| F-20 | Browser-local autosave | Post-MVP | User | source/apps/web | — | F-06 | Not planned |
 
 **Totals:** 20 features, two of them merged into F-06 (F-14, F-15). MVP: 9 (F-01 to F-07, F-13, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
 
@@ -39,7 +39,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 
 ### F-01 Domain model: the pipeline, blocks and the default pipeline
 
-The types for `ProjectConfig`, the pipeline and its flows (one nesting level), the five block kinds (start, agent, condition, connection, end) and the Flow block, conditions with their fixed check types and routes, scope on agent blocks, the `AnalysisResult` and `GenerationResult`, and the default pipeline (`building-blocks.md` §4). The scaffold in `packages/core/src/` still has the flat model and must be changed to match `building-blocks.md` before F-02.
+The types for `ProjectConfig`, the pipeline and its flows (one nesting level), the five block kinds (start, agent, condition, connection, end) and the Flow block, conditions with their fixed check types and routes, scope on agent blocks, the `AnalysisResult` and `GenerationResult`, and the default pipeline (`building-blocks.md` §4). The scaffold in `source/packages/core/src/` still has the flat model and must be changed to match `building-blocks.md` before F-02.
 
 ### F-02 Generator core
 
@@ -52,25 +52,25 @@ Layouts for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), th
 ### F-04 Analyzer: structural checks and LLM review
 
 - *Structural (in `core`, deterministic):* the rules of `building-blocks.md` §7: one Start block per flow, connections that join two blocks or two flows, only the pipeline contains flows, both outputs of every condition wired, every block reachable, no cycles apart from retries, unique agent names, and a warning on a retry with no round limit. Plus empty required fields and unknown ids.
-- *Semantic (in `apps/api`, LLM):* a fixed review prompt over the brief and the process; output validated against the `AnalysisFinding` shape; invalid output dropped and counted. Covers gaps in the idea, contradictory or unverifiable rules, test rules that name tools outside the stack, and suggested blocks. Advice only.
+- *Semantic (in `source/apps/api`, LLM):* a fixed review prompt over the brief and the process; output validated against the `AnalysisFinding` shape; invalid output dropped and counted. Covers gaps in the idea, contradictory or unverifiable rules, test rules that name tools outside the stack, and suggested blocks. Advice only.
 - Structural findings are returned even when the LLM step fails.
 
 ### F-05 Project wizard
 
-Four steps (`design/features/F-05-project-brief-form/`):
+Four steps (`spec/design/features/F-05-project-brief-form/`):
 
 1. **Project name and idea.** The name is required. The idea has a counter (8,000 characters).
 2. **Technical details.** Architecture style; language, framework, test framework and build tool. Code rules are rule blocks: each has a title and a body, and becomes one Markdown file in `.claude/rules/`. No module list.
 3. **Workflow.** The builder (F-06), showing the pipeline on the Map tab.
 4. **Analyze and generate.** The privacy notice with a checkbox before Analyze; the findings; Generate; the file tree; Download zip after generation (F-07).
 
-The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only. A Project name field maps to `name`.
+The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `source/apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only. A Project name field maps to `name`.
 
 ### F-06 Visual builder: the Map tab, flow tabs, gates and checks, custom agents
 
 Absorbs F-14 (custom agents) and F-15 (gates and checks), merged 2026-11-14.
 
-Screens: `design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
+Screens: `spec/design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
 
 - **Map tab (the pipeline).** The pipeline's child flows in order, as nodes. Connections between flows carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. A toolbox holds Flow, Condition and Connection. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are shown above the diagram.
 - **Flow tabs.** One tab per child flow, with its blocks in order and a toolbox of Start, Agent, Condition, Connection and End. A flow has one Start and at least one End.

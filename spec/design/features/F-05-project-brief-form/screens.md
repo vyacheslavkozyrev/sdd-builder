@@ -28,7 +28,7 @@ These screens change approved requirements. They need their own stories and plan
 
 - **F-05 stories**: remove the module rows and their checks; code rules become rule blocks with a title and a body; the single form becomes the wizard; the Analyze gate and privacy notice move to step 4.
 - **F-06 stories**: the builder is step 3 of the wizard, showing the pipeline on the Map tab: its flows in order, with the gates and checks between them, and a tab per flow with its blocks; the Brief / Builder switch (task T014) is replaced by the wizard flow.
-- **Model (`packages/core`, F-01)**: `architecture.modules` is no longer entered; code rules become blocks with a title, a file name and a body. The analyzer's layer checks (F-04) then have nothing to check; decide whether to remove them or keep them optional.
+- **Model (`source/packages/core`, F-01)**: `architecture.modules` is no longer entered; code rules become blocks with a title, a file name and a body. The analyzer's layer checks (F-04) then have nothing to check; decide whether to remove them or keep them optional.
 - **Generator (F-02, F-03)**: one generated Markdown file per rule block, named from its title; the file list stays deterministic.
 - **API (F-07)**: step 4 calls analyze, then generate, then the zip download.
 

@@ -2,7 +2,7 @@
 
 Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`).
 
-Phases of a feature: Specify → **UX** (SVG screens, approved by the user) → Plan → Build → Verify → Complete. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `scripts/task-check.sh`, not Swift tooling.
+Phases of a feature: Specify → **UX** (SVG screens, approved by the user) → Plan → Build → Verify → Complete. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `source/scripts/task-check.sh`, not Swift tooling.
 
 ## The default process: the pipeline as commands
 
@@ -28,7 +28,7 @@ A project that uses another process edits the pipeline on the Map tab; the pipel
 | Project documents | `spec/documents/` |
 | Feature list | `spec/documents/features.md` |
 | One folder per feature | `spec/specifications/F-XX-<slug>/` |
-| UX screens per feature (SVG) | `design/features/F-XX-<slug>/` |
+| UX screens per feature (SVG) | `spec/design/features/F-XX-<slug>/` |
 | Spec template | `spec/specifications/F-00-template/` |
 | Commands, agents, rules | `.claude/` |
 | Project instructions for Claude | `CLAUDE.md` |

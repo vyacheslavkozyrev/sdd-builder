@@ -7,7 +7,7 @@ Arguments: `$ARGUMENTS` — a feature ID (`F-04`, `04` or `4`) and an optional w
 
 ## Task mode (default)
 
-No agent. Run `scripts/task-check.sh` (type check and tests of the workspace). On PASS set **Current Task** in `progress.md` to `T### — tested: <totals>`; `/commit` is next. On FAIL show the output tail and stop.
+No agent. Run `source/scripts/task-check.sh` (type check and tests of the workspace). On PASS set **Current Task** in `progress.md` to `T### — tested: <totals>`; `/commit` is next. On FAIL show the output tail and stop.
 
 ## Verify mode (`/test F-XX verify`)
 

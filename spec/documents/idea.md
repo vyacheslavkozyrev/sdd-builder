@@ -2,7 +2,7 @@
 
 Status: draft for review. Reflects the decisions of 2026-11-14 (see §Decisions); the model of commands and blocks is in `building-blocks.md`.
 
-Note on screens: the files in `design/features/` are **wireframes**. They show layout, content and states. They are not the final UI, and colours, fonts and icons are placeholders.
+Note on screens: the files in `spec/design/features/` are **wireframes**. They show layout, content and states. They are not the final UI, and colours, fonts and icons are placeholders.
 
 ## Summary
 

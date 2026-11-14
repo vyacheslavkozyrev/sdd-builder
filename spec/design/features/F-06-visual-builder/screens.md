@@ -1,6 +1,6 @@
 # UX screens — Visual builder: the Map tab and the flow tabs (F-06)
 
-Scope: the builder is step 3 of the project wizard (`design/features/F-05-project-brief-form/`). The model is in `spec/documents/building-blocks.md`: the **pipeline** is the one flow that contains other flows (one nesting level); a **flow** contains blocks only; gates and checks sit between flows. Desktop, 1280 × 800. Wireframes in SVG; colours and wording are placeholders.
+Scope: the builder is step 3 of the project wizard (`spec/design/features/F-05-project-brief-form/`). The model is in `spec/documents/building-blocks.md`: the **pipeline** is the one flow that contains other flows (one nesting level); a **flow** contains blocks only; gates and checks sit between flows. Desktop, 1280 × 800. Wireframes in SVG; colours and wording are placeholders.
 
 The tab row is the same on every screen: **Map** (the pipeline), one tab per flow, and **+** to add a flow.
 

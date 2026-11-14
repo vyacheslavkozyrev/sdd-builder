@@ -1,6 +1,6 @@
 # SDDBuilder — Building Blocks
 
-Status: decided 2026-11-14 with the owner, revised the same day three times. The model has two levels of flow: the **pipeline** (the one flow that can contain other flows) and **flows** (which hold blocks only). Replaces the 2026-11-11 model (workflows as tabs of steps, nine node kinds). Not yet reflected in `packages/core` or in the feature specs; the features are re-specified after F-01 is reworked (`features.md`).
+Status: decided 2026-11-14 with the owner, revised the same day three times. The model has two levels of flow: the **pipeline** (the one flow that can contain other flows) and **flows** (which hold blocks only). Replaces the 2026-11-11 model (workflows as tabs of steps, nine node kinds). Not yet reflected in `source/packages/core` or in the feature specs; the features are re-specified after F-01 is reworked (`features.md`).
 
 ## Decisions
 
@@ -55,7 +55,7 @@ Every block also has an **id** (stable, used by routes and by the self-check, F-
 The default pipeline is the flow of `.claude/commands/pipeline.md`, written as flows. Its child flows, in order:
 
 1. **specify** (flow). Agent `specify` (scope `feature`): drafts `stories.md`. Its questions are asked by the main session before it starts.
-2. **ux** (flow). Agent `ux` (scope `feature`): draws the screens under `design/features/`, from the stories. Its screens are approved before the plan is written.
+2. **ux** (flow). Agent `ux` (scope `feature`): draws the screens under `spec/design/features/`, from the stories. Its screens are approved before the plan is written.
 3. **plan** (flow). Agent `plan` (scope `feature`): drafts `plan.md` from the stories and the approved screens.
 4. **build** (flow). Per task (scope `task`, iteration `plan.md`): Agent `implement` → Agent `review` → Condition `review` (blockers: back to `implement`; clean: next) → Agent `test` → Condition `checks` (the check runs; fail back to `implement`) → Condition `diff-size` (400 lines; fail stops) → Agent `commit`. One commit per task.
 5. **verify** (flow). Agent `verify` (scope `feature`, verify mode: every criterion covered).
@@ -116,9 +116,9 @@ Post-MVP: skills and scripts as blocks; custom agent blocks (F-14); presets (F-0
 | `spec/documents/architecture.md` | §3 generation (a file per flow, the pipeline command), §6 decisions, §8 output mapping, §9 gates between flows, §10 the Map tab and the flow tabs |
 | `spec/documents/features.md` | F-01 to F-07, F-13 to F-15, F-18 re-scoped; F-09 presets; F-14 custom agents |
 | `spec/documents/process.md` | the pipeline section lists its flows |
-| `templates/README.md` | placeholders and layouts for the pipeline, flow and agent files |
+| `source/templates/README.md` | placeholders and layouts for the pipeline, flow and agent files |
 | `CLAUDE.md` | the working rule on nesting |
-| `packages/core/src/model.ts`, `catalog.ts` | the pipeline and flows; the five block kinds plus Flow; scope on the Agent block; the default pipeline |
+| `source/packages/core/src/model.ts`, `catalog.ts` | the pipeline and flows; the five block kinds plus Flow; scope on the Agent block; the default pipeline |
 | `spec/specifications/F-02` to `F-07`, `F-13` to `F-15`, `F-18` | built or specified on the previous model; re-specified after F-01 is reworked |
 
 ## 9. Open questions

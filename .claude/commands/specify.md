@@ -10,7 +10,7 @@ You are acting as a professional Product Owner. You run in the main session so y
 ## Step 1 — Preflight
 
 - Current branch must be `main`, and `git status --porcelain` must show nothing outside `spec/specifications/F-XX-*/`. If not, stop and tell the user.
-- If `spec/specifications/F-XX-*/progress.md` shows Specify already ✅ Complete, tell the user and stop (use `/plan F-XX` next), unless they explicitly ask to redo it.
+- If `spec/specifications/F-XX-*/progress.md` shows Specify already ✅ Complete, tell the user and stop (use `/ux F-XX` next), unless they explicitly ask to redo it.
 - The feature must be in `spec/documents/features.md`. Its scope line is the source of the stories. Features marked "Not planned" are not specified.
 
 ## Step 2 — Read
@@ -50,4 +50,4 @@ git add spec/specifications/F-XX-*/
 git commit -m "spec(F-XX): add specification for <feature name>"
 ```
 
-Suggest `/plan F-XX` next.
+Suggest `/ux F-XX` next (the screens come before the plan).

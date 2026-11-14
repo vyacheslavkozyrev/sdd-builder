@@ -10,13 +10,13 @@ You are acting as a senior UX designer. You run in the main session so you can a
 ## Step 1 — Preflight
 
 - Current branch must be `main`. `git status --porcelain` must show nothing outside `spec/specifications/F-XX-*/` and `design/features/F-XX-*/`. If not, stop and tell the user.
-- `progress.md` of the feature must show **Specify** and **Plan** ✅ Complete. If not, stop and tell the user which command to run first.
-- If **UX** is already ✅ Complete, tell the user and stop (use `/implement F-XX` or `/pipeline F-XX` next), unless they ask to redo it.
+- `progress.md` of the feature must show **Specify** ✅ Complete. UX comes before Plan. If not, stop and tell the user to run `/specify F-XX` first.
+- If **UX** is already ✅ Complete, tell the user and stop (use `/plan F-XX` next), unless they ask to redo it.
 - If the feature has no user-facing criteria (its "Where" in `features.md` is only `packages/core` or `templates`), say so, mark UX ➖ Not needed in `progress.md`, and stop. The pipeline then moves to Build.
 
 ## Step 2 — Read
 
-Read the feature's `stories.md` and `plan.md`, its entry in `features.md`, `design/mockups/README.md` (decisions the mockups assume), and the mockups that name this feature in their "Features it covers" column. Note every criterion that a person sees or does in the UI: anything in `apps/web`, and every `[device]` criterion.
+Read the feature's `stories.md` (the plan is written after the screens, so there is no `plan.md` yet), its entry in `features.md`, `design/mockups/README.md` (decisions the mockups assume), and the mockups that name this feature in their "Features it covers" column. Note every criterion that a person sees or does in the UI: anything in `apps/web`, and every `[device]` criterion.
 
 ## Step 3 — Plan the screens
 
@@ -51,4 +51,4 @@ git add design/features/F-XX-*/ spec/specifications/F-XX-*/
 git commit -m "design(F-XX): add UX screens for <feature name>"
 ```
 
-Suggest `/implement F-XX` (or `/pipeline F-XX`) next. The implementer must build the approved screens and their layout, not the older mockups.
+Suggest `/plan F-XX` next. The plan reads these approved screens; the implementer must build the approved screens and their layout, not the older mockups.

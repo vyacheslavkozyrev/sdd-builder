@@ -1,5 +1,5 @@
 ---
-description: Run a whole feature — specify, plan, UX screens (approved by you before any code), then implement → review → test → commit for every task, then verify — pausing only where you must decide.
+description: Run a whole feature — specify, UX screens (approved by you before any code), plan, then implement → review → test → commit for every task, then verify — pausing only where you must decide.
 argument-hint: F-XX [research]
 ---
 
@@ -10,8 +10,8 @@ You are the orchestrator and run in the main session. Follow the steps in order.
 ## Pause points (the only times you wait for the user)
 
 1. Specify: clarifying questions and approval of the stories.
-2. Plan: approval of the task list.
-3. UX: approval of the screens. Nothing is implemented before this approval.
+2. UX: approval of the screens. Nothing is planned or implemented before this approval.
+3. Plan: approval of the task list.
 4. Verify: results of the manual checklist.
 5. Any stop condition (see the end of this file).
 
@@ -26,8 +26,7 @@ You are the orchestrator and run in the main session. Follow the steps in order.
 
 Glob `spec/specifications/F-XX-*/progress.md` (glob the file, not the folder). If none exists, start at Step 2. Otherwise read the Phase Status table and **Current Task**:
 
-- Specify pending → Step 2. Plan pending → Step 3.
-- UX pending → Step 3a (a feature with no user-facing criteria marks UX ➖ Not needed and moves on).
+- Specify pending → Step 2. UX pending → Step 3 (a feature with no user-facing criteria marks UX ➖ Not needed and moves on to Plan). Plan pending → Step 3a.
 - Build pending or in progress → Step 4. If Current Task is set, resume that task at its next step (`implemented` → review, `reviewed` → test, `tested` → commit).
 - Verify pending → Step 5.
 - Every phase ✅ Complete → tell the user the feature is already complete and stop.
@@ -38,13 +37,13 @@ Never redo a phase that is ✅ Complete.
 
 Run the steps of the `/specify` command in this session (clarify, write `stories.md`, coverage check, user approval, commit).
 
-## Step 3 — Plan (pause point 2)
+## Step 3 — UX (pause point 2)
 
-Run the steps of the `/plan` command in this session (write `plan.md`, coverage check, user approval, commit). No code is written before the plan is approved.
+Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Plan starts only after the user approves the screens.
 
-## Step 3a — UX (pause point 3)
+## Step 3a — Plan (pause point 3)
 
-Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Build starts only after the user approves the screens.
+Run the steps of the `/plan` command in this session (write `plan.md` from the stories and the approved screens, coverage check, user approval, commit). No code is written before the plan is approved.
 
 ## Step 4 — Build: one task at a time
 

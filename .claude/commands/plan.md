@@ -11,10 +11,11 @@ You are acting as a Principal Software Engineer. You run in the main session so 
 
 - Current branch must be `main` and the working tree clean. If not, stop.
 - Read `spec/specifications/F-XX-*/progress.md`. If **Specify** is not ✅ Complete, stop and tell the user to run `/specify F-XX`. If **Plan** is already ✅ Complete, tell the user and stop unless they ask to redo it.
+- **UX** must be ✅ Complete, or ➖ Not needed for a feature with no user interface. If not, stop and tell the user to run `/ux F-XX` first.
 
 ## Step 2 — Read
 
-Read `stories.md` and `progress.md` of the feature, `spec/documents/architecture.md` (in particular §1 components, §3 generation model, §5 technology), the rule files in `.claude/rules/`, and the feature entry in `features.md`. Check other specs in `spec/specifications/` for overlap and for **prerequisite features that must be complete first**; list any that are not.
+Read `stories.md`, `progress.md` and the approved screens in `design/features/F-XX-*/` (`screens.md` and the SVG files) of the feature, `spec/documents/architecture.md` (in particular §1 components, §3 generation model, §5 technology), the rule files in `.claude/rules/`, and the feature entry in `features.md`. Check other specs in `spec/specifications/` for overlap and for **prerequisite features that must be complete first**; list any that are not.
 
 ## Step 3 — Write the plan
 

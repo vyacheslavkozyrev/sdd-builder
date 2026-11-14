@@ -1,4 +1,4 @@
-# Implementation Plan — [Feature Name] ([F-XX])
+# Implementation Plan — Project brief form (F-05)
 
 Each task is **one implement → review → test → commit cycle** and produces exactly one commit. Rules for tasks:
 
@@ -10,12 +10,26 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 ## Tasks
 
-- [ ] T001 [Layer] [Short action] — `source/[path]`, `source/[test path]` — covers AC-001
-- [ ] T002 [Layer] [Short action] — `source/[path]` — covers AC-002
+- [ ] T001 [Docs] Record the F-05 web decisions: Vite + React for `apps/web`, Vitest for its logic tests with no DOM or browser test library, the dev server forwards `/analyze` to `apps/api`, and the brief form's Project name field; `architecture.md` §5 status changes from proposed for the web row — `spec/documents/architecture.md`, `spec/documents/features.md` — covers none (decision record required before code depends on it)
+- [ ] T002 [Build] Set up `apps/web`: `package.json` scripts `typecheck`, `test` (`vitest run`), `dev`, `build`; dependencies `react`, `react-dom`; dev dependencies `vite`, `@vitejs/plugin-react`, `vitest`, `typescript` types for React; `tsconfig.json` (JSX `react-jsx`, DOM lib, extends the base); `vite.config.ts` with the `/analyze` proxy to the API; `index.html`; `src/main.tsx` rendering an empty root; `test/smoke.test.ts` — `apps/web/package.json`, `apps/web/tsconfig.json`, `apps/web/vite.config.ts`, `apps/web/index.html`, `apps/web/src/main.tsx`, `apps/web/test/smoke.test.ts`, `package-lock.json` — covers none (setup; enables the checks for the web workspace)
+- [ ] T003 [Web] Brief state and configuration building: `BriefState` (name, idea, stack fields, style, module rows, rule lists, checkbox), `emptyBrief()`, and `toProjectConfig(brief)`: trims values, drops blank rules, leaves blank optional stack fields out of `stack`, splits depends-on into names in order and keeps names that match no module, sets `schemaVersion` 1, `targets` `["claude"]`, `customSteps` `[]`, and copies `DEFAULT_WORKFLOWS` and `DEFAULT_CONNECTIONS` from core — `apps/web/src/brief/state.ts`, `apps/web/src/brief/to-config.ts`, `apps/web/test/brief-config.test.ts` — covers AC-006, AC-007, AC-009, AC-011, AC-012, AC-018 (body content)
+- [ ] T004 [Web] Field validation: `validateBrief(brief)` returns problems with the field path, for the name, idea (blank and over 8,000 characters), `stack.language`, `architecture.style`, and each module's layer (a whole number of 0 or more, reported by list position); the final check runs `parseProjectConfig` on the built configuration and maps its paths to fields; `ideaCounter(text)` returns `N / 8,000` with the length counted as the core limit counts it — `apps/web/src/brief/validate.ts`, `apps/web/src/brief/counter.ts`, `apps/web/test/brief-validation.test.ts` — covers AC-001, AC-002, AC-003, AC-004, AC-005, AC-008, AC-010, AC-019
+- [ ] T005 [Web] Progress panel, privacy notice and Analyze gate: `progressEntries(brief)` gives idea, stack, modules (✓ when valid) and rules (○ optional until a rule exists, then ✓); `PRIVACY_NOTICE` holds the exact wireframe sentence; `canAnalyze(brief, accepted)` is true only when the brief is valid and the checkbox is ticked; the checkbox starts unticked — `apps/web/src/brief/progress.ts`, `apps/web/src/brief/privacy.ts`, `apps/web/src/brief/gate.ts`, `apps/web/test/brief-gate.test.ts` — covers AC-013, AC-014, AC-015, AC-016, AC-017
+- [ ] T006 [Web] Analyze request: `analyzeBrief(fetchFn, config)` sends `POST /analyze` with a JSON body and returns `{ ok: true, result }` or `{ ok: false, message }` for a network error or non-200 reply; an in-flight guard refuses a second start while a request runs; a test runs the whole flow with spies on `localStorage`, `sessionStorage` and `indexedDB` and checks that nothing is written — `apps/web/src/analyze/request.ts`, `apps/web/src/analyze/in-flight.ts`, `apps/web/test/analyze-request.test.ts` — covers AC-018 (request), AC-020, AC-023, AC-024
+- [ ] T007 [Web] Analysis result view-model: `findingRows(result)` keeps the structural findings in the order received, each with severity, subject and message; `reviewNotice(review)` gives the view for `ok` (review findings), `failed` and `skipped` (a notice naming the status, structural findings still shown) — `apps/web/src/analyze/result.ts`, `apps/web/test/analyze-result.test.ts` — covers AC-021, AC-022
+- [ ] T008 [Web] Brief form, sections 1 to 5: the React form renders the five numbered sections of `02-brief.svg` from the view-model: name and idea with the counter; stack fields; architecture style and module rows with add and remove; code rules and test rules with add and remove; the progress panel; state lives in React memory only, with no storage calls — `apps/web/src/App.tsx`, `apps/web/src/brief/BriefForm.tsx`, `apps/web/src/brief/ModuleRows.tsx`, `apps/web/src/brief/RuleList.tsx`, `apps/web/src/main.tsx`; checks: `npm run typecheck` and `npm run build` in `apps/web` — binds AC-001 to AC-013 in the UI (their tests are in T003 to T005); AC-025 (no storage) by construction
+- [ ] T009 [Web] Privacy notice, Analyze and results in the form: the notice and checkbox sit above the Analyze button, which uses `canAnalyze` and the in-flight guard; a press calls `analyzeBrief` and shows the findings table and the review notice from T007, or the error message, leaving the brief filled in — `apps/web/src/App.tsx`, `apps/web/src/analyze/AnalysisPanel.tsx`, `apps/web/src/brief/PrivacyGate.tsx`; checks: `npm run typecheck` and `npm run build` in `apps/web` — binds AC-014 to AC-023 in the UI (tested in T005 to T007)
+- [ ] T010 [Web] Layout and styles: one stylesheet with colour tokens on `:root` and a dark mode, a 16px side gutter at phone width, no horizontal page scroll, and the section order of `02-brief.svg` (form, progress panel, notice, Analyze, results) — `apps/web/src/styles.css`, `apps/web/index.html`, `apps/web/src/main.tsx` — covers AC-025 and AC-026 (both `[device]`, recorded in the manual checklist)
 
 ## Rationale
 
-[Why the tasks are in this order; dependencies and architecture constraints that shaped it.]
+- **Order:** the decisions go into `architecture.md` first (T001), as the general rule requires before code depends on them. Setup (T002) comes next so the web checks exist. Then the pure logic: state and config building (T003), validation (T004), the gate and progress (T005), the request (T006) and the result view-model (T007). The React form (T008, T009) is written last and only binds the view-model, so the tested logic does not depend on the UI. Styles (T010) come last.
+- **Logic in `apps/web/src/`, tested in Vitest:** `qa.md` allows no browser tests in the MVP, and the DOM library was declined in the specification. The view-model functions are pure and take a `fetch` function as a parameter, so the tests need no network and no wall clock.
+- **Core reuse:** the web app imports `parseProjectConfig`, `DEFAULT_WORKFLOWS`, `DEFAULT_CONNECTIONS` and the types from `@sddbuilder/core` (`web → core`, as `architecture.md` §1 allows). Core is not changed by this feature. The form never redeclares a model shape (`typescript.md`).
+- **Validation twice:** the form checks the fields it owns, with the messages it shows. `parseProjectConfig` is the final check on the built configuration, so the form never sends a configuration the API would reject for shape reasons (AC-019).
+- **No new libraries beyond the approved stack:** React, Vite and Vitest are approved in `architecture.md` §5. `react-dom` and `@vitejs/plugin-react` are the parts of the same Vite + React setup that the browser needs. The typings are dev-only.
+- **No storage, no persistence:** state lives in React memory only (T008), and T006 proves that analysis writes nothing to browser storage. A reload clears the brief by construction (AC-025, device).
+- **Known limits:** the device criteria (AC-025, AC-026) cannot be automated without a browser test library, so they go into the manual checklist. The analyzer's own findings are wording from F-04; the form only shows them.
 
 ## Layer Tags
 
@@ -23,5 +37,6 @@ Each task is **one implement → review → test → commit cycle** and produces
 |-----|-------|
 | `[Build]` | Project setup, manifests, scripts |
 | `[Docs]` | Documentation changes required by the feature |
+| `[Web]` | `apps/web`: brief state, validation, analyze request, React form, styles |
 
 Add layer tags matching the modules in `architecture.md` §3.

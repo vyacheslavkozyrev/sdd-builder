@@ -6,8 +6,8 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-13 | Stories approved by the user as written; 26 criteria (24 `[auto]`, 2 `[device]`). Decisions: Project name field added; Analyze needs a valid brief and the checkbox. |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-13 | Approved by the user before any code is written |
+| Build    | ⏳ Pending  |      | 0 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

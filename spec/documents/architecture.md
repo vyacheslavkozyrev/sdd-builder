@@ -97,6 +97,8 @@ The file list, paths and order are deterministic: the same config gives the same
 | LLM SDK | Official Anthropic TypeScript SDK | First-party, typed |
 | Zip | JSZip 3.10.2, in memory | Works in memory for project-sized output; ships its own types. Decided 2026-11-12 (F-07) |
 | Tests | Vitest. For `apps/web` it runs logic tests only: no DOM or browser test library (no jsdom, Testing Library or Playwright in the MVP) | Same family as the ComEd backend tests. Decided 2026-11-13 (F-05) |
+| Default pipeline data | `templates/pipeline/default.json` is imported by `packages/core` at build time (`resolveJsonModule`, `templates/` in its include path). Core reads no file at run time. Decided 2026-11-14 (F-01) | Keeps core pure (no file system) and the default process as data (decision 1) |
+| Config format | `ProjectConfig` carries `schemaVersion: 2`; the parser refuses any other value. Decided 2026-11-14 (F-01) | One version check for the API, the JSON load and the later import (F-08) |
 
 No database, no user authentication, no queue in the MVP. Rate limiting is per client address and in memory; the spending ceiling is a configured daily limit.
 
@@ -120,6 +122,10 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 14. **Commands and blocks (2026-11-14).** The pipeline is the top-level flow and contains child flows; a flow contains blocks: Start, Agent (runs an agent; scope set on the block), Condition (a fixed check type, pass and fail routes, an optional round limit; it can sit between flows as a gate or check), Connection (a runs-after link with an artifact label) and End. Only the pipeline contains flows. Skills and scripts are not block kinds in the MVP. The pipeline is shown on the Map tab. Recorded in `building-blocks.md`, confirmed by the owner.
 15. **The brief is a four-step wizard (2026-11-14).** Project name and idea; technical details (architecture style, tech stack, and code rules as rule blocks, each becoming one Markdown file in `.claude/rules/`; no module list); workflow (the command builder, §10); analyze and generate. There is no Brief / Builder switch. Confirmed by the owner.
+16. **The config is versioned, with one pipeline per project (2026-11-14).** `ProjectConfig` carries `schemaVersion: 2` and one `pipeline`. The parser refuses any other schema version. Several pipelines per project are not in the MVP. Recorded 2026-11-14, F-01.
+17. **The default pipeline is data, imported at build time (2026-11-14).** The six flows, their blocks and the gates between them live in `templates/pipeline/default.json`. `packages/core` imports the file when it is built and never reads files at run time, so core stays free of file system code. Changing the default process means changing the JSON; a test checks that the default still parses without problems. Recorded 2026-11-14, F-01.
+18. **Ids are user-given, file-safe and unique in the project (2026-11-14).** An id uses lowercase letters, digits and hyphens, starts with a letter, and is unique in the project across flows, blocks and arguments; an agent name is unique among agents. An id that breaks the rule, or clashes with another, is refused with its path. Agent names are file names, so the rule keeps them safe in file names and links. Recorded 2026-11-14, F-01.
+19. **The new model is built beside the flat model until each consumer is rebuilt (2026-11-14).** The pipeline model lives in `packages/core/src/pipeline/`, beside the flat model (`model.ts`, `catalog.ts`, `parse-config.ts`) that `core` and the apps still use. F-01 removes no flat code. Each later feature rebuilds the consumers it touches on the new model and removes the flat code it replaces in the same task, so the build stays green at every step. A flat file is removed by the feature that rebuilds its last consumer. Recorded 2026-11-14, F-01.
 
 ## 7. Out of scope for the MVP
 

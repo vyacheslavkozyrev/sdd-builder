@@ -1,18 +1,25 @@
 import type { ProjectConfig, ProjectStack } from './model.js';
+import { parsePipelineStructure, type PipelineStructure } from './parse-structure.js';
+import {
+  checkKeys,
+  childPath,
+  readObject,
+  readList,
+  readOptionalString,
+  readString,
+  requirePresent,
+  type PipelineProblem,
+} from './parse-util.js';
 
-/** One problem with untrusted input: the dotted path of the field ('' for the root) and the reason. Never the submitted value. */
-export interface PipelineProblem {
-  path: string;
-  message: string;
-}
+export type { PipelineProblem } from './parse-util.js';
 
-/** A pipeline as parsed so far. Its blocks are an unchecked list until T005 to T007 check them, so they are `unknown`, not `PipelineBlock`. */
+/** A pipeline as parsed so far: its name, and its blocks that passed the structural checks. Field-level rules of Agent and Condition blocks are checked in T006 and T007. */
 export interface ParsedPipeline {
   name: string;
-  blocks: unknown[];
+  blocks: PipelineStructure[];
 }
 
-/** A config as parsed so far: every field is checked except the pipeline blocks (T005 to T007). */
+/** A config as parsed so far: every field is checked, the pipeline blocks at the structural level. */
 export interface ParsedConfig extends Omit<ProjectConfig, 'pipeline'> {
   pipeline: ParsedPipeline;
 }
@@ -21,70 +28,9 @@ export type ParsePipelineResult =
   | { ok: true; config: ParsedConfig }
   | { ok: false; problems: PipelineProblem[] };
 
-type Obj = Record<string, unknown>;
-
 const ROOT_KEYS: readonly string[] = ['schemaVersion', 'name', 'idea', 'stack', 'pipeline'];
 const STACK_KEYS: readonly string[] = ['language', 'framework', 'platform', 'buildTool', 'testFramework'];
 const PIPELINE_KEYS: readonly string[] = ['name', 'blocks'];
-
-/** The path of a key under a parent path. The root has no prefix. */
-function childPath(path: string, key: string): string {
-  return path === '' ? key : `${path}.${key}`;
-}
-
-/** True for a plain object: not null, not an array. */
-function isPlainObject(value: unknown): value is Obj {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function has(obj: Obj, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(obj, key);
-}
-
-/** Reads a value that must be present. A missing key gives one problem. */
-function requirePresent(obj: Obj, key: string, path: string, problems: PipelineProblem[]): boolean {
-  if (has(obj, key)) return true;
-  problems.push({ path: childPath(path, key), message: 'is required' });
-  return false;
-}
-
-/** Reads a value that must be an object. A non-object gives one problem at its path. */
-function readObject(value: unknown, path: string, problems: PipelineProblem[]): Obj | undefined {
-  if (isPlainObject(value)) return value;
-  problems.push({ path, message: 'must be an object' });
-  return undefined;
-}
-
-/** Refuses every key that is not allowed, each at its own path. */
-function checkKeys(obj: Obj, allowed: readonly string[], path: string, problems: PipelineProblem[]): void {
-  for (const key of Object.keys(obj)) {
-    if (!allowed.includes(key)) {
-      problems.push({ path: childPath(path, key), message: 'is not a known key' });
-    }
-  }
-}
-
-function readString(obj: Obj, key: string, path: string, problems: PipelineProblem[]): string | undefined {
-  if (!requirePresent(obj, key, path, problems)) return undefined;
-  const value = obj[key];
-  if (typeof value === 'string') return value;
-  problems.push({ path: childPath(path, key), message: 'must be a string' });
-  return undefined;
-}
-
-/** A string that may be left out. When it is present it must be a string. */
-function readOptionalString(obj: Obj, key: string, path: string, problems: PipelineProblem[]): string | undefined {
-  return has(obj, key) ? readString(obj, key, path, problems) : undefined;
-}
-
-/** A list whose items are checked later. Only the fact that it is a list is checked here. */
-function readList(obj: Obj, key: string, path: string, problems: PipelineProblem[]): unknown[] | undefined {
-  if (!requirePresent(obj, key, path, problems)) return undefined;
-  const value = obj[key];
-  if (Array.isArray(value)) return value;
-  problems.push({ path: childPath(path, key), message: 'must be a list' });
-  return undefined;
-}
 
 function parseStack(value: unknown, path: string, problems: PipelineProblem[]): ProjectStack | undefined {
   const obj = readObject(value, path, problems);
@@ -111,7 +57,8 @@ function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]
   checkKeys(obj, PIPELINE_KEYS, path, problems);
   // The pipeline name is free text: it is a display name, not a file name (architecture §4 writes `pipeline.md`).
   const name = readString(obj, 'name', path, problems);
-  const blocks = readList(obj, 'blocks', path, problems);
+  const list = readList(obj, 'blocks', path, problems);
+  const blocks = list === undefined ? undefined : parsePipelineStructure(list, childPath(path, 'blocks'), problems);
   if (name === undefined || blocks === undefined) return undefined;
   return { name, blocks };
 }
@@ -119,7 +66,8 @@ function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]
 /**
  * Parses an untrusted project config at the top level: schemaVersion, name, idea, stack and
  * pipeline, and the unknown keys. Returns every problem found, never throws on bad input.
- * The pipeline blocks are only checked for being a list; their content is checked by later parse steps.
+ * The pipeline blocks are checked for kind, id, the enabled flag and structure; their own fields
+ * are checked by the later parse steps.
  */
 export function parsePipelineConfig(value: unknown): ParsePipelineResult {
   const problems: PipelineProblem[] = [];

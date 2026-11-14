@@ -2,14 +2,22 @@ import { describe, expect, it } from 'vitest';
 import { isValidId } from '../src/pipeline/ids.js';
 import { parsePipelineConfig, type PipelineProblem } from '../src/pipeline/parse.js';
 
-/** A valid top-level config with an empty pipeline. Tests change one part of a fresh copy. */
+/** The smallest pipeline block list that passes the structure rules: one Start and one End. */
+function validBlocks(): Record<string, unknown>[] {
+  return [
+    { kind: 'start', id: 'start', enabled: true, arguments: [] },
+    { kind: 'end', id: 'end', enabled: true },
+  ];
+}
+
+/** A valid top-level config with the smallest valid pipeline. Tests change one part of a fresh copy. */
 function validConfig(): Record<string, unknown> {
   return {
     schemaVersion: 2,
     name: 'My project',
     idea: 'A tool that tracks reading lists.',
     stack: { language: 'TypeScript' },
-    pipeline: { name: 'main-pipeline', blocks: [] },
+    pipeline: { name: 'main-pipeline', blocks: validBlocks() },
   };
 }
 
@@ -104,7 +112,7 @@ describe('F-01 AC-020 an unknown key gives a problem with the key path', () => {
 
   it('refuses an unknown key inside pipeline', () => {
     const config = validConfig();
-    config['pipeline'] = { name: 'main-pipeline', blocks: [], notes: 'x' };
+    config['pipeline'] = { name: 'main-pipeline', blocks: validBlocks(), notes: 'x' };
     expect(problemsOf(config)).toEqual([{ path: 'pipeline.notes', message: 'is not a known key' }]);
   });
 });
@@ -123,7 +131,7 @@ describe('F-01 AC-021 ids follow the id rule', () => {
 
   it('accepts a pipeline name in free text, since the pipeline name is not a file id', () => {
     const config = validConfig();
-    config['pipeline'] = { name: 'Main Pipeline', blocks: [] };
+    config['pipeline'] = { name: 'Main Pipeline', blocks: validBlocks() };
     expect(parsePipelineConfig(config).ok).toBe(true);
   });
 });

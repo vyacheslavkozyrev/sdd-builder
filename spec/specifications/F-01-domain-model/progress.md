@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user as written; 26 criteria, all `[auto]`. Decisions: scope is types, default pipeline and parsing; ids user-given and file-safe; default pipeline in `templates/pipeline/default.json`, imported at build time; one pipeline per project; schemaVersion 2 |
 | UX       | ➖ Not needed |      | No user interface in F-01 |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 9 tasks; transition: the new model lives in `packages/core/src/pipeline/` beside the flat model until F-02 to F-07 are rebuilt |
-| Build    | 🔄 In Progress | 2026-11-14 | 4 of 9 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 5 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T002 | Build-time JSON import for core: resolveJsonModule, rootDir at repo root, placeholder `templates/pipeline/default.json`, smoke test | reviewed: 0 blockers, 0 warnings (1 suggestion deferred: rootDir has no effect while core does not emit) | task check passed (exit 0), core 530 tests |
 | T003 | Pipeline model types in `packages/core/src/pipeline/model.ts`: ProjectConfig v2, pipeline, flows (blocks only), block kinds, conditions with fixed check types, routes; pipeline gates link to their connection | reviewed: 0 blockers, 2 warnings fixed (gate link; AC-002 tag), 3 suggestions deferred | task check passed (exit 0), core 544 tests |
 | T004 | Problem list `parsePipelineConfig`, id rule for block, flow, argument and agent ids, unknown keys refused, schemaVersion 2; blocks returned unchecked until T005 to T007 | reviewed: 1 blocker, 2 warnings, 2 suggestions fixed (no cast of unchecked blocks; pipeline name is free text) | task check passed (exit 0), 588 tests |
+| T005 | Structure of the parse: block kinds per list, one Start and at least one End per flow, one nesting level, enabled, unique ids and agent names; structural types, no cast (Amendment 1) | reviewed: 0 blockers, 4 warnings, 3 suggestions fixed (tests for enabled, repeated ids, invalid ids; AC tags) | task check passed (exit 0), 643 tests |
 
 ---
 
@@ -50,6 +51,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T004 `packages/core/src/pipeline/ids.ts` and `packages/core/test/pipeline-parse-basics.test.ts` (suggestion, not applied): AC-021 names block, flow, argument and agent ids. Those ids are parsed in T005 and T006, so in T004 the rule is tested through `isValidId` only and no parse path applies it yet. Wire it into those parse steps and their tests.
 
+- T005 `plan.md` T006 (note, not a review finding): T005's structure check already refuses a child flow without a Start, and `checkStartAndEnd` runs on every list. T006 should test that rule and not re-implement it, to avoid two places that refuse the same thing.
 
 ---
 
@@ -61,9 +63,7 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
-```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
-```
+### Amendment 1 — 2026-11-14
+**Changed**: plan.md, T005 and T006/T007. (a) T005 returns structural types (kind, id, enabled, own fields as read), not the model types; T006 and T007 turn them into the model types from `model.ts`, without a cast. (b) Unknown keys inside blocks are refused in T006 and T007, when each block's own fields are checked. (c) `packages/core/src/pipeline/parse-util.ts` is added to T005's file list, for the shared helpers.
+**Reason**: T005 cannot return model types without a cast or without the field rules of T006 and T007. The stop rule asked for this amendment; the owner approved it on 2026-11-14 ("go on").
+**Impact**: T005 (re-review before commit); T006 and T007 gain the model-type conversion and the block-level unknown-key refusal. No other task changes.

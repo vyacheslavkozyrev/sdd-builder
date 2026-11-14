@@ -1,1 +1,213 @@
-{}
+{
+  "schemaVersion": 2,
+  "name": "Default SDD process",
+  "idea": "The default pipeline: one feature at a time through specify, ux, plan, build, verify and complete, with a human approval at each design step and a human checklist before completion.",
+  "stack": {
+    "language": "unspecified"
+  },
+  "pipeline": {
+    "name": "default",
+    "blocks": [
+      {
+        "kind": "start",
+        "id": "pipeline-start",
+        "enabled": true,
+        "arguments": [
+          {
+            "name": "feature-id",
+            "required": true,
+            "hint": "The feature to run, e.g. F-01"
+          }
+        ]
+      },
+      {
+        "kind": "flow",
+        "id": "specify",
+        "name": "Specify",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "specify-start", "enabled": true },
+          { "kind": "agent", "id": "specify-agent", "enabled": true, "name": "specify", "scope": "feature" },
+          { "kind": "end", "id": "specify-end", "enabled": true, "outcome": "done", "produced": "stories.md" }
+        ]
+      },
+      {
+        "kind": "connection",
+        "id": "specify-to-ux",
+        "enabled": true,
+        "from": "specify",
+        "to": "ux",
+        "artifact": "stories.md"
+      },
+      {
+        "kind": "condition",
+        "id": "approve-stories",
+        "enabled": true,
+        "checkType": "approval",
+        "decidedBy": "human",
+        "passRoute": { "kind": "next" },
+        "failRoute": { "kind": "back", "blockId": "specify" },
+        "onConnection": "specify-to-ux"
+      },
+      {
+        "kind": "flow",
+        "id": "ux",
+        "name": "UX",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "ux-start", "enabled": true },
+          { "kind": "agent", "id": "ux-agent", "enabled": true, "name": "ux", "scope": "feature" },
+          { "kind": "end", "id": "ux-end", "enabled": true, "outcome": "done", "produced": "design/features/" }
+        ]
+      },
+      {
+        "kind": "connection",
+        "id": "ux-to-plan",
+        "enabled": true,
+        "from": "ux",
+        "to": "plan",
+        "artifact": "design/features/"
+      },
+      {
+        "kind": "condition",
+        "id": "approve-screens",
+        "enabled": true,
+        "checkType": "approval",
+        "decidedBy": "human",
+        "passRoute": { "kind": "next" },
+        "failRoute": { "kind": "back", "blockId": "ux" },
+        "onConnection": "ux-to-plan"
+      },
+      {
+        "kind": "flow",
+        "id": "plan",
+        "name": "Plan",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "plan-start", "enabled": true },
+          { "kind": "agent", "id": "plan-agent", "enabled": true, "name": "plan", "scope": "feature" },
+          { "kind": "end", "id": "plan-end", "enabled": true, "outcome": "done", "produced": "plan.md" }
+        ]
+      },
+      {
+        "kind": "connection",
+        "id": "plan-to-build",
+        "enabled": true,
+        "from": "plan",
+        "to": "build",
+        "artifact": "plan.md"
+      },
+      {
+        "kind": "condition",
+        "id": "approve-plan",
+        "enabled": true,
+        "checkType": "approval",
+        "decidedBy": "human",
+        "passRoute": { "kind": "next" },
+        "failRoute": { "kind": "back", "blockId": "plan" },
+        "onConnection": "plan-to-build"
+      },
+      {
+        "kind": "flow",
+        "id": "build",
+        "name": "Build",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "build-start", "enabled": true },
+          { "kind": "agent", "id": "build-implement", "enabled": true, "name": "implement", "scope": "task" },
+          { "kind": "agent", "id": "build-review", "enabled": true, "name": "review", "scope": "task" },
+          {
+            "kind": "condition",
+            "id": "build-review-gate",
+            "enabled": true,
+            "checkType": "review",
+            "decidedBy": "agent",
+            "passRoute": { "kind": "next" },
+            "failRoute": { "kind": "back", "blockId": "build-implement" }
+          },
+          { "kind": "agent", "id": "build-test", "enabled": true, "name": "test", "scope": "task" },
+          {
+            "kind": "condition",
+            "id": "build-checks",
+            "enabled": true,
+            "checkType": "checks",
+            "decidedBy": "agent",
+            "passRoute": { "kind": "next" },
+            "failRoute": { "kind": "back", "blockId": "build-implement" }
+          },
+          {
+            "kind": "condition",
+            "id": "build-diff-size",
+            "enabled": true,
+            "checkType": "diff-size",
+            "threshold": 400,
+            "decidedBy": "agent",
+            "passRoute": { "kind": "next" },
+            "failRoute": { "kind": "stop" }
+          },
+          { "kind": "agent", "id": "build-commit", "enabled": true, "name": "commit", "scope": "task" },
+          { "kind": "end", "id": "build-end", "enabled": true, "outcome": "done" }
+        ]
+      },
+      {
+        "kind": "connection",
+        "id": "build-to-verify",
+        "enabled": true,
+        "from": "build",
+        "to": "verify",
+        "artifact": "committed tasks"
+      },
+      {
+        "kind": "condition",
+        "id": "checks-built",
+        "enabled": true,
+        "checkType": "checks",
+        "decidedBy": "agent",
+        "passRoute": { "kind": "next" },
+        "failRoute": { "kind": "stop" },
+        "onConnection": "build-to-verify"
+      },
+      {
+        "kind": "flow",
+        "id": "verify",
+        "name": "Verify",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "verify-start", "enabled": true },
+          { "kind": "agent", "id": "verify-agent", "enabled": true, "name": "verify", "scope": "feature" },
+          { "kind": "end", "id": "verify-end", "enabled": true, "outcome": "done", "produced": "verification report" }
+        ]
+      },
+      {
+        "kind": "connection",
+        "id": "verify-to-complete",
+        "enabled": true,
+        "from": "verify",
+        "to": "complete",
+        "artifact": "verification report"
+      },
+      {
+        "kind": "condition",
+        "id": "approve-checklist",
+        "enabled": true,
+        "checkType": "approval",
+        "decidedBy": "human",
+        "passRoute": { "kind": "next" },
+        "failRoute": { "kind": "back", "blockId": "verify" },
+        "onConnection": "verify-to-complete"
+      },
+      {
+        "kind": "flow",
+        "id": "complete",
+        "name": "Complete",
+        "enabled": true,
+        "blocks": [
+          { "kind": "start", "id": "complete-start", "enabled": true },
+          { "kind": "agent", "id": "complete-agent", "enabled": true, "name": "complete", "scope": "feature" },
+          { "kind": "end", "id": "complete-end", "enabled": true, "outcome": "done", "produced": "completed feature" }
+        ]
+      },
+      { "kind": "end", "id": "pipeline-end", "enabled": true, "outcome": "done" }
+    ]
+  }
+}

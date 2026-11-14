@@ -1,3 +1,4 @@
+import { AnalysisPanel } from '../analyze/AnalysisPanel.js';
 import { ideaCounter } from './counter.js';
 import { Messages } from './Messages.js';
 import { ModuleRows } from './ModuleRows.js';
@@ -157,6 +158,8 @@ export function BriefForm({ brief, onChange }: BriefFormProps) {
           </ul>
         </section>
       )}
+
+      <AnalysisPanel brief={brief} onChange={onChange} />
 
       <section aria-labelledby="section-progress">
         <h2 id="section-progress">Progress</h2>

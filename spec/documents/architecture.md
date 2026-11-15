@@ -130,6 +130,8 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 21. **Rule-set tags are rule ids (2026-11-14).** An Agent block and a flow carry `ruleTags`: a list of ids of entries in `ProjectConfig.rules`, empty when the key is absent. A tag that names no rule is refused as a blocker at the tag's path, as an unknown id is. The tags reach the agent and flow command entries of the plan (`planGeneration`), so the model writes each file knowing which rule files apply. Recorded 2026-11-14, F-03 (Amendment of 2026-11-14 in the F-03 progress record).
 
+22. **The pipeline module is exposed as a namespace, and the pipeline analysis lives beside the flat one (2026-11-14).** The root of `source/packages/core` exports the pipeline module as the namespace `pipeline` (`export * as pipeline from './pipeline/index.js'`), so its names (`ProjectConfig`, `Scope`, `planGeneration`, `checkReply`, and the rest) do not collide with the flat model's names. The pipeline analysis (structural findings, review reply check, input caps, skipped analysis) lives in `source/packages/core/src/pipeline/analyze/` and `source/packages/core/src/pipeline/caps.ts`. The flat analyzer (`source/packages/core/src/analyze/`) is removed in F-04, when `/analyze` is rewired to the pipeline model (decision 19). `/generate` keeps the flat model until F-07. Recorded 2026-11-14, F-04.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

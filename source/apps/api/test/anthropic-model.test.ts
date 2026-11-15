@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { analyzeStructure, DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS } from '@sddbuilder/core';
-import type { ProjectConfig } from '@sddbuilder/core';
-import { analyze } from '../src/analyze.js';
+import { pipeline } from '@sddbuilder/core';
+import { analyzePipeline } from '../src/analyze.js';
 import type { LogPort } from '../src/log.js';
 import {
   DEFAULT_ANALYZER_MODEL,
@@ -10,30 +9,10 @@ import {
   createAnthropicReviewModel,
 } from '../src/review/anthropic-model.js';
 import type { AnthropicClientOptions, AnthropicLike } from '../src/review/anthropic-model.js';
+import { pipelineConfig } from './pipeline-config.js';
 
 /** A log port that discards its lines: these tests do not check the log. */
 const quietLog: LogPort = { write: () => undefined };
-
-/** A valid configuration with the default workflows and connections. */
-function reviewSampleConfig(): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name: 'Sample Project',
-    idea: 'A tool that turns a product idea into a spec-driven project framework.',
-    stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-    architecture: {
-      style: 'layered',
-      modules: [{ name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] }],
-      notes: 'Core has no I/O.',
-    },
-    codeRules: ['Validate input at the boundary.'],
-    testRules: ['Use Vitest for unit tests.'],
-    customSteps: [],
-    workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-    connections: structuredClone([...DEFAULT_CONNECTIONS]),
-    targets: ['claude'],
-  };
-}
 
 // The SDK constructor is replaced so the test can read the options it was given.
 // No client makes a network call.
@@ -234,7 +213,7 @@ describe('F-13 AC-023 review client and call limits', () => {
 
 describe('F-13 AC-024 review rejection gives failed with the structural findings', () => {
   it('F-13 AC-024 returns failed with the structural findings when the review call is rejected', async () => {
-    const config = reviewSampleConfig();
+    const config = pipelineConfig();
     const client: AnthropicLike = {
       messages: {
         create: () =>
@@ -243,10 +222,10 @@ describe('F-13 AC-024 review rejection gives failed with the structural findings
     };
     const model = createAnthropicReviewModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
-    const result = await analyze(config, model, quietLog);
+    const result = await analyzePipeline(config, model, quietLog);
 
     expect(result).toEqual({
-      findings: analyzeStructure(config),
+      findings: pipeline.analyzeStructure(config),
       review: { status: 'failed', findings: [], dropped: 0 },
     });
   });

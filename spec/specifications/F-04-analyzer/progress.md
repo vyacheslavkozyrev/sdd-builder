@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 16 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 17 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 - **Amendment 8 (2026-11-15), flat review prompt removal split out.** The flat `review/prompt.ts` is still imported by the flat `analyze.ts` until T013 rewires it. Its deletion is a separate task, T013a, so T013 stays under the size guard. Owner decision: none needed (plan split, as in F-03 T006a–c). Recorded 2026-11-15.
 - **Amendment 9 (2026-11-15), route after analysis.** T013 could not keep the build green alone, because `/analyze` still passes a flat config. Option 2 of the owner: T013 adds `analyzePipeline` beside the flat `analyze` (tests in a new file); T014 switches the `/analyze` route to the pipeline reader, caps, skipped analysis and `analyzePipeline`; new T013b removes the flat `analyze` after T016. Every commit stays green. Owner choice (option 2), 2026-11-15.
 - **Amendment 10 (2026-11-15), size exception for T014.** The route switch and every test that posts to `/analyze` must land in one commit to stay green (`analyze-route`, the `/analyze` cases of `limits-route` and `ceiling-route`, `privacy`, `privacy-limits`, `wiring`). The staged change is about 497 changed lines, over the 400-line guard by about 95. Owner choice (option A): T014 is accepted as one documented exception.
+- **Amendment 11 (2026-11-15), T013b as a documented size exception; T013a after T013b.** T013b removes the flat `analyze` and its test file: about 413 staged lines, 357 of them deletions, over the 400-line guard. Owner choice: accept as one documented exception (no split). T013a (remove the flat review prompt) now runs after T013b, because T013b removes the import that keeps the prompt in use; the plan lists T013a after T013b.
 - **Open note for F-13 (2026-11-15).** The `/analyze` module cap no longer applies, since the pipeline caps are idea and rules only (AC-021). The module cap test moved to `/generate`, which keeps it until F-07. To be settled when F-13 is specified; no F-04 decision depends on it.
 
 ---
@@ -59,6 +60,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T014 | `/analyze` on the pipeline model: pipeline reader, pipeline caps (422), skipped analysis at the ceiling, analyzePipeline; /generate unchanged (size exception, Amendment 10) | reviewed: 0 blockers, 2 warnings, 2 suggestions fixed | task check passed (exit 0) |
 | T015 | Ceiling on `/analyze` returns skipped with no model call (AC-022 route); `/generate` still generates a flat config (AC-023) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 | T016 | Privacy and wiring tests on the pipeline model; route-level AC-018 test: no brief, rule, reply or message text in the log | reviewed: 0 blockers, 0 warnings; 2 suggestions deferred | task check passed (exit 0) |
+| T013b | Flat `analyze` removed from the API; its cases moved to pipeline tests; anthropic-model uses pipeline fixtures (size exception, Amendment 11) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 
 ---
 
@@ -81,6 +83,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T014 `source/apps/api/src/analyze.ts` flat `analyze` (suggestion): after the route switch nothing in `source/apps/` calls the flat `analyze` except its own tests. It is removed in T013b (Amendment 9), so it stays for now.
 
 - T016 `source/apps/api/test/privacy.test.ts` new AC-018 test (suggestion): the table case "analyze with a review model that fails with the brief in its message" checks the same log line for the same failure. The named AC-018 test is kept because T016 requires a route-level AC-018 test; removing the table case would weaken the F-07 AC-024 sweep, so both stay.
+
+- T013b `source/apps/api/src/generate/prompt.ts:2` (WARNING for T013a, not this task): it imports `oneLine` and `pickProject` from `../review/prompt.js`, so deleting the flat `review/prompt.ts` in T013a breaks the generate prompt. T013a's plan condition ("if nothing else in `source/apps/` imports them") cannot hold as written. The helpers must move to a shared module first, or T013a must be re-planned; owner to decide.
 
 - T016 `spec/specifications/F-04-analyzer/stories.md` AC-018 wording (suggestion): the story says the failed-call log line carries "the event and the error name only", but the line also carries `route=/analyze`, as decision 12 allows for refusals. The implementation and the new test follow decision 12. Owner to confirm whether AC-018 should name the route too; no code change until then.
 

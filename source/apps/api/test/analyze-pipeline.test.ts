@@ -70,10 +70,67 @@ describe('F-04 AC-016 model findings never change the structural findings', () =
   });
 });
 
+describe('F-04 AC-014 review with findings and without', () => {
+  it('F-04 AC-014 gives an ok review with no findings for an empty array', async () => {
+    const config = pipelineWithBlocker();
+
+    const result = await analyzePipeline(config, replyingModel(okReply('[]')), recordingLog());
+
+    expect(result.review).toEqual({ status: 'ok', findings: [], dropped: 0 });
+    expect(result.findings).toEqual(pipeline.analyzeStructure(config));
+    expect(result.findings.length).toBeGreaterThan(0);
+  });
+
+  it('F-04 AC-014 gives an ok review with the model findings, a model blocker kept as warning', async () => {
+    const config = pipelineWithBlocker();
+    const reply = '[{"severity":"blocker","subject":"idea","message":"Blocks the build."}]';
+
+    const result = await analyzePipeline(config, replyingModel(okReply(reply)), recordingLog());
+
+    expect(result.review).toEqual({
+      status: 'ok',
+      findings: [{ severity: 'warning', subject: 'idea', message: 'Blocks the build.' }],
+      dropped: 0,
+    });
+    expect(result.findings).toEqual(pipeline.analyzeStructure(config));
+  });
+});
+
+describe('F-04 AC-020 one model call per request', () => {
+  const replies: { name: string; reply: ReviewReply | 'throw' }[] = [
+    { name: 'a valid reply', reply: okReply('[]') },
+    { name: 'an invalid reply', reply: okReply('Here is my review: none.') },
+    { name: 'a reply cut short at the output limit', reply: { text: '[', truncated: true } },
+    { name: 'a failed call', reply: 'throw' },
+  ];
+
+  for (const testCase of replies) {
+    it(`F-04 AC-020 calls the model exactly once for ${testCase.name}`, async () => {
+      let calls = 0;
+      const model: ReviewModel = {
+        complete: () => {
+          calls += 1;
+          return testCase.reply === 'throw'
+            ? Promise.reject(new Error('provider down'))
+            : Promise.resolve(testCase.reply);
+        },
+      };
+
+      await analyzePipeline(defaultPipeline(), model, recordingLog());
+
+      expect(calls).toBe(1);
+    });
+  }
+});
+
 describe('F-04 AC-017 a failed model call or reply keeps the structural findings', () => {
   const cases: { name: string; model: ReviewModel }[] = [
     { name: 'a thrown error', model: throwingModel(new Error('provider down')) },
     { name: 'a reply cut short at the output limit', model: replyingModel({ text: '[{"severity"', truncated: true }) },
+    {
+      name: 'a cut-short reply that looks like a valid array',
+      model: replyingModel({ text: '[{"severity":"info","subject":"idea","message":"Expand it."}]', truncated: true }),
+    },
     { name: 'a reply that is not JSON', model: replyingModel(okReply('Here is my review: none.')) },
     {
       name: 'a reply that is not an array',

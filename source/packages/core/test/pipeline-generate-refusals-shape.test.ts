@@ -160,8 +160,8 @@ describe('F-02 AC-012 several problems are all listed in path order, and no file
       kind: 'connection',
       id: `link-${index}`,
       enabled: true,
-      from: 'a',
-      to: 'b',
+      from: 'early',
+      to: 'late',
       artifact: 'note',
     });
     const blocks: PipelineBlock[] = Array.from({ length: 12 }, (_, index) => {

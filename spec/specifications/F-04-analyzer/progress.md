@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 26 of 26 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Build    | ✅ Complete | 2026-11-15 | 26 of 26 tasks committed; 15 amendments recorded above |
+| Verify   | ✅ Complete | 2026-11-15 | 25 of 25 criteria covered by passing `[auto]` tests; no gaps; manual checklist empty. Full matrix in `verify.md` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -110,6 +110,38 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run 2026-11-15: `source/scripts/task-check.sh` exit 0. Workspace totals: api 404 tests (24 files), web 348 (14 files), core 1338 (79 files); all passed.
+
+| Criterion | Covering test file (`F-04 AC-0xx` tag) | Status |
+| --- | --- | --- |
+| AC-001 | core `pipeline-analyze-default.test.ts` | covered |
+| AC-002 | core `pipeline-analyze-order.test.ts` | covered |
+| AC-003 | core `pipeline-analyze-order.test.ts` (`info` rank not tested, Amendment 6) | covered |
+| AC-004 | core `pipeline-analyze-refusals.test.ts` | covered |
+| AC-005 | core `pipeline-analyze-refusals.test.ts` | covered |
+| AC-006 | core `pipeline-analyze-reachability.test.ts` | covered |
+| AC-007 | core `pipeline-analyze-reachability.test.ts` | covered |
+| AC-008 | core `pipeline-analyze-retries.test.ts` | covered |
+| AC-009 | core `pipeline-analyze-inputs.test.ts` | covered |
+| AC-010 | core `pipeline-analyze-brief.test.ts` | covered |
+| AC-011 | core `pipeline-analyze-brief.test.ts` | covered |
+| AC-012 | core `pipeline-analyze-brief.test.ts` | covered |
+| AC-013 | api `pipeline-prompt.test.ts` | covered |
+| AC-014 | core `pipeline-analyze-review-reply.test.ts` | covered |
+| AC-015 | core `pipeline-analyze-review-reply.test.ts` | covered |
+| AC-016 | api `analyze-pipeline.test.ts` | covered |
+| AC-017 | api `analyze-pipeline.test.ts` | covered |
+| AC-018 | api `analyze-pipeline.test.ts`, `privacy.test.ts` (route wording note in `verify.md`) | covered |
+| AC-019 | api `analyze-route.test.ts` | covered |
+| AC-020 | api `analyze-route.test.ts`, `read-pipeline-config.test.ts` | covered |
+| AC-021 | api `analyze-route.test.ts`, `limits-route.test.ts`; core `pipeline-caps.test.ts` | covered |
+| AC-022 | api `ceiling-route.test.ts`; core `pipeline-analyze-skipped.test.ts` | covered |
+| AC-023 | api `ceiling-route.test.ts`; `generate-route.test.ts` unchanged | covered |
+| AC-024 | core `root-exports.test.ts` | covered |
+| AC-025 | api `no-flat-analysis.test.ts` | covered |
+
+Gaps: none. Manual checklist: empty (all criteria `[auto]`). Full table, file and test names: `spec/specifications/F-04-analyzer/verify.md`.
 
 ---
 

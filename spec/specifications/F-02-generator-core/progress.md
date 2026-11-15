@@ -61,3 +61,8 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md`, T004: the Agent block gets a required `description` (model, parser, `default.json`), with the refusal of a missing or blank one. The file list is extended to match.
 **Reason**: AC-029 and the stub text of AC-027 assume an Agent description, but the pipeline model had no such field and the parser refuses unknown keys. The user chose to add it to T004 rather than split.
 **Impact**: T004 changes the model and the default pipeline data as well as the refusal. Each Agent block of `default.json` needs its description text (building-blocks.md §4).
+
+### Amendment — 2026-11-14 (third)
+**Changed**: `plan.md`, T004 split into T004a (the Agent description: model, parser, `default.json`, and the refusal of a missing one, AC-029) and T004b (names, required blocks, check rules, advice; AC-008, AC-009, AC-010, AC-011, AC-013).
+**Reason**: the required-block rule (AC-010) makes earlier minimal fixtures refuse. The user chose to update those fixtures rather than narrow or move the rule. Together with the description change, that is more than the 400-line guard allows in one commit.
+**Impact**: T004a runs before T004b. T004b updates the minimal fixtures of T002a, T002b and T003 to include the default pipeline's required blocks; their assertions stay as they are. The required-block check applies inside enabled flows only; the pipeline's own Start and End and the gates are always required.

@@ -16,6 +16,7 @@ import type {
   StartBlock,
 } from '../src/pipeline/model.js';
 import { templateSourceFromRecord } from '../src/template-source.js';
+import { requiredGates } from './pipeline-routes-fixtures.js';
 
 const TEMPLATES = templateSourceFromRecord({});
 const NEXT: Route = { kind: 'next' };
@@ -94,6 +95,7 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
       validFlow('specify', [agent('specify-agent'), connection('specify-link', 'specify-agent', 'specify-end')]),
       connection('specify-to-build', 'specify', 'build'),
       validFlow('build'),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(refusalOf(config)).toEqual([]);
@@ -105,6 +107,7 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
       [
         pipelineStart(),
         validFlow('specify', [agent('specify-agent'), connection('c1', 'specify-agent', 'ghost')]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       ['pipeline.blocks[1].blocks[2]: Connection "c1" must join two blocks of flow "specify"; "ghost" is not a block of flow "specify"'],
@@ -115,6 +118,7 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
         pipelineStart(),
         validFlow('specify', [agent('specify-agent'), connection('c1', 'specify-agent', 'build-agent')]),
         validFlow('build'),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       [
@@ -126,6 +130,7 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
       [
         pipelineStart(),
         validFlow('specify', [agent('specify-agent'), connection('c1', 'specify-agent', 'pipeline-end')]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       [
@@ -137,6 +142,7 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
       [
         pipelineStart(),
         validFlow('specify', [connection('c1', 'ghost-a', 'ghost-b')]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       [
@@ -146,19 +152,19 @@ describe('F-02 AC-003 a Connection in a flow joins two blocks of that flow, and 
     ],
     [
       'a pipeline Connection names a flow that does not exist',
-      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'ghost'), validFlow('build'), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'ghost'), validFlow('build'), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[2]: Connection "p1" must join two flows of the pipeline; "ghost" is not a flow of the pipeline'],
     ],
     [
       'a pipeline Connection joins a flow to a block inside another flow',
-      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'build-agent'), validFlow('build', [agent('build-agent')]), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'build-agent'), validFlow('build', [agent('build-agent')]), ...requiredGates(), end('pipeline-end')],
       [
         'pipeline.blocks[2]: Connection "p1" must join two flows of the pipeline; "build-agent" is in another flow or in the pipeline, not a flow of the pipeline',
       ],
     ],
     [
       'a pipeline Connection joins a flow to the pipeline Start',
-      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'pipeline-start'), validFlow('build'), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'pipeline-start'), validFlow('build'), ...requiredGates(), end('pipeline-end')],
       [
         'pipeline.blocks[2]: Connection "p1" must join two flows of the pipeline; "pipeline-start" is in another flow or in the pipeline, not a flow of the pipeline',
       ],
@@ -178,6 +184,7 @@ describe('F-02 AC-004 both outputs of every Condition are wired, or the Conditio
         { ...condition('review'), failRoute: back },
         { ...condition('checks'), passRoute: STOP },
       ]),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(refusalOf(config)).toEqual([]);
@@ -186,12 +193,12 @@ describe('F-02 AC-004 both outputs of every Condition are wired, or the Conditio
   it.each<[string, PipelineBlock[], string[]]>([
     [
       'a flow Condition has no pass route',
-      [pipelineStart(), validFlow('specify', [withoutRoute(condition('review'), 'passRoute')]), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify', [withoutRoute(condition('review'), 'passRoute')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1].blocks[1]: Condition "review" has no pass route; its pass output is not wired'],
     ],
     [
       'a flow Condition has no fail route',
-      [pipelineStart(), validFlow('specify', [withoutRoute(condition('review'), 'failRoute')]), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify', [withoutRoute(condition('review'), 'failRoute')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1].blocks[1]: Condition "review" has no fail route; its fail output is not wired'],
     ],
     [
@@ -199,6 +206,7 @@ describe('F-02 AC-004 both outputs of every Condition are wired, or the Conditio
       [
         pipelineStart(),
         validFlow('specify', [withoutRoute(withoutRoute(condition('review'), 'passRoute'), 'failRoute')]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       [
@@ -214,6 +222,7 @@ describe('F-02 AC-004 both outputs of every Condition are wired, or the Conditio
         withoutRoute(gate('gate', 'p1'), 'failRoute'),
         connection('p1', 'specify', 'build'),
         validFlow('build'),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
       ['pipeline.blocks[2]: Condition "gate" has no fail route; its fail output is not wired'],

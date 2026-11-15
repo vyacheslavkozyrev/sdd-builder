@@ -12,6 +12,7 @@ import {
   pipelineEnd,
   pipelineStart,
   refusalOf,
+  requiredGates,
   start,
   validFlow,
   type Row,
@@ -31,6 +32,7 @@ describe('F-02 AC-006 a back route goes to an earlier block of its flow, or to a
       pipelineStart(),
       flow('a', [start('a-start'), condition('c', NEXT, back(target)), agent('a1'), agent('a2'), end('a-end')]),
       validFlow('b', [agent('b1')]),
+      ...requiredGates(),
       pipelineEnd(),
     ],
     expected,
@@ -44,7 +46,7 @@ describe('F-02 AC-006 a back route goes to an earlier block of its flow, or to a
   ];
   const pipelineRows: Row[] = pipelineTargets.map(([target, expected]) => ({
     name: `F-02 AC-006 pipeline gate back route to "${target}" is refused unless it is an earlier flow`,
-    blocks: [pipelineStart(), validFlow('a', [agent('a1')]), gate('g', NEXT, back(target)), validFlow('b', [agent('b1')]), pipelineEnd()],
+    blocks: [pipelineStart(), validFlow('a', [agent('a1')]), gate('g', NEXT, back(target)), validFlow('b', [agent('b1')]), ...requiredGates(), pipelineEnd()],
     expected,
   }));
   it.each([...flowRows, ...pipelineRows])('$name', ({ blocks, expected }) => {
@@ -62,13 +64,14 @@ describe('F-02 AC-007 an enabled back route does not point into a disabled block
     blocks: [
       pipelineStart(),
       flow('a', [start('a-start'), agent('a1', false), agent('a2'), condition('c', pass, fail), end('a-end')]),
+      ...requiredGates(),
       pipelineEnd(),
     ],
     expected: ['pipeline.blocks[1].blocks[3]: back route to "a1" points into a disabled block'],
   }));
   rows.push({
     name: 'F-02 AC-007 refuses an enabled gate back route into a disabled flow, naming the route',
-    blocks: [pipelineStart(), validFlow('a', [agent('a1')], false), validFlow('b', [agent('b1')]), gate('g', NEXT, back('a')), pipelineEnd()],
+    blocks: [pipelineStart(), validFlow('a', [agent('a1')], false), validFlow('b', [agent('b1')]), gate('g', NEXT, back('a')), ...requiredGates(), pipelineEnd()],
     expected: ['pipeline.blocks[3]: back route to "a" points into a disabled flow'],
   });
   it.each(rows)('$name', ({ blocks, expected }) => {
@@ -85,6 +88,7 @@ describe('F-02 AC-014 the routes of disabled blocks and flows are not checked', 
         validFlow('a', [agent('a1')]),
         gate('g', NEXT, { kind: 'stop' }),
         flow('x', [start('x-start'), condition('x-c', NEXT, back('nowhere')), end('x-end')], false),
+        ...requiredGates(),
         pipelineEnd(),
       ],
       expected: [],
@@ -94,13 +98,14 @@ describe('F-02 AC-014 the routes of disabled blocks and flows are not checked', 
       blocks: [
         pipelineStart(),
         flow('a', [start('a-start'), condition('c', NEXT, back('a2'), false), agent('a1'), agent('a2'), end('a-end')]),
+        ...requiredGates(),
         pipelineEnd(),
       ],
       expected: [],
     },
     {
       name: 'F-02 AC-014 accepts a disabled gate with a back route to a later flow',
-      blocks: [pipelineStart(), validFlow('a', [agent('a1')]), gate('g', NEXT, back('b'), false), validFlow('b', [agent('b1')]), pipelineEnd()],
+      blocks: [pipelineStart(), validFlow('a', [agent('a1')]), gate('g', NEXT, back('b'), false), validFlow('b', [agent('b1')]), ...requiredGates(), pipelineEnd()],
       expected: [],
     },
   ];

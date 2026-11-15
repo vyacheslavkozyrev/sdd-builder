@@ -19,6 +19,13 @@ import { templateSourceFromRecord } from '../src/template-source.js';
 export const NEXT: Route = { kind: 'next' };
 export const STOP: Route = { kind: 'stop' };
 
+/** The five gates of the default pipeline, which every pipeline holds (F-02 AC-010). Each passes on and stops on fail. */
+export function requiredGates(): PipelineConditionBlock[] {
+  return ['approve-stories', 'approve-screens', 'approve-plan', 'checks-built', 'approve-checklist'].map((id) =>
+    gate(id, NEXT, STOP),
+  );
+}
+
 export function back(blockId: string): Route {
   return { kind: 'back', blockId };
 }

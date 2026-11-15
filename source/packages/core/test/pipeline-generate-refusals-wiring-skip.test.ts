@@ -16,6 +16,7 @@ import type {
   StartBlock,
 } from '../src/pipeline/model.js';
 import { templateSourceFromRecord } from '../src/template-source.js';
+import { requiredGates } from './pipeline-routes-fixtures.js';
 
 const TEMPLATES = templateSourceFromRecord({});
 const NEXT: Route = { kind: 'next' };
@@ -90,19 +91,20 @@ describe('F-02 AC-014 disabled Connections, Conditions and child flows are not c
   it.each<[string, PipelineBlock[]]>([
     [
       'a disabled flow Connection with a missing end',
-      [pipelineStart(), validFlow('specify', [connection('c1', 'ghost', 'ghost-b', false)]), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify', [connection('c1', 'ghost', 'ghost-b', false)]), ...requiredGates(), end('pipeline-end')],
     ],
     [
       'a disabled Condition in an enabled flow with no pass and no fail route',
       [
         pipelineStart(),
         validFlow('specify', [withoutRoute(withoutRoute(condition('review', false), 'passRoute'), 'failRoute')]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
     ],
     [
       'a disabled pipeline Connection with a flow that does not exist',
-      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'ghost', false), end('pipeline-end')],
+      [pipelineStart(), validFlow('specify'), connection('p1', 'specify', 'ghost', false), ...requiredGates(), end('pipeline-end')],
     ],
     [
       'a disabled pipeline gate with a missing fail route',
@@ -111,6 +113,7 @@ describe('F-02 AC-014 disabled Connections, Conditions and child flows are not c
         validFlow('specify'),
         withoutRoute(gate('gate', 'p1', false), 'failRoute'),
         validFlow('build'),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
     ],
@@ -119,6 +122,7 @@ describe('F-02 AC-014 disabled Connections, Conditions and child flows are not c
       [
         pipelineStart(),
         flow('broken', [agent('broken-agent'), connection('c1', 'broken-agent', 'build-agent'), withoutRoute(condition('review'), 'passRoute')], false),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
     ],
@@ -130,6 +134,7 @@ describe('F-02 AC-014 disabled Connections, Conditions and child flows are not c
     const config = configWith([
       pipelineStart(),
       flow('broken', [agent('broken-agent'), connection('c1', 'broken-agent', 'ghost'), withoutRoute(condition('review'), 'passRoute')]),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(refusalOf(config)).toEqual([
@@ -150,7 +155,7 @@ describe('F-02 AC-012 Connection and Condition problems are listed together, sor
     }
     blocks.push(validFlow('late', [agent('late-agent'), withoutRoute(condition('late-review'), 'failRoute')]));
     blocks.push(connection('p-late', 'early', 'ghost'));
-    blocks.push(end('pipeline-end'));
+    blocks.push(...requiredGates(), end('pipeline-end'));
 
     expect(refusalOf(configWith(blocks))).toEqual([
       'pipeline.blocks[2]: flow "early" has no End block',
@@ -165,6 +170,7 @@ describe('F-02 AC-012 Connection and Condition problems are listed together, sor
       pipelineStart(),
       validFlow('specify', [agent('specify-agent'), connection('c1', 'specify-agent', 'ghost')]),
       connection('p1', 'specify', 'ghost'),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(() => generate(config, TEMPLATES)).toThrow(InvalidConfigError);

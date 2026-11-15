@@ -1,8 +1,8 @@
-// F-02 AC-008, AC-009, AC-011 and AC-013: names, clashes, Condition checks and advice.
+// F-02 AC-008 to AC-011 and AC-013: names, clashes, required blocks, Condition checks and advice.
 import { describe, expect, it } from 'vitest';
 import { ID_MESSAGE } from '../src/pipeline/ids.js';
 import { generate } from '../src/pipeline/index.js';
-import type { ConditionBlock, ConnectionBlock, PipelineBlock, PipelineConditionBlock } from '../src/pipeline/model.js';
+import type { ConditionBlock, ConnectionBlock, PipelineBlock } from '../src/pipeline/model.js';
 import { templateSourceFromRecord } from '../src/template-source.js';
 import {
   NEXT,
@@ -17,6 +17,7 @@ import {
   pipelineEnd,
   pipelineStart,
   refusalOf,
+  requiredGates,
   start,
   validFlow,
   type Row,
@@ -26,13 +27,6 @@ const TEMPLATES = templateSourceFromRecord({});
 
 function connection(id: string, from: string, to: string): ConnectionBlock {
   return { kind: 'connection', id, enabled: true, from, to, artifact: 'note' };
-}
-
-/** The five gates of the default pipeline, in their order, each passing on and stopping on fail. */
-function requiredGates(): PipelineConditionBlock[] {
-  return ['approve-stories', 'approve-screens', 'approve-plan', 'checks-built', 'approve-checklist'].map((id) =>
-    gate(id, NEXT, STOP),
-  );
 }
 
 /** A Condition with a check type and extra keys that the model does not allow, as a config built in code could have. */
@@ -184,6 +178,90 @@ describe('F-02 AC-009 a custom block whose id clashes with another id is refused
     {
       name: 'F-02 AC-009 accepts a custom agent with an id that no other block uses',
       blocks: [pipelineStart(), validFlow('build', [agent('build-lint')]), ...requiredGates(), pipelineEnd()],
+      expected: [],
+    },
+  ];
+  it.each(rows)('$name', ({ blocks, expected }) => {
+    expect(refusalOf(configWith(blocks))).toEqual(expected);
+  });
+});
+
+describe('F-02 AC-010 a required block of the default pipeline that is missing or disabled is refused, naming it', () => {
+  const rows: Row[] = [
+    {
+      name: 'F-02 AC-010 refuses a disabled pipeline End, naming it',
+      blocks: [pipelineStart(), validFlow('specify', [agent('specify-agent')]), ...requiredGates(), { ...pipelineEnd(), enabled: false }],
+      expected: ['pipeline.blocks[7]: End block "pipeline-end" is disabled; the pipeline needs an enabled End block'],
+    },
+    {
+      name: 'F-02 AC-010 refuses a disabled pipeline Start, naming it',
+      blocks: [{ ...pipelineStart(), enabled: false }, validFlow('specify', [agent('specify-agent')]), ...requiredGates(), pipelineEnd()],
+      expected: ['pipeline.blocks[0]: Start block "pipeline-start" is disabled; the pipeline needs an enabled Start block'],
+    },
+    {
+      name: 'F-02 AC-010 refuses an enabled flow whose only Start is disabled, naming it',
+      blocks: [
+        pipelineStart(),
+        flow('specify', [{ ...start('specify-start'), enabled: false }, agent('specify-agent'), end('specify-end')]),
+        ...requiredGates(),
+        pipelineEnd(),
+      ],
+      expected: ['pipeline.blocks[1].blocks[0]: Start block "specify-start" is disabled; flow "specify" needs an enabled Start block'],
+    },
+    {
+      name: 'F-02 AC-010 refuses an enabled flow whose only End is disabled, naming it',
+      blocks: [
+        pipelineStart(),
+        flow('specify', [start('specify-start'), agent('specify-agent'), { ...end('specify-end'), enabled: false }]),
+        ...requiredGates(),
+        pipelineEnd(),
+      ],
+      expected: ['pipeline.blocks[1].blocks[2]: End block "specify-end" is disabled; flow "specify" needs an enabled End block'],
+    },
+    {
+      name: 'F-02 AC-010 refuses a custom flow whose only End is disabled, since its Start and End are required too',
+      blocks: [
+        pipelineStart(),
+        validFlow('specify', [agent('specify-agent')]),
+        flow('release', [start('release-start'), agent('release-agent'), { ...end('release-end'), enabled: false }]),
+        ...requiredGates(),
+        pipelineEnd(),
+      ],
+      expected: ['pipeline.blocks[2].blocks[2]: End block "release-end" is disabled; flow "release" needs an enabled End block'],
+    },
+    {
+      name: 'F-02 AC-010 refuses a gate that is missing, naming it',
+      blocks: [pipelineStart(), validFlow('specify', [agent('specify-agent')]), ...requiredGates().filter((g) => g.id !== 'approve-plan'), pipelineEnd()],
+      expected: ['pipeline.blocks: required gate "approve-plan" is missing'],
+    },
+    {
+      name: 'F-02 AC-010 refuses a required gate that is not a Condition, naming it at its path',
+      blocks: [pipelineStart(), validFlow('specify', [agent('specify-agent')]), ...gatesWith(end('approve-plan')), pipelineEnd()],
+      expected: [
+        'pipeline.blocks[4]: required gate "approve-plan" must be a Condition',
+        'pipeline.blocks[5]: block "checks-built" is not reachable from the pipeline Start',
+        'pipeline.blocks[6]: block "approve-checklist" is not reachable from the pipeline Start',
+      ],
+    },
+    {
+      name: 'F-02 AC-010 refuses a gate that is disabled, naming it at its path',
+      blocks: [
+        pipelineStart(),
+        validFlow('specify', [agent('specify-agent')]),
+        ...gatesWith(gate('approve-plan', NEXT, STOP, false)),
+        pipelineEnd(),
+      ],
+      expected: ['pipeline.blocks[4]: required gate "approve-plan" is disabled'],
+    },
+    {
+      name: 'F-02 AC-010 accepts a disabled child flow with disabled Start and End, since it is not checked',
+      blocks: [
+        pipelineStart(),
+        validFlow('specify', [agent('specify-agent')]),
+        flow('release', [{ ...start('release-start'), enabled: false }, { ...end('release-end'), enabled: false }], false),
+        ...requiredGates(),
+        pipelineEnd(),
+      ],
       expected: [],
     },
   ];

@@ -12,6 +12,7 @@ import type {
   StartBlock,
 } from '../src/pipeline/model.js';
 import { templateSourceFromRecord } from '../src/template-source.js';
+import { requiredGates } from './pipeline-routes-fixtures.js';
 
 const TEMPLATES = templateSourceFromRecord({});
 
@@ -61,27 +62,27 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
   it.each<[string, PipelineBlock[], string[]]>([
     [
       'the pipeline has no Start block',
-      [flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')]), end('pipeline-end')],
+      [flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline: the pipeline has no Start block'],
     ],
     [
       'the pipeline has two Start blocks',
-      [pipelineStart('a'), pipelineStart('b'), flow('specify', [start('s'), end('e')]), end('pipeline-end')],
+      [pipelineStart('a'), pipelineStart('b'), flow('specify', [start('s'), end('e')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline: the pipeline has 2 Start blocks; exactly one is required'],
     ],
     [
       'a child flow has no Start block',
-      [pipelineStart(), flow('specify', [agent('specify-agent'), end('specify-end')]), end('pipeline-end')],
+      [pipelineStart(), flow('specify', [agent('specify-agent'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1]: flow "specify" has no Start block'],
     ],
     [
       'a child flow has two Start blocks',
-      [pipelineStart(), flow('specify', [start('s1'), start('s2'), end('specify-end')]), end('pipeline-end')],
+      [pipelineStart(), flow('specify', [start('s1'), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
     ],
     [
       'a disabled Start block is still counted, so a flow with one disabled Start and one enabled Start has two',
-      [pipelineStart(), flow('specify', [start('s1', false), start('s2'), end('specify-end')]), end('pipeline-end')],
+      [pipelineStart(), flow('specify', [start('s1', false), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
     ],
   ])('F-02 AC-001 refuses when %s', (_name, blocks, expected) => {
@@ -89,7 +90,7 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
   });
 
   it('F-02 AC-001 refuses an empty child flow for both its missing Start and its missing End', () => {
-    expect(refusalOf(configWith([pipelineStart(), flow('empty', []), end('pipeline-end')]))).toEqual([
+    expect(refusalOf(configWith([pipelineStart(), flow('empty', []), ...requiredGates(), end('pipeline-end')]))).toEqual([
       'pipeline.blocks[1]: flow "empty" has no End block',
       'pipeline.blocks[1]: flow "empty" has no Start block',
     ]);
@@ -100,6 +101,7 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
       pipelineStart(),
       flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')]),
       flow('build', [start('build-start'), agent('build-agent'), end('build-end')]),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(generate(config, TEMPLATES)).toEqual({ files: [], warnings: [] });
@@ -110,17 +112,17 @@ describe('F-02 AC-002 a pipeline or a child flow with no End block is refused wi
   it.each<[string, PipelineBlock[], string[]]>([
     [
       'the pipeline has no End block',
-      [pipelineStart(), flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')])],
+      [pipelineStart(), flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')]), ...requiredGates()],
       ['pipeline: the pipeline has no End block'],
     ],
     [
       'a child flow has no End block',
-      [pipelineStart(), flow('specify', [start('specify-start'), agent('specify-agent')]), end('pipeline-end')],
+      [pipelineStart(), flow('specify', [start('specify-start'), agent('specify-agent')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1]: flow "specify" has no End block'],
     ],
     [
-      'a child flow whose only End block is disabled still counts it, so it is accepted',
-      [pipelineStart(), flow('specify', [start('s'), end('e', false)]), end('pipeline-end')],
+      'a child flow whose End is disabled still counts it, so it is accepted beside an enabled End',
+      [pipelineStart(), flow('specify', [start('s'), end('e', false), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       [],
     ],
   ])('F-02 AC-002 handles %s', (_name, blocks, expected) => {
@@ -138,12 +140,13 @@ describe('F-02 AC-002 a pipeline or a child flow with no End block is refused wi
           end('e1'),
           { ...end('e2'), outcome: 'stopped' },
         ]),
+        ...requiredGates(),
         end('pipeline-end'),
       ],
     ],
     [
       'the pipeline with two End blocks, one of them disabled',
-      [pipelineStart(), flow('specify', [start('s'), end('e')]), end('pipeline-end', true), end('e2', false)],
+      [pipelineStart(), flow('specify', [start('s'), end('e')]), ...requiredGates(), end('pipeline-end', true), end('e2', false)],
     ],
   ])('F-02 AC-002 accepts %s, since at least one End is required', (_name, blocks) => {
     expect(refusalOf(configWith(blocks))).toEqual([]);
@@ -155,6 +158,7 @@ describe('F-02 AC-012 several problems are all listed in path order, and no file
     const config = configWith([
       flow('specify', [start('specify-start'), agent('specify-agent')]),
       flow('build', [agent('build-agent'), end('build-end')]),
+      ...requiredGates(),
       end('pipeline-end'),
     ]);
     expect(refusalOf(config)).toEqual([
@@ -179,7 +183,7 @@ describe('F-02 AC-012 several problems are all listed in path order, and no file
       if (index === 10) return flow('late', [agent('late-agent')]);
       return filler(index);
     });
-    blocks.push(end('pipeline-end'));
+    blocks.push(...requiredGates(), end('pipeline-end'));
     expect(refusalOf(configWith(blocks))).toEqual([
       'pipeline.blocks[2]: flow "early" has no End block',
       'pipeline.blocks[2]: flow "early" has no Start block',
@@ -189,14 +193,14 @@ describe('F-02 AC-012 several problems are all listed in path order, and no file
   });
 
   it('F-02 AC-012 sorts problems at the same path by their message', () => {
-    expect(refusalOf(configWith([]))).toEqual([
+    expect(refusalOf(configWith([...requiredGates()]))).toEqual([
       'pipeline: the pipeline has no End block',
       'pipeline: the pipeline has no Start block',
     ]);
   });
 
   it('F-02 AC-012 throws one InvalidConfigError carrying every problem, and returns no files', () => {
-    const config = configWith([flow('specify', [agent('specify-agent')]), end('pipeline-end')]);
+    const config = configWith([flow('specify', [agent('specify-agent')]), ...requiredGates(), end('pipeline-end')]);
     expect(() => generate(config, TEMPLATES)).toThrow(InvalidConfigError);
     expect(refusalOf(config)).toHaveLength(3);
   });

@@ -1,15 +1,19 @@
-// Refusals of names and Condition checks (F-02 AC-008, AC-009, AC-011, AC-013), and of the descriptions of the pipeline's
-// Agent blocks (F-02 AC-029). The parser refuses the same cases for a config read from JSON; these checks keep generate
-// refusing them for a config built in code.
+// Refusals of names, required blocks and Condition checks (F-02 AC-008 to AC-011, AC-013), and of the descriptions of
+// the pipeline's Agent blocks (F-02 AC-029). The parser refuses the same cases for a config read from JSON; these checks
+// keep generate refusing them for a config built in code.
 //
 // Names: every block and flow id, and every argument name, is file-safe and unique across the pipeline. An Agent block is
 // a custom block (architecture.md decision 8) when it is not part of the default pipeline; its id clashes are refused by the
 // same rule, and every clashing path is named. Agent names are file-safe and unique among agents.
 //
-// Disabled blocks and flows are not checked at all, ids and names included (AC-014), and advice (a retry with no round limit, an input with
-// no upstream producer) never refuses (AC-013).
+// Required blocks: the pipeline's own Start and End, and the gates between flows (the Conditions of the default pipeline),
+// are always required. In an enabled child flow the Start and End are required. A block of a required kind that is
+// disabled is refused. A missing Start or End is left to the shape checks, which name the flow; a missing gate is refused
+// here by its id. Disabled blocks and flows are not checked at all, ids and names included (AC-014), and advice (a retry with no round
+// limit, an input with no upstream producer) never refuses (AC-013).
+import { defaultProjectConfig } from '../default.js';
 import { ID_MESSAGE, isValidId } from '../ids.js';
-import type { ChildBlock, CheckType, ConditionBlock, FlowBlock, ProjectConfig } from '../model.js';
+import type { ChildBlock, CheckType, ConditionBlock, FlowBlock, PipelineBlock, ProjectConfig } from '../model.js';
 import { childPath, indexPath, type PipelineProblem } from '../parse-util.js';
 
 /** A named value and the dotted path where it is written, for the clash messages. */
@@ -18,8 +22,20 @@ interface Named {
   readonly value: string;
 }
 
+/** A block of a list, as the required-block checks read it. */
+interface ListBlock {
+  readonly kind: string;
+  readonly id: string;
+  readonly enabled: boolean;
+}
+
 const BLOCKS_PATH = childPath('pipeline', 'blocks');
 const CHECK_TYPES: readonly string[] = ['approval', 'checks', 'review', 'diff-size'];
+
+/** The gates between flows of the default pipeline. They are required in every pipeline (architecture.md decision 8). */
+const REQUIRED_GATE_IDS: readonly string[] = defaultProjectConfig.pipeline.blocks.flatMap((block) =>
+  block.kind === 'condition' ? [block.id] : [],
+);
 
 /** The description problems of the enabled Agent blocks of the pipeline's enabled child flows. */
 export function descriptionProblems(config: ProjectConfig): PipelineProblem[] {
@@ -119,6 +135,51 @@ export function nameProblems(config: ProjectConfig): PipelineProblem[] {
   fileSafeProblems([...ids, ...agentNames], problems);
   clashProblems(ids, problems);
   clashProblems(agentNames, problems);
+  return problems;
+}
+
+/**
+ * The Start and End rule of one list (the pipeline, or an enabled child flow): when the list holds a Start or an End
+ * and none of that kind is enabled, each disabled one is refused. A list with none of a kind is left to the shape checks.
+ */
+function endpointProblems(listPath: string, owner: string, blocks: readonly ListBlock[], problems: PipelineProblem[]): void {
+  for (const kind of ['start', 'end'] as const) {
+    const ofKind = blocks.flatMap((block, index) => (block.kind === kind ? [{ block, index }] : []));
+    if (ofKind.length === 0 || ofKind.some(({ block }) => block.enabled)) continue;
+    const label = kind === 'start' ? 'Start' : 'End';
+    for (const { block, index } of ofKind) {
+      problems.push({
+        path: indexPath(listPath, index),
+        message: `${label} block "${block.id}" is disabled; ${owner} needs an enabled ${label} block`,
+      });
+    }
+  }
+}
+
+/** The gates of the default pipeline must be pipeline Conditions, present and enabled. */
+function gateProblems(blocks: readonly PipelineBlock[], problems: PipelineProblem[]): void {
+  for (const gateId of REQUIRED_GATE_IDS) {
+    const index = blocks.findIndex((block) => block.id === gateId);
+    const block = blocks[index];
+    if (block === undefined) {
+      problems.push({ path: BLOCKS_PATH, message: `required gate "${gateId}" is missing` });
+    } else if (block.kind !== 'condition') {
+      problems.push({ path: indexPath(BLOCKS_PATH, index), message: `required gate "${gateId}" must be a Condition` });
+    } else if (!block.enabled) {
+      problems.push({ path: indexPath(BLOCKS_PATH, index), message: `required gate "${gateId}" is disabled` });
+    }
+  }
+}
+
+/** The required-block problems of the pipeline and of each enabled child flow. */
+export function requiredProblems(config: ProjectConfig): PipelineProblem[] {
+  const problems: PipelineProblem[] = [];
+  endpointProblems(BLOCKS_PATH, 'the pipeline', config.pipeline.blocks, problems);
+  gateProblems(config.pipeline.blocks, problems);
+  for (const { path, flow } of flowsOf(config)) {
+    if (!flow.enabled) continue;
+    endpointProblems(childPath(path, 'blocks'), `flow "${flow.id}"`, flow.blocks, problems);
+  }
   return problems;
 }
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 17 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 18 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 - **Amendment 10 (2026-11-15), size exception for T014.** The route switch and every test that posts to `/analyze` must land in one commit to stay green (`analyze-route`, the `/analyze` cases of `limits-route` and `ceiling-route`, `privacy`, `privacy-limits`, `wiring`). The staged change is about 497 changed lines, over the 400-line guard by about 95. Owner choice (option A): T014 is accepted as one documented exception.
 - **Amendment 11 (2026-11-15), T013b as a documented size exception; T013a after T013b.** T013b removes the flat `analyze` and its test file: about 413 staged lines, 357 of them deletions, over the 400-line guard. Owner choice: accept as one documented exception (no split). T013a (remove the flat review prompt) now runs after T013b, because T013b removes the import that keeps the prompt in use; the plan lists T013a after T013b.
 - **Amendment 12 (2026-11-15), T013a moves two helpers first.** The flat `/generate` prompt imports `oneLine` and `pickProject` from the flat `review/prompt.ts`. T013a copies those two helpers into `generate/prompt.ts` (unchanged behaviour) and then deletes the flat review prompt and its test. `/generate` stays flat until F-07. Owner choice (option 1), 2026-11-15.
+- **Amendment 13 (2026-11-15), T013a as a documented size exception.** T013a is about 604 staged lines: 459 are the two required deletions (`review/prompt.ts`, `test/prompt.test.ts`), and 139 are the copied helpers in `generate/prompt.ts`. Owner choice (option 2): accept as one documented exception, no split.
 - **Open note for F-13 (2026-11-15).** The `/analyze` module cap no longer applies, since the pipeline caps are idea and rules only (AC-021). The module cap test moved to `/generate`, which keeps it until F-07. To be settled when F-13 is specified; no F-04 decision depends on it.
 
 ---
@@ -62,6 +63,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T015 | Ceiling on `/analyze` returns skipped with no model call (AC-022 route); `/generate` still generates a flat config (AC-023) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 | T016 | Privacy and wiring tests on the pipeline model; route-level AC-018 test: no brief, rule, reply or message text in the log | reviewed: 0 blockers, 0 warnings; 2 suggestions deferred | task check passed (exit 0) |
 | T013b | Flat `analyze` removed from the API; its cases moved to pipeline tests; anthropic-model uses pipeline fixtures (size exception, Amendment 11) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
+| T013a | Flat review prompt removed; `oneLine` and `pickProject` copied privately into the flat generate prompt; new brief test for the copied branches (size exception, Amendment 13) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 
 ---
 

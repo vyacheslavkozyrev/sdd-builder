@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 4 of 19 tasks committed |
+| Build    | 🔄 In Progress | | 5 of 19 tasks committed (T010 retired by Amendment 1) |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ None.
 | T002 | Pipeline generation prompt in `generate/pipeline-prompt.ts` beside the flat prompt (AC-008 prompt, AC-010 retry prompt); flat `prompt.ts` unchanged | 0 blockers, 1 warning fixed (a white-space-only description now reads `(none)`), 0 suggestions fixed, 2 deferred | task check passed: 418 api, 348 web, 1338 core (14 new tests in the pipeline-prompt file) |
 | T003 | Pipeline generation service in `generate/pipeline-service.ts` (refuse, one call, one retry on a failed reply, provider error not retried); `configProblems` exported from core `pipeline/index.ts`; `loadTemplates` returns `ListableTemplateSource`; flat `service.ts` and `prompt.ts` unchanged | 0 blockers, 3 warnings fixed (`GeneratedFile` redeclared instead of imported from core; refusal test compared only against `configProblems`, now also asserts the AC-006 message; truncated-reply retry untested, now covered), 0 suggestions fixed, 2 deferred | task check passed: 434 api, 348 web, 1338 core (16 tests in the service file) |
 | T004 | Route switch: `POST /generate` on the pipeline path (readPipelineConfig, pipeline caps 422, configProblems 422 before the ceiling, generatePipelineProject, 200/422/502/503/500); flat `/generate` cases in five test files moved to pipeline fixtures (Amendment 1); AC-006 route wording and no module cap (Amendments 2 and 3) | 0 blockers, 3 warnings fixed, 4 deferred. 400-line guard waived by the owner for this task | task check passed: 450 api, 348 web, 1338 core |
+| T005 | Zip on the pipeline route: headers, entries in plan order, each entry's text, DEFLATE and fixed 2020-01-01 date, byte-identical zips across two requests on a fake clock (route unchanged) | 0 blockers, 3 warnings fixed, 1 suggestion fixed | task check passed: 456 api, 348 web, 1338 core |
 
 ---
 

@@ -1,17 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import {
-  analyzeStructure,
-  DEFAULT_CONNECTIONS,
-  DEFAULT_WORKFLOWS,
-  INPUT_CAPS,
-  skippedAnalysis,
-  type ProjectConfig,
-} from '@sddbuilder/core';
+import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS, INPUT_CAPS, pipeline, type ProjectConfig } from '@sddbuilder/core';
 import type { ReviewModel, ReviewReply } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
-import type { GenerationModel, GenerationReply } from '../src/generate/generation-model.js';
+import type { GenerationModel } from '../src/generate/generation-model.js';
 import { ClientLimiter, CLIENT_LIMITS } from '../src/limits/client-limiter.js';
 import { DailyCeiling } from '../src/limits/daily-ceiling.js';
+import { pipelineConfig } from './pipeline-config.js';
 
 const ANALYZE_URL = 'http://localhost/analyze';
 const GENERATE_URL = 'http://localhost/generate';
@@ -153,7 +147,7 @@ describe('F-13 AC-016 the review ceiling skips the review at the limit', () => {
     const clock = clockAt(START);
     const review = reviewModel(() => Promise.resolve(OK_REPLY));
     const app = buildApp(clock, { reviewLimit: 2, review });
-    const config = sampleConfig();
+    const config = pipelineConfig();
 
     expect((await postConfig(app, ANALYZE_URL, config)).status).toBe(200);
     expect((await postConfig(app, ANALYZE_URL, config)).status).toBe(200);
@@ -161,7 +155,7 @@ describe('F-13 AC-016 the review ceiling skips the review at the limit', () => {
 
     expect(skipped.status).toBe(200);
     expect(await skipped.json()).toEqual({
-      findings: analyzeStructure(config),
+      findings: pipeline.analyzeStructure(config),
       review: { status: 'skipped', findings: [], dropped: 0 },
     });
     expect(review.calls).toBe(2);
@@ -172,18 +166,18 @@ describe('F-13 AC-022 review.status accepts skipped', () => {
   it('F-13 AC-022 the skipped body equals skippedAnalysis for the same configuration', async () => {
     const clock = clockAt(START);
     const app = buildApp(clock, { reviewLimit: 0 });
-    const config = sampleConfig();
+    const config = pipelineConfig();
 
     const response = await postConfig(app, ANALYZE_URL, config);
 
-    expect(await response.json()).toEqual(skippedAnalysis(config));
+    expect(await response.json()).toEqual(pipeline.skippedAnalysis(config));
   });
 
   it('F-13 AC-022 keeps status ok for a review that runs below the ceiling', async () => {
     const clock = clockAt(START);
     const app = buildApp(clock, { reviewLimit: 1 });
 
-    const response = await postConfig(app, ANALYZE_URL, sampleConfig());
+    const response = await postConfig(app, ANALYZE_URL, pipelineConfig());
 
     expect(await response.json()).toMatchObject({ review: { status: 'ok' } });
   });
@@ -212,7 +206,7 @@ describe('F-13 AC-020 failed model calls still count toward the ceilings', () =>
       call === 1 ? Promise.reject(new Error('the review model failed')) : Promise.resolve({ text: 'not json', truncated: false }),
     );
     const app = buildApp(clock, { reviewLimit: 2, review });
-    const config = sampleConfig();
+    const config = pipelineConfig();
 
     expect(await (await postConfig(app, ANALYZE_URL, config)).json()).toMatchObject({ review: { status: 'failed' } });
     expect(await (await postConfig(app, ANALYZE_URL, config)).json()).toMatchObject({ review: { status: 'failed' } });
@@ -248,12 +242,12 @@ describe('F-13 AC-021 requests refused by a rate limit or an input cap do not co
     // The ceiling is one more than the per-minute limit: a refused request that counted would skip the review below.
     const app = buildApp(clock, { reviewLimit: CLIENT_LIMITS.perMinute + 1, review });
     for (let i = 0; i < CLIENT_LIMITS.perMinute; i += 1) {
-      expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
+      expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
     }
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
 
     clock.now = START + 60_000;
-    const body: unknown = await (await postConfig(app, ANALYZE_URL, sampleConfig())).json();
+    const body: unknown = await (await postConfig(app, ANALYZE_URL, pipelineConfig())).json();
 
     expect(body).toMatchObject({ review: { status: 'ok' } });
     expect(review.calls).toBe(CLIENT_LIMITS.perMinute + 1);
@@ -263,10 +257,10 @@ describe('F-13 AC-021 requests refused by a rate limit or an input cap do not co
     const clock = clockAt(START);
     const review = reviewModel(() => Promise.resolve(OK_REPLY));
     const app = buildApp(clock, { reviewLimit: 1, review });
-    const over = sampleConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) });
+    const over = pipelineConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) });
 
     expect((await postConfig(app, ANALYZE_URL, over)).status).toBe(422);
-    const body: unknown = await (await postConfig(app, ANALYZE_URL, sampleConfig())).json();
+    const body: unknown = await (await postConfig(app, ANALYZE_URL, pipelineConfig())).json();
 
     expect(body).toMatchObject({ review: { status: 'ok' } });
     expect(review.calls).toBe(1);

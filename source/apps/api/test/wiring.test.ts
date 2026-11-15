@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { analyzeStructure } from '@sddbuilder/core';
-import type { ProjectConfig } from '@sddbuilder/core';
+import { pipeline } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
 import { fixedLimits } from './fixed-limits.js';
+import { pipelineConfig } from './pipeline-config.js';
 import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
 import { createAnthropicReviewModel } from '../src/review/anthropic-model.js';
@@ -19,42 +19,9 @@ const ANALYZE_URL = 'http://localhost/analyze';
 // Whitespace only: it counts as a missing key, and it must never reach the log or a response.
 const KEY_SENTINEL = ' \t \n ';
 
-function sampleConfig(): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name: 'Sample Project',
-    idea: 'A tool that turns a product idea into a spec-driven project framework.',
-    stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-    architecture: {
-      style: 'layered',
-      modules: [{ name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] }],
-      notes: 'Core has no I/O.',
-    },
-    codeRules: ['Validate input at the boundary.'],
-    testRules: ['Use Vitest for unit tests.'],
-    customSteps: [],
-    workflows: [
-      {
-        id: 'implement-cycle',
-        name: 'Implement',
-        scope: 'task',
-        iterationSource: 'plan.md',
-        enabled: true,
-        steps: [{ stepId: 'implement', enabled: true }],
-        conditions: [],
-      },
-    ],
-    connections: [],
-    targets: ['claude'],
-  };
-}
-
-/** A configuration the structural rules refuse: two workflows share one id. */
-function duplicateIdConfig(): ProjectConfig {
-  const config = sampleConfig();
-  const first = config.workflows[0];
-  if (first === undefined) throw new Error('sample config has no workflow');
-  return { ...config, workflows: [...config.workflows, { ...first }] };
+/** A configuration the structural rules refuse: a blank idea is a blocker. */
+function refusedConfig(): pipeline.ProjectConfig {
+  return pipelineConfig({ idea: '' });
 }
 
 /** A log port that keeps every line it receives. */
@@ -85,7 +52,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
 
   for (const [label, key] of missingKeys) {
     it(`F-07 AC-006 answers 200 with review.status failed and the structural findings when the key is ${label}`, async () => {
-      const config = duplicateIdConfig();
+      const config = refusedConfig();
       const log = recordingLog();
       const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log, generation: null });
 
@@ -94,7 +61,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
 
       expect(response.status).toBe(200);
       expect(JSON.parse(text)).toEqual({
-        findings: analyzeStructure(config),
+        findings: pipeline.analyzeStructure(config),
         review: { status: 'failed', findings: [], dropped: 0 },
       });
       expect(log.lines).toEqual(['event=review_key_missing', 'event=review_model_failed route=/analyze error=Error']);
@@ -102,7 +69,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
   }
 
   it('F-07 AC-006 never logs or returns the key value', async () => {
-    const config = duplicateIdConfig();
+    const config = refusedConfig();
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log, generation: null });
 
@@ -124,7 +91,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: 'sk-test' }, log), log, generation: null });
 
-    const response = await postAnalyze(app, sampleConfig());
+    const response = await postAnalyze(app, pipelineConfig());
 
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ review: { status: 'failed' } });
@@ -149,7 +116,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is set', () => {
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom(env, log), log, generation: null });
 
-    const response = await postAnalyze(app, sampleConfig());
+    const response = await postAnalyze(app, pipelineConfig());
 
     expect(response.status).toBe(200);
     expect(vi.mocked(createAnthropicReviewModel)).toHaveBeenLastCalledWith(env);

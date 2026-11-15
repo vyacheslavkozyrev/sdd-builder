@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Context } from 'hono';
-import { INPUT_CAPS, type ProjectConfig } from '@sddbuilder/core';
+import { INPUT_CAPS, pipeline, type ProjectConfig } from '@sddbuilder/core';
 import type { ReviewModel, ReviewReply } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
 import { connectionAddress } from '../src/http/client-address.js';
@@ -8,6 +8,7 @@ import type { GenerationModel } from '../src/generate/generation-model.js';
 import { ClientLimiter } from '../src/limits/client-limiter.js';
 import { DailyCeiling } from '../src/limits/daily-ceiling.js';
 import type { LogPort } from '../src/log.js';
+import { pipelineConfig, withPipelineRules } from './pipeline-config.js';
 
 const ANALYZE_URL = 'http://localhost/analyze';
 const GENERATE_URL = 'http://localhost/generate';
@@ -167,7 +168,7 @@ function postConfig(app: App, url: string, config: unknown, env?: object): Respo
 /** Sends `count` valid analyze requests, each of which must be accepted (200). */
 async function acceptMany(app: App, count: number): Promise<void> {
   for (let i = 0; i < count; i += 1) {
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
   }
 }
 
@@ -177,7 +178,7 @@ describe('F-13 AC-001 per-minute limit on the wire', () => {
     const { app, review } = buildApp(clock);
     await acceptMany(app, 10);
 
-    const refused = await postConfig(app, ANALYZE_URL, sampleConfig());
+    const refused = await postConfig(app, ANALYZE_URL, pipelineConfig());
 
     expect(refused.status).toBe(429);
     expect(refused.headers.get('Retry-After')).toBe('30');
@@ -189,11 +190,11 @@ describe('F-13 AC-001 per-minute limit on the wire', () => {
     const clock = clockAt(START);
     const { app } = buildApp(clock);
     await acceptMany(app, 10);
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
 
     clock.now = START + 30_000;
 
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
   });
 });
 
@@ -203,11 +204,11 @@ describe('F-13 AC-003 limits are per client address', () => {
     let current = '198.51.100.1';
     const { app } = buildApp(clock, { address: () => current });
     await acceptMany(app, 10);
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
 
     current = '198.51.100.2';
 
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
   });
 });
 
@@ -217,11 +218,11 @@ describe('F-13 AC-004 one count covers both routes', () => {
     const { app } = buildApp(clock);
     // Generation is not configured, so each admitted /generate request answers 503: that is an accepted request.
     for (let i = 0; i < 5; i += 1) {
-      expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
+      expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
       expect((await postConfig(app, GENERATE_URL, sampleConfig())).status).toBe(503);
     }
 
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
     expect((await postConfig(app, GENERATE_URL, sampleConfig())).status).toBe(429);
   });
 });
@@ -263,7 +264,7 @@ describe('F-13 AC-007 requests that are not POST or not routes are not counted',
     }
 
     await acceptMany(app, 10);
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
   });
 });
 
@@ -277,7 +278,7 @@ describe('F-13 AC-008 the client address is the connection address', () => {
         new Request(ANALYZE_URL, {
           method: 'POST',
           headers: { 'content-type': 'application/json', 'X-Forwarded-For': `192.0.2.${i}` },
-          body: JSON.stringify(sampleConfig()),
+          body: JSON.stringify(pipelineConfig()),
         }),
         undefined,
         env,
@@ -289,7 +290,7 @@ describe('F-13 AC-008 the client address is the connection address', () => {
       new Request(ANALYZE_URL, {
         method: 'POST',
         headers: { 'content-type': 'application/json', 'X-Forwarded-For': '192.0.2.200' },
-        body: JSON.stringify(sampleConfig()),
+        body: JSON.stringify(pipelineConfig()),
       }),
       undefined,
       env,
@@ -298,7 +299,7 @@ describe('F-13 AC-008 the client address is the connection address', () => {
     expect(refused.status).toBe(429);
 
     const otherConnection = await app.request(
-      new Request(ANALYZE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(sampleConfig()) }),
+      new Request(ANALYZE_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(pipelineConfig()) }),
       undefined,
       { incoming: { socket: { remoteAddress: '198.51.100.10' } } },
     );
@@ -307,15 +308,15 @@ describe('F-13 AC-008 the client address is the connection address', () => {
 });
 
 describe('F-13 AC-010 idea length cap', () => {
-  it('F-13 AC-010 accepts an idea of exactly 8,000 characters on /analyze and refuses 8,001 with 422 before any model call', async () => {
+  it('F-04 AC-021 accepts an idea of exactly 8,000 characters on /analyze and refuses 8,001 with 422 before any model call', async () => {
     const clock = clockAt(START);
     const review = recordingReview();
     const { app } = buildApp(clock, { review, generation: null });
 
-    const atLimit = await postConfig(app, ANALYZE_URL, sampleConfig({ idea: 'a'.repeat(8000) }));
+    const atLimit = await postConfig(app, ANALYZE_URL, pipelineConfig({ idea: 'a'.repeat(8000) }));
     expect(atLimit.status).toBe(200);
 
-    const over = await postConfig(app, ANALYZE_URL, sampleConfig({ idea: 'a'.repeat(8001) }));
+    const over = await postConfig(app, ANALYZE_URL, pipelineConfig({ idea: 'a'.repeat(8001) }));
     expect(over.status).toBe(422);
     expect(await over.json()).toEqual({
       error: 'project config is over the input caps',
@@ -337,58 +338,82 @@ describe('F-13 AC-010 idea length cap', () => {
 });
 
 describe('F-13 AC-011 module cap', () => {
-  it('F-13 AC-011 accepts 12 modules and refuses 13 with 422 before any model call', async () => {
-    const clock = clockAt(START);
-    const review = recordingReview();
-    const { app } = buildApp(clock, { review });
+  it('F-13 AC-011 accepts 12 modules and refuses 13 on /generate with 422 before any model call', async () => {
+    // Generation is not configured, so a config that passes the caps answers 503 rather than 422.
+    const { app } = buildApp(clockAt(START), { generation: null });
 
-    expect((await postConfig(app, ANALYZE_URL, withModules(12))).status).toBe(200);
+    expect((await postConfig(app, GENERATE_URL, withModules(12))).status).toBe(503);
 
-    const over = await postConfig(app, ANALYZE_URL, withModules(13));
+    const over = await postConfig(app, GENERATE_URL, withModules(13));
     expect(over.status).toBe(422);
     expect(await over.json()).toEqual({
       error: 'project config is over the input caps',
       problems: ['architecture.modules: 13 modules, the limit is 12'],
     });
-    expect(review.calls).toHaveLength(1);
   });
 });
 
 describe('F-13 AC-012 rule cap', () => {
-  it('F-13 AC-012 accepts 60 rules counted together and refuses 61 with 422 before any model call', async () => {
+  it('F-04 AC-021 accepts 60 rules and refuses 61 on /analyze with 422 before any model call', async () => {
     const clock = clockAt(START);
     const review = recordingReview();
     const { app } = buildApp(clock, { review });
 
-    expect((await postConfig(app, ANALYZE_URL, withRules(30, 30))).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, withPipelineRules(60))).status).toBe(200);
 
-    const over = await postConfig(app, ANALYZE_URL, withRules(31, 30));
+    const over = await postConfig(app, ANALYZE_URL, withPipelineRules(61));
+    expect(over.status).toBe(422);
+    expect(await over.json()).toEqual({
+      error: 'project config is over the input caps',
+      problems: ['rules: 61 rules, the limit is 60'],
+    });
+    expect(review.calls).toHaveLength(1);
+  });
+
+  it('F-13 AC-012 counts code and test rules together on /generate and refuses 61 with 422', async () => {
+    const { app } = buildApp(clockAt(START), { generation: null });
+
+    expect((await postConfig(app, GENERATE_URL, withRules(30, 30))).status).toBe(503);
+
+    const over = await postConfig(app, GENERATE_URL, withRules(31, 30));
     expect(over.status).toBe(422);
     expect(await over.json()).toEqual({
       error: 'project config is over the input caps',
       problems: ['codeRules and testRules: 61 rules, the limit is 60'],
     });
-    expect(review.calls).toHaveLength(1);
   });
 });
 
-describe('F-13 AC-015 the caps are shared by both routes', () => {
+describe('F-13 AC-015 the caps are applied on both routes', () => {
   const overCaps: Array<{ name: string; config: () => ProjectConfig }> = [
     { name: 'idea', config: () => sampleConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) }) },
     { name: 'modules', config: () => withModules(INPUT_CAPS.modules + 1) },
     { name: 'rules', config: () => withRules(INPUT_CAPS.rules + 1, 0) },
   ];
 
-  for (const url of [ANALYZE_URL, GENERATE_URL]) {
-    for (const { name, config } of overCaps) {
-      it(`F-13 AC-015 refuses one over-cap ${name} with 422 on ${url}`, async () => {
-        const { app } = buildApp(clockAt(START), { generation: null });
+  for (const { name, config } of overCaps) {
+    it(`F-13 AC-015 refuses one over-cap ${name} with 422 on ${GENERATE_URL}`, async () => {
+      const { app } = buildApp(clockAt(START), { generation: null });
 
-        const response = await postConfig(app, url, config());
+      const response = await postConfig(app, GENERATE_URL, config());
 
-        expect(response.status).toBe(422);
-      });
-    }
+      expect(response.status).toBe(422);
+    });
+  }
+
+  const overPipelineCaps: Array<{ name: string; config: () => pipeline.ProjectConfig }> = [
+    { name: 'idea', config: () => pipelineConfig({ idea: 'a'.repeat(8001) }) },
+    { name: 'rules', config: () => withPipelineRules(61) },
+  ];
+
+  for (const { name, config } of overPipelineCaps) {
+    it(`F-04 AC-021 refuses one over-cap ${name} with 422 on ${ANALYZE_URL}`, async () => {
+      const { app } = buildApp(clockAt(START), { generation: null });
+
+      const response = await postConfig(app, ANALYZE_URL, config());
+
+      expect(response.status).toBe(422);
+    });
   }
 
   it('F-13 AC-015 accepts a config exactly at every cap on both routes', async () => {
@@ -404,27 +429,28 @@ describe('F-13 AC-015 the caps are shared by both routes', () => {
     });
     const { app } = buildApp(clockAt(START), { generation: null });
 
-    expect((await postConfig(app, ANALYZE_URL, atCaps)).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig({ idea: 'a'.repeat(8000) }))).status).toBe(200);
+    expect((await postConfig(app, ANALYZE_URL, withPipelineRules(60))).status).toBe(200);
     expect((await postConfig(app, GENERATE_URL, atCaps)).status).toBe(503);
   });
 });
 
 describe('F-13 AC-001 a request refused by an input cap does not use up the allowance', () => {
-  for (const [name, url] of [
-    ['/analyze', ANALYZE_URL],
-    ['/generate', GENERATE_URL],
+  for (const [name, url, over] of [
+    ['/analyze', ANALYZE_URL, () => pipelineConfig({ idea: 'a'.repeat(8001) })],
+    ['/generate', GENERATE_URL, () => sampleConfig({ idea: 'a'.repeat(8001) })],
   ] as const) {
     it(`F-13 AC-001 a cap-refused request on ${name} is refunded, so the 10th valid request is still accepted`, async () => {
       const clock = clockAt(START);
       const { app } = buildApp(clock);
       await acceptMany(app, 9);
       for (let i = 0; i < 5; i += 1) {
-        const over = await postConfig(app, url, sampleConfig({ idea: 'a'.repeat(8001) }));
-        expect(over.status).toBe(422);
+        const refused = await postConfig(app, url, over());
+        expect(refused.status).toBe(422);
       }
 
-      expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(200);
-      expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+      expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
+      expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
     });
   }
 });
@@ -442,7 +468,7 @@ describe('F-13 AC-001 a request refused as invalid JSON (400) still counts', () 
       expect(invalid.status).toBe(400);
     }
 
-    expect((await postConfig(app, ANALYZE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
     expect(review.calls).toHaveLength(0);
   });
 });

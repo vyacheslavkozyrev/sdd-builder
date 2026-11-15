@@ -14,6 +14,7 @@ import type { LogPort } from '../src/log.js';
 import { ClientLimiter, CLIENT_LIMITS } from '../src/limits/client-limiter.js';
 import { DailyCeiling } from '../src/limits/daily-ceiling.js';
 import { fixedLimits } from './fixed-limits.js';
+import { pipelineConfig } from './pipeline-config.js';
 
 // Sentinels stand in for the brief (idea, module name, rule text), the project name, the model reply
 // and the key. None of them may reach a response body or a log line.
@@ -57,6 +58,16 @@ const configBody = JSON.stringify(config);
 
 /** Over the idea cap: the caps refuse it with a 422 whose problems name the path only. */
 const overCapBody = JSON.stringify({ ...config, idea: `${IDEA} ${'x'.repeat(INPUT_CAPS.ideaCharacters)}` });
+
+/** The analyze bodies: pipeline configs that carry the same sentinels, and one over the pipeline idea cap. */
+const analyzeBody = JSON.stringify(
+  pipelineConfig({
+    name: NAME,
+    idea: `A tool for ${IDEA} that turns a product idea into a framework.`,
+    rules: [{ id: 'privacy-rule', title: 'Privacy rule', text: RULE }],
+  }),
+);
+const analyzeOverCapBody = JSON.stringify(pipelineConfig({ idea: `${IDEA} ${'x'.repeat(INPUT_CAPS.ideaCharacters)}` }));
 
 /** Refused by the structural rules: every workflow appears twice, so the ids clash. */
 const duplicatedBody = JSON.stringify({ ...config, workflows: [...config.workflows, ...config.workflows] });
@@ -186,28 +197,28 @@ const cases: Case[] = [
     label: 'analyze over the input caps',
     route: '/analyze',
     status: 422,
-    run: (log) => post(appWith(log, fixedLimits()), ANALYZE_URL, overCapBody),
+    run: (log) => post(appWith(log, fixedLimits()), ANALYZE_URL, analyzeOverCapBody),
     lines: ['event=input_refused route=/analyze status=422'],
   },
   {
     label: 'analyze over the per-client limit',
     route: '/analyze',
     status: 429,
-    run: (log) => post(appWith(log, exhaustedLimits()), ANALYZE_URL, configBody),
+    run: (log) => post(appWith(log, exhaustedLimits()), ANALYZE_URL, analyzeBody),
     lines: ['event=rate_limited route=/analyze status=429'],
   },
   {
     label: 'analyze with the review ceiling spent',
     route: '/analyze',
     status: 200,
-    run: (log) => post(appWith(log, reviewCeilingSpent()), ANALYZE_URL, configBody),
+    run: (log) => post(appWith(log, reviewCeilingSpent()), ANALYZE_URL, analyzeBody),
     lines: ['event=daily_ceiling_reached route=/analyze status=200'],
   },
   {
     label: 'analyze whose address lookup throws the brief',
     route: '/analyze',
     status: 500,
-    run: (log) => post(appWith(log, throwingAddress()), ANALYZE_URL, configBody),
+    run: (log) => post(appWith(log, throwingAddress()), ANALYZE_URL, analyzeBody),
     lines: ['event=unexpected_error route=/analyze status=500 error=RangeError'],
   },
   {
@@ -358,7 +369,7 @@ describe('F-13 AC-027 a model error is logged by its name only', () => {
     const failure = new RangeError(`${IDEA} ${REPLY} ${KEY}`);
     const app = createApp({ limits: fixedLimits(), review: failingReview(failure), log, generation: null });
 
-    const response = await post(app, ANALYZE_URL, configBody);
+    const response = await post(app, ANALYZE_URL, analyzeBody);
     const body = await response.text();
 
     expect(response.status).toBe(200);

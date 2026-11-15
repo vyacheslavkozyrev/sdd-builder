@@ -12,6 +12,7 @@ import { fixedLimits } from './fixed-limits.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
 import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
+import { pipelineConfig } from './pipeline-config.js';
 
 // Sentinels stand in for the brief, the model reply and the key. None of them may reach a log line,
 // and the key may not reach a response body either.
@@ -110,12 +111,20 @@ interface Case {
 
 // Every request body carries the brief sentinels, so the log checks below also cover the body.
 const configBody = JSON.stringify(config);
+/** The analyze body: a pipeline config that carries the same sentinels as the flat one. */
+const analyzeBody = JSON.stringify(
+  pipelineConfig({
+    name: NAME,
+    idea: `A tool for ${IDEA} that turns a product idea into a framework.`,
+    rules: [{ id: 'privacy-rule', title: 'Privacy rule', text: RULE }],
+  }),
+);
 
 const cases: Case[] = [
   {
     label: 'analyze success',
     status: 200,
-    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, configBody),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, analyzeBody),
     lines: [],
   },
   {
@@ -136,7 +145,7 @@ const cases: Case[] = [
     status: 200,
     run: (log) => {
       const failure = new Error(`${IDEA} ${REPLY} ${KEY}`);
-      return post(createApp({ limits: fixedLimits(), review: { complete: () => Promise.reject(failure) }, log, generation: null }), ANALYZE_URL, configBody);
+      return post(createApp({ limits: fixedLimits(), review: { complete: () => Promise.reject(failure) }, log, generation: null }), ANALYZE_URL, analyzeBody);
     },
     lines: ['event=review_model_failed route=/analyze error=Error'],
   },
@@ -272,7 +281,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
 
-    const response = await post(app, ANALYZE_URL, configBody);
+    const response = await post(app, ANALYZE_URL, analyzeBody);
     const text = await response.text();
 
     expect(sent).toHaveLength(1);
@@ -286,7 +295,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
 
-    const response = await post(app, ANALYZE_URL, configBody);
+    const response = await post(app, ANALYZE_URL, analyzeBody);
     const text = await response.text();
 
     expect(response.status).toBe(200);
@@ -300,7 +309,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: undefined }, log), log, generation: null });
 
-    const response = await post(app, ANALYZE_URL, configBody);
+    const response = await post(app, ANALYZE_URL, analyzeBody);
     const text = await response.text();
 
     expect(response.status).toBe(200);

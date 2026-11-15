@@ -1,10 +1,11 @@
 import { Hono, type Context } from 'hono';
-import { capProblems, skippedAnalysis, validateConfig, type ProjectConfig, type TemplateSource } from '@sddbuilder/core';
-import { analyze, type ReviewModel } from './analyze.js';
+import { capProblems, pipeline, validateConfig, type TemplateSource } from '@sddbuilder/core';
+import { analyzePipeline, type ReviewModel } from './analyze.js';
 import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
-import { errorBody } from './http/errors.js';
+import { errorBody, type ErrorBody } from './http/errors.js';
 import { readConfig } from './http/read-config.js';
+import { readPipelineConfig } from './http/read-pipeline-config.js';
 import { errorNameOf, formatLogLine, routeOf, type LogPort, type LogRoute } from './log.js';
 import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
 import type { DailyCeiling } from './limits/daily-ceiling.js';
@@ -60,25 +61,27 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
   };
 
   /**
-   * Reads the body, then applies the input caps. Both run before any model call. A request refused by a cap
-   * (422) is refunded its count; a request refused as invalid JSON (400) keeps it.
+   * Reads the body with the route's reader, then applies the route's input caps. Both run before any model call.
+   * A request refused by a cap (422) is refunded its count; a request refused as invalid JSON (400) keeps it.
    */
-  const readWithinCaps = async (
+  const readWithinCaps = async <C>(
     c: Context,
     reservation: Reservation,
     route: LogRoute,
-  ): Promise<{ ok: true; config: ProjectConfig } | { ok: false; response: Response }> => {
-    const read = await readConfig(c.req.raw);
-    if (!read.ok) {
-      return { ok: false, response: c.json(read.body, read.status) };
+    read: (request: Request) => Promise<{ ok: true; config: C } | { ok: false; status: 400; body: ErrorBody }>,
+    caps: (config: C) => string[],
+  ): Promise<{ ok: true; config: C } | { ok: false; response: Response }> => {
+    const outcome = await read(c.req.raw);
+    if (!outcome.ok) {
+      return { ok: false, response: c.json(outcome.body, outcome.status) };
     }
-    const problems = capProblems(read.config);
+    const problems = caps(outcome.config);
     if (problems.length > 0) {
       limits.limiter.refund(reservation);
       log.write(formatLogLine({ event: 'input_refused', route, status: 422 }));
       return { ok: false, response: c.json(errorBody('project config is over the input caps', problems), 422) };
     }
-    return { ok: true, config: read.config };
+    return { ok: true, config: outcome.config };
   };
 
   app.post('/analyze', async (c) => {
@@ -86,15 +89,15 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     if (!admitted.ok) {
       return admitted.response;
     }
-    const read = await readWithinCaps(c, admitted.reservation, '/analyze');
+    const read = await readWithinCaps(c, admitted.reservation, '/analyze', readPipelineConfig, pipeline.pipelineCapProblems);
     if (!read.ok) {
       return read.response;
     }
     if (!limits.reviewCeiling.admit()) {
       log.write(formatLogLine({ event: 'daily_ceiling_reached', route: '/analyze', status: 200 }));
-      return c.json(skippedAnalysis(read.config), 200);
+      return c.json(pipeline.skippedAnalysis(read.config), 200);
     }
-    const result = await analyze(read.config, review, log);
+    const result = await analyzePipeline(read.config, review, log);
     return c.json(result, 200);
   });
 
@@ -105,7 +108,7 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     if (!admitted.ok) {
       return admitted.response;
     }
-    const read = await readWithinCaps(c, admitted.reservation, '/generate');
+    const read = await readWithinCaps(c, admitted.reservation, '/generate', readConfig, capProblems);
     if (!read.ok) {
       return read.response;
     }

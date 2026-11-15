@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 9 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
+| Build    | 🔄 In Progress | 2026-11-14 | 10 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T004b2 | Required blocks in enabled flows, the pipeline's Start and End, and the five gates; fixtures and one approved expectation updated | 0 blockers, 1 warning and 1 suggestion fixed | 936 passed |
 | T005 | Selection and order of enabled flows and blocks; disabled items produce nothing; gates and Start and End selected | 0 blockers, 1 warning and 1 suggestion fixed | 948 passed |
 | T006 | Template renderer: values, `{{#enabled:<id>}}` sections, errors naming the file and the placeholder. Committed at 440 changed lines, over the 400-line guard, by the user's explicit decision | 0 blockers, 3 warnings and 1 suggestion fixed | 978 passed |
+| T007 | Base files: `CLAUDE.md`, `process.md` (text list, no Mermaid) and the spec template, sorted; `ListableTemplateSource`. The two template blockers are deferred to F-03 by the user's decision | 2 blockers deferred to F-03 (user decision), 1 suggestion fixed | 988 passed |
 
 ---
 
@@ -49,6 +50,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T003 `source/packages/core/src/pipeline/generate/refusals-routes.ts` a stop route reaches every live End of its list, including a `done` End. Kept: only reachability is marked, so the only effect is that a `done` End is not reported as unreachable when a stop exists; the stories do not say which outcome a stop must end with.
 - T004b2 `source/packages/core/src/pipeline/generate/refusals-names.ts` the import of `defaultProjectConfig` makes the required gate list follow `default.json` at load time. Kept: the gates of the default pipeline are the data that defines them (architecture.md decision 8), and the list is not a second copy to keep in step.
 - T003 `spec/specifications/F-02-generator-core/plan.md` (T003 line) names only `pipeline-generate-refusals-routes.test.ts`; the reachability tests are in `pipeline-generate-refusals-reach.test.ts`, with shared builders in `pipeline-routes-fixtures.ts`. Kept: a plan-text fix, left to the plan owner so the plan is not edited inside a build task.
+- T007 BLOCKER (unresolved) `source/templates/base/CLAUDE.md` holds `{{modules}}`, `{{codeRules}}` and `{{testRules}}`, which the pipeline `ProjectConfig` does not carry (it has `rules`), so `renderBaseFiles` fails on the shipped template (confirmed by a probe, since removed). Not applied: it needs a decision (map `rules` to the codeRules/testRules lists and drop modules, or change the layout, which the F-03 tests lock). Ask the user.
+- T007 BLOCKER (unresolved) `source/templates/base/process.md` holds `{{process.diagram}}`, which no value fills before F-18 (`templates/README.md`: "not rendered before F-18"), so `renderBaseFiles` fails on the shipped template. Not applied: filling it with the text list satisfies AC-022 but contradicts the README's Mermaid definition of that slot. Ask the user which fill to use. Any key for it must be built from `${PROCESS_NAME}.diagram`, because the F-01 purity scan forbids the literal `process.` in `src/pipeline`.
+- T007 plan note: the file list omits `source/packages/core/src/template-source.ts`. The change is additive (`ListableTemplateSource`, used to list the spec template folder, AC-018) and widens no consumer's type. Amend the T007 line of plan.md to include it.
 
 ---
 
@@ -74,6 +78,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md`, T004 split into T004a (the Agent description: model, parser, `default.json`, and the refusal of a missing one, AC-029) and T004b (names, required blocks, check rules, advice; AC-008, AC-009, AC-010, AC-011, AC-013).
 **Reason**: the required-block rule (AC-010) makes earlier minimal fixtures refuse. The user chose to update those fixtures rather than narrow or move the rule. Together with the description change, that is more than the 400-line guard allows in one commit.
 **Impact**: T004a runs before T004b. T004b updates the minimal fixtures of T002a, T002b and T003 to include the default pipeline's required blocks; their assertions stay as they are. The required-block check applies inside enabled flows only; the pipeline's own Start and End and the gates are always required.
+
+### Amendment — 2026-11-14 (fifth)
+**Changed**: `plan.md`, T007 file list: adds `source/packages/core/src/template-source.ts` (additive `ListableTemplateSource`, which lists the spec template folder; `TemplateSource` is unchanged). The user chose to defer the two template blockers (`{{modules}}`, `{{codeRules}}`, `{{testRules}}` in `CLAUDE.md`; `{{process.diagram}}` in `process.md`) to F-03.
+**Reason**: the spec template files must be listed from the source (AC-018), and the shipped base templates cannot render from the pipeline config until F-03 rewrites them.
+**Impact**: F-03 must rewrite `source/templates/base/CLAUDE.md` (rules replace the code and test rule placeholders, modules are dropped) and `source/templates/base/process.md` (a list placeholder, not the Mermaid diagram). F-02 stays a pure engine tested on fixtures; `renderBaseFiles` fails on the shipped templates until F-03 lands.
 
 ### Amendment — 2026-11-14 (fourth)
 **Changed**: `plan.md`, T004b split into T004b1 (names, ids, check rules; AC-008, AC-009, AC-011, AC-013) and T004b2 (required blocks and the fixture updates; AC-010). T004b2 also changes one expected value of the T003 test "refuses a flow that follows a gate that stops": the five required gates after the unreachable flow b are also reported as unreachable. The user approved this change.

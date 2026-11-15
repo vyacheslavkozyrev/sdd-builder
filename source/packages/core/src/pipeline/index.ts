@@ -20,3 +20,4 @@ export type {
   Scope,
   StartBlock,
 } from './model.js';
+export { generate } from './generate/generate.js';

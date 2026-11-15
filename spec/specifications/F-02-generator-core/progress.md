@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 1 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 2 of 14 tasks committed (T002 split into T002a and T002b) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Rules in the model: `ProjectConfig.rules`, parsed with the id rule; default pipeline gets `rules: []` | 0 blockers, 0 warnings, 1 suggestion fixed | 1532 passed |
+| T002a | Refusal collector and the Start and End checks; `generate` exported from the pipeline module | 0 blockers, 1 warning and 2 suggestions fixed | 825 passed |
 
 ---
 

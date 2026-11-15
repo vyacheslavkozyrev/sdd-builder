@@ -19,6 +19,7 @@ const agentBlock: ChildBlock = {
   enabled: true,
   name: 'specifier',
   scope: 'feature',
+  description: 'Drafts the stories.',
 };
 
 const approvalCondition: ConditionBlock = {

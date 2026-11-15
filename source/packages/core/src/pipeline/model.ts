@@ -72,13 +72,14 @@ export interface PipelineStartBlock {
   arguments: Argument[];
 }
 
-/** Runs one agent (`.claude/agents/<name>.md`) with a scope. */
+/** Runs one agent (`.claude/agents/<name>.md`) with a scope. The description is the agent's job, its stub text. */
 export interface AgentBlock {
   kind: 'agent';
   id: string;
   enabled: boolean;
   name: string;
   scope: Scope;
+  description: string;
 }
 
 interface ConditionCommon {

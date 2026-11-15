@@ -21,7 +21,7 @@ function flow(id: string, blocks: Record<string, unknown>[] = []): Record<string
 }
 
 function agent(id: string): Record<string, unknown> {
-  return { kind: 'agent', id, enabled: true, name: id, scope: 'task' };
+  return { kind: 'agent', id, enabled: true, name: id, scope: 'task', description: 'test job' };
 }
 
 function configWith(blocks: unknown[]): Record<string, unknown> {

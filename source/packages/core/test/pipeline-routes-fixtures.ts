@@ -46,7 +46,7 @@ export function end(id: string): EndBlock {
 }
 
 export function agent(id: string, enabled = true): AgentBlock {
-  return { kind: 'agent', id, enabled, name: id, scope: 'task' };
+  return { kind: 'agent', id, enabled, name: id, scope: 'task', description: 'test job' };
 }
 
 export function condition(id: string, passRoute: Route, failRoute: Route, enabled = true): ConditionBlock {

@@ -18,7 +18,7 @@ function flow(id: string, extra: Record<string, unknown>[] = []): Record<string,
 }
 
 function agent(scope: unknown, extra: Record<string, unknown> = {}): Record<string, unknown> {
-  return { kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope, ...extra };
+  return { kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope, description: 'test job', ...extra };
 }
 
 /** A config whose pipeline holds the given blocks. Tests change one part of a fresh copy. */
@@ -67,7 +67,7 @@ function childBlocksOf(value: unknown): ChildBlock[] {
 describe('F-01 AC-010 every Agent block has a scope of project, feature or task', () => {
   it.each(['project', 'feature', 'task'])('accepts scope %s and keeps it on the parsed Agent block', (scope) => {
     const blocks = childBlocksOf(configWith(validBlocks([agent(scope)])));
-    expect(blocks[1]).toEqual({ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope });
+    expect(blocks[1]).toEqual({ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope, description: 'test job' });
   });
 
   it.each([

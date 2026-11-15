@@ -1,5 +1,5 @@
-// Field-level rules of the Start and Agent blocks: the scope of an Agent block (AC-010), the
-// arguments of the pipeline's Start block (AC-011), and the Start of a child flow, which carries
+// Field-level rules of the Start and Agent blocks: the scope of an Agent block (AC-010), its description
+// (AC-029), the arguments of the pipeline's Start block (AC-011), and the Start of a child flow, which carries
 // none (AC-012). The structure is checked in parse-structure.ts; this file types the blocks as
 // the model types. Unknown keys are refused here, at the path of the key.
 import { ID_MESSAGE, isValidId } from './ids.js';
@@ -8,6 +8,7 @@ import type { AgentStructure, StartStructure } from './parse-structure.js';
 import {
   checkKeys,
   childPath,
+  has,
   indexPath,
   readList,
   readObject,
@@ -17,7 +18,7 @@ import {
   type PipelineProblem,
 } from './parse-util.js';
 
-const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope'];
+const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description'];
 const CHILD_START_KEYS: readonly string[] = ['kind', 'id', 'enabled'];
 const PIPELINE_START_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'arguments'];
 const ARGUMENT_KEYS: readonly string[] = ['name', 'required', 'hint'];
@@ -41,12 +42,34 @@ function readScope(obj: Obj, path: string, problems: PipelineProblem[]): Scope |
   return undefined;
 }
 
-/** An Agent block with its scope. The name and the id were checked in the structure. */
+/**
+ * The description of an Agent block: its job, which becomes the agent's stub text. It must be present, a string
+ * and not blank. The problem is recorded at the block's path, since the description is the block's own content.
+ */
+function readDescription(obj: Obj, path: string, problems: PipelineProblem[]): string | undefined {
+  if (!has(obj, 'description')) {
+    problems.push({ path, message: 'description is required' });
+    return undefined;
+  }
+  const value = obj['description'];
+  if (typeof value !== 'string') {
+    problems.push({ path, message: 'description must be a string' });
+    return undefined;
+  }
+  if (value.trim() === '') {
+    problems.push({ path, message: 'description must not be blank' });
+    return undefined;
+  }
+  return value;
+}
+
+/** An Agent block with its scope and description. The name and the id were checked in the structure. */
 export function toAgentBlock(block: AgentStructure, problems: PipelineProblem[]): AgentBlock | undefined {
   const keysOk = keysAllowed(block.fields, AGENT_KEYS, block.path, problems);
   const scope = readScope(block.fields, block.path, problems);
-  if (!keysOk || scope === undefined) return undefined;
-  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope };
+  const description = readDescription(block.fields, block.path, problems);
+  if (!keysOk || scope === undefined || description === undefined) return undefined;
+  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description };
 }
 
 /** A Start block of a child flow. It carries no arguments: an `arguments` key is refused. */

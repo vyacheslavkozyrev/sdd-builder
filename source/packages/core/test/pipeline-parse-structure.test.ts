@@ -32,7 +32,7 @@ function configWith(blocks: unknown[]): Record<string, unknown> {
 function validBlocks(): Record<string, unknown>[] {
   return [
     { kind: 'start', id: 'start', enabled: true, arguments: [] },
-    flow('build', [{ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope: 'task' }]),
+    flow('build', [{ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope: 'task', description: 'test job' }]),
     { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
   ];
 }
@@ -78,7 +78,7 @@ describe('F-01 AC-003 the block kinds are the six of the model; any other kind i
 
   it('refuses an Agent block in the pipeline, at the path of its kind', () => {
     const blocks = validBlocks();
-    blocks.splice(1, 0, { kind: 'agent', id: 'loose', enabled: true, name: 'loose', scope: 'task' });
+    blocks.splice(1, 0, { kind: 'agent', id: 'loose', enabled: true, name: 'loose', scope: 'task', description: 'test job' });
     expect(problemsOf(configWith(blocks))).toEqual([
       { path: 'pipeline.blocks[1].kind', message: 'is not allowed in the pipeline' },
     ]);
@@ -121,7 +121,7 @@ describe('F-01 AC-004 every block and flow has an enabled flag that is a boolean
   });
 
   it('refuses a missing enabled flag on a child block at its path', () => {
-    const block = { kind: 'agent', id: 'implement', name: 'implement', scope: 'task' };
+    const block = { kind: 'agent', id: 'implement', name: 'implement', scope: 'task', description: 'test job' };
     expect(problemsOf(configWith([flow('build', [block]), ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks[1].enabled', message: 'is required' },
     ]);
@@ -159,8 +159,8 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
   it('refuses a block id that repeats a block in another flow, at the path of the second', () => {
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
-      flow('build', [{ kind: 'agent', id: 'review', enabled: true, name: 'review', scope: 'task' }]),
-      flow('verify', [{ kind: 'agent', id: 'review', enabled: true, name: 'check', scope: 'feature' }]),
+      flow('build', [{ kind: 'agent', id: 'review', enabled: true, name: 'review', scope: 'task', description: 'test job' }]),
+      flow('verify', [{ kind: 'agent', id: 'review', enabled: true, name: 'check', scope: 'feature', description: 'test job' }]),
       { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
@@ -169,7 +169,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
   });
 
   it('refuses a block id that repeats another block id in the same flow, at the path of the second', () => {
-    const build = flow('build', [{ kind: 'agent', id: 'build-start', enabled: true, name: 'review', scope: 'task' }]);
+    const build = flow('build', [{ kind: 'agent', id: 'build-start', enabled: true, name: 'review', scope: 'task', description: 'test job' }]);
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks[1].id', message: 'is already used by another block or flow' },
     ]);
@@ -177,8 +177,8 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
 
   it('refuses an agent name that repeats an agent name in the same flow, at the path of the second', () => {
     const build = flow('build', [
-      { kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task' },
-      { kind: 'agent', id: 'a2', enabled: true, name: 'review', scope: 'task' },
+      { kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task', description: 'test job' },
+      { kind: 'agent', id: 'a2', enabled: true, name: 'review', scope: 'task', description: 'test job' },
     ]);
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks[2].name', message: 'is already used by another agent' },
@@ -199,8 +199,8 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
   it('refuses an agent name that repeats an agent name in another flow, at the path of the second', () => {
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
-      flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task' }]),
-      flow('verify', [{ kind: 'agent', id: 'a2', enabled: true, name: 'review', scope: 'feature' }]),
+      flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task', description: 'test job' }]),
+      flow('verify', [{ kind: 'agent', id: 'a2', enabled: true, name: 'review', scope: 'feature', description: 'test job' }]),
       { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
@@ -212,8 +212,8 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
       flow('build', [
-        { kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task' },
-        { kind: 'agent', id: 'a2', enabled: true, name: 'test', scope: 'task' },
+        { kind: 'agent', id: 'a1', enabled: true, name: 'review', scope: 'task', description: 'test job' },
+        { kind: 'agent', id: 'a2', enabled: true, name: 'test', scope: 'task', description: 'test job' },
       ]),
       { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
@@ -223,7 +223,7 @@ describe('F-01 AC-022 ids are unique in the project and agent names are unique a
   it('refuses an agent name that is not an id, at the name path', () => {
     const blocks = [
       { kind: 'start', id: 'start', enabled: true, arguments: [] },
-      flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'Review Agent', scope: 'task' }]),
+      flow('build', [{ kind: 'agent', id: 'a1', enabled: true, name: 'Review Agent', scope: 'task', description: 'test job' }]),
       { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
@@ -239,7 +239,7 @@ describe('F-01 AC-021 block and flow ids follow the id rule', () => {
   it.each(['Build', 'build flow', 'build/flow', 'build.flow', '1build'])(
     'refuses the block id %j at the id path',
     (id) => {
-      const build = flow('build', [{ kind: 'agent', id, enabled: true, name: 'review', scope: 'task' }]);
+      const build = flow('build', [{ kind: 'agent', id, enabled: true, name: 'review', scope: 'task', description: 'test job' }]);
       expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
         {
           path: 'pipeline.blocks[0].blocks[1].id',

@@ -28,7 +28,7 @@ function end(id: string, enabled = true): EndBlock {
 }
 
 function agent(id: string): AgentBlock {
-  return { kind: 'agent', id, enabled: true, name: id, scope: 'task' };
+  return { kind: 'agent', id, enabled: true, name: id, scope: 'task', description: 'test job' };
 }
 
 function flow(id: string, blocks: ChildBlock[]): FlowBlock {

@@ -79,7 +79,7 @@ describe('F-02 AC-030 the file list is sorted by path', () => {
   });
 });
 
-describe('F-02 AC-031 two files with one path are an error, not an overwrite', () => {
+describe('F-02 AC-030 two outputs with one path are an error, not an overwrite', () => {
   it('refuses two files with one path, naming the path, and returns none', () => {
     const files: GeneratedFile[] = [
       { path: 'CLAUDE.md', content: 'one' },
@@ -134,7 +134,7 @@ describe('F-02 AC-031 two files with one path are an error, not an overwrite', (
   });
 });
 
-describe('F-02 AC-032 the same input gives the same paths, order and content', () => {
+describe('F-02 AC-031 generating twice from the same config gives the same paths, order and content', () => {
   it('two runs over the default pipeline give equal paths, order and content', () => {
     const first = generate(defaultProjectConfig, BASE_TEMPLATES);
     const second = generate(defaultProjectConfig, BASE_TEMPLATES);
@@ -148,7 +148,9 @@ describe('F-02 AC-032 the same input gives the same paths, order and content', (
     expect(second).toEqual(first);
     expect(first.warnings).toEqual([]);
   });
+});
 
+describe('F-02 AC-032 no timestamp, random id or environment value is written into a generated file', () => {
   it('no file holds an ISO timestamp', () => {
     const { files } = generate(defaultProjectConfig, BASE_TEMPLATES);
     const timestamp = /\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/;

@@ -64,7 +64,7 @@ function refusalOf(config: ProjectConfig): string[] {
   return [];
 }
 
-describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with two, is refused with its path', () => {
+describe('F-02 AC-001 a pipeline or a child flow with no Start block is refused with its path', () => {
   it.each<[string, PipelineBlock[], string[]]>([
     [
       'the pipeline has no Start block',
@@ -72,24 +72,9 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
       ['pipeline: the pipeline has no Start block'],
     ],
     [
-      'the pipeline has two Start blocks',
-      [pipelineStart('a'), pipelineStart('b'), flow('specify', [start('s'), end('e')]), ...requiredGates(), end('pipeline-end')],
-      ['pipeline: the pipeline has 2 Start blocks; exactly one is required'],
-    ],
-    [
       'a child flow has no Start block',
       [pipelineStart(), flow('specify', [agent('specify-agent'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
       ['pipeline.blocks[1]: flow "specify" has no Start block'],
-    ],
-    [
-      'a child flow has two Start blocks',
-      [pipelineStart(), flow('specify', [start('s1'), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
-      ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
-    ],
-    [
-      'a disabled Start block is still counted, so a flow with one disabled Start and one enabled Start has two',
-      [pipelineStart(), flow('specify', [start('s1', false), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
-      ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
     ],
   ])('F-02 AC-001 refuses when %s', (_name, blocks, expected) => {
     expect(refusalOf(configWith(blocks))).toEqual(expected);
@@ -114,7 +99,27 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
   });
 });
 
-describe('F-02 AC-002 a pipeline or a child flow with no End block is refused with its path', () => {
+describe('F-02 AC-002 a pipeline or a child flow with more than one Start block, or with no End block, is refused with its path', () => {
+  it.each<[string, PipelineBlock[], string[]]>([
+    [
+      'the pipeline has two Start blocks',
+      [pipelineStart('a'), pipelineStart('b'), flow('specify', [start('s'), end('e')]), ...requiredGates(), end('pipeline-end')],
+      ['pipeline: the pipeline has 2 Start blocks; exactly one is required'],
+    ],
+    [
+      'a child flow has two Start blocks',
+      [pipelineStart(), flow('specify', [start('s1'), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
+      ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
+    ],
+    [
+      'a disabled Start block is still counted, so a flow with one disabled Start and one enabled Start has two',
+      [pipelineStart(), flow('specify', [start('s1', false), start('s2'), end('specify-end')]), ...requiredGates(), end('pipeline-end')],
+      ['pipeline.blocks[1]: flow "specify" has 2 Start blocks; exactly one is required'],
+    ],
+  ])('F-02 AC-002 refuses when %s', (_name, blocks, expected) => {
+    expect(refusalOf(configWith(blocks))).toEqual(expected);
+  });
+
   it.each<[string, PipelineBlock[], string[]]>([
     [
       'the pipeline has no End block',

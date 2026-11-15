@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 5 of 13 tasks committed |
+| Build    | 🔄 In Progress |   | 5 of 15 tasks committed (plan amended: T006a and T006b added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -72,4 +72,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md` T002. The flat base layouts (`base/CLAUDE.md`, `base/process.md`, `base/spec-template/*`) are copied unchanged to `source/templates/flat/base/`, and the flat `BASE_FILES` path in `source/packages/core/src/generate.ts` points at that copy. Then `source/templates/base/` is rewritten for the pipeline. `templates-base.test.ts` moves to the copy.
 **Reason**: the new pipeline base layouts use placeholders the flat renderer does not know (`processList`, `commandList`, `agentList`, `ruleList`). Rewriting `base/` in place would break the flat `/generate` path and `apps/api/test/templates.test.ts`. The user chose option A.
 **Impact**: T002 is re-run from the start. T003 onward is unchanged. The legacy copy is removed by F-07 with the flat generator.
+```
+
+```
+### Amendment — 2026-11-14 (T006, during Build: rule-set tags)
+**Changed**: `stories.md`: AC-012 (agent and flow entries carry their tags), new US-008 with AC-029 to AC-031 (R-08). `architecture.md` §6: decision 21 (tags are rule ids, unknown ids refused). `plan.md`: T006a (model, parse and refusal of tags) added before T006; T006 reads the block's tags; T006b (flow entries carry the flow's description and tags) added after T006. Total tasks 13 → 15.
+**Reason**: T006 found that the pipeline's Agent block has no rule-set tags field, though AC-008 and building-blocks.md §3 require one. The user decided that a tag is a rule id from `ProjectConfig.rules` and that flows carry tags too. Flow tags change the non-agent rule in AC-012, so it is amended too.
+**Impact**: T006 is re-run after T006a. T005 is unchanged; its tests stay correct for the flow entries until T006b changes them, as the plan notes.
 ```

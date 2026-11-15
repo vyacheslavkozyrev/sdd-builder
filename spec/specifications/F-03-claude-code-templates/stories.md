@@ -1,7 +1,7 @@
 # User Stories — Claude Code templates (F-03)
 
 Feature entry: `spec/documents/features.md` → F-03
-Requirements owned by this feature: R-01 to R-07 (listed in the Requirement Coverage table)
+Requirements owned by this feature: R-01 to R-08 (listed in the Requirement Coverage table)
 
 ## Out of Scope
 
@@ -98,7 +98,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 #### Acceptance Criteria
 
 - [ ] AC-011 `[auto]`: `planGeneration` returns one entry per output file, in the order of the file list. Calling it twice with the same config gives the same paths in the same order.
-- [ ] AC-012 `[auto]`: Each entry carries its `path`, its `layout`, its `description` and its `ruleTags`. For an entry that is not an agent file, `description` and `ruleTags` are empty.
+- [ ] AC-012 `[auto]`: Each entry carries its `path`, its `layout`, its `description` and its `ruleTags`. An agent entry and a flow command entry carry their block's description and rule-set tags (Amendment 2026-11-14, US-008). Every other entry has empty `description` and `ruleTags`.
 - [ ] AC-013 `[auto]`: A configuration that the pipeline's structural rules refuse (for example, a flow with no Start block) throws `InvalidConfigError` listing every problem, and returns no plan.
 - [ ] AC-014 `[auto]`: A layout missing from the `TemplateSource` throws `GenerationError` naming each missing layout path together. No partial plan is returned.
 - [ ] AC-015 `[auto]`: `planGeneration` does not change the config it receives. The test passes a deeply frozen config and expects no error.
@@ -157,6 +157,22 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 ---
 
+### US-008: Agent blocks and flows carry rule-set tags
+
+**As a** developer
+**I want to** tag each Agent block and each flow with the rule files it relates to
+**So that** the agent and flow command files name the rules they must follow, and an unknown rule is refused.
+
+**Requirements:** R-08
+
+#### Acceptance Criteria
+
+- [ ] AC-029 `[auto]`: A `ruleTags` list on an Agent block or a flow holds rule ids. A tag that names no entry of `ProjectConfig.rules` is refused at the tag's path, with every such tag listed. A tag that is not a non-empty string is refused by the parser.
+- [ ] AC-030 `[auto]`: A block or flow with no `ruleTags` key parses with an empty list. The default pipeline parses without problems, with empty tags.
+- [ ] AC-031 `[auto]`: The flow command entry of an enabled flow carries the flow's description and rule-set tags. A flow with no tags has empty `ruleTags`, and a disabled flow has no entry (AC-007 unchanged).
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -168,3 +184,4 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 | R-05 `checkReply`: the reply is checked against its plan, findings only | AC-016, AC-017, AC-018, AC-019, AC-020, AC-021, AC-022, AC-023 |
 | R-06 Stack-neutral layouts, no scripts, placeholders from the README list | AC-024, AC-025 |
 | R-07 Pipeline generator path separate from the flat one; flat code and API unchanged until F-07 | AC-026, AC-027, AC-028 |
+| R-08 Rule-set tags on Agent blocks and flows: rule ids, refused when unknown; carried into the agent and flow entries | AC-029, AC-030, AC-031 |

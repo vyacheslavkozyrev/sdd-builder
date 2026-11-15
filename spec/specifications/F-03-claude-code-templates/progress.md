@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 7 of 15 tasks committed (plan amended: T006a and T006b added) |
+| Build    | 🔄 In Progress |   | 7 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -81,4 +81,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `stories.md`: AC-012 (agent and flow entries carry their tags), new US-008 with AC-029 to AC-031 (R-08). `architecture.md` §6: decision 21 (tags are rule ids, unknown ids refused). `plan.md`: T006a (model, parse and refusal of tags) added before T006; T006 reads the block's tags; T006b (flow entries carry the flow's description and tags) added after T006. Total tasks 13 → 15.
 **Reason**: T006 found that the pipeline's Agent block has no rule-set tags field, though AC-008 and building-blocks.md §3 require one. The user decided that a tag is a rule id from `ProjectConfig.rules` and that flows carry tags too. Flow tags change the non-agent rule in AC-012, so it is amended too.
 **Impact**: T006 is re-run after T006a. T005 is unchanged; its tests stay correct for the flow entries until T006b changes them, as the plan notes.
+```
+
+```
+### Amendment — 2026-11-14 (T006b blocked: flow description)
+**Changed**: `plan.md`: T006c added before T006b (flow `description` in the model, parser, refusal of a blank description on an enabled flow, and the six flow descriptions in `default.json`). Total tasks 15 → 16.
+**Reason**: T006b needs each flow command entry to carry the flow's description, but flows had no description field. building-blocks.md §4 already describes each flow's job. The user chose a required description and approved the six texts as drafted from §4.
+**Impact**: T006b is re-run after T006c. No stories change: AC-031 already requires the description.
 ```

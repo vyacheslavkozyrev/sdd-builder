@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 14 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
+| Build    | 🔄 In Progress |   | 15 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -43,6 +43,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T009 | `checkReply` for required `##` headings (from each planned layout) and references to SDDBuilder or its own paths. The API still uses the flat `checkReply` from the package root, so this does not change `/generate` | 0 blockers, 0 warnings, 0 suggestions (round 1 only) | 1259 passed (73 files) |
 | T010 | `checkReply` for malformed replies (non-object, non-string values: a finding, no throw) and findings sorted by path then message, deterministic; three T009 expectations reordered to sorted order | 0 blockers, 0 warnings, 5 suggestions fixed (test titles, comments); 1 suggestion deferred (long comment lines) | 1285 passed (74 files) |
 | T011 | Stack-neutral checks over `base/` and `claude-code/`: no shell fence, no stack tool name (AC-024); every placeholder listed in the README (AC-025). Test only, no layout changed | 0 blockers, 3 warnings (non-Markdown files skipped; README heading not guarded; tilde fences missed) fixed | 1307 passed (75 files) |
+| T012 | Separation tests: pipeline imports no flat module and names no template folder; root exports are the flat functions; flat model and catalog still exported. Test only | 0 blockers, 2 warnings (scanner gaps: `../steps/` prefixes, `//` inside strings) and 1 suggestion (non-vacuity) fixed; 3 suggestions deferred | 1343 passed (76 files) |
 
 ---
 
@@ -56,6 +57,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T006c `source/packages/core/test/pipeline-flow-description.test.ts` `APPROVED`: the approved flow texts could not be checked against a separate approved record (the T006c line of plan.md and the amendment do not list them); the list matches `source/templates/pipeline/default.json` only. Confirm the texts with the user at Verify.
 - T007 `source/packages/core/src/pipeline/plan.ts` `planGeneration` (WARNING, open AC-014 wording gap for the Verify phase): AC-014 says a missing layout names every missing path together, but the base templates are rendered by `renderBaseFiles` (through `generate`) before the layout preflight runs. So a missing base template is reported first, alone, and a missing command, agent or rule layout in the same run is not named. Accepted for now by the caller: the order stays as it is (base first, then the preflight), and Verify decides whether AC-014 is reworded to cover base templates or the base check moves into the preflight.
   - **Resolved by T007:** the refusal check runs first, then one preflight lists the base templates and every command, agent and rule layout the plan needs, and names each missing one.
+- T012 `source/packages/core/test/pipeline-separation.test.ts` `TEMPLATE_FOLDER` (SUGGESTION): a folder written as a bare segment (`join(dir, 'steps', id)`) or inside an interpolation (`` `${dir}/steps/` ``) is not caught by the text scan. No such literal exists in the pipeline folder today (grep checked: no `'steps'`, `'workflows'` or `'rules'` path segment; `'rules'` is only the config key in `parse.ts`). Flagging bare words would flag that key, so the scan stays on literals that name a path.
+- T012 `source/packages/core/test/pipeline-separation.test.ts` AC-028 presence test (SUGGESTION): it only checks that the named API suite files exist. The criterion is proven by the task check running those suites unchanged; a stronger check would pin the suites' content, which the plan does not ask for.
+- T012 `source/packages/core/test/pipeline-separation.test.ts` import scan (SUGGESTION): a pipeline module importing the root barrel (`../index.js`) would reach the flat modules without naming one of the four listed. None does today (grep checked). The criterion lists four modules; widening it is an amendment, not a review fix.
 - T010 `source/packages/core/src/pipeline/reply-check.ts` lines 1-6 and 63-65, `source/packages/core/test/pipeline-reply-shape.test.ts` and `pipeline-reply-content.test.ts` titles (SUGGESTION): a few comment and test-title lines run 121 to 128 characters. Kept: no line-length rule exists, and the existing sources reach 127 characters (`plan.ts`).
 - T007 `source/packages/core/src/pipeline/plan.ts` `planGeneration` (SUGGESTION): the refusal runs twice per plan, once in `planGeneration` (`refuseInvalidConfig`) and again inside `generate`. Kept: the refusal must run before the layout preflight, and `generate` stays unchanged (its behaviour and tests are fixed by the caller). The cost is one extra pass of cheap checks.
 

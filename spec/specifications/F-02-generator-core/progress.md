@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 10 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
+| Build    | 🔄 In Progress | 2026-11-14 | 11 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T005 | Selection and order of enabled flows and blocks; disabled items produce nothing; gates and Start and End selected | 0 blockers, 1 warning and 1 suggestion fixed | 948 passed |
 | T006 | Template renderer: values, `{{#enabled:<id>}}` sections, errors naming the file and the placeholder. Committed at 440 changed lines, over the 400-line guard, by the user's explicit decision | 0 blockers, 3 warnings and 1 suggestion fixed | 978 passed |
 | T007 | Base files: `CLAUDE.md`, `process.md` (text list, no Mermaid) and the spec template, sorted; `ListableTemplateSource`. The two template blockers are deferred to F-03 by the user's decision | 2 blockers deferred to F-03 (user decision), 1 suggestion fixed | 988 passed |
+| T008 | Flow command files: one per enabled child flow, numbered steps in order; no disabled block or flow named | 1 blocker fixed (a Connection named a disabled block), 0 warnings | 1003 passed |
 
 ---
 
@@ -53,6 +54,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T007 BLOCKER (unresolved) `source/templates/base/CLAUDE.md` holds `{{modules}}`, `{{codeRules}}` and `{{testRules}}`, which the pipeline `ProjectConfig` does not carry (it has `rules`), so `renderBaseFiles` fails on the shipped template (confirmed by a probe, since removed). Not applied: it needs a decision (map `rules` to the codeRules/testRules lists and drop modules, or change the layout, which the F-03 tests lock). Ask the user.
 - T007 BLOCKER (unresolved) `source/templates/base/process.md` holds `{{process.diagram}}`, which no value fills before F-18 (`templates/README.md`: "not rendered before F-18"), so `renderBaseFiles` fails on the shipped template. Not applied: filling it with the text list satisfies AC-022 but contradicts the README's Mermaid definition of that slot. Ask the user which fill to use. Any key for it must be built from `${PROCESS_NAME}.diagram`, because the F-01 purity scan forbids the literal `process.` in `src/pipeline`.
 - T007 plan note: the file list omits `source/packages/core/src/template-source.ts`. The change is additive (`ListableTemplateSource`, used to list the spec template folder, AC-018) and widens no consumer's type. Amend the T007 line of plan.md to include it.
+- T008 `source/packages/core/src/pipeline/generate/refusals-shape.ts` `connectionProblems` takes the flow's own ids, disabled blocks included, so an enabled Connection may join a disabled block without a refusal. The T008 step no longer names that block (AC-026 holds for the output), but whether such a config must be refused is a spec decision outside T008. Ask the user.
+- T008 `source/packages/core/src/pipeline/generate/refusals-names.ts` `agentNameEntries` checks the file-safety of disabled agents too, against the AC-014 comment that says disabled blocks are not checked. Over-strict, not a safety hole. Outside T008; fix in the refusal task that owns it.
 
 ---
 

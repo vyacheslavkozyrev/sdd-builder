@@ -80,6 +80,8 @@ export interface AgentBlock {
   name: string;
   scope: Scope;
   description: string;
+  /** Ids of the project rules this agent takes (`ProjectConfig.rules`). Absent in code means none; the parser sets `[]`. */
+  ruleTags?: string[];
 }
 
 interface ConditionCommon {
@@ -134,6 +136,8 @@ export interface Flow {
   name: string;
   enabled: boolean;
   blocks: ChildBlock[];
+  /** Ids of the project rules this flow takes (`ProjectConfig.rules`). Absent in code means none; the parser sets `[]`. */
+  ruleTags?: string[];
 }
 
 /** A child flow placed in the pipeline. Only the pipeline holds these. */

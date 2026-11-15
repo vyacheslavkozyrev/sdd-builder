@@ -67,7 +67,15 @@ function childBlocksOf(value: unknown): ChildBlock[] {
 describe('F-01 AC-010 every Agent block has a scope of project, feature or task', () => {
   it.each(['project', 'feature', 'task'])('accepts scope %s and keeps it on the parsed Agent block', (scope) => {
     const blocks = childBlocksOf(configWith(validBlocks([agent(scope)])));
-    expect(blocks[1]).toEqual({ kind: 'agent', id: 'implement', enabled: true, name: 'implement', scope, description: 'test job' });
+    expect(blocks[1]).toEqual({
+      kind: 'agent',
+      id: 'implement',
+      enabled: true,
+      name: 'implement',
+      scope,
+      description: 'test job',
+      ruleTags: [],
+    });
   });
 
   it.each([

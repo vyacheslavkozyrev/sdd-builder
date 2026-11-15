@@ -10,7 +10,7 @@ import { renderAgentAndRuleFiles } from './agent-rule-files.js';
 import { renderBaseFiles } from './base-files.js';
 import { renderFlowCommands } from './flow-commands.js';
 import { renderPipelineCommand } from './pipeline-command.js';
-import { checkProblems, descriptionProblems, nameProblems, requiredProblems } from './refusals-names.js';
+import { checkProblems, descriptionProblems, nameProblems, requiredProblems, ruleTagProblems } from './refusals-names.js';
 import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
 
@@ -78,6 +78,7 @@ export function generate(config: ProjectConfig, templates: ListableTemplateSourc
     ...nameProblems(config),
     ...requiredProblems(config),
     ...checkProblems(config),
+    ...ruleTagProblems(config),
   ];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
   const files = [

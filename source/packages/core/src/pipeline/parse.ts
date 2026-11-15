@@ -1,7 +1,7 @@
 import { ID_MESSAGE, isValidId } from './ids.js';
 import type { ChildBlock, FlowBlock, Pipeline, PipelineBlock, ProjectConfig, ProjectStack, Rule } from './model.js';
 import { parsePipelineStructure, type ChildStructure, type FlowStructure, type PipelineStructure } from './parse-structure.js';
-import { toAgentBlock, toChildStart, toPipelineStart } from './parse-scope.js';
+import { readRuleTags, toAgentBlock, toChildStart, toPipelineStart } from './parse-scope.js';
 import { toCondition, toPipelineCondition } from './parse-condition.js';
 import { toConnection, toEnd } from './parse-connection-end.js';
 import {
@@ -26,7 +26,7 @@ export type ParsePipelineResult = { ok: true; config: ProjectConfig } | { ok: fa
 const ROOT_KEYS: readonly string[] = ['schemaVersion', 'name', 'idea', 'stack', 'pipeline', 'rules'];
 const STACK_KEYS: readonly string[] = ['language', 'framework', 'platform', 'buildTool', 'testFramework'];
 const PIPELINE_KEYS: readonly string[] = ['name', 'blocks'];
-const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'enabled', 'blocks'];
+const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'enabled', 'blocks', 'ruleTags'];
 const RULE_KEYS: readonly string[] = ['id', 'title', 'text'];
 
 /** Converts one block of a child flow. Blocks that fail their own rules are dropped; the problem is already recorded. */
@@ -45,16 +45,17 @@ function convertChild(block: ChildStructure, ids: ListIds, problems: PipelinePro
   }
 }
 
-/** Converts a child flow: its own name and keys, then its blocks. A flow whose name fails is dropped. */
+/** Converts a child flow: its own name, rule tags and keys, then its blocks. A flow whose name or tags fail is dropped. */
 function convertFlow(flow: FlowStructure, problems: PipelineProblem[]): FlowBlock | undefined {
   checkKeys(flow.fields, FLOW_KEYS, flow.path, problems);
   const name = readString(flow.fields, 'name', flow.path, problems);
+  const ruleTags = readRuleTags(flow.fields, flow.path, problems);
   const blocks = flow.blocks.flatMap((block) => {
     const converted = convertChild(block, flow.ids, problems);
     return converted === undefined ? [] : [converted];
   });
-  if (name === undefined) return undefined;
-  return { kind: 'flow', id: flow.id, name, enabled: flow.enabled, blocks };
+  if (name === undefined || ruleTags === undefined) return undefined;
+  return { kind: 'flow', id: flow.id, name, enabled: flow.enabled, blocks, ruleTags };
 }
 
 /** Converts one block of the pipeline. Blocks that fail their own rules are dropped; the problem is already recorded. */

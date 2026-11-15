@@ -18,7 +18,7 @@ import {
   type PipelineProblem,
 } from './parse-util.js';
 
-const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description'];
+const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description', 'ruleTags'];
 const CHILD_START_KEYS: readonly string[] = ['kind', 'id', 'enabled'];
 const PIPELINE_START_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'arguments'];
 const ARGUMENT_KEYS: readonly string[] = ['name', 'required', 'hint'];
@@ -63,13 +63,39 @@ function readDescription(obj: Obj, path: string, problems: PipelineProblem[]): s
   return value;
 }
 
-/** An Agent block with its scope and description. The name and the id were checked in the structure. */
+/**
+ * The rule tags of an Agent block or a flow (F-03 AC-029, AC-030): an optional list of non-empty strings, `[]` when the key
+ * is absent. Each item that is not a non-empty string is refused at its own path. Whether a tag names a rule is checked
+ * on the config, in generate/refusals-names.ts, since the rules are not known to the block.
+ */
+export function readRuleTags(obj: Obj, path: string, problems: PipelineProblem[]): string[] | undefined {
+  if (!has(obj, 'ruleTags')) return [];
+  const list = readList(obj, 'ruleTags', path, problems);
+  if (list === undefined) return undefined;
+  const tagsPath = childPath(path, 'ruleTags');
+  const tags = list.flatMap((item, index) => {
+    const itemPath = indexPath(tagsPath, index);
+    if (typeof item !== 'string') {
+      problems.push({ path: itemPath, message: 'must be a string' });
+      return [];
+    }
+    if (item === '') {
+      problems.push({ path: itemPath, message: 'must not be empty' });
+      return [];
+    }
+    return [item];
+  });
+  return tags.length === list.length ? tags : undefined;
+}
+
+/** An Agent block with its scope, description and rule tags. The name and the id were checked in the structure. */
 export function toAgentBlock(block: AgentStructure, problems: PipelineProblem[]): AgentBlock | undefined {
   const keysOk = keysAllowed(block.fields, AGENT_KEYS, block.path, problems);
   const scope = readScope(block.fields, block.path, problems);
   const description = readDescription(block.fields, block.path, problems);
-  if (!keysOk || scope === undefined || description === undefined) return undefined;
-  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description };
+  const ruleTags = readRuleTags(block.fields, block.path, problems);
+  if (!keysOk || scope === undefined || description === undefined || ruleTags === undefined) return undefined;
+  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description, ruleTags };
 }
 
 /** A Start block of a child flow. It carries no arguments: an `arguments` key is refused. */

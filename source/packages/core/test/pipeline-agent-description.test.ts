@@ -109,6 +109,7 @@ describe('F-02 AC-029 an Agent block carries a description; a missing, blank or 
       name: 'implement',
       scope: 'task',
       description: 'Implements the next task.',
+      ruleTags: [],
     });
   });
 

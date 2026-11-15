@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 5 of 15 tasks committed (plan amended: T006a and T006b added) |
+| Build    | 🔄 In Progress |   | 6 of 15 tasks committed (plan amended: T006a and T006b added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T003 | Command layouts (`claude-code/command.md`, `pipeline-command.md`) and list builders in `command-layouts.ts`; `describeStep` and `argumentLines` exported, per-block switch extracted with unchanged behaviour | 0 blockers, 2 warnings (layout wording, connection-end test) and 1 suggestion fixed; 1 suggestion deferred | 1085 passed (64 files) |
 | T004 | Agent layout (`claude-code/agent.md`, headings Purpose, Inputs, Outputs, Rules, Checks) and rule layout (`claude-code/rule.md`); README placeholder rows; `ruleTags` contract says `none` when empty | 0 blockers, 2 warnings (weak heading-reader test renamed and given a `###` case; empty tags contract) fixed; 1 suggestion deferred (`REPO_ROOT` name) | 1094 passed (65 files) |
 | T005 | `planGeneration` for base, pipeline and flow command entries (`pipeline/plan.ts`), exported from the pipeline module only; agent and rule entries left to T006 | 0 blockers, 3 warnings (weak tests: module list, flow and gate order, gate between flows) fixed; 1 deferred (plan-level throw test, moved to T007) | 1108 passed (66 files) |
+| T006a | Rule-set tags in the model: optional `ruleTags` on Agent blocks and flows, parsed as non-empty strings (default `[]`); unknown tags refused in `generate` at their paths (decision 21) | 0 blockers, 0 warnings, 3 suggestions fixed | 1135 passed (67 files) |
 
 ---
 

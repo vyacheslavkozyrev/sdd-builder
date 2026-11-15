@@ -1,6 +1,7 @@
 // Refusals of names, required blocks and Condition checks (F-02 AC-008 to AC-011, AC-013), and of the descriptions of
 // the pipeline's Agent blocks (F-02 AC-029). The parser refuses the same cases for a config read from JSON; these checks
-// keep generate refusing them for a config built in code.
+// keep generate refusing them for a config built in code. The rule tags that name no project rule (F-03 AC-029) are
+// refused only here: the parser reads the tags' shape, and the rules are checked against the whole config.
 //
 // Names: every block and flow id, and every argument name, is file-safe and unique across the pipeline. An Agent block is
 // a custom block (architecture.md decision 8) when it is not part of the default pipeline; its id clashes are refused by the
@@ -209,6 +210,38 @@ function conditionCheckProblems(path: string, block: ConditionBlock, problems: P
 
 function isCheckType(value: unknown): value is CheckType {
   return typeof value === 'string' && CHECK_TYPES.includes(value);
+}
+
+/**
+ * The rule tags of the enabled flows and Agent blocks that name no entry of `ProjectConfig.rules` (F-03 AC-029). Each such
+ * tag is refused at its own path, so every unknown tag is listed. A disabled flow or block is left out (AC-014).
+ */
+export function ruleTagProblems(config: ProjectConfig): PipelineProblem[] {
+  const ruleIds = new Set(config.rules.map((rule) => rule.id));
+  const problems: PipelineProblem[] = [];
+  for (const { path, flow } of flowsOf(config)) {
+    unknownTagProblems(flow.ruleTags, path, ruleIds, problems);
+    for (const { path: childAt, block } of childrenOf(path, flow.blocks)) {
+      if (block.kind === 'agent') unknownTagProblems(block.ruleTags, childAt, ruleIds, problems);
+    }
+  }
+  return problems;
+}
+
+/** The tags of one block at `path` that are not in `ruleIds`, each refused at its own item path. */
+function unknownTagProblems(
+  tags: readonly string[] | undefined,
+  path: string,
+  ruleIds: ReadonlySet<string>,
+  problems: PipelineProblem[],
+): void {
+  (tags ?? []).forEach((tag, index) => {
+    if (ruleIds.has(tag)) return;
+    problems.push({
+      path: indexPath(childPath(path, 'ruleTags'), index),
+      message: `"${tag}" names no rule; every ruleTags entry must be the id of a project rule`,
+    });
+  });
 }
 
 /** The check problems of the enabled Conditions: the pipeline's gates and the Conditions of each enabled child flow. */

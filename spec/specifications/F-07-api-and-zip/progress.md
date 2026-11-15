@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 5 of 19 tasks committed (T010 retired by Amendment 1) |
+| Build    | 🔄 In Progress | | 6 of 19 tasks committed (T010 retired by Amendment 1) |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ None.
 | T003 | Pipeline generation service in `generate/pipeline-service.ts` (refuse, one call, one retry on a failed reply, provider error not retried); `configProblems` exported from core `pipeline/index.ts`; `loadTemplates` returns `ListableTemplateSource`; flat `service.ts` and `prompt.ts` unchanged | 0 blockers, 3 warnings fixed (`GeneratedFile` redeclared instead of imported from core; refusal test compared only against `configProblems`, now also asserts the AC-006 message; truncated-reply retry untested, now covered), 0 suggestions fixed, 2 deferred | task check passed: 434 api, 348 web, 1338 core (16 tests in the service file) |
 | T004 | Route switch: `POST /generate` on the pipeline path (readPipelineConfig, pipeline caps 422, configProblems 422 before the ceiling, generatePipelineProject, 200/422/502/503/500); flat `/generate` cases in five test files moved to pipeline fixtures (Amendment 1); AC-006 route wording and no module cap (Amendments 2 and 3) | 0 blockers, 3 warnings fixed, 4 deferred. 400-line guard waived by the owner for this task | task check passed: 450 api, 348 web, 1338 core |
 | T005 | Zip on the pipeline route: headers, entries in plan order, each entry's text, DEFLATE and fixed 2020-01-01 date, byte-identical zips across two requests on a fake clock (route unchanged) | 0 blockers, 3 warnings fixed, 1 suggestion fixed | task check passed: 456 api, 348 web, 1338 core |
+| T006 | Privacy of `/generate`: log lines for a 200, a 422 and a 502 checked against the sentinels and the line format (AC-017); static scan of the `generate/` directory and the `/generate` part of `app.ts` for forbidden modules and globals (AC-018), the provider adapter allowed only the SDK import | 0 blockers, 2 warnings fixed (the scan missed `globalThis.fetch(`, `process['env']` and `process.getBuiltinModule(`; the scan covered three named files, not the directory AC-018 names), 1 suggestion fixed (repeated `createApp` calls factored into one helper) | task check passed: 498 api, 348 web, 1338 core (42 tests in the two files, 12 added in this review) |
 
 ---
 

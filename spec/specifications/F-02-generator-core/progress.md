@@ -1,5 +1,7 @@
 # Progress — Generator core: pipeline, agents and rules to file tree (F-02)
 
+**Feature status: ✅ Complete (2026-11-14).** 7 stories, 34 criteria, all `[auto]`; 16 plan tasks plus the verify task T014.
+
 ## Phase Status
 
 | Phase    | Status     | Date | Notes |
@@ -9,7 +11,7 @@
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
 | Build    | ✅ Complete | 2026-11-14 | 17 of 17 tasks committed (T014 added by verify) (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-14 | All 34 criteria covered by passing tests; no manual checklist (no [device] criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -73,52 +75,54 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Run on 2026-11-14 at `main`, clean tree: `source/scripts/task-check.sh` passed (typecheck, then 62 files and 1059 tests, all passing).
+Verify run 2 on 2026-11-14, after T014, at `main` with a clean tree: `source/scripts/task-check.sh` passed (typecheck, then 62 files and 1059 tests, all passing, exit 0).
 
-Criteria matrix (only passing tests whose names carry the criterion id; counts are tests per file):
+Criteria matrix (passing tests whose names carry the criterion id, from a vitest JSON run; counts are tests, all passed):
 
 | Criterion | Covering passing tests | Status |
 | --- | --- | --- |
-| AC-001 | pipeline-generate-refusals-shape (7) | covered |
-| AC-002 | pipeline-generate-refusals-shape (5) | covered; its two-Start cases are labelled AC-001 |
-| AC-003 | pipeline-generate-refusals-wiring (8) | covered |
-| AC-004 | pipeline-generate-refusals-wiring (5) | covered |
-| AC-005 | pipeline-generate-refusals-reach (10) | covered |
-| AC-006 | pipeline-generate-refusals-routes (10) | covered |
-| AC-007 | pipeline-generate-refusals-routes (3) | covered |
-| AC-008 | pipeline-generate-refusals-names (14), pipeline-rules (9) | covered |
-| AC-009 | pipeline-generate-refusals-names (4) | covered |
-| AC-010 | pipeline-generate-refusals-names (9) | covered |
-| AC-011 | pipeline-generate-refusals-names (15) | covered |
-| AC-012 | pipeline-generate-refusals-shape (4), pipeline-generate-refusals-wiring-skip (2) | covered |
-| AC-013 | pipeline-generate-refusals-names (2) | covered |
-| AC-014 | pipeline-generate-refusals-names (6), pipeline-generate-refusals-routes (3), pipeline-generate-refusals-wiring-skip (6) | covered |
-| AC-015 | pipeline-generate-select (12) | covered |
-| AC-016 | pipeline-generate-select (12) | covered |
-| AC-017 | pipeline-generate-select (12) | covered |
-| AC-018 | pipeline-generate-base (5) | covered |
-| AC-019 | pipeline-generate-render (17) | covered |
-| AC-020 | pipeline-generate-render (23) | covered |
-| AC-021 | pipeline-generate-base (2), pipeline-generate-render (3) | covered |
-| AC-022 | pipeline-generate-base (3) | covered |
-| AC-023 | pipeline-generate-flow-commands (11) | covered |
-| AC-024 | pipeline-generate-pipeline-command (11) | covered |
-| AC-025 | pipeline-generate-pipeline-command (12) | covered |
-| AC-026 | pipeline-generate-flow-commands (4) | covered |
-| AC-027 | pipeline-generate-agent-rule-files (9) | covered |
-| AC-028 | pipeline-generate-agent-rule-files (8), pipeline-rules (16) | covered |
+| AC-001 | pipeline-generate-refusals-shape (8) | covered |
+| AC-002 | pipeline-generate-refusals-shape (16) | covered |
+| AC-003 | pipeline-generate-refusals-wiring (16) | covered |
+| AC-004 | pipeline-generate-refusals-wiring (10) | covered |
+| AC-005 | pipeline-generate-refusals-reach (20) | covered |
+| AC-006 | pipeline-generate-refusals-routes (20) | covered |
+| AC-007 | pipeline-generate-refusals-routes (6) | covered |
+| AC-008 | pipeline-generate-refusals-names, pipeline-rules (37) | covered |
+| AC-009 | pipeline-generate-refusals-names (8) | covered |
+| AC-010 | pipeline-generate-refusals-names (18) | covered |
+| AC-011 | pipeline-generate-refusals-names (30) | covered |
+| AC-012 | pipeline-generate-refusals-shape, pipeline-generate-refusals-wiring-skip (12) | covered |
+| AC-013 | pipeline-generate-refusals-names (4) | covered |
+| AC-014 | pipeline-generate-refusals-names, pipeline-generate-refusals-routes, pipeline-generate-refusals-wiring-skip (28) | covered |
+| AC-015 | pipeline-generate-select (19) | covered |
+| AC-016 | pipeline-generate-select (2) | covered |
+| AC-017 | pipeline-generate-select (3) | covered |
+| AC-018 | pipeline-generate-base (10) | covered |
+| AC-019 | pipeline-generate-render (27) | covered |
+| AC-020 | pipeline-generate-render (27) | covered |
+| AC-021 | pipeline-generate-base, pipeline-generate-render (10) | covered |
+| AC-022 | pipeline-generate-base (6) | covered |
+| AC-023 | pipeline-generate-flow-commands (22) | covered |
+| AC-024 | pipeline-generate-pipeline-command (22) | covered |
+| AC-025 | pipeline-generate-pipeline-command (24) | covered |
+| AC-026 | pipeline-generate-flow-commands (8) | covered |
+| AC-027 | pipeline-generate-agent-rule-files (18) | covered |
+| AC-028 | pipeline-generate-agent-rule-files, pipeline-rules (28) | covered |
 | AC-029 | pipeline-agent-description (15) | covered |
-| AC-030 | pipeline-generate-file-list (5) | covered for the sort; the duplicate-path clause is labelled AC-031 |
-| AC-031 | none named for it: the two-run determinism tests are labelled AC-032 and AC-034; the AC-031 labels sit on the duplicate-path tests | GAP (label) |
-| AC-032 | pipeline-generate-file-list (4: no ISO timestamp, no random value or clock) | covered |
-| AC-033 | purity (2) | covered |
-| AC-034 | pipeline-generate-pure (5) | covered |
+| AC-030 | pipeline-generate-file-list (9: sort and duplicate-path refusal) | covered |
+| AC-031 | pipeline-generate-file-list (2: two runs give equal paths, order and content) | covered |
+| AC-032 | pipeline-generate-file-list (2) | covered |
+| AC-033 | purity (4) | covered |
+| AC-034 | pipeline-generate-pure (10) | covered |
 
-**Gaps:** AC-031 (determinism of generating twice) has no test named for it. The proof exists in `pipeline-generate-file-list.test.ts` under the AC-032 label and in `pipeline-generate-pure.test.ts` under AC-034. The AC-031 label sits on the duplicate-path tests, which prove the AC-030 clause. Fix: relabel these tests; no test was added or changed in this run.
+**Gaps:** none. The AC-031 gap of run 1 is closed by the T014 relabel: its two determinism tests compare two `generate` runs over the default and the small pipeline.
 
-**Stale labels:** test files written for the superseded F-02 spec (the workflow and step model, decision 19 flat generator) still carry `F-02 AC-0xx` labels whose text is not the current criterion. These do not count as coverage: `validate-ids`, `validate-map`, `validate-routes`, `validate-policy`, `catalog`, `errors`, `generate`, `select`, `rules-text`, `step-files`, `file-list`, `workflow-command`, `conditionals`, `placeholders`, `mermaid`. Mermaid is F-18 scope. The labels should be renamed or the files retired when F-07 removes the flat generator.
+**Label check:** 277 labelled tests in the current F-02 files, all passing. No label names a criterion outside AC-001 to AC-034. The superseded flat-model files (`validate-ids`, `validate-map`, `validate-routes`, `validate-policy`, `catalog`, `errors`, `generate`, `select`, `rules-text`, `step-files`, `file-list`, `workflow-command`, `conditionals`, `placeholders`, `mermaid`) are excluded from the count, as the previous run decided. They still carry old labels, and some of their labels name other meanings (for example `file-list` labels AC-032 and AC-033 with flat-model text). They are renamed or removed when F-07 removes the flat generator. Mermaid is F-18 scope.
 
-**Totals:** 34 of 34 criteria have a passing test that carries the id and proves its text, except AC-031 (gap). No test names a criterion outside AC-001 to AC-034.
+**Scope:** the F-02 entry in `spec/documents/features.md` (generator core: pipeline, agents and rules to file tree) is covered by R-01 to R-07, which map to all 34 criteria.
+
+**Totals:** 34 of 34 criteria covered by at least one passing test that carries the id and proves its text.
 
 **Manual checklist:** none. All 34 criteria are `[auto]`, so no `checklist.md` is needed.
 

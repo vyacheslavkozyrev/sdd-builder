@@ -43,7 +43,7 @@ function postAnalyze(app: ReturnType<typeof createApp>, body: unknown): Response
   });
 }
 
-describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
+describe('analyzer wiring when the API key is missing', () => {
   const missingKeys: [string, string | undefined][] = [
     ['unset', undefined],
     ['empty', ''],
@@ -51,7 +51,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
   ];
 
   for (const [label, key] of missingKeys) {
-    it(`F-07 AC-006 answers 200 with review.status failed and the structural findings when the key is ${label}`, async () => {
+    it(`answers 200 with review.status failed and the structural findings when the key is ${label}`, async () => {
       const config = refusedConfig();
       const log = recordingLog();
       const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: key }, log), log, generation: null });
@@ -68,7 +68,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
     });
   }
 
-  it('F-07 AC-006 never logs or returns the key value', async () => {
+  it('never logs or returns the key value', async () => {
     const config = refusedConfig();
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY_SENTINEL }, log), log, generation: null });
@@ -84,7 +84,7 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
     expect(text).not.toContain(JSON.stringify(KEY_SENTINEL).slice(1, -1));
   });
 
-  it('F-07 AC-006 logs the error name, not its message, when creation fails for another reason', async () => {
+  it('logs the error name, not its message, when creation fails for another reason', async () => {
     vi.mocked(createAnthropicReviewModel).mockImplementationOnce(() => {
       throw new TypeError(`bad value ${KEY_SENTINEL}`);
     });
@@ -102,8 +102,8 @@ describe('F-07 AC-006 analyzer wiring when the API key is missing', () => {
   });
 });
 
-describe('F-07 AC-006 analyzer wiring when the API key is set', () => {
-  it('F-07 AC-006 uses the model that is created from the environment', async () => {
+describe('analyzer wiring when the API key is set', () => {
+  it('uses the model that is created from the environment', async () => {
     const calls: string[] = [];
     const fake: ReviewModel = {
       complete: (prompt: string) => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Context } from 'hono';
-import { INPUT_CAPS, pipeline, type ProjectConfig } from '@sddbuilder/core';
+import { INPUT_CAPS, pipeline } from '@sddbuilder/core';
 import type { ReviewModel, ReviewReply } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
 import { connectionAddress } from '../src/http/client-address.js';
@@ -12,7 +12,6 @@ import { pipelineConfig, withPipelineRules } from './pipeline-config.js';
 
 const ANALYZE_URL = 'http://localhost/analyze';
 const GENERATE_URL = 'http://localhost/generate';
-const IDEA = 'A tool that turns a product idea into a spec-driven project framework.';
 /** 2026-11-13 12:00:30 UTC: 30 seconds into a minute window. */
 const START = Date.UTC(2026, 10, 13, 12, 0, 30);
 const ADDRESS = '203.0.113.7';
@@ -59,6 +58,7 @@ function recordingGeneration(): GenerationPorts & { calls: string[] } {
       get: () => {
         throw new Error('the templates must not be read in this test');
       },
+      paths: () => [],
     },
   };
 }
@@ -93,72 +93,6 @@ function buildApp(
 /** A request body that is never read unless the app reads it: the stream does not pull until it is read. */
 function unreadBody(onPull: () => void): ReadableStream<Uint8Array> {
   return new ReadableStream<Uint8Array>({ pull: onPull }, { highWaterMark: 0 });
-}
-
-function sampleConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name: 'Sample Project',
-    idea: IDEA,
-    stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-    architecture: {
-      style: 'layered',
-      modules: [
-        { name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] },
-        { name: 'api', layer: 1, responsibility: 'HTTP', dependsOn: ['core'] },
-      ],
-      notes: 'Core has no I/O.',
-    },
-    codeRules: ['Validate input at the boundary.'],
-    testRules: ['Use Vitest for unit tests.'],
-    customSteps: [],
-    workflows: [
-      {
-        id: 'implement-cycle',
-        name: 'Implement',
-        scope: 'task',
-        iterationSource: 'plan.md',
-        enabled: true,
-        steps: [
-          { stepId: 'implement', enabled: true },
-          { stepId: 'unit-tests', enabled: true },
-        ],
-        conditions: [
-          {
-            id: 'tests-pass',
-            enabled: true,
-            afterStepId: 'unit-tests',
-            gate: { id: 'tests-pass', type: 'checks', required: true },
-            pass: { kind: 'next' },
-            fail: { kind: 'step', stepId: 'implement' },
-            roundLimit: 3,
-          },
-        ],
-      },
-    ],
-    connections: [{ id: 'c1', from: 'specify', to: 'implement-cycle', artifact: 'plan.md' }],
-    targets: ['claude'],
-    ...overrides,
-  };
-}
-
-/** A configuration with `count` modules, each with no dependencies, so only the module cap is in play. */
-function withModules(count: number): ProjectConfig {
-  const modules = Array.from({ length: count }, (_, i) => ({
-    name: `module-${i}`,
-    layer: 0,
-    responsibility: `Responsibility ${i}`,
-    dependsOn: [],
-  }));
-  const base = sampleConfig();
-  return { ...base, architecture: { ...base.architecture, modules } };
-}
-
-/** A configuration with `codeCount` code rules and `testCount` test rules. */
-function withRules(codeCount: number, testCount: number): ProjectConfig {
-  const codeRules = Array.from({ length: codeCount }, (_, i) => `Code rule ${i}.`);
-  const testRules = Array.from({ length: testCount }, (_, i) => `Test rule ${i}.`);
-  return sampleConfig({ codeRules, testRules });
 }
 
 function postConfig(app: App, url: string, config: unknown, env?: object): Response | Promise<Response> {
@@ -219,11 +153,11 @@ describe('F-13 AC-004 one count covers both routes', () => {
     // Generation is not configured, so each admitted /generate request answers 503: that is an accepted request.
     for (let i = 0; i < 5; i += 1) {
       expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(200);
-      expect((await postConfig(app, GENERATE_URL, sampleConfig())).status).toBe(503);
+      expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(503);
     }
 
     expect((await postConfig(app, ANALYZE_URL, pipelineConfig())).status).toBe(429);
-    expect((await postConfig(app, GENERATE_URL, sampleConfig())).status).toBe(429);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(429);
   });
 });
 
@@ -330,26 +264,10 @@ describe('F-13 AC-010 idea length cap', () => {
     const generation = recordingGeneration();
     const { app } = buildApp(clock, { generation });
 
-    const over = await postConfig(app, GENERATE_URL, sampleConfig({ idea: 'a'.repeat(8001) }));
+    const over = await postConfig(app, GENERATE_URL, pipelineConfig({ idea: 'a'.repeat(8001) }));
 
     expect(over.status).toBe(422);
     expect(generation.calls).toHaveLength(0);
-  });
-});
-
-describe('F-13 AC-011 module cap', () => {
-  it('F-13 AC-011 accepts 12 modules and refuses 13 on /generate with 422 before any model call', async () => {
-    // Generation is not configured, so a config that passes the caps answers 503 rather than 422.
-    const { app } = buildApp(clockAt(START), { generation: null });
-
-    expect((await postConfig(app, GENERATE_URL, withModules(12))).status).toBe(503);
-
-    const over = await postConfig(app, GENERATE_URL, withModules(13));
-    expect(over.status).toBe(422);
-    expect(await over.json()).toEqual({
-      error: 'project config is over the input caps',
-      problems: ['architecture.modules: 13 modules, the limit is 12'],
-    });
   });
 });
 
@@ -370,75 +288,52 @@ describe('F-13 AC-012 rule cap', () => {
     expect(review.calls).toHaveLength(1);
   });
 
-  it('F-13 AC-012 counts code and test rules together on /generate and refuses 61 with 422', async () => {
+  it('F-13 AC-012 counts every rule together on /generate and refuses 61 with 422', async () => {
     const { app } = buildApp(clockAt(START), { generation: null });
 
-    expect((await postConfig(app, GENERATE_URL, withRules(30, 30))).status).toBe(503);
+    expect((await postConfig(app, GENERATE_URL, withPipelineRules(60))).status).toBe(503);
 
-    const over = await postConfig(app, GENERATE_URL, withRules(31, 30));
+    const over = await postConfig(app, GENERATE_URL, withPipelineRules(61));
     expect(over.status).toBe(422);
     expect(await over.json()).toEqual({
       error: 'project config is over the input caps',
-      problems: ['codeRules and testRules: 61 rules, the limit is 60'],
+      problems: ['rules: 61 rules, the limit is 60'],
     });
   });
 });
 
 describe('F-13 AC-015 the caps are applied on both routes', () => {
-  const overCaps: Array<{ name: string; config: () => ProjectConfig }> = [
-    { name: 'idea', config: () => sampleConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) }) },
-    { name: 'modules', config: () => withModules(INPUT_CAPS.modules + 1) },
-    { name: 'rules', config: () => withRules(INPUT_CAPS.rules + 1, 0) },
+  const overCaps: Array<{ name: string; config: () => pipeline.ProjectConfig }> = [
+    { name: 'idea', config: () => pipelineConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) }) },
+    { name: 'rules', config: () => withPipelineRules(INPUT_CAPS.rules + 1) },
   ];
 
   for (const { name, config } of overCaps) {
-    it(`F-13 AC-015 refuses one over-cap ${name} with 422 on ${GENERATE_URL}`, async () => {
-      const { app } = buildApp(clockAt(START), { generation: null });
+    for (const url of [ANALYZE_URL, GENERATE_URL]) {
+      it(`F-13 AC-015 refuses one over-cap ${name} with 422 on ${url}`, async () => {
+        const { app } = buildApp(clockAt(START), { generation: null });
 
-      const response = await postConfig(app, GENERATE_URL, config());
+        const response = await postConfig(app, url, config());
 
-      expect(response.status).toBe(422);
-    });
-  }
-
-  const overPipelineCaps: Array<{ name: string; config: () => pipeline.ProjectConfig }> = [
-    { name: 'idea', config: () => pipelineConfig({ idea: 'a'.repeat(8001) }) },
-    { name: 'rules', config: () => withPipelineRules(61) },
-  ];
-
-  for (const { name, config } of overPipelineCaps) {
-    it(`F-04 AC-021 refuses one over-cap ${name} with 422 on ${ANALYZE_URL}`, async () => {
-      const { app } = buildApp(clockAt(START), { generation: null });
-
-      const response = await postConfig(app, ANALYZE_URL, config());
-
-      expect(response.status).toBe(422);
-    });
+        expect(response.status).toBe(422);
+      });
+    }
   }
 
   it('F-13 AC-015 accepts a config exactly at every cap on both routes', async () => {
-    const atCaps = sampleConfig({
-      idea: 'a'.repeat(INPUT_CAPS.ideaCharacters),
-      architecture: {
-        style: 'layered',
-        modules: withModules(INPUT_CAPS.modules).architecture.modules,
-        notes: 'Core has no I/O.',
-      },
-      codeRules: Array.from({ length: INPUT_CAPS.rules }, (_, i) => `Code rule ${i}.`),
-      testRules: [],
-    });
     const { app } = buildApp(clockAt(START), { generation: null });
 
     expect((await postConfig(app, ANALYZE_URL, pipelineConfig({ idea: 'a'.repeat(8000) }))).status).toBe(200);
     expect((await postConfig(app, ANALYZE_URL, withPipelineRules(60))).status).toBe(200);
-    expect((await postConfig(app, GENERATE_URL, atCaps)).status).toBe(503);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig({ idea: 'a'.repeat(8000) }))).status).toBe(503);
+    expect((await postConfig(app, GENERATE_URL, withPipelineRules(60))).status).toBe(503);
   });
 });
 
 describe('F-13 AC-001 a request refused by an input cap does not use up the allowance', () => {
   for (const [name, url, over] of [
     ['/analyze', ANALYZE_URL, () => pipelineConfig({ idea: 'a'.repeat(8001) })],
-    ['/generate', GENERATE_URL, () => sampleConfig({ idea: 'a'.repeat(8001) })],
+    ['/generate', GENERATE_URL, () => pipelineConfig({ idea: 'a'.repeat(8001) })],
   ] as const) {
     it(`F-13 AC-001 a cap-refused request on ${name} is refunded, so the 10th valid request is still accepted`, async () => {
       const clock = clockAt(START);

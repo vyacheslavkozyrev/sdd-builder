@@ -54,8 +54,8 @@ function withFirstWorkflow(
   return { ...config, workflows: config.workflows.map(change) };
 }
 
-describe('F-07 AC-012 generation prompt brief', () => {
-  it('F-07 AC-012 leaves out a field of the config that is not part of the brief and process', () => {
+describe('F-07 AC-008 generation prompt brief', () => {
+  it('F-07 AC-008 leaves out a field of the config that is not part of the brief and process', () => {
     const extra = { ...sampleConfig(), serverNote: 'internal-only-value' } as ProjectConfig;
 
     const prompt = buildGenerationPrompt(extra, []);
@@ -64,7 +64,7 @@ describe('F-07 AC-012 generation prompt brief', () => {
     expect(prompt).not.toContain('serverNote');
   });
 
-  it('F-07 AC-012 leaves out a switched-off condition', () => {
+  it('F-07 AC-008 leaves out a switched-off condition', () => {
     const base = sampleConfig();
     const withOff = withFirstWorkflow(base, (workflow) => ({
       ...workflow,
@@ -88,7 +88,7 @@ describe('F-07 AC-012 generation prompt brief', () => {
     expect(prompt).toBe(buildGenerationPrompt(base, []));
   });
 
-  it('F-07 AC-012 writes a condition with its gate and its step route', () => {
+  it('F-07 AC-008 writes a condition with its gate and its step route', () => {
     const prompt = buildGenerationPrompt(sampleConfig(), []);
 
     expect(prompt).toContain('"tests-pass"');
@@ -97,7 +97,7 @@ describe('F-07 AC-012 generation prompt brief', () => {
     expect(prompt).toContain('"roundLimit": 3');
   });
 
-  it('F-07 AC-012 includes the workflow description only when the user wrote one', () => {
+  it('F-07 AC-008 includes the workflow description only when the user wrote one', () => {
     const described = withFirstWorkflow(sampleConfig(), (workflow) => ({
       ...workflow,
       description: 'Runs one task at a time.',
@@ -107,7 +107,7 @@ describe('F-07 AC-012 generation prompt brief', () => {
     expect(buildGenerationPrompt(sampleConfig(), [])).not.toContain('"description"');
   });
 
-  it('F-07 AC-012 writes the gate of a connection that has one', () => {
+  it('F-07 AC-008 writes the gate of a connection that has one', () => {
     const base = sampleConfig();
     const gated = {
       ...base,

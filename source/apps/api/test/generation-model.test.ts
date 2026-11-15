@@ -31,8 +31,8 @@ function fakeClient(
   return { client, calls };
 }
 
-describe('F-07 AC-016 adapter sets truncated', () => {
-  it('F-07 AC-016 sets truncated to true when the stop reason is the length limit', async () => {
+describe('adapter sets truncated', () => {
+  it('sets truncated to true when the stop reason is the length limit', async () => {
     const { client, calls } = fakeClient([{ type: 'text', text: '{"files":' }], 'max_tokens');
     const model = createAnthropicGenerationModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
@@ -43,7 +43,7 @@ describe('F-07 AC-016 adapter sets truncated', () => {
     expect(GENERATION_MAX_TOKENS).toBe(32000);
   });
 
-  it('F-07 AC-016 sets truncated to false when the stop reason is end_turn', async () => {
+  it('sets truncated to false when the stop reason is end_turn', async () => {
     const { client } = fakeClient([{ type: 'text', text: '{"files":[]}' }], 'end_turn');
     const model = createAnthropicGenerationModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
@@ -52,7 +52,7 @@ describe('F-07 AC-016 adapter sets truncated', () => {
     expect(reply).toEqual({ text: '{"files":[]}', truncated: false });
   });
 
-  it('F-07 AC-016 treats a missing stop reason as not truncated', async () => {
+  it('treats a missing stop reason as not truncated', async () => {
     const { client } = fakeClient([{ type: 'text', text: 'ok' }], null);
     const model = createAnthropicGenerationModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
@@ -61,7 +61,7 @@ describe('F-07 AC-016 adapter sets truncated', () => {
     expect(reply.truncated).toBe(false);
   });
 
-  it('F-07 AC-016 gives an empty text when the reply has no text block', async () => {
+  it('gives an empty text when the reply has no text block', async () => {
     const { client } = fakeClient([{ type: 'tool_use' }], 'end_turn');
     const model = createAnthropicGenerationModel({ ANTHROPIC_API_KEY: KEY }, () => client);
 
@@ -70,7 +70,7 @@ describe('F-07 AC-016 adapter sets truncated', () => {
     expect(reply).toEqual({ text: '', truncated: false });
   });
 
-  it('F-07 AC-016 sends the prompt as the single user message with the model from the environment', async () => {
+  it('sends the prompt as the single user message with the model from the environment', async () => {
     const { client, calls } = fakeClient([{ type: 'text', text: 'ok' }], 'end_turn');
     const model = createAnthropicGenerationModel(
       { ANTHROPIC_API_KEY: KEY, SDDBUILDER_ANALYZER_MODEL: 'claude-test-model-1' },
@@ -87,8 +87,8 @@ describe('F-07 AC-016 adapter sets truncated', () => {
   });
 });
 
-describe('F-07 AC-017 provider error in the adapter', () => {
-  it('F-07 AC-017 lets a provider error reject after exactly one call, with no retry in the adapter', async () => {
+describe('F-07 AC-012 provider error in the adapter', () => {
+  it('F-07 AC-012 lets a provider error reject after exactly one call, with no retry in the adapter', async () => {
     const calls: RecordedCall[] = [];
     const client: GenerationClientLike = {
       messages: {
@@ -129,13 +129,13 @@ describe('F-13 AC-023 generation client and call limits', () => {
   });
 });
 
-describe('F-07 AC-018 missing key at creation', () => {
-  it('F-07 AC-018 throws at creation when the key is unset, naming the variable', () => {
+describe('F-07 AC-013 missing key at creation', () => {
+  it('F-07 AC-013 throws at creation when the key is unset, naming the variable', () => {
     expect(() => createAnthropicGenerationModel({})).toThrow(/ANTHROPIC_API_KEY/);
   });
 
   it.each(['', '   ', '\t\n'])(
-    'F-07 AC-018 throws at creation when the key is blank (%j), naming the variable and not the value',
+    'F-07 AC-013 throws at creation when the key is blank (%j), naming the variable and not the value',
     (blank) => {
       let message = '';
       try {

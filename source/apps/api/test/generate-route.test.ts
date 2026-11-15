@@ -2,17 +2,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import JSZip from 'jszip';
 import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
-import {
-  DEFAULT_CONNECTIONS,
-  DEFAULT_WORKFLOWS,
-  planGeneration,
-  validateConfig,
-  type ProjectConfig,
-  type TemplateSource,
-} from '@sddbuilder/core';
+import { pipeline } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp } from '../src/app.js';
 import { fixedLimits } from './fixed-limits.js';
+import { pipelineConfig, pipelineTemplates, refusedPipelineConfig } from './pipeline-config.js';
 import type { LogPort } from '../src/log.js';
 import {
   createAnthropicGenerationModel,
@@ -133,38 +127,19 @@ beforeEach(() => {
   }
 });
 
-/** A valid configuration with the default workflows and connections. */
-function sampleConfig(name = 'Sample Project'): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name,
-    idea: 'A tool that turns a product idea into a spec-driven project framework.',
-    stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-    architecture: {
-      style: 'layered',
-      modules: [{ name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] }],
-      notes: 'Core has no I/O.',
-    },
-    codeRules: ['Validate input at the boundary.'],
-    testRules: ['Use Vitest for unit tests.'],
-    customSteps: [],
-    workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-    connections: structuredClone([...DEFAULT_CONNECTIONS]),
-    targets: ['claude'],
-  };
+/** A valid pipeline configuration (the default pipeline); the name is the only field a test varies. */
+function sampleConfig(name = 'Sample Project'): pipeline.ProjectConfig {
+  return pipelineConfig({ name });
 }
 
-/** A configuration the structural rules refuse: two workflows share one id. */
-function duplicateIdConfig(): ProjectConfig {
-  const config = sampleConfig();
-  const first = config.workflows[0];
-  if (first === undefined) throw new Error('sample config has no workflow');
-  return { ...config, workflows: [...config.workflows, { ...first }] };
+/** A configuration the structural rules refuse: the first flow names a rule tag that no rule has. */
+function refusedConfig(): pipeline.ProjectConfig {
+  return refusedPipelineConfig();
 }
 
-/** A small fixed templates source: every path gets the same plain text, with no placeholders or headings. */
-function sampleTemplates(): TemplateSource {
-  return { get: () => 'Template text for the test.' };
+/** The findings `/generate` answers a refused configuration with: `<path>: <message>` per problem. */
+function refusalsOf(config: pipeline.ProjectConfig): string[] {
+  return pipeline.configProblems(config).map((problem) => `${problem.path}: ${problem.message}`);
 }
 
 /** The text the fake model writes for a planned file: its path, then its planned layout (so the headings check passes). */
@@ -173,9 +148,9 @@ function textFor(path: string, layout: string): string {
 }
 
 /** A reply with text for every planned file, keyed in the reverse of plan order. */
-function replyFor(config: ProjectConfig): string {
+function replyFor(config: pipeline.ProjectConfig): string {
   const reply: Record<string, string> = {};
-  for (const entry of [...planGeneration(config, sampleTemplates())].reverse()) {
+  for (const entry of [...pipeline.planGeneration(config, pipelineTemplates())].reverse()) {
     reply[entry.path] = textFor(entry.path, entry.layout);
   }
   return JSON.stringify(reply);
@@ -216,7 +191,7 @@ function recordingLog(): LogPort & { lines: string[] } {
 }
 
 function appWith(model: GenerationModel, log: LogPort = recordingLog()): ReturnType<typeof createApp> {
-  return createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: { templates: sampleTemplates(), model }, log });
+  return createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: { templates: pipelineTemplates(), model }, log });
 }
 
 function postJson(app: ReturnType<typeof createApp>, url: string, body: unknown): Response | Promise<Response> {
@@ -227,8 +202,8 @@ function postJson(app: ReturnType<typeof createApp>, url: string, body: unknown)
   });
 }
 
-describe('F-07 AC-007 POST /generate returns the zip of the planned files', () => {
-  it('F-07 AC-007 returns 200 with the zip content type and attachment disposition', async () => {
+describe('F-07 AC-014 POST /generate returns the zip of the planned files', () => {
+  it('F-07 AC-014 returns 200 with the zip content type and attachment disposition', async () => {
     const config = sampleConfig();
     const app = appWith(scriptedModel([replyFor(config)]));
 
@@ -239,9 +214,9 @@ describe('F-07 AC-007 POST /generate returns the zip of the planned files', () =
     expect(response.headers.get('content-disposition')).toBe(ZIP_DISPOSITION);
   });
 
-  it('F-07 AC-007 the zip holds the planned files in plan order with the model text', async () => {
+  it('F-07 AC-009 the zip holds the planned files in plan order with the model text', async () => {
     const config = sampleConfig();
-    const plan = planGeneration(config, sampleTemplates());
+    const plan = pipeline.planGeneration(config, pipelineTemplates());
     const app = appWith(scriptedModel([replyFor(config)]));
 
     const response = await postJson(app, GENERATE_URL, config);
@@ -254,10 +229,10 @@ describe('F-07 AC-007 POST /generate returns the zip of the planned files', () =
   });
 });
 
-describe('F-07 AC-007 a reply with invisible characters in its .claude keys still gives the zip', () => {
-  it('F-07 AC-007 returns 200 with the planned zip after one call when a zero-width space precedes each .claude key', async () => {
+describe('F-07 AC-009 a reply with invisible characters in its .claude keys still gives the zip', () => {
+  it('F-07 AC-009 returns 200 with the planned zip after one call when a zero-width space precedes each .claude key', async () => {
     const config = sampleConfig();
-    const plan = planGeneration(config, sampleTemplates());
+    const plan = pipeline.planGeneration(config, pipelineTemplates());
     const claudePaths = plan.map((entry) => entry.path).filter((path) => path.startsWith('.claude/'));
     expect(claudePaths.length).toBeGreaterThan(0);
     const reply: Record<string, string> = {};
@@ -278,10 +253,10 @@ describe('F-07 AC-007 a reply with invisible characters in its .claude keys stil
   });
 });
 
-describe('F-07 AC-013 a failed reply and a passing retry give the zip after two calls', () => {
-  it('F-07 AC-013 returns 200 with the zip after a failed reply and a passing retry, after two calls', async () => {
+describe('F-07 AC-010 a failed reply and a passing retry give the zip after two calls', () => {
+  it('F-07 AC-010 returns 200 with the zip after a failed reply and a passing retry, after two calls', async () => {
     const config = sampleConfig();
-    const plan = planGeneration(config, sampleTemplates());
+    const plan = pipeline.planGeneration(config, pipelineTemplates());
     const firstPath = plan[0]?.path ?? '';
     const incomplete: Record<string, string> = JSON.parse(replyFor(config)) as Record<string, string>;
     delete incomplete[firstPath];
@@ -300,9 +275,9 @@ describe('F-07 AC-013 a failed reply and a passing retry give the zip after two 
   });
 });
 
-describe('F-07 AC-010 a refused configuration gives 422 with every problem and no model call', () => {
-  it('F-07 AC-010 returns 422 listing every structural problem', async () => {
-    const config = duplicateIdConfig();
+describe('F-07 AC-006 a refused configuration gives 422 with every problem and no model call', () => {
+  it('F-07 AC-006 returns 422 listing every structural problem', async () => {
+    const config = refusedConfig();
     const model = scriptedModel([]);
     const app = appWith(model);
 
@@ -311,23 +286,23 @@ describe('F-07 AC-010 a refused configuration gives 422 with every problem and n
     expect(response.status).toBe(422);
     expect(await response.json()).toEqual({
       error: 'project config cannot be generated',
-      problems: validateConfig(config),
+      problems: refusalsOf(config),
     });
     expect(model.prompts).toHaveLength(0);
   });
 });
 
-describe('F-07 AC-011 bad input gives 400 through the same rules as /analyze, with no model call', () => {
-  const bodies: [string, string, boolean][] = [
-    ['a body that is not JSON', '{not json', false],
-    ['an empty object', '{}', true],
-    ['a JSON array', '[]', true],
-    ['a config with a wrong schema version', JSON.stringify({ ...sampleConfig(), schemaVersion: 2 }), true],
+describe('F-07 AC-002 AC-003 AC-004 bad input gives 400 with no model call, on both routes', () => {
+  const bodies: [string, string, boolean, string][] = [
+    ['a body that is not JSON', '{not json', false, 'F-07 AC-003'],
+    ['an empty object', '{}', true, 'F-07 AC-004'],
+    ['a JSON array', '[]', true, 'F-07 AC-004'],
+    ['a config with a wrong schema version', JSON.stringify({ ...sampleConfig(), schemaVersion: 1 }), true, 'F-07 AC-002'],
   ];
 
   for (const url of [GENERATE_URL, ANALYZE_URL]) {
-    for (const [label, body, hasProblems] of bodies) {
-      it(`F-07 AC-011 returns 400 with error for ${label} on ${url}`, async () => {
+    for (const [label, body, hasProblems, criterion] of bodies) {
+      it(`${criterion} returns 400 with error for ${label} on ${url}`, async () => {
         const model = scriptedModel([]);
         const app = appWith(model);
 
@@ -342,7 +317,7 @@ describe('F-07 AC-011 bad input gives 400 through the same rules as /analyze, wi
     }
   }
 
-  it('F-07 AC-011 checks the input before the generation configuration: 400, not 503', async () => {
+  it('F-07 AC-003 checks the input before the generation configuration: 400, not 503', async () => {
     const app = createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: null, log: recordingLog() });
 
     const response = await postJson(app, GENERATE_URL, '{not json');
@@ -351,8 +326,8 @@ describe('F-07 AC-011 bad input gives 400 through the same rules as /analyze, wi
   });
 });
 
-describe('F-07 AC-014 and AC-017 model failures give 502 with problems and no zip', () => {
-  it('F-07 AC-014 returns 502 with the findings of the last reply after two calls', async () => {
+describe('F-07 AC-011 and AC-012 model failures give 502 with problems and no zip', () => {
+  it('F-07 AC-011 returns 502 with the findings of the last reply after two calls', async () => {
     const config = sampleConfig();
     const model = scriptedModel(['not json at all', '[]']);
     const app = appWith(model);
@@ -374,7 +349,7 @@ describe('F-07 AC-014 and AC-017 model failures give 502 with problems and no zi
   ];
 
   for (const [label, failure] of callFailures) {
-    it(`F-07 AC-017 returns 502 with one generic problem when ${label} on the first call`, async () => {
+    it(`F-07 AC-012 returns 502 with one generic problem when ${label} on the first call`, async () => {
       const model = scriptedModel([failure]);
       const app = appWith(model);
 
@@ -411,8 +386,8 @@ describe('F-13 AC-024 a generation timeout gives 502 with no file text', () => {
   });
 });
 
-describe('F-07 AC-018 generation not configured gives 503 and no model call', () => {
-  it('F-07 AC-018 returns 503 with the generation error and no zip', async () => {
+describe('F-07 AC-013 generation not configured gives 503 and no model call', () => {
+  it('F-07 AC-013 returns 503 with the generation error and no zip', async () => {
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: UNUSED_REVIEW, generation: null, log });
 
@@ -425,11 +400,11 @@ describe('F-07 AC-018 generation not configured gives 503 and no model call', ()
   });
 });
 
-describe('F-07 AC-019 the 502 body carries findings and paths only, never file text', () => {
-  it('F-07 AC-019 leaves the text of a failed reply out of the response', async () => {
+describe('F-07 AC-011 the 502 body carries findings and paths only, never file text', () => {
+  it('F-07 AC-011 leaves the text of a failed reply out of the response', async () => {
     const config = sampleConfig();
     const secret = 'SECRET-FILE-TEXT-7f3a';
-    const firstPath = planGeneration(config, sampleTemplates())[0]?.path ?? '';
+    const firstPath = pipeline.planGeneration(config, pipelineTemplates())[0]?.path ?? '';
     const failedReply = JSON.stringify({ [firstPath]: { body: secret } });
     const app = appWith(scriptedModel([failedReply, failedReply]));
 
@@ -443,8 +418,8 @@ describe('F-07 AC-019 the 502 body carries findings and paths only, never file t
   });
 });
 
-describe('F-07 AC-022 requests do not share results', () => {
-  it('F-07 AC-022 the same body twice gives two independent 200 results with equal bytes', async () => {
+describe('requests do not share results', () => {
+  it('F-07 AC-015 the same body twice gives two independent 200 results with equal bytes', async () => {
     const config = sampleConfig();
     const model = scriptedModel([replyFor(config), replyFor(config)]);
     const app = appWith(model);
@@ -458,7 +433,7 @@ describe('F-07 AC-022 requests do not share results', () => {
     expect(Buffer.from(await second.arrayBuffer()).equals(Buffer.from(await first.arrayBuffer()))).toBe(true);
   });
 
-  it('F-07 AC-022 the second request sees only its own configuration', async () => {
+  it('the second request sees only its own configuration', async () => {
     const alpha = sampleConfig('Alpha Project');
     const beta = sampleConfig('Beta Project');
     const model = scriptedModel([replyFor(alpha), replyFor(beta)]);
@@ -473,8 +448,8 @@ describe('F-07 AC-022 requests do not share results', () => {
   });
 });
 
-describe('F-07 AC-023 a request writes no file', () => {
-  it('F-07 AC-023 a successful request calls no node:fs write function', async () => {
+describe('a request writes no file', () => {
+  it('a successful request calls no node:fs write function', async () => {
     const config = sampleConfig();
     const app = appWith(scriptedModel([replyFor(config)]));
 
@@ -487,10 +462,10 @@ describe('F-07 AC-023 a request writes no file', () => {
     }
   });
 
-  it('F-07 AC-023 a refused request calls no node:fs write function', async () => {
+  it('a refused request calls no node:fs write function', async () => {
     const app = appWith(scriptedModel([]));
 
-    const response = await postJson(app, GENERATE_URL, duplicateIdConfig());
+    const response = await postJson(app, GENERATE_URL, refusedConfig());
     await response.text();
 
     expect(response.status).toBe(422);
@@ -500,8 +475,8 @@ describe('F-07 AC-023 a request writes no file', () => {
   });
 });
 
-describe('F-07 AC-025 unknown paths and wrong methods on /generate', () => {
-  it('F-07 AC-025 returns 404 with a JSON error for an unknown path', async () => {
+describe('F-07 AC-019 unknown paths and wrong methods on /generate', () => {
+  it('F-07 AC-019 returns 404 with a JSON error for an unknown path', async () => {
     const response = await appWith(scriptedModel([])).request('http://localhost/nowhere');
 
     expect(response.status).toBe(404);
@@ -509,7 +484,7 @@ describe('F-07 AC-025 unknown paths and wrong methods on /generate', () => {
     expect(await response.json()).toEqual({ error: 'not found' });
   });
 
-  it('F-07 AC-025 returns 405 with Allow: POST for GET on /generate', async () => {
+  it('F-07 AC-019 returns 405 with Allow: POST for GET on /generate', async () => {
     const response = await appWith(scriptedModel([])).request(GENERATE_URL, { method: 'GET' });
 
     expect(response.status).toBe(405);
@@ -518,7 +493,7 @@ describe('F-07 AC-025 unknown paths and wrong methods on /generate', () => {
   });
 });
 
-describe('F-07 AC-026 every error response has the one error shape', () => {
+describe('every error response has the one error shape', () => {
   const secret = 'secret detail at /srv/app/internal.ts';
 
   const scenarios: [string, boolean, () => Response | Promise<Response>][] = [
@@ -528,7 +503,7 @@ describe('F-07 AC-026 every error response has the one error shape', () => {
     [
       '422 for a refused configuration',
       true,
-      () => postJson(appWith(scriptedModel([])), GENERATE_URL, duplicateIdConfig()),
+      () => postJson(appWith(scriptedModel([])), GENERATE_URL, refusedConfig()),
     ],
     ['502 for a failed reply', true, () => postJson(appWith(scriptedModel(['x', 'y'])), GENERATE_URL, sampleConfig())],
     [
@@ -549,6 +524,7 @@ describe('F-07 AC-026 every error response has the one error shape', () => {
                 get: () => {
                   throw new Error(secret);
                 },
+                paths: () => [],
               },
               model: scriptedModel([]),
             },
@@ -562,7 +538,7 @@ describe('F-07 AC-026 every error response has the one error shape', () => {
   ];
 
   for (const [label, hasProblems, run] of scenarios) {
-    it(`F-07 AC-026 ${label} is JSON with error, problems as strings where there are problems, and no stack or path`, async () => {
+    it(`${label} is JSON with error, problems as strings where there are problems, and no stack or path`, async () => {
       const response = await run();
       const text = await response.text();
 

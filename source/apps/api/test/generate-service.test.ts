@@ -89,8 +89,8 @@ function replyFor(config: ProjectConfig): string {
   return JSON.stringify(reply);
 }
 
-describe('F-07 AC-008 generation returns the planned files in plan order with the reply text', () => {
-  it('F-07 AC-008 returns each planned path in plan order, with the text the model wrote for it', async () => {
+describe('F-07 AC-009 generation returns the planned files in plan order with the reply text', () => {
+  it('F-07 AC-009 returns each planned path in plan order, with the text the model wrote for it', async () => {
     const config = sampleConfig();
     const plan = planGeneration(config, sampleTemplates());
     const model = fakeModel({ text: replyFor(config), truncated: false });
@@ -106,8 +106,8 @@ describe('F-07 AC-008 generation returns the planned files in plan order with th
   });
 });
 
-describe('F-07 AC-010 generation refuses an invalid configuration without calling the model', () => {
-  it('F-07 AC-010 refuses with every structural problem and makes no model call', async () => {
+describe('F-07 AC-006 generation refuses an invalid configuration without calling the model', () => {
+  it('F-07 AC-006 refuses with every structural problem and makes no model call', async () => {
     const step = (id: string) => ({
       id,
       name: id,
@@ -137,7 +137,7 @@ describe('F-07 AC-010 generation refuses an invalid configuration without callin
   });
 });
 
-describe('F-07 AC-017 a model error gives a model failure after exactly one call', () => {
+describe('F-07 AC-012 a model error gives a model failure after exactly one call', () => {
   it.each([
     ['the call rejects', (): Promise<GenerationReply> => Promise.reject(new TypeError('provider unreachable'))],
     [
@@ -146,7 +146,7 @@ describe('F-07 AC-017 a model error gives a model failure after exactly one call
         throw new Error('provider unreachable');
       },
     ],
-  ])('F-07 AC-017 gives reason model when %s, after one call and no retry', async (_label, failing) => {
+  ])('F-07 AC-012 gives reason model when %s, after one call and no retry', async (_label, failing) => {
     let calls = 0;
     const model: GenerationModel = {
       complete() {
@@ -161,7 +161,7 @@ describe('F-07 AC-017 a model error gives a model failure after exactly one call
     expect(calls).toBe(1);
   });
 
-  it('F-07 AC-017 logs the error name only, never the message or any content', async () => {
+  it('F-07 AC-012 logs the error name only, never the message or any content', async () => {
     const model: GenerationModel = {
       complete: () => Promise.reject(new TypeError('secret brief text')),
     };
@@ -174,8 +174,8 @@ describe('F-07 AC-017 a model error gives a model failure after exactly one call
   });
 });
 
-describe('F-07 AC-008 a reply that does not match the plan is refused after two calls', () => {
-  it('F-07 AC-008 refuses a reply that leaves out a planned file, after the one retry', async () => {
+describe('F-07 AC-011 a reply that does not match the plan is refused after two calls', () => {
+  it('F-07 AC-011 refuses a reply that leaves out a planned file, after the one retry', async () => {
     const config = sampleConfig();
     const plan = planGeneration(config, sampleTemplates());
     const reply: Record<string, string> = {};
@@ -195,7 +195,7 @@ describe('F-07 AC-008 a reply that does not match the plan is refused after two 
     expect(model.calls).toBe(2);
   });
 
-  it('F-07 AC-008 refuses a reply cut off by the length limit without parsing it, after two calls', async () => {
+  it('F-07 AC-011 refuses a reply cut off by the length limit without parsing it, after two calls', async () => {
     const config = sampleConfig();
     const model = fakeModel({ text: replyFor(config), truncated: true });
 
@@ -205,7 +205,7 @@ describe('F-07 AC-008 a reply that does not match the plan is refused after two 
     expect(model.calls).toBe(2);
   });
 
-  it('F-07 AC-008 refuses a reply that is not JSON, after two calls', async () => {
+  it('F-07 AC-011 refuses a reply that is not JSON, after two calls', async () => {
     const model = fakeModel({ text: 'Here are the files: ...', truncated: false });
 
     const result = await generateProject(sampleConfig(), { templates: sampleTemplates(), model, log: fakeLog() });
@@ -215,8 +215,8 @@ describe('F-07 AC-008 a reply that does not match the plan is refused after two 
   });
 });
 
-describe('F-07 AC-008 a planning failure propagates to the caller and is not turned into a result', () => {
-  it('F-07 AC-008 rejects when the templates cannot be read, and makes no model call', async () => {
+describe('F-07 AC-020 a planning failure propagates to the caller and is not turned into a result', () => {
+  it('F-07 AC-020 rejects when the templates cannot be read, and makes no model call', async () => {
     const templates: TemplateSource = {
       get: () => {
         throw new Error('template store unavailable');
@@ -280,8 +280,8 @@ const FAILING_REPLIES: ReadonlyArray<[label: string, reply: (config: ProjectConf
   ],
 ];
 
-describe('F-07 AC-012 the retry prompt holds each finding of the first reply', () => {
-  it('F-07 AC-012 sends the first prompt, then a retry prompt built from the findings of the first reply', async () => {
+describe('F-07 AC-010 the retry prompt holds each finding of the first reply', () => {
+  it('F-07 AC-010 sends the first prompt, then a retry prompt built from the findings of the first reply', async () => {
     const config = sampleConfig();
     const plan = planGeneration(config, sampleTemplates());
     const [first, second] = plannedPaths(config);
@@ -301,8 +301,8 @@ describe('F-07 AC-012 the retry prompt holds each finding of the first reply', (
   });
 });
 
-describe('F-07 AC-014 a second failure is refused with the last reply findings after two calls', () => {
-  it.each(FAILING_REPLIES)('F-07 AC-014 refuses when the retry reply %s, with its findings and two calls', async (_label, reply, findings) => {
+describe('F-07 AC-011 a second failure is refused with the last reply findings after two calls', () => {
+  it.each(FAILING_REPLIES)('F-07 AC-011 refuses when the retry reply %s, with its findings and two calls', async (_label, reply, findings) => {
     const config = sampleConfig();
     const model = scriptedModel([reply(config), reply(config)]);
 
@@ -312,7 +312,7 @@ describe('F-07 AC-014 a second failure is refused with the last reply findings a
     expect(model.prompts).toHaveLength(2);
   });
 
-  it('F-07 AC-014 reports only the findings of the second reply, not those of the first', async () => {
+  it('F-07 AC-011 reports only the findings of the second reply, not those of the first', async () => {
     const config = sampleConfig();
     const [first] = plannedPaths(config);
     const model = scriptedModel([
@@ -334,7 +334,7 @@ describe('F-07 AC-014 a second failure is refused with the last reply findings a
         throw new Error('provider unreachable');
       },
     ],
-  ])('F-07 AC-014 gives reason model when %s on the retry, after two calls and no third', async (_label, failing) => {
+  ])('F-07 AC-012 gives reason model when %s on the retry, after two calls and no third', async (_label, failing) => {
     const config = sampleConfig();
     const model = scriptedModel([{ text: 'Not JSON', truncated: false }, failing]);
 
@@ -345,8 +345,8 @@ describe('F-07 AC-014 a second failure is refused with the last reply findings a
   });
 });
 
-describe('F-07 AC-013 a first failure followed by a passing reply gives the files after two calls', () => {
-  it.each(FAILING_REPLIES)('F-07 AC-013 accepts the retry when the first reply %s', async (_label, reply) => {
+describe('F-07 AC-010 a first failure followed by a passing reply gives the files after two calls', () => {
+  it.each(FAILING_REPLIES)('F-07 AC-010 accepts the retry when the first reply %s', async (_label, reply) => {
     const config = sampleConfig();
     const model = scriptedModel([reply(config), jsonReply(passingObject(config))]);
 
@@ -368,9 +368,9 @@ const NON_OBJECT_OR_NON_TEXT_REPLIES = FAILING_REPLIES.filter(
   ([label]) => label === 'is a JSON array' || label === 'is a JSON string' || label === 'is JSON null' || label === 'holds a value that is not text',
 );
 
-describe('F-07 AC-015 a non-object or non-text value counts as a failed reply', () => {
+describe('F-07 AC-010 a non-object or non-text value counts as a failed reply', () => {
   it.each(NON_OBJECT_OR_NON_TEXT_REPLIES)(
-    'F-07 AC-015 treats a first reply that %s as failed, then accepts the retry',
+    'F-07 AC-010 treats a first reply that %s as failed, then accepts the retry',
     async (_label, reply) => {
       const config = sampleConfig();
       const model = scriptedModel([reply(config), jsonReply(passingObject(config))]);
@@ -382,7 +382,7 @@ describe('F-07 AC-015 a non-object or non-text value counts as a failed reply', 
     },
   );
 
-  it('F-07 AC-015 checks a non-text value through checkReply: it is refused on both replies with that finding', async () => {
+  it('F-07 AC-010 checks a non-text value through checkReply: it is refused on both replies with that finding', async () => {
     const config = sampleConfig();
     const [first] = plannedPaths(config);
     const bad = jsonReply({ ...passingObject(config), [first ?? '']: 42 });
@@ -395,8 +395,8 @@ describe('F-07 AC-015 a non-object or non-text value counts as a failed reply', 
   });
 });
 
-describe('F-07 AC-016 a truncated reply is failed without its text being parsed or packaged', () => {
-  it('F-07 AC-016 retries past a truncated reply and packages only the text of the retry', async () => {
+describe('F-07 AC-010 a truncated reply is failed without its text being parsed or packaged', () => {
+  it('F-07 AC-010 retries past a truncated reply and packages only the text of the retry', async () => {
     const config = sampleConfig();
     const truncatedText = Object.fromEntries(plannedPaths(config).map((path) => [path, 'TRUNCATED TEXT']));
     const model = scriptedModel([
@@ -413,8 +413,8 @@ describe('F-07 AC-016 a truncated reply is failed without its text being parsed 
   });
 });
 
-describe('F-07 AC-019 a failure body carries findings and paths only, never file text', () => {
-  it('F-07 AC-019 has no text of either reply in the problems when both replies fail', async () => {
+describe('F-07 AC-011 a failure body carries findings and paths only, never file text', () => {
+  it('F-07 AC-011 has no text of either reply in the problems when both replies fail', async () => {
     const config = sampleConfig();
     const [first, second] = plannedPaths(config);
     const firstReply = jsonReply({ [first ?? '']: 'FIRST SECRET FILE TEXT' });

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 3 of 19 tasks committed (T003 committed as one change, 415 lines, over the 400-line guard by the owner's decision) |
+| Build    | 🔄 In Progress | | 4 of 19 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,12 +28,15 @@ None.
 | T001 | Decision 23 in architecture §6 (pipeline-only `/generate`, flat generator removed, duplicate path 500) | 0 blockers, 0 warnings, 1 suggestion fixed, 1 deferred | task check passed: 404 api, 348 web, 1338 core |
 | T002 | Pipeline generation prompt in `generate/pipeline-prompt.ts` beside the flat prompt (AC-008 prompt, AC-010 retry prompt); flat `prompt.ts` unchanged | 0 blockers, 1 warning fixed (a white-space-only description now reads `(none)`), 0 suggestions fixed, 2 deferred | task check passed: 418 api, 348 web, 1338 core (14 new tests in the pipeline-prompt file) |
 | T003 | Pipeline generation service in `generate/pipeline-service.ts` (refuse, one call, one retry on a failed reply, provider error not retried); `configProblems` exported from core `pipeline/index.ts`; `loadTemplates` returns `ListableTemplateSource`; flat `service.ts` and `prompt.ts` unchanged | 0 blockers, 3 warnings fixed (`GeneratedFile` redeclared instead of imported from core; refusal test compared only against `configProblems`, now also asserts the AC-006 message; truncated-reply retry untested, now covered), 0 suggestions fixed, 2 deferred | task check passed: 434 api, 348 web, 1338 core (16 tests in the service file) |
+| T004 | Route switch: `POST /generate` on the pipeline path (readPipelineConfig, pipeline caps 422, configProblems 422 before the ceiling, generatePipelineProject, 200/422/502/503/500); flat `/generate` cases in five test files moved to pipeline fixtures (Amendment 1); AC-006 route wording and no module cap (Amendments 2 and 3) | 0 blockers, 3 warnings fixed, 4 deferred. 400-line guard waived by the owner for this task | task check passed: 450 api, 348 web, 1338 core |
 
 ---
 
 ## Amendments
 
 - **Amendment 1 (2026-11-15), T004 absorbs T010.** T004 switches `POST /generate` to the pipeline path and breaks 57 flat-body tests in five files, so their migration moves into T004 and T010 is retired (recorded in `plan.md`). Owner choice, 2026-11-15.
+- **Amendment 2 (2026-11-15), AC-006 route wording.** A parse refusal at the route is 400: `parsePipelineConfig` refuses a Condition whose fail route names no block and a block with no description before `configProblems` runs. `configProblems` refusals stay 422; the unknown rule tag case is the route's 422 case. The AC-006 text in `stories.md` says so. The service-level cases stay covered by T003.
+- **Amendment 3 (2026-11-15), no module cap on pipeline `/generate`.** The flat F-13 AC-011 module cap does not apply to the pipeline model, as on `/analyze`. The removed flat module-cap test stays removed. The pipeline caps are only the idea length (8,000 characters) and the rule count (60), as `pipelineCapProblems` in core.
 
 ---
 
@@ -47,3 +50,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T003 `source/apps/api/src/generate/pipeline-service.ts` `buildPipelineGenerationPrompt` call (open question for the owner, not a finding): the retry prompt lists every finding of the first reply, with no cap. AC-010 reads "lists the first findings", taken here as the first reply's findings. If the owner wants a cap, it is a one-line change plus a test; the T002 question above stays open until the owner answers.
 - T003 `source/apps/api/src/generate/pipeline-service.ts` `attempt` (suggestion): `parsed.reply as Readonly<Record<string, string>>` is a cast after `checkReply` has proven every planned value is a string; the final loop still throws on a missing text. Not changed: a narrowing rewrite would add a branch that cannot run.
 - T003 `source/apps/api/src/generate/pipeline-service.ts` `attempt` (suggestion): a non-plan key from the model is echoed into the 502 `problems` and the retry prompt through the `checkReply` message (F-03 wording). The text is not echoed, but a very long key would be. Not changed here: the message format belongs to F-03 `reply-check.ts`, and the key limit is a question for that feature.
+- T004 `source/apps/api/src/app.ts` `/generate` (suggestion): the route runs `pipeline.configProblems` before the ceiling, and `generatePipelineProject` runs it again, so the config is checked twice; the `reason: 'refused'` branch in the route is therefore defensive only. Not changed: the pre-check must sit in the route so a 422 does not count toward the ceiling, and the service keeps its own refusal for its T003 tests.
+- T004 `source/apps/api/test/generate-service.test.ts`, `generate-prompt.test.ts`, `generate-prompt-brief.test.ts`, `read-config.test.ts` (suggestion): these test the flat modules (`service.ts`, `prompt.ts`, `read-config.ts`) that the route no longer calls. Their F-07 labels are the nearest current criteria by behaviour, not proof of the route. Not changed: the plan keeps the flat files until T008 and T009, which delete these tests with them.
+- T004 `source/apps/api/test/limits-route.test.ts`, `ceiling-route.test.ts` (suggestion): the pipeline caps are checked against the flat `INPUT_CAPS` constants, not `PIPELINE_INPUT_CAPS`, which core does not export from its root. Not changed: the flat `INPUT_CAPS` goes with the flat model in F-05, and the numbers are equal today.
+- T004 `source/apps/api/test/generate-route-pipeline.test.ts` AC-022 (coverage note, not a finding): the test covers refusal before count only; "a failed model call still counts" is covered without a label in `ceiling-route.test.ts` and is owned by T007.

@@ -36,7 +36,7 @@ function minimalConfig(): ProjectConfig {
 }
 
 describe('F-07 templates loader', () => {
-  it('F-07 AC-008 reads every file under the directory, recursively, under forward-slash keys', () => {
+  it('reads every file under the directory, recursively, under forward-slash keys', () => {
     withTempDir((dir) => {
       mkdirSync(join(dir, 'base', 'spec-template'), { recursive: true });
       mkdirSync(join(dir, 'rules'));
@@ -54,7 +54,7 @@ describe('F-07 templates loader', () => {
     });
   });
 
-  it('F-07 AC-008 throws at start-up for a missing directory, naming it', () => {
+  it('throws at start-up for a missing directory, naming it', () => {
     withTempDir((dir) => {
       const missing = join(dir, 'does-not-exist');
 
@@ -62,7 +62,7 @@ describe('F-07 templates loader', () => {
     });
   });
 
-  it('F-07 AC-008 builds a plan from the repository templates that planGeneration accepts', () => {
+  it('builds a plan from the repository templates that planGeneration accepts', () => {
     const config = minimalConfig();
     expect(validateConfig(config)).toEqual([]);
 
@@ -73,7 +73,7 @@ describe('F-07 templates loader', () => {
     expect(paths).toContain('.claude/commands/plan.md');
   });
 
-  it('F-07 AC-008 refuses a symbolic link in the templates directory, naming it', () => {
+  it('refuses a symbolic link in the templates directory, naming it', () => {
     withTempDir((dir) => {
       const target = join(dir, 'real.md');
       writeFileSync(target, 'text\n');

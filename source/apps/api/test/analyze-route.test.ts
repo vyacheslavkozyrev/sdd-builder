@@ -166,8 +166,8 @@ describe('F-04 AC-021 the pipeline input caps run before any model call on /anal
   });
 });
 
-describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
-  it('F-07 AC-001 returns 200 with a body equal to analyzePipeline(config, model)', async () => {
+describe('POST /analyze returns the analysis as JSON', () => {
+  it('returns 200 with a body equal to analyzePipeline(config, model)', async () => {
     const config = sampleConfig();
     const reply = JSON.stringify([
       { severity: 'info', subject: 'rules', message: 'Name the coverage tool.' },
@@ -183,7 +183,7 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
     expect(await response.json()).toEqual(expected);
   });
 
-  it('F-07 AC-001 calls the review model and analyzePipeline exactly once per request', async () => {
+  it('calls the review model and analyzePipeline exactly once per request', async () => {
     const fake = replyWith('[]');
     vi.mocked(analyzePipeline).mockClear();
     const app = createApp({ limits: fixedLimits(), review: fake.model, log: recordingLog(), generation: null });
@@ -196,8 +196,8 @@ describe('F-07 AC-001 POST /analyze returns the analysis as JSON', () => {
   });
 });
 
-describe('F-07 AC-004 a refused configuration is an analysis, not an HTTP error', () => {
-  it('F-07 AC-004 returns 200 with blocker findings for a blank idea', async () => {
+describe('a refused configuration is an analysis, not an HTTP error', () => {
+  it('returns 200 with blocker findings for a blank idea', async () => {
     const config = refusedConfig();
     const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
@@ -210,7 +210,7 @@ describe('F-07 AC-004 a refused configuration is an analysis, not an HTTP error'
   });
 });
 
-describe('F-07 AC-005 a failed review still returns 200 with the structural findings', () => {
+describe('a failed review still returns 200 with the structural findings', () => {
   const failures: [string, () => Promise<ReviewReply>][] = [
     [
       'the model throws',
@@ -226,7 +226,7 @@ describe('F-07 AC-005 a failed review still returns 200 with the structural find
   ];
 
   for (const [label, behaviour] of failures) {
-    it(`F-07 AC-005 returns 200 with review.status failed when ${label}`, async () => {
+    it(`returns 200 with review.status failed when ${label}`, async () => {
       const config = refusedConfig();
       const app = createApp({ limits: fixedLimits(), review: fakeModel(behaviour).model, log: recordingLog(), generation: null });
 
@@ -257,8 +257,8 @@ describe('F-13 AC-025 a truncated review reply gives 200 with review.status fail
   });
 });
 
-describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {
-  it('F-07 AC-025 returns 404 with a JSON error for an unknown path', async () => {
+describe('F-07 AC-019 unknown paths and wrong methods on /analyze', () => {
+  it('F-07 AC-019 returns 404 with a JSON error for an unknown path', async () => {
     const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
     const response = await app.request('http://localhost/nowhere');
@@ -271,7 +271,7 @@ describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {
   const methods = ['GET', 'PUT', 'DELETE'];
 
   for (const method of methods) {
-    it(`F-07 AC-025 returns 405 with Allow: POST for ${method} on /analyze`, async () => {
+    it(`F-07 AC-019 returns 405 with Allow: POST for ${method} on /analyze`, async () => {
       const app = createApp({ limits: fixedLimits(), review: replyWith('[]').model, log: recordingLog(), generation: null });
 
       const response = await app.request(ANALYZE_URL, { method });
@@ -283,8 +283,8 @@ describe('F-07 AC-025 unknown paths and wrong methods on /analyze', () => {
   }
 });
 
-describe('F-07 AC-027 an unexpected exception gives a generic 500', () => {
-  it('F-07 AC-027 returns 500 with a generic error and no exception text', async () => {
+describe('an unexpected exception on /analyze gives a generic 500', () => {
+  it('returns 500 with a generic error and no exception text', async () => {
     const secret = 'secret detail at /srv/app/internal.ts';
     vi.mocked(analyzePipeline).mockRejectedValueOnce(new TypeError(secret));
     const log = recordingLog();
@@ -299,7 +299,7 @@ describe('F-07 AC-027 an unexpected exception gives a generic 500', () => {
     expect(text).not.toContain(secret);
   });
 
-  it('F-07 AC-027 logs the error name only, never its message', async () => {
+  it('logs the error name only, never its message', async () => {
     const secret = 'secret detail at /srv/app/internal.ts';
     vi.mocked(analyzePipeline).mockRejectedValueOnce(new RangeError(secret));
     const log = recordingLog();

@@ -64,7 +64,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 #### Acceptance Criteria
 
-- [ ] AC-006 `[auto]`: A configuration that `configProblems` refuses gives 422 with every problem as `<path>: <message>`, in path then message order. The model is not called, and the request does not count toward the generation ceiling. A table test covers at least a rule tag that names no rule, a Condition whose fail route names no block, and a block with no description.
+- [ ] AC-006 `[auto]`: A configuration that `configProblems` refuses gives 422 with every problem as `<path>: <message>`, in path then message order. The model is not called, and the request does not count toward the generation ceiling. A table test covers at least a rule tag that names no rule (422). A Condition whose fail route names no block, and a block with no description, are refused by `parsePipelineConfig` before `configProblems` runs, so the route answers them with 400 (as AC-004), not 422; the AC-004 route tests cover them. (Amendment 2, 2026-11-15.)
 - [ ] AC-007 `[auto]`: A body over the input caps (an idea longer than 8,000 characters, or more than 60 rule blocks) gives 422 with one `<path>: <reason>` line for each exceeded cap. The response never contains the submitted text, and the model is not called.
 
 ---

@@ -1,12 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  DEFAULT_CONNECTIONS,
-  DEFAULT_WORKFLOWS,
-  INPUT_CAPS,
-  planGeneration,
-  type ProjectConfig,
-  type TemplateSource,
-} from '@sddbuilder/core';
+import { INPUT_CAPS, pipeline, type ListableTemplateSource } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp, type GenerationPorts, type LimitPorts } from '../src/app.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
@@ -14,7 +7,7 @@ import type { LogPort } from '../src/log.js';
 import { ClientLimiter, CLIENT_LIMITS } from '../src/limits/client-limiter.js';
 import { DailyCeiling } from '../src/limits/daily-ceiling.js';
 import { fixedLimits } from './fixed-limits.js';
-import { pipelineConfig } from './pipeline-config.js';
+import { pipelineConfig, pipelineTemplates, refusedPipelineConfig } from './pipeline-config.js';
 
 // Sentinels stand in for the brief (idea, module name, rule text), the project name, the model reply
 // and the key. None of them may reach a response body or a log line.
@@ -36,23 +29,12 @@ const ANALYZE_URL = 'http://localhost/analyze';
 const GENERATE_URL = 'http://localhost/generate';
 const UNKNOWN_URL = 'http://localhost/unknown';
 
-const config: ProjectConfig = {
-  schemaVersion: 1,
+/** The configuration of every generate case: a pipeline config that carries the brief sentinels. */
+const config = pipelineConfig({
   name: NAME,
   idea: `A tool for ${IDEA} that turns a product idea into a framework.`,
-  stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-  architecture: {
-    style: 'layered',
-    modules: [{ name: MODULE, layer: 0, responsibility: 'Domain rules', dependsOn: [] }],
-    notes: 'Core has no I/O.',
-  },
-  codeRules: [RULE],
-  testRules: ['Use Vitest for unit tests.'],
-  customSteps: [],
-  workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-  connections: structuredClone([...DEFAULT_CONNECTIONS]),
-  targets: ['claude'],
-};
+  rules: [{ id: 'privacy-rule', title: 'Privacy rule', text: RULE }],
+});
 
 const configBody = JSON.stringify(config);
 
@@ -69,22 +51,23 @@ const analyzeBody = JSON.stringify(
 );
 const analyzeOverCapBody = JSON.stringify(pipelineConfig({ idea: `${IDEA} ${'x'.repeat(INPUT_CAPS.ideaCharacters)}` }));
 
-/** Refused by the structural rules: every workflow appears twice, so the ids clash. */
-const duplicatedBody = JSON.stringify({ ...config, workflows: [...config.workflows, ...config.workflows] });
+/** Refused by the structural rules: a flow names a rule tag that no rule has. */
+const duplicatedBody = JSON.stringify(refusedPipelineConfig());
 
-const templates: TemplateSource = { get: () => 'Template text for the test.' };
+const templates: ListableTemplateSource = pipelineTemplates();
 
 /** A template source that fails with the brief, the key and a stack-like location in its message. */
-const throwing: TemplateSource = {
+const throwing: ListableTemplateSource = {
   get: () => {
     throw new RangeError(`${IDEA} ${RULE} ${KEY} at /srv/app/internal.ts:12`);
   },
+  paths: () => [],
 };
 
 /** A reply with text for every planned file; each text carries the reply sentinel. */
 function replyFor(): string {
   const reply: Record<string, string> = {};
-  for (const entry of planGeneration(config, templates)) {
+  for (const entry of pipeline.planGeneration(config, templates)) {
     reply[entry.path] = `Text of ${entry.path}. ${REPLY}\n\n${entry.layout}`;
   }
   return JSON.stringify(reply);
@@ -96,7 +79,7 @@ function failingGeneration(error: Error): GenerationModel {
   return { complete: () => Promise.reject(error) };
 }
 
-function ports(model: GenerationModel, source: TemplateSource = templates): GenerationPorts {
+function ports(model: GenerationModel, source: ListableTemplateSource = templates): GenerationPorts {
   return { templates: source, model };
 }
 

@@ -1,18 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  DEFAULT_CONNECTIONS,
-  DEFAULT_WORKFLOWS,
-  planGeneration,
-  type ProjectConfig,
-  type TemplateSource,
-} from '@sddbuilder/core';
+import { pipeline, type ListableTemplateSource } from '@sddbuilder/core';
 import type { ReviewModel } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
 import { fixedLimits } from './fixed-limits.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
 import type { LogPort } from '../src/log.js';
 import { reviewModelFrom } from '../src/wiring.js';
-import { pipelineConfig } from './pipeline-config.js';
+import { pipelineConfig, pipelineTemplates, refusedPipelineConfig } from './pipeline-config.js';
 
 // Sentinels stand in for the brief, the model reply and the key. None of them may reach a log line,
 // and the key may not reach a response body either.
@@ -30,40 +24,27 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-const config: ProjectConfig = {
-  schemaVersion: 1,
+/** The configuration of every generate case: a pipeline config that carries the brief sentinels. */
+const config = pipelineConfig({
   name: NAME,
   idea: `A tool for ${IDEA} that turns a product idea into a framework.`,
-  stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-  architecture: {
-    style: 'layered',
-    modules: [{ name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] }],
-    notes: 'Core has no I/O.',
-  },
-  codeRules: [RULE],
-  testRules: ['Use Vitest for unit tests.'],
-  customSteps: [],
-  workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-  connections: structuredClone([...DEFAULT_CONNECTIONS]),
-  targets: ['claude'],
-};
+  rules: [{ id: 'privacy-rule', title: 'Privacy rule', text: RULE }],
+});
 
-/** Refused by the structural rules: every workflow appears twice, so the ids clash. */
-const duplicated: ProjectConfig = { ...config, workflows: [...config.workflows, ...config.workflows] };
-
-const templates: TemplateSource = { get: () => 'Template text for the test.' };
+const templates: ListableTemplateSource = pipelineTemplates();
 
 /** A template source that fails with the brief, the key and a stack-like location in its message. */
-const throwing: TemplateSource = {
+const throwing: ListableTemplateSource = {
   get: () => {
     throw new RangeError(`${IDEA} ${RULE} ${KEY} at /srv/app/internal.ts:12`);
   },
+  paths: () => [],
 };
 
 /** A reply with text for every planned file; each text carries the reply sentinel. */
 function replyFor(): string {
   const reply: Record<string, string> = {};
-  for (const entry of planGeneration(config, templates)) {
+  for (const entry of pipeline.planGeneration(config, templates)) {
     reply[entry.path] = `Text of ${entry.path}. ${REPLY}\n\n${entry.layout}`;
   }
   return JSON.stringify(reply);
@@ -75,7 +56,7 @@ function failing(error: Error): GenerationModel {
   return { complete: () => Promise.reject(error) };
 }
 
-function ports(model: GenerationModel, source: TemplateSource = templates): GenerationPorts {
+function ports(model: GenerationModel, source: ListableTemplateSource = templates): GenerationPorts {
   return { templates: source, model };
 }
 
@@ -170,7 +151,7 @@ const cases: Case[] = [
   {
     label: 'generate config the structural rules refuse',
     status: 422,
-    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: ports(failing(new Error(IDEA))) }), GENERATE_URL, JSON.stringify(duplicated)),
+    run: (log, review) => post(createApp({ limits: fixedLimits(), review, log, generation: ports(failing(new Error(IDEA))) }), GENERATE_URL, JSON.stringify(refusedPipelineConfig())),
     lines: [],
   },
   {
@@ -213,9 +194,9 @@ const cases: Case[] = [
   },
 ];
 
-describe('F-07 AC-024 the log never holds the brief, the reply text or the request body', () => {
+describe('F-07 AC-017 the log never holds the brief, the reply text or the request body', () => {
   for (const testCase of cases) {
-    it(`F-07 AC-024 ${testCase.label} logs no brief, reply or request body`, async () => {
+    it(`F-07 AC-017 ${testCase.label} logs no brief, reply or request body`, async () => {
       const log = recordingLog();
       const review = reviewReturning(`[{"severity":"info","subject":"testRules","message":"Name it. ${REPLY}"}]`);
 
@@ -231,8 +212,8 @@ describe('F-07 AC-024 the log never holds the brief, the reply text or the reque
   }
 });
 
-describe('F-07 AC-027 an unexpected error is logged by its name only', () => {
-  it('F-07 AC-027 logs the error name, the route and the status, with no message or stack', async () => {
+describe('F-07 AC-020 an unexpected error is logged by its name only', () => {
+  it('F-07 AC-020 logs the error name, the route and the status, with no message or stack', async () => {
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewReturning('[]'), log, generation: ports(replying, throwing) });
 
@@ -261,9 +242,9 @@ function stubProvider(status: number, body: unknown): string[] {
 const providerReply = { type: 'message', role: 'assistant', content: [{ type: 'text', text: '[]' }] };
 const providerRefusal = { type: 'error', error: { type: 'invalid_request_error', message: 'bad request' } };
 
-describe('F-07 AC-028 the API key never appears in a response body or a log line', () => {
+describe('the API key never appears in a response body or a log line', () => {
   for (const testCase of cases) {
-    it(`F-07 AC-028 ${testCase.label} leaves the key out of the body and the log`, async () => {
+    it(`${testCase.label} leaves the key out of the body and the log`, async () => {
       stubProvider(200, providerReply);
       const log = recordingLog();
 
@@ -276,7 +257,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     });
   }
 
-  it('F-07 AC-028 the key is sent to the provider on a successful analysis and kept out of the response', async () => {
+  it('the key is sent to the provider on a successful analysis and kept out of the response', async () => {
     const sent = stubProvider(200, providerReply);
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
@@ -290,7 +271,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     expect(text).not.toContain(KEY);
   });
 
-  it('F-07 AC-028 a provider refusal answers 200 with the key out of the body and the log', async () => {
+  it('a provider refusal answers 200 with the key out of the body and the log', async () => {
     stubProvider(400, providerRefusal);
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: KEY }, log), log, generation: null });
@@ -304,7 +285,7 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     expect(log.lines.join('\n')).not.toContain(KEY);
   });
 
-  it('F-07 AC-028 the missing-key path sends nothing to the provider and logs one line', async () => {
+  it('the missing-key path sends nothing to the provider and logs one line', async () => {
     const sent = stubProvider(200, providerReply);
     const log = recordingLog();
     const app = createApp({ limits: fixedLimits(), review: reviewModelFrom({ ANTHROPIC_API_KEY: undefined }, log), log, generation: null });

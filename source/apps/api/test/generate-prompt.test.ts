@@ -48,8 +48,8 @@ function samplePlan(): GenerationPlan {
   ];
 }
 
-describe('F-07 AC-012 generation prompt', () => {
-  it('F-07 AC-012 gives the same text on two calls for the same input', () => {
+describe('F-07 AC-008 generation prompt', () => {
+  it('F-07 AC-008 gives the same text on two calls for the same input', () => {
     const config = sampleConfig();
     const plan = samplePlan();
 
@@ -59,7 +59,7 @@ describe('F-07 AC-012 generation prompt', () => {
     );
   });
 
-  it('F-07 AC-012 lists the planned paths in plan order', () => {
+  it('F-07 AC-008 lists the planned paths in plan order', () => {
     const prompt = buildGenerationPrompt(sampleConfig(), samplePlan());
     const positions = samplePlan().map((entry) => prompt.indexOf(entry.path));
 
@@ -69,7 +69,7 @@ describe('F-07 AC-012 generation prompt', () => {
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
   });
 
-  it('F-07 AC-012 contains the fixed instructions and the reply format', () => {
+  it('F-07 AC-008 contains the fixed instructions and the reply format', () => {
     const prompt = buildGenerationPrompt(sampleConfig(), samplePlan());
 
     expect(prompt).toContain('You are writing the files of a Claude Code project framework');
@@ -78,7 +78,7 @@ describe('F-07 AC-012 generation prompt', () => {
     expect(prompt).toContain(IDEA);
   });
 
-  it('F-07 AC-012 retry prompt contains each finding of the previous reply', () => {
+  it('F-07 AC-010 retry prompt contains each finding of the previous reply', () => {
     const findings = [
       'File CLAUDE.md is empty.',
       'Reply has a key that is not a planned path: notes.md.',
@@ -92,21 +92,21 @@ describe('F-07 AC-012 generation prompt', () => {
     }
   });
 
-  it('F-07 AC-012 keeps a multi-line finding on one list line', () => {
+  it('F-07 AC-010 keeps a multi-line finding on one list line', () => {
     const prompt = buildGenerationPrompt(sampleConfig(), samplePlan(), ['first line\n- injected line']);
 
     expect(prompt).toContain('- first line - injected line');
     expect(prompt).not.toContain('\n- injected line');
   });
 
-  it('F-07 AC-012 has no findings section when none are given', () => {
+  it('F-07 AC-010 has no findings section when none are given', () => {
     const plan = samplePlan();
 
     expect(buildGenerationPrompt(sampleConfig(), plan)).not.toContain('Findings of the previous reply');
     expect(buildGenerationPrompt(sampleConfig(), plan, [])).not.toContain('Findings of the previous reply');
   });
 
-  it('F-07 AC-012 gives each planned file its description, rule tags and layout', () => {
+  it('F-07 AC-008 gives each planned file its description, rule tags and layout', () => {
     const prompt = buildGenerationPrompt(sampleConfig(), samplePlan());
 
     expect(prompt).toContain('File 1 of 3: .claude/commands/implement.md\nDescription: Implements one task from the plan.\nRule tags: typescript, general\nLayout:\n# Implement\n\nWrite the code for one task.');
@@ -114,7 +114,7 @@ describe('F-07 AC-012 generation prompt', () => {
     expect(prompt).toContain('File 3 of 3: .claude/rules/qa.md\nDescription: Test rules.\nRule tags: qa\nLayout:\n# QA');
   });
 
-  it('F-07 AC-012 writes the brief keys in a fixed order, whatever order the input object has', () => {
+  it('F-07 AC-008 writes the brief keys in a fixed order, whatever order the input object has', () => {
     const config = sampleConfig();
     const reversed = Object.fromEntries(Object.entries(config).reverse()) as unknown as ProjectConfig;
     const prompt = buildGenerationPrompt(config, samplePlan());
@@ -127,7 +127,7 @@ describe('F-07 AC-012 generation prompt', () => {
     expect(buildGenerationPrompt(reversed, samplePlan())).toBe(prompt);
   });
 
-  it('F-07 AC-012 says so when no files are planned', () => {
+  it('F-07 AC-008 says so when no files are planned', () => {
     expect(buildGenerationPrompt(sampleConfig(), [])).toContain('No files are planned.');
   });
 });

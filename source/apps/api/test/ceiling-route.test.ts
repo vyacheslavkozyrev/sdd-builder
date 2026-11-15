@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS, INPUT_CAPS, pipeline, planGeneration, type ProjectConfig } from '@sddbuilder/core';
+import { INPUT_CAPS, pipeline } from '@sddbuilder/core';
 import type { ReviewModel, ReviewReply } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
 import { ClientLimiter, CLIENT_LIMITS } from '../src/limits/client-limiter.js';
 import { DailyCeiling } from '../src/limits/daily-ceiling.js';
-import { pipelineConfig } from './pipeline-config.js';
+import { pipelineConfig, pipelineTemplates, refusedPipelineConfig } from './pipeline-config.js';
 
 const ANALYZE_URL = 'http://localhost/analyze';
 const GENERATE_URL = 'http://localhost/generate';
-const IDEA = 'A tool that turns a product idea into a spec-driven project framework.';
 /** 2026-11-13 12:00:30 UTC: 30 seconds into a minute window, so a one-minute step stays on the same UTC day. */
 const START = Date.UTC(2026, 10, 13, 12, 0, 30);
 const ADDRESS = '203.0.113.7';
@@ -49,7 +48,7 @@ function failingGeneration(): GenerationPorts & { model: GenerationModel & { cal
       return Promise.reject(new Error('the generation model failed'));
     },
   };
-  return { model, templates: { get: () => 'Template text for the test.' } };
+  return { model, templates: pipelineTemplates() };
 }
 
 function buildApp(
@@ -74,72 +73,8 @@ function buildApp(
   });
 }
 
-function sampleConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name: 'Sample Project',
-    idea: IDEA,
-    stack: { language: 'TypeScript', framework: 'React', testFramework: 'Vitest' },
-    architecture: {
-      style: 'layered',
-      modules: [
-        { name: 'core', layer: 0, responsibility: 'Domain rules', dependsOn: [] },
-        { name: 'api', layer: 1, responsibility: 'HTTP', dependsOn: ['core'] },
-      ],
-      notes: 'Core has no I/O.',
-    },
-    codeRules: ['Validate input at the boundary.'],
-    testRules: ['Use Vitest for unit tests.'],
-    customSteps: [],
-    workflows: [
-      {
-        id: 'implement-cycle',
-        name: 'Implement',
-        scope: 'task',
-        iterationSource: 'plan.md',
-        enabled: true,
-        steps: [
-          { stepId: 'implement', enabled: true },
-          { stepId: 'unit-tests', enabled: true },
-        ],
-        conditions: [
-          {
-            id: 'tests-pass',
-            enabled: true,
-            afterStepId: 'unit-tests',
-            gate: { id: 'tests-pass', type: 'checks', required: true },
-            pass: { kind: 'next' },
-            fail: { kind: 'step', stepId: 'implement' },
-            roundLimit: 3,
-          },
-        ],
-      },
-    ],
-    connections: [{ id: 'c1', from: 'specify', to: 'implement-cycle', artifact: 'plan.md' }],
-    targets: ['claude'],
-    ...overrides,
-  };
-}
-
-/** A configuration the generator accepts: the default workflows and connections, so only the ceilings decide. */
-function generatableConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
-  return sampleConfig({
-    workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-    connections: structuredClone([...DEFAULT_CONNECTIONS]),
-    ...overrides,
-  });
-}
-
 function postConfig(app: App, url: string, config: unknown): Response | Promise<Response> {
   return app.request(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(config) });
-}
-
-/** A configuration whose workflow id appears twice: generateProject refuses it structurally, before any model call. */
-function duplicateWorkflowConfig(): ProjectConfig {
-  const base = sampleConfig();
-  const [first] = base.workflows;
-  if (first === undefined) throw new Error('sample config has no workflow');
-  return { ...base, workflows: [...base.workflows, { ...first }] };
 }
 
 describe('F-04 AC-022 the review ceiling skips the review at the limit', () => {
@@ -189,9 +124,9 @@ describe('F-13 AC-018 the generation ceiling answers 429 with the error body', (
     const generation = failingGeneration();
     const app = buildApp(clock, { generateLimit: 2, generation });
 
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
-    const refused = await postConfig(app, GENERATE_URL, generatableConfig());
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
+    const refused = await postConfig(app, GENERATE_URL, pipelineConfig());
 
     expect(refused.status).toBe(429);
     expect(await refused.json()).toEqual({ error: 'daily generation limit reached' });
@@ -219,8 +154,8 @@ describe('F-13 AC-020 failed model calls still count toward the ceilings', () =>
     const generation = failingGeneration();
     const app = buildApp(clock, { generateLimit: 1, generation });
 
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(429);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(429);
     expect(generation.model.calls).toBe(1);
   });
 
@@ -229,8 +164,8 @@ describe('F-13 AC-020 failed model calls still count toward the ceilings', () =>
     const generation = failingGeneration();
     const app = buildApp(clock, { generateLimit: 1, generation });
 
-    expect((await postConfig(app, GENERATE_URL, duplicateWorkflowConfig())).status).toBe(422);
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
+    expect((await postConfig(app, GENERATE_URL, refusedPipelineConfig())).status).toBe(422);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
     expect(generation.model.calls).toBe(1);
   });
 });
@@ -270,10 +205,10 @@ describe('F-13 AC-021 requests refused by a rate limit or an input cap do not co
     const clock = clockAt(START);
     const generation = failingGeneration();
     const app = buildApp(clock, { generateLimit: 1, generation });
-    const over = generatableConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) });
+    const over = pipelineConfig({ idea: 'a'.repeat(INPUT_CAPS.ideaCharacters + 1) });
 
     expect((await postConfig(app, GENERATE_URL, over)).status).toBe(422);
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
     expect(generation.model.calls).toBe(1);
   });
 
@@ -282,24 +217,24 @@ describe('F-13 AC-021 requests refused by a rate limit or an input cap do not co
     const generation = failingGeneration();
     const app = buildApp(clock, { generateLimit: CLIENT_LIMITS.perMinute + 1, generation });
     for (let i = 0; i < CLIENT_LIMITS.perMinute; i += 1) {
-      expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
+      expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
     }
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(429);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(429);
 
     clock.now = START + 60_000;
 
-    expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
+    expect((await postConfig(app, GENERATE_URL, pipelineConfig())).status).toBe(502);
     expect(generation.model.calls).toBe(CLIENT_LIMITS.perMinute + 1);
   });
 });
 
-describe('F-04 AC-023 /generate still generates a flat config', () => {
-  it('F-04 AC-023 returns 200 with the zip for a flat schemaVersion 1 config after one model call', async () => {
+describe('F-04 AC-023 /generate still generates a pipeline config', () => {
+  it('F-04 AC-023 returns 200 with the zip for a pipeline schemaVersion 2 config after one model call', async () => {
     const clock = clockAt(START);
-    const config = generatableConfig();
-    const templates = { get: () => 'Template text for the test.' };
+    const config = pipelineConfig();
+    const templates = pipelineTemplates();
     const reply: Record<string, string> = {};
-    for (const entry of planGeneration(config, templates)) {
+    for (const entry of pipeline.planGeneration(config, templates)) {
       reply[entry.path] = `Text of ${entry.path}.\n\n${entry.layout}`;
     }
     const replyText = JSON.stringify(reply);

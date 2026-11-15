@@ -1,22 +1,21 @@
 import { Hono, type Context } from 'hono';
-import { capProblems, pipeline, validateConfig, type TemplateSource } from '@sddbuilder/core';
+import { pipeline, type ListableTemplateSource } from '@sddbuilder/core';
 import { analyzePipeline, type ReviewModel } from './analyze.js';
-import { generateProject } from './generate/service.js';
+import { generatePipelineProject } from './generate/pipeline-service.js';
 import type { GenerationModel } from './generate/generation-model.js';
 import { errorBody, type ErrorBody } from './http/errors.js';
-import { readConfig } from './http/read-config.js';
 import { readPipelineConfig } from './http/read-pipeline-config.js';
 import { errorNameOf, formatLogLine, routeOf, type LogPort, type LogRoute } from './log.js';
 import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
 import type { DailyCeiling } from './limits/daily-ceiling.js';
 import { packageZip } from './zip.js';
 
-/** The 422 message for a configuration that the structural check refuses, on `/generate` and in `generateProject`. */
+/** The 422 message for a configuration that the structural check refuses, on `/generate` and in `generatePipelineProject`. */
 const REFUSED_MESSAGE = 'project config cannot be generated';
 
 /** What `/generate` needs to write the project. `null` in `AppDeps` means the generation model is not configured. */
 export interface GenerationPorts {
-  templates: TemplateSource;
+  templates: ListableTemplateSource;
   model: GenerationModel;
 }
 
@@ -108,22 +107,23 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
     if (!admitted.ok) {
       return admitted.response;
     }
-    const read = await readWithinCaps(c, admitted.reservation, '/generate', readConfig, capProblems);
+    const read = await readWithinCaps(c, admitted.reservation, '/generate', readPipelineConfig, pipeline.pipelineCapProblems);
     if (!read.ok) {
       return read.response;
     }
     if (generation === null) {
       return c.json(errorBody('generation is not configured on this server'), 503);
     }
-    const problems = validateConfig(read.config);
-    if (problems.length > 0) {
-      return c.json(errorBody(REFUSED_MESSAGE, problems), 422);
+    // A refused configuration is answered before the ceiling is counted, so a 422 does not use up a daily generation.
+    const refusals = pipeline.configProblems(read.config).map((problem) => `${problem.path}: ${problem.message}`);
+    if (refusals.length > 0) {
+      return c.json(errorBody(REFUSED_MESSAGE, refusals), 422);
     }
     if (!limits.generateCeiling.admit()) {
       log.write(formatLogLine({ event: 'daily_ceiling_reached', route: '/generate', status: 429 }));
       return c.json(errorBody('daily generation limit reached'), 429);
     }
-    const result = await generateProject(read.config, { templates: generation.templates, model: generation.model, log });
+    const result = await generatePipelineProject(read.config, { templates: generation.templates, model: generation.model, log });
     if (result.ok) {
       const zip = await packageZip(result.files);
       return c.body(new Uint8Array(zip), 200, {

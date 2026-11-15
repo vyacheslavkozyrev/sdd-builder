@@ -64,12 +64,12 @@ function jsonRequest(body: string): Request {
   });
 }
 
-describe('F-07 AC-002 a body that is not JSON', () => {
+describe('F-07 AC-003 a body that is not JSON', () => {
   it.each([
     ['empty body', ''],
     ['truncated object', '{"name": '],
     ['plain text', 'not json at all'],
-  ])('F-07 AC-002 returns 400 naming invalid JSON for %s', async (_label, body) => {
+  ])('F-07 AC-003 returns 400 naming invalid JSON for %s', async (_label, body) => {
     const result = await readConfig(jsonRequest(body));
 
     expect(result.ok).toBe(false);
@@ -79,7 +79,7 @@ describe('F-07 AC-002 a body that is not JSON', () => {
     expect(result.body.problems).toBeUndefined();
   });
 
-  it('F-07 AC-002 returns 400 when the body was already read and cannot be read again', async () => {
+  it('F-07 AC-003 returns 400 when the body was already read and cannot be read again', async () => {
     const request = jsonRequest(JSON.stringify(sampleConfig()));
     await request.text();
 
@@ -92,13 +92,13 @@ describe('F-07 AC-002 a body that is not JSON', () => {
   });
 });
 
-describe('F-07 AC-003 a JSON body that is not a ProjectConfig', () => {
+describe('F-07 AC-004 a JSON body that is not a ProjectConfig', () => {
   it.each([
     ['not an object: an array', '[1, 2, 3]'],
     ['not an object: a string', '"a project"'],
     ['not an object: a number', '42'],
     ['not an object: null', 'null'],
-  ])('F-07 AC-003 returns 400 with a problem list for %s', async (_label, body) => {
+  ])('F-07 AC-004 returns 400 with a problem list for %s', async (_label, body) => {
     const result = await readConfig(jsonRequest(body));
 
     expect(result.ok).toBe(false);
@@ -137,7 +137,7 @@ describe('F-07 AC-003 a JSON body that is not a ProjectConfig', () => {
       },
       'workflows[0].steps: must be an array',
     ],
-  ])('F-07 AC-003 lists the problem with its path for %s', async (_label, breakField, expectedProblem) => {
+  ])('F-07 AC-004 lists the problem with its path for %s', async (_label, breakField, expectedProblem) => {
     const record = asRecord(sampleConfig());
     breakField(record);
 
@@ -149,7 +149,7 @@ describe('F-07 AC-003 a JSON body that is not a ProjectConfig', () => {
     expect(result.body.problems).toEqual([expectedProblem]);
   });
 
-  it('F-07 AC-003 lists every problem, one per field path', async () => {
+  it('F-07 AC-004 lists every problem, one per field path', async () => {
     const record = asRecord(sampleConfig());
     delete record['name'];
     record['schemaVersion'] = 2;
@@ -166,7 +166,7 @@ describe('F-07 AC-003 a JSON body that is not a ProjectConfig', () => {
     ]);
   });
 
-  it('F-07 AC-003 never puts a submitted value in a problem', async () => {
+  it('F-07 AC-004 never puts a submitted value in a problem', async () => {
     const secret = 'SUBMITTED-SECRET-7f3a';
     const record = asRecord(sampleConfig());
     record['schemaVersion'] = secret;
@@ -187,8 +187,8 @@ describe('F-07 AC-003 a JSON body that is not a ProjectConfig', () => {
   });
 });
 
-describe('F-07 AC-003 a valid config', () => {
-  it('F-07 AC-003 returns the config unchanged when the body is a valid ProjectConfig', async () => {
+describe('a valid config', () => {
+  it('returns the config unchanged when the body is a valid ProjectConfig', async () => {
     const config = sampleConfig();
 
     const result = await readConfig(jsonRequest(JSON.stringify(config)));
@@ -197,14 +197,14 @@ describe('F-07 AC-003 a valid config', () => {
   });
 });
 
-describe('F-07 AC-026 error body shape', () => {
+describe('error body shape', () => {
   it.each([
     ['no problems', 'request body is not valid JSON', [], { error: 'request body is not valid JSON' }],
     ['one problem', 'project config is invalid', ['name: is required'], {
       error: 'project config is invalid',
       problems: ['name: is required'],
     }],
-  ])('F-07 AC-026 builds the one error shape for %s', (_label, error, problems, expected) => {
+  ])('builds the one error shape for %s', (_label, error, problems, expected) => {
     const body = errorBody(error, problems);
 
     expect(body).toEqual(expected);
@@ -212,11 +212,11 @@ describe('F-07 AC-026 error body shape', () => {
     expect(Object.keys(body).every((key) => key === 'error' || key === 'problems')).toBe(true);
   });
 
-  it('F-07 AC-026 leaves out problems when the list is empty', () => {
+  it('leaves out problems when the list is empty', () => {
     expect('problems' in errorBody('request body could not be read')).toBe(false);
   });
 
-  it('F-07 AC-026 carries no stack trace or server file path in a read error', async () => {
+  it('carries no stack trace or server file path in a read error', async () => {
     const result = await readConfig(jsonRequest('{ broken'));
 
     expect(result.ok).toBe(false);

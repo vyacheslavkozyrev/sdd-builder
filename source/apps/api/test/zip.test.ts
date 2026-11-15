@@ -17,8 +17,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('F-07 AC-008 zip content', () => {
-  it('F-07 AC-008 holds the given files at their paths, in order, with the same content', async () => {
+describe('F-07 AC-014 zip content', () => {
+  it('F-07 AC-014 holds the given files at their paths, in order, with the same content', async () => {
     const zip = await readBack(await packageZip(FILES));
 
     expect(Object.keys(zip.files)).toEqual(FILES.map((file) => file.path));
@@ -27,7 +27,7 @@ describe('F-07 AC-008 zip content', () => {
     }
   });
 
-  it('F-07 AC-008 returns an empty zip for an empty file list', async () => {
+  it('F-07 AC-014 returns an empty zip for an empty file list', async () => {
     const zip = await readBack(await packageZip([]));
 
     expect(Object.keys(zip.files)).toEqual([]);
@@ -39,13 +39,13 @@ describe('F-07 AC-008 zip content', () => {
     ['a parent segment', 'docs/../../secret.md'],
     ['a backslash', 'docs\\idea.md'],
     ['an empty path', ''],
-  ])('F-07 AC-008 refuses %s by throwing', async (_label, path) => {
+  ])('F-07 AC-014 refuses %s by throwing', async (_label, path) => {
     await expect(packageZip([{ path, content: 'x' }])).rejects.toThrow();
   });
 });
 
-describe('F-07 AC-009 deterministic bytes', () => {
-  it('F-07 AC-009 gives byte-identical zips for two builds of the same files', async () => {
+describe('F-07 AC-015 deterministic bytes', () => {
+  it('F-07 AC-015 gives byte-identical zips for two builds of the same files', async () => {
     const first = await packageZip(FILES);
     const second = await packageZip(FILES.map((file) => ({ ...file })));
 
@@ -53,8 +53,8 @@ describe('F-07 AC-009 deterministic bytes', () => {
   });
 });
 
-describe('F-07 AC-020 file entries only', () => {
-  it('F-07 AC-020 holds no folder entries and as many entries as files', async () => {
+describe('F-07 AC-014 file entries only', () => {
+  it('F-07 AC-014 holds no folder entries and as many entries as files', async () => {
     const zip = await readBack(await packageZip(FILES));
     const entries = Object.values(zip.files);
 
@@ -63,15 +63,15 @@ describe('F-07 AC-020 file entries only', () => {
   });
 });
 
-describe('F-07 AC-021 fixed timestamp', () => {
-  it('F-07 AC-021 gives every entry the same fixed timestamp', async () => {
+describe('F-07 AC-014 fixed timestamp', () => {
+  it('F-07 AC-014 gives every entry the same fixed timestamp', async () => {
     const zip = await readBack(await packageZip(FILES));
     const dates = Object.values(zip.files).map((entry) => entry.date.getTime());
 
     expect(new Set(dates)).toEqual(new Set([ZIP_ENTRY_DATE.getTime()]));
   });
 
-  it('F-07 AC-021 stores 2020-01-01 00:00 in every entry, read back as UTC fields and in the raw header', async () => {
+  it('F-07 AC-014 stores 2020-01-01 00:00 in every entry, read back as UTC fields and in the raw header', async () => {
     const bytes = await packageZip(FILES);
     const zip = await readBack(bytes);
 
@@ -85,7 +85,7 @@ describe('F-07 AC-021 fixed timestamp', () => {
     expect(header.readUInt16LE(12)).toBe(0x5021);
   });
 
-  it('F-07 AC-021 keeps the zip bytes unchanged when the clock is set to another date', async () => {
+  it('F-07 AC-015 keeps the zip bytes unchanged when the clock is set to another date', async () => {
     vi.useFakeTimers({ toFake: ['Date'] });
 
     vi.setSystemTime(new Date('2026-01-15T10:00:00Z'));

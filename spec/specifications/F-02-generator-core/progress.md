@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 7 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
+| Build    | 🔄 In Progress | 2026-11-14 | 8 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T004a | Agent `description`: required in the model, parser and `default.json`; refused when missing or blank in enabled flows | 0 blockers, 1 warning and 1 suggestion fixed | 887 passed |
 | T004b1 | Names, ids and check rules; disabled blocks and flows not checked for ids and names (AC-014). Committed at 514 changed lines, over the 400-line guard, by the user's explicit decision | 1 blocker, 1 warning and 1 suggestion fixed | 927 passed (staged state) |
 | T004b2 | Required blocks in enabled flows, the pipeline's Start and End, and the five gates; fixtures and one approved expectation updated | 0 blockers, 1 warning and 1 suggestion fixed | 936 passed |
+| T005 | Selection and order of enabled flows and blocks; disabled items produce nothing; gates and Start and End selected | 0 blockers, 1 warning and 1 suggestion fixed | 948 passed |
 
 ---
 

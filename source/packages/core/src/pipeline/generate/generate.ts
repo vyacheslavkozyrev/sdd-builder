@@ -8,6 +8,7 @@ import type { PipelineProblem } from '../parse-util.js';
 import { checkProblems, descriptionProblems, nameProblems, requiredProblems } from './refusals-names.js';
 import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
+import { selectBlocks } from './select.js';
 
 /** Plain code-unit order, so the same problems always come out in the same order on every machine. */
 function compareText(a: string, b: string): number {
@@ -56,5 +57,7 @@ export function generate(config: ProjectConfig, templates: TemplateSource): Gene
     ...checkProblems(config),
   ];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
+  // Placeholder (T005): the selection is computed here but not used yet. T006 to T010 build the file list from it.
+  selectBlocks(config);
   return { files: [], warnings: [] };
 }

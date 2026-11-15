@@ -158,7 +158,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 #### Acceptance Criteria
 
 - [ ] AC-019 `[auto]`: `POST /analyze` with a valid `schemaVersion: 2` pipeline config returns 200 with `{ findings, review }`. The structural findings come from the pipeline analysis, and `review.status` is `ok` when the fake model returns a valid reply.
-- [ ] AC-020 `[auto]`: A body that fails the pipeline parse returns 400 with `project config is invalid` and problems `<path>: <reason>`, and the model is not called. A flat `schemaVersion: 1` body is refused with 400 by this rule (the accepted gap until F-05).
+- [ ] AC-020 `[auto]`: A body that fails the pipeline parse returns 400 with `project config is invalid` and problems `<path>: <reason>`, and the model is not called. A problem may name an unknown key that the client itself sent (the core parser names it, as F-01 AC-020 and AC-027 require); the reader never adds other submitted text, and the server neither stores nor logs the body (Amendment 7). A flat `schemaVersion: 1` body is refused with 400 by this rule (the accepted gap until F-05).
 - [ ] AC-021 `[auto]`: The input caps run before any model call on `/analyze`: an idea over 8,000 characters or more than 60 rules gives 422 listing `idea: ...` and `rules: ...` as the problems, and the model is not called. Exactly 8,000 characters and exactly 60 rules pass (boundary cases).
 - [ ] AC-022 `[auto]`: When the daily review ceiling is reached, `/analyze` returns 200 with review `skipped`, the structural findings, and no model call.
 - [ ] AC-023 `[auto]`: `/generate` keeps its current behaviour: the existing generate route tests pass unchanged, and a flat config still generates a zip.

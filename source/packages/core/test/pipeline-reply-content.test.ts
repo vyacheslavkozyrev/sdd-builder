@@ -104,21 +104,23 @@ describe('F-03 AC-020: a required ## heading missing from the text', () => {
   it('F-03 AC-020 gives one finding per missing heading when several are missing', () => {
     const plan = defaultPlan();
     expect(checkReply(plan, withText(plan, SPECIFY_AGENT, '## Purpose\n'))).toEqual([
+      `file "${SPECIFY_AGENT}" is missing the heading "## Checks"`,
       `file "${SPECIFY_AGENT}" is missing the heading "## Inputs"`,
       `file "${SPECIFY_AGENT}" is missing the heading "## Outputs"`,
       `file "${SPECIFY_AGENT}" is missing the heading "## Rules"`,
-      `file "${SPECIFY_AGENT}" is missing the heading "## Checks"`,
     ]);
   });
 
-  it('F-03 AC-020 gives one finding per missing heading for each planned file that lacks one, in plan order', () => {
+  it('F-03 AC-020 gives one finding per missing heading for each file that lacks one, sorted by path and message', () => {
     const plan = defaultPlan();
     const reply = { ...headingsReply(plan), [SPECIFY_AGENT]: '# nothing\n', [CLAUDE_MD]: 'text only\n' };
     const lacking = plan.filter((entry) => entry.path === SPECIFY_AGENT || entry.path === CLAUDE_MD);
     expect(checkReply(plan, reply)).toEqual(
-      lacking.flatMap((entry) =>
-        headingsOf(entry.layout).map((heading) => `file "${entry.path}" is missing the heading "## ${heading}"`),
-      ),
+      lacking
+        .flatMap((entry) =>
+          headingsOf(entry.layout).map((heading) => `file "${entry.path}" is missing the heading "## ${heading}"`),
+        )
+        .sort(),
     );
   });
 
@@ -184,7 +186,8 @@ describe('F-03 AC-021: text that mentions SDDBuilder own paths', () => {
     expect(checkReply(plan, withText(plan, SPECIFY_AGENT, '## Purpose\n\nSDDBuilder runs this.\n'))).toEqual([
       ...headingsOf(layoutOf(plan, SPECIFY_AGENT))
         .filter((name) => name !== 'Purpose')
-        .map((name) => `file "${SPECIFY_AGENT}" is missing the heading "## ${name}"`),
+        .map((name) => `file "${SPECIFY_AGENT}" is missing the heading "## ${name}"`)
+        .sort(),
       `file "${SPECIFY_AGENT}" still refers to "SDDBuilder"`,
     ]);
   });

@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 12 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
+| Build    | 🔄 In Progress |   | 13 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | `planGeneration` error paths: refusal first (InvalidConfigError, every problem); one preflight naming every missing layout, base files included (AC-014 gap closed); unfilled placeholder throws with file and placeholder named. Refusal extracted to `refuseInvalidConfig` (generate unchanged) | 1 warning (AC-014 base-template gap; fixed by the user's choice), 1 warning (tests that could not fail) fixed; 1 suggestion deferred (double refusal pass) | 1196 passed (71 files) |
 | T008 | `checkReply` for presence, paths and markers (`pipeline/reply-check.ts`), exported from the pipeline module only; typed `unknown`, a non-object reply gives a finding | 0 blockers, 0 warnings, 2 suggestions (test titles and an AC-018 input) fixed | 1228 passed (72 files) |
 | T009 | `checkReply` for required `##` headings (from each planned layout) and references to SDDBuilder or its own paths. The API still uses the flat `checkReply` from the package root, so this does not change `/generate` | 0 blockers, 0 warnings, 0 suggestions (round 1 only) | 1259 passed (73 files) |
+| T010 | `checkReply` for malformed replies (non-object, non-string values: a finding, no throw) and findings sorted by path then message, deterministic; three T009 expectations reordered to sorted order | 0 blockers, 0 warnings, 5 suggestions fixed (test titles, comments); 1 suggestion deferred (long comment lines) | 1285 passed (74 files) |
 
 ---
 
@@ -54,6 +55,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T006c `source/packages/core/test/pipeline-flow-description.test.ts` `APPROVED`: the approved flow texts could not be checked against a separate approved record (the T006c line of plan.md and the amendment do not list them); the list matches `source/templates/pipeline/default.json` only. Confirm the texts with the user at Verify.
 - T007 `source/packages/core/src/pipeline/plan.ts` `planGeneration` (WARNING, open AC-014 wording gap for the Verify phase): AC-014 says a missing layout names every missing path together, but the base templates are rendered by `renderBaseFiles` (through `generate`) before the layout preflight runs. So a missing base template is reported first, alone, and a missing command, agent or rule layout in the same run is not named. Accepted for now by the caller: the order stays as it is (base first, then the preflight), and Verify decides whether AC-014 is reworded to cover base templates or the base check moves into the preflight.
   - **Resolved by T007:** the refusal check runs first, then one preflight lists the base templates and every command, agent and rule layout the plan needs, and names each missing one.
+- T010 `source/packages/core/src/pipeline/reply-check.ts` lines 1-6 and 63-65, `source/packages/core/test/pipeline-reply-shape.test.ts` and `pipeline-reply-content.test.ts` titles (SUGGESTION): a few comment and test-title lines run 121 to 128 characters. Kept: no line-length rule exists, and the existing sources reach 127 characters (`plan.ts`).
 - T007 `source/packages/core/src/pipeline/plan.ts` `planGeneration` (SUGGESTION): the refusal runs twice per plan, once in `planGeneration` (`refuseInvalidConfig`) and again inside `generate`. Kept: the refusal must run before the layout preflight, and `generate` stays unchanged (its behaviour and tests are fixed by the caller). The cost is one extra pass of cheap checks.
 
 ---

@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import { generate, skippedAnalysis } from '../src/index.js';
+import { generate, pipeline } from '../src/index.js';
 import type { AnalysisResult, GenerationResult } from '../src/model.js';
+import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { baseConfig } from './fixtures.js';
 import { fullTemplates } from './fixtures-templates.js';
 
@@ -23,7 +24,7 @@ describe('F-01 result shapes', () => {
     expectTypeOf<AnalysisResult['review']['status']>().toEqualTypeOf<'ok' | 'failed' | 'skipped'>();
     expectTypeOf<AnalysisResult['review']['dropped']>().toEqualTypeOf<number>();
 
-    const returned: AnalysisResult = skippedAnalysis(baseConfig());
+    const returned: AnalysisResult = pipeline.skippedAnalysis(defaultProjectConfig);
     expect(Object.keys(returned).sort()).toEqual(['findings', 'review']);
     expect(Object.keys(returned.review).sort()).toEqual(['dropped', 'findings', 'status']);
     expect(literal.review.status).toBe('ok');

@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 - **Amendment 12 (2026-11-15), T013a moves two helpers first.** The flat `/generate` prompt imports `oneLine` and `pickProject` from the flat `review/prompt.ts`. T013a copies those two helpers into `generate/prompt.ts` (unchanged behaviour) and then deletes the flat review prompt and its test. `/generate` stays flat until F-07. Owner choice (option 1), 2026-11-15.
 - **Amendment 13 (2026-11-15), T013a as a documented size exception.** T013a is about 604 staged lines: 459 are the two required deletions (`review/prompt.ts`, `test/prompt.test.ts`), and 139 are the copied helpers in `generate/prompt.ts`. Owner choice (option 2): accept as one documented exception, no split.
 - **Amendment 14 (2026-11-15), T021 touches one F-01 test case.** Removing the flat sources breaks the `skippedAnalysis` case of `pipeline-result-shapes.test.ts` (F-01 AC-024), which imports the flat root export. The case is rewritten to the pipeline `skippedAnalysis` with a pipeline fixture; nothing else in that test changes. Owner choice (option 1), 2026-11-15.
+- **Amendment 15 (2026-11-15), root test names the pipeline analysis.** The T002 root test expects the flat root exports `analyzeStructure` and `skippedAnalysis`, which T021 removes with the flat analyzer. Those two names leave the flat list and are checked under the `pipeline` namespace instead. The purpose of the test (callers' exports keep working) is unchanged. Owner choice (option 1), 2026-11-15.
 - **Open note for F-13 (2026-11-15).** The `/analyze` module cap no longer applies, since the pipeline caps are idea and rules only (AC-021). The module cap test moved to `/generate`, which keeps it until F-07. To be settled when F-13 is specified; no F-04 decision depends on it.
 
 ---
@@ -69,6 +70,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T018 | Flat analyzer tests removed, group 2 (inputs, retries) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T019 | Flat analyzer tests removed, group 3 (reachability, refusals) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T020 | Flat analyzer tests removed, group 4 (review-reply, skipped, structure) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
+| T021 | Flat analyzer sources group 1 removed (index, brief, custom-steps, inputs, reachability); root exports and two test cases moved to the pipeline namespace (Amendments 14 and 15) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 
 ---
 

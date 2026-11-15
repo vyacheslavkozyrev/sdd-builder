@@ -27,14 +27,17 @@ describe('F-04 enabler (T002): root namespace for the pipeline module', () => {
     expect(rejected.ok).toBe(false);
   });
 
+  it('exposes the pipeline analysis under the pipeline namespace', () => {
+    expect(typeof root.pipeline.analyzeStructure).toBe('function');
+    expect(typeof root.pipeline.skippedAnalysis).toBe('function');
+  });
+
   it('keeps every flat root export that existing callers use', () => {
     const flatNames = [
       'generate',
       'planGeneration',
       'checkReply',
       'validateConfig',
-      'analyzeStructure',
-      'skippedAnalysis',
       'parseProjectConfig',
       'finishFileList',
       'BASE_FILES',

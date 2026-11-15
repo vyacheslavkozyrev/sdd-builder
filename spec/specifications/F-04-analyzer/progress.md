@@ -32,6 +32,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 - **Amendment 5 (2026-11-15), AC-001 and AC-003 wording.** AC-001: the default gives no blocker; its only warnings are the six retry warnings and the `rules` warning. AC-003: block and flow path subjects compare by numeric path order (as the generator's problem list does), other text in code-unit order. The code is unchanged. Owner choice (option A for both), 2026-11-15.
 - **Amendment 6 (2026-11-15), AC-003 and the `info` rank.** No check emits `info` yet, so the rank cannot be tested through the analysis without exporting the comparison. AC-003 now says so and places `info` after `warning`; the rank stays in the code. Recorded as Deferred Findings for T009. Owner choice (option 1), 2026-11-15.
 - **Amendment 7 (2026-11-15), unknown key names in 400 problems.** The core parser names an unknown key in its problem path (F-01 AC-020 and AC-027). A 400 from `/analyze` may therefore name a key the client itself sent; the reader adds no other submitted text, and the server neither stores nor logs the body. AC-020 and the T011 line are updated to match; F-01 is unchanged. Owner choice (option 1), 2026-11-15.
+- **Amendment 8 (2026-11-15), flat review prompt removal split out.** The flat `review/prompt.ts` is still imported by the flat `analyze.ts` until T013 rewires it. Its deletion is a separate task, T013a, so T013 stays under the size guard. Owner decision: none needed (plan split, as in F-03 T006a–c). Recorded 2026-11-15.
 
 ---
 

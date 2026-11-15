@@ -4,10 +4,11 @@
 // `claude-code/pipeline-command.md`, each flow command from `claude-code/command.md`, each agent from `claude-code/agent.md`
 // and each rule from `claude-code/rule.md`. An agent entry and a flow command entry carry their description and rule-set
 // tags. Pure: no file or network I/O; the templates come from a TemplateSource and the plan is returned, never written.
+import { GenerationError } from '../errors.js';
 import type { ListableTemplateSource } from '../template-source.js';
-import { renderBaseFiles } from './generate/base-files.js';
+import { BASE_LAYOUTS, renderBaseFiles } from './generate/base-files.js';
 import { argumentList, flowStepList, pipelineStepList, routeRuleList } from './generate/command-layouts.js';
-import { generate } from './generate/generate.js';
+import { generate, refuseInvalidConfig } from './generate/generate.js';
 import { enabledIds, renderTemplate, type RenderInputs } from './generate/render.js';
 import { selectBlocks, type SelectedFlow } from './generate/select.js';
 import type { AgentBlock, PipelineStartBlock, ProjectConfig, Rule } from './model.js';
@@ -43,13 +44,13 @@ function tagList(tags: readonly string[]): string {
  * refuses throws here too, with the same problems, and no plan is returned. The same configuration and templates always
  * give the same paths and order (F-03 AC-011). Agent entries carry their block's description and rule-set tags (AC-008,
  * AC-012); rule entries carry their title and text in the layout (AC-009).
- * A flow command entry carries the flow's description and rule-set tags (AC-031).
+ * A flow command entry carries the flow's description and rule-set tags (AC-031). A missing layout throws a GenerationError
+ * naming every missing layout path (AC-014), and no plan is returned.
  */
 export function planGeneration(config: ProjectConfig, templates: ListableTemplateSource): PipelinePlanEntry[] {
-  const { files } = generate(config, templates);
+  refuseInvalidConfig(config);
   const selection = selectBlocks(config);
   const inputs: Omit<RenderInputs, 'values'> = { templates, enabled: enabledIds(config) };
-  const baseLayouts = new Map(renderBaseFiles(config, templates).map((file) => [file.path, file.content]));
   const flows = new Map(selection.flows.map((entry) => [`${COMMANDS_DIR}${entry.flow.id}.md`, entry]));
   const agents = new Map<string, AgentBlock>();
   for (const entry of selection.flows) {
@@ -58,6 +59,23 @@ export function planGeneration(config: ProjectConfig, templates: ListableTemplat
     }
   }
   const rules = new Map<string, Rule>(config.rules.map((rule) => [`${RULES_DIR}${rule.id}.md`, rule]));
+
+  // Every layout the plan needs, base files included, is checked before any is rendered, so each missing one is named
+  // together with the others and no partial plan is returned (F-03 AC-014).
+  const neededLayouts = [
+    ...BASE_LAYOUTS,
+    PIPELINE_COMMAND_LAYOUT,
+    ...(flows.size > 0 ? [FLOW_COMMAND_LAYOUT] : []),
+    ...(agents.size > 0 ? [AGENT_LAYOUT] : []),
+    ...(rules.size > 0 ? [RULE_LAYOUT] : []),
+  ];
+  const missingLayouts = neededLayouts.filter((path) => templates.get(path) === undefined);
+  if (missingLayouts.length > 0) {
+    throw new GenerationError(missingLayouts.map((path) => `template not found at "${path}"`));
+  }
+
+  const { files } = generate(config, templates);
+  const baseLayouts = new Map(renderBaseFiles(config, templates).map((file) => [file.path, file.content]));
 
   const pipelineLayout = (): string => {
     const start = selection.pipeline.find((block): block is PipelineStartBlock => block.kind === 'start');

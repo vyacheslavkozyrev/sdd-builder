@@ -17,6 +17,15 @@ const PROCESS_SOURCE = `base/${PROCESS_NAME}.md`;
 const SPEC_TEMPLATE_SOURCE = 'base/spec-template/';
 const SPEC_TEMPLATE_TARGET = 'spec/specifications/F-00-template/';
 
+/** The base layouts every plan needs: `CLAUDE.md`, the process document and the three spec template files (F-03 AC-014). */
+export const BASE_LAYOUTS: readonly string[] = [
+  CLAUDE_SOURCE,
+  PROCESS_SOURCE,
+  `${SPEC_TEMPLATE_SOURCE}stories.md`,
+  `${SPEC_TEMPLATE_SOURCE}plan.md`,
+  `${SPEC_TEMPLATE_SOURCE}progress.md`,
+];
+
 /** One line of the process list for a block of a child flow. */
 function describeChild(block: ChildBlock): string {
   switch (block.kind) {

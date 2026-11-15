@@ -65,11 +65,10 @@ export function sortedFileList(files: readonly GeneratedFile[]): GeneratedFile[]
 }
 
 /**
- * Generates the framework files for a pipeline. A configuration that cannot be generated is refused
- * with every problem in one error, and no files are returned. The files come out sorted by path, and the same
- * configuration and templates always give the same paths, order and content (F-02 AC-030, AC-031, AC-032).
+ * The refusal part of the generator: throws InvalidConfigError with every problem when the configuration cannot be
+ * generated, and returns nothing otherwise (F-02 AC-013). The planner runs it before it checks the templates.
  */
-export function generate(config: ProjectConfig, templates: ListableTemplateSource): GenerationResult {
+export function refuseInvalidConfig(config: ProjectConfig): void {
   const problems = [
     ...shapeProblems(config),
     ...wiringProblems(config),
@@ -81,6 +80,15 @@ export function generate(config: ProjectConfig, templates: ListableTemplateSourc
     ...ruleTagProblems(config),
   ];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
+}
+
+/**
+ * Generates the framework files for a pipeline. A configuration that cannot be generated is refused
+ * with every problem in one error, and no files are returned. The files come out sorted by path, and the same
+ * configuration and templates always give the same paths, order and content (F-02 AC-030, AC-031, AC-032).
+ */
+export function generate(config: ProjectConfig, templates: ListableTemplateSource): GenerationResult {
+  refuseInvalidConfig(config);
   const files = [
     ...renderBaseFiles(config, templates),
     ...renderFlowCommands(config),

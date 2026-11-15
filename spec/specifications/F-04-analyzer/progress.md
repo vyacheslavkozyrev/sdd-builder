@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 24 of 26 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 25 of 26 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -72,6 +72,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T020 | Flat analyzer tests removed, group 4 (review-reply, skipped, structure) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T021 | Flat analyzer sources group 1 removed (index, brief, custom-steps, inputs, reachability); root exports and two test cases moved to the pipeline namespace (Amendments 14 and 15) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T022 | Flat analyzer sources group 2 removed; `analyze/` folder gone; root exports only the pipeline namespace; root-exports test (AC-024) | reviewed: 0 blockers, 1 warning fixed, 1 suggestion fixed | task check passed (exit 0) |
+| T023 | No flat analysis import under `source/apps/` (scan test with matcher and fixtures) | reviewed: 0 blockers, 2 warnings fixed, 2 suggestions fixed, 1 suggestion deferred | task check passed (exit 0) |
 
 ---
 
@@ -98,6 +99,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T013b `source/apps/api/src/generate/prompt.ts:2` (WARNING for T013a, not this task): it imports `oneLine` and `pickProject` from `../review/prompt.js`, so deleting the flat `review/prompt.ts` in T013a breaks the generate prompt. T013a's plan condition ("if nothing else in `source/apps/` imports them") cannot hold as written. The helpers must move to a shared module first, or T013a must be re-planned; owner to decide.
 
 - T016 `spec/specifications/F-04-analyzer/stories.md` AC-018 wording (suggestion): the story says the failed-call log line carries "the event and the error name only", but the line also carries `route=/analyze`, as decision 12 allows for refusals. The implementation and the new test follow decision 12. Owner to confirm whether AC-018 should name the route too; no code change until then.
+
+- T023 `source/apps/api/test/no-flat-analysis.test.ts` matcher (suggestion): a static scan cannot follow `export * as ns from '@sddbuilder/core'` into another file, or a dynamic `import('@sddbuilder/core')`. Both are rare, and catching them would flag every root re-export; left for a later review, the scan covers named imports, namespace imports within a file, and `core/src/analyze` paths.
 
 - T014 `source/apps/api/test/pipeline-config.ts` (suggestion): it parses `templates/pipeline/default.json` itself. Core already parses the same file in `source/packages/core/src/pipeline/default.ts` (`defaultProjectConfig`), but `pipeline/index.ts` does not export it. Exporting it is a core surface change outside T014; the helper is test-only and correct as it stands.
 

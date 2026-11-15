@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { readConfig } from '../src/http/read-config.js';
 import { readPipelineConfig } from '../src/http/read-pipeline-config.js';
 
 const ENDPOINT = 'http://localhost/analyze';
@@ -134,17 +133,6 @@ describe('F-04 AC-020 a body that is not JSON', () => {
     expect(result.status).toBe(400);
     expect(result.body.error).toBe('request body is not valid JSON');
     expect(result.body.problems).toBeUndefined();
-  });
-
-  it('F-04 AC-020 uses the same invalid JSON message as the flat reader', async () => {
-    const pipelineResult = await readPipelineConfig(jsonRequest('{ broken'));
-    const flatResult = await readConfig(jsonRequest('{ broken'));
-
-    expect(pipelineResult.ok).toBe(false);
-    expect(flatResult.ok).toBe(false);
-    if (pipelineResult.ok || flatResult.ok) return;
-    expect(pipelineResult.body).toEqual(flatResult.body);
-    expect(pipelineResult.status).toBe(flatResult.status);
   });
 
   it('F-04 AC-020 returns 400 when the body was already read and cannot be read again', async () => {

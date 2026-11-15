@@ -130,7 +130,16 @@ describe('F-02 AC-002 a pipeline or a child flow with no End block is refused wi
   it.each<[string, PipelineBlock[]]>([
     [
       'a child flow with two End blocks',
-      [pipelineStart(), flow('specify', [start('s'), end('e1'), end('e2')]), end('pipeline-end')],
+      [
+        pipelineStart(),
+        flow('specify', [
+          start('s'),
+          { kind: 'condition', id: 'c', enabled: true, decidedBy: 'agent', checkType: 'review', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } },
+          end('e1'),
+          { ...end('e2'), outcome: 'stopped' },
+        ]),
+        end('pipeline-end'),
+      ],
     ],
     [
       'the pipeline with two End blocks, one of them disabled',

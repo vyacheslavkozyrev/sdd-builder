@@ -5,6 +5,7 @@ import type { GenerationResult } from '../../model.js';
 import type { TemplateSource } from '../../template-source.js';
 import type { ProjectConfig } from '../model.js';
 import type { PipelineProblem } from '../parse-util.js';
+import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
 
 /** Plain code-unit order, so the same problems always come out in the same order on every machine. */
@@ -44,7 +45,7 @@ function sortedProblems(problems: readonly PipelineProblem[]): string[] {
  * with every problem in one error, and no files are returned.
  */
 export function generate(config: ProjectConfig, templates: TemplateSource): GenerationResult {
-  const problems = [...shapeProblems(config), ...wiringProblems(config)];
+  const problems = [...shapeProblems(config), ...wiringProblems(config), ...routeProblems(config)];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
   return { files: [], warnings: [] };
 }

@@ -1,5 +1,5 @@
 import type { Condition, ProjectConfig, RouteTarget, Workflow } from '../model.js';
-import { selectConditions, selectSteps, selectWorkflows } from '../select.js';
+import { selectConditions, selectSteps, selectWorkflows } from '../selection.js';
 
 /** Letters, digits and underscores only (AC-030). */
 function clean(text: string): string {

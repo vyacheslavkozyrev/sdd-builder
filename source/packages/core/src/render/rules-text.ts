@@ -1,5 +1,5 @@
 import type { Condition, Gate, ProjectConfig, RouteTarget, Workflow } from '../model.js';
-import { selectConditions, selectSteps } from '../select.js';
+import { selectConditions, selectSteps } from '../selection.js';
 
 /** A gate as a condition that must hold, e.g. "the checks pass". */
 function gateText(gate: Gate, subject: string): string {

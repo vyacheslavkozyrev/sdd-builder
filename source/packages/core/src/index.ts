@@ -3,7 +3,7 @@ export * from './catalog.js';
 export * from './errors.js';
 export * from './template-source.js';
 export * from './validate/index.js';
-export * from './select.js';
+export * from './selection.js';
 export * from './render/placeholders.js';
 export * from './render/conditionals.js';
 export * from './render/template.js';

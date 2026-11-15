@@ -1,7 +1,7 @@
 import type { GeneratedFile, ProjectConfig, Workflow } from '../model.js';
 import { DEFAULT_STEP_CATALOG } from '../catalog.js';
 import { TemplateError } from '../errors.js';
-import { selectSteps } from '../select.js';
+import { selectSteps } from '../selection.js';
 import type { TemplateSource } from '../template-source.js';
 import { renderTemplate } from './template.js';
 import { projectValues } from './placeholders.js';

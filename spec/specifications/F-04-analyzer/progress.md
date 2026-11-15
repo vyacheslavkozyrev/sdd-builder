@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 4 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 5 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,12 +38,15 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Root `pipeline` namespace; `parsePipelineConfig` exported from pipeline; `configProblems` extracted from `refuseInvalidConfig` (no change of behaviour) | reviewed: 0 blockers, 1 warning, 3 suggestions fixed | task check passed (exit 0) |
 | T003 | Refusal findings as blockers (path subject); `analyzeStructure` entry point with sort by severity, subject, message (paths in generator order) | reviewed: 0 blockers, 2 warnings, 2 suggestions fixed | task check passed (exit 0) |
 | T004 | Reachability tests on `analyzeStructure` (AC-006 orphan block and orphan flow; AC-007 disabled parts silent); no check module (Amendments 1 and 2) | reviewed: 0 blockers, 0 warnings, 3 suggestions fixed | task check passed (exit 0) |
+| T005 | Retry warnings on Conditions with a back route and no round limit (flow and pipeline gate); default pipeline gives six warnings, accepted by the owner, template unchanged | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (1 deferred) | task check passed (exit 0) |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T005 `pipeline-analyze-reachability.test.ts:204` (suggestion): the "disabled block gives no finding" test filters to blockers, so a warning from the disabled block would not fail it. Kept as the owner asked for the blocker filter; a subject-level assertion would need a path for the disabled block, which the test does not compute yet.
 
 ---
 

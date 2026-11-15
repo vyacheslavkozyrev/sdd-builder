@@ -1,5 +1,6 @@
 // F-04 AC-004 and AC-005: each refusal problem is a blocker at its path, and a valid configuration has none.
 import { describe, expect, it } from 'vitest';
+import { refusalFindings } from '../src/pipeline/analyze/refusals.js';
 import { configProblems } from '../src/pipeline/generate/generate.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
@@ -104,7 +105,7 @@ describe('F-04 AC-004: each refusal problem is one blocker at its path', () => {
     const config = copyDefault();
     flowAt(config, 'ux').ruleTags = ['no-such-rule'];
     flowAt(config, 'specify').ruleTags = ['no-such-rule'];
-    const found = analyzeStructure(config).map((finding) => ({ subject: finding.subject, message: finding.message }));
+    const found = blockers(config);
     expect(found).toHaveLength(2);
     expect(found).toEqual(configProblems(config).map((problem) => ({ subject: problem.path, message: problem.message })));
   });
@@ -112,7 +113,9 @@ describe('F-04 AC-004: each refusal problem is one blocker at its path', () => {
   it('F-04 AC-004 returns every finding as a blocker with a message and a subject', () => {
     const config = copyDefault();
     flowAt(config, 'specify').ruleTags = ['no-such-rule'];
-    for (const finding of analyzeStructure(config)) {
+    const found = refusalFindings(config);
+    expect(found).toHaveLength(1);
+    for (const finding of found) {
       expect(finding.severity).toBe('blocker');
       expect(finding.message.length).toBeGreaterThan(0);
     }
@@ -121,7 +124,7 @@ describe('F-04 AC-004: each refusal problem is one blocker at its path', () => {
 
 describe('F-04 AC-005: a configuration the refusal checks accept has no refusal blocker', () => {
   it('F-04 AC-005 the default pipeline gives no blocker', () => {
-    expect(analyzeStructure(copyDefault())).toEqual([]);
+    expect(blockers(copyDefault())).toEqual([]);
   });
 
   it('F-04 AC-005 removing one agent description gives exactly one blocker, at that agent', () => {

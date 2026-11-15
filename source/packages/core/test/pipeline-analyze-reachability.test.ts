@@ -201,6 +201,6 @@ describe('F-04 AC-007: a disabled block or flow gives no finding, and is not on 
     const agent = agentIn(flow);
     flow.blocks.splice(1, 1, { ...agent, id: 'disabled-agent', enabled: false, description: '' });
     expect(reachabilityOf(config)).toEqual([]);
-    expect(analyzeStructure(config)).toEqual([]);
+    expect(analyzeStructure(config).filter((finding) => finding.severity === 'blocker')).toEqual([]);
   });
 });

@@ -6,6 +6,7 @@ import type { AnalysisFinding } from '../../model.js';
 import { comparePaths, compareText } from '../generate/generate.js';
 import type { ProjectConfig } from '../model.js';
 import { refusalFindings } from './refusals.js';
+import { retryFindings } from './retries.js';
 
 const SEVERITY_RANK: Record<AnalysisFinding['severity'], number> = { blocker: 0, warning: 1, info: 2 };
 
@@ -19,6 +20,6 @@ function compareFindings(a: AnalysisFinding, b: AnalysisFinding): number {
 
 /** Every structural finding of the pipeline, sorted. A new array; the configuration is not changed. */
 export function analyzeStructure(config: ProjectConfig): AnalysisFinding[] {
-  const findings = [...refusalFindings(config)];
+  const findings = [...refusalFindings(config), ...retryFindings(config)];
   return findings.sort(compareFindings);
 }

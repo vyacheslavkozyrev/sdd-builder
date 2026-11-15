@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 21 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 22 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -67,6 +67,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T017 | Flat analyzer tests removed, group 1 (brief, custom-steps) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T018 | Flat analyzer tests removed, group 2 (inputs, retries) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T019 | Flat analyzer tests removed, group 3 (reachability, refusals) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
+| T020 | Flat analyzer tests removed, group 4 (review-reply, skipped, structure) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 
 ---
 

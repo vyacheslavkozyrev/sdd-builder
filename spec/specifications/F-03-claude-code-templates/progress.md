@@ -1,17 +1,17 @@
 # Progress — Claude Code templates (F-03)
 
-**Feature status: 🔄 In Progress.** 7 stories, 28 criteria, all `[auto]`.
+**Feature status: ✅ Complete (2026-11-14).** 8 stories, 31 criteria, all `[auto]` (AC-029 to AC-031 added by the 2026-11-14 amendment; US-008).
 
 ## Phase Status
 
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
+| Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]`; amended to 8 stories and 31 criteria on 2026-11-14 (US-008) |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
 | Build    | ✅ Complete | 2026-11-14 | 16 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
+| Verify   | ✅ Complete | 2026-11-14 | 31 of 31 criteria covered by passing tests; no `[device]` criteria, so no manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -70,6 +70,52 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+**Verify run (2026-11-14, preconditions met: 16 of 16 tasks ticked, Current Task None, branch `main`, clean tree).**
+
+Task check (`source/scripts/task-check.sh`): exit 0. Typecheck passed in `apps/api`, `apps/web` and `packages/core`. Tests: core 76 files and 1343 passed; api 14 files and 348 passed; web 21 files and 375 passed; total 2066 passed, 0 failed, 0 skipped.
+
+Coverage: each criterion counted from passing test names (`F-03 AC-0xx` in the full test name, including `describe` labels). Test count is passing tests naming the criterion. Where a test names more than one criterion, it counts for each.
+
+| Criterion | Tests | Files |
+| --------- | ----: | ----- |
+| AC-001 | 7 | core: layouts-base, templates-base |
+| AC-002 | 9 | core: pipeline-generate-base, pipeline-plan-commands, templates-base |
+| AC-003 | 4 | core: pipeline-plan-commands, templates-base |
+| AC-004 | 4 | core: pipeline-plan-commands, templates-base |
+| AC-005 | 11 | core: pipeline-command-layouts, templates-workflow |
+| AC-006 | 14 | core: pipeline-command-layouts, templates-scan, templates-workflow |
+| AC-007 | 4 | core: pipeline-plan-commands, templates-workflow |
+| AC-008 | 10 | core: pipeline-plan-agents-rules, step-files, templates-steps |
+| AC-009 | 12 | core: layouts-agent-rule, pipeline-plan-agents-rules, templates-steps |
+| AC-010 | 7 | core: layouts-agent-rule, templates-steps |
+| AC-011 | 6 | core: generate, pipeline-plan-commands, templates-scan |
+| AC-012 | 8 | core: pipeline-plan-agents-rules, pipeline-plan-flow-tags, templates-scan |
+| AC-013 | 4 | core: pipeline-plan-errors, templates-rules |
+| AC-014 | 16 | core: pipeline-plan-errors, templates-rules |
+| AC-015 | 3 | core: catalog, pipeline-plan-agents-rules |
+| AC-016 | 13 | core: pipeline-reply-presence, plan |
+| AC-017 | 9 | core: pipeline-reply-presence, plan |
+| AC-018 | 9 | core: pipeline-reply-presence, plan |
+| AC-019 | 10 | core: pipeline-reply-presence, plan |
+| AC-020 | 20 | core: pipeline-reply-content, plan |
+| AC-021 | 13 | core: pipeline-reply-content, reply-check |
+| AC-022 | 19 | core: pipeline-reply-shape, reply-check |
+| AC-023 | 10 | core: pipeline-reply-shape, reply-check |
+| AC-024 | 14 | core: layouts-stack-neutral, reply-check |
+| AC-025 | 12 | core: layouts-stack-neutral, reply-check |
+| AC-026 | 7 | core: pipeline-separation, reply-check |
+| AC-027 | 33 | core: pipeline-separation, reply-check |
+| AC-028 | 4 | core: pipeline-separation, reply-check |
+| AC-029 | 38 | core: pipeline-rule-tags, templates-readme |
+| AC-030 | 3 | core: pipeline-rule-tags |
+| AC-031 | 27 | core: layouts-agent-rule, pipeline-flow-description, pipeline-plan-flow-tags |
+
+Gaps: none. All 31 criteria have at least one passing test naming them. Criteria with no `[device]` tag: none (the only `[device]` text in `stories.md` is the legend), so the manual checklist is empty and `checklist.md` is not written.
+
+Scope (`features.md` F-03): the layouts (CLAUDE.md, process.md, spec template, pipeline and flow command files, agent and rule files), the core plan and reply check, and stack-neutral templates are each covered by at least one criterion (AC-001 to AC-025, AC-031).
+
+Note for the caller: the `plan.md` review note on the AC-014 base-template gap is resolved by T007 and is covered by the `pipeline-plan-errors` tests above.
 
 ---
 

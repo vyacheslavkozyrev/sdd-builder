@@ -1,13 +1,13 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
-import { templateSourceFromRecord, type TemplateSource } from '@sddbuilder/core';
+import { templateSourceFromRecord, type ListableTemplateSource } from '@sddbuilder/core';
 
 /**
  * Reads every file under `dir` (recursively) into an in-memory template source, keyed by the
  * path relative to `dir` with forward slashes (for example `base/CLAUDE.md`). Called once at
  * start-up: a missing or unreadable directory throws here, naming the directory.
  */
-export function loadTemplates(dir: string): TemplateSource {
+export function loadTemplates(dir: string): ListableTemplateSource {
   const files: Record<string, string> = {};
   try {
     readTree(dir, dir, files);

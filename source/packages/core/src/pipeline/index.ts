@@ -23,7 +23,7 @@ export type {
 export { analyzeStructure, skippedAnalysis } from './analyze/index.js';
 export { pipelineCapProblems } from './caps.js';
 export { checkReview, type ReviewReplyCheck } from './analyze/review-reply.js';
-export { generate } from './generate/generate.js';
+export { configProblems, generate } from './generate/generate.js';
 export { parsePipelineConfig } from './parse.js';
 export { planGeneration, type PipelinePlanEntry } from './plan.js';
 export { checkReply } from './reply-check.js';

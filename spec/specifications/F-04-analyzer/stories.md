@@ -95,7 +95,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 #### Acceptance Criteria
 
 - [ ] AC-008 `[auto]`: A back route (retry) on a Condition with no `roundLimit` is a `warning` whose subject is the Condition's path. A back route with a `roundLimit`, and a forward route with no limit, give no such warning (negative cases). The same rule applies to a pipeline-level gate that goes back to an earlier flow.
-- [ ] AC-009 `[auto]`: An enabled Agent block with scope `task` or `feature` and no artifact produced earlier in pipeline order (an End's `produced` label or a Connection's `artifact` label, in the same flow or an earlier flow) is a `warning` whose subject is its path. The default pipeline gives none (its build agents read `plan.md`). An Agent with scope `project` gives none (negative case).
+- [ ] AC-009 `[auto]`: An enabled Agent block with scope `task` or `feature` has an iteration source when an artifact is produced earlier in pipeline order (an End's `produced` label or a Connection's `artifact` label, in the same flow or an earlier flow), or, when it sits in the first flow of the pipeline, when the pipeline's Start declares at least one argument (the arguments name what the flow iterates over, for example `feature-id`). An Agent with no iteration source is a `warning` whose subject is its path. The default pipeline gives none (its build agents read `plan.md`; its first flow's agent reads the `feature-id` argument). An Agent with scope `project` gives none (negative case). A first-flow agent of a pipeline whose Start declares no argument is a warning (negative case).
 
 ---
 

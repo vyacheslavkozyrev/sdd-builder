@@ -25,6 +25,11 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{routeRules}}` | `claude-code/command.md` and `claude-code/pipeline-command.md`: one numbered rule per back route of an enabled check, naming its target block and round limit (`no limit set` when the limit is absent); an outcome with no back route gives no rule; built by `command-layouts.ts` |
 | `{{argumentList}}` | `claude-code/pipeline-command.md`: the arguments of the pipeline Start block, one line each with its required flag; built by `command-layouts.ts` |
 | `{{pipelineStepList}}` | `claude-code/pipeline-command.md`: the enabled flows and checks of the pipeline as numbered steps, in pipeline order; built by `command-layouts.ts` |
+| `{{name}}` | `claude-code/agent.md`: the agent's name, from its Agent block; the file is `.claude/agents/<name>.md` |
+| `{{description}}` | `claude-code/agent.md`: the description of the Agent block, carried into the Purpose section |
+| `{{ruleTags}}` | `claude-code/agent.md`: the rule-set tags of the Agent block, as a comma-separated list; `none` when the block has no tags |
+| `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules` |
+| `{{ruleText}}` | `claude-code/rule.md`: the text of the rule entry in `ProjectConfig.rules` |
 | `{{process.diagram}}` | flat base only, not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
 | `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | flat base only, not filled by the pipeline config (see the status above) |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |

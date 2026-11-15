@@ -26,3 +26,4 @@ export * from './analyze/index.js';
 export * from './analyze/review-reply.js';
 export * from './limits.js';
 export { parseProjectConfig, type ConfigProblem, type ParseConfigResult } from './parse-config.js';
+export * as pipeline from './pipeline/index.js';

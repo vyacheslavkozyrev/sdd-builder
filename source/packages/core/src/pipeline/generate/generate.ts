@@ -39,11 +39,14 @@ function comparePaths(a: string, b: string): number {
   return left.length - right.length;
 }
 
-/** Every problem as `path: message`, sorted by path and then by message. */
-function sortedProblems(problems: readonly PipelineProblem[]): string[] {
-  return [...problems]
-    .sort((a, b) => comparePaths(a.path, b.path) || compareText(a.message, b.message))
-    .map((problem) => `${problem.path}: ${problem.message}`);
+/** Problems sorted by path and then by message. */
+function sortProblems(problems: readonly PipelineProblem[]): PipelineProblem[] {
+  return [...problems].sort((a, b) => comparePaths(a.path, b.path) || compareText(a.message, b.message));
+}
+
+/** A problem as `path: message`. */
+function formatProblem(problem: PipelineProblem): string {
+  return `${problem.path}: ${problem.message}`;
 }
 
 /**
@@ -65,11 +68,11 @@ export function sortedFileList(files: readonly GeneratedFile[]): GeneratedFile[]
 }
 
 /**
- * The refusal part of the generator: throws InvalidConfigError with every problem when the configuration cannot be
- * generated, and returns nothing otherwise (F-02 AC-013). The planner runs it before it checks the templates.
+ * Every refusal problem of the configuration, sorted by path and then by message. Empty when the configuration can be
+ * generated. The generator refuses with this list; the analyzer (F-04) reports the same list as blockers.
  */
-export function refuseInvalidConfig(config: ProjectConfig): void {
-  const problems = [
+export function configProblems(config: ProjectConfig): PipelineProblem[] {
+  return sortProblems([
     ...shapeProblems(config),
     ...wiringProblems(config),
     ...routeProblems(config),
@@ -78,8 +81,16 @@ export function refuseInvalidConfig(config: ProjectConfig): void {
     ...requiredProblems(config),
     ...checkProblems(config),
     ...ruleTagProblems(config),
-  ];
-  if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
+  ]);
+}
+
+/**
+ * The refusal part of the generator: throws InvalidConfigError with every problem when the configuration cannot be
+ * generated, and returns nothing otherwise (F-02 AC-013). The planner runs it before it checks the templates.
+ */
+export function refuseInvalidConfig(config: ProjectConfig): void {
+  const problems = configProblems(config);
+  if (problems.length > 0) throw new InvalidConfigError(problems.map(formatProblem));
 }
 
 /**

@@ -8,6 +8,9 @@ import type { ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
 import { enabledIds, pipelineValues, renderTemplates, type PipelineValues } from './render.js';
 import { selectBlocks } from './select.js';
 
+const COMMANDS_DIR = '.claude/commands/';
+const AGENTS_DIR = '.claude/agents/';
+const RULES_DIR = '.claude/rules/';
 const CLAUDE_SOURCE = 'base/CLAUDE.md';
 const PROCESS_NAME = 'process';
 const PROCESS_SOURCE = `base/${PROCESS_NAME}.md`;
@@ -62,6 +65,44 @@ export function processList(config: ProjectConfig): string {
   return lines.join('\n');
 }
 
+/** A list as one line per item, or `None.` when there is nothing to list. */
+function bulletList(items: readonly string[]): string {
+  return items.length === 0 ? 'None.' : items.map((item) => `- ${item}`).join('\n');
+}
+
+/**
+ * The command files as a list: the pipeline command, then one per enabled child flow in pipeline order. Built from the
+ * selection, so a disabled flow is not listed.
+ */
+export function commandList(config: ProjectConfig): string {
+  const flows = selectBlocks(config).pipeline.filter((block) => block.kind === 'flow');
+  return bulletList([
+    `\`${COMMANDS_DIR}pipeline.md\`: runs the whole pipeline, flow by flow.`,
+    ...flows.map((flow) => `\`${COMMANDS_DIR}${flow.id}.md\`: runs the flow ${flow.name}.`),
+  ]);
+}
+
+/** The agent files as a list: one per enabled Agent block of an enabled flow, in flow order. */
+export function agentList(config: ProjectConfig): string {
+  const agents = selectBlocks(config).flows.flatMap((entry) =>
+    entry.blocks.flatMap((block) => {
+      if (block.kind !== 'agent') return [];
+      return [`\`${AGENTS_DIR}${block.name}.md\`: runs once per ${block.scope} in the flow \`${entry.flow.id}\`.`];
+    }),
+  );
+  return bulletList(agents);
+}
+
+/**
+ * The rule files as a list: one per entry of the config's rules, with its title. The title is put on one line, so a line
+ * break in it cannot start a new list item or a heading.
+ */
+export function ruleList(config: ProjectConfig): string {
+  return bulletList(
+    config.rules.map((rule) => `\`${RULES_DIR}${rule.id}.md\`: ${rule.title.replace(/\s+/g, ' ').trim()}`),
+  );
+}
+
 /** The output path of a base template path: the spec templates move to the F-00 template folder. */
 function outputPath(source: string): string {
   if (source === CLAUDE_SOURCE) return 'CLAUDE.md';
@@ -79,7 +120,13 @@ export function renderBaseFiles(config: ProjectConfig, templates: ListableTempla
     .paths()
     .filter((path) => path.startsWith(SPEC_TEMPLATE_SOURCE))
     .sort();
-  const values: PipelineValues = { ...pipelineValues(config), processList: processList(config) };
+  const values: PipelineValues = {
+    ...pipelineValues(config),
+    processList: processList(config),
+    commandList: commandList(config),
+    agentList: agentList(config),
+    ruleList: ruleList(config),
+  };
   const rendered = renderTemplates([CLAUDE_SOURCE, PROCESS_SOURCE, ...specSources], {
     templates,
     values,

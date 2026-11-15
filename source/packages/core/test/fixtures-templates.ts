@@ -3,11 +3,11 @@ import { templateSourceFromRecord, type TemplateSource } from '../src/index.js';
 /** A complete set of fixture templates for every catalog step, base file and rule file. */
 export function fullTemplates(): TemplateSource {
   return templateSourceFromRecord({
-    'base/CLAUDE.md': '# {{projectName}}\n\n{{idea}}\n',
-    'base/process.md': '# Process\n\n{{process.diagram}}\n',
-    'base/spec-template/stories.md': '# Stories\n',
-    'base/spec-template/plan.md': '# Plan\n',
-    'base/spec-template/progress.md': '# Progress\n',
+    'flat/base/CLAUDE.md': '# {{projectName}}\n\n{{idea}}\n',
+    'flat/base/process.md': '# Process\n\n{{process.diagram}}\n',
+    'flat/base/spec-template/stories.md': '# Stories\n',
+    'flat/base/spec-template/plan.md': '# Plan\n',
+    'flat/base/spec-template/progress.md': '# Progress\n',
     'workflows/workflow.md': '# {{workflow.name}} ({{workflow.id}})\n{{workflow.scope}}\n\n## Steps\n{{workflow.steps}}\n\n## Rules\n{{workflow.rules}}\n',
     'steps/define-feature/command.md': '# Define feature\n',
     'steps/refine/command.md': '# Refine\n',

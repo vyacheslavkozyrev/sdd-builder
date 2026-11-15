@@ -61,7 +61,7 @@ describe('F-02 T017 generate', () => {
     }
     expect(caught).toBeInstanceOf(GenerationError);
     const problems = (caught as GenerationError).problems;
-    expect(problems).toEqual(expect.arrayContaining(['base/CLAUDE.md: missing base template', 'workflows/workflow.md: missing workflow template']));
+    expect(problems).toEqual(expect.arrayContaining(['flat/base/CLAUDE.md: missing base template', 'workflows/workflow.md: missing workflow template']));
     expect(problems.length).toBeGreaterThan(2);
   });
 });

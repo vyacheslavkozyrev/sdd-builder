@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 1 of 13 tasks committed |
+| Build    | 🔄 In Progress |   | 2 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Correct the F-03 line in `features.md`: Mermaid to F-18, rules per entry (decision 20) | 0 blockers, 0 warnings, 0 suggestions | 1059 passed (62 files) |
+| T002 | Base layouts as sections; flat base kept as a legacy copy (amendment, option A); pipeline base-file values; rule titles on one line. Committed at 469 changed lines, over the 400-line guard, by the user's explicit decision | 1 blocker (stray `</content>` lines removed), 1 warning (rule title line break) fixed | 1068 passed (63 files) |
 
 ---
 
@@ -48,6 +49,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ## Amendments
 
 ```
+### Size-guard override — 2026-11-14 (T002)
+**Changed**: T002 is committed as one task at 451 changed lines (409 insertions, 42 deletions), over the 400-line guard.
+**Reason**: the user chose to keep T002 as one task (option 2), not to split it into T002a and T002b.
+**Impact**: none on other tasks. The review and the checks run on the whole staged change.
+
 ### Amendment — 2026-11-14 (before Plan, stories)
 **Changed**: `stories.md`: the flat-removal decision, US-007 (now the pipeline generator path, AC-026 to AC-028), AC-024 and AC-025 (limited to `base/` and `claude-code/`), the out-of-scope list and the coverage row for R-07.
 **Reason**: `apps/api/src/generate/service.ts` runs on the root flat `planGeneration`, `checkReply` and `validateConfig`, and the flat generator reads `steps/` and `workflows/`. Removing them in F-03 would break `/generate`. The user chose to keep the flat code until F-07 (decision 19).

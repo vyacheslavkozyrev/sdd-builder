@@ -4,17 +4,15 @@
 
 Explain in two or three sentences how work moves through this project, from an idea to a finished feature, and where the state of each feature is recorded.
 
-## Process diagram
+## Flows
 
-{{process.diagram}}
+The process in the order the pipeline runs it: each enabled block of the pipeline, and under each flow its blocks in order. Say which flow starts first and which one a connection hands over to.
 
-## Workflows
+{{processList}}
 
-For each workflow on the map, in the order it runs: its name, the steps it runs in order, and the artifact each step produces. Say which workflow starts first and which one a step hands over to.
+## Gates and checks
 
-## Gates and branches
-
-List the gates on the map as preconditions: what must be approved or passing before the next workflow starts. List the branches: where a step routes back to an earlier step, and how many times it may retry before it stops. Where a gate or branch has no round limit, say so.
+List the gates and checks between the flows as preconditions: what must be approved or passing before the next flow starts. Where a check routes back to an earlier block, say how many times it may retry before it stops. Where a gate or check has no round limit, say so.
 
 ## Feature state
 

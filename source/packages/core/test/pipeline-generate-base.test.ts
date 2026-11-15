@@ -8,7 +8,8 @@ import { agent, configWith, flow, gate, NEXT, pipelineEnd, pipelineStart, STOP, 
 
 /** Fixture templates for the base files: the two base files, three spec template files and a file outside the base. */
 const TEMPLATES: Record<string, string> = {
-  'base/CLAUDE.md': '# {{projectName}}\n\n{{idea}}\n\nLanguage: {{stack.language}}\n',
+  'base/CLAUDE.md':
+    '# {{projectName}}\n\n{{idea}}\n\nLanguage: {{stack.language}}\n\nCommands:\n{{commandList}}\n\nAgents:\n{{agentList}}\n\nRules:\n{{ruleList}}\n',
   'base/process.md': '# Process\n\n{{processList}}\n',
   'base/spec-template/stories.md': '# Stories\n',
   'base/spec-template/plan.md': '# Plan\n',
@@ -43,8 +44,68 @@ describe('F-02 AC-018 base files are rendered with the values from the config', 
   it('F-02 AC-018 CLAUDE.md takes the project name, idea and stack language from the config', () => {
     const files = filesOf(processConfig());
     expect(contentOf(files, 'CLAUDE.md')).toBe(
-      '# My project\n\nA tool that tracks reading lists.\n\nLanguage: TypeScript\n',
+      [
+        '# My project',
+        '',
+        'A tool that tracks reading lists.',
+        '',
+        'Language: TypeScript',
+        '',
+        'Commands:',
+        '- `.claude/commands/pipeline.md`: runs the whole pipeline, flow by flow.',
+        '- `.claude/commands/a.md`: runs the flow a flow.',
+        '- `.claude/commands/c.md`: runs the flow c flow.',
+        '',
+        'Agents:',
+        '- `.claude/agents/a1.md`: runs once per task in the flow `a`.',
+        '- `.claude/agents/c1.md`: runs once per task in the flow `c`.',
+        '',
+        'Rules:',
+        'None.',
+        '',
+      ].join('\n'),
     );
+  });
+
+  it('F-03 AC-002 CLAUDE.md names each enabled flow command and each rule file of the config, and no disabled one', () => {
+    const config: ProjectConfig = {
+      ...processConfig(),
+      rules: [
+        { id: 'general', title: 'General rules', text: 'Keep it small.' },
+        { id: 'qa', title: 'QA rules', text: 'Test every criterion.' },
+      ],
+    };
+    const claude = contentOf(filesOf(config), 'CLAUDE.md');
+    expect(claude).toContain('- `.claude/commands/a.md`');
+    expect(claude).toContain('- `.claude/commands/c.md`');
+    expect(claude).not.toContain('b.md');
+    expect(claude).toContain('- `.claude/rules/general.md`: General rules');
+    expect(claude).toContain('- `.claude/rules/qa.md`: QA rules');
+    expect(claude).not.toContain('None.');
+  });
+
+  it('F-03 AC-002 a rule title with a line break stays on its one list line and cannot add a heading', () => {
+    const config: ProjectConfig = {
+      ...processConfig(),
+      rules: [{ id: 'general', title: 'General\n## Injected\n', text: 'Keep it small.' }],
+    };
+    const claude = contentOf(filesOf(config), 'CLAUDE.md');
+    expect(claude).toContain('- `.claude/rules/general.md`: General ## Injected\n');
+    expect(claude).not.toContain('\n## Injected');
+  });
+
+  it('F-03 AC-002 an agent of a disabled block or flow is not listed in CLAUDE.md', () => {
+    const claude = contentOf(filesOf(processConfig()), 'CLAUDE.md');
+    expect(claude).not.toContain('a2.md');
+    expect(claude).not.toContain('b1.md');
+  });
+
+  it('F-03 AC-002 a config with no agent and no rule lists None under those headings', () => {
+    const config = configWith([pipelineStart(), pipelineEnd()]);
+    const claude = contentOf(filesOf(config), 'CLAUDE.md');
+    expect(claude).toContain('Agents:\nNone.\n');
+    expect(claude).toContain('Rules:\nNone.\n');
+    expect(claude).toContain('- `.claude/commands/pipeline.md`');
   });
 
   it('F-02 AC-018 no {{name}} placeholder is left in any base file', () => {

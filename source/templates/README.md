@@ -4,7 +4,7 @@ Text files that describe the layout of a project and what each file should conta
 
 ## Status of the shipped templates
 
-The pipeline config cannot fill every placeholder in the shipped base templates. `base/CLAUDE.md` still has `{{modules}}`, `{{codeRules}}` and `{{testRules}}`, and `base/process.md` still has `{{process.diagram}}`. F-03 rewrites those templates. Until then `generate` fails for every config, because `renderBaseFiles` cannot fill those placeholders; the error names each placeholder that has no value.
+The base templates in `base/` use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` are rewritten for the pipeline (F-03 T002). The flat base templates still have `{{modules}}`, `{{codeRules}}`, `{{testRules}}` and `{{process.diagram}}`; they live in `flat/base/`, a legacy copy that the flat `generate` in `source/packages/core/src/generate.ts` reads. The pipeline `generate` fails on a placeholder with no value, and names it.
 
 ## Placeholders
 
@@ -17,8 +17,11 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{stack.language}}` | `ProjectConfig.stack.language` (required) |
 | `{{stack.framework}}`, `{{stack.platform}}`, `{{stack.buildTool}}`, `{{stack.testFramework}}` | the optional stack value, only when the key is present in the config; a template that uses it when the key is absent fails generation |
 | `{{processList}}` | the process as text, built from the selection: each enabled pipeline block in order, and under each enabled flow its enabled blocks in order |
-| `{{process.diagram}}` | not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
-| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | not filled by the pipeline config (see the status above) |
+| `{{commandList}}` | the command files as a list: `pipeline.md`, then one per enabled child flow in pipeline order; built from the selection, so a disabled flow is not listed |
+| `{{agentList}}` | the agent files as a list: one per enabled Agent block of an enabled flow, in flow order |
+| `{{ruleList}}` | the rule files as a list: one per `ProjectConfig.rules` entry, with its title |
+| `{{process.diagram}}` | flat base only, not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
+| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | flat base only, not filled by the pipeline config (see the status above) |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
 | `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
 | `{{#step:<id>}}…{{/step:<id>}}` | the flat layout only: the pipeline renderer does not read it and fails generation on it |
@@ -68,7 +71,8 @@ Every file in this table except `scripts/` is a layout the LLM fills at generati
 
 ```
 source/templates/
-  base/           files every project gets (CLAUDE.md, process.md, spec template)
+  base/           files every project gets (CLAUDE.md, process.md, spec template), for the pipeline
+  flat/base/      the base files of the flat model, kept as a legacy copy for the flat generator
   pipeline/       default.json, a sample pipeline config (data)
   rules/          rule-file layouts of the flat model (general, qa, code); F-02 takes rule text from the config instead
   workflows/      the flat workflow layout; replaced by F-03

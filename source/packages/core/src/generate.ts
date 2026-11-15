@@ -14,11 +14,11 @@ import { renderStepFiles } from './render/step-files.js';
 
 /** Base templates and the paths they produce. */
 export const BASE_FILES: readonly { template: string; path: string }[] = [
-  { template: 'base/CLAUDE.md', path: 'CLAUDE.md' },
-  { template: 'base/process.md', path: 'spec/documents/process.md' },
-  { template: 'base/spec-template/stories.md', path: 'spec/specifications/F-00-template/stories.md' },
-  { template: 'base/spec-template/plan.md', path: 'spec/specifications/F-00-template/plan.md' },
-  { template: 'base/spec-template/progress.md', path: 'spec/specifications/F-00-template/progress.md' },
+  { template: 'flat/base/CLAUDE.md', path: 'CLAUDE.md' },
+  { template: 'flat/base/process.md', path: 'spec/documents/process.md' },
+  { template: 'flat/base/spec-template/stories.md', path: 'spec/specifications/F-00-template/stories.md' },
+  { template: 'flat/base/spec-template/plan.md', path: 'spec/specifications/F-00-template/plan.md' },
+  { template: 'flat/base/spec-template/progress.md', path: 'spec/specifications/F-00-template/progress.md' },
 ];
 
 /** Every enabled step of every enabled workflow, with the catalog and custom ids that exist. */

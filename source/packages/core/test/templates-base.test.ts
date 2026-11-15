@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
-const BASE = join(REPO_ROOT, 'templates', 'base');
+const BASE = join(REPO_ROOT, 'templates', 'flat', 'base');
 const SPEC_TEMPLATE = join(BASE, 'spec-template');
 const F00_TEMPLATE = join(REPO_ROOT, '..', 'spec', 'specifications', 'F-00-template');
 const SPEC_FILES = ['stories.md', 'plan.md', 'progress.md'];

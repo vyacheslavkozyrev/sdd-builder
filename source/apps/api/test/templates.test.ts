@@ -3,8 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS, planGeneration, validateConfig, type ProjectConfig } from '@sddbuilder/core';
+import { pipeline } from '@sddbuilder/core';
 import { loadTemplates } from '../src/templates.js';
+import { pipelineConfig } from './pipeline-config.js';
 
 /** The repository's templates/ directory, found from this file's location. */
 const REPO_TEMPLATES = fileURLToPath(new URL('../../../templates', import.meta.url));
@@ -17,22 +18,6 @@ function withTempDir(body: (dir: string) => void): void {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-}
-
-function minimalConfig(): ProjectConfig {
-  return {
-    schemaVersion: 1,
-    name: 'Demo project',
-    idea: 'A demo project for the template loader tests.',
-    stack: { language: 'TypeScript', testFramework: 'Vitest' },
-    architecture: { style: 'layered', modules: [] },
-    codeRules: [],
-    testRules: [],
-    customSteps: [],
-    workflows: structuredClone([...DEFAULT_WORKFLOWS]),
-    connections: structuredClone([...DEFAULT_CONNECTIONS]),
-    targets: ['claude'],
-  };
 }
 
 describe('F-07 templates loader', () => {
@@ -63,10 +48,10 @@ describe('F-07 templates loader', () => {
   });
 
   it('builds a plan from the repository templates that planGeneration accepts', () => {
-    const config = minimalConfig();
-    expect(validateConfig(config)).toEqual([]);
+    const config = pipelineConfig();
+    expect(pipeline.configProblems(config)).toEqual([]);
 
-    const plan = planGeneration(config, loadTemplates(REPO_TEMPLATES));
+    const plan = pipeline.planGeneration(config, loadTemplates(REPO_TEMPLATES));
 
     const paths = plan.map((entry) => entry.path);
     expect(paths).toContain('CLAUDE.md');

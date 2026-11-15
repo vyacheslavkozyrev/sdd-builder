@@ -56,3 +56,8 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md`: T002 split into T002a (collector, Start and End checks, export) and T002b (Connection and Condition wiring, disabled-item skipping). The staged T002 change of 447 lines is not committed; its files are reshaped by T002a and T002b.
 **Reason**: the review of T002 hit the 400-line size guard: 447 changed lines, the test file alone 310 lines. The user approved the split.
 **Impact**: T002a and T002b are implemented, reviewed, tested and committed in turn. The Start and End checks count Start and End blocks whether or not they are enabled, because AC-017 always selects them in an enabled flow; AC-014 covers the content of disabled blocks, not these blocks.
+
+### Amendment — 2026-11-14 (second)
+**Changed**: `plan.md`, T004: the Agent block gets a required `description` (model, parser, `default.json`), with the refusal of a missing or blank one. The file list is extended to match.
+**Reason**: AC-029 and the stub text of AC-027 assume an Agent description, but the pipeline model had no such field and the parser refuses unknown keys. The user chose to add it to T004 rather than split.
+**Impact**: T004 changes the model and the default pipeline data as well as the refusal. Each Agent block of `default.json` needs its description text (building-blocks.md §4).

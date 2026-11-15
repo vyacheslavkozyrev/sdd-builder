@@ -1,7 +1,6 @@
 // Rule lines for the pipeline command (F-02 AC-024, AC-025). Each function returns one rule as text, without its number;
 // the caller numbers the rules of its file. A round limit is written only when the block holds one; without it the rule
-// says "no limit set", because the generator never invents a number. Pure. This is not the flat render/rules-text.ts,
-// which renders the workflow rules of the flat model; the two modules share no names.
+// says "no limit set", because the generator never invents a number. Pure.
 import type { ConditionBlock } from '../model.js';
 
 /** Which output of a Condition a rule is about. */

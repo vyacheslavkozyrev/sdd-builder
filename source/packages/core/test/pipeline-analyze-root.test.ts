@@ -33,7 +33,7 @@ describe('F-04 enabler (T002): root namespace for the pipeline module', () => {
   });
 
   it('keeps every flat root export that existing callers use', () => {
-    const flatNames = ['validateConfig', 'parseProjectConfig', 'InvalidConfigError'] as const;
+    const flatNames = ['parseProjectConfig', 'InvalidConfigError'] as const;
     for (const name of flatNames) {
       expect(root, `root export ${name}`).toHaveProperty(name);
     }

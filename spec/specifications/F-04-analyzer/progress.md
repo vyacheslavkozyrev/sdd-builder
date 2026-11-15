@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 9 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 10 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -47,6 +47,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | Brief checks: blank name, idea or stack.language (blocker); blank optional stack field and empty rules list (warning); default brief gives the rules warning only (Amendment 4) | reviewed: 0 blockers, 0 warnings, 3 suggestions fixed | task check passed (exit 0) |
 | T008 | Review reply check on the pipeline side: array or failed; entries kept with known severity and text; model blocker kept as warning; drops counted | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed | task check passed (exit 0) |
 | T009 | Stable output: sort order table, same list and no mutation, default pipeline (AC-001 per Amendment 5); info rank deferred (Amendment 6) | reviewed: 0 blockers, 0 warnings after fixes; 1 warning deferred (info rank), 1 suggestion fixed | task check passed (exit 0) |
+| T010 | Pipeline input caps (idea 8,000, rules 60) and skipped analysis (structural findings, review skipped) | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed | task check passed (exit 0) |
 
 ---
 

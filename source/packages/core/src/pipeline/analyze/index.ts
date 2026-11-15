@@ -1,7 +1,7 @@
 // The analysis entry point of the pipeline model (F-04). `analyzeStructure` concatenates the structural check lists and
 // sorts the findings by severity (blocker, warning, info), then subject (path order, as the generator's problem list),
 // then message. Pure: the configuration is read, never changed.
-import type { AnalysisFinding } from '../../model.js';
+import type { AnalysisFinding, AnalysisResult } from '../../model.js';
 import { comparePaths, compareText } from '../generate/generate.js';
 import type { ProjectConfig } from '../model.js';
 import { briefFindings } from './brief.js';
@@ -28,4 +28,16 @@ export function analyzeStructure(config: ProjectConfig): AnalysisFinding[] {
     ...briefFindings(config),
   ];
   return findings.sort(compareFindings);
+}
+
+/**
+ * The analysis when the LLM review is not asked for (the daily review ceiling is reached): the structural findings from
+ * `analyzeStructure`, and a review with status `skipped`, no findings and no dropped entries. The model is not involved,
+ * so the configuration is not sent anywhere. Pure: the configuration is read, never changed (F-04 AC-022).
+ */
+export function skippedAnalysis(config: ProjectConfig): AnalysisResult {
+  return {
+    findings: analyzeStructure(config),
+    review: { status: 'skipped', findings: [], dropped: 0 },
+  };
 }

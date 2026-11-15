@@ -31,6 +31,12 @@ None.
 
 ---
 
+## Amendments
+
+- **Amendment 1 (2026-11-15), T004 absorbs T010.** T004 switches `POST /generate` to the pipeline path and breaks 57 flat-body tests in five files, so their migration moves into T004 and T010 is retired (recorded in `plan.md`). Owner choice, 2026-11-15.
+
+---
+
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._

@@ -7,7 +7,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
 | F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
-| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | Not started |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator is removed when F-07 is rebuilt |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | Not started |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | Not started |
 | F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | Not started |
@@ -43,7 +43,7 @@ The types for `ProjectConfig`, the pipeline and its flows (one nesting level), t
 
 ### F-02 Generator core
 
-A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules (`building-blocks.md` §7), selects the enabled blocks in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. No specification folder yet; it is written with `/specify` when F-02 starts.
+A pure function `generate(config, templates) → GenerationResult`. It checks the structural rules (`building-blocks.md` §7), selects the enabled blocks in order, renders base files and placeholders, and returns a sorted file list. The output is deterministic. Specified and built in `spec/specifications/F-02-generator-core/`. The shipped base templates still hold placeholders the config cannot fill; F-03 rewrites them.
 
 ### F-03 Claude Code templates
 

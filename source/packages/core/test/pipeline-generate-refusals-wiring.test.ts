@@ -15,10 +15,9 @@ import type {
   Route,
   StartBlock,
 } from '../src/pipeline/model.js';
-import { templateSourceFromRecord } from '../src/template-source.js';
-import { requiredGates } from './pipeline-routes-fixtures.js';
+import { BASE_TEMPLATES, requiredGates } from './pipeline-routes-fixtures.js';
 
-const TEMPLATES = templateSourceFromRecord({});
+const TEMPLATES = BASE_TEMPLATES;
 const NEXT: Route = { kind: 'next' };
 const STOP: Route = { kind: 'stop' };
 

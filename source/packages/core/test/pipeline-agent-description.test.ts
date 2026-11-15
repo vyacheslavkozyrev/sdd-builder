@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidConfigError } from '../src/errors.js';
+import type { GenerationResult } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { generate } from '../src/pipeline/index.js';
 import type { AgentBlock, FlowBlock, ProjectConfig } from '../src/pipeline/model.js';
 import { parsePipelineConfig, type PipelineProblem } from '../src/pipeline/parse.js';
-import { templateSourceFromRecord } from '../src/template-source.js';
+import { BASE_TEMPLATES } from './pipeline-routes-fixtures.js';
 
-const TEMPLATES = templateSourceFromRecord({});
+const TEMPLATES = BASE_TEMPLATES;
+
+/** An accepted configuration: the generator returns files and no warning (F-02 AC-001, AC-029). */
+function expectAccepted(result: GenerationResult): void {
+  expect(result.files.length).toBeGreaterThan(0);
+  expect(result.warnings).toEqual([]);
+}
 
 /** A child flow with one Agent block carrying the given fields, plus its Start and End. */
 function flow(agentFields: Record<string, unknown>): Record<string, unknown> {
@@ -144,7 +151,7 @@ describe('F-02 AC-029 an Agent block carries a description; a missing, blank or 
 
 describe('F-02 AC-029 generate refuses an enabled Agent block with a blank or missing description', () => {
   it('accepts the default pipeline, whose Agent blocks all have a description', () => {
-    expect(generate(defaultCopy(), TEMPLATES)).toEqual({ files: [], warnings: [] });
+    expectAccepted(generate(defaultCopy(), TEMPLATES));
   });
 
   it('refuses an enabled Agent block with an empty description, naming the block path', () => {
@@ -173,13 +180,13 @@ describe('F-02 AC-029 generate refuses an enabled Agent block with a blank or mi
     const agent = buildAgent(config, 'build-commit');
     agent.enabled = false;
     agent.description = '';
-    expect(generate(config, TEMPLATES)).toEqual({ files: [], warnings: [] });
+    expectAccepted(generate(config, TEMPLATES));
   });
 
   it('does not check an enabled Agent block inside a disabled flow, even with a blank description', () => {
     const config = defaultCopy();
     buildFlow(config).enabled = false;
     buildAgent(config, 'build-review').description = '';
-    expect(generate(config, TEMPLATES)).toEqual({ files: [], warnings: [] });
+    expectAccepted(generate(config, TEMPLATES));
   });
 });

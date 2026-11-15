@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidConfigError } from '../src/errors.js';
+import type { GenerationResult } from '../src/model.js';
 import { generate } from '../src/pipeline/index.js';
 import type {
   AgentBlock,
@@ -11,10 +12,15 @@ import type {
   ProjectConfig,
   StartBlock,
 } from '../src/pipeline/model.js';
-import { templateSourceFromRecord } from '../src/template-source.js';
-import { requiredGates } from './pipeline-routes-fixtures.js';
+import { BASE_TEMPLATES, requiredGates } from './pipeline-routes-fixtures.js';
 
-const TEMPLATES = templateSourceFromRecord({});
+const TEMPLATES = BASE_TEMPLATES;
+
+/** An accepted configuration: the generator returns files and no warning (F-02 AC-001, AC-029). */
+function expectAccepted(result: GenerationResult): void {
+  expect(result.files.length).toBeGreaterThan(0);
+  expect(result.warnings).toEqual([]);
+}
 
 function pipelineStart(id = 'pipeline-start'): PipelineStartBlock {
   return { kind: 'start', id, enabled: true, arguments: [] };
@@ -96,7 +102,7 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
     ]);
   });
 
-  it('F-02 AC-001 accepts a valid shape and returns a result with empty files and warnings', () => {
+  it('F-02 AC-001 accepts a valid shape and returns a result with no warnings', () => {
     const config = configWith([
       pipelineStart(),
       flow('specify', [start('specify-start'), agent('specify-agent'), end('specify-end')]),
@@ -104,7 +110,7 @@ describe('F-02 AC-001 a pipeline or a child flow with no Start block, or with tw
       ...requiredGates(),
       end('pipeline-end'),
     ]);
-    expect(generate(config, TEMPLATES)).toEqual({ files: [], warnings: [] });
+    expectAccepted(generate(config, TEMPLATES));
   });
 });
 

@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { ID_MESSAGE } from '../src/pipeline/ids.js';
 import { generate } from '../src/pipeline/index.js';
 import type { ConditionBlock, ConnectionBlock, PipelineBlock } from '../src/pipeline/model.js';
-import { templateSourceFromRecord } from '../src/template-source.js';
 import {
+  BASE_TEMPLATES,
   NEXT,
   STOP,
   agent,
@@ -23,7 +23,7 @@ import {
   type Row,
 } from './pipeline-routes-fixtures.js';
 
-const TEMPLATES = templateSourceFromRecord({});
+const TEMPLATES = BASE_TEMPLATES;
 
 function connection(id: string, from: string, to: string): ConnectionBlock {
   return { kind: 'connection', id, enabled: true, from, to, artifact: 'note' };

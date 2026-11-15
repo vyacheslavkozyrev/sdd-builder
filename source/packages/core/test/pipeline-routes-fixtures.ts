@@ -84,12 +84,19 @@ export function configWith(blocks: PipelineBlock[]): ProjectConfig {
   };
 }
 
-const TEMPLATES = templateSourceFromRecord({});
+/** The base templates the generator reads for CLAUDE.md, the process document and the spec templates (F-02 AC-018). */
+export const BASE_TEMPLATES = templateSourceFromRecord({
+  'base/CLAUDE.md': '# {{projectName}}\n\n{{idea}}\n',
+  'base/process.md': '# Process\n\n{{processList}}\n',
+  'base/spec-template/stories.md': '# Stories\n',
+  'base/spec-template/plan.md': '# Plan\n',
+  'base/spec-template/progress.md': '# Progress\n',
+});
 
 /** The problems `generate` refuses a configuration with, or an empty list when it does not refuse it. */
 export function refusalOf(config: ProjectConfig): string[] {
   try {
-    generate(config, TEMPLATES);
+    generate(config, BASE_TEMPLATES);
   } catch (error) {
     if (error instanceof InvalidConfigError) return [...error.problems];
     throw error;

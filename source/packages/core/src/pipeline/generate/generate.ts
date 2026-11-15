@@ -1,14 +1,18 @@
-// The generator entry point for the pipeline model. It runs the refusal checks, collects every problem,
-// and throws when there is any; the file list comes in later tasks. No file or network I/O here.
-import { InvalidConfigError } from '../../errors.js';
-import type { GenerationResult } from '../../model.js';
-import type { TemplateSource } from '../../template-source.js';
+// The generator entry point for the pipeline model. It runs the refusal checks, collects every problem, and throws when
+// there is any. Otherwise it builds the file list from the parts (base, flow commands, pipeline command, agent and rule
+// files), sorts it by path in code-unit order and refuses two files with one path. No file or network I/O here.
+import { GenerationError, InvalidConfigError } from '../../errors.js';
+import type { GeneratedFile, GenerationResult } from '../../model.js';
+import type { ListableTemplateSource } from '../../template-source.js';
 import type { ProjectConfig } from '../model.js';
 import type { PipelineProblem } from '../parse-util.js';
+import { renderAgentAndRuleFiles } from './agent-rule-files.js';
+import { renderBaseFiles } from './base-files.js';
+import { renderFlowCommands } from './flow-commands.js';
+import { renderPipelineCommand } from './pipeline-command.js';
 import { checkProblems, descriptionProblems, nameProblems, requiredProblems } from './refusals-names.js';
 import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
-import { selectBlocks } from './select.js';
 
 /** Plain code-unit order, so the same problems always come out in the same order on every machine. */
 function compareText(a: string, b: string): number {
@@ -43,10 +47,29 @@ function sortedProblems(problems: readonly PipelineProblem[]): string[] {
 }
 
 /**
- * Generates the framework files for a pipeline. A configuration that cannot be generated is refused
- * with every problem in one error, and no files are returned.
+ * The output files sorted by path in plain code-unit order, so `step10.md` comes before `step2.md` (F-02 AC-030). Two
+ * files with one path are refused with the path named, and none is returned: a second file never overwrites the
+ * first (AC-031).
  */
-export function generate(config: ProjectConfig, templates: TemplateSource): GenerationResult {
+export function sortedFileList(files: readonly GeneratedFile[]): GeneratedFile[] {
+  const seen = new Set<string>();
+  const duplicates: string[] = [];
+  for (const file of files) {
+    if (seen.has(file.path) && !duplicates.includes(file.path)) duplicates.push(file.path);
+    seen.add(file.path);
+  }
+  if (duplicates.length > 0) {
+    throw new GenerationError(duplicates.map((path) => `duplicate output path "${path}"`));
+  }
+  return [...files].sort((a, b) => compareText(a.path, b.path));
+}
+
+/**
+ * Generates the framework files for a pipeline. A configuration that cannot be generated is refused
+ * with every problem in one error, and no files are returned. The files come out sorted by path, and the same
+ * configuration and templates always give the same paths, order and content (F-02 AC-030, AC-031, AC-032).
+ */
+export function generate(config: ProjectConfig, templates: ListableTemplateSource): GenerationResult {
   const problems = [
     ...shapeProblems(config),
     ...wiringProblems(config),
@@ -57,7 +80,11 @@ export function generate(config: ProjectConfig, templates: TemplateSource): Gene
     ...checkProblems(config),
   ];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
-  // Placeholder (T005): the selection is computed here but not used yet. T006 to T010 build the file list from it.
-  selectBlocks(config);
-  return { files: [], warnings: [] };
+  const files = [
+    ...renderBaseFiles(config, templates),
+    ...renderFlowCommands(config),
+    renderPipelineCommand(config),
+    ...renderAgentAndRuleFiles(config),
+  ];
+  return { files: sortedFileList(files), warnings: [] };
 }

@@ -47,6 +47,7 @@ None.
 - **Amendment 3 (2026-11-15), no module cap on pipeline `/generate`.** The flat F-13 AC-011 module cap does not apply to the pipeline model, as on `/analyze`. The removed flat module-cap test stays removed. The pipeline caps are only the idea length (8,000 characters) and the rule count (60), as `pipelineCapProblems` in core.
 - **Amendment 4 (2026-11-15), flat core imports in two API tests move to T011.** `smoke.test.ts` and `templates.test.ts` import the flat `validateConfig` and `planGeneration` from the core root; T011 rewrites them to the pipeline namespace (Amendment 4 in `plan.md`). Owner choice, 2026-11-15.
 - **Amendment 5 (2026-11-15), T013 keeps `layouts-base.test.ts`.** The plan named it for removal, but it is the only guard that `source/templates/base/` holds no flat placeholder (F-03 AC-001), so it stays. Owner confirmation pending; the review recorded it in Deferred Findings.
+- **Amendment 6 (2026-11-15), `wouldCreateCycle` moves out of `validate/` before T015.** The web app (`source/apps/web/src/builder/map-state.ts`) imports `wouldCreateCycle` from the core root, and T015 deletes `source/packages/core/src/validate/`. The web app must stay unchanged (AC-025), so in T015 the function moves to `source/packages/core/src/cycle.ts`, its direct table moves to `source/packages/core/test/cycle.test.ts`, and the root keeps exporting it. Owner approved, 2026-11-15.
 
 ---
 

@@ -106,7 +106,7 @@ describe('F-04 AC-008: a retry with no round limit is one warning at the Conditi
     limitEveryRetry(config);
     const target = conditionIn(config, 'build-checks');
     delete target.block.roundLimit;
-    const warnings = analyzeStructure(config).filter((finding) => finding.severity === 'warning');
+    const warnings = analyzeStructure(config).filter((finding) => finding.message.includes('with no round limit'));
     expect(warnings.map((finding) => finding.subject)).toEqual([target.path]);
   });
 

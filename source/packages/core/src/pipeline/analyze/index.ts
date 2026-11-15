@@ -1,10 +1,10 @@
 // The analysis entry point of the pipeline model (F-04). `analyzeStructure` concatenates the structural check lists and
 // sorts the findings by severity (blocker, warning, info), then subject (path order, as the generator's problem list),
-// then message. Later checks (brief) join the list here. Pure: the configuration is read,
-// never changed.
+// then message. Pure: the configuration is read, never changed.
 import type { AnalysisFinding } from '../../model.js';
 import { comparePaths, compareText } from '../generate/generate.js';
 import type { ProjectConfig } from '../model.js';
+import { briefFindings } from './brief.js';
 import { inputFindings } from './inputs.js';
 import { refusalFindings } from './refusals.js';
 import { retryFindings } from './retries.js';
@@ -21,6 +21,11 @@ function compareFindings(a: AnalysisFinding, b: AnalysisFinding): number {
 
 /** Every structural finding of the pipeline, sorted. A new array; the configuration is not changed. */
 export function analyzeStructure(config: ProjectConfig): AnalysisFinding[] {
-  const findings = [...refusalFindings(config), ...retryFindings(config), ...inputFindings(config)];
+  const findings = [
+    ...refusalFindings(config),
+    ...retryFindings(config),
+    ...inputFindings(config),
+    ...briefFindings(config),
+  ];
   return findings.sort(compareFindings);
 }

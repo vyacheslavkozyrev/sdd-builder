@@ -2,8 +2,8 @@
 // entry per output file, in the order and with the paths that the pipeline `generate` returns. Each entry carries the
 // layout of its file with its values filled: base files from `templates/base`, the pipeline command from
 // `claude-code/pipeline-command.md`, each flow command from `claude-code/command.md`, each agent from `claude-code/agent.md`
-// and each rule from `claude-code/rule.md`. Pure: no file or network I/O; the templates come from a TemplateSource and the
-// plan is returned, never written.
+// and each rule from `claude-code/rule.md`. An agent entry and a flow command entry carry their description and rule-set
+// tags. Pure: no file or network I/O; the templates come from a TemplateSource and the plan is returned, never written.
 import type { ListableTemplateSource } from '../template-source.js';
 import { renderBaseFiles } from './generate/base-files.js';
 import { argumentList, flowStepList, pipelineStepList, routeRuleList } from './generate/command-layouts.js';
@@ -27,9 +27,9 @@ export interface PipelinePlanEntry {
   readonly path: string;
   /** The file's layout with its values filled in, before any LLM writing. */
   readonly layout: string;
-  /** The owning Agent block's description; empty for a file with no owning Agent block. */
+  /** The owning Agent block's or flow's description; empty for a file with no owning Agent block or flow. */
   readonly description: string;
-  /** The owning Agent block's rule-set tags; empty for a file with no owning Agent block. */
+  /** The owning Agent block's or flow's rule-set tags; empty for a file with no owning Agent block or flow. */
   readonly ruleTags: readonly string[];
 }
 
@@ -43,6 +43,7 @@ function tagList(tags: readonly string[]): string {
  * refuses throws here too, with the same problems, and no plan is returned. The same configuration and templates always
  * give the same paths and order (F-03 AC-011). Agent entries carry their block's description and rule-set tags (AC-008,
  * AC-012); rule entries carry their title and text in the layout (AC-009).
+ * A flow command entry carries the flow's description and rule-set tags (AC-031).
  */
 export function planGeneration(config: ProjectConfig, templates: ListableTemplateSource): PipelinePlanEntry[] {
   const { files } = generate(config, templates);
@@ -77,6 +78,8 @@ export function planGeneration(config: ProjectConfig, templates: ListableTemplat
       values: {
         flowId: entry.flow.id,
         flowName: entry.flow.name,
+        description: entry.flow.description,
+        ruleTags: tagList(entry.flow.ruleTags ?? []),
         stepList: flowStepList(entry.flow),
         routeRules: routeRuleList(entry.blocks),
       },
@@ -115,12 +118,12 @@ export function planGeneration(config: ProjectConfig, templates: ListableTemplat
   };
 
   return files.map((file) => {
-    const agent = agents.get(file.path);
+    const owner = agents.get(file.path) ?? flows.get(file.path)?.flow;
     return {
       path: file.path,
       layout: layoutOf(file.path),
-      description: agent?.description ?? '',
-      ruleTags: agent === undefined ? [] : [...(agent.ruleTags ?? [])],
+      description: owner?.description ?? '',
+      ruleTags: [...(owner?.ruleTags ?? [])],
     };
   });
 }

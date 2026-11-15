@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 8 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
+| Build    | 🔄 In Progress |   | 9 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T006a | Rule-set tags in the model: optional `ruleTags` on Agent blocks and flows, parsed as non-empty strings (default `[]`); unknown tags refused in `generate` at their paths (decision 21) | 0 blockers, 0 warnings, 3 suggestions fixed | 1135 passed (67 files) |
 | T006 | `planGeneration` for agent and rule entries: agents carry the block's description and tags; rules carry title and text; the AC-011 test now compares the full file list | 0 blockers, 0 warnings, 4 suggestions fixed | 1150 passed (68 files) |
 | T006c | Required flow `description` in the model and parser (blank refused at the parser, as for Agents; enabled blank also refused in generate); six flow descriptions in `default.json`, texts as approved by the user on 2026-11-14 | 0 blockers, 1 warning (blank parser check) fixed | 1166 passed (69 files) |
+| T006b | Flow command entries carry the flow's description and rule-set tags; the command layout gains a description line and a rule-set tags line (US-008) | 1 blocker (no tags line in the command layout), 3 warnings (README row, layout placeholder test, tags shown test) fixed | 1179 passed (70 files) |
 
 ---
 

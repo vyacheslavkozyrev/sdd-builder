@@ -21,6 +21,8 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{agentList}}` | the agent files as a list: one per enabled Agent block of an enabled flow, in flow order |
 | `{{ruleList}}` | the rule files as a list: one per `ProjectConfig.rules` entry, with its title |
 | `{{flowId}}`, `{{flowName}}` | `claude-code/command.md` (a flow's command file): the flow's id and name |
+| `{{description}}` | `claude-code/command.md`: the description of the flow, carried into the Purpose section |
+| `{{ruleTags}}` | `claude-code/command.md`: the rule-set tags of the flow, as a comma-separated list; `none` when the flow has no tags |
 | `{{stepList}}` | `claude-code/command.md`: the enabled blocks of the flow as numbered steps, in block order; built by `command-layouts.ts` |
 | `{{routeRules}}` | `claude-code/command.md` and `claude-code/pipeline-command.md`: one numbered rule per back route of an enabled check, naming its target block and round limit (`no limit set` when the limit is absent); an outcome with no back route gives no rule; built by `command-layouts.ts` |
 | `{{argumentList}}` | `claude-code/pipeline-command.md`: the arguments of the pipeline Start block, one line each with its required flag; built by `command-layouts.ts` |

@@ -170,7 +170,7 @@ describe('F-03 AC-009 each rule entry has one rule file with its title and text'
   });
 });
 
-describe('F-03 AC-012 agent entries carry description and tags; the other entries carry none', () => {
+describe('F-03 AC-012 agent entries carry description and tags; the entries that are neither agent nor flow carry none', () => {
   const tagged = withRules(withAgent(freshConfig(), 'specify-agent', (block) => ({ ...block, ruleTags: ['code'] })), TWO_RULES);
   const plan = planGeneration(tagged, realTemplates());
   const flowCommandPaths = tagged.pipeline.blocks.flatMap((block) =>
@@ -185,7 +185,7 @@ describe('F-03 AC-012 agent entries carry description and tags; the other entrie
     expect(entry.ruleTags).toEqual(['code']);
   });
 
-  it('F-03 AC-012 every entry that is neither an agent nor a flow command has empty description and tags', () => {
+  it('F-03 AC-012 every entry that is neither an agent nor a flow command has empty description and tags (flow entries are checked in pipeline-plan-flow-tags.test.ts)', () => {
     const others = plan.filter((entry) => !entry.path.startsWith(AGENTS_DIR) && !flowCommandPaths.includes(entry.path));
     expect(others.length).toBeGreaterThan(0);
     for (const entry of others) {

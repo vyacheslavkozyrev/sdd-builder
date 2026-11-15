@@ -12,6 +12,9 @@ const AGENT_PLACEHOLDERS = ['name', 'description', 'ruleTags'];
 /** Placeholders of the rule layout, as the README table names them (T004). */
 const RULE_PLACEHOLDERS = ['ruleTitle', 'ruleText'];
 
+/** Placeholders of the flow command layout, as the README table names them (AC-031). */
+const COMMAND_PLACEHOLDERS = ['flowName', 'description', 'flowId', 'stepList', 'routeRules', 'ruleTags'];
+
 /** Flat-model placeholders that no pipeline layout may use (F-03 AC-001, AC-009). */
 const FORBIDDEN = ['modules', 'codeRules', 'testRules', 'process.diagram', 'workflow.steps', 'workflow.rules'];
 
@@ -41,6 +44,7 @@ function readmePlaceholders(text: string): Set<string> {
 
 const AGENT_LAYOUT = readFileSync(join(CLAUDE_CODE, 'agent.md'), 'utf8');
 const RULE_LAYOUT = readFileSync(join(CLAUDE_CODE, 'rule.md'), 'utf8');
+const COMMAND_LAYOUT = readFileSync(join(CLAUDE_CODE, 'command.md'), 'utf8');
 const readme = readmePlaceholders(readFileSync(README, 'utf8'));
 
 describe('F-03 T004 agent layout', () => {
@@ -74,6 +78,21 @@ describe('F-03 T004 agent layout', () => {
     ]);
     expect(h2Headings('## Checks\n\n## Purpose\n')).toEqual(['Checks', 'Purpose']);
     expect(h2Headings('## Rules\n\n### Checks\n')).toEqual(['Rules']);
+  });
+});
+
+describe('F-03 AC-031 flow command layout', () => {
+  it('F-03 AC-031 the command layout uses only its listed placeholders, each listed in templates/README.md', () => {
+    expect([...new Set(placeholderNames(COMMAND_LAYOUT))].sort()).toEqual([...COMMAND_PLACEHOLDERS].sort());
+    for (const name of COMMAND_PLACEHOLDERS) {
+      expect(readme.has(name), `{{${name}}} is not in templates/README.md`).toBe(true);
+    }
+  });
+
+  it('F-03 AC-031 the command layout has no forbidden flat placeholder', () => {
+    for (const name of FORBIDDEN) {
+      expect(placeholderNames(COMMAND_LAYOUT), name).not.toContain(name);
+    }
   });
 });
 

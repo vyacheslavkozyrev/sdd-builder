@@ -23,6 +23,13 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 ---
 
+## Amendments
+
+- **Amendment 1 (2026-11-14), T004 narrowed to option A.** Reachability is already reported by the generator's refusals (`pipeline/generate/refusals-routes.ts`) and reaches `analyzeStructure` through `configProblems`. Adding `reachability.ts` would report each orphan twice. T004 now adds only the AC-006 and AC-007 tests; no new check module. Owner choice, 2026-11-14.
+- **Amendment 2 (2026-11-15), AC-006 row dropped.** The row "an enabled block reached only through a disabled one" cannot hold: the walk treats a disabled block as transparent (F-02 AC-005, `pipeline-generate-refusals-reach.test.ts`), so the block after it is reached through the live blocks before it. AC-006 keeps the orphan block and orphan flow rows. `stories.md` AC-006 and the T004 line are updated to match. Owner choice (option 1), 2026-11-15.
+
+---
+
 ## Task Log
 
 | Task | Summary | Review | Tests |

@@ -79,7 +79,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 #### Acceptance Criteria
 
-- [ ] AC-006 `[auto]`: An enabled block or flow with no path from the pipeline's Start (following connections, routes and flow order) is a `blocker` whose subject is its path. A table test covers an orphan block in a flow, an orphan flow, and an enabled block reached only through a disabled one.
+- [ ] AC-006 `[auto]`: An enabled block or flow with no path from the pipeline's Start (following connections, routes and flow order) is a `blocker` whose subject is its path. A table test covers an orphan block in a flow and an orphan flow. A disabled block is transparent to the walk, so an enabled block after it is reached through the live blocks before it (as F-02 AC-005 defines).
 - [ ] AC-007 `[auto]`: A disabled block or flow gives no finding, even when it is unreachable or has a blank description (negative case). A disabled block is not on any path.
 
 ---

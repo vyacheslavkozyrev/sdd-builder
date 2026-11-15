@@ -4,7 +4,9 @@ Text files that describe the layout of a project and what each file should conta
 
 ## Status of the shipped templates
 
-The base templates in `base/` use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` are rewritten for the pipeline (F-03 T002). The flat base templates still have `{{modules}}`, `{{codeRules}}`, `{{testRules}}` and `{{process.diagram}}`; they live in `flat/base/`, a legacy copy that the flat `generate` in `source/packages/core/src/generate.ts` reads. The pipeline `generate` fails on a placeholder with no value, and names it.
+The base templates in `base/` are the pipeline's. They use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` list the flows, agents and rules from the selection through list placeholders, and `base/spec-template/` has no placeholders. The pipeline layouts for the command, agent and rule files are in `claude-code/`. The renderer still reads `#enabled:<id>` sections (see Section rules), but no base or `claude-code/` layout uses one.
+
+The flat base templates in `flat/base/` still use the flat placeholders listed in the table below (the diagram, the module list and the rule lists). They are a legacy copy that the flat `generate` in `source/packages/core/src/generate.ts` reads until F-07 removes it. The flat `steps/`, `workflows/` and `rules/` layouts and their renderers also remain until F-07 (architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
 
 ## Placeholders
 
@@ -47,7 +49,7 @@ Section rules:
 
 ## Files the generator writes
 
-These are the files F-02 writes for a pipeline config. The flow, pipeline, agent and rule files are built in code from the config, so they have no template file.
+These are the files F-02 writes for a pipeline config. The flow, pipeline, agent and rule files are built from the config, each filled into its layout in `claude-code/` (see the Claude Code layout below).
 
 | Output file | Source |
 |---|---|
@@ -63,32 +65,41 @@ The files come out sorted by path. Two files with the same path refuse the gener
 
 ## Claude Code layout (MVP)
 
-This is the target layout for the Claude Code output, owned by F-03. F-02 writes the files in "Files the generator writes" above, not these rows: its `CLAUDE.md`, `process.md` and spec-template rows come from the templates, and its agent and rule files come from the config, not from the `steps/` and `rules/` layouts below. The flow and pipeline command files are not in this table yet. The workflow command, step command, skill and script rows come with F-03.
+This is the layout of the Claude Code output for the pipeline. The first table is what the pipeline generator (`source/packages/core/src/pipeline/generate/`) writes, one file per row, from the source named in it; "Files the generator writes" above says what each file holds. Each source in `base/` and `claude-code/` is rendered with values from the config. The list and step values come from the builders in `base-files.ts` and `command-layouts.ts`.
 
 | Output file | Source |
 |---|---|
-| `CLAUDE.md` | `base/CLAUDE.md` |
-| `spec/documents/process.md` | `base/process.md`, text listing the flows, blocks and gates (the Mermaid view is F-18) |
-| `spec/specifications/F-00-template/*` | `base/spec-template/` |
-| `.claude/commands/workflow-<name>.md` | `workflows/`, one per workflow: calls its steps in order and writes its branches as numbered rules |
-| `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled command step |
-| `.claude/agents/<name>.md` | `steps/<id>/agent.md` for each enabled agent step |
-| `.claude/skills/<name>/SKILL.md` | `steps/<id>/skill.md` for each enabled skill step |
-| `.claude/rules/<name>.md` | `rules/` layouts; referenced from the steps that carry the tag |
-| `scripts/<name>.sh` | `steps/<id>/script.md`, a layout for each enabled script step; the LLM writes the script at generation |
+| `CLAUDE.md` | `base/CLAUDE.md`, rendered |
+| `spec/documents/process.md` | `base/process.md`, rendered: the flows, blocks and gates as text (the Mermaid view is F-18) |
+| `spec/specifications/F-00-template/*` | `base/spec-template/`, each file rendered |
+| `.claude/commands/pipeline.md` | `claude-code/pipeline-command.md`: the arguments, the enabled flows and checks, and the back routes |
+| `.claude/commands/<flow-id>.md` | `claude-code/command.md`, one per enabled child flow |
+| `.claude/agents/<name>.md` | `claude-code/agent.md`, one per enabled Agent block of an enabled flow |
+| `.claude/rules/<id>.md` | `claude-code/rule.md`, one per `ProjectConfig.rules` entry |
 
-Every file in this table except `scripts/` is a layout the LLM fills at generation. Templates never contain a script.
+No layout holds a script: the Claude Code output has no `scripts/` folder. Templates never contain a script.
+
+The flat layouts below are not part of the pipeline output. They remain until F-07 removes the flat generator, and their rows stay so the layout check still covers them.
+
+| Output file | Source |
+|---|---|
+| `.claude/commands/workflow-<name>.md` | `workflows/`, one per flat workflow: calls its steps in order and writes its branches as numbered rules |
+| `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled flat command step |
+| `.claude/agents/<name>.md` | `steps/<id>/agent.md` for each enabled flat agent step |
+| `.claude/skills/<name>/SKILL.md` | `steps/<id>/skill.md` for each enabled flat skill step; the catalog has no skill step, so no skill layout file exists yet |
+| `.claude/rules/<name>.md` | `rules/` layouts of the flat model; referenced from the steps that carry the tag |
 
 ## Folders
 
 ```
 source/templates/
-  base/           files every project gets (CLAUDE.md, process.md, spec template), for the pipeline
-  flat/base/      the base files of the flat model, kept as a legacy copy for the flat generator
-  pipeline/       default.json, a sample pipeline config (data)
-  rules/          rule-file layouts of the flat model (general, qa, code); F-02 takes rule text from the config instead
-  workflows/      the flat workflow layout; replaced by F-03
-  steps/          the flat step layouts, one folder per step id; replaced by F-03
+  base/           the pipeline's base files (CLAUDE.md, process.md, spec template); in use
+  claude-code/    the pipeline layouts (pipeline command, flow command, agent, rule); in use
+  flat/base/      the base files of the flat model, a legacy copy for the flat generator; remains until F-07
+  pipeline/       default.json, a sample pipeline config (data); in use
+  rules/          rule-file layouts of the flat model (general, qa, code); remains until F-07, F-02 takes rule text from the config instead
+  workflows/      the flat workflow layout; remains until F-07, replaced by claude-code/ for the pipeline
+  steps/          the flat step layouts, one folder per step id; remains until F-07, replaced by claude-code/ for the pipeline
 ```
 
 Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feature is specified, the mapping is confirmed against each tool's current documentation.

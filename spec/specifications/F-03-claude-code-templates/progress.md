@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 13 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
+| Build    | 🔄 In Progress |   | 14 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -42,6 +42,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | `checkReply` for presence, paths and markers (`pipeline/reply-check.ts`), exported from the pipeline module only; typed `unknown`, a non-object reply gives a finding | 0 blockers, 0 warnings, 2 suggestions (test titles and an AC-018 input) fixed | 1228 passed (72 files) |
 | T009 | `checkReply` for required `##` headings (from each planned layout) and references to SDDBuilder or its own paths. The API still uses the flat `checkReply` from the package root, so this does not change `/generate` | 0 blockers, 0 warnings, 0 suggestions (round 1 only) | 1259 passed (73 files) |
 | T010 | `checkReply` for malformed replies (non-object, non-string values: a finding, no throw) and findings sorted by path then message, deterministic; three T009 expectations reordered to sorted order | 0 blockers, 0 warnings, 5 suggestions fixed (test titles, comments); 1 suggestion deferred (long comment lines) | 1285 passed (74 files) |
+| T011 | Stack-neutral checks over `base/` and `claude-code/`: no shell fence, no stack tool name (AC-024); every placeholder listed in the README (AC-025). Test only, no layout changed | 0 blockers, 3 warnings (non-Markdown files skipped; README heading not guarded; tilde fences missed) fixed | 1307 passed (75 files) |
 
 ---
 

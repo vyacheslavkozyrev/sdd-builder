@@ -20,6 +20,7 @@ export type {
   Scope,
   StartBlock,
 } from './model.js';
+export { analyzeStructure } from './analyze/index.js';
 export { generate } from './generate/generate.js';
 export { parsePipelineConfig } from './parse.js';
 export { planGeneration, type PipelinePlanEntry } from './plan.js';

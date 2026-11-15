@@ -15,7 +15,7 @@ import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
 
 /** Plain code-unit order, so the same problems always come out in the same order on every machine. */
-function compareText(a: string, b: string): number {
+export function compareText(a: string, b: string): number {
   if (a < b) return -1;
   if (a > b) return 1;
   return 0;
@@ -25,7 +25,7 @@ function compareText(a: string, b: string): number {
  * Path order where a number inside a path compares by its value, so `pipeline.blocks[2]` comes before
  * `pipeline.blocks[10]`. Code-unit order for the text around the numbers.
  */
-function comparePaths(a: string, b: string): number {
+export function comparePaths(a: string, b: string): number {
   const left = a.split(/(\d+)/);
   const right = b.split(/(\d+)/);
   for (let i = 0; i < Math.min(left.length, right.length); i++) {

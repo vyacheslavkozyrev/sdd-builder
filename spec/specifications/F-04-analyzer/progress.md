@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 18 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 19 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -64,6 +64,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T016 | Privacy and wiring tests on the pipeline model; route-level AC-018 test: no brief, rule, reply or message text in the log | reviewed: 0 blockers, 0 warnings; 2 suggestions deferred | task check passed (exit 0) |
 | T013b | Flat `analyze` removed from the API; its cases moved to pipeline tests; anthropic-model uses pipeline fixtures (size exception, Amendment 11) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 | T013a | Flat review prompt removed; `oneLine` and `pickProject` copied privately into the flat generate prompt; new brief test for the copied branches (size exception, Amendment 13) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
+| T017 | Flat analyzer tests removed, group 1 (brief, custom-steps) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 
 ---
 

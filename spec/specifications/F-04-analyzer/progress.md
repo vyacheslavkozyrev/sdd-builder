@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 14 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 15 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -57,6 +57,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T012 | Review prompt over the pipeline config (new file review/pipeline-prompt.ts; flat prompt removed in T013) | reviewed: 0 blockers, 4 warnings fixed, 2 suggestions deferred | task check passed (exit 0) |
 | T013 | Pipeline analysis `analyzePipeline` beside the flat `analyze` (Amendment 9): structural findings kept, review failures keep them, log line event and error name only | reviewed: 0 blockers, 0 warnings; 1 suggestion deferred (duplicate body, removed by T013b) | task check passed (exit 0) |
 | T014 | `/analyze` on the pipeline model: pipeline reader, pipeline caps (422), skipped analysis at the ceiling, analyzePipeline; /generate unchanged (size exception, Amendment 10) | reviewed: 0 blockers, 2 warnings, 2 suggestions fixed | task check passed (exit 0) |
+| T015 | Ceiling on `/analyze` returns skipped with no model call (AC-022 route); `/generate` still generates a flat config (AC-023) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
 
 ---
 

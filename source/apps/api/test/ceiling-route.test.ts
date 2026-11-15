@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS, INPUT_CAPS, pipeline, type ProjectConfig } from '@sddbuilder/core';
+import { DEFAULT_CONNECTIONS, DEFAULT_WORKFLOWS, INPUT_CAPS, pipeline, planGeneration, type ProjectConfig } from '@sddbuilder/core';
 import type { ReviewModel, ReviewReply } from '../src/analyze.js';
 import { createApp, type GenerationPorts } from '../src/app.js';
 import type { GenerationModel } from '../src/generate/generation-model.js';
@@ -142,8 +142,8 @@ function duplicateWorkflowConfig(): ProjectConfig {
   return { ...base, workflows: [...base.workflows, { ...first }] };
 }
 
-describe('F-13 AC-016 the review ceiling skips the review at the limit', () => {
-  it('F-13 AC-016 answers 200 with review skipped and does not call the model once the ceiling is reached', async () => {
+describe('F-04 AC-022 the review ceiling skips the review at the limit', () => {
+  it('F-04 AC-022 answers 200 with review skipped and does not call the model once the ceiling is reached', async () => {
     const clock = clockAt(START);
     const review = reviewModel(() => Promise.resolve(OK_REPLY));
     const app = buildApp(clock, { reviewLimit: 2, review });
@@ -162,8 +162,8 @@ describe('F-13 AC-016 the review ceiling skips the review at the limit', () => {
   });
 });
 
-describe('F-13 AC-022 review.status accepts skipped', () => {
-  it('F-13 AC-022 the skipped body equals skippedAnalysis for the same configuration', async () => {
+describe('F-04 AC-022 review.status accepts skipped', () => {
+  it('F-04 AC-022 the skipped body equals skippedAnalysis for the same configuration', async () => {
     const clock = clockAt(START);
     const app = buildApp(clock, { reviewLimit: 0 });
     const config = pipelineConfig();
@@ -173,7 +173,7 @@ describe('F-13 AC-022 review.status accepts skipped', () => {
     expect(await response.json()).toEqual(pipeline.skippedAnalysis(config));
   });
 
-  it('F-13 AC-022 keeps status ok for a review that runs below the ceiling', async () => {
+  it('F-04 AC-022 keeps status ok for a review that runs below the ceiling', async () => {
     const clock = clockAt(START);
     const app = buildApp(clock, { reviewLimit: 1 });
 
@@ -290,5 +290,37 @@ describe('F-13 AC-021 requests refused by a rate limit or an input cap do not co
 
     expect((await postConfig(app, GENERATE_URL, generatableConfig())).status).toBe(502);
     expect(generation.model.calls).toBe(CLIENT_LIMITS.perMinute + 1);
+  });
+});
+
+describe('F-04 AC-023 /generate still generates a flat config', () => {
+  it('F-04 AC-023 returns 200 with the zip for a flat schemaVersion 1 config after one model call', async () => {
+    const clock = clockAt(START);
+    const config = generatableConfig();
+    const templates = { get: () => 'Template text for the test.' };
+    const reply: Record<string, string> = {};
+    for (const entry of planGeneration(config, templates)) {
+      reply[entry.path] = `Text of ${entry.path}.\n\n${entry.layout}`;
+    }
+    const replyText = JSON.stringify(reply);
+    let calls = 0;
+    const generation: GenerationPorts = {
+      templates,
+      model: {
+        complete: () => {
+          calls += 1;
+          return Promise.resolve({ text: replyText, truncated: false });
+        },
+      },
+    };
+    const app = buildApp(clock, { generation });
+
+    const response = await postConfig(app, GENERATE_URL, config);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toBe('application/zip');
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    expect(bytes.subarray(0, 4)).toEqual(new Uint8Array([0x50, 0x4b, 0x03, 0x04]));
+    expect(calls).toBe(1);
   });
 });

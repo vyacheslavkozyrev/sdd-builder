@@ -12,17 +12,14 @@ Requirements owned by this feature: R-01 to R-07 (listed in the Requirement Cove
 - The generated-project self-check that every path a command names exists (F-10).
 - Spec Kit and OpenSpec outputs (F-16, F-17), Cursor and Copilot (F-11, F-12), presets (F-09).
 - Authoring the rules list in the wizard (F-05).
+- Removing the flat layouts (`source/templates/steps/`, `workflows/`, `rules/`), the flat renderers (`render/step-files.ts`, `render/workflow-command.ts`), the flat generator (`src/generate.ts`) and the flat root exports `planGeneration`, `checkReply` and `validateConfig`. The API's generate service (`source/apps/api/src/generate/`) still runs on them, so the removal belongs to F-07, which rebuilds the API (decision 19).
 
 ---
 
 ## Decisions taken in this specification (the user is asked to approve them)
 
 - **Mermaid (user, 2026-11-14):** the Mermaid view is F-18. F-03 writes `process.md` as text only.
-- **Flat layouts (user, 2026-11-14):** the flat layouts are deleted in F-03, not kept until F-07. Decision 19 says a flat file is removed by the feature that rebuilds its last consumer; this feature amends that rule for the flat layouts and the flat generator, recorded as a new decision in `architecture.md` §6 before code depends on it. The removal list is:
-  - the folders `source/templates/steps/`, `source/templates/workflows/` and `source/templates/rules/` (flat layouts; `rules/` is flat per `source/templates/README.md`);
-  - `source/packages/core/src/render/step-files.ts` and `render/workflow-command.ts`, the renderers that read them;
-  - `source/packages/core/src/generate.ts`, the flat generator that calls them, and `select.ts` and the flat `plan.ts` if nothing else in `core` still uses them (the plan confirms this before removal).
-  Their tests go with them. The flat model and catalog stay, because the web app still imports them.
+- **Flat code stays until F-07 (user, 2026-11-14, amending the first draft):** the flat layouts, renderers, generator and root exports are not removed in F-03. `apps/api/src/generate/service.ts` imports the root `planGeneration`, `checkReply` and `validateConfig`, and the flat generator reads `steps/` and `workflows/`; removing them now would break `/generate`. Decision 19 stands: F-07 removes them. F-03 adds the pipeline `planGeneration` and `checkReply` beside the flat ones, in the pipeline module. No new decision is needed for this.
 - **Rules are project data (decision 20):** one rule file per entry of `ProjectConfig.rules`, not per block. `features.md` says "one rule file per rule block"; that line is read as per rule entry and corrected in this feature's build.
 - **Layout location:** the four Claude Code layouts (`command`, `pipeline-command`, `agent`, `rule`) live in `source/templates/claude-code/`. The base layouts stay in `source/templates/base/` and are rewritten in place.
 - **`planGeneration` layout:** each planned entry's `layout` is the file's layout with the config values filled. The sections that need the model's wording stay as the layout's own prose, which the model writes at F-07. No stub text is planned.
@@ -139,24 +136,24 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 #### Acceptance Criteria
 
-- [ ] AC-024 `[auto]`: No layout under `source/templates/` contains a fenced block opened with `sh`, `bash`, `shell` or `zsh`, or the name of a stack tool (`npm`, `npx`, `pnpm`, `yarn`, `vitest`, `jest`, `pytest`, `cargo`, `go test`). The test is table-driven over every layout file, and each name is listed in the test.
-- [ ] AC-025 `[auto]`: Every placeholder in every layout under `source/templates/` is one that `source/templates/README.md` lists. A placeholder outside the list fails the test and names the file.
+- [ ] AC-024 `[auto]`: No layout under `source/templates/base/` or `source/templates/claude-code/` contains a fenced block opened with `sh`, `bash`, `shell` or `zsh`, or the name of a stack tool (`npm`, `npx`, `pnpm`, `yarn`, `vitest`, `jest`, `pytest`, `cargo`, `go test`). The test is table-driven over every layout file, and each name is listed in the test.
+- [ ] AC-025 `[auto]`: Every placeholder in every layout under `source/templates/base/` or `source/templates/claude-code/` is one that `source/templates/README.md` lists. A placeholder outside the list fails the test and names the file. The flat folders are not checked; they are removed by F-07.
 
 ---
 
-### US-007: The flat layouts and flat generator are removed
+### US-007: The pipeline's generator path is separate from the flat one
 
 **As a** developer
-**I want to** have the flat layouts and the flat generator deleted
-**So that** the repository has one generator path, the pipeline's, and no code reads the removed folders.
+**I want to** have the pipeline's `planGeneration` and `checkReply` live in the pipeline module, reading only the new layouts
+**So that** the new path is ready for F-07 and the flat path, which the API still uses, keeps working unchanged until F-07 removes it.
 
 **Requirements:** R-07
 
 #### Acceptance Criteria
 
-- [ ] AC-026 `[auto]`: The folders `source/templates/steps/`, `source/templates/workflows/` and `source/templates/rules/` do not exist. A test asserts this by path.
-- [ ] AC-027 `[auto]`: The modules `source/packages/core/src/generate.ts`, `render/step-files.ts` and `render/workflow-command.ts` do not exist, and no module under `source/packages/core/src/` or `source/apps/` imports them. A test asserts the file paths; the import check runs over the source tree.
-- [ ] AC-028 `[auto]`: The flat model and catalog that the web app imports (`DEFAULT_WORKFLOWS`, `DEFAULT_STEP_CATALOG`, `DEFAULT_CONNECTIONS`, `getCatalogStep`) are still exported from `@sddbuilder/core`, and the web app's test suite still passes.
+- [ ] AC-026 `[auto]`: The pipeline module (`source/packages/core/src/pipeline/index.ts`) exports `planGeneration` and `checkReply`. The root package still exports the flat `planGeneration`, `checkReply` and `validateConfig`, with unchanged behaviour: the existing flat tests pass without edits.
+- [ ] AC-027 `[auto]`: No module under `source/packages/core/src/pipeline/` imports `render/step-files`, `render/workflow-command`, `generate.ts` or `plan.ts`, and none reads a path under `steps/`, `workflows/` or `rules/`. A test scans the imports and the path strings of the pipeline folder.
+- [ ] AC-028 `[auto]`: The API's generate tests (`source/apps/api/test/generate-*.test.ts`, `generation-model.test.ts`) and the web app's test suite pass without edits, and the flat model and catalog (`DEFAULT_WORKFLOWS`, `DEFAULT_STEP_CATALOG`, `DEFAULT_CONNECTIONS`, `getCatalogStep`) are still exported from `@sddbuilder/core`.
 
 ---
 
@@ -170,4 +167,4 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 | R-04 `planGeneration` on the pipeline model: one entry per output file, deterministic, pure | AC-011, AC-012, AC-013, AC-014, AC-015 |
 | R-05 `checkReply`: the reply is checked against its plan, findings only | AC-016, AC-017, AC-018, AC-019, AC-020, AC-021, AC-022, AC-023 |
 | R-06 Stack-neutral layouts, no scripts, placeholders from the README list | AC-024, AC-025 |
-| R-07 Flat layouts, flat renderers and flat generator removed; flat model kept | AC-026, AC-027, AC-028 |
+| R-07 Pipeline generator path separate from the flat one; flat code and API unchanged until F-07 | AC-026, AC-027, AC-028 |

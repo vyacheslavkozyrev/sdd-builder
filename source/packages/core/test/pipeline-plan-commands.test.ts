@@ -12,14 +12,16 @@ const PIPELINE_COMMAND = '.claude/commands/pipeline.md';
 const CLAUDE_MD = 'CLAUDE.md';
 const PROCESS_MD = 'spec/documents/process.md';
 
-/** The real layouts the plan reads: the base files, the spec template files and the two command layouts. */
+/** The real layouts the plan reads: the base files, the spec template files and the command, agent and rule layouts. */
 function realTemplates(): ListableTemplateSource {
   const read = (path: string): string => readFileSync(join(TEMPLATES, path), 'utf8');
   const records: Record<string, string> = {
     'base/CLAUDE.md': read('base/CLAUDE.md'),
     'base/process.md': read('base/process.md'),
+    'claude-code/agent.md': read('claude-code/agent.md'),
     'claude-code/command.md': read('claude-code/command.md'),
     'claude-code/pipeline-command.md': read('claude-code/pipeline-command.md'),
+    'claude-code/rule.md': read('claude-code/rule.md'),
   };
   for (const name of readdirSync(join(TEMPLATES, 'base', 'spec-template'))) {
     records[`base/spec-template/${name}`] = read(`base/spec-template/${name}`);
@@ -174,10 +176,8 @@ describe('F-03 AC-011 planGeneration gives the same paths in the same order for 
     expect(second).toEqual(first);
   });
 
-  it('F-03 AC-011 gives one entry per generated file, in the order of the file list (agent and rule files excluded)', () => {
-    const files = generate(defaultProjectConfig, templates).files
-      .map((file) => file.path)
-      .filter((path) => !path.startsWith('.claude/agents/') && !path.startsWith('.claude/rules/'));
+  it('F-03 AC-011 gives one entry per generated file, in the order of the file list', () => {
+    const files = generate(defaultProjectConfig, templates).files.map((file) => file.path);
     const plan = planGeneration(defaultProjectConfig, templates);
     expect(plan.map((entry) => entry.path)).toEqual(files);
     for (const entry of plan) expect(entry.layout).not.toMatch(/\{\{[^}]*\}\}/);

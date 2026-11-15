@@ -1,7 +1,7 @@
 // Flow command files (F-02 AC-023, AC-026): one `.claude/commands/<flow-id>.md` per enabled child flow, its enabled
 // blocks as numbered steps in block order, each naming the file it calls. Pure: the files are returned, never written.
-// The layout and the step text live in this file only. A disabled block or flow is never mentioned, because the text
-// is built from the selection alone.
+// The step text lives in this file; `command-layouts.ts` reuses `describeStep` for the layout placeholders. A disabled
+// block or flow is never mentioned, because the text is built from the selection alone.
 import type { GeneratedFile } from '../../model.js';
 import type { AgentBlock, ChildBlock, ConditionBlock, ConnectionBlock, ProjectConfig, Route } from '../model.js';
 import { selectBlocks, type SelectedFlow } from './select.js';
@@ -46,7 +46,7 @@ function describeConnection(block: ConnectionBlock, selected: ReadonlySet<string
 }
 
 /** One numbered step for a block of a child flow. `selected` holds the ids of the flow's selected blocks. */
-function describeStep(block: ChildBlock, selected: ReadonlySet<string>): string {
+export function describeStep(block: ChildBlock, selected: ReadonlySet<string>): string {
   switch (block.kind) {
     case 'start':
       return `Start the flow (\`${block.id}\`).`;

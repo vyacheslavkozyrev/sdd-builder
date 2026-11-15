@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 2 of 13 tasks committed |
+| Build    | 🔄 In Progress |   | 3 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,12 +31,15 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Correct the F-03 line in `features.md`: Mermaid to F-18, rules per entry (decision 20) | 0 blockers, 0 warnings, 0 suggestions | 1059 passed (62 files) |
 | T002 | Base layouts as sections; flat base kept as a legacy copy (amendment, option A); pipeline base-file values; rule titles on one line. Committed at 469 changed lines, over the 400-line guard, by the user's explicit decision | 1 blocker (stray `</content>` lines removed), 1 warning (rule title line break) fixed | 1068 passed (63 files) |
+| T003 | Command layouts (`claude-code/command.md`, `pipeline-command.md`) and list builders in `command-layouts.ts`; `describeStep` and `argumentLines` exported, per-block switch extracted with unchanged behaviour | 0 blockers, 2 warnings (layout wording, connection-end test) and 1 suggestion fixed; 1 suggestion deferred | 1085 passed (64 files) |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T003 `source/packages/core/src/pipeline/generate/command-layouts.ts` `routeRuleList` and `pipeline-command.ts` `ruleLines`: the same back-route loop is written twice. Not merged in T003 because `pipeline-command.ts` is imported by `command-layouts.ts`, so sharing the loop needs a move into `rules-text.ts`; the wiring task (T005) decides whether `pipeline-command.ts` switches to the template path, and the merge follows that.
 
 ---
 

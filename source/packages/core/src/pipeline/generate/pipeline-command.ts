@@ -11,7 +11,7 @@ const FLOW_COMMANDS_DIR = '.claude/commands/';
 const OUTCOMES: readonly Outcome[] = ['pass', 'fail'];
 
 /** The arguments of the pipeline, one line each with its required flag, or a line saying there are none. */
-function argumentLines(start: PipelineStartBlock | undefined): string[] {
+export function argumentLines(start: PipelineStartBlock | undefined): string[] {
   const args = start?.arguments ?? [];
   if (args.length === 0) {
     return ['This pipeline takes no arguments.'];
@@ -19,19 +19,25 @@ function argumentLines(start: PipelineStartBlock | undefined): string[] {
   return args.map((argument) => `- \`${argument.name}\` (${argument.required ? 'required' : 'optional'})`);
 }
 
+/** The step a pipeline block adds to the pipeline command, or undefined for a block that adds none. */
+export function describePipelineStep(block: PipelineBlock): string | undefined {
+  switch (block.kind) {
+    case 'flow':
+      return `Run the flow \`${block.name}\` (\`${block.id}\`), following \`${FLOW_COMMANDS_DIR}${block.id}.md\`.`;
+    case 'condition':
+      return checkRule(block);
+    case 'start':
+    case 'connection':
+    case 'end':
+      return undefined;
+  }
+}
+
 /** The numbered steps: each enabled child flow in order, and each enabled gate or check between them. */
 function stepLines(blocks: readonly PipelineBlock[]): string[] {
   const steps = blocks.flatMap((block): string[] => {
-    switch (block.kind) {
-      case 'flow':
-        return [`Run the flow \`${block.name}\` (\`${block.id}\`), following \`${FLOW_COMMANDS_DIR}${block.id}.md\`.`];
-      case 'condition':
-        return [checkRule(block)];
-      case 'start':
-      case 'connection':
-      case 'end':
-        return [];
-    }
+    const step = describePipelineStep(block);
+    return step === undefined ? [] : [step];
   });
   return steps.map((step, index) => `${index + 1}. ${step}`);
 }

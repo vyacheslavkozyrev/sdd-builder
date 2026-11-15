@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 4 of 13 tasks committed |
+| Build    | 🔄 In Progress |   | 5 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Base layouts as sections; flat base kept as a legacy copy (amendment, option A); pipeline base-file values; rule titles on one line. Committed at 469 changed lines, over the 400-line guard, by the user's explicit decision | 1 blocker (stray `</content>` lines removed), 1 warning (rule title line break) fixed | 1068 passed (63 files) |
 | T003 | Command layouts (`claude-code/command.md`, `pipeline-command.md`) and list builders in `command-layouts.ts`; `describeStep` and `argumentLines` exported, per-block switch extracted with unchanged behaviour | 0 blockers, 2 warnings (layout wording, connection-end test) and 1 suggestion fixed; 1 suggestion deferred | 1085 passed (64 files) |
 | T004 | Agent layout (`claude-code/agent.md`, headings Purpose, Inputs, Outputs, Rules, Checks) and rule layout (`claude-code/rule.md`); README placeholder rows; `ruleTags` contract says `none` when empty | 0 blockers, 2 warnings (weak heading-reader test renamed and given a `###` case; empty tags contract) fixed; 1 suggestion deferred (`REPO_ROOT` name) | 1094 passed (65 files) |
+| T005 | `planGeneration` for base, pipeline and flow command entries (`pipeline/plan.ts`), exported from the pipeline module only; agent and rule entries left to T006 | 0 blockers, 3 warnings (weak tests: module list, flow and gate order, gate between flows) fixed; 1 deferred (plan-level throw test, moved to T007) | 1108 passed (66 files) |
 
 ---
 
@@ -41,7 +42,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 _Review suggestions intentionally not applied, with the reason._
 
 - T004 `source/packages/core/test/layouts-agent-rule.test.ts` `REPO_ROOT`: the constant points at `source/`, not the repository root. The same name is used in `layouts-base.test.ts` and `templates-readme.test.ts`; renaming it is a cross-file change outside T004.
-- T003 `source/packages/core/src/pipeline/generate/command-layouts.ts` `routeRuleList` and `pipeline-command.ts` `ruleLines`: the same back-route loop is written twice. Not merged in T003 because `pipeline-command.ts` is imported by `command-layouts.ts`, so sharing the loop needs a move into `rules-text.ts`; the wiring task (T005) decides whether `pipeline-command.ts` switches to the template path, and the merge follows that.
+- T003 `source/packages/core/src/pipeline/generate/command-layouts.ts` `routeRuleList` and `pipeline-command.ts` `ruleLines`: the same back-route loop is written twice. Not merged in T003 because `pipeline-command.ts` is imported by `command-layouts.ts`, so sharing the loop needs a move into `rules-text.ts`; the wiring task (T005) decides whether `pipeline-command.ts` switches to the template path, and the merge follows that. T005 kept `pipeline-command.ts` on its own path (the plan reads the layout, not the generator's text), so this stays open.
+- T005 `source/packages/core/test/pipeline-plan-commands.test.ts`: no plan-level test that an unfilled placeholder makes `planGeneration` throw. The throw comes from `renderTemplate` (covered by the renderer's own tests, F-02 AC-019); the error paths are T007's scope in plan.md, so the plan-level test goes there.
 
 ---
 

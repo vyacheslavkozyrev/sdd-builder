@@ -21,3 +21,4 @@ export type {
   StartBlock,
 } from './model.js';
 export { generate } from './generate/generate.js';
+export { planGeneration, type PipelinePlanEntry } from './plan.js';

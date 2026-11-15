@@ -15,13 +15,20 @@ function sourceFiles(dir: string): string[] {
 /** Modules the core must never import: I/O, network and LLM SDKs. */
 const FORBIDDEN = [/^node:/, /^fs$/, /^fs\//, /^http$/, /^https$/, /^net$/, /^child_process$/, /^@anthropic-ai\//, /^openai$/];
 
-describe('F-02 T018 purity', () => {
-  it('F-02 AC-034 packages/core/src imports no I/O, network or LLM module', () => {
+/**
+ * Every module specifier in a source text: `import ... from`, `export ... from`, bare side-effect
+ * `import 'x'`, `import('x')` and `require('x')`. Quotes and backticks both count.
+ */
+const SPECIFIER =
+  /(?:import|export)\s[^'"`]*?from\s*['"`]([^'"`]+)['"`]|\bimport\s*['"`]([^'"`]+)['"`]|\bimport\s*\(\s*['"`]([^'"`]+)['"`]\s*\)|\brequire\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
+
+describe('F-02 AC-033 purity', () => {
+  it('F-02 AC-033 packages/core/src imports no I/O, network or LLM module, reads no process.env and uses no window global', () => {
     const offending: string[] = [];
     for (const file of sourceFiles(SRC)) {
       const text = readFileSync(file, 'utf8');
-      for (const match of text.matchAll(/(?:import|export)\s[^'"]*?from\s+['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)/g)) {
-        const specifier = match[1] ?? match[2] ?? '';
+      for (const match of text.matchAll(SPECIFIER)) {
+        const specifier = match[1] ?? match[2] ?? match[3] ?? match[4] ?? '';
         if (FORBIDDEN.some((pattern) => pattern.test(specifier))) {
           offending.push(`${file}: ${specifier}`);
         }
@@ -29,21 +36,17 @@ describe('F-02 T018 purity', () => {
       if (/\bprocess\.(env|argv|exit|cwd|stdin|stdout|stderr|on|nextTick)\b/.test(text)) {
         offending.push(`${file}: uses the process global`);
       }
+      if (/\bwindow\s*(\?\.|\.|\[)|\btypeof\s+window\b/.test(text)) {
+        offending.push(`${file}: uses the window global`);
+      }
     }
     expect(offending).toEqual([]);
   });
 
-  it('F-02 AC-034 the scan reads the core sources at all', () => {
+  it('F-02 AC-033 the scan reads the core sources at all', () => {
     expect(sourceFiles(SRC).length).toBeGreaterThan(10);
   });
 });
-
-/**
- * Every module specifier in a source text: `import ... from`, `export ... from`, bare side-effect
- * `import 'x'`, `import('x')` and `require('x')`. Quotes and backticks both count.
- */
-const SPECIFIER =
-  /(?:import|export)\s[^'"`]*?from\s*['"`]([^'"`]+)['"`]|\bimport\s*['"`]([^'"`]+)['"`]|\bimport\s*\(\s*['"`]([^'"`]+)['"`]\s*\)|\brequire\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g;
 
 /** Node modules the pipeline must not reach: file system, HTTP, network sockets, child processes, process. */
 const PIPELINE_MODULES = ['fs', 'http', 'https', 'http2', 'net', 'tls', 'dns', 'dgram', 'child_process', 'process'];

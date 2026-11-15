@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 13 of 19 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7) |
+| Build    | 🔄 In Progress | | 14 of 19 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7) |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ None.
 | T012 | Removed the flat core tests `plan`, `reply-check`, `validate-ids`, `validate-map`, `validate-policy`, `validate-routes` (pure deletions, 814 lines; the owner waived the guard, not split) | 0 blockers, 0 warnings, 2 suggestions deferred | task check passed: 479 api, 348 web, 1260 core |
 | T013 | Removed the remaining flat core tests (conditionals, file-list, generate, placeholders, rules-text, select, step-files, workflow-command, templates-steps and the flat fixture); `pipeline-separation` loses its flat imports; `pipeline-result-shapes` gets a runtime check on `pipeline.generate`; a literal-placeholder case added to `pipeline-generate-render` | 0 blockers, 3 warnings fixed, 1 suggestion fixed, 4 deferred | task check passed: 479 api, 348 web, 1193 core |
 | T014a | Moved the selection helpers (`selectWorkflows`, `selectSteps`, `selectConditions`, `SelectedStep`) to `src/selection.ts` (byte-identical copy); root export and render imports repointed; web unchanged | 0 blockers, 0 warnings, 0 fixed; 2 suggestions deferred | task check passed: 479 api, 348 web, 1193 core |
+| T014 | Removed the flat generator sources `generate.ts`, `plan.ts`, `reply-check.ts`, `select.ts`, `file-list.ts` and their root exports; `pipeline-analyze-root` keeps only the flat names still exported (Amendment 8); README sentence updated | 0 blockers, 1 warning fixed, 0 deferred. Deletion-only exception to the size guard, owner approved | task check passed: 479 api, 348 web, 1193 core |
 
 ---
 
@@ -50,6 +51,7 @@ None.
 - **Amendment 5 (2026-11-15), T013 keeps `layouts-base.test.ts`.** The plan named it for removal, but it is the only guard that `source/templates/base/` holds no flat placeholder (F-03 AC-001), so it stays. Owner confirmation pending; the review recorded it in Deferred Findings.
 - **Amendment 6 (2026-11-15), `wouldCreateCycle` moves out of `validate/` before T015.** The web app (`source/apps/web/src/builder/map-state.ts`) imports `wouldCreateCycle` from the core root, and T015 deletes `source/packages/core/src/validate/`. The web app must stay unchanged (AC-025), so in T015 the function moves to `source/packages/core/src/cycle.ts`, its direct table moves to `source/packages/core/test/cycle.test.ts`, and the root keeps exporting it. Owner approved, 2026-11-15.
 - **Amendment 7 (2026-11-15), the selection helpers move before T014.** `source/packages/core/src/select.ts` is imported by `render/workflow-command.ts`, `render/step-files.ts`, `render/rules-text.ts`, `render/mermaid.ts` and by the web app's `builder/map-view.ts` (`selectConditions`, from the core root). The web app must stay unchanged (AC-025), so a new task T014a moves `selectWorkflows`, `selectSteps`, `selectConditions` and `SelectedStep` to `source/packages/core/src/selection.ts`, keeps the root export, and repoints the four render files and the web import. `render/mermaid.ts` stays (Amendment 5). Then T014 removes `select.ts` with the other flat generator sources. Owner approved, 2026-11-15.
+- **Amendment 8 (2026-11-15), T014 edits the F-04 root-export test.** `source/packages/core/test/pipeline-analyze-root.test.ts` (F-04 T002) asserts that the root exports the flat names `generate`, `planGeneration`, `checkReply`, `finishFileList` and `BASE_FILES`. T014 removes those five, so the test now keeps only `validateConfig`, `parseProjectConfig` and `InvalidConfigError` (still exported until T015 and T016). T016 checks the removals. Owner approved, 2026-11-15.
 
 ---
 

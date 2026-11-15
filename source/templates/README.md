@@ -6,7 +6,7 @@ Text files that describe the layout of a project and what each file should conta
 
 The base templates in `base/` are the pipeline's. They use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` list the flows, agents and rules from the selection through list placeholders, and `base/spec-template/` has no placeholders. The pipeline layouts for the command, agent and rule files are in `claude-code/`. The renderer still reads `#enabled:<id>` sections (see Section rules), but no base or `claude-code/` layout uses one.
 
-The flat base templates in `flat/base/` still use the flat placeholders listed in the table below (the diagram, the module list and the rule lists). They are a legacy copy that the flat `generate` in `source/packages/core/src/generate.ts` reads until F-07 removes it. The flat `steps/`, `workflows/` and `rules/` layouts and their renderers also remain until F-07 (architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
+The flat base templates in `flat/base/` still use the flat placeholders listed in the table below (the diagram, the module list and the rule lists). They are a legacy copy: the flat generator that read them was removed from core in F-07 (T014). The flat `steps/`, `workflows/` and `rules/` layouts and their renderers also remain until F-07 (architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
 
 ## Placeholders
 

@@ -48,9 +48,9 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 #### Acceptance Criteria
 
-- [ ] AC-001 `[auto]`: The default pipeline (`source/templates/pipeline/default.json`) gives no structural findings.
+- [ ] AC-001 `[auto]`: The default pipeline (`source/templates/pipeline/default.json`) gives no `blocker`. Its only warnings are the six retry warnings (AC-008) and the `rules` warning (AC-012), which the owner accepted (Amendments 4 and 5).
 - [ ] AC-002 `[auto]`: The same configuration gives the same findings in the same order every time, and the analysis does not change the configuration (it is equal before and after).
-- [ ] AC-003 `[auto]`: Findings are ordered by severity (`blocker`, then `warning`, then `info`), then by `subject`, then by `message`, in code-unit order. A table test covers ties on severity and on subject.
+- [ ] AC-003 `[auto]`: Findings are ordered by severity (`blocker`, then `warning`, then `info`), then by `subject`, then by `message`. Subjects that are block or flow paths compare by numeric path order, so `pipeline.blocks[3]` comes before `pipeline.blocks[10]` (the same order the generator's problem list uses; Amendment 5); other text compares in code-unit order. A table test covers ties on severity and on subject. No check emits `info` yet, so the `info` rank is not tested; it sorts after `warning` (Amendment 6).
 
 ---
 

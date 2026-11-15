@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 25 of 26 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 26 of 26 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -73,6 +73,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T021 | Flat analyzer sources group 1 removed (index, brief, custom-steps, inputs, reachability); root exports and two test cases moved to the pipeline namespace (Amendments 14 and 15) | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed | task check passed (exit 0) |
 | T022 | Flat analyzer sources group 2 removed; `analyze/` folder gone; root exports only the pipeline namespace; root-exports test (AC-024) | reviewed: 0 blockers, 1 warning fixed, 1 suggestion fixed | task check passed (exit 0) |
 | T023 | No flat analysis import under `source/apps/` (scan test with matcher and fixtures) | reviewed: 0 blockers, 2 warnings fixed, 2 suggestions fixed, 1 suggestion deferred | task check passed (exit 0) |
+| T024 | Architecture §4 and decision 10 describe the pipeline analysis, reader and failure rules | reviewed: 0 blockers, 3 warnings and 4 suggestions fixed | task check passed (exit 0) |
 
 ---
 

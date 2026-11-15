@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 12 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 13 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -53,6 +53,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T010 | Pipeline input caps (idea 8,000, rules 60) and skipped analysis (structural findings, review skipped) | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed | task check passed (exit 0) |
 | T011 | Pipeline reader for `/analyze`: parse via core, 400 with `<path>: <reason>` problems; unknown key names allowed in problems (Amendment 7) | reviewed: 1 blocker resolved by Amendment 7, 1 suggestion fixed | task check passed (exit 0) |
 | T012 | Review prompt over the pipeline config (new file review/pipeline-prompt.ts; flat prompt removed in T013) | reviewed: 0 blockers, 4 warnings fixed, 2 suggestions deferred | task check passed (exit 0) |
+| T013 | Pipeline analysis `analyzePipeline` beside the flat `analyze` (Amendment 9): structural findings kept, review failures keep them, log line event and error name only | reviewed: 0 blockers, 0 warnings; 1 suggestion deferred (duplicate body, removed by T013b) | task check passed (exit 0) |
 
 ---
 
@@ -67,6 +68,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T011 `source/packages/core/src/pipeline/parse-util.ts:44` (BLOCKER, resolved by Amendment 7: AC-020 allows the client's own unknown key name): `checkKeys` puts an unknown key's name into the problem path (for example `{"SUBMITTED": 1}` gives `SUBMITTED: is not a known key`), so `/analyze` returns submitted text in the 400 body, against the T011 line "never a submitted value". F-01 AC-020 and AC-027 require the unknown key's path, so the fix contradicts F-01 and is not applied. Options for the owner: (a) the reader hides the last segment of such problems; (b) F-01 AC-020 and AC-027 change to an object path with the reason `has a field the config does not define` (the flat core's wording), and about 20 core test assertions update with it.
 
 - T012 `source/apps/api/src/review/pipeline-prompt.ts` (suggestion): the prompt omits the process-level parts a review may need, namely the pipeline's enabled connections and gates between flows, the Start arguments, the routes and `threshold` of conditions, and the agent and flow `ruleTags`. AC-013 names only the brief, enabled flows with their enabled blocks and descriptions, and rule text, so adding them is a scope change for the owner.
+
+- T013 `source/apps/api/src/analyze.ts` `analyzePipeline` (suggestion): its body repeats the flat `analyze` line for line. The flat function must stay untouched until T013b (Amendment 9), so a shared helper would still leave the copy in place. Removed with the flat `analyze` in T013b.
 
 - T012 `plan.md` T012 line (suggestion): it names the test file `source/apps/api/test/prompt.test.ts`, which is the flat test that stays until T013. The staged test is `source/apps/api/test/pipeline-prompt.test.ts`; correct the T012 line when T013 removes the flat files.
 

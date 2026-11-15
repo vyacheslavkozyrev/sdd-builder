@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 16 of 16 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
+| Build    | 🔄 In Progress | 2026-11-14 | 16 of 17 tasks committed (T014 added by verify) (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -71,7 +71,54 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+Run on 2026-11-14 at `main`, clean tree: `source/scripts/task-check.sh` passed (typecheck, then 62 files and 1059 tests, all passing).
+
+Criteria matrix (only passing tests whose names carry the criterion id; counts are tests per file):
+
+| Criterion | Covering passing tests | Status |
+| --- | --- | --- |
+| AC-001 | pipeline-generate-refusals-shape (7) | covered |
+| AC-002 | pipeline-generate-refusals-shape (5) | covered; its two-Start cases are labelled AC-001 |
+| AC-003 | pipeline-generate-refusals-wiring (8) | covered |
+| AC-004 | pipeline-generate-refusals-wiring (5) | covered |
+| AC-005 | pipeline-generate-refusals-reach (10) | covered |
+| AC-006 | pipeline-generate-refusals-routes (10) | covered |
+| AC-007 | pipeline-generate-refusals-routes (3) | covered |
+| AC-008 | pipeline-generate-refusals-names (14), pipeline-rules (9) | covered |
+| AC-009 | pipeline-generate-refusals-names (4) | covered |
+| AC-010 | pipeline-generate-refusals-names (9) | covered |
+| AC-011 | pipeline-generate-refusals-names (15) | covered |
+| AC-012 | pipeline-generate-refusals-shape (4), pipeline-generate-refusals-wiring-skip (2) | covered |
+| AC-013 | pipeline-generate-refusals-names (2) | covered |
+| AC-014 | pipeline-generate-refusals-names (6), pipeline-generate-refusals-routes (3), pipeline-generate-refusals-wiring-skip (6) | covered |
+| AC-015 | pipeline-generate-select (12) | covered |
+| AC-016 | pipeline-generate-select (12) | covered |
+| AC-017 | pipeline-generate-select (12) | covered |
+| AC-018 | pipeline-generate-base (5) | covered |
+| AC-019 | pipeline-generate-render (17) | covered |
+| AC-020 | pipeline-generate-render (23) | covered |
+| AC-021 | pipeline-generate-base (2), pipeline-generate-render (3) | covered |
+| AC-022 | pipeline-generate-base (3) | covered |
+| AC-023 | pipeline-generate-flow-commands (11) | covered |
+| AC-024 | pipeline-generate-pipeline-command (11) | covered |
+| AC-025 | pipeline-generate-pipeline-command (12) | covered |
+| AC-026 | pipeline-generate-flow-commands (4) | covered |
+| AC-027 | pipeline-generate-agent-rule-files (9) | covered |
+| AC-028 | pipeline-generate-agent-rule-files (8), pipeline-rules (16) | covered |
+| AC-029 | pipeline-agent-description (15) | covered |
+| AC-030 | pipeline-generate-file-list (5) | covered for the sort; the duplicate-path clause is labelled AC-031 |
+| AC-031 | none named for it: the two-run determinism tests are labelled AC-032 and AC-034; the AC-031 labels sit on the duplicate-path tests | GAP (label) |
+| AC-032 | pipeline-generate-file-list (4: no ISO timestamp, no random value or clock) | covered |
+| AC-033 | purity (2) | covered |
+| AC-034 | pipeline-generate-pure (5) | covered |
+
+**Gaps:** AC-031 (determinism of generating twice) has no test named for it. The proof exists in `pipeline-generate-file-list.test.ts` under the AC-032 label and in `pipeline-generate-pure.test.ts` under AC-034. The AC-031 label sits on the duplicate-path tests, which prove the AC-030 clause. Fix: relabel these tests; no test was added or changed in this run.
+
+**Stale labels:** test files written for the superseded F-02 spec (the workflow and step model, decision 19 flat generator) still carry `F-02 AC-0xx` labels whose text is not the current criterion. These do not count as coverage: `validate-ids`, `validate-map`, `validate-routes`, `validate-policy`, `catalog`, `errors`, `generate`, `select`, `rules-text`, `step-files`, `file-list`, `workflow-command`, `conditionals`, `placeholders`, `mermaid`. Mermaid is F-18 scope. The labels should be renamed or the files retired when F-07 removes the flat generator.
+
+**Totals:** 34 of 34 criteria have a passing test that carries the id and proves its text, except AC-031 (gap). No test names a criterion outside AC-001 to AC-034.
+
+**Manual checklist:** none. All 34 criteria are `[auto]`, so no `checklist.md` is needed.
 
 ---
 
@@ -101,3 +148,8 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md`, T004b split into T004b1 (names, ids, check rules; AC-008, AC-009, AC-011, AC-013) and T004b2 (required blocks and the fixture updates; AC-010). T004b2 also changes one expected value of the T003 test "refuses a flow that follows a gate that stops": the five required gates after the unreachable flow b are also reported as unreachable. The user approved this change.
 **Reason**: the T004b change is about 720 changed lines, over the 400-line guard, and it changes an earlier assertion.
 **Impact**: T004b1 runs first and is committed on its own. T004b2 follows, with the fixture updates and the expected change. The T004b agent's fixture decisions stand: a disabled Start or End counts as present when no enabled one of its kind exists, and the AC-002 fixture gains an enabled End beside the disabled one (expected value unchanged).
+
+### Amendment — 2026-11-14 (sixth)
+**Changed**: `plan.md`, a new task T014 at the end of the task list: test labels for verify. The determinism test of the file list carries F-02 AC-031; the duplicate-path tests keep F-02 AC-030; the two-Start cases of `pipeline-generate-refusals-shape.test.ts` carry F-02 AC-002.
+**Reason**: verify found no test labelled F-02 AC-031 (generating twice gives the same paths, order and content). The other two labels are wrong. No behaviour changes.
+**Impact**: T014 is built, reviewed, tested and committed, then verify runs again. Stale labels from the superseded flat-model tests (for example in `validate-*`, `catalog`, `generate`, `select`, `mermaid`) still carry F-02 AC-0xx labels that mean something else. They are not counted as coverage; they are renamed or removed when F-07 removes the flat generator, and this is recorded as a finding for the user.

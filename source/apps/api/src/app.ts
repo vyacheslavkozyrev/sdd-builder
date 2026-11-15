@@ -1,7 +1,7 @@
 import { Hono, type Context } from 'hono';
 import { pipeline, type ListableTemplateSource } from '@sddbuilder/core';
 import { analyzePipeline, type ReviewModel } from './analyze.js';
-import { generatePipelineProject } from './generate/pipeline-service.js';
+import { generateProject } from './generate/service.js';
 import type { GenerationModel } from './generate/generation-model.js';
 import { errorBody, type ErrorBody } from './http/errors.js';
 import { readPipelineConfig } from './http/read-pipeline-config.js';
@@ -10,7 +10,7 @@ import type { ClientLimiter, Reservation } from './limits/client-limiter.js';
 import type { DailyCeiling } from './limits/daily-ceiling.js';
 import { packageZip } from './zip.js';
 
-/** The 422 message for a configuration that the structural check refuses, on `/generate` and in `generatePipelineProject`. */
+/** The 422 message for a configuration that the structural check refuses, on `/generate` and in `generateProject`. */
 const REFUSED_MESSAGE = 'project config cannot be generated';
 
 /** What `/generate` needs to write the project. `null` in `AppDeps` means the generation model is not configured. */
@@ -123,7 +123,7 @@ export function createApp({ review, generation, log, limits }: AppDeps): Hono {
       log.write(formatLogLine({ event: 'daily_ceiling_reached', route: '/generate', status: 429 }));
       return c.json(errorBody('daily generation limit reached'), 429);
     }
-    const result = await generatePipelineProject(read.config, { templates: generation.templates, model: generation.model, log });
+    const result = await generateProject(read.config, { templates: generation.templates, model: generation.model, log });
     if (result.ok) {
       const zip = await packageZip(result.files);
       return c.body(new Uint8Array(zip), 200, {

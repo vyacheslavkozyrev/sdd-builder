@@ -119,7 +119,7 @@ function readAppFile(): string {
 describe('F-07 AC-018 the generate path imports no file-system, network or environment module', () => {
   it('F-07 AC-018 the scan reads the generate path files and the /generate route', () => {
     const files = generateFiles();
-    for (const required of ['parse-reply.ts', 'pipeline-prompt.ts', 'pipeline-service.ts', PROVIDER_ADAPTER]) {
+    for (const required of ['parse-reply.ts', 'prompt.ts', 'service.ts', PROVIDER_ADAPTER]) {
       expect(files).toContain(required);
     }
     for (const file of files) {

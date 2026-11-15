@@ -1,17 +1,17 @@
 import { pipeline, type GeneratedFile, type ListableTemplateSource } from '@sddbuilder/core';
 import { errorNameOf, formatLogLine, type LogPort } from '../log.js';
-import { buildPipelineGenerationPrompt } from './pipeline-prompt.js';
+import { buildGenerationPrompt } from './prompt.js';
 import { parseReply } from './parse-reply.js';
 import type { GenerationModel, GenerationReply } from './generation-model.js';
 
 /** The outcome of a generation. A refusal lists every configuration problem; no model call is made for it. */
-export type PipelineGenerateResult =
+export type GenerateResult =
   | { ok: true; files: GeneratedFile[] }
   | { ok: false; reason: 'refused'; problems: string[] }
   | { ok: false; reason: 'model' }
   | { ok: false; reason: 'reply'; problems: string[] };
 
-export interface PipelineGenerateDeps {
+export interface GenerateDeps {
   templates: ListableTemplateSource;
   model: GenerationModel;
   log: LogPort;
@@ -32,7 +32,7 @@ type Attempt =
 async function attempt(
   prompt: string,
   plan: readonly pipeline.PipelinePlanEntry[],
-  { model, log }: Pick<PipelineGenerateDeps, 'model' | 'log'>,
+  { model, log }: Pick<GenerateDeps, 'model' | 'log'>,
 ): Promise<Attempt> {
   let raw: GenerationReply;
   try {
@@ -66,19 +66,19 @@ async function attempt(
  * and still cannot be planned, or a missing layout), so it is not caught here: it propagates to the
  * route, which maps it to a 500.
  */
-export async function generatePipelineProject(
+export async function generateProject(
   config: pipeline.ProjectConfig,
-  { templates, model, log }: PipelineGenerateDeps,
-): Promise<PipelineGenerateResult> {
+  { templates, model, log }: GenerateDeps,
+): Promise<GenerateResult> {
   const problems = pipeline.configProblems(config);
   if (problems.length > 0) {
     return { ok: false, reason: 'refused', problems: problems.map((problem) => `${problem.path}: ${problem.message}`) };
   }
 
   const plan = pipeline.planGeneration(config, templates);
-  let outcome = await attempt(buildPipelineGenerationPrompt(config, plan), plan, { model, log });
+  let outcome = await attempt(buildGenerationPrompt(config, plan), plan, { model, log });
   if (outcome.kind === 'failed') {
-    outcome = await attempt(buildPipelineGenerationPrompt(config, plan, outcome.findings), plan, { model, log });
+    outcome = await attempt(buildGenerationPrompt(config, plan, outcome.findings), plan, { model, log });
   }
 
   if (outcome.kind === 'model') {

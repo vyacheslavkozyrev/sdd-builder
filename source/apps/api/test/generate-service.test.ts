@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { pipeline } from '@sddbuilder/core';
-import { generatePipelineProject } from '../src/generate/pipeline-service.js';
-import { buildPipelineGenerationPrompt } from '../src/generate/pipeline-prompt.js';
+import { generateProject } from '../src/generate/service.js';
+import { buildGenerationPrompt } from '../src/generate/prompt.js';
 import type { GenerationModel, GenerationReply } from '../src/generate/generation-model.js';
 import type { LogPort } from '../src/log.js';
 import { loadTemplates } from '../src/templates.js';
@@ -112,7 +112,7 @@ describe('F-07 pipeline generation service: refusals', () => {
 
       const model = scriptedModel([reply('{}')]);
       const log = fakeLog();
-      const result = await generatePipelineProject(config, { templates, model, log });
+      const result = await generateProject(config, { templates, model, log });
 
       expect(result).toEqual({ ok: false, reason: 'refused', problems: expected });
       expect(model.prompts).toHaveLength(0);
@@ -127,7 +127,7 @@ describe('F-07 pipeline generation service: one call and the reply', () => {
     const plan = planOf(config);
     const model = scriptedModel([reply(JSON.stringify(fullReply(plan)))]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(result.ok).toBe(true);
     expect(model.prompts).toHaveLength(1);
@@ -141,7 +141,7 @@ describe('F-07 pipeline generation service: one call and the reply', () => {
     const plan = planOf(config);
     const model = scriptedModel([reply(JSON.stringify(fullReply(plan)))]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(result).toEqual({
       ok: true,
@@ -155,7 +155,7 @@ describe('F-07 pipeline generation service: one call and the reply', () => {
     const reversed = Object.fromEntries(Object.entries(fullReply(plan)).reverse());
     const model = scriptedModel([reply(JSON.stringify(reversed))]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(result.ok && result.files.map((file) => file.path)).toEqual(plan.map((entry) => entry.path));
   });
@@ -165,8 +165,8 @@ describe('F-07 pipeline generation service: one call and the reply', () => {
     const plan = planOf(config);
     const text = JSON.stringify(fullReply(plan));
 
-    const first = await generatePipelineProject(config, { templates, model: scriptedModel([reply(text)]), log: fakeLog() });
-    const second = await generatePipelineProject(config, { templates, model: scriptedModel([reply(text)]), log: fakeLog() });
+    const first = await generateProject(config, { templates, model: scriptedModel([reply(text)]), log: fakeLog() });
+    const second = await generateProject(config, { templates, model: scriptedModel([reply(text)]), log: fakeLog() });
 
     expect(second).toEqual(first);
   });
@@ -178,10 +178,10 @@ describe('F-07 pipeline generation service: retry', () => {
     const plan = planOf(config);
     const model = scriptedModel([reply('not json at all'), reply(JSON.stringify(fullReply(plan)))]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(model.prompts).toHaveLength(2);
-    expect(model.prompts[1]).toBe(buildPipelineGenerationPrompt(config, plan, ['reply is not JSON']));
+    expect(model.prompts[1]).toBe(buildGenerationPrompt(config, plan, ['reply is not JSON']));
     expect(result.ok).toBe(true);
   });
 
@@ -191,10 +191,10 @@ describe('F-07 pipeline generation service: retry', () => {
     const text = JSON.stringify(fullReply(plan));
     const model = scriptedModel([{ text, truncated: true }, reply(text)]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(model.prompts).toHaveLength(2);
-    expect(model.prompts[1]).toBe(buildPipelineGenerationPrompt(config, plan, ['reply was cut off by the length limit']));
+    expect(model.prompts[1]).toBe(buildGenerationPrompt(config, plan, ['reply was cut off by the length limit']));
     expect(result.ok).toBe(true);
   });
 
@@ -204,7 +204,7 @@ describe('F-07 pipeline generation service: retry', () => {
     const missing = plan[0]?.path ?? '';
     const model = scriptedModel([reply(JSON.stringify(replyWithout(plan, [missing]))), reply(JSON.stringify(fullReply(plan)))]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(model.prompts).toHaveLength(2);
     expect(model.prompts[1]).toContain(`planned file "${missing}" is missing from the reply`);
@@ -219,9 +219,9 @@ describe('F-07 pipeline generation service: retry', () => {
     expect(findings).toHaveLength(plan.length);
 
     const model = scriptedModel([reply('{}'), reply(JSON.stringify(fullReply(plan)))]);
-    await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    await generateProject(config, { templates, model, log: fakeLog() });
 
-    expect(model.prompts[1]).toBe(buildPipelineGenerationPrompt(config, plan, findings));
+    expect(model.prompts[1]).toBe(buildGenerationPrompt(config, plan, findings));
     for (const finding of findings) {
       expect(model.prompts[1]).toContain(`- ${finding}`);
     }
@@ -239,7 +239,7 @@ describe('F-07 pipeline generation service: failures', () => {
       reply(JSON.stringify(replyWithout(plan, [secondMissing]))),
     ]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(model.prompts).toHaveLength(2);
     expect(result).toEqual({
@@ -255,7 +255,7 @@ describe('F-07 pipeline generation service: failures', () => {
     const plan = planOf(config);
     const model = scriptedModel([reply(JSON.stringify(fullReply(plan)).slice(0, -1)), reply(`${SECRET_TEXT} not json`)]);
 
-    const result = await generatePipelineProject(config, { templates, model, log: fakeLog() });
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
 
     expect(result).toEqual({ ok: false, reason: 'reply', problems: ['reply is not JSON'] });
     expect(JSON.stringify(result)).not.toContain(SECRET_TEXT);
@@ -268,7 +268,7 @@ describe('F-07 pipeline generation service: failures', () => {
     const model = scriptedModel([() => Promise.reject(failure)]);
     const log = fakeLog();
 
-    const result = await generatePipelineProject(config, { templates, model, log });
+    const result = await generateProject(config, { templates, model, log });
 
     expect(result).toEqual({ ok: false, reason: 'model' });
     expect(model.prompts).toHaveLength(1);
@@ -281,7 +281,7 @@ describe('F-07 pipeline generation service: failures', () => {
     const model = scriptedModel([() => Promise.reject(SECRET_TEXT)]);
     const log = fakeLog();
 
-    const result = await generatePipelineProject(config, { templates, model, log });
+    const result = await generateProject(config, { templates, model, log });
 
     expect(result).toEqual({ ok: false, reason: 'model' });
     expect(log.lines).toEqual(['event=generation_model_failed route=/generate error=UnknownError']);
@@ -295,11 +295,11 @@ describe('F-07 pipeline generation service: failures', () => {
     const model = scriptedModel([reply('not json'), () => Promise.reject(failure)]);
     const log = fakeLog();
 
-    const result = await generatePipelineProject(config, { templates, model, log });
+    const result = await generateProject(config, { templates, model, log });
 
     expect(result).toEqual({ ok: false, reason: 'model' });
     expect(model.prompts).toHaveLength(2);
-    expect(model.prompts[1]).toBe(buildPipelineGenerationPrompt(config, plan, ['reply is not JSON']));
+    expect(model.prompts[1]).toBe(buildGenerationPrompt(config, plan, ['reply is not JSON']));
     expect(log.lines).toEqual(['event=generation_model_failed route=/generate error=ProviderError']);
   });
 });

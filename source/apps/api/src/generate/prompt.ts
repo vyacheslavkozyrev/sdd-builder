@@ -75,7 +75,7 @@ function findingsSection(findings: readonly string[]): string {
  * previous reply. A pure function of its inputs: it reads no environment,
  * clock or file, so the same input gives the same text.
  */
-export function buildPipelineGenerationPrompt(
+export function buildGenerationPrompt(
   config: pipeline.ProjectConfig,
   plan: readonly PipelinePlanEntry[],
   findings?: readonly string[],

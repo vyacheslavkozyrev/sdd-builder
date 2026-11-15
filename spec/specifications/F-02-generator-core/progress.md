@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 15 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2; T013 pending) |
+| Build    | 🔄 In Progress | 2026-11-14 | 16 of 16 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T009 | Pipeline command (arguments, flows and gates in order, back-route rules with limit or "no limit set", decider or threshold) | 0 blockers, 1 warning and 3 suggestions fixed | 1026 passed |
 | T010 | Agent files (name path, description as stub) and rule files (title and text) from the config; file-safe names and ids checked | 0 blockers, 1 warning and 1 suggestion fixed | 1041 passed |
 | T011 | Sorted, deterministic file list in code-unit order (user's decision); `generate` wires all parts; duplicate paths refused; earlier assertions now check acceptance through a helper | 0 blockers; 1 open sort decision (resolved: code-unit); fixes applied in two rounds | 1054 passed |
+| T013 | Templates README for the pipeline model: placeholders, section rules, files written by the generator; the shipped-template gap stated and deferred to F-03 | 0 blockers, 3 warnings and 3 suggestions fixed | 1059 passed |
 | T012 | Purity scan renamed to AC-033 and tightened (side-effect imports, `require`, `window`); fake-source run for generate (AC-034) | 0 blockers, 2 warnings and 1 suggestion fixed, 1 suggestion deferred | 1059 passed |
 
 ---

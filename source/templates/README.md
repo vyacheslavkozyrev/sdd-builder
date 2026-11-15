@@ -1,38 +1,54 @@
 # Templates
 
-Text files that describe the layout of a project and what each file should contain. The generator fills their placeholders and fixes the file list; at generation the LLM writes the final content from these texts and the block descriptions. Templates are data: changing a template changes the output, not the generator code. Templates contain no scripts.
+Text files that describe the layout of a project and what each file should contain. The generator (`source/packages/core/src/pipeline/generate/`) fills their placeholders from the project config and fixes the file list. Templates are data: changing a template changes the output, not the generator code. Templates contain no scripts.
+
+## Status of the shipped templates
+
+The pipeline config cannot fill every placeholder in the shipped base templates. `base/CLAUDE.md` still has `{{modules}}`, `{{codeRules}}` and `{{testRules}}`, and `base/process.md` still has `{{process.diagram}}`. F-03 rewrites those templates. Until then `generate` fails for every config, because `renderBaseFiles` cannot fill those placeholders; the error names each placeholder that has no value.
 
 ## Placeholders
+
+The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/generate/render.ts` and `base-files.ts`.
 
 | Placeholder | Value |
 |---|---|
 | `{{projectName}}` | `ProjectConfig.name` |
 | `{{idea}}` | `ProjectConfig.idea` |
-| `{{stack.language}}`, `{{stack.framework}}`, `{{stack.testFramework}}` | from `ProjectConfig.stack` |
-| `{{modules}}` | rendered list of `ModuleSpec` |
-| `{{process.diagram}}` | the Mermaid process flowchart, in a fenced `mermaid` block, rendered from the map; not rendered before F-18 |
-| `{{codeRules}}`, `{{testRules}}` | rendered bullet lists |
-| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | inside a workflow command: its name, its id, and its scope with the iteration source (for example "for each task in plan.md") |
-| `{{workflow.steps}}` | the enabled steps as a numbered list in tab order, each naming the file it generates |
-| `{{workflow.rules}}` | the gate and branch rules as a numbered list: preconditions from map gates first, then rules after steps |
-| `{{#step:<id>}}…{{/step:<id>}}` | content kept only when that step is enabled |
+| `{{stack.language}}` | `ProjectConfig.stack.language` (required) |
+| `{{stack.framework}}`, `{{stack.platform}}`, `{{stack.buildTool}}`, `{{stack.testFramework}}` | the optional stack value, only when the key is present in the config; a template that uses it when the key is absent fails generation |
+| `{{processList}}` | the process as text, built from the selection: each enabled pipeline block in order, and under each enabled flow its enabled blocks in order |
+| `{{process.diagram}}` | not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
+| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | not filled by the pipeline config (see the status above) |
+| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
+| `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
+| `{{#step:<id>}}…{{/step:<id>}}` | the flat layout only: the pipeline renderer does not read it and fails generation on it |
+| Section `#enabled:<id>` … `/enabled:<id>`, placed between double curly braces | the section: content kept only when the block or flow with that id is enabled in the selection; a child block of a disabled flow is not enabled |
 
-Placeholders with no value fail the generation with a clear error; they are never left in the output.
+Section rules:
 
-## Layout
+- Sections are not nested. A nested, mismatched or unclosed section marker fails generation.
+- An `enabled:<id>` section whose id matches no block or flow is removed, with its content, without an error.
+- Placeholders are replaced after the sections. A placeholder with no value fails generation with a clear error; it is never left in the output.
 
-```
-source/templates/
-  base/           files every project gets (CLAUDE.md, process.md, spec template)
-  workflows/      one layout for the workflow command, filled per workflow
-  steps/          one folder per step id: a layout for its command, agent, skill or script
-  rules/          rule-file layouts (general, qa, code); the content comes from the brief
-  claude/         Claude Code file layout (the MVP target)
-```
+## Files the generator writes
 
-Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feature is specified, the mapping is confirmed against each tool's current documentation.
+These are the files F-02 writes for a pipeline config. The flow, pipeline, agent and rule files are built in code from the config, so they have no template file.
+
+| Output file | Source |
+|---|---|
+| `CLAUDE.md` | `base/CLAUDE.md`, rendered |
+| `spec/documents/process.md` | `base/process.md`, rendered |
+| `spec/specifications/F-00-template/*` | each file under `base/spec-template/`, rendered |
+| `.claude/commands/<flow-id>.md` | one per enabled child flow: its enabled blocks as numbered steps, in block order |
+| `.claude/commands/pipeline.md` | the arguments, then the enabled flows and checks in pipeline order as numbered steps, then a numbered rule for each back route |
+| `.claude/agents/<name>.md` | one per enabled Agent block in an enabled flow; its description is the text (stub text until F-07 writes the content) |
+| `.claude/rules/<id>.md` | one per `ProjectConfig.rules` entry; its title and text from the config |
+
+The files come out sorted by path. Two files with the same path refuse the generation.
 
 ## Claude Code layout (MVP)
+
+This is the target layout for the Claude Code output, owned by F-03. F-02 writes the files in "Files the generator writes" above, not these rows: its `CLAUDE.md`, `process.md` and spec-template rows come from the templates, and its agent and rule files come from the config, not from the `steps/` and `rules/` layouts below. The flow and pipeline command files are not in this table yet. The workflow command, step command, skill and script rows come with F-03.
 
 | Output file | Source |
 |---|---|
@@ -46,14 +62,29 @@ Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feat
 | `.claude/rules/<name>.md` | `rules/` layouts; referenced from the steps that carry the tag |
 | `scripts/<name>.sh` | `steps/<id>/script.md`, a layout for each enabled script step; the LLM writes the script at generation |
 
-Every file in the table above except `scripts/` is a layout the LLM fills at generation. Templates never contain a script.
+Every file in this table except `scripts/` is a layout the LLM fills at generation. Templates never contain a script.
+
+## Folders
+
+```
+source/templates/
+  base/           files every project gets (CLAUDE.md, process.md, spec template)
+  pipeline/       default.json, a sample pipeline config (data)
+  rules/          rule-file layouts of the flat model (general, qa, code); F-02 takes rule text from the config instead
+  workflows/      the flat workflow layout; replaced by F-03
+  steps/          the flat step layouts, one folder per step id; replaced by F-03
+```
+
+Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feature is specified, the mapping is confirmed against each tool's current documentation.
 
 ## Branch and gate text
 
-A branch becomes a numbered rule in the workflow command, for example:
+The pipeline command writes each check as a numbered step in its Steps section, and each back route as a numbered rule in its Rules section (`source/packages/core/src/pipeline/generate/rules-text.ts`). For example, a check step:
 
-> 2. After step 2 (Code review): unless the review reports no blocker or warning, go back to step 1 (Implement), retrying at most 2 times; if the limit is reached, stop and report. Otherwise continue.
+> 2. Check review, decided by agent (`review`).
 
-A branch with no round limit says so: "retrying until it passes (no limit set)". A quality gate becomes a stop rule: "unless the checks pass, stop and report." A gate on a map connection becomes a precondition at the top of the downstream workflow: "Precondition: unless the output of Specify is approved by the user, stop and report."
+and a back route rule:
 
-Where a concept has no native equivalent in a tool, the output says so in the generated `process.md` instead of inventing a feature.
+> 1. On fail, go back to `implement` and run again from there; round limit 2.
+
+A back route with no round limit says "no limit set". A check with no back route on an outcome writes no rule for that outcome.

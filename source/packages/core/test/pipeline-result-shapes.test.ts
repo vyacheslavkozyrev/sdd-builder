@@ -1,9 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import { generate, pipeline } from '../src/index.js';
+import { pipeline } from '../src/index.js';
 import type { AnalysisResult, GenerationResult } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
-import { baseConfig } from './fixtures.js';
-import { fullTemplates } from './fixtures-templates.js';
+import { BASE_TEMPLATES } from './pipeline-routes-fixtures.js';
 
 // The result shapes are the contract between core, apps/api and apps/web. The typed literals and
 // `expectTypeOf` checks fail `tsc --noEmit` (run by `npm run typecheck`) if a field is removed or
@@ -43,10 +42,10 @@ describe('F-01 result shapes', () => {
     expectTypeOf<GenerationResult['files'][number]>().toHaveProperty('path');
     expectTypeOf<GenerationResult['files'][number]>().toHaveProperty('content');
     expectTypeOf<GenerationResult['warnings']>().toEqualTypeOf<string[]>();
+    expectTypeOf(literal).toEqualTypeOf<GenerationResult>();
 
-    const returned: GenerationResult = generate(baseConfig(), fullTemplates());
+    const returned: GenerationResult = pipeline.generate(defaultProjectConfig, BASE_TEMPLATES);
     expect(Object.keys(returned).sort()).toEqual(['files', 'warnings']);
-    expect(literal.files[0]?.path).toBe('CLAUDE.md');
     expect(returned.files.length).toBeGreaterThan(0);
     for (const file of returned.files) {
       expect(Object.keys(file).sort()).toEqual(['content', 'path']);

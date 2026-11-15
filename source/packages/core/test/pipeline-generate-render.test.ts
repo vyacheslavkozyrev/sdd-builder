@@ -78,6 +78,12 @@ describe('F-02 AC-019 placeholders take their value from the config', () => {
       expect(renderTemplate('base/file.md', inputs)).toBe(row.expected);
     });
   }
+
+  it('F-02 AC-019 a config value that holds placeholder and section text is inserted literally, not rendered again', () => {
+    const config = { ...sectionConfig(), idea: 'Keep {{projectName}} and {{#enabled:a}} as written.' };
+    const inputs = inputsFor({ 'base/file.md': '{{idea}}' }, config);
+    expect(renderTemplate('base/file.md', inputs)).toBe('Keep {{projectName}} and {{#enabled:a}} as written.');
+  });
 });
 
 interface ProblemRow {

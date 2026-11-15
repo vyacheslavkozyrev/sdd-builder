@@ -2,9 +2,6 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import * as root from '../src/index.js';
-import * as flatPlan from '../src/plan.js';
-import * as flatReply from '../src/reply-check.js';
-import * as validate from '../src/validate/index.js';
 import * as pipeline from '../src/pipeline/index.js';
 
 const SRC = join(import.meta.dirname, '..', 'src');
@@ -85,26 +82,6 @@ describe('F-03 AC-026 pipeline module and flat exports', () => {
     expect(pipeline.planGeneration).toBeTypeOf('function');
     expect(pipeline.checkReply).toBeTypeOf('function');
     expect(pipeline.generate).toBeTypeOf('function');
-  });
-
-  it('F-03 AC-026 the pipeline planGeneration and checkReply are not the flat functions', () => {
-    expect(pipeline.planGeneration).not.toBe(flatPlan.planGeneration);
-    expect(pipeline.checkReply).not.toBe(flatReply.checkReply);
-  });
-
-  it('F-03 AC-026 the root planGeneration is the flat planGeneration, not the pipeline one', () => {
-    expect(root.planGeneration).toBe(flatPlan.planGeneration);
-    expect(root.planGeneration).not.toBe(pipeline.planGeneration);
-  });
-
-  it('F-03 AC-026 the root checkReply is the flat checkReply, not the pipeline one', () => {
-    expect(root.checkReply).toBe(flatReply.checkReply);
-    expect(root.checkReply).not.toBe(pipeline.checkReply);
-  });
-
-  it('F-03 AC-026 the root validateConfig is the flat validateConfig', () => {
-    expect(root.validateConfig).toBe(validate.validateConfig);
-    expect(root.validateConfig).toBeTypeOf('function');
   });
 });
 

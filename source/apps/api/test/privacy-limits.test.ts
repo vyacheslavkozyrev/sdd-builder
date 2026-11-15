@@ -183,7 +183,7 @@ const cases: Case[] = [
     label: 'analyze config the parser refuses',
     route: '/analyze',
     status: 400,
-    run: (log) => post(appWith(log, fixedLimits()), ANALYZE_URL, JSON.stringify({ ...config, schemaVersion: 2 })),
+    run: (log) => post(appWith(log, fixedLimits()), ANALYZE_URL, JSON.stringify({ ...pipelineConfig(), schemaVersion: 1 })),
     lines: [],
   },
   {

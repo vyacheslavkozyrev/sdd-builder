@@ -137,7 +137,7 @@ const cases: Case[] = [
     label: 'analyze config the parser refuses',
     status: 400,
     run: (log, review) =>
-      post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, JSON.stringify({ ...config, schemaVersion: 2 })),
+      post(createApp({ limits: fixedLimits(), review, log, generation: null }), ANALYZE_URL, JSON.stringify({ ...pipelineConfig(), schemaVersion: 1 })),
     lines: [],
   },
   {
@@ -316,5 +316,24 @@ describe('F-07 AC-028 the API key never appears in a response body or a log line
     expect(sent).toEqual([]);
     expect(log.lines).toEqual(['event=review_key_missing', 'event=review_model_failed route=/analyze error=Error']);
     expect(text).not.toContain(KEY);
+  });
+});
+
+describe('F-04 AC-018 the log line for a failed review call on the route', () => {
+  it('F-04 AC-018 logs the event, the route and the error name only, with no brief, rule, reply or message text', async () => {
+    const log = recordingLog();
+    const failure = new RangeError(`${IDEA} ${RULE} ${REPLY} ${KEY}`);
+    const app = createApp({ limits: fixedLimits(), review: { complete: () => Promise.reject(failure) }, log, generation: null });
+
+    const response = await post(app, ANALYZE_URL, analyzeBody);
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toContain('"status":"failed"');
+    expect(log.lines).toEqual(['event=review_model_failed route=/analyze error=RangeError']);
+    const logged = log.lines.join('\n');
+    for (const secret of [IDEA, RULE, REPLY, KEY, failure.message]) {
+      expect(logged).not.toContain(secret);
+    }
   });
 });

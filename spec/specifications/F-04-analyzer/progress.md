@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user; 9 stories, 25 criteria, all `[auto]`. Decisions: flat analyzer rewired now and deleted in F-04; web app gap accepted until F-05; refusal checks of `pipeline/generate` reused as blockers; iteration source is an earlier artifact in pipeline order; caps kept on `/analyze` |
 | UX       | ➖ Not needed |      | No user-facing criteria; the analyzer is pure logic and an HTTP route |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user before any code is written; 24 tasks, one commit each; decision 22 (root `pipeline` namespace) recorded in T001 |
-| Build    | 🔄 In Progress | 2026-11-14 | 15 of 24 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-14 | 16 of 24 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -58,6 +58,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | Pipeline analysis `analyzePipeline` beside the flat `analyze` (Amendment 9): structural findings kept, review failures keep them, log line event and error name only | reviewed: 0 blockers, 0 warnings; 1 suggestion deferred (duplicate body, removed by T013b) | task check passed (exit 0) |
 | T014 | `/analyze` on the pipeline model: pipeline reader, pipeline caps (422), skipped analysis at the ceiling, analyzePipeline; /generate unchanged (size exception, Amendment 10) | reviewed: 0 blockers, 2 warnings, 2 suggestions fixed | task check passed (exit 0) |
 | T015 | Ceiling on `/analyze` returns skipped with no model call (AC-022 route); `/generate` still generates a flat config (AC-023) | reviewed: 0 blockers, 1 warning fixed | task check passed (exit 0) |
+| T016 | Privacy and wiring tests on the pipeline model; route-level AC-018 test: no brief, rule, reply or message text in the log | reviewed: 0 blockers, 0 warnings; 2 suggestions deferred | task check passed (exit 0) |
 
 ---
 
@@ -78,6 +79,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 `plan.md` T012 line (suggestion): it names the test file `source/apps/api/test/prompt.test.ts`, which is the flat test that stays until T013. The staged test is `source/apps/api/test/pipeline-prompt.test.ts`; correct the T012 line when T013 removes the flat files.
 
 - T014 `source/apps/api/src/analyze.ts` flat `analyze` (suggestion): after the route switch nothing in `source/apps/` calls the flat `analyze` except its own tests. It is removed in T013b (Amendment 9), so it stays for now.
+
+- T016 `source/apps/api/test/privacy.test.ts` new AC-018 test (suggestion): the table case "analyze with a review model that fails with the brief in its message" checks the same log line for the same failure. The named AC-018 test is kept because T016 requires a route-level AC-018 test; removing the table case would weaken the F-07 AC-024 sweep, so both stay.
+
+- T016 `spec/specifications/F-04-analyzer/stories.md` AC-018 wording (suggestion): the story says the failed-call log line carries "the event and the error name only", but the line also carries `route=/analyze`, as decision 12 allows for refusals. The implementation and the new test follow decision 12. Owner to confirm whether AC-018 should name the route too; no code change until then.
 
 - T014 `source/apps/api/test/pipeline-config.ts` (suggestion): it parses `templates/pipeline/default.json` itself. Core already parses the same file in `source/packages/core/src/pipeline/default.ts` (`defaultProjectConfig`), but `pipeline/index.ts` does not export it. Exporting it is a core surface change outside T014; the helper is test-only and correct as it stands.
 

@@ -67,3 +67,8 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `plan.md`, T004 split into T004a (the Agent description: model, parser, `default.json`, and the refusal of a missing one, AC-029) and T004b (names, required blocks, check rules, advice; AC-008, AC-009, AC-010, AC-011, AC-013).
 **Reason**: the required-block rule (AC-010) makes earlier minimal fixtures refuse. The user chose to update those fixtures rather than narrow or move the rule. Together with the description change, that is more than the 400-line guard allows in one commit.
 **Impact**: T004a runs before T004b. T004b updates the minimal fixtures of T002a, T002b and T003 to include the default pipeline's required blocks; their assertions stay as they are. The required-block check applies inside enabled flows only; the pipeline's own Start and End and the gates are always required.
+
+### Amendment — 2026-11-14 (fourth)
+**Changed**: `plan.md`, T004b split into T004b1 (names, ids, check rules; AC-008, AC-009, AC-011, AC-013) and T004b2 (required blocks and the fixture updates; AC-010). T004b2 also changes one expected value of the T003 test "refuses a flow that follows a gate that stops": the five required gates after the unreachable flow b are also reported as unreachable. The user approved this change.
+**Reason**: the T004b change is about 720 changed lines, over the 400-line guard, and it changes an earlier assertion.
+**Impact**: T004b1 runs first and is committed on its own. T004b2 follows, with the fixture updates and the expected change. The T004b agent's fixture decisions stand: a disabled Start or End counts as present when no enabled one of its kind exists, and the AC-002 fixture gains an enabled End beside the disabled one (expected value unchanged).

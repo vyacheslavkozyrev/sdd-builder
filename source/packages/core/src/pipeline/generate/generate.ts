@@ -5,7 +5,7 @@ import type { GenerationResult } from '../../model.js';
 import type { TemplateSource } from '../../template-source.js';
 import type { ProjectConfig } from '../model.js';
 import type { PipelineProblem } from '../parse-util.js';
-import { descriptionProblems } from './refusals-names.js';
+import { checkProblems, descriptionProblems, nameProblems } from './refusals-names.js';
 import { routeProblems } from './refusals-routes.js';
 import { shapeProblems, wiringProblems } from './refusals-shape.js';
 
@@ -51,6 +51,8 @@ export function generate(config: ProjectConfig, templates: TemplateSource): Gene
     ...wiringProblems(config),
     ...routeProblems(config),
     ...descriptionProblems(config),
+    ...nameProblems(config),
+    ...checkProblems(config),
   ];
   if (problems.length > 0) throw new InvalidConfigError(sortedProblems(problems));
   return { files: [], warnings: [] };

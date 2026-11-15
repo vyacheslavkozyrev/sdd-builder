@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 34 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is in `source/packages/core` only, and every criterion is `[auto]` on pure functions |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-14 | 5 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a and T004b) |
+| Build    | 🔄 In Progress | 2026-11-14 | 6 of 15 tasks committed (T002 split into T002a and T002b; T004 split into T004a, T004b1 and T004b2) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002b | Connection and Condition wiring; disabled items and flows skipped; combined sort. Committed at 516 changed lines, over the 400-line guard, by the user's explicit decision | 0 blockers, 0 warnings, 1 suggestion fixed | 846 passed |
 | T003 | Reachability from Start; back-route, disabled-route and End-terminal rules. Committed at 458 changed lines, over the 400-line guard, by the user's explicit decision | 0 blockers, 1 warning fixed | 872 passed |
 | T004a | Agent `description`: required in the model, parser and `default.json`; refused when missing or blank in enabled flows | 0 blockers, 1 warning and 1 suggestion fixed | 887 passed |
+| T004b1 | Names, ids and check rules; disabled blocks and flows not checked for ids and names (AC-014). Committed at 514 changed lines, over the 400-line guard, by the user's explicit decision | 1 blocker, 1 warning and 1 suggestion fixed | 927 passed (staged state) |
 
 ---
 
@@ -40,6 +41,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 _Review suggestions intentionally not applied, with the reason._
 
 - T001 `source/packages/core/src/pipeline/parse.ts:116` duplicate rule id names only the second path, not the first. Kept: the block, flow and argument duplicate checks use the same convention (`parse-structure.ts`, `parse-scope.ts`), and the plan scopes rule uniqueness to rules only. Revisit if AC-008 is read as requiring every clashing path for rules too.
+- T004b1 `source/packages/core/src/pipeline/generate/refusals-names.ts` `CHECK_TYPES` repeats the `CheckType` union of `model.ts` as a runtime list. Kept: `model.ts` holds types only, and a shared constant would have to move there. Revisit when a second consumer needs the list.
+- T004b1 `source/packages/core/src/pipeline/ids.ts` `ID_PATTERN` has no length cap, so a very long block or agent id gives a very long file name. Kept: outside the T004b1 change, and the stories set no limit. Ask the user whether a cap belongs in the id rule.
 - T003 `source/packages/core/src/pipeline/generate/refusals-routes.ts` a stop route reaches every live End of its list, including a `done` End. Kept: only reachability is marked, so the only effect is that a `done` End is not reported as unreachable when a stop exists; the stories do not say which outcome a stop must end with.
 - T003 `spec/specifications/F-02-generator-core/plan.md` (T003 line) names only `pipeline-generate-refusals-routes.test.ts`; the reachability tests are in `pipeline-generate-refusals-reach.test.ts`, with shared builders in `pipeline-routes-fixtures.ts`. Kept: a plan-text fix, left to the plan owner so the plan is not edited inside a build task.
 

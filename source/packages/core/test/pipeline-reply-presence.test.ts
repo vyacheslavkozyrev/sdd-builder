@@ -37,14 +37,27 @@ function defaultPlan(): PipelinePlanEntry[] {
   return planGeneration(structuredClone(defaultProjectConfig), realTemplates());
 }
 
-/** A reply that maps every planned path to plain text. */
-function fullReply(plan: readonly PipelinePlanEntry[]): Record<string, unknown> {
-  return Object.fromEntries(plan.map((entry) => [entry.path, `# ${entry.path}\n\nWritten text.\n`]));
+/** The `##` heading lines of a layout, each followed by a blank line, so the text holds the headings the layout requires. */
+function headingBlock(layout: string): string {
+  return layout
+    .split('\n')
+    .filter((line) => line.startsWith('## '))
+    .map((line) => `${line}\n\n`)
+    .join('');
 }
 
-/** A reply with the given path's text replaced. */
+/** A reply that maps every planned path to plain text with the layout's `##` headings. */
+function fullReply(plan: readonly PipelinePlanEntry[]): Record<string, unknown> {
+  return Object.fromEntries(
+    plan.map((entry) => [entry.path, `# ${entry.path}\n\n${headingBlock(entry.layout)}Written text.\n`]),
+  );
+}
+
+/** A reply with the given path's text replaced; a string text of a planned path also keeps the layout's headings. */
 function withText(plan: readonly PipelinePlanEntry[], path: string, text: unknown): Record<string, unknown> {
-  return { ...fullReply(plan), [path]: text };
+  const entry = plan.find((planned) => planned.path === path);
+  const value = typeof text === 'string' && entry !== undefined ? `${text}\n${headingBlock(entry.layout)}` : text;
+  return { ...fullReply(plan), [path]: value };
 }
 
 /** A reply with the given path removed. */

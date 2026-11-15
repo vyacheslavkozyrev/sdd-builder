@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 0 of 13 tasks committed |
+| Build    | 🔄 In Progress |   | 1 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Correct the F-03 line in `features.md`: Mermaid to F-18, rules per entry (decision 20) | 0 blockers, 0 warnings, 0 suggestions | 1059 passed (62 files) |
 
 ---
 

@@ -47,7 +47,7 @@ A pure function `generate(config, templates) → GenerationResult`. It checks th
 
 ### F-03 Claude Code templates
 
-Layouts for `CLAUDE.md`, `spec/documents/process.md` (with the Mermaid view), the spec template, the pipeline command file, one command file per flow, one agent file per Agent block, and one rule file per rule block. Taken from both reference projects (ComEd and PhotoSync) and made stack-neutral: a layout gives the file's sections, never its content. Core builds the generation input for each file and checks the model's reply against the plan. The LLM writes the final content (architecture §6, decision 7). Templates contain no scripts; a check's command is written from the brief's stack.
+Layouts for `CLAUDE.md`, `spec/documents/process.md` (without a diagram: the Mermaid flowchart belongs to F-18), the spec template, the pipeline command file, one command file per flow, one agent file per Agent block, and one rule file per rule entry in `ProjectConfig.rules` (architecture decision 20). Taken from both reference projects (ComEd and PhotoSync) and made stack-neutral: a layout gives the file's sections, never its content. Core builds the generation input for each file and checks the model's reply against the plan. The LLM writes the final content (architecture §6, decision 7). Templates contain no scripts; a check's command is written from the brief's stack.
 
 ### F-04 Analyzer: structural checks and LLM review
 

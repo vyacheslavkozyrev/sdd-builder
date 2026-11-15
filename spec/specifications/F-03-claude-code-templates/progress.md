@@ -10,7 +10,7 @@
 | Specify  | ✅ Complete | 2026-11-14 | Stories approved by the user: 7 stories, 28 criteria, all `[auto]` |
 | UX       | ➖ Not needed | 2026-11-14 | No user interface: the feature is templates and pure functions in `source/packages/core`; every criterion is `[auto]` |
 | Plan     | ✅ Complete | 2026-11-14 | Approved by the user: 13 tasks (plan.md) |
-| Build    | 🔄 In Progress |   | 7 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
+| Build    | 🔄 In Progress |   | 8 of 16 tasks committed (plan amended: T006a, T006b and T006c added) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (no `[device]` criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T005 | `planGeneration` for base, pipeline and flow command entries (`pipeline/plan.ts`), exported from the pipeline module only; agent and rule entries left to T006 | 0 blockers, 3 warnings (weak tests: module list, flow and gate order, gate between flows) fixed; 1 deferred (plan-level throw test, moved to T007) | 1108 passed (66 files) |
 | T006a | Rule-set tags in the model: optional `ruleTags` on Agent blocks and flows, parsed as non-empty strings (default `[]`); unknown tags refused in `generate` at their paths (decision 21) | 0 blockers, 0 warnings, 3 suggestions fixed | 1135 passed (67 files) |
 | T006 | `planGeneration` for agent and rule entries: agents carry the block's description and tags; rules carry title and text; the AC-011 test now compares the full file list | 0 blockers, 0 warnings, 4 suggestions fixed | 1150 passed (68 files) |
+| T006c | Required flow `description` in the model and parser (blank refused at the parser, as for Agents; enabled blank also refused in generate); six flow descriptions in `default.json`, texts as approved by the user on 2026-11-14 | 0 blockers, 1 warning (blank parser check) fixed | 1166 passed (69 files) |
 
 ---
 
@@ -46,6 +47,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T004 `source/packages/core/test/layouts-agent-rule.test.ts` `REPO_ROOT`: the constant points at `source/`, not the repository root. The same name is used in `layouts-base.test.ts` and `templates-readme.test.ts`; renaming it is a cross-file change outside T004.
 - T003 `source/packages/core/src/pipeline/generate/command-layouts.ts` `routeRuleList` and `pipeline-command.ts` `ruleLines`: the same back-route loop is written twice. Not merged in T003 because `pipeline-command.ts` is imported by `command-layouts.ts`, so sharing the loop needs a move into `rules-text.ts`; the wiring task (T005) decides whether `pipeline-command.ts` switches to the template path, and the merge follows that. T005 kept `pipeline-command.ts` on its own path (the plan reads the layout, not the generator's text), so this stays open.
 - T005 `source/packages/core/test/pipeline-plan-commands.test.ts`: no plan-level test that an unfilled placeholder makes `planGeneration` throw. The throw comes from `renderTemplate` (covered by the renderer's own tests, F-02 AC-019); the error paths are T007's scope in plan.md, so the plan-level test goes there.
+- T006c `source/packages/core/test/pipeline-flow-description.test.ts` `APPROVED`: the approved flow texts could not be checked against a separate approved record (the T006c line of plan.md and the amendment do not list them); the list matches `source/templates/pipeline/default.json` only. Confirm the texts with the user at Verify.
 
 ---
 

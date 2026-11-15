@@ -8,6 +8,7 @@ import {
   checkKeys,
   childPath,
   describeList,
+  has,
   indexPath,
   readList,
   readObject,
@@ -26,7 +27,7 @@ export type ParsePipelineResult = { ok: true; config: ProjectConfig } | { ok: fa
 const ROOT_KEYS: readonly string[] = ['schemaVersion', 'name', 'idea', 'stack', 'pipeline', 'rules'];
 const STACK_KEYS: readonly string[] = ['language', 'framework', 'platform', 'buildTool', 'testFramework'];
 const PIPELINE_KEYS: readonly string[] = ['name', 'blocks'];
-const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'enabled', 'blocks', 'ruleTags'];
+const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'description', 'enabled', 'blocks', 'ruleTags'];
 const RULE_KEYS: readonly string[] = ['id', 'title', 'text'];
 
 /** Converts one block of a child flow. Blocks that fail their own rules are dropped; the problem is already recorded. */
@@ -45,17 +46,40 @@ function convertChild(block: ChildStructure, ids: ListIds, problems: PipelinePro
   }
 }
 
-/** Converts a child flow: its own name, rule tags and keys, then its blocks. A flow whose name or tags fail is dropped. */
+/**
+ * The description of a child flow: the text of its command. It must be present, a string and not blank, as an Agent
+ * block's is (parse-scope.ts). The problem is recorded at the flow's path. generate also refuses a blank description
+ * on an enabled flow, for a config built in code (generate/refusals-names.ts).
+ */
+function readFlowDescription(flow: FlowStructure, problems: PipelineProblem[]): string | undefined {
+  if (!has(flow.fields, 'description')) {
+    problems.push({ path: flow.path, message: 'description is required' });
+    return undefined;
+  }
+  const value = flow.fields['description'];
+  if (typeof value !== 'string') {
+    problems.push({ path: flow.path, message: 'description must be a string' });
+    return undefined;
+  }
+  if (value.trim() === '') {
+    problems.push({ path: flow.path, message: 'description must not be blank' });
+    return undefined;
+  }
+  return value;
+}
+
+/** Converts a child flow: its own name, description, rule tags and keys, then its blocks. A flow whose name, description or tags fail is dropped. */
 function convertFlow(flow: FlowStructure, problems: PipelineProblem[]): FlowBlock | undefined {
   checkKeys(flow.fields, FLOW_KEYS, flow.path, problems);
   const name = readString(flow.fields, 'name', flow.path, problems);
+  const description = readFlowDescription(flow, problems);
   const ruleTags = readRuleTags(flow.fields, flow.path, problems);
   const blocks = flow.blocks.flatMap((block) => {
     const converted = convertChild(block, flow.ids, problems);
     return converted === undefined ? [] : [converted];
   });
-  if (name === undefined || ruleTags === undefined) return undefined;
-  return { kind: 'flow', id: flow.id, name, enabled: flow.enabled, blocks, ruleTags };
+  if (name === undefined || description === undefined || ruleTags === undefined) return undefined;
+  return { kind: 'flow', id: flow.id, name, description, enabled: flow.enabled, blocks, ruleTags };
 }
 
 /** Converts one block of the pipeline. Blocks that fail their own rules are dropped; the problem is already recorded. */

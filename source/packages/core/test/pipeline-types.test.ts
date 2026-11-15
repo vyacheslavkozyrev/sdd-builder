@@ -79,6 +79,7 @@ const endBlock: ChildBlock = { kind: 'end', id: 'end', enabled: true, outcome: '
 const specifyFlow: Flow = {
   id: 'specify',
   name: 'Specify',
+  description: 'Turns the feature into user stories.',
   enabled: true,
   blocks: [startBlock, agentBlock, approvalCondition, endBlock],
 };
@@ -86,6 +87,7 @@ const specifyFlow: Flow = {
 const buildFlow: Flow = {
   id: 'build',
   name: 'Build',
+  description: 'Implements each planned task.',
   enabled: true,
   blocks: [startBlock, agentBlock, checksCondition, reviewCondition, diffSizeCondition, connectionBlock, endBlock],
 };

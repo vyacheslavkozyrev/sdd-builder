@@ -24,6 +24,7 @@
         "kind": "flow",
         "id": "specify",
         "name": "Specify",
+        "description": "Turns the feature into user stories with testable acceptance criteria, then waits for approval.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "specify-start", "enabled": true },
@@ -53,6 +54,7 @@
         "kind": "flow",
         "id": "ux",
         "name": "UX",
+        "description": "Draws the feature's screens as SVG from the stories, then waits for approval before the plan.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "ux-start", "enabled": true },
@@ -82,6 +84,7 @@
         "kind": "flow",
         "id": "plan",
         "name": "Plan",
+        "description": "Writes the ordered task list from the stories and the approved screens, then waits for approval before any code.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "plan-start", "enabled": true },
@@ -111,6 +114,7 @@
         "kind": "flow",
         "id": "build",
         "name": "Build",
+        "description": "Implements each planned task with its tests, reviews it, runs the checks and commits it, one commit per task.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "build-start", "enabled": true },
@@ -171,6 +175,7 @@
         "kind": "flow",
         "id": "verify",
         "name": "Verify",
+        "description": "Checks every acceptance criterion of the feature and prepares the manual checklist.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "verify-start", "enabled": true },
@@ -200,6 +205,7 @@
         "kind": "flow",
         "id": "complete",
         "name": "Complete",
+        "description": "Marks the feature complete and commits its spec folder.",
         "enabled": true,
         "blocks": [
           { "kind": "start", "id": "complete-start", "enabled": true },

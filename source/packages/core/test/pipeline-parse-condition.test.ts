@@ -11,6 +11,7 @@ function flow(id: string, blocks: Record<string, unknown>[] = []): Record<string
     kind: 'flow',
     id,
     name: `${id} flow`,
+    description: 'A flow description.',
     enabled: true,
     blocks: [
       { kind: 'start', id: `${id}-start`, enabled: true },

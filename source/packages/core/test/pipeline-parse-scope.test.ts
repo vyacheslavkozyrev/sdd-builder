@@ -8,6 +8,7 @@ function flow(id: string, extra: Record<string, unknown>[] = []): Record<string,
     kind: 'flow',
     id,
     name: `${id} flow`,
+    description: 'A flow description.',
     enabled: true,
     blocks: [
       { kind: 'start', id: `${id}-start`, enabled: true },
@@ -199,7 +200,7 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
     const childStart = { kind: 'start', id: 'build-start', enabled: true, arguments: [FEATURE_ARGUMENT] };
     const blocks = [
       pipelineStart([FEATURE_ARGUMENT]),
-      { kind: 'flow', id: 'build', name: 'build flow', enabled: true, blocks: [childStart, { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] },
+      { kind: 'flow', id: 'build', name: 'build flow', description: 'A flow description.', enabled: true, blocks: [childStart, { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] },
       { kind: 'end', id: 'end', enabled: true, outcome: 'done' },
     ];
     expect(problemsOf(configWith(blocks))).toEqual([
@@ -215,6 +216,7 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
         kind: 'flow',
         id: 'build',
         name: 'build flow',
+        description: 'A flow description.',
         enabled: true,
         blocks: [childStart, agent('global'), { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }],
       },
@@ -233,6 +235,7 @@ describe('F-01 AC-012 a child Start carries no arguments; the pipeline Start is 
         kind: 'flow',
         id: 'build',
         name: 'build flow',
+        description: 'A flow description.',
         enabled: true,
         blocks: [agent('task'), { kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }],
       },

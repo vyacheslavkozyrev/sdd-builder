@@ -38,12 +38,18 @@ const REQUIRED_GATE_IDS: readonly string[] = defaultProjectConfig.pipeline.block
   block.kind === 'condition' ? [block.id] : [],
 );
 
-/** The description problems of the enabled Agent blocks of the pipeline's enabled child flows. */
+/**
+ * The description problems of the enabled child flows and of the enabled Agent blocks of those flows. A flow's description
+ * is its command's text, and an Agent block's is its stub text; a blank one is refused at the path of its own block.
+ */
 export function descriptionProblems(config: ProjectConfig): PipelineProblem[] {
   const problems: PipelineProblem[] = [];
   config.pipeline.blocks.forEach((block, index) => {
     if (block.kind !== 'flow' || !block.enabled) return;
     const flowPath = indexPath(BLOCKS_PATH, index);
+    if (typeof block.description !== 'string' || block.description.trim() === '') {
+      problems.push({ path: flowPath, message: `Flow "${block.id}" has no description; its command text would be empty` });
+    }
     block.blocks.forEach((child, childIndex) => {
       if (child.kind !== 'agent' || !child.enabled) return;
       if (typeof child.description !== 'string' || child.description.trim() === '') {

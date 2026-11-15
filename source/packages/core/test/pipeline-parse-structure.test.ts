@@ -7,6 +7,7 @@ function flow(id: string, extra: Record<string, unknown>[] = []): Record<string,
     kind: 'flow',
     id,
     name: `${id} flow`,
+    description: 'A flow description.',
     enabled: true,
     blocks: [
       { kind: 'start', id: `${id}-start`, enabled: true },
@@ -291,14 +292,14 @@ describe('F-01 AC-012 each list of blocks has exactly one Start and at least one
   });
 
   it('refuses a child flow without a Start, at its blocks path', () => {
-    const build = { kind: 'flow', id: 'build', name: 'build', enabled: true, blocks: [{ kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] };
+    const build = { kind: 'flow', id: 'build', name: 'build', description: 'A flow description.', enabled: true, blocks: [{ kind: 'end', id: 'build-end', enabled: true, outcome: 'done' }] };
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks', message: 'must contain exactly one start block' },
     ]);
   });
 
   it('refuses a child flow without an End, at its blocks path', () => {
-    const build = { kind: 'flow', id: 'build', name: 'build', enabled: true, blocks: [{ kind: 'start', id: 'build-start', enabled: true }] };
+    const build = { kind: 'flow', id: 'build', name: 'build', description: 'A flow description.', enabled: true, blocks: [{ kind: 'start', id: 'build-start', enabled: true }] };
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks', message: 'must contain at least one end block' },
     ]);
@@ -314,7 +315,7 @@ describe('F-01 AC-012 each list of blocks has exactly one Start and at least one
 
 describe('F-01 AC-003 a block that is not an object, or a blocks value that is not a list, gives one problem at its path', () => {
   it('refuses a flow whose blocks are not a list', () => {
-    const build = { kind: 'flow', id: 'build', name: 'build', enabled: true, blocks: 'none' };
+    const build = { kind: 'flow', id: 'build', name: 'build', description: 'A flow description.', enabled: true, blocks: 'none' };
     expect(problemsOf(configWith([build, ...startEnd()]))).toEqual([
       { path: 'pipeline.blocks[0].blocks', message: 'must be a list' },
     ]);

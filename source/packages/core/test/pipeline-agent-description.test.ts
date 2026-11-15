@@ -21,6 +21,7 @@ function flow(agentFields: Record<string, unknown>): Record<string, unknown> {
     kind: 'flow',
     id: 'build',
     name: 'Build',
+    description: 'A flow description.',
     enabled: true,
     blocks: [
       { kind: 'start', id: 'build-start', enabled: true },

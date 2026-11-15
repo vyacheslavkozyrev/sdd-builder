@@ -65,7 +65,7 @@ export function gate(id: string, passRoute: Route, failRoute: Route, enabled = t
 }
 
 export function flow(id: string, blocks: ChildBlock[], enabled = true): FlowBlock {
-  return { kind: 'flow', id, name: `${id} flow`, enabled, blocks };
+  return { kind: 'flow', id, name: `${id} flow`, description: `${id} flow description`, enabled, blocks };
 }
 
 /** A flow with a Start and an End around the given blocks, so only the reachability of those blocks can fail. */

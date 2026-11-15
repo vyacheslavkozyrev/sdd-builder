@@ -57,7 +57,7 @@ function gate(id: string, onConnection: string, enabled = true): PipelineConditi
 }
 
 function flow(id: string, blocks: ChildBlock[], enabled = true): FlowBlock {
-  return { kind: 'flow', id, name: `${id} flow`, enabled, blocks };
+  return { kind: 'flow', id, name: `${id} flow`, description: `${id} flow description`, enabled, blocks };
 }
 
 /** A flow with a Start and an End, so that only the wiring of its blocks can be refused. */

@@ -39,7 +39,7 @@ function agent(id: string): AgentBlock {
 }
 
 function flow(id: string, blocks: ChildBlock[]): FlowBlock {
-  return { kind: 'flow', id, name: `${id} flow`, enabled: true, blocks };
+  return { kind: 'flow', id, name: `${id} flow`, description: `${id} flow description`, enabled: true, blocks };
 }
 
 function configWith(blocks: PipelineBlock[]): ProjectConfig {

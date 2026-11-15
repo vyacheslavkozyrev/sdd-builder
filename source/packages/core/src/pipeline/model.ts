@@ -134,6 +134,8 @@ export type ChildBlock = StartBlock | AgentBlock | ConditionBlock | ConnectionBl
 export interface Flow {
   id: string;
   name: string;
+  /** What the flow does, as the command's text. Required on each enabled flow; a blank one is refused (F-03 AC-031). */
+  description: string;
   enabled: boolean;
   blocks: ChildBlock[];
   /** Ids of the project rules this flow takes (`ProjectConfig.rules`). Absent in code means none; the parser sets `[]`. */

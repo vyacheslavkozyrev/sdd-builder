@@ -57,6 +57,7 @@ None.
 | T024 | Verify gap AC-010: tests that an approval keeps its decider human and a check keeps agent after a gate settings edit (amendment 17) | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (a needless cast removed) | task check passed (exit 0), 1340 tests |
 | T025 | Verify gap AC-024: the pipeline panel shows the pipeline command file it generates; a test checks it against core's planned path (amendment 17) | reviewed: 0 blockers, 1 warning fixed (the test now reads core's planned path, not the literal), 0 suggestions | task check passed (exit 0), 1340 tests |
 | T026 | Verify gap AC-039: unplaced marks for a pipeline with no Start or End, or a disabled pipeline Start or End; the state holds a host config through the parser (a refused one is held as given, with marks, owner decision) (amendment 17) | reviewed: 0 blockers, 1 warning fixed (test for the no-Start finding), 1 suggestion fixed; deferred: the parser path test cannot tell parse from copy (owner deviation recorded) | task check passed (exit 0), 1340 core, 480 api, 440 web tests |
+| T027 | AC-035 wording (amendment 17): already aligned; the pipeline Start refusal names the pipeline, tested in builder-flow-switch-delete.test.ts; no code change | reviewed: no change needed (the implementer verified it) | task check passed (exit 0), 1340 tests |
 
 ---
 

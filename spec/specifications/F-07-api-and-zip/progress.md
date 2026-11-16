@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-15 | 20 of 20 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7; T020 added by Amendment 10) |
-| Verify   | ⏳ Pending  | | Gap found in AC-024 (Amendment 10): T020 adds the file-absence test; verify runs again after it |
+| Verify   | ✅ Complete | 2026-11-15 | Second run after T020: all 25 criteria covered by passing tests; the AC-024 gap (Amendment 10) is closed; no manual criteria |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -50,7 +50,7 @@ None.
 
 ## Test Results
 
-Verify run on 2026-11-15 (`source/scripts/task-check.sh`, exit 0): api 479 tests in 28 files, web 348 in 14, core 1229 in 63; all passed. All 25 criteria are `[auto]`; 24 are covered by passing tests that name them, and AC-024 is partly covered (the removed core source files have no absence test). Full matrix in `spec/specifications/F-07-api-and-zip/verify.md`. Gap: AC-024 (removed core files); manual checklist empty.
+Verify run on 2026-11-15 after T020 (`source/scripts/task-check.sh`, exit 0): api 479 tests in 28 files, web 348 in 14, core 1235 in 64; 2062 passed, 0 failed, 0 skipped. All 25 criteria are `[auto]` and each has at least one passing test that names it. No gaps. Full matrix in `spec/specifications/F-07-api-and-zip/verify.md`. Manual checklist empty.
 
 ---
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 16 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 17 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ None.
 | T012 | Rule tags on Agent blocks, flows and the pipeline (file-safe, no folder, a repeat refused on the same block); pipeline properties (name, description, model, tools, body) and arguments with unique names (amendment 5 checks the pipeline's tags in core) | reviewed: 0 blockers, 3 warnings fixed (round 1: 2; core pipeline-level rule tags, amendment 5), 2 suggestions fixed (round 1: 1; tag refusal wording "must be" after a full stop); 1 deferred (repeated helpers, with T021) | task check passed (exit 0), 1340 core, 480 api, 610 web tests |
 | T013a | Cycle finding in core (amendment 6): a Connection that closes a cycle in its list is one blocker, at its path; disabled Connections and flows skipped; added to analyzeStructure | reviewed: 0 blockers, 2 warnings fixed (criterion on each test name; whole-output assertion), 1 suggestion fixed | task check passed (exit 0), 1353 tests |
 | T013 | Live structural marks in `marks.ts` on `analyzeStructure` findings; a disabled flow Start or End is marked on its enabled flow (AC-037 fix, owner directive); no core change | review round 1: 0 blockers, 0 warnings, 1 suggestion fixed (header comment); AC-037 fix applied; 1 warning unresolved (deferred). Round 2 (owner decision, amendment 7): warning resolved in core, 3 AC-039 parser tests added, 0 blockers, 0 warnings left | task check passed (exit 0), 1356 core, 480 api, 630 web tests (20 in builder-marks) |
+| T014 | Map view-model: tab row, flow nodes (scope with mixed and no agent, all-block count), flow-to-flow edges with artifact labels, gates as diamonds with routes, toolbox items | reviewed: 0 blockers, 1 warning fixed (label trim and non-flow connection tested), 1 suggestion fixed (trim once) | task check passed (exit 0), 1356 tests |
 
 ---
 

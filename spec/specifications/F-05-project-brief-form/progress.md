@@ -43,6 +43,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 1 — 2026-11-16
+**Changed**: `stories.md` AC-008: the counter reads `8,000 / 8,000` with a thousands separator, as the approved screen 01 draws it.
+**Reason**: AC-008 said `8000 / 8000`, but the approved screen shows `142 / 8,000`. Approved by the user on 2026-11-16 (keep the screen's format).
+**Impact**: T002 (the counter helper groups thousands) and its test.
+
 ```
 ### Amendment — YYYY-MM-DD
 **Changed**: [documents updated]

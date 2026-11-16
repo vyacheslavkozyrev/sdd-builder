@@ -3,7 +3,8 @@
 // unsafe path (absolute, containing `..` or a backslash), text that still holds a template marker or an enabled-step
 // marker, text that lacks a `##` heading of its layout, and text that refers to SDDBuilder's own files. Pure: the reply is
 // untyped and is narrowed here, and a reply that is not an object gives a finding, never a throw. The findings are sorted
-// by path and then by message, so the same reply against the same plan gives the same list.
+// by path and then by message, so the same reply against the same plan gives the same list. F-07 AC-026: a path quoted in a
+// message is shortened to its first 120 characters and "..." when it is longer; the sort uses the full path.
 import type { PipelinePlanEntry } from './plan.js';
 
 /** Markers that must not survive into a generated file: template placeholders and enabled-step markers. */
@@ -16,6 +17,14 @@ const OWN_REFERENCES = ['SDDBuilder', 'source/apps/web', 'source/apps/api', 'sou
 interface Finding {
   readonly path: string;
   readonly message: string;
+}
+
+/** The longest path a finding quotes in full; a longer one is shortened in the message (F-07 AC-026). */
+const MAX_SHOWN_PATH = 120;
+
+/** A path as a finding shows it: the path itself when short, otherwise its first characters and an ellipsis. */
+function shownPath(path: string): string {
+  return path.length > MAX_SHOWN_PATH ? `${path.slice(0, MAX_SHOWN_PATH)}...` : path;
 }
 
 /** True for a plain object: not null, not an array. */
@@ -74,31 +83,31 @@ export function checkReply(plan: readonly PipelinePlanEntry[], reply: unknown): 
   for (const entry of plan) {
     const path = entry.path;
     if (!Object.hasOwn(reply, path)) {
-      findings.push({ path, message: `planned file "${path}" is missing from the reply` });
+      findings.push({ path, message: `planned file "${shownPath(path)}" is missing from the reply` });
       continue;
     }
     const text = reply[path];
     if (typeof text !== 'string') {
-      findings.push({ path, message: `file "${path}" in the reply has no text` });
+      findings.push({ path, message: `file "${shownPath(path)}" in the reply has no text` });
       continue;
     }
     const markers = LEFTOVER_MARKERS.filter((marker) => text.includes(marker));
     if (markers.length > 0) {
       findings.push({
         path,
-        message: `file "${path}" still contains ${markers.map((marker) => `"${marker}"`).join(', ')}`,
+        message: `file "${shownPath(path)}" still contains ${markers.map((marker) => `"${marker}"`).join(', ')}`,
       });
     }
     for (const heading of requiredHeadings(entry.layout)) {
       if (!hasHeading(text, heading)) {
-        findings.push({ path, message: `file "${path}" is missing the heading "## ${heading}"` });
+        findings.push({ path, message: `file "${shownPath(path)}" is missing the heading "## ${heading}"` });
       }
     }
     const references = OWN_REFERENCES.filter((reference) => text.includes(reference));
     if (references.length > 0) {
       findings.push({
         path,
-        message: `file "${path}" still refers to ${references.map((reference) => `"${reference}"`).join(', ')}`,
+        message: `file "${shownPath(path)}" still refers to ${references.map((reference) => `"${reference}"`).join(', ')}`,
       });
     }
   }
@@ -106,9 +115,9 @@ export function checkReply(plan: readonly PipelinePlanEntry[], reply: unknown): 
   for (const path of Object.keys(reply)) {
     const reason = unsafeReason(path);
     if (reason !== undefined) {
-      findings.push({ path, message: `file path "${path}" is unsafe: ${reason}` });
+      findings.push({ path, message: `file path "${shownPath(path)}" is unsafe: ${reason}` });
     } else if (!planned.has(path)) {
-      findings.push({ path, message: `file "${path}" in the reply is not in the plan` });
+      findings.push({ path, message: `file "${shownPath(path)}" in the reply is not in the plan` });
     }
   }
   return findings

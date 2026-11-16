@@ -4,7 +4,7 @@ import { emptyBrief } from '../src/brief/state.js';
 import type { BriefState } from '../src/brief/state.js';
 import { toProjectConfig } from '../src/brief/to-config.js';
 import { validateBrief } from '../src/brief/validate.js';
-import { ideaCounter } from '../src/brief/counter.js';
+import { ideaCounter } from '../src/wizard/counter.js';
 import { startState } from '../src/builder/map-state.js';
 
 /** The brief as the F-05 brief screen shows it: the module table, depends-on and both rule lists. */

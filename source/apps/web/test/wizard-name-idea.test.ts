@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ideaCounter } from '../src/brief/counter.js';
+import { ideaCounter } from '../src/wizard/counter.js';
 import { setIdea, setName } from '../src/wizard/name-idea.js';
 import type { NameIdeaValues } from '../src/wizard/name-idea.js';
 

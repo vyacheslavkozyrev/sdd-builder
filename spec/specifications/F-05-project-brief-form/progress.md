@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user, then split on 2026-11-15 into F-05 (frame, step 1, step 3 host, privacy: 14 criteria), F-21 (step 2: 10 criteria) and F-22 (step 4: 15 criteria). Criteria renumbered per feature. Decisions carried over: Generate waits for an analysis with no blockers; privacy notice on step 4 only; testing rules an ordinary block; stepper by Back and Next only; findings as plain text; file tree from core `planGeneration`; optional `architecture` string in the config (needs its `architecture.md` §5 record before the plan). Depends on F-06 for step 3 (AC-010, AC-011) |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. Reviewed by the `usability` and `visual` agents; the three open points decided (drag plus a select-then-add route in F-06; storage line kept on step 1; approval gates orange, rule chips violet) |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 16 tasks (T001–T016); T016 blocked until F-06 is complete |
-| Build    | 🔄 In Progress | 2026-11-15 | 3 of 16 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 4 of 16 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ None.
 | T001 | Wizard state: four steps, Back and Next, values kept between steps | reviewed: 0 blockers, 0 warnings, 0 suggestions | task check passed (exit 0), 1371 tests |
 | T002 | Name and idea state: name stored as typed; idea capped at 8,000 code points with the counter `N / 8,000` (amendment 1: separator; amendment 2: code points, the server too) | reviewed: 0 blockers, 1 warning resolved by the owner (code points; F-04 amendment 16), 1 suggestion fixed; 1 deferred (counter loop shared with brief/counter.ts) | task check passed (exit 0), 1376 tests |
 | T003 | Stepper and footer view model: done, current and todo steps with no click target; Back disabled on step 1; Next hidden on step 4 | reviewed: 0 blockers, 0 warnings, 0 suggestions | task check passed (exit 0), 1376 tests |
+| T004 | Wizard screen and App wiring: stepper (no click target), Back and Next footer, step 1 name and idea, placeholders for steps 2 and 4; step 3 keeps the flat builder until F-06; the counter helper moved to wizard/ (amendment 3) | reviewed: 0 blockers, 0 warnings, 0 suggestions; counter move done (amendment 3); AC-014 is a device check | task check passed (exit 0), 1376 tests; vite build passed |
 
 ---
 
@@ -58,6 +59,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `stories.md` AC-008 counts the idea in code points (a surrogate pair counts as one character; a cut never splits a pair), replacing JavaScript string length. The 8,000 cap and the separator wording stay. `INPUT_CAPS.ideaCharacters` stays 8000.
 **Reason**: Owner decision, 2026-11-16. A cut by UTF-16 units could leave a lone surrogate at the end of the idea.
 **Impact**: T002 `source/apps/web/src/wizard/name-idea.ts` and its test. Also, to keep the form on one unit: `source/apps/web/src/brief/counter.ts` (the counter), `source/apps/web/src/brief/validate.ts` (the idea cap), and their tests in `brief-validation.test.ts`. The core checks in `source/packages/core` (F-13 AC-013, F-04 AC-021) were open and now count code points too (RESOLVED 2026-11-16; see Deferred Findings).
+
+### Amendment 3 — 2026-11-16
+**Changed**: the idea counter helpers (`groupThousands`, `codePointLength`, `ideaCounter`) moved from `source/apps/web/src/brief/counter.ts` to `source/apps/web/src/wizard/counter.ts` (`git mv`, one copy). The wizard (`NameIdeaStep.tsx`, `wizard-name-idea.test.ts`) imports them from there. The flat brief still imports them from the new path until T010 (`brief/validate.ts`, `brief/BriefForm.tsx`, `brief-validation.test.ts`). Behaviour and test names are unchanged.
+**Reason**: the wizard must not depend on the flat brief, which T010 removes.
+**Impact**: T010 no longer deletes `brief/counter.ts`, because the file is already gone from `brief/`. T010 must remove the brief importers of the counter (its other files stay in T010). Its plan line still names `brief/counter.ts`, so the plan needs a matching amendment before T010 runs.
 
 ```
 ### Amendment — YYYY-MM-DD

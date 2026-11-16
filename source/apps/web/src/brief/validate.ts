@@ -1,6 +1,6 @@
 import { INPUT_CAPS, parseProjectConfig } from '@sddbuilder/core';
 import type { ConfigProblem } from '@sddbuilder/core';
-import { codePointLength, groupThousands } from './counter.js';
+import { codePointLength, groupThousands } from '../wizard/counter.js';
 import type { MapState } from '../builder/map-state.js';
 import type { BriefState } from './state.js';
 import { toProjectConfig } from './to-config.js';

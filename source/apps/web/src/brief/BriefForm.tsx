@@ -1,6 +1,6 @@
 import { AnalysisPanel } from '../analyze/AnalysisPanel.js';
 import type { MapState } from '../builder/map-state.js';
-import { ideaCounter } from './counter.js';
+import { ideaCounter } from '../wizard/counter.js';
 import { Messages } from './Messages.js';
 import { ModuleRows } from './ModuleRows.js';
 import { isShownBeside, messagesAt } from './placement.js';

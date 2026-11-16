@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | ✅ Complete | 2026-11-15 | 20 of 20 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7; T020 added by Amendment 10) |
-| Verify   | ✅ Complete | 2026-11-15 | Second run after T020: all 25 criteria covered by passing tests; the AC-024 gap (Amendment 10) is closed; no manual criteria |
+| Build    | 🔄 In Progress | | 20 of 25 tasks committed (Amendment 11 adds T021 to T025) |
+| Verify   | ⏳ Pending  | | Re-run after T021 to T025 (Amendment 11) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

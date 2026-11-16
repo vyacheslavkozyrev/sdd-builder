@@ -1,7 +1,7 @@
 # User Stories — API: analyze and generate, zip download (F-07)
 
 Feature entry: `spec/documents/features.md` → F-07
-Requirements owned by this feature: R-01 to R-05 (listed in the Requirement Coverage table)
+Requirements owned by this feature: R-01 to R-06 (listed in the Requirement Coverage table)
 
 ## Out of Scope
 
@@ -152,12 +152,42 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 ---
 
+### US-008: Findings and generated text follow the same rules as the flat generator
+
+**As a** user who reads the findings and the generated files
+**I want to** see short findings, and files with one line-ending style
+**So that** file text is never echoed in full and the output is the same on every machine.
+
+**Requirements:** R-02, R-05
+
+#### Acceptance Criteria
+
+- [ ] AC-026 `[auto]`: A reply key longer than 120 characters is shortened in its finding message to its first 120 characters followed by `...`. A key of 120 characters or fewer is shown in full. The message never holds more than 120 characters of the key.
+- [ ] AC-027 `[auto]`: Every generated file has LF line endings only, and ends with exactly one newline. CRLF input and extra trailing newlines are normalised; an empty file becomes one newline.
+
+---
+
+### US-009: The selection helpers refuse a cycle and an unknown step
+
+**As a** developer
+**I want to** have the two error paths of the selection helpers tested
+**So that** a broken map cannot silently produce a wrong selection.
+
+**Requirements:** R-06
+
+#### Acceptance Criteria
+
+- [ ] AC-028 `[auto]`: `selectWorkflows` throws for a map with a cycle, and `selectSteps` throws for an unknown step id; both messages name the problem.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Scope item (`features.md` F-07) | Covered by |
 |---|---|---|
 | R-01 | `POST /analyze` and `POST /generate` on the pipeline model | AC-001, AC-002, AC-023, AC-024 |
-| R-02 | Generation returns a zip with the file tree | AC-001, AC-008, AC-009, AC-010, AC-014, AC-015, AC-016 |
+| R-02 | Generation returns a zip with the file tree | AC-001, AC-008, AC-009, AC-010, AC-014, AC-015, AC-016, AC-026, AC-027 |
 | R-03 | Stateless: nothing stored, nothing logged | AC-011, AC-017, AC-018 |
 | R-04 | Input is validated against the model | AC-001, AC-003, AC-004, AC-005 |
-| R-05 | Refusals, caps, limits and status codes of §3 and decisions 11 and 12 | AC-006, AC-007, AC-010, AC-011, AC-012, AC-013, AC-019, AC-020, AC-021, AC-022, AC-025 |
+| R-05 | Refusals, caps, limits and status codes of §3 and decisions 11 and 12 | AC-006, AC-007, AC-010, AC-011, AC-012, AC-013, AC-019, AC-020, AC-021, AC-022, AC-025, AC-026 |
+| R-06 | Selection helpers refuse a cycle and an unknown step | AC-028 |

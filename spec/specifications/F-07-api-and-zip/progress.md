@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 19 of 20 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7; T020 added by Amendment 10) |
+| Build    | ✅ Complete | 2026-11-15 | 20 of 20 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7; T020 added by Amendment 10) |
 | Verify   | ⏳ Pending  | | Gap found in AC-024 (Amendment 10): T020 adds the file-absence test; verify runs again after it |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -44,6 +44,7 @@ None.
 | T017 | Removed the flat template folders `flat/`, `rules/`, `workflows/`; the flat-only core tests `templates-rules` and `templates-workflow` removed; base template checks moved to `templates/base/`; a no-flat-folder test added (F-07 AC-024); README rows for the deleted folders removed | 0 blockers, 3 warnings fixed, 0 suggestions fixed, 2 deferred (label numbering in templates-readme and templates-base; a rule-layout code-sample check with no criterion). Deviations accepted | task check passed: 479 api, 348 web, 1234 core |
 | T018 | Removed the flat `steps/` templates (10 files); README steps rows and text removed; `templates-readme` reduced to the checks that still apply; folder-absence check covers `steps` | 0 blockers, 1 warning fixed, 2 suggestions fixed, 1 deferred (F-03 historical test names). Owner accepted the size guard: one commit, 499 lines | task check passed: 479 api, 348 web, 1229 core |
 | T019 | Documentation: architecture §2, §3, §4 and decisions 11, 19, 22 (dated notes); templates README agent row; features F-01, F-02, F-03 rows; T016 plan line corrected (the web app does not import `pipeline`) | 0 blockers, 3 warnings fixed, 2 suggestions fixed, 0 deferred. Verified against source | task check passed: 479 api, 348 web, 1229 core |
+| T020 | File-absence test for the removed flat core sources and the presence of `cycle.ts` and `selection.ts` (Amendment 10; AC-024 file part) | 0 blockers, 0 warnings, 2 suggestions fixed. Removal probe confirmed the check fails when a removed file returns | task check passed: 479 api, 348 web, 1235 core |
 
 ---
 

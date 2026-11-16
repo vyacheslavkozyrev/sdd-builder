@@ -1,8 +1,7 @@
 // Pipeline command file (F-02 AC-024, AC-025): `.claude/commands/pipeline.md` lists the pipeline's arguments, its enabled
 // child flows and the enabled gates and checks between them in pipeline order, then a numbered rule for each back route.
 // Pure: the file is returned, never written. It reads only the selection, so a disabled flow or gate is never mentioned.
-import type { GeneratedFile } from '../../model.js';
-import type { PipelineBlock, PipelineStartBlock, ProjectConfig } from '../model.js';
+import type { GeneratedFile, PipelineBlock, PipelineStartBlock, ProjectConfig } from '../model.js';
 import { backRouteRule, checkRule, type Outcome } from './rules-text.js';
 import { selectBlocks } from './select.js';
 import { settingsFile } from './settings-file.js';

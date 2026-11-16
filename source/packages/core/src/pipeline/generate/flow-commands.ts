@@ -2,8 +2,7 @@
 // blocks as numbered steps in block order, each naming the file it calls. Pure: the files are returned, never written.
 // The step text lives in this file; `command-layouts.ts` reuses `describeStep` for the layout placeholders. A disabled
 // block or flow is never mentioned, because the text is built from the selection alone.
-import type { GeneratedFile } from '../../model.js';
-import type { AgentBlock, ChildBlock, ConditionBlock, ConnectionBlock, ProjectConfig, Route } from '../model.js';
+import type { AgentBlock, ChildBlock, ConditionBlock, ConnectionBlock, GeneratedFile, ProjectConfig, Route } from '../model.js';
 import { selectBlocks, type SelectedFlow } from './select.js';
 
 const COMMANDS_DIR = '.claude/commands/';

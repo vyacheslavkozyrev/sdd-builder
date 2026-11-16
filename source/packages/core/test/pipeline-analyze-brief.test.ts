@@ -6,8 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { briefFindings } from '../src/pipeline/analyze/brief.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
-import type { AnalysisFinding } from '../src/model.js';
-import type { ProjectConfig } from '../src/pipeline/model.js';
+import type { AnalysisFinding, ProjectConfig } from '../src/pipeline/model.js';
 
 /** A brief with every required field set and one rule, so it has no brief findings. */
 function completeBrief(): ProjectConfig {

@@ -2,11 +2,10 @@
 // cycle is found in the pipeline's Connections (between flows) and in each enabled child flow's (between blocks). A
 // disabled Connection or a disabled flow gives none. The default pipeline has no cycle.
 import { describe, expect, it } from 'vitest';
-import type { AnalysisFinding } from '../src/model.js';
 import { cycleFindings } from '../src/pipeline/analyze/cycles.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
-import type { ConnectionBlock, FlowBlock, PipelineBlock, ProjectConfig } from '../src/pipeline/model.js';
+import type { AnalysisFinding, ConnectionBlock, FlowBlock, PipelineBlock, ProjectConfig } from '../src/pipeline/model.js';
 
 /** A deep copy of the default pipeline, so the shared default is never changed. */
 function copyDefault(): ProjectConfig {

@@ -142,39 +142,3 @@ export interface ProjectConfig {
   connections: MapConnection[];
   targets: TargetTool[];
 }
-
-/** A finding from the analyzer: a gap, a conflict or a suggestion the user should see. */
-export interface AnalysisFinding {
-  severity: 'info' | 'warning' | 'blocker';
-  subject: string;
-  message: string;
-}
-
-/** The LLM review part of an analysis. Its findings are kept apart from the structural ones. */
-export interface AnalysisReview {
-  /**
-   * 'failed' when the review could not be used; 'skipped' when it was not asked for (the daily review
-   * ceiling is reached). In both cases the structural findings still stand.
-   */
-  status: 'ok' | 'failed' | 'skipped';
-  findings: AnalysisFinding[];
-  /** Model findings removed because they did not pass the reply check. */
-  dropped: number;
-}
-
-/** The result of `/analyze`: structural findings from core, and the LLM review. */
-export interface AnalysisResult {
-  findings: AnalysisFinding[];
-  review: AnalysisReview;
-}
-
-export interface GeneratedFile {
-  /** Path relative to the project root, forward slashes, no leading slash. */
-  path: string;
-  content: string;
-}
-
-export interface GenerationResult {
-  files: GeneratedFile[];
-  warnings: string[];
-}

@@ -3,6 +3,7 @@ export type {
   AgentBlock,
   AgentModel,
   AgentSettings,
+  AnalysisFinding,
   ChildBlock,
   CheckType,
   ConditionBlock,

@@ -153,7 +153,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 - [ ] AC-026 `[auto]`: The pipeline module (`source/packages/core/src/pipeline/index.ts`) exports `planGeneration` and `checkReply`. The root package still exports the flat `planGeneration`, `checkReply` and `validateConfig`, with unchanged behaviour: the existing flat tests pass without edits.
 - [ ] AC-027 `[auto]`: No module under `source/packages/core/src/pipeline/` imports `render/step-files`, `render/workflow-command`, `generate.ts` or `plan.ts`, and none reads a path under `steps/`, `workflows/` or `rules/`. A test scans the imports and the path strings of the pipeline folder.
-- [ ] AC-028 `[auto]`: The API's generate tests (`source/apps/api/test/generate-*.test.ts`, `generation-model.test.ts`) and the web app's test suite pass without edits, and the flat model and catalog (`DEFAULT_WORKFLOWS`, `DEFAULT_STEP_CATALOG`, `DEFAULT_CONNECTIONS`, `getCatalogStep`) are still exported from `@sddbuilder/core`.
+- [ ] AC-028 `[auto]`: The API's generate tests (`source/apps/api/test/generate-*.test.ts`, `generation-model.test.ts`) and the web app's test suite pass without edits, and `@sddbuilder/core` exports the pipeline model and the result types (`pipeline`, `AnalysisFinding`, `AnalysisResult`, `AnalysisReview`, `GeneratedFile`, `GenerationResult`); the flat catalog (`DEFAULT_WORKFLOWS`, `DEFAULT_STEP_CATALOG`, `DEFAULT_CONNECTIONS`, `getCatalogStep`) is removed (amended 2026-11-16, F-06 T021b).
 
 ---
 

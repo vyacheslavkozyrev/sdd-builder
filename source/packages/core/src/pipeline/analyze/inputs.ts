@@ -3,8 +3,7 @@
 // label or an enabled Connection's `artifact` label, in the same flow or an earlier one), or, for an agent in the first
 // flow, the pipeline Start's declared arguments (at least one). An agent with none is a warning at its path. Scope
 // `project` gives none, and so do disabled agents and disabled flows. Pure: no I/O.
-import type { AnalysisFinding } from '../../model.js';
-import type { ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
+import type { AnalysisFinding, ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
 import { childPath, indexPath } from '../parse-util.js';
 
 /** True when a label is set: present and not empty. */

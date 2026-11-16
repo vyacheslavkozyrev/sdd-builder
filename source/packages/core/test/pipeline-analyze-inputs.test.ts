@@ -3,11 +3,11 @@
 // pipeline gives none. Assertions are on the inputs warnings only (the message names the agent and "iteration source").
 import { describe, expect, it } from 'vitest';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
-import type { AnalysisFinding } from '../src/model.js';
 import { inputFindings } from '../src/pipeline/analyze/inputs.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
 import type {
   AgentBlock,
+  AnalysisFinding,
   ChildBlock,
   ConnectionBlock,
   EndBlock,

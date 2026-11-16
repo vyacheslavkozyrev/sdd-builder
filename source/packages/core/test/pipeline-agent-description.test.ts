@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidConfigError } from '../src/errors.js';
-import type { GenerationResult } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { generate } from '../src/pipeline/index.js';
-import type { AgentBlock, FlowBlock, ProjectConfig } from '../src/pipeline/model.js';
+import type { AgentBlock, FlowBlock, GenerationResult, ProjectConfig } from '../src/pipeline/model.js';
 import { parsePipelineConfig, type PipelineProblem } from '../src/pipeline/parse.js';
 import { BASE_TEMPLATES } from './pipeline-routes-fixtures.js';
 

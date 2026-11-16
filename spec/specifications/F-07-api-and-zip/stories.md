@@ -177,7 +177,7 @@ This feature has no user interface, so no UX screens are needed (`➖ Not needed
 
 #### Acceptance Criteria
 
-- [ ] AC-028 `[auto]`: `selectWorkflows` throws for a map with a cycle, and `selectSteps` throws for an unknown step id; both messages name the problem.
+- [ ] AC-028 `[auto]` (retired 2026-11-16, superseded by F-06 T021b): `selectWorkflows` and `selectSteps` are removed with the flat selection code; the cycle and unknown-reference rules are checked by the pipeline analyzer (F-04, F-06 AC-009).
 
 ---
 

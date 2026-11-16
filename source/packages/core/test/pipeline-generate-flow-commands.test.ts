@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { GeneratedFile } from '../src/model.js';
 import { renderFlowCommands } from '../src/pipeline/generate/flow-commands.js';
-import type { AgentBlock, ConnectionBlock, ProjectConfig } from '../src/pipeline/model.js';
+import type { AgentBlock, ConnectionBlock, GeneratedFile, ProjectConfig } from '../src/pipeline/model.js';
 import {
   back,
   condition,

@@ -1,9 +1,8 @@
 // The analysis entry point of the pipeline model (F-04). `analyzeStructure` concatenates the structural check lists and
 // sorts the findings by severity (blocker, warning, info), then subject (path order, as the generator's problem list),
 // then message. Pure: the configuration is read, never changed.
-import type { AnalysisFinding, AnalysisResult } from '../../model.js';
 import { comparePaths, compareText } from '../generate/generate.js';
-import type { ProjectConfig } from '../model.js';
+import type { AnalysisFinding, AnalysisResult, ProjectConfig } from '../model.js';
 import { briefFindings } from './brief.js';
 import { cycleFindings } from './cycles.js';
 import { inputFindings } from './inputs.js';

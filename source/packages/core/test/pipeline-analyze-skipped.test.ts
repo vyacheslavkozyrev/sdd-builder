@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import type { AnalysisResult } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { analyzeStructure, skippedAnalysis } from '../src/pipeline/index.js';
-import type { ProjectConfig } from '../src/pipeline/model.js';
+import type { AnalysisResult, ProjectConfig } from '../src/pipeline/model.js';
 
 /** A copy of the default configuration with a blocker: a flow tagged with a rule the project does not have. */
 function blockerConfig(): ProjectConfig {

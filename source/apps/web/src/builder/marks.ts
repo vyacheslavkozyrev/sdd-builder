@@ -4,9 +4,9 @@
 // refuses an edit (AC-039). A finding on a disabled flow or block gives no mark (AC-033), except a disabled Start or End
 // of an enabled flow, which is marked on that flow (AC-037). Pure: no DOM, no storage, no network.
 import { pipeline } from '@sddbuilder/core';
-import type { AnalysisFinding } from '@sddbuilder/core';
 
 type ProjectConfig = pipeline.ProjectConfig;
+type AnalysisFinding = pipeline.AnalysisFinding;
 
 /** The kinds a marked item can have: a flow, or any block a flow or the pipeline holds. */
 export type MarkedKind = 'flow' | pipeline.PipelineBlock['kind'] | pipeline.ChildBlock['kind'];

@@ -2,10 +2,9 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GenerationError } from '../src/errors.js';
-import type { GeneratedFile } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { generate, sortedFileList } from '../src/pipeline/generate/generate.js';
-import type { ProjectConfig } from '../src/pipeline/model.js';
+import type { GeneratedFile, ProjectConfig } from '../src/pipeline/model.js';
 import {
   BASE_TEMPLATES,
   agent,

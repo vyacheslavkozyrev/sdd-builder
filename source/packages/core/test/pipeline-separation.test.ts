@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import * as root from '../src/index.js';
 import * as pipeline from '../src/pipeline/index.js';
 
 const SRC = join(import.meta.dirname, '..', 'src');
@@ -151,20 +150,7 @@ describe('F-03 AC-027 pipeline folder separation', () => {
   });
 });
 
-describe('F-03 AC-028 flat model and catalog and API suite', () => {
-  it('F-03 AC-028 the root package still exports the flat model and catalog', () => {
-    expect(root.DEFAULT_WORKFLOWS.length).toBeGreaterThan(0);
-    expect(root.DEFAULT_STEP_CATALOG.length).toBeGreaterThan(0);
-    expect(root.DEFAULT_CONNECTIONS.length).toBeGreaterThan(0);
-    expect(root.getCatalogStep).toBeTypeOf('function');
-  });
-
-  it('F-03 AC-028 getCatalogStep still resolves a catalog step by id', () => {
-    const first = root.DEFAULT_STEP_CATALOG[0];
-    expect(first).toBeDefined();
-    expect(root.getCatalogStep(first?.id ?? '')).toEqual(first);
-  });
-
+describe('F-03 AC-028 API suite', () => {
   it('F-03 AC-028 the API generate suites named by the criterion are present (the task check runs them unchanged)', () => {
     const names = readdirSync(API_TESTS);
     expect(names).toContain('generation-model.test.ts');

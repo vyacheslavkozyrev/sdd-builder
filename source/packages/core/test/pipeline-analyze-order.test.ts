@@ -5,10 +5,9 @@
 // Each case starts from a settled configuration (no findings), so a case asserts only what it changes. No check emits an
 // `info` finding yet, so the `info` rank is not reachable through `analyzeStructure`.
 import { describe, expect, it } from 'vitest';
-import type { AnalysisFinding } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
-import type { ProjectConfig, Route } from '../src/pipeline/model.js';
+import type { AnalysisFinding, ProjectConfig, Route } from '../src/pipeline/model.js';
 
 /** A deep copy of the default pipeline with a complete brief and a round limit on every retry, so it has no findings. */
 function settled(): ProjectConfig {

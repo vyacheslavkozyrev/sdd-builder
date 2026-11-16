@@ -2,7 +2,7 @@
 // that is not an array fails as a whole. Each entry is kept only if it is an object with a known severity and non-blank
 // subject and message; any other entry is dropped and counted. A kept `blocker` is returned as `warning`. Pure: the
 // reply is untyped and is narrowed here, and a reply of any shape gives a result, never a throw.
-import type { AnalysisFinding } from '../../model.js';
+import type { AnalysisFinding } from '../model.js';
 
 export type ReviewReplyCheck =
   | { status: 'ok'; findings: AnalysisFinding[]; dropped: number }

@@ -3,8 +3,7 @@
 // covers the enabled Conditions of the pipeline (gates between flows) and of each enabled child flow. A Condition with a
 // `roundLimit`, and a Condition whose routes go forward or stop, give none. Disabled blocks and flows are not checked.
 // Pure: no I/O.
-import type { AnalysisFinding } from '../../model.js';
-import type { ChildBlock, PipelineBlock, ProjectConfig, Route } from '../model.js';
+import type { AnalysisFinding, ChildBlock, PipelineBlock, ProjectConfig, Route } from '../model.js';
 import { childPath, indexPath } from '../parse-util.js';
 
 /** The block ids a Condition's routes go back to, pass route first. Empty when neither route is a retry. */

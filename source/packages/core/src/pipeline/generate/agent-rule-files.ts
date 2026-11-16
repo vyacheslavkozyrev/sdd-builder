@@ -3,9 +3,8 @@
 // rules come from the config, not from the selection. Pure: the files are returned, never written. The stub text is
 // replaced by LLM-written content in F-07 (AC-027). The frontmatter of an agent file carries its name and description,
 // and its model, tools and body when set (F-06 AC-031, see settings-file.ts).
-import type { GeneratedFile } from '../../model.js';
 import { ID_MESSAGE, isValidId } from '../ids.js';
-import type { AgentBlock, ProjectConfig } from '../model.js';
+import type { AgentBlock, GeneratedFile, ProjectConfig } from '../model.js';
 import { selectBlocks } from './select.js';
 import { agentFileText } from './settings-file.js';
 

@@ -2,9 +2,8 @@
 // through the renderer with values from the config. Pure: the templates come from a TemplateSource and the files are
 // returned, never written. The process document is text only: its process list is built here from the selection, in order,
 // and no Mermaid placeholder is filled.
-import type { GeneratedFile } from '../../model.js';
 import type { ListableTemplateSource } from '../../template-source.js';
-import type { ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
+import type { ChildBlock, GeneratedFile, PipelineBlock, ProjectConfig } from '../model.js';
 import { enabledIds, pipelineValues, renderTemplates, type PipelineValues } from './render.js';
 import { selectBlocks } from './select.js';
 

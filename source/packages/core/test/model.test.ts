@@ -1,13 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type {
-  AnalysisFinding,
-  AnalysisResult,
-  AnalysisReview,
-  Condition,
-  ProjectConfig,
-  StepDefinition,
-  Workflow,
-} from '../src/index.js';
+import type { Condition, ProjectConfig, StepDefinition, Workflow } from '../src/index.js';
+import type { AnalysisFinding, AnalysisResult, AnalysisReview } from '../src/pipeline/model.js';
 
 describe('F-02 T002 model', () => {
   it('describes a workflow with ordered steps, a gate and a branch route', () => {

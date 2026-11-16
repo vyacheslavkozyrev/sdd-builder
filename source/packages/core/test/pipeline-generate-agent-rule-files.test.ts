@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { GeneratedFile } from '../src/model.js';
 import { renderAgentAndRuleFiles } from '../src/pipeline/generate/agent-rule-files.js';
-import type { AgentBlock, ProjectConfig, Rule } from '../src/pipeline/model.js';
+import type { AgentBlock, GeneratedFile, ProjectConfig, Rule } from '../src/pipeline/model.js';
 import { configWith, flow, gate, NEXT, pipelineEnd, pipelineStart, STOP, validFlow } from './pipeline-routes-fixtures.js';
 
 /** An Agent block whose name differs from its id, so the tests see the file name and not the id. */

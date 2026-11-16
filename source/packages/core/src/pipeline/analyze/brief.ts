@@ -2,8 +2,7 @@
 // `stack.language`) that is blank after trimming is a blocker at its field name. An optional stack field that is
 // present but blank is a warning at `stack.<field>`; an absent one gives no finding. An empty `rules` list is a warning
 // at `rules`. Pure: no I/O.
-import type { AnalysisFinding } from '../../model.js';
-import type { ProjectConfig, ProjectStack } from '../model.js';
+import type { AnalysisFinding, ProjectConfig, ProjectStack } from '../model.js';
 
 const OPTIONAL_STACK_FIELDS: (keyof Omit<ProjectStack, 'language'>)[] = [
   'framework',

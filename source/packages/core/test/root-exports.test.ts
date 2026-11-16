@@ -79,16 +79,7 @@ const REMOVED_VALIDATE_NAMES = [
 ] as const;
 
 /** Root value exports the web app imports from @sddbuilder/core, value imports in src and test (AC-025). */
-const WEB_VALUE_NAMES = [
-  'INPUT_CAPS',
-  'parseProjectConfig',
-  'DEFAULT_STEP_CATALOG',
-  'DEFAULT_WORKFLOWS',
-  'DEFAULT_CONNECTIONS',
-  'getCatalogStep',
-  'wouldCreateCycle',
-  'selectConditions',
-] as const;
+const WEB_VALUE_NAMES = ['INPUT_CAPS', 'parseProjectConfig'] as const;
 
 const REMOVED_VALUE_NAMES = [
   ...REMOVED_GENERATOR_NAMES,
@@ -150,21 +141,8 @@ describe('F-07 AC-025: the root still exports what the web app imports', () => {
     expect(hasRootExport(name)).toBe(true);
   });
 
-  it('F-07 AC-025 parseProjectConfig and wouldCreateCycle are functions', () => {
+  it('F-07 AC-025 parseProjectConfig is a function and INPUT_CAPS is present', () => {
     expect(typeof root.parseProjectConfig).toBe('function');
-    expect(typeof root.wouldCreateCycle).toBe('function');
-  });
-
-  it('F-07 AC-025 selectConditions and getCatalogStep are functions', () => {
-    expect(typeof root.selectConditions).toBe('function');
-    expect(typeof root.getCatalogStep).toBe('function');
-  });
-
-  it('F-07 AC-025 INPUT_CAPS, the default catalog and the default map are present', () => {
     expect(root.INPUT_CAPS).toBeDefined();
-    expect(root.DEFAULT_STEP_CATALOG.length).toBeGreaterThan(0);
-    expect(root.DEFAULT_WORKFLOWS.length).toBeGreaterThan(0);
-    expect(root.DEFAULT_CONNECTIONS.length).toBeGreaterThan(0);
   });
-
 });

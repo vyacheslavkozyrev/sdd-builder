@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GenerationError } from '../src/errors.js';
-import type { GeneratedFile } from '../src/model.js';
 import { renderBaseFiles } from '../src/pipeline/generate/base-files.js';
-import type { ProjectConfig } from '../src/pipeline/model.js';
+import type { GeneratedFile, ProjectConfig } from '../src/pipeline/model.js';
 import { templateSourceFromRecord } from '../src/template-source.js';
 import { agent, configWith, flow, gate, NEXT, pipelineEnd, pipelineStart, STOP, validFlow } from './pipeline-routes-fixtures.js';
 

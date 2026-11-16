@@ -4,13 +4,13 @@
 // one `rules` warning) and the owner's acceptance of the six retry warnings of T005 (each retry Condition has no round
 // limit). The default's findings are therefore exactly those seven warnings. The default's own structure is not changed.
 import { describe, expect, it } from 'vitest';
-import type { AnalysisFinding } from '../src/model.js';
 import { briefFindings } from '../src/pipeline/analyze/brief.js';
 import { inputFindings } from '../src/pipeline/analyze/inputs.js';
 import { refusalFindings } from '../src/pipeline/analyze/refusals.js';
 import { retryFindings } from '../src/pipeline/analyze/retries.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
 import { analyzeStructure } from '../src/pipeline/index.js';
+import type { AnalysisFinding } from '../src/pipeline/model.js';
 
 /** The six retry warnings of the default pipeline: one per Condition that routes back with no round limit. */
 const RETRY_WARNINGS: AnalysisFinding[] = [

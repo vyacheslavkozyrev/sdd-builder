@@ -4,8 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeStructure } from '../src/pipeline/index.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
-import type { AnalysisFinding } from '../src/model.js';
-import type { AgentBlock, FlowBlock, ProjectConfig } from '../src/pipeline/model.js';
+import type { AgentBlock, AnalysisFinding, FlowBlock, ProjectConfig } from '../src/pipeline/model.js';
 
 const NOT_REACHABLE = 'is not reachable from';
 

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { InvalidConfigError } from '../src/errors.js';
-import type { GenerationResult } from '../src/model.js';
 import { generate } from '../src/pipeline/index.js';
 import type {
   AgentBlock,
   ChildBlock,
   EndBlock,
   FlowBlock,
+  GenerationResult,
   PipelineBlock,
   PipelineStartBlock,
   ProjectConfig,

@@ -3,10 +3,9 @@
 // files), sorts it by path in code-unit order and refuses two files with one path. No file or network I/O here.
 // F-07 AC-027: every file's text is normalised to LF with exactly one trailing newline before it is returned.
 import { GenerationError, InvalidConfigError } from '../../errors.js';
-import type { GeneratedFile, GenerationResult } from '../../model.js';
 import type { ListableTemplateSource } from '../../template-source.js';
 import { normaliseFileText } from '../line-endings.js';
-import type { ProjectConfig } from '../model.js';
+import type { GeneratedFile, GenerationResult, ProjectConfig } from '../model.js';
 import type { PipelineProblem } from '../parse-util.js';
 import { renderAgentAndRuleFiles } from './agent-rule-files.js';
 import { renderBaseFiles } from './base-files.js';

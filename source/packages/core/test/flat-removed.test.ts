@@ -4,12 +4,10 @@ import { describe, expect, it } from 'vitest';
 
 const SRC = join(import.meta.dirname, '..', 'src');
 
-/** Flat generator files that F-07 removes from the core source. */
-const REMOVED_FILES = ['generate.ts', 'plan.ts', 'reply-check.ts', 'select.ts', 'file-list.ts'];
+/** Flat files removed from the core source: the flat generator (F-07), and the flat catalog, selection and cycle helpers (F-06 T021b). */
+const REMOVED_FILES = ['generate.ts', 'plan.ts', 'reply-check.ts', 'select.ts', 'file-list.ts', 'catalog.ts', 'selection.ts', 'cycle.ts'];
 /** Folders removed with the flat generator; `render/` is removed entirely (Amendment 11). */
 const REMOVED_FOLDERS = ['validate', 'render'];
-/** Modules the web app and the pipeline still need from the core source. */
-const REQUIRED_FILES = ['cycle.ts', 'selection.ts'];
 
 /** Every entry (files and folders) under a directory, as posix paths relative to it, sorted by name. */
 function entries(dir: string, prefix = ''): string[] {
@@ -53,14 +51,8 @@ describe('F-07 AC-024 flat core sources are removed', () => {
     expect(existsSync(join(SRC, 'render'))).toBe(false);
   });
 
-  it('F-07 AC-024 cycle.ts and selection.ts are present under packages/core/src', () => {
-    for (const file of REQUIRED_FILES) {
-      expect(existsSync(join(SRC, file)), file).toBe(true);
-    }
-  });
-
   it('F-07 AC-024 negative probe: the rule flags each removed path when it is in a listing', () => {
-    const fixture = ['index.ts', 'cycle.ts', 'selection.ts'];
+    const fixture = ['index.ts', 'model.ts', 'limits.ts'];
     expect(removedPresent(fixture)).toEqual([]);
 
     for (const file of REMOVED_FILES) {

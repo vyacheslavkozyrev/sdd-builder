@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { pipeline } from '../src/index.js';
-import type { AnalysisResult, GenerationResult } from '../src/model.js';
 import { defaultProjectConfig } from '../src/pipeline/default.js';
+import type { AnalysisResult, GenerationResult } from '../src/pipeline/model.js';
 import { BASE_TEMPLATES } from './pipeline-routes-fixtures.js';
 
 // The result shapes are the contract between core, apps/api and apps/web. The typed literals and

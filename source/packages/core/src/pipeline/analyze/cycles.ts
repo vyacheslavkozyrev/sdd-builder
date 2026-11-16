@@ -4,8 +4,7 @@
 // covers the pipeline's Connections (between flows) and each enabled child flow's (between blocks). A back route is a
 // Condition's retry, not a Connection, so it adds no edge. Disabled Connections and disabled flows are not checked.
 // Pure: no I/O.
-import type { AnalysisFinding } from '../../model.js';
-import type { ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
+import type { AnalysisFinding, ChildBlock, PipelineBlock, ProjectConfig } from '../model.js';
 import { childPath, indexPath } from '../parse-util.js';
 
 /** True when `target` can be reached from `start` by following the edges, each node to the nodes it leads to. */

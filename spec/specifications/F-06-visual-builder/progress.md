@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 21 of 27 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 22 of 27 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -46,6 +46,7 @@ None.
 | T015a | Reads and writes on Agent blocks in core (amendment 9): optional lists of artifact names, non-blank, no duplicates within a list | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (line wrap); 1 deferred (trim or file-safe names, for the owner) | task check passed (exit 0), 1371 tests |
 | T015b | The Agent panel shows its reads and writes from the model (copies, order kept) | reviewed: 0 blockers, 0 warnings, 0 suggestions (round 1, no findings) | task check passed (exit 0), 1371 tests |
 | T016 | Map tab component with @xyflow/react: flows in a row, edges with artifact labels and gate diamonds, drop target on each arrow (geometry in the view-model), Approval and Check dragged onto a connection, Add approval and Add check buttons (disabled when the connection has a gate). Not mounted yet (T019). AC-005 is a device check | reviewed: 0 blockers, 1 warning fixed (drop geometry moved to the tested view-model), 2 suggestions fixed; 1 deferred (gate mapping location) | task check passed (exit 0), 1371 tests |
+| T017 | Flow tab component: blocks in order with numbers, flow toolbox (Start disabled when one exists), selected block with move up and down, a Connection with its artifact label typed in a field (amendment 10); refusals shown; the component has no DOM test | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (aria-required); 1 deferred (test title AC-008 vs AC-020) | task check passed (exit 0), 1371 tests |
 
 ---
 
@@ -77,6 +78,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T015a review, SUGGESTION: `source/packages/core/src/pipeline/parse-scope.ts` `readArtifactNames` compares names as typed, so `plan` and `plan ` (or ` plan`) are two different artifacts and both pass. Not applied: the stories say "non-blank text" and do not say whether names are trimmed or restricted to file-safe characters. Decide before T015b shows or generates them (same product choice as the T003 entry on line breaks).
 
 - T016 review, SUGGESTION: `source/apps/web/src/builder/MapTab.tsx` `gateChoice` maps the toolbox kind to a `GateChoice` (approval, or checks). It stays in the component: its input type `GateKind` lives in `Toolbox.tsx`, and moving it into `map-edit.ts` would make core-style logic import a UI file. The mapping is one line; AC-010 and AC-011 are tested through `addGate`.
+- T017 review, SUGGESTION: `source/apps/web/test/builder-block-edit.test.ts:230` names the blank artifact label refusal `F-06 AC-020`, but the label is AC-008 (`stories.md`). Not applied: the test file is outside Amendment 10 (impact FlowTab.tsx only); retitle it with the next change to that file.
 
 ---
 ## Test Results
@@ -86,6 +88,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 10 — 2026-11-16
+**Changed**: the flow tab's Connection takes its artifact from a typed text field (required, non-blank) next to the Connection button, not from the selected Agent's writes. The trimmed text goes to `addFlowConnection`, which keeps its refusal for a blank label.
+**Reason**: owner decision, 2026-11-16. The writes-based rule in T017 handed over the first output of the selected Agent, which the stories do not ask for (AC-008 requires a typed artifact label).
+**Impact**: `source/apps/web/src/builder/FlowTab.tsx` only.
 
 ### Amendment 9 — 2026-11-16
 **Changed**: `plan.md` adds T015a (model and parser: reads and writes on Agent blocks) and T015b (the Agent panel shows them) before T016. `architecture.md` §6 decision 27 records the fields.

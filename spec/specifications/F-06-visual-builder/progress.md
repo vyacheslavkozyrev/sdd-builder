@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 20 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 21 of 27 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -45,6 +45,7 @@ None.
 | T015 | Flow tab view-model: blocks numbered in order, flow toolbox (Start disabled when one exists), property panels per block kind, generated file per block. Reads and writes are not yet in the panel (amendment 9: T015a model, T015b panel) | reviewed: 0 blockers, 1 warning fixed (back-route titles numbered), 1 suggestion fixed (copies of lists); 2 deferred (agentFilePath location; back route to a Connection, AC-021) | task check passed (exit 0), 1356 tests |
 | T015a | Reads and writes on Agent blocks in core (amendment 9): optional lists of artifact names, non-blank, no duplicates within a list | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (line wrap); 1 deferred (trim or file-safe names, for the owner) | task check passed (exit 0), 1371 tests |
 | T015b | The Agent panel shows its reads and writes from the model (copies, order kept) | reviewed: 0 blockers, 0 warnings, 0 suggestions (round 1, no findings) | task check passed (exit 0), 1371 tests |
+| T016 | Map tab component with @xyflow/react: flows in a row, edges with artifact labels and gate diamonds, drop target on each arrow (geometry in the view-model), Approval and Check dragged onto a connection, Add approval and Add check buttons (disabled when the connection has a gate). Not mounted yet (T019). AC-005 is a device check | reviewed: 0 blockers, 1 warning fixed (drop geometry moved to the tested view-model), 2 suggestions fixed; 1 deferred (gate mapping location) | task check passed (exit 0), 1371 tests |
 
 ---
 
@@ -75,8 +76,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T015 review, SUGGESTION: `source/apps/web/src/builder/tab-view.ts` `routeTargetNames` shows a back route to a Connection by its raw id, because `backRouteTargets` (`source/apps/web/src/builder/block-edit.ts:148`) offers Connection ids as targets. Not applied: the target list is block-edit's contract (AC-021 says "block"), and changing it is outside T015; decide with the owner whether a Connection may be a back target.
 - T015a review, SUGGESTION: `source/packages/core/src/pipeline/parse-scope.ts` `readArtifactNames` compares names as typed, so `plan` and `plan ` (or ` plan`) are two different artifacts and both pass. Not applied: the stories say "non-blank text" and do not say whether names are trimmed or restricted to file-safe characters. Decide before T015b shows or generates them (same product choice as the T003 entry on line breaks).
 
----
+- T016 review, SUGGESTION: `source/apps/web/src/builder/MapTab.tsx` `gateChoice` maps the toolbox kind to a `GateChoice` (approval, or checks). It stays in the component: its input type `GateKind` lives in `Toolbox.tsx`, and moving it into `map-edit.ts` would make core-style logic import a UI file. The mapping is one line; AC-010 and AC-011 are tested through `addGate`.
 
+---
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._

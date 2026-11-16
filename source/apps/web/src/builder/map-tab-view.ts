@@ -3,6 +3,7 @@
 // blocks, `mixed` when they differ, and `no agent` when it has none. Its block count counts every block, switched off
 // or not. Only a Connection between two flows is an edge; a gate is drawn on the Connection it sits on.
 import { pipeline } from '@sddbuilder/core';
+import type { ConnectionBox } from './map-edit.js';
 
 type ProjectConfig = pipeline.ProjectConfig;
 type FlowBlock = pipeline.FlowBlock;
@@ -146,4 +147,48 @@ function routeText(route: Route, names: ReadonlyMap<string, string>): string {
     case 'back':
       return `back to ${names.get(route.blockId) ?? route.blockId}`;
   }
+}
+
+/** Layout of the Map in its own coordinates: flows sit in one row, a connection runs across the gap between two. */
+export const MAP_LAYOUT = {
+  nodeWidth: 96,
+  nodeHeight: 80,
+  gap: 96,
+  gateBoxWidth: 96,
+  gateBoxHeight: 48,
+} as const;
+
+/** The horizontal distance from one flow's left edge to the next flow's. */
+export const COLUMN_STEP = MAP_LAYOUT.nodeWidth + MAP_LAYOUT.gap;
+
+/**
+ * The rectangle a connection's gate drop must land in: a box centred on the arrow's midpoint. A connection whose flow
+ * has no column (not drawn) gets no box.
+ */
+export function connectionBoxes(
+  edges: readonly ConnectionEdge[],
+  columns: ReadonlyMap<string, number>,
+): ConnectionBox[] {
+  return edges.flatMap((edge) => {
+    const from = columns.get(edge.from);
+    const to = columns.get(edge.to);
+    if (from === undefined || to === undefined) return [];
+    const mid = arrowMidpoint(from, to);
+    return [
+      {
+        connectionId: edge.id,
+        x: mid.x - MAP_LAYOUT.gateBoxWidth / 2,
+        y: mid.y - MAP_LAYOUT.gateBoxHeight / 2,
+        width: MAP_LAYOUT.gateBoxWidth,
+        height: MAP_LAYOUT.gateBoxHeight,
+      },
+    ];
+  });
+}
+
+/** Midpoint of the straight arrow from the right side of the source flow to the left side of the target flow. */
+function arrowMidpoint(fromColumn: number, toColumn: number): { x: number; y: number } {
+  const start = fromColumn * COLUMN_STEP + MAP_LAYOUT.nodeWidth;
+  const end = toColumn * COLUMN_STEP;
+  return { x: (start + end) / 2, y: MAP_LAYOUT.nodeHeight / 2 };
 }

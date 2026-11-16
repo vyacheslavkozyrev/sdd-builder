@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pipeline } from '@sddbuilder/core';
-import { mapTabView } from '../src/builder/map-tab-view.js';
+import { gateTargetAt } from '../src/builder/map-edit.js';
+import { connectionBoxes, mapTabView } from '../src/builder/map-tab-view.js';
 
 type ProjectConfig = pipeline.ProjectConfig;
 type PipelineBlock = pipeline.PipelineBlock;
@@ -213,5 +214,31 @@ describe('F-06 AC-004 the Map toolbox offers Connection, Approval and Check', ()
       { kind: 'approval', label: 'Approval', hint: 'human decides: gate' },
       { kind: 'check', label: 'Check', hint: 'agent or diff size: gate' },
     ]);
+  });
+});
+
+describe('F-06 AC-010 a gate drop lands in a box centred on the connection arrow', () => {
+  const columns = new Map([
+    ['a', 0],
+    ['b', 1],
+  ]);
+  const edge = { id: 'a-to-b', from: 'a', to: 'b', enabled: true, label: 'Plan', gates: [] };
+
+  it('F-06 AC-010 the box is centred on the midpoint between the two flows', () => {
+    const [box] = connectionBoxes([edge], columns);
+    // The arrow runs from x 96 (right side of flow a) to x 192 (left side of flow b); its midpoint is (144, 40).
+    expect(box).toEqual({ connectionId: 'a-to-b', x: 96, y: 16, width: 96, height: 48 });
+  });
+
+  it('F-06 AC-010 a connection whose flow is not drawn gets no box', () => {
+    expect(connectionBoxes([{ ...edge, to: 'missing' }], columns)).toEqual([]);
+    expect(connectionBoxes([{ ...edge, from: 'missing' }], columns)).toEqual([]);
+  });
+
+  it('F-06 AC-010 a drop on the arrow resolves to its connection; the box edges are exclusive on the right and bottom', () => {
+    const boxes = connectionBoxes([edge], columns);
+    expect(gateTargetAt({ x: 144, y: 40 }, boxes)).toBe('a-to-b');
+    expect(gateTargetAt({ x: 192, y: 40 }, boxes)).toBeNull();
+    expect(gateTargetAt({ x: 144, y: 64 }, boxes)).toBeNull();
   });
 });

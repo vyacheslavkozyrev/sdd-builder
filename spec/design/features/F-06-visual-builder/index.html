@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>F-06 builder screens</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #18181b; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    header p { margin: 0; color: #52525b; font-size: 14px; }
+    section { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #52525b; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #e4e4e7; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>F-06 Visual builder: the Map tab, flow tabs, gates and custom agents (wireframes)</h1>
+    <p>Step 3 of the wizard. The Map tab is the pipeline: its flows in order, with approvals and checks on the arrows between them. Each flow has its own tab with its blocks. Wireframes only; read <code>screens.md</code> for the legend, the states and the open points.</p>
+  </header>
+
+  <section>
+    <h2>01 The pipeline on the Map tab</h2>
+    <p>The default pipeline: six flows in order, five gates on the arrows, the pipeline's own properties on the right. Also the default state after a page load.</p>
+    <img src="01-map-pipeline.svg" alt="The pipeline on the Map tab with its flows, gates and pipeline properties">
+  </section>
+
+  <section>
+    <h2>02 Adding a gate to a connection</h2>
+    <p>A connection that already has an approval: a Check is dragged over it (dashed target), and the connection's panel names the gate on the arrow and offers Add approval and Add check (open point A).</p>
+    <img src="02-map-connection-gate.svg" alt="A connection selected on the Map tab with a Check dragged over it">
+  </section>
+
+  <section>
+    <h2>03 A check selected on the Map</h2>
+    <p>The check between build and verify: its type (checks or diff-size), its decider, its description and its routes. Review is not a check type.</p>
+    <img src="03-map-check-panel.svg" alt="A check between flows selected on the Map tab">
+  </section>
+
+  <section>
+    <h2>04 Structure marks on the Map</h2>
+    <p>Live marks: a flow with no End, a connection that closes a cycle, a route left unwired. Marks sit next to the item and never block an edit.</p>
+    <img src="04-map-marks.svg" alt="The Map tab with structure marks">
+  </section>
+
+  <section>
+    <h2>05 Flow tab: build, blocks in order</h2>
+    <p>The build flow with its nine blocks numbered in order, and the flow toolbox (Start, Agent, Condition, Connection, End).</p>
+    <img src="05-flow-build.svg" alt="The build flow with its blocks numbered in order">
+  </section>
+
+  <section>
+    <h2>06 Flow tab: an agent selected</h2>
+    <p>The implement agent: name, description, scope with its iteration source, model, tools, reads and writes, rule tags, body with its 4,000-character cap, its generated file, and Move up and Move down.</p>
+    <img src="06-flow-agent-panel.svg" alt="The build flow with the implement agent selected">
+  </section>
+
+  <section>
+    <h2>07 Flow tab: a condition selected</h2>
+    <p>The review condition in the build flow: check type, description, pass and fail routes (only the next block, an earlier block of this flow, or stop), and an unbounded retry warning.</p>
+    <img src="07-flow-condition.svg" alt="The build flow with the review condition selected">
+  </section>
+
+  <section>
+    <h2>08 Custom agent: refused values</h2>
+    <p>A custom agent in the ux flow with three refused values, and a second Start refused by the toolbox. A refused value is not applied until it is fixed; there is no Save (open point B).</p>
+    <img src="08-custom-agent-refusals.svg" alt="A custom agent with refused values in the ux flow">
+  </section>
+
+  <section>
+    <h2>09 Switched-off block and delete</h2>
+    <p>The test agent is switched off and stays in place, dashed, with its properties kept. Commit is selected and its delete asks first; deleting the Start is refused.</p>
+    <img src="09-switch-off-and-delete.svg" alt="A switched-off agent, a delete confirmation and a refused Start deletion">
+  </section>
+
+  <section>
+    <h2>10 Pipeline arguments</h2>
+    <p>The pipeline's argument list, with a repeated argument name refused.</p>
+    <img src="10-pipeline-arguments.svg" alt="The pipeline arguments with a repeated name refused">
+  </section>
+
+  <section>
+    <h2>11 Map check: diff-size</h2>
+    <p>The check between build and verify with the diff-size type: its line threshold, and a threshold that is refused (not a whole number of lines, 1 or more).</p>
+    <img src="11-map-check-diff-size.svg" alt="A check with the diff-size type and a refused threshold on the Map tab">
+  </section>
+</body>
+</html>

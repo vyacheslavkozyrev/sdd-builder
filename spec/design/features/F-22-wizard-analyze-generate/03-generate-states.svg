@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#0f172a}
+.h1{font-size:18px;font-weight:600}
+.h2{font-size:14px;font-weight:600}
+.label{font-size:12px;font-weight:600;fill:#334155}
+.req{fill:#dc2626}
+.muted{font-size:12px;fill:#64748b}
+.small{font-size:11px;fill:#64748b}
+.ph{fill:#94a3b8}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.monoMuted{font-family:ui-monospace,Menlo,monospace;font-size:12px;fill:#64748b}
+.brand{font-size:15px;font-weight:700}
+.logo{font-size:13px;font-weight:700;fill:#ffffff}
+.caption{font-size:11px;fill:#94a3b8}
+.stepCheck{font-size:13px;font-weight:700;fill:#ffffff}
+.stepNum{font-size:13px;font-weight:700}
+.stepNumTodo{font-size:13px;fill:#64748b}
+.stepLabel{font-size:12px;fill:#64748b}
+.stepLabelOn{font-size:12px;font-weight:700;fill:#0f172a}
+.bt-primary{fill:#ffffff;font-weight:600}
+.bt-secondary{fill:#1e293b;font-weight:600}
+.bt-disabled{fill:#94a3b8;font-weight:600}
+.ct-blocker{font-size:11px;font-weight:600;fill:#991b1b}
+.ct-warn{font-size:11px;font-weight:600;fill:#92400e}
+.ct-info{font-size:11px;font-weight:600;fill:#1e40af}
+.ct-rule{font-size:11px;font-weight:600;fill:#5b21b6}
+.ct-file{font-size:11px;font-weight:600;fill:#334155}
+.ct-nofile{font-size:11px;font-weight:600;fill:#64748b}
+.errT{font-size:12px;fill:#991b1b}
+.warnT{font-size:12px;fill:#92400e}
+.badgeT{font-size:12px;font-weight:700;fill:#ffffff}
+.page{fill:#f5f7fa}
+.bar{fill:#ffffff}
+.card{fill:#ffffff;stroke:#e2e8f0;filter:url(#sh)}
+.div{stroke:#e2e8f0;stroke-width:1}
+.primary{fill:#2563eb}
+.secondary{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.disabled{fill:#f1f5f9;stroke:#e2e8f0;stroke-width:1}
+.input{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.inputErr{fill:#ffffff;stroke:#dc2626;stroke-width:1.5}
+.box{fill:#f8fafc;stroke:#e2e8f0;stroke-width:1}
+.alert{fill:#fef2f2;stroke:#fca5a5;stroke-width:1}
+.warnBox{fill:#fffbeb;stroke:#fcd34d;stroke-width:1}
+.infoBox{fill:#eff6ff;stroke:#bfdbfe;stroke-width:1}
+.chip-blocker{fill:#fee2e2;stroke:#ef4444}
+.chip-warn{fill:#fef3c7;stroke:#f59e0b}
+.chip-info{fill:#dbeafe;stroke:#93c5fd}
+.chip-rule{fill:#ede9fe;stroke:#8b5cf6}
+.chip-file{fill:#f1f5f9;stroke:#cbd5e1}
+.chip-nofile{fill:#f1f5f9;stroke:#cbd5e1;stroke-dasharray:3 2}
+.chk-on{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.chk-off{fill:#ffffff;stroke:#64748b;stroke-width:1.5}
+.badge{fill:#2563eb}
+.stepDone{fill:#2563eb}
+.stepCur{fill:#ffffff;stroke:#2563eb;stroke-width:2}
+.stepTodo{fill:#ffffff;stroke:#cbd5e1;stroke-width:1.5}
+.lineDone{stroke:#2563eb;stroke-width:2}
+.lineTodo{stroke:#cbd5e1;stroke-width:2}
+.tabOn{fill:#eff6ff;stroke:#2563eb;stroke-width:1.5}
+.tabOff{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.tabT{font-size:13px;font-weight:600;fill:#334155}
+.tabTOn{font-size:13px;font-weight:700;fill:#1d4ed8}
+.node{fill:#ffffff;stroke:#334155;stroke-width:1.5}
+.nodeSel{fill:#eff6ff;stroke:#2563eb;stroke-width:2}
+.edge{stroke:#64748b;stroke-width:1.5;fill:none}
+.edgeDash{stroke:#64748b;stroke-width:1.5;fill:none;stroke-dasharray:5 4}
+.gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+.gateCheck{fill:#ecfeff;stroke:#0891b2;stroke-width:1.5}
+.gateSmall{font-size:10px;fill:#9a3412}
+.track{fill:#e2e8f0}
+.fill{fill:#2563eb}
+.canvas{fill:#fbfcfe;stroke:#e2e8f0;stroke-width:1}
+.endc{fill:#ffffff;stroke:#0f172a;stroke-width:3}
+</style>
+
+<defs>
+  <filter id="sh" x="-3%" y="-3%" width="106%" height="108%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.07"/>
+  </filter>
+  <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+    <path d="M0,0 L8,4 L0,8 z" fill="#64748b"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="1280" height="800" rx="0" class="page"/>
+<rect x="0" y="0" width="1280" height="56" rx="0" class="bar"/>
+<line x1="0" y1="56" x2="1280" y2="56" class="div"/>
+<rect x="40" y="16" width="24" height="24" rx="6" class="primary"/>
+<text x="52" y="33" class="logo" text-anchor="middle">S</text>
+<text x="74" y="33" class="brand">SDDBuilder</text>
+<text x="190" y="33" class="muted">New project · Claude Code</text>
+<line x1="206" y1="92" x2="474" y2="92" class="lineDone"/>
+<line x1="506" y1="92" x2="774" y2="92" class="lineDone"/>
+<line x1="806" y1="92" x2="1074" y2="92" class="lineDone"/>
+<circle cx="190" cy="92" r="14" class="stepDone"/>
+<text x="190" y="97" class="stepCheck" text-anchor="middle">✓</text>
+<text x="190" y="124" class="stepLabel" text-anchor="middle">Project name and idea</text>
+<circle cx="490" cy="92" r="14" class="stepDone"/>
+<text x="490" y="97" class="stepCheck" text-anchor="middle">✓</text>
+<text x="490" y="124" class="stepLabel" text-anchor="middle">Technical details</text>
+<circle cx="790" cy="92" r="14" class="stepDone"/>
+<text x="790" y="97" class="stepCheck" text-anchor="middle">✓</text>
+<text x="790" y="124" class="stepLabel" text-anchor="middle">Workflow</text>
+<circle cx="1090" cy="92" r="14" class="stepCur"/>
+<text x="1090" y="97" class="stepNum" text-anchor="middle">4</text>
+<text x="1090" y="124" class="stepLabelOn" text-anchor="middle">Analyze and generate</text>
+<rect x="40" y="152" width="1200" height="624" rx="12" class="card"/>
+<text x="72" y="190" class="h1">Analyze and generate: generate states</text>
+<text x="72" y="212" class="muted">Step 4 of 4. Generate waits for a clean analysis. The zip is offered only after a successful Generate.</text>
+<line x1="72" y1="232" x2="1208" y2="232" class="div"/>
+<text x="40" y="794" class="caption">Wireframe · F-22 · screen 03 · step 4 of 4 · generate states</text>
+<circle cx="83" cy="260" r="11" class="badge"/>
+<text x="83" y="264" class="badgeT" text-anchor="middle">1</text>
+<text x="102" y="268" class="h2">Analysis has a blocker</text>
+<rect x="72" y="284" width="540" height="92" rx="8" class="alert"/>
+<rect x="88" y="300" width="62" height="22" rx="11" class="chip-blocker"/>
+<text x="119.0" y="315" class="ct-blocker" text-anchor="middle">blocker</text>
+<text x="176" y="316" class="mono">pipeline.blocks[3]</text>
+<text x="88" y="344" class="errT">A Condition's fail route names no block.</text>
+<text x="88" y="364" class="errT">Fix it on the Map tab, then Analyze again.</text>
+<rect x="72" y="392" width="140" height="40" rx="8" class="disabled"/>
+<text x="142.0" y="416.5" class="bt-disabled" text-anchor="middle">Generate</text>
+<text x="228" y="417" class="small">Generate waits for an analysis with no blockers.</text>
+<rect x="72" y="448" width="540" height="96" rx="8" class="alert"/>
+<text x="88" y="474" class="h2">Generate failed: too many requests</text>
+<text x="88" y="496" class="errT">Try again in 30 seconds. No zip was made, and none is offered.</text>
+<text x="88" y="520" class="small">The brief is kept as you left it.</text>
+<circle cx="679" cy="260" r="11" class="badge"/>
+<text x="679" y="264" class="badgeT" text-anchor="middle">2</text>
+<text x="698" y="268" class="h2">Generate the project</text>
+<rect x="668" y="284" width="540" height="128" rx="8" class="box"/>
+<text x="684" y="308" class="h2">Generating…</text>
+<rect x="684" y="320" width="160" height="40" rx="8" class="disabled"/>
+<text x="764.0" y="344.5" class="bt-disabled" text-anchor="middle">Generating…</text>
+<rect x="684" y="376" width="508" height="8" rx="4" class="track"/>
+<rect x="684" y="376" width="250" height="8" rx="4" class="fill"/>
+<text x="684" y="402" class="small">One request is sent. Generate stays off until it finishes.</text>
+<rect x="668" y="428" width="540" height="180" rx="8" class="box"/>
+<text x="684" y="452" class="h2">Generated</text>
+<text x="684" y="474" class="muted">The zip is named sddbuilder-project.zip.</text>
+<text x="684" y="494" class="muted">It holds exactly the files in the tree, in plan order.</text>
+<text x="684" y="514" class="muted">Editing any field, rule block or the pipeline discards it.</text>
+<rect x="684" y="556" width="150" height="40" rx="8" class="secondary"/>
+<text x="759.0" y="580.5" class="bt-secondary" text-anchor="middle">Generate again</text>
+<line x1="40" y1="700" x2="1240" y2="700" class="div"/>
+<rect x="72" y="716" width="120" height="40" rx="8" class="secondary"/>
+<text x="132.0" y="740.5" class="bt-secondary" text-anchor="middle">Back</text>
+<rect x="1081" y="716" width="127" height="40" rx="8" class="primary"/>
+<text x="1144.5" y="740.5" class="bt-primary" text-anchor="middle">Download zip</text>
+</svg>

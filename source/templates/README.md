@@ -6,7 +6,7 @@ Text files that describe the layout of a project and what each file should conta
 
 The base templates in `base/` are the pipeline's. They use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` list the flows, agents and rules from the selection through list placeholders, and `base/spec-template/` has no placeholders. The pipeline layouts for the command, agent and rule files are in `claude-code/`. The renderer still reads `#enabled:<id>` sections (see Section rules), but no base or `claude-code/` layout uses one.
 
-The flat base templates (`flat/base/`) and the flat `workflows/` and `rules/` layouts were removed in F-07 (T017), and the flat generator that read them was removed from core in F-07 (T014). The flat `steps/` layouts and their renderers remain until F-07 removes them (T018; architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
+The flat base templates (`flat/base/`) and the flat `workflows/` and `rules/` layouts were removed in F-07 (T017), and the flat generator that read them was removed from core in F-07 (T014). The pipeline `generate` fails on a placeholder with no value, and names it.
 
 ## Placeholders
 
@@ -38,7 +38,7 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | no layout uses them since the flat base was removed (T017); not filled by the pipeline config (see the status above) |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
 | `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
-| `{{#step:<id>}}…{{/step:<id>}}` | the flat layout only: the pipeline renderer does not read it and fails generation on it |
+| `{{#step:<id>}}…{{/step:<id>}}` | no layout uses it since the flat `steps/` layouts were removed in F-07 (T018); the pipeline renderer does not read it and fails generation on it |
 | Section `#enabled:<id>` … `/enabled:<id>`, placed between double curly braces | the section: content kept only when the block or flow with that id is enabled in the selection; a child block of a disabled flow is not enabled |
 
 Section rules:
@@ -79,14 +79,6 @@ This is the layout of the Claude Code output for the pipeline. The first table i
 
 No layout holds a script: the Claude Code output has no `scripts/` folder. Templates never contain a script.
 
-The flat layouts below are not part of the pipeline output. They remain until F-07 removes the flat generator, and their rows stay so the layout check still covers them.
-
-| Output file | Source |
-|---|---|
-| `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled flat command step |
-| `.claude/agents/<name>.md` | `steps/<id>/agent.md` for each enabled flat agent step |
-| `.claude/skills/<name>/SKILL.md` | `steps/<id>/skill.md` for each enabled flat skill step; the catalog has no skill step, so no skill layout file exists yet |
-
 ## Folders
 
 ```
@@ -94,7 +86,6 @@ source/templates/
   base/           the pipeline's base files (CLAUDE.md, process.md, spec template); in use
   claude-code/    the pipeline layouts (pipeline command, flow command, agent, rule); in use
   pipeline/       default.json, a sample pipeline config (data); in use
-  steps/          the flat step layouts, one folder per step id; remains until F-07, replaced by claude-code/ for the pipeline
 ```
 
 Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feature is specified, the mapping is confirmed against each tool's current documentation.

@@ -144,11 +144,11 @@ describe('F-03 T015 template scans', () => {
     expect(shebangFindings('inline.md', 'Text\n#!/bin/sh\n')).toEqual([]);
   });
 
-  it('F-07 AC-024 the flat template folders are removed: no flat, rules or workflows folder under templates/', () => {
+  it('F-07 AC-024 the flat template folders are removed: no flat, rules, workflows or steps folder under templates/', () => {
     const folders = readdirSync(TEMPLATES, { withFileTypes: true })
       .filter((entry) => entry.isDirectory())
       .map((entry) => entry.name);
-    for (const removed of ['flat', 'rules', 'workflows']) {
+    for (const removed of ['flat', 'rules', 'workflows', 'steps']) {
       expect(folders, removed).not.toContain(removed);
     }
   });

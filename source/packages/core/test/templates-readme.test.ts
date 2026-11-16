@@ -1,30 +1,10 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_STEP_CATALOG, getCatalogStep, type StepDefinition, type StepKind } from '../src/index.js';
 
 const REPO_ROOT = join(import.meta.dirname, '..', '..', '..');
 const TEMPLATES = join(REPO_ROOT, 'templates');
 const README = join(TEMPLATES, 'README.md');
-
-/** Layout file names under `steps/<id>/`, and the step kind each one is for. */
-const LAYOUT_KINDS: ReadonlyMap<string, StepKind> = new Map<string, StepKind>([
-  ['command.md', 'command'],
-  ['agent.md', 'agent'],
-  ['skill.md', 'skill'],
-  ['script.md', 'script'],
-]);
-
-/** `steps/<id>/<file>`: the source pattern of the per-step layouts. */
-const STEP_SOURCE = /^steps\/<id>\/([\w.-]+)$/;
-
-/**
- * Output rows exempt from the source check, matched by the exact output cell. The skill row needs a
- * layout only once a catalog skill step exists: AC-008 requires a layout for each catalog step of a
- * kind, and the catalog has no skill step today. The test "the skill row is exempt only while the
- * catalog has no skill step" fails when one is added, so the exemption is removed with it.
- */
-const EXEMPT_OUTPUTS: readonly string[] = ['.claude/skills/<name>/SKILL.md'];
 
 /** One row of the "Claude Code layout (MVP)" table: the output cell and the source cell. */
 interface LayoutRow {
@@ -67,35 +47,15 @@ function entryKind(root: string, path: string): 'file' | 'dir' | undefined {
 }
 
 /**
- * Findings for one row of the layout table. A per-step source must exist under `root` for every
- * catalog step of its kind; any other source must exist as a file, or as a directory when it ends
- * with `/`.
+ * Findings for one row of the layout table. A source must exist under `root` as a file, or as a
+ * directory when it ends with `/`.
  */
-function layoutFindings(
-  row: LayoutRow,
-  root: string = TEMPLATES,
-  catalog: readonly StepDefinition[] = DEFAULT_STEP_CATALOG,
-): string[] {
-  if (EXEMPT_OUTPUTS.includes(row.output)) return [];
-
-  const stepSource = row.source.match(STEP_SOURCE);
-  if (stepSource !== null) {
-    const file = stepSource[1] ?? '';
-    const kind = LAYOUT_KINDS.get(file);
-    if (kind === undefined) return [`${row.output}: source "${row.source}" is not a known layout file`];
-    const kindSteps = catalog.filter((step) => step.kind === kind);
-    if (kindSteps.length === 0) return [`${row.output}: no catalog step of kind ${kind} for "${row.source}"`];
-    return kindSteps
-      .map((step) => `steps/${step.id}/${file}`)
-      .filter((source) => entryKind(root, source) !== 'file')
-      .map((source) => `${row.output}: source "${source}" is missing`);
-  }
-
+function layoutFindings(row: LayoutRow): string[] {
   if (row.source.includes('<')) return [`${row.output}: source "${row.source}" has an unknown placeholder`];
   if (row.source.endsWith('/')) {
-    return entryKind(root, row.source) === 'dir' ? [] : [`${row.output}: directory "${row.source}" is missing`];
+    return entryKind(TEMPLATES, row.source) === 'dir' ? [] : [`${row.output}: directory "${row.source}" is missing`];
   }
-  return entryKind(root, row.source) === 'file' ? [] : [`${row.output}: source "${row.source}" is missing`];
+  return entryKind(TEMPLATES, row.source) === 'file' ? [] : [`${row.output}: source "${row.source}" is missing`];
 }
 
 describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
@@ -145,22 +105,9 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     expect(() => layoutRows(threeCells)).toThrow('is not two cells');
   });
 
-  it('F-03 AC-029 every source in the Claude Code layout table exists under templates/, or is a scripts/ output from a script.md layout', () => {
+  it('F-03 AC-029 every source in the Claude Code layout table exists under templates/', () => {
     const findings = rows.flatMap((row) => layoutFindings(row));
     expect(findings).toEqual([]);
-  });
-
-  it('F-03 AC-029 the skill row is exempt only while the catalog has no skill step', () => {
-    expect(DEFAULT_STEP_CATALOG.filter((step) => step.kind === 'skill')).toEqual([]);
-    expect(EXEMPT_OUTPUTS).toEqual(['.claude/skills/<name>/SKILL.md']);
-    expect(rows.map((row) => row.output)).toContain('.claude/skills/<name>/SKILL.md');
-  });
-
-  it('F-03 AC-029 the skill exemption covers only the skill row, not another skill output', () => {
-    expect(layoutFindings({ output: '.claude/skills/<name>/SKILL.md', source: 'steps/<id>/skill.md' }, TEMPLATES, [])).toEqual([]);
-    expect(layoutFindings({ output: '.claude/skills/<name>/NOTES.md', source: 'steps/<id>/skill.md' }, TEMPLATES, [])).toEqual([
-      '.claude/skills/<name>/NOTES.md: no catalog step of kind skill for "steps/<id>/skill.md"',
-    ]);
   });
 
   it('F-03 AC-029 a row whose concrete source is missing is reported', () => {
@@ -177,42 +124,7 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     ]);
   });
 
-  it('F-03 AC-029 a per-step row is reported when no catalog step of its kind has the layout', () => {
-    const row = { output: '.claude/agents/<name>.md', source: 'steps/<id>/agent.md' };
-    expect(layoutFindings(row, TEMPLATES, [])).toEqual([
-      '.claude/agents/<name>.md: no catalog step of kind agent for "steps/<id>/agent.md"',
-    ]);
-    const deployOnly = [{ ...getCatalogStep('implement'), id: 'deploy' }];
-    expect(layoutFindings(row, TEMPLATES, deployOnly)).toEqual([
-      '.claude/agents/<name>.md: source "steps/deploy/agent.md" is missing',
-    ]);
-  });
-
-  it('F-03 AC-029 a per-step row names each catalog step of the kind that lacks the layout', () => {
-    const row = { output: '.claude/agents/<name>.md', source: 'steps/<id>/agent.md' };
-    const implement = getCatalogStep('implement');
-    const withSecondAgent = [implement, { ...implement, id: 'deploy' }];
-    expect(layoutFindings(row, TEMPLATES, withSecondAgent)).toEqual([
-      '.claude/agents/<name>.md: source "steps/deploy/agent.md" is missing',
-    ]);
-  });
-
-  it('F-03 AC-029 a scripts/ row is reported when a script step has no script.md layout', () => {
-    const row = { output: 'scripts/<name>.sh', source: 'steps/<id>/script.md' };
-    const withMissingScript = [{ ...getCatalogStep('unit-tests'), id: 'deploy' }];
-    expect(layoutFindings(row, TEMPLATES, withMissingScript)).toEqual([
-      'scripts/<name>.sh: source "steps/deploy/script.md" is missing',
-    ]);
-    expect(layoutFindings(row)).toEqual([]);
-  });
-
-  it('F-03 AC-029 a source that names an unknown layout file or placeholder is reported', () => {
-    expect(layoutFindings({ output: 'x', source: 'steps/<id>/notes.md' })).toEqual([
-      'x: source "steps/<id>/notes.md" is not a known layout file',
-    ]);
-    expect(layoutFindings({ output: 'x', source: 'steps/<id>/constructor' })).toEqual([
-      'x: source "steps/<id>/constructor" is not a known layout file',
-    ]);
+  it('F-03 AC-029 a source that holds an unknown placeholder is reported', () => {
     expect(layoutFindings({ output: 'x', source: 'base/<name>.md' })).toEqual([
       'x: source "base/<name>.md" has an unknown placeholder',
     ]);

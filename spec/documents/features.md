@@ -13,7 +13,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Specified and UX approved 2026-11-15 |
 | F-21 | Project wizard step 2: technical details and code rules | MVP | User | source/apps/web | 2 | F-05 | Specified 2026-11-15 (split from F-05); UX pending |
 | F-22 | Project wizard step 4: analyze and generate | MVP | User | source/apps/web | 2 | F-04, F-05, F-07 | Specified 2026-11-15 (split from F-05); UX pending |
-| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
+| F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01, F-04 | Not started |
 | F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ✅ Complete in `source/apps/api/`, `source/packages/core/` and `spec/specifications/F-07-api-and-zip/` (25 tasks, 28 criteria, 2086 tests across api, web and core; flat generator and flat templates removed; see `verify.md`) |
 | F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06, F-21, F-22 | Not started |
 | F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
@@ -137,7 +137,7 @@ Merged 2026-11-14 into F-06. A custom agent is a toolbox item on a flow tab, wit
 
 ### F-15 Configurable quality gates: conditions (merged into F-06)
 
-Merged 2026-11-14 into F-06. A gate or check is a Condition block with a fixed check type (`approval`, `checks`, `review`, `diff-size`), placed on a connection between flows or inside a flow. Its threshold, decider, routes and round limit are set in F-06 (`architecture.md` §9, `building-blocks.md` §3).
+Merged 2026-11-14 into F-06. A gate or check is a Condition block with a fixed check type (`approval`, `checks`, `diff-size`; `review` was removed 2026-11-15, see `architecture.md` §6 decision 24), placed on a connection between flows or inside a flow. Its threshold, decider, routes and round limit are set in F-06 (`architecture.md` §9, `building-blocks.md` §3).
 
 ### F-16 GitHub Spec Kit output (post-MVP, first after the MVP)
 

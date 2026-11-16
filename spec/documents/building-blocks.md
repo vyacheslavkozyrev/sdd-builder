@@ -1,6 +1,6 @@
 # SDDBuilder — Building Blocks
 
-Status: decided 2026-11-14 with the owner, revised the same day three times. The model has two levels of flow: the **pipeline** (the one flow that can contain other flows) and **flows** (which hold blocks only). Replaces the 2026-11-11 model (workflows as tabs of steps, nine node kinds). Not yet reflected in `source/packages/core` or in the feature specs; the features are re-specified after F-01 is reworked (`features.md`).
+Status: decided 2026-11-14 with the owner, revised the same day three times, and on 2026-11-15 (F-06: `review` is no longer a check type). The model has two levels of flow: the **pipeline** (the one flow that can contain other flows) and **flows** (which hold blocks only). Replaces the 2026-11-11 model (workflows as tabs of steps, nine node kinds). Not yet reflected in `source/packages/core` or in the feature specs; the features are re-specified after F-01 is reworked (`features.md`).
 
 ## Decisions
 
@@ -11,7 +11,7 @@ Status: decided 2026-11-14 with the owner, revised the same day three times. The
 5. **Agents run agents, never flows.** An Agent block runs an agent (`.claude/agents/<name>.md`). Only the pipeline runs flows.
 6. **Scope is an attribute of an Agent block.** It says what the block repeats over: `project` (once), `feature` (for each feature in `features.md`), or `task` (for each task in `plan.md`). Start blocks carry the arguments.
 7. **Arguments are on the pipeline's Start block:** name, required or optional, hint. They become the pipeline command's argument hint.
-8. **A Condition has a fixed check type** (`approval`, `checks`, `review`, `diff-size`). Its pass output and fail output are both wired. A fail output goes to the next block, back to an earlier block in the same flow (a retry), or, at pipeline level, to an earlier flow; or stops the process. A condition whose fail output stops is a quality gate.
+8. **A Condition has a fixed check type** (`approval`, `checks`, `diff-size`; `review` was removed on 2026-11-15, F-06: a review is an Agent block followed by a `checks` Condition). Its pass output and fail output are both wired. A fail output goes to the next block, back to an earlier block in the same flow (a retry), or, at pipeline level, to an earlier flow; or stops the process. A condition whose fail output stops is a quality gate.
 9. **A Connection is a "runs after" link** between two blocks, or between two flows in the pipeline. It carries the artifact it hands over, as a label. A gate on a connection is a Condition placed on it.
 10. **No cycles.** Flows and their connections form an acyclic order, except for retries of Conditions, which go back to an earlier block of the same flow or, at pipeline level, to an earlier flow.
 11. **Rule sets are tags** on Agent blocks and on flows. They point at files in `.claude/rules/`.
@@ -43,7 +43,7 @@ Status: decided 2026-11-14 with the owner, revised the same day three times. The
 |---|---|---|---|---|
 | **Start** | Entry of a flow. Exactly one per flow (the pipeline's Start carries the arguments) | arguments (pipeline only: name, required, hint) | circle | the argument hint of the pipeline command |
 | **Agent** | Runs an agent | name (file-safe, unique); description (when Claude should use it; required); scope (`project`, `feature`, `task`) with its iteration source; model (`haiku`, `sonnet`, `opus`, `inherit`); tools (allowed list); body (instructions); reads and writes (artifacts); rule tags | rounded rectangle, with an "agent" badge and the scope | `.claude/agents/<name>.md` with frontmatter (name, description, model, tools) and the body; a call in the flow's command file, repeated per scope |
-| **Condition** | A check with a pass and a fail output. Sits in a flow, or on a connection between flows | check type (`approval`, `checks`, `review`, `diff-size`); description (what passing means); decided by (`human` or `agent`); threshold (`diff-size` only, lines); pass route; fail route (next, back to a block with an optional round limit, or stop) | diamond with two labelled outputs | a numbered rule in the command file of the flow, or in the pipeline command when it sits between flows |
+| **Condition** | A check with a pass and a fail output. Sits in a flow, or on a connection between flows | check type (`approval`, `checks`, `diff-size`); description (what passing means); decided by (`human` or `agent`); threshold (`diff-size` only, lines); pass route; fail route (next, back to a block with an optional round limit, or stop) | diamond with two labelled outputs | a numbered rule in the command file of the flow, or in the pipeline command when it sits between flows |
 | **Connection** | A "runs after" link between two blocks, or between two flows | artifact label (the file handed over) | arrow with a label | the handover named in the command file |
 | **Flow** (pipeline only) | A child flow | name; description; scope of the flow (project, feature, task, set from its Agent blocks); enabled | rounded rectangle with a "flow" badge and its block count | `.claude/commands/<flow>.md`, called in order by the pipeline command |
 | **End** | Exit of a flow (or of the pipeline). One or more | produced artifact (optional); outcome (`done` or `stopped`); description (optional) | circle | the last step of the command file |
@@ -57,7 +57,7 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 1. **specify** (flow). Agent `specify` (scope `feature`): drafts `stories.md`. Its questions are asked by the main session before it starts.
 2. **ux** (flow). Agent `ux` (scope `feature`): draws the screens under `spec/design/features/`, from the stories. Its screens are approved before the plan is written.
 3. **plan** (flow). Agent `plan` (scope `feature`): drafts `plan.md` from the stories and the approved screens.
-4. **build** (flow). Per task (scope `task`, iteration `plan.md`): Agent `implement` → Agent `review` → Condition `review` (blockers: back to `implement`; clean: next) → Agent `test` → Condition `checks` (the check runs; fail back to `implement`) → Condition `diff-size` (400 lines; fail stops) → Agent `commit`. One commit per task.
+4. **build** (flow). Per task (scope `task`, iteration `plan.md`): Agent `implement` → Agent `review` → Condition `checks` (description: "the review reports no blocker or warning"; fail back to `implement`) → Agent `test` → Condition `checks` (the check runs; fail back to `implement`) → Condition `diff-size` (400 lines; fail stops) → Agent `commit`. One commit per task.
 5. **verify** (flow). Agent `verify` (scope `feature`, verify mode: every criterion covered).
 6. **complete** (flow). Agent `complete` (scope `feature`): marks the feature complete and commits its spec folder.
 
@@ -81,7 +81,7 @@ Presets (F-09) are other starting pipelines; the default is the first.
 2. Flow tabs: one per child flow, with Start, Agent, Condition, Connection and End
 3. The toolbox per diagram, and property panels per block
 4. Scope on Agent blocks; arguments on the pipeline's Start block
-5. Conditions: four fixed check types; quality gates and branches; optional round limits; human approval
+5. Conditions: three fixed check types; quality gates and branches; optional round limits; human approval
 6. Rule-set tags on Agent blocks and flows
 7. The default pipeline, as §4 lists it
 

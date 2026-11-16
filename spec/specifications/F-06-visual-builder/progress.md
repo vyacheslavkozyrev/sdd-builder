@@ -54,6 +54,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 2 — 2026-11-15
+**Changed**: `plan.md` T007 records the defaults for a gate placed by drop or button (approval and check descriptions, the `checks` type, pass next and fail stop, the ids, the hit test); T014 uses `map-tab-view.ts`, a new name, so the flat `map-view.ts` is not overwritten before T021.
+**Reason**: T007 needs a non-blank description on a new gate (core rule from T003), and the plan did not set one. Approved by the user on 2026-11-15. T014's file name clashed with the flat builder's view file.
+**Impact**: T007 and T014 only. No change to other tasks.
+
 ### Amendment 1 — 2026-11-15
 **Changed**: `plan.md` T003 widened to the core model, parser and generator (Condition description); `architecture.md` §6 decision 25 records the description as a required model field.
 **Reason**: T003 found that the core Condition has no description field, so the default's review gate cannot carry one. The stories require a description on every Condition (AC-016), and `building-blocks.md` §3 lists it. Approved by the user on 2026-11-15.

@@ -6,15 +6,15 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model files stay until F-05 rebuilds the web app |
-| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator was removed in F-07 |
-| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete in `source/templates/claude-code/` and `source/packages/core/src/pipeline/` (16 tasks, 31 criteria, 1343 core tests); the flat layouts and generator were removed in F-07 |
-| F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ✅ Complete (26 tasks, 25 criteria, 2090 tests across api, web and core; the flat analyzer is removed; see `spec/specifications/F-04-analyzer/verify.md`) |
-| F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Specified and UX approved 2026-11-15 |
-| F-21 | Project wizard step 2: technical details and code rules | MVP | User | source/apps/web | 2 | F-05 | Specified 2026-11-15 (split from F-05); UX pending |
-| F-22 | Project wizard step 4: analyze and generate | MVP | User | source/apps/web | 2 | F-04, F-05, F-07 | Specified 2026-11-15 (split from F-05); UX pending |
+| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | Not started |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | Not started |
+| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | Not started |
+| F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | Not started |
+| F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Not started |
+| F-21 | Project wizard step 2: technical details and code rules | MVP | User | source/apps/web | 2 | F-05 | Not started |
+| F-22 | Project wizard step 4: analyze and generate | MVP | User | source/apps/web | 2 | F-04, F-05, F-07 | Not started |
 | F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01, F-04 | Not started |
-| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ✅ Complete in `source/apps/api/`, `source/packages/core/` and `spec/specifications/F-07-api-and-zip/` (25 tasks, 28 criteria, 2086 tests across api, web and core; flat generator and flat templates removed; see `verify.md`) |
+| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | Not started |
 | F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06, F-21, F-22 | Not started |
 | F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
 | F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | Not started |

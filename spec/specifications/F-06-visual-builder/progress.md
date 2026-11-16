@@ -98,6 +98,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 12 — 2026-11-16
+**Changed**: `plan.md` T021 is split into T021a (web: the flat builder files, their tests and CSS) and T021b (core: the result types moved into the pipeline model, catalog, selection and cycle removed; limits and parse-config kept).
+**Reason**: the flat model's result types still have live consumers, smoke.test.ts reads the flat catalog, and selection and cycle are used only by the flat builder. Approved by the user on 2026-11-16 (split).
+**Impact**: T021 only (now T021a and T021b).
+
 ### Amendment 11 — 2026-11-16
 **Changed**: step 3 keeps the pipeline config in App state, so step 4 can read it. `App.tsx` holds the config, initialised from the default pipeline; `Wizard.tsx` passes it to `PipelineBuilder` as `initial` and receives each change through `onChange`, which updates App's state. The builder stays mounted while hidden.
 **Reason**: owner decision, 2026-11-16 (F-05 AC-011). The T020 review found that the wizard could not read the builder's pipeline, because the builder kept its config inside its own state.

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user, then split on 2026-11-15 into F-05 (frame, step 1, step 3 host, privacy: 14 criteria), F-21 (step 2: 10 criteria) and F-22 (step 4: 15 criteria). Criteria renumbered per feature. Decisions carried over: Generate waits for an analysis with no blockers; privacy notice on step 4 only; testing rules an ordinary block; stepper by Back and Next only; findings as plain text; file tree from core `planGeneration`; optional `architecture` string in the config (needs its `architecture.md` §5 record before the plan). Depends on F-06 for step 3 (AC-010, AC-011) |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. Reviewed by the `usability` and `visual` agents; the three open points decided (drag plus a select-then-add route in F-06; storage line kept on step 1; approval gates orange, rule chips violet) |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 16 tasks (T001–T016); T016 blocked until F-06 is complete |
-| Build    | 🔄 In Progress | 2026-11-15 | 7 of 16 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 8 of 16 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ None.
 | T005 | Remove the flat brief validation tests (brief-validation, brief-placement); covers none | reviewed: 0 blockers, 0 warnings, 0 suggestions; the removed AC-019 check (valid brief parses) has no other test, recorded | task check passed (exit 0), 1376 tests |
 | T006 | Remove the flat brief config tests (brief-config); covers none | reviewed: 2 warnings accepted by the owner (stack trim and blank fields tested in F-21; module and layer parsing dropped, F-21 has no module list), 1 suggestion recorded | task check passed (exit 0), 1376 tests |
 | T007 | Remove the flat brief dependency and gate tests (brief-depends, brief-gate); covers none | reviewed: W2 decided by the owner (the module list leaves the config with F-21; the record is due when F-21 is planned); W1 deferred to F-22 (privacy notice wording test) | task check passed (exit 0), 1376 tests |
+| T008 | Remove the flat brief form components (BriefForm, ModuleRows, RuleList); covers none | reviewed: 2 warnings closed by the owner (module table: the module list leaves the config; progress panel: dropped, the stepper is the progress view); 1 suggestion deferred to the last removal task (unused CSS selectors) | task check passed (exit 0), 1376 tests |
 
 ---
 
@@ -48,6 +49,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T006 `source/apps/web/test/brief-config.test.ts` (SUGGESTION): config-level guards are gone (core defaults not aliased by a built config; a fresh brief does not leak). State-level cases remain in `builder-map-state.test.ts` and `brief-gate.test.ts`. Reason: the gap is partial and the code path is removed in T009.
 - T007 `source/apps/web/test/brief-gate.test.ts` (WARNING, unresolved): the exact privacy sentence (`PRIVACY_NOTICE`) and checkbox label (`PRIVACY_CHECKBOX_LABEL`) were pinned by a test and are now pinned by nothing. F-22 AC-001 covers the checkbox gate, not the wording. Not restored: the wording belongs to F-22 step 4. Fix: F-22 adds an exact-text test when step 4 is built.
 - T007 `source/apps/web/test/brief-depends.test.ts` (WARNING, unresolved): the `dependsOn` split and the handling of names that match no module have no test now. Core still carries `architecture.modules[].dependsOn` (`source/packages/core/src/model.ts`, `parse-config.ts`), and no core check reports an unmatched name, so the old "/analyze can report it" claim has no criterion behind it. F-21 says "no module list", so the owner must decide whether `architecture.modules` leaves the config (an F-01 or F-21 amendment) before this is closed. Not restored: the feature it tested is out of the current stories.
+- T008 `source/apps/web/src/brief/ModuleRows.tsx` (WARNING, unresolved): the module table (add and remove module, layer digits-only input, depends-on split, problem shown beside a module's name or layer) has no test and no current criterion. It is the same open question as the T007 depends-on warning: F-21 says "no module list", but core still carries `architecture.modules`. The owner must decide whether the module list leaves the config (amendment to F-01 or F-21) before this closes. Not restored: no criterion covers it.
+- T008 `source/apps/web/src/brief/BriefForm.tsx` (WARNING, unresolved): the progress panel (`progressEntries` marks and the "(incomplete)" label) is not in `stories.md` (F-05, F-21, F-22) or in the approved F-05 screens, and no test covers it. The owner must confirm it is dropped; if it stays, a criterion and a screen come first.
+- T008 `source/apps/web/src/styles.css:52,152,194` (SUGGESTION): the selectors `.brief-form`, `.module-rows`, `.rule-list` and `.progress` have no users after T008. Reason: no plan line for stylesheet cleanup; remove them in the last flat-brief removal task.
 
 ---
 

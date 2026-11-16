@@ -75,6 +75,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Reason**: Owner decision, 2026-11-16. A cut by UTF-16 units could leave a lone surrogate at the end of the idea.
 **Impact**: T002 `source/apps/web/src/wizard/name-idea.ts` and its test. Also, to keep the form on one unit: `source/apps/web/src/brief/counter.ts` (the counter), `source/apps/web/src/brief/validate.ts` (the idea cap), and their tests in `brief-validation.test.ts`. The core checks in `source/packages/core` (F-13 AC-013, F-04 AC-021) were open and now count code points too (RESOLVED 2026-11-16; see Deferred Findings).
 
+### Amendment 5 — 2026-11-16
+**Changed**: `plan.md` T010 removes only `Messages.tsx` now; `PrivacyGate.tsx`, `state.ts` and `privacy.ts` move to T013a.
+**Reason**: they are still imported by `AnalysisPanel.tsx` (T013), `analyze-request.test.ts` (T011) and the logic files (T013a). Approved by the user on 2026-11-16 (split).
+**Impact**: T010 and T013a only.
+
 ### Amendment 4 — 2026-11-16
 **Changed**: `plan.md` T009 removes only `placement.ts` now; the other four logic files (`validate.ts`, `to-config.ts`, `progress.ts`, `gate.ts`) move to a new task T013a after T013.
 **Reason**: removing them in T009 breaks the typecheck: `AnalysisPanel.tsx` and `analyze-request.test.ts` still import `to-config` and `gate`, and T011 and T013 remove those importers. Approved by the user on 2026-11-16 (split).

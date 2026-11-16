@@ -100,6 +100,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 13 — 2026-11-16
+**Changed**: `plan.md` T021b scope: the result types move into the pipeline model and the package root re-exports them, so the API is not changed in this task; the core tests and smoke test are re-pointed; catalog, selection and cycle are deleted.
+**Reason**: the result types reach the API through the package root and the core pipeline, so moving them without a re-export would break the API build. Approved by the user on 2026-11-16 (core only, root re-exports).
+**Impact**: T021b only. The API's four imports stay until a later cleanup.
+
 ### Amendment 12 — 2026-11-16
 **Changed**: `plan.md` T021 is split into T021a (web: the flat builder files, their tests and CSS) and T021b (core: the result types moved into the pipeline model, catalog, selection and cycle removed; limits and parse-config kept).
 **Reason**: the flat model's result types still have live consumers, smoke.test.ts reads the flat catalog, and selection and cycle are used only by the flat builder. Approved by the user on 2026-11-16 (split).

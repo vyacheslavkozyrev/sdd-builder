@@ -6,10 +6,8 @@ const SRC = join(import.meta.dirname, '..', 'src');
 
 /** Flat generator files that F-07 removes from the core source. */
 const REMOVED_FILES = ['generate.ts', 'plan.ts', 'reply-check.ts', 'select.ts', 'file-list.ts'];
-/** Folders removed with the flat generator; `render/` is kept, but only with `mermaid.ts` in it. */
-const REMOVED_FOLDERS = ['validate'];
-const RENDER = 'render';
-const RENDER_KEPT = 'render/mermaid.ts';
+/** Folders removed with the flat generator; `render/` is removed entirely (Amendment 11). */
+const REMOVED_FOLDERS = ['validate', 'render'];
 /** Modules the web app and the pipeline still need from the core source. */
 const REQUIRED_FILES = ['cycle.ts', 'selection.ts'];
 
@@ -30,9 +28,7 @@ function entries(dir: string, prefix = ''): string[] {
 function removedPresent(listing: readonly string[]): string[] {
   return listing.filter((path) => {
     if (REMOVED_FILES.includes(path)) return true;
-    if (REMOVED_FOLDERS.some((folder) => path === folder || path.startsWith(`${folder}/`))) return true;
-    if (path.startsWith(`${RENDER}/`)) return path !== RENDER_KEPT;
-    return false;
+    return REMOVED_FOLDERS.some((folder) => path === folder || path.startsWith(`${folder}/`));
   });
 }
 
@@ -53,10 +49,8 @@ describe('F-07 AC-024 flat core sources are removed', () => {
     expect(existsSync(join(SRC, 'validate'))).toBe(false);
   });
 
-  it('F-07 AC-024 render/ holds only mermaid.ts under packages/core/src', () => {
-    const rendered = existsSync(join(SRC, RENDER)) ? entries(SRC, RENDER) : [];
-    expect(rendered.includes(RENDER_KEPT), RENDER_KEPT).toBe(true);
-    expect(rendered.filter((path) => path !== RENDER_KEPT)).toEqual([]);
+  it('F-07 AC-024 the render/ folder is absent from packages/core/src', () => {
+    expect(existsSync(join(SRC, 'render'))).toBe(false);
   });
 
   it('F-07 AC-024 cycle.ts and selection.ts are present under packages/core/src', () => {
@@ -66,13 +60,14 @@ describe('F-07 AC-024 flat core sources are removed', () => {
   });
 
   it('F-07 AC-024 negative probe: the rule flags each removed path when it is in a listing', () => {
-    const fixture = ['index.ts', 'cycle.ts', 'selection.ts', 'render', 'render/mermaid.ts'];
+    const fixture = ['index.ts', 'cycle.ts', 'selection.ts'];
     expect(removedPresent(fixture)).toEqual([]);
 
     for (const file of REMOVED_FILES) {
       expect(removedPresent([...fixture, file])).toEqual([file]);
     }
     expect(removedPresent([...fixture, 'validate', 'validate/checks.ts'])).toEqual(['validate', 'validate/checks.ts']);
+    expect(removedPresent([...fixture, 'render', 'render/mermaid.ts'])).toEqual(['render', 'render/mermaid.ts']);
     expect(removedPresent([...fixture, 'render/workflow-command.ts'])).toEqual(['render/workflow-command.ts']);
     // Only top-level names are removed: the same names under pipeline/ are current modules.
     expect(removedPresent([...fixture, 'pipeline/plan.ts', 'pipeline/generate/select.ts'])).toEqual([]);

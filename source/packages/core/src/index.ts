@@ -4,7 +4,6 @@ export * from './errors.js';
 export * from './template-source.js';
 export * from './cycle.js';
 export * from './selection.js';
-export * from './render/mermaid.js';
 export * from './limits.js';
 export { parseProjectConfig, type ConfigProblem, type ParseConfigResult } from './parse-config.js';
 export * as pipeline from './pipeline/index.js';

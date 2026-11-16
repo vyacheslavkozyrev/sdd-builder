@@ -48,7 +48,7 @@ const REMOVED_GENERATOR_NAMES = [
   'pathProblem',
 ] as const;
 
-/** Flat render names removed by F-07 T015 (AC-024). */
+/** Flat render names removed by F-07 T015 and T021 (AC-024). */
 const REMOVED_RENDER_NAMES = [
   'renderConditionals',
   'checkNoStrayMarkers',
@@ -63,6 +63,8 @@ const REMOVED_RENDER_NAMES = [
   'WORKFLOW_TEMPLATE',
   'scopeText',
   'stepsText',
+  'renderMermaid',
+  'mermaidId',
 ] as const;
 
 /** Flat validate names removed by F-07 T015 (AC-024). */

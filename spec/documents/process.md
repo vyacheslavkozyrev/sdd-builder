@@ -1,8 +1,8 @@
 # SDDBuilder — Working Process
 
-Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`).
+Status: adopted from the ComEd and PhotoSync projects. The commands and agents are in `.claude/` (`/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`; agents `implement`, `review`, `test`, and for the UX step `usability` and `visual`).
 
-Phases of a feature: Specify → **UX** (SVG screens, approved by the user) → Plan → Build → Verify → Complete. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `source/scripts/task-check.sh`, not Swift tooling.
+Phases of a feature: Specify → **UX** (SVG screens, reviewed by the `usability` and `visual` agents, approved by the user) → Plan → Build → Verify → Complete. The build agent `implement` builds UI tasks from the approved screens. Nothing is implemented before the screens are approved, for features with a user interface. Adapted to TypeScript: the check is `source/scripts/task-check.sh`, not Swift tooling.
 
 ## The default process: the pipeline as commands
 

@@ -48,7 +48,7 @@ source/scripts/task-check.sh      # type check + tests; fails until the test scr
 
 ## Commands and agents
 
-The working cycle is the same as in the ComEd and PhotoSync projects. Commands in `.claude/commands/`: `/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`. The UX step (`/ux`) draws the feature's screens as SVG under `spec/design/features/F-XX-<slug>/` after Specify and waits for the user's approval before Plan and Build. Agents in `.claude/agents/`: `implement`, `review`, `test` (verify mode). Details in `spec/documents/process.md`.
+The working cycle is the same as in the ComEd and PhotoSync projects. Commands in `.claude/commands/`: `/research`, `/specify`, `/plan`, `/ux`, `/implement`, `/review`, `/test`, `/commit`, `/pipeline`. The UX step (`/ux`) draws the feature's screens as SVG under `spec/design/features/F-XX-<slug>/` after Specify, reviews them with the `usability` agent and then the `visual` agent, and waits for the user's approval before Plan and Build. Agents in `.claude/agents/`: `usability`, `visual` (UX review), `implement` (builds UI tasks from the approved screens), `review`, `test` (verify mode). Details in `spec/documents/process.md`.
 
 Commands and agents run only after the repository is a git repository on `main` with a clean tree (`git init` first).
 

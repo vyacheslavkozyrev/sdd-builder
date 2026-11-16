@@ -39,7 +39,7 @@ Run the steps of the `/specify` command in this session (clarify, write `stories
 
 ## Step 3 — UX (pause point 2)
 
-Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `spec/design/features/F-XX-<slug>/`, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Plan starts only after the user approves the screens.
+Run the steps of the `/ux` command in this session (plan the screens, draw them as SVG under `spec/design/features/F-XX-<slug>/`, usability review by the `usability` agent, visual review by the `visual` agent, coverage check, user approval, commit). The screens show the layout and states that the stories require. **Stop at the approval and wait.** If the user requests changes, apply them and ask again. Plan starts only after the user approves the screens.
 
 ## Step 3a — Plan (pause point 3)
 

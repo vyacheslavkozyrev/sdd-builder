@@ -31,6 +31,18 @@ Otherwise use the given task ID, or the first unchecked task in `plan.md`. Read 
 
 Read `.claude/rules/typescript.md`, `general.md` and `qa.md`, and any area rule file that applies to the task's layer. Read the parts of `spec/documents/architecture.md` and the feature entry in `features.md` that the task touches.
 
+## Step 4a — Read the approved screens (UI tasks only)
+
+A task is a UI task when it changes anything under `source/apps/web`, or the feature has screens and the task builds a control or a view. For a UI task:
+
+- Check `spec/design/features/F-XX-*/` exists. If it has no `screens.md`, stop and report: the screens must be approved first.
+- Read only the rows of `screens.md` for the screens this task builds (`grep -n` for the screen's file name or the criterion IDs the task covers), and the legend.
+- Open the SVG of each of those screens. The SVG is the layout reference: positions, labels, the controls, and every state drawn. `screens.md` gives the decisions and the states list.
+- Build what the screen shows: the same controls, the same labels, the same states (disabled with its reason, error, in progress). Do not invent a different layout, and do not use an older mockup.
+- If a screen and the stories disagree, stop and report it. Do not decide the conflict yourself.
+
+Non-UI tasks (core, api, templates) skip this step.
+
 ## Step 5 — Implement
 
 - Write the code **and its tests** in the same task. Tests are named with the feature and criterion (`F-04 AC-003 …`).

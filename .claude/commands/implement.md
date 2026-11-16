@@ -7,4 +7,4 @@ Arguments: `$ARGUMENTS` — a feature ID (`F-04`, `04` or `4`) and an optional t
 
 Spawn the `implement` agent (`.claude/agents/implement.md`) with the arguments as the prompt. Wait for it to complete and surface its output to the user.
 
-The agent implements exactly one task (the given one, or the first unchecked one), runs the checks, ticks the task in `plan.md`, stages the change and stops. Review, test and commit follow (`/review`, `/test`, `/commit`).
+The agent implements exactly one task (the given one, or the first unchecked one). For a UI task of a feature with approved screens, it reads the screens in `spec/design/features/F-XX-*/` for the views the task builds (`screens.md` and the SVG files) and builds their layout, labels and states. It runs the checks, ticks the task in `plan.md`, stages the change and stops. Review, test and commit follow (`/review`, `/test`, `/commit`).

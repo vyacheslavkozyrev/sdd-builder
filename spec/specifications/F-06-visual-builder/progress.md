@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 27 of 28 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 28 of 29 tasks committed; T023 (draw marks) remains |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -52,6 +52,7 @@ None.
 | T020 | Step 3 uses the pipeline builder in place of the flat builder; the pipeline config now lives in App state, so step 4 can read it (amendment 11); the flat map state is removed | reviewed: 0 blockers, 1 warning fixed (step-4 read; amendment 11), 1 suggestion fixed, 1 deferred (builder reads initial at mount only) | task check passed (exit 0), 1376 tests |
 | T021a | Remove the flat builder files, their tests and the flat CSS selectors (amendment 12); covers none; 2,710 deletion lines, the size guard waived by the owner | reviewed: 0 blockers, 0 warnings, 0 suggestions fixed; 1 suggestion deferred (unused .module-rows and .rule-list selectors) | task check passed (exit 0), 1376 tests |
 | T021b | Core flat-model removal: the result types move to the pipeline model with root re-exports (API unchanged); catalog, selection and cycle deleted with their tests; fixtures as literals (amendments 13-15); size guard waived by the owner | reviewed: 0 blockers; 2 warnings closed by the owner (F-03 AC-028 reworded; F-07 AC-028 retired); 2 suggestions fixed | task check passed (exit 0), 1340 core, 480 api, 419 web tests |
+| T022 | Docs: architecture §10 and building-blocks §1 and §2 describe the built builder; the marks are computed and drawn by T023 (amendment 16) | reviewed: 4 doc fixes applied (gate buttons, flow header, Connections section, diff-size threshold); 3 warnings closed (marks by T023; the tab-view header comment is fixed in T023; decision 24 reworded) | task check passed (exit 0), 1340 core, 480 api, 419 web tests |
 
 ---
 
@@ -93,6 +94,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T021a review, SUGGESTION: `source/apps/web/src/styles.css` lines 152-153 `.module-rows` and `.rule-list` (display flex column, gap 8px) match no class in any TSX or TS file, so they look like F-05 leftovers. Not applied: T021a's list names only the flat selectors, and the F-05 wizard owns the stepper and card rules around them; remove them with the F-05 cleanup, after checking that F-05 no longer plans them.
 - T021b review, WARNING (spec text, for the owner): `spec/specifications/F-03-claude-code-templates/stories.md:156` AC-028 (`[auto]`) says the flat model and catalog (`DEFAULT_WORKFLOWS`, `DEFAULT_STEP_CATALOG`, `DEFAULT_CONNECTIONS`, `getCatalogStep`) are still exported from `@sddbuilder/core`. T021b deletes `catalog.ts` and its root exports (amendment 13), and the two AC-028 export tests in `source/packages/core/test/pipeline-separation.test.ts` go with them, so the criterion is now false and its test checks only the API suite file names. Not applied: the criterion is the owner's text. Owner to reword AC-028 to match, or accept the change; this WARNING is unresolved until then.
 - T021b review, WARNING (spec text, for the owner): `spec/specifications/F-07-api-and-zip/stories.md:180` AC-028 (`[auto]`) requires `selectWorkflows` to throw on a map with a cycle and `selectSteps` to throw on an unknown step id. T021b deletes `selection.ts` and its test file `source/packages/core/test/selection.test.ts`, so no test names F-07 AC-028 now. Not applied: the criterion names helpers that the owner's scope deletes. Owner to retire the criterion or point it at the F-04 cycle finding and the pipeline refusals.
+- T022 review, WARNING (owner decision): live structural marks are computed (`source/apps/web/src/builder/marks.ts`) but no Map or flow view draws them; nothing in `source/apps/web/src` imports `marks.ts` outside its own file. `architecture.md` §10 and `building-blocks.md` §1 now say so. Owner decides whether drawing the marks is a new F-06 task (the stories' mark criteria decide what is required) or an accepted gap to record at Verify. Not applied: drawing marks is new product work outside T022.
+- T022 review, WARNING (owner decision): `source/apps/web/src/builder/tab-view.ts` lines 1-2 say the Connections are "drawn as arrows between them", but `source/apps/web/src/builder/FlowTab.tsx` lists them as text (`#1 to #2: label`) in a Connections section. Not applied: the header is a product-code comment outside T022's file list; owner decides the wording and when it is fixed.
+- T022 review, WARNING (owner decision): `architecture.md` §6 decision 24 says "The live marks on the Map and the flow tabs call `pipeline.analyzeStructure`" in the present tense, while the marks are not drawn (see above). Not applied: §6 decisions are recorded history; owner decides whether to reword it (for example "computed; drawing them is open") or to keep it and rely on §10's status line.
 
 ---
 ## Test Results
@@ -102,6 +106,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 16 — 2026-11-16
+**Changed**: `plan.md` adds T023 (draw the live marks on the Map and the flow tabs, next to the item) after T022. `architecture.md` §6 decision 24 says the marks are computed now and drawn by T023.
+**Reason**: AC-009, AC-022 and AC-036 expect the marks on screen, but no task drew them. Approved by the user on 2026-11-16.
+**Impact**: T023 and the T022 docs wording.
 
 ### Amendment 15 — 2026-11-16
 **Changed**: `F-03` stories AC-028 reworded to the pipeline exports (the flat catalog is removed); `F-07` stories AC-028 retired (superseded: the flat selection and cycle code is removed; the rules are checked by the pipeline analyzer).

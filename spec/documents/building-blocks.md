@@ -24,18 +24,22 @@ Status: decided 2026-11-14 with the owner, revised the same day three times, and
 ## 1. The Map tab
 
 - The Map tab shows the **pipeline**: one diagram of its child flows, in order, left to right.
-- Each flow is a node. It shows its name, its scope and its number of blocks.
-- A Connection between two flows is drawn as an arrow with the artifact label. A Condition on that connection (a gate or a check) is drawn as a diamond on the arrow, with its pass and fail outputs.
+- Each flow is a node. It shows its name, its scope and its number of blocks. The scope is the one scope of the flow's enabled Agent blocks; it reads `mixed` when they differ and `no agent` when the flow has no enabled Agent block. The block count counts every block, switched off or not.
+- A Connection between two flows is drawn as an arrow with the artifact label. A Condition on that connection (a gate or a check) is drawn as a diamond on the arrow, with its pass and fail outputs. A connection holds one gate at most.
 - Selecting a flow opens its tab (below). Selecting a connection or a gate opens its property panel.
-- The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram (decided 2026-11-15).
-- A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15). Drag an Approval or a Check onto a connection between two flows. A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab.
+- The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram, shown when nothing is selected (decided 2026-11-15).
+- A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15). Drag an Approval or a Check onto a connection between two flows; the panel of a connection with no gate also adds one. A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab.
+- A gate or check shows its settings in its panel: a description, the fail route, and an optional round limit. A `diff-size` check also takes a threshold, a positive whole number of lines. A retry with no round limit shows a warning.
+- Structural problems (a cycle, an unwired output, a flow with no End, a retry with no limit) are computed as live marks from the F-04 rules. A mark never stops an edit. Status: the marks are computed but not yet drawn on the Map.
 
 ## 2. Flow tabs
 
-- Each child flow has its own tab. The tab shows the flow's blocks in order: Start, Agent, Condition, Connection, End.
+- Each child flow has its own tab. The tab shows the flow's blocks in order, numbered: Start, Agent, Condition, Connection, End. The Connections between blocks are listed in a section below the numbered boxes; a Connection is not numbered.
 - The tab's toolbox holds Start, Agent, Condition, Connection and End. A flow has one Start and at least one End.
-- The header shows the flow's name, description and scope. The scope is set on its Agent blocks (§3).
-- Selecting a block opens its property panel.
+- The tab's heading shows the flow's name. Its description and scope are in the flow's panel, which shows when no block is selected. The scope is set on its Agent blocks (§3).
+- Move up and Move down reorder the selected block within its flow.
+- Selecting a block opens its property panel. With no block selected, the panel shows the flow's own properties. The panel shows the block's properties, the file it generates and its rule tags; its footer holds Switch off and Delete. Delete asks for confirmation first and names what is left unwired.
+- A Condition whose retry has no round limit shows a warning beside it (§1, §3).
 
 ## 3. Blocks
 

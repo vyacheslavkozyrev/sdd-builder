@@ -5,6 +5,7 @@ import type { GeneratedFile } from '../../model.js';
 import type { PipelineBlock, PipelineStartBlock, ProjectConfig } from '../model.js';
 import { backRouteRule, checkRule, type Outcome } from './rules-text.js';
 import { selectBlocks } from './select.js';
+import { settingsFile } from './settings-file.js';
 
 const PIPELINE_COMMAND_PATH = '.claude/commands/pipeline.md';
 const FLOW_COMMANDS_DIR = '.claude/commands/';
@@ -59,7 +60,10 @@ function ruleLines(blocks: readonly PipelineBlock[]): string[] {
   return rules.map((rule, index) => `${index + 1}. ${rule}`);
 }
 
-/** Renders `.claude/commands/pipeline.md` from the selected blocks of the pipeline. Deterministic for the same config. */
+/**
+ * Renders `.claude/commands/pipeline.md` from the selected blocks of the pipeline. The pipeline's model and tools go in
+ * its frontmatter when set, and its body follows the generated sections (F-06 AC-031). Deterministic for the same config.
+ */
 export function renderPipelineCommand(config: ProjectConfig): GeneratedFile {
   const { pipeline } = selectBlocks(config);
   const start = pipeline.find((block): block is PipelineStartBlock => block.kind === 'start');
@@ -80,5 +84,5 @@ export function renderPipelineCommand(config: ProjectConfig): GeneratedFile {
     '',
     ...ruleLines(pipeline),
   ];
-  return { path: PIPELINE_COMMAND_PATH, content: `${lines.join('\n')}\n` };
+  return { path: PIPELINE_COMMAND_PATH, content: settingsFile(config.pipeline, lines.join('\n')) };
 }

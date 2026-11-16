@@ -1,18 +1,23 @@
 // Agent and rule files (F-02 AC-027, AC-028): one `.claude/agents/<name>.md` per enabled Agent block in an enabled flow,
 // holding the block's description as stub text, and one `.claude/rules/<id>.md` per entry of the config's rules. The
 // rules come from the config, not from the selection. Pure: the files are returned, never written. The stub text is
-// replaced by LLM-written content in F-07 (AC-027).
+// replaced by LLM-written content in F-07 (AC-027). The frontmatter of an agent file carries its name and description,
+// and its model, tools and body when set (F-06 AC-031, see settings-file.ts).
 import type { GeneratedFile } from '../../model.js';
 import { ID_MESSAGE, isValidId } from '../ids.js';
-import type { ProjectConfig } from '../model.js';
+import type { AgentBlock, ProjectConfig } from '../model.js';
 import { selectBlocks } from './select.js';
+import { agentFileText } from './settings-file.js';
 
 const AGENTS_DIR = '.claude/agents/';
 const RULES_DIR = '.claude/rules/';
 
-/** The agent file of one Agent block: its name as the heading, then its description as the stub text. */
-function agentFile(name: string, description: string): GeneratedFile {
-  return { path: `${AGENTS_DIR}${name}.md`, content: `# ${name}\n\n${description}\n` };
+/** The agent file of one Agent block: its frontmatter, then its name as the heading and its description as the stub text. */
+function agentFile(block: AgentBlock): GeneratedFile {
+  return {
+    path: `${AGENTS_DIR}${block.name}.md`,
+    content: agentFileText(block, `# ${block.name}\n\n${block.description}\n`),
+  };
 }
 
 /** The rule file of one entry of the config's rules: its title as the heading, then its text. */
@@ -35,7 +40,7 @@ export function renderAgentAndRuleFiles(config: ProjectConfig): GeneratedFile[] 
     entry.blocks.flatMap((block) => {
       if (block.kind !== 'agent') return [];
       requireFileSafe('Agent name', block.name);
-      return [agentFile(block.name, block.description)];
+      return [agentFile(block)];
     }),
   );
   const rules = config.rules.map((rule) => {

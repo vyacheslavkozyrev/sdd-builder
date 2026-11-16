@@ -126,7 +126,17 @@ describe('F-06 AC-026 an Agent block takes an optional model, tool list and body
     ['a line separator', 'Read Write'],
   ])('refuses a tool name with %s at its own list position', (_label, tool) => {
     expect(problemsOf(configWith({ tools: ['Read', tool] }))).toEqual([
-      { path: 'pipeline.blocks[1].blocks[1].tools[1]', message: 'must not contain spaces or control characters' },
+      { path: 'pipeline.blocks[1].blocks[1].tools[1]', message: 'must not contain spaces, commas or control characters' },
+    ]);
+  });
+
+  it.each([
+    ['a comma between two names', 'Read,Write'],
+    ['a trailing comma', 'Read,'],
+    ['a comma inside a call', 'Bash(git log,*)'],
+  ])('F-06 AC-026 refuses a tool name with %s, which would split the comma-joined tools line', (_label, tool) => {
+    expect(problemsOf(configWith({ tools: ['Read', tool] }))).toEqual([
+      { path: 'pipeline.blocks[1].blocks[1].tools[1]', message: 'must not contain spaces, commas or control characters' },
     ]);
   });
 
@@ -210,7 +220,13 @@ describe('F-06 AC-042 the pipeline takes an optional description, rule tags, mod
 
   it('refuses a pipeline tool name with a line break at its list position', () => {
     expect(problemsOf(configWith({}, { tools: ['Read\nWrite'] }))).toEqual([
-      { path: 'pipeline.tools[0]', message: 'must not contain spaces or control characters' },
+      { path: 'pipeline.tools[0]', message: 'must not contain spaces, commas or control characters' },
+    ]);
+  });
+
+  it('F-06 AC-026 refuses a pipeline tool name with a comma at its list position', () => {
+    expect(problemsOf(configWith({}, { tools: ['Read,Write'] }))).toEqual([
+      { path: 'pipeline.tools[0]', message: 'must not contain spaces, commas or control characters' },
     ]);
   });
 

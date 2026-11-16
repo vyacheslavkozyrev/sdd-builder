@@ -20,8 +20,11 @@ import {
 
 const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description', 'ruleTags', 'model', 'tools', 'body'];
 const AGENT_MODELS: readonly string[] = ['haiku', 'sonnet', 'opus', 'inherit'];
-/** A tool name cannot hold a space or a control character: a line break would corrupt the frontmatter (F-06 AC-026). */
-const UNSAFE_TOOL_CHARACTER = /[\s\p{Cc}]/u;
+/**
+ * A tool name cannot hold a space, a comma or a control character: a line break would corrupt the frontmatter, and a comma
+ * would split the comma-joined tools line (F-06 AC-026).
+ */
+const UNSAFE_TOOL_CHARACTER = /[\s,\p{Cc}]/u;
 const CHILD_START_KEYS: readonly string[] = ['kind', 'id', 'enabled'];
 const PIPELINE_START_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'arguments'];
 const ARGUMENT_KEYS: readonly string[] = ['name', 'required', 'hint'];
@@ -143,7 +146,7 @@ function readAgentModel(obj: Obj, path: string, problems: PipelineProblem[]): Ag
 }
 
 /**
- * The tool names of an agent: a list of strings, none blank, none with a space or control character (F-06 AC-026).
+ * The tool names of an agent: a list of strings, none blank, none with a space, a comma or a control character (F-06 AC-026).
  * Each item that breaks a rule is refused at its own path.
  */
 function readTools(obj: Obj, path: string, problems: PipelineProblem[]): string[] | undefined {
@@ -161,7 +164,7 @@ function readTools(obj: Obj, path: string, problems: PipelineProblem[]): string[
       return [];
     }
     if (UNSAFE_TOOL_CHARACTER.test(item)) {
-      problems.push({ path: itemPath, message: 'must not contain spaces or control characters' });
+      problems.push({ path: itemPath, message: 'must not contain spaces, commas or control characters' });
       return [];
     }
     return [item];

@@ -86,14 +86,14 @@ describe('F-02 AC-027 agent files', () => {
     expect(() => renderAgentAndRuleFiles(config)).toThrow(/cannot be a file name/);
   });
 
-  it('F-02 AC-027 the stub text of an agent file is its description under its name heading', () => {
+  it('F-02 AC-027 the stub text of an agent file is its description under its name heading, below its name and description', () => {
     const config = configOf([
       pipelineStart(),
       validFlow('a', [agentBlock('a1', 'writer', 'Writes the user stories from the brief.')]),
       pipelineEnd(),
     ]);
     expect(fileAt(renderAgentAndRuleFiles(config), '.claude/agents/writer.md')?.content).toBe(
-      '# writer\n\nWrites the user stories from the brief.\n',
+      '---\nname: "writer"\ndescription: "Writes the user stories from the brief."\n---\n# writer\n\nWrites the user stories from the brief.\n',
     );
   });
 });

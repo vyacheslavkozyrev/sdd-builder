@@ -48,9 +48,8 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
-```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
-```
+### Amendment 1 — 2026-11-15
+**Changed**: `plan.md` T003 widened to the core model, parser and generator (Condition description); `architecture.md` §6 decision 25 records the description as a required model field.
+**Reason**: T003 found that the core Condition has no description field, so the default's review gate cannot carry one. The stories require a description on every Condition (AC-016), and `building-blocks.md` §3 lists it. Approved by the user on 2026-11-15.
+**Impact**: T003 is larger (core model, parser, generator, default data and tests). Existing Condition fixtures in core tests gain the description. T008 (the web gate settings) is unchanged.
+

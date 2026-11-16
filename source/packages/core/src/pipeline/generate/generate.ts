@@ -1,9 +1,11 @@
 // The generator entry point for the pipeline model. It runs the refusal checks, collects every problem, and throws when
 // there is any. Otherwise it builds the file list from the parts (base, flow commands, pipeline command, agent and rule
 // files), sorts it by path in code-unit order and refuses two files with one path. No file or network I/O here.
+// F-07 AC-027: every file's text is normalised to LF with exactly one trailing newline before it is returned.
 import { GenerationError, InvalidConfigError } from '../../errors.js';
 import type { GeneratedFile, GenerationResult } from '../../model.js';
 import type { ListableTemplateSource } from '../../template-source.js';
+import { normaliseFileText } from '../line-endings.js';
 import type { ProjectConfig } from '../model.js';
 import type { PipelineProblem } from '../parse-util.js';
 import { renderAgentAndRuleFiles } from './agent-rule-files.js';
@@ -106,5 +108,8 @@ export function generate(config: ProjectConfig, templates: ListableTemplateSourc
     renderPipelineCommand(config),
     ...renderAgentAndRuleFiles(config),
   ];
-  return { files: sortedFileList(files), warnings: [] };
+  const normalised = files.map(
+    (file): GeneratedFile => ({ path: file.path, content: normaliseFileText(file.content) }),
+  );
+  return { files: sortedFileList(normalised), warnings: [] };
 }

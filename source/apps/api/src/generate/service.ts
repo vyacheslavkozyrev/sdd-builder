@@ -95,7 +95,7 @@ export async function generateProject(
     if (content === undefined) {
       throw new Error(`checked reply has no text for planned file ${entry.path}`);
     }
-    return { path: entry.path, content };
+    return { path: entry.path, content: pipeline.normaliseFileText(content) };
   });
   return { ok: true, files };
 }

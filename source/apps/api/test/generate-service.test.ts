@@ -149,6 +149,26 @@ describe('F-07 pipeline generation service: one call and the reply', () => {
     });
   });
 
+  it('F-07 AC-027 returns every file with LF line endings and exactly one trailing newline', async () => {
+    const config = pipelineConfig();
+    const plan = planOf(config);
+    const messy = Object.fromEntries(
+      plan.map((entry) => [entry.path, `${textFor(entry.path, entry.layout)}\r\n\r\n`]),
+    );
+    const model = scriptedModel([reply(JSON.stringify(messy))]);
+
+    const result = await generateProject(config, { templates, model, log: fakeLog() });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.files).toHaveLength(plan.length);
+    for (const file of result.files) {
+      expect(file.content).not.toMatch(/\r/);
+      expect(file.content).toMatch(/[^\n]\n$/);
+      expect(file.content).not.toMatch(/\n\n$/);
+    }
+  });
+
   it('F-07 AC-009 returns plan order even when the reply lists its keys in reverse order', async () => {
     const config = pipelineConfig();
     const plan = planOf(config);

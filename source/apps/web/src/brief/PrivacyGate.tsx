@@ -3,7 +3,7 @@ import { PRIVACY_CHECKBOX_LABEL, PRIVACY_NOTICE } from './privacy.js';
 interface PrivacyGateProps {
   accepted: boolean;
   onAcceptedChange: (accepted: boolean) => void;
-  /** True when the brief is valid and no request runs (`canAnalyze` and the in-flight guard). */
+  /** True when the brief is valid and no request runs (`canAnalyze`). */
   analyzeEnabled: boolean;
   waiting: boolean;
   onAnalyze: () => void;

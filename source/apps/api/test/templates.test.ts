@@ -24,16 +24,16 @@ describe('F-07 templates loader', () => {
   it('reads every file under the directory, recursively, under forward-slash keys', () => {
     withTempDir((dir) => {
       mkdirSync(join(dir, 'base', 'spec-template'), { recursive: true });
-      mkdirSync(join(dir, 'rules'));
+      mkdirSync(join(dir, 'claude-code'));
       writeFileSync(join(dir, 'base', 'CLAUDE.md'), '# {{projectName}}\n');
       writeFileSync(join(dir, 'base', 'spec-template', 'plan.md'), '# Plan\n');
-      writeFileSync(join(dir, 'rules', 'qa.md'), 'QA text\n');
+      writeFileSync(join(dir, 'claude-code', 'rule.md'), 'Rule text\n');
 
       const source = loadTemplates(dir);
 
       expect(source.get('base/CLAUDE.md')).toBe('# {{projectName}}\n');
       expect(source.get('base/spec-template/plan.md')).toBe('# Plan\n');
-      expect(source.get('rules/qa.md')).toBe('QA text\n');
+      expect(source.get('claude-code/rule.md')).toBe('Rule text\n');
       expect(source.get('base/missing.md')).toBeUndefined();
       expect(source.get('base')).toBeUndefined();
     });

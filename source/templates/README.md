@@ -6,7 +6,7 @@ Text files that describe the layout of a project and what each file should conta
 
 The base templates in `base/` are the pipeline's. They use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` list the flows, agents and rules from the selection through list placeholders, and `base/spec-template/` has no placeholders. The pipeline layouts for the command, agent and rule files are in `claude-code/`. The renderer still reads `#enabled:<id>` sections (see Section rules), but no base or `claude-code/` layout uses one.
 
-The flat base templates in `flat/base/` still use the flat placeholders listed in the table below (the diagram, the module list and the rule lists). They are a legacy copy: the flat generator that read them was removed from core in F-07 (T014). The flat `steps/`, `workflows/` and `rules/` layouts and their renderers also remain until F-07 (architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
+The flat base templates (`flat/base/`) and the flat `workflows/` and `rules/` layouts were removed in F-07 (T017), and the flat generator that read them was removed from core in F-07 (T014). The flat `steps/` layouts and their renderers remain until F-07 removes them (T018; architecture decision 19). The pipeline `generate` fails on a placeholder with no value, and names it.
 
 ## Placeholders
 
@@ -34,10 +34,10 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{ruleTags}}` | `claude-code/agent.md`: the rule-set tags of the Agent block, as a comma-separated list; `none` when the block has no tags |
 | `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules` |
 | `{{ruleText}}` | `claude-code/rule.md`: the text of the rule entry in `ProjectConfig.rules` |
-| `{{process.diagram}}` | flat base only, not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
-| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | flat base only, not filled by the pipeline config (see the status above) |
-| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
-| `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout in `workflows/`; the pipeline config does not fill them |
+| `{{process.diagram}}` | no layout uses it since the flat base was removed (T017); not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
+| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | no layout uses them since the flat base was removed (T017); not filled by the pipeline config (see the status above) |
+| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
+| `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
 | `{{#step:<id>}}…{{/step:<id>}}` | the flat layout only: the pipeline renderer does not read it and fails generation on it |
 | Section `#enabled:<id>` … `/enabled:<id>`, placed between double curly braces | the section: content kept only when the block or flow with that id is enabled in the selection; a child block of a disabled flow is not enabled |
 
@@ -83,11 +83,9 @@ The flat layouts below are not part of the pipeline output. They remain until F-
 
 | Output file | Source |
 |---|---|
-| `.claude/commands/workflow-<name>.md` | `workflows/`, one per flat workflow: calls its steps in order and writes its branches as numbered rules |
 | `.claude/commands/<step>.md` | `steps/<id>/command.md` for each enabled flat command step |
 | `.claude/agents/<name>.md` | `steps/<id>/agent.md` for each enabled flat agent step |
 | `.claude/skills/<name>/SKILL.md` | `steps/<id>/skill.md` for each enabled flat skill step; the catalog has no skill step, so no skill layout file exists yet |
-| `.claude/rules/<name>.md` | `rules/` layouts of the flat model; referenced from the steps that carry the tag |
 
 ## Folders
 
@@ -95,10 +93,7 @@ The flat layouts below are not part of the pipeline output. They remain until F-
 source/templates/
   base/           the pipeline's base files (CLAUDE.md, process.md, spec template); in use
   claude-code/    the pipeline layouts (pipeline command, flow command, agent, rule); in use
-  flat/base/      the base files of the flat model, a legacy copy for the flat generator; remains until F-07
   pipeline/       default.json, a sample pipeline config (data); in use
-  rules/          rule-file layouts of the flat model (general, qa, code); remains until F-07, F-02 takes rule text from the config instead
-  workflows/      the flat workflow layout; remains until F-07, replaced by claude-code/ for the pipeline
   steps/          the flat step layouts, one folder per step id; remains until F-07, replaced by claude-code/ for the pipeline
 ```
 

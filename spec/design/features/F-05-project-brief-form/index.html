@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Initial screen: project wizard</title>
+  <title>Project wizard: frame, name and idea, workflow host (F-05)</title>
   <style>
     :root { color-scheme: light; }
     body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #18181b; }
@@ -18,32 +18,19 @@
 </head>
 <body>
   <header>
-    <h1>Initial screen: project wizard (for review)</h1>
-    <p>Four steps: project name and idea; technical details (one file per rule block); workflow (visual builder); analyze and generate. No Brief / Builder switch. Wireframes only; read <code>screens.md</code> for the decisions and the spec impact.</p>
+    <h1>Project wizard: frame, name and idea, workflow host (F-05)</h1>
+    <p>Wizard frame, step 1 (name and idea), and the Map tab of step 3 (the builder is F-06). Steps 2 and 4 are F-21 and F-22. Wireframes only; read screens.md.</p>
   </header>
 
   <section>
     <h2>1 of 4 Project name and idea</h2>
-    <p>First step. Back is off. Nothing is stored between visits.</p>
+    <p>The wizard frame: stepper, Back and Next. Nothing is stored between visits.</p>
     <img src="01-wizard-project.svg" alt="Wizard step 1: project name and idea">
   </section>
-
   <section>
-    <h2>2 of 4 Technical details</h2>
-    <p>Architecture and tech stack; code rules as separate blocks, each becomes its own Markdown file. No modules.</p>
-    <img src="02-wizard-technical.svg" alt="Wizard step 2: technical details and rule blocks">
-  </section>
-
-  <section>
-    <h2>3 of 4 Workflow</h2>
-    <p>The approved global map inside the wizard, starting from the reference process.</p>
-    <img src="03-wizard-workflow.svg" alt="Wizard step 3: workflow builder">
-  </section>
-
-  <section>
-    <h2>4 of 4 Analyze and generate</h2>
-    <p>Privacy checkbox and Analyze; findings; Generate with the file tree; Download zip after generation.</p>
-    <img src="04-wizard-analyze-generate.svg" alt="Wizard step 4: analyze and generate">
+    <h2>3 of 4 Workflow: the Map tab</h2>
+    <p>The Map tab is the first tab. The + adds a flow after the last tab. Each flow opens in its own tab (F-06).</p>
+    <img src="02-wizard-workflow.svg" alt="Wizard step 3: the Map tab">
   </section>
 </body>
 </html>

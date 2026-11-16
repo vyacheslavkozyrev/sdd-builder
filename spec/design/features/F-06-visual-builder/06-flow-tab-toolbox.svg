@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#0f172a}
+.h1{font-size:18px;font-weight:600}
+.h2{font-size:14px;font-weight:600}
+.label{font-size:12px;font-weight:600;fill:#334155}
+.req{fill:#dc2626}
+.muted{font-size:12px;fill:#64748b}
+.small{font-size:11px;fill:#64748b}
+.ph{fill:#94a3b8}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+.monoMuted{font-family:ui-monospace,Menlo,monospace;font-size:12px;fill:#64748b}
+.brand{font-size:15px;font-weight:700}
+.logo{font-size:13px;font-weight:700;fill:#ffffff}
+.caption{font-size:11px;fill:#94a3b8}
+.stepCheck{font-size:13px;font-weight:700;fill:#ffffff}
+.stepNum{font-size:13px;font-weight:700}
+.stepNumTodo{font-size:13px;fill:#64748b}
+.stepLabel{font-size:12px;fill:#64748b}
+.stepLabelOn{font-size:12px;font-weight:700;fill:#0f172a}
+.bt-primary{fill:#ffffff;font-weight:600}
+.bt-secondary{fill:#1e293b;font-weight:600}
+.bt-disabled{fill:#94a3b8;font-weight:600}
+.ct-blocker{font-size:11px;font-weight:600;fill:#991b1b}
+.ct-warn{font-size:11px;font-weight:600;fill:#92400e}
+.ct-info{font-size:11px;font-weight:600;fill:#1e40af}
+.ct-rule{font-size:11px;font-weight:600;fill:#9a3412}
+.ct-file{font-size:11px;font-weight:600;fill:#334155}
+.ct-nofile{font-size:11px;font-weight:600;fill:#64748b}
+.errT{font-size:12px;fill:#991b1b}
+.warnT{font-size:12px;fill:#92400e}
+.badgeT{font-size:12px;font-weight:700;fill:#ffffff}
+.page{fill:#f5f7fa}
+.bar{fill:#ffffff}
+.card{fill:#ffffff;stroke:#e2e8f0;filter:url(#sh)}
+.div{stroke:#e2e8f0;stroke-width:1}
+.primary{fill:#2563eb}
+.secondary{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.disabled{fill:#f1f5f9;stroke:#e2e8f0;stroke-width:1}
+.input{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.inputErr{fill:#ffffff;stroke:#dc2626;stroke-width:1.5}
+.box{fill:#f8fafc;stroke:#e2e8f0;stroke-width:1}
+.alert{fill:#fef2f2;stroke:#fca5a5;stroke-width:1}
+.warnBox{fill:#fffbeb;stroke:#fcd34d;stroke-width:1}
+.infoBox{fill:#eff6ff;stroke:#bfdbfe;stroke-width:1}
+.chip-blocker{fill:#fee2e2;stroke:#ef4444}
+.chip-warn{fill:#fef3c7;stroke:#f59e0b}
+.chip-info{fill:#dbeafe;stroke:#93c5fd}
+.chip-rule{fill:#ffedd5;stroke:#fb923c}
+.chip-file{fill:#f1f5f9;stroke:#cbd5e1}
+.chip-nofile{fill:#f1f5f9;stroke:#cbd5e1;stroke-dasharray:3 2}
+.chk-on{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.chk-off{fill:#ffffff;stroke:#64748b;stroke-width:1.5}
+.badge{fill:#2563eb}
+.stepDone{fill:#2563eb}
+.stepCur{fill:#ffffff;stroke:#2563eb;stroke-width:2}
+.stepTodo{fill:#ffffff;stroke:#cbd5e1;stroke-width:1.5}
+.lineDone{stroke:#2563eb;stroke-width:2}
+.lineTodo{stroke:#cbd5e1;stroke-width:2}
+.tabOn{fill:#eff6ff;stroke:#2563eb;stroke-width:1.5}
+.tabOff{fill:#ffffff;stroke:#cbd5e1;stroke-width:1}
+.tabT{font-size:13px;font-weight:600;fill:#334155}
+.tabTOn{font-size:13px;font-weight:700;fill:#1d4ed8}
+.node{fill:#ffffff;stroke:#334155;stroke-width:1.5}
+.nodeSel{fill:#eff6ff;stroke:#2563eb;stroke-width:2}
+.edge{stroke:#64748b;stroke-width:1.5;fill:none}
+.edgeDash{stroke:#64748b;stroke-width:1.5;fill:none;stroke-dasharray:5 4}
+.gate{fill:#fff7ed;stroke:#ea580c;stroke-width:1.5}
+.gateCheck{fill:#ecfeff;stroke:#0891b2;stroke-width:1.5}
+.gateSmall{font-size:10px;fill:#9a3412}
+.track{fill:#e2e8f0}
+.fill{fill:#2563eb}
+.canvas{fill:#fbfcfe;stroke:#e2e8f0;stroke-width:1}
+.endc{fill:#ffffff;stroke:#0f172a;stroke-width:3}
+</style>
+
+<defs>
+  <filter id="sh" x="-3%" y="-3%" width="106%" height="108%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.07"/>
+  </filter>
+  <marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+    <path d="M0,0 L8,4 L0,8 z" fill="#64748b"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="1280" height="800" rx="0" class="page"/>
+<rect x="0" y="0" width="1280" height="56" rx="0" class="bar"/>
+<line x1="0" y1="56" x2="1280" y2="56" class="div"/>
+<rect x="40" y="16" width="24" height="24" rx="6" class="primary"/>
+<text x="52" y="33" class="logo" text-anchor="middle">S</text>
+<text x="74" y="33" class="brand">SDDBuilder</text>
+<text x="190" y="33" class="muted">New project · Claude Code</text>
+<line x1="206" y1="92" x2="474" y2="92" class="lineDone"/>
+<line x1="506" y1="92" x2="774" y2="92" class="lineDone"/>
+<line x1="806" y1="92" x2="1074" y2="92" class="lineTodo"/>
+<circle cx="190" cy="92" r="14" class="stepDone"/>
+<text x="190" y="97" class="stepCheck" text-anchor="middle">✓</text>
+<text x="190" y="124" class="stepLabel" text-anchor="middle">Project name and idea</text>
+<circle cx="490" cy="92" r="14" class="stepDone"/>
+<text x="490" y="97" class="stepCheck" text-anchor="middle">✓</text>
+<text x="490" y="124" class="stepLabel" text-anchor="middle">Technical details</text>
+<circle cx="790" cy="92" r="14" class="stepCur"/>
+<text x="790" y="97" class="stepNum" text-anchor="middle">3</text>
+<text x="790" y="124" class="stepLabelOn" text-anchor="middle">Workflow</text>
+<circle cx="1090" cy="92" r="14" class="stepTodo"/>
+<text x="1090" y="97" class="stepNumTodo" text-anchor="middle">4</text>
+<text x="1090" y="124" class="stepLabel" text-anchor="middle">Analyze and generate</text>
+<rect x="40" y="152" width="1200" height="624" rx="12" class="card"/>
+<text x="72" y="190" class="h1">Workflow: flow tab</text>
+<text x="72" y="212" class="muted">Step 3 of 4. A flow tab holds the flow's blocks in order. The toolbox lists every block kind.</text>
+<line x1="72" y1="232" x2="1208" y2="232" class="div"/>
+<text x="40" y="794" class="caption">Wireframe · F-06 · flow tab toolbox · step 3 of 4 (builder)</text>
+<rect x="72" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="120.0" y="274.5" class="tabT" text-anchor="middle">Map</text>
+<rect x="176" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="224.0" y="274.5" class="tabT" text-anchor="middle">Specify</text>
+<rect x="280" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="328.0" y="274.5" class="tabT" text-anchor="middle">UX</text>
+<rect x="384" y="252" width="96" height="36" rx="8" class="tabOn"/>
+<text x="432.0" y="274.5" class="tabTOn" text-anchor="middle">Plan</text>
+<rect x="488" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="536.0" y="274.5" class="tabT" text-anchor="middle">Build</text>
+<rect x="592" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="640.0" y="274.5" class="tabT" text-anchor="middle">Verify</text>
+<rect x="696" y="252" width="96" height="36" rx="8" class="tabOff"/>
+<text x="744.0" y="274.5" class="tabT" text-anchor="middle">Complete</text>
+<rect x="800" y="252" width="40" height="36" rx="8" class="tabOff"/>
+<text x="820" y="275" class="tabT" text-anchor="middle">+</text>
+<rect x="72" y="300" width="180" height="384" rx="8" class="box"/>
+<text x="88" y="326" class="h2">Toolbox</text>
+<rect x="88" y="346" width="148" height="56" rx="8" class="node"/>
+<text x="100" y="370" class="label">Start</text>
+<text x="100" y="388" class="small">Where the flow begins</text>
+<rect x="88" y="408" width="148" height="56" rx="8" class="node"/>
+<text x="100" y="432" class="label">Agent</text>
+<text x="100" y="450" class="small">Runs one agent</text>
+<rect x="88" y="470" width="148" height="56" rx="8" class="node"/>
+<text x="100" y="494" class="label">Condition</text>
+<text x="100" y="512" class="small">Pass or fail route</text>
+<rect x="88" y="532" width="148" height="56" rx="8" class="node"/>
+<text x="100" y="556" class="label">Connection</text>
+<text x="100" y="574" class="small">Passes an artifact on</text>
+<rect x="88" y="594" width="148" height="56" rx="8" class="node"/>
+<text x="100" y="618" class="label">End</text>
+<text x="100" y="636" class="small">Where the flow stops</text>
+<text x="88" y="678" class="small">Drag onto the flow.</text>
+<rect x="268" y="300" width="600" height="384" rx="8" class="canvas"/>
+<circle cx="318" cy="404" r="18" class="stepTodo"/>
+<text x="318" y="408" class="stepNum" text-anchor="middle">S</text>
+<text x="318" y="442" class="small" text-anchor="middle">Start</text>
+<line x1="336" y1="404" x2="388" y2="404" class="edge" marker-end="url(#ar)"/>
+<rect x="388" y="380" width="170" height="48" rx="8" class="nodeSel"/>
+<text x="404" y="402" class="h2">Agent · specify</text>
+<text x="404" y="418" class="small">scope: feature</text>
+<line x1="558" y1="404" x2="610" y2="404" class="edge" marker-end="url(#ar)"/>
+<text x="584" y="392" class="small" text-anchor="middle">spec.md</text>
+<path d="M640,395 L649,404 L640,413 L631,404 Z" class="gate"/>
+<text x="640" y="430" class="small" text-anchor="middle">Condition</text>
+<line x1="649" y1="404" x2="700" y2="404" class="edge" marker-end="url(#ar)"/>
+<text x="674" y="392" class="small" text-anchor="middle">pass</text>
+<circle cx="728" cy="404" r="18" class="endc"/>
+<text x="728" y="442" class="small" text-anchor="middle">End</text>
+<path d="M640,413 L640,500 L472,500 L472,428" class="edgeDash" marker-end="url(#ar)"/>
+<text x="556" y="516" class="small" text-anchor="middle">fail: retry the agent (round limit set)</text>
+<text x="296" y="616" class="small">Blocks run in order. A branch routes only inside this flow.</text>
+<rect x="896" y="300" width="312" height="384" rx="8" class="box"/>
+<text x="916" y="330" class="h2">Agent · specify</text>
+<text x="916" y="360" class="label">Name</text>
+<rect x="916" y="368" width="272" height="36" rx="6" class="input"/>
+<text x="928" y="390.5">specify</text>
+<text x="916" y="424" class="label">Scope</text>
+<rect x="916" y="432" width="272" height="36" rx="6" class="input"/>
+<text x="928" y="454.5">feature</text>
+<text x="916" y="488" class="label">Description</text>
+<rect x="916" y="496" width="272" height="64" rx="6" class="input"/>
+<text x="928" y="520">Writes the stories for one feature.</text>
+<text x="916" y="614" class="small">Properties change with the selected block.</text>
+<line x1="40" y1="700" x2="1240" y2="700" class="div"/>
+<rect x="72" y="716" width="120" height="40" rx="8" class="secondary"/>
+<text x="132.0" y="740.5" class="bt-secondary" text-anchor="middle">Back</text>
+<rect x="1112" y="716" width="96" height="40" rx="8" class="primary"/>
+<text x="1160.0" y="740.5" class="bt-primary" text-anchor="middle">Next</text>
+</svg>

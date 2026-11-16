@@ -1,42 +1,37 @@
-# UX screens — Initial screen: the project wizard (F-05, with F-06 for step 3 and F-07 for step 4)
+# UX screens — Project wizard: frame, name and idea, workflow host (F-05)
 
-Scope: the **initial screen** of the app, as a four-step wizard. There is no Brief / Builder switch; the wizard is the whole flow. These screens are wireframes in SVG (layout, content and states; colours and wording are placeholders). Desktop, 1280 × 800.
+Scope: the wizard frame (four steps, stepper, Back and Next), step 1 (name and idea), and the Map tab of step 3, where the builder (F-06) is hosted. Steps 2 and 4 have their own screens: F-21 (`spec/design/features/F-21-wizard-technical-details/`) and F-22 (`spec/design/features/F-22-wizard-analyze-generate/`). Desktop, 1280 × 800. Wireframes in SVG: layout, content and states; colours and wording are placeholders.
 
-Steps 1 and 2 are the brief form (F-05). Step 3 is the builder (F-06): the pipeline on the Map tab, placed inside the wizard. Step 4 analyzes the brief and generates the project (F-07 API, analysis from F-04).
+Stories: `spec/specifications/F-05-project-brief-form/stories.md` (14 criteria).
+
+## Layout grid
+
+Shared with F-21 and F-22: top bar 0–56; stepper in four equal columns; card x 40–1240, y 152–776; content x 72–1208, y 248–684; footer divider y 700; footer buttons y 716–756. Back is at the footer's left edge; the action is at its right edge.
 
 ## Screens
 
-| # | File | Step | What it shows | States shown |
+| # | File | What it shows | Criteria it proves | States shown |
 |---|---|---|---|---|
-| 01 | `01-wizard-project.svg` | 1 of 4: Project name and idea | Project name; idea with a counter (8,000 max); Back off, Next | First step: Back disabled; empty fields are not stored between visits |
-| 02 | `02-wizard-technical.svg` | 2 of 4: Technical details | Architecture style; language, framework, test framework, build tool; code rules as separate blocks, each showing the Markdown file it will become | Three rule blocks with their file names; Remove block; Add rule block; no modules section |
-| 03 | `03-wizard-workflow.svg` | 3 of 4: Workflow | The pipeline on the Map tab: its six flows in order, the approvals and check between them; the tab row with + to add a flow; toolbox; property panel; Back and Next | The default pipeline as the starting point; Next opens step 4 |
-| 04 | `04-wizard-analyze-generate.svg` | 4 of 4: Analyze and generate | Left: brief summary, privacy notice with a checkbox, Analyze, findings (warning, info). Right: Generate, the file tree the project gets (rule-block files marked), Download zip | Privacy checkbox ticked before Analyze; a warning finding; Generate before any output; Download zip disabled until generated |
+| 01 | `01-wizard-project.svg` | Step 1: name and idea, both required; the counter inside the idea box; Back disabled on step 1 with a note that Back is available from step 2; Next | AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-014 | First step; nothing stored between visits |
+| 02 | `02-wizard-workflow.svg` | Step 3, Map tab: the tab row with Map first, one tab per flow in order, and a + that adds a flow after the last tab; the pipeline's canvas with gates on the arrows; the pipeline properties beside it; Next | AC-010, AC-011, AC-003, AC-014 | The default pipeline; Map tab active; Next opens step 4 |
 
-## Decisions these screens take (for the user to check)
+Criteria with no screen are not visual: AC-012 and AC-013 (static checks on the web source) are covered by tests.
 
-1. **Modules are removed.** The brief has no module list. The architecture is one style text.
-2. **Each code rule block is one Markdown file.** A block has a title; the file name comes from the title (`rules/code-style.md`). The file is shown before the project is saved.
-3. **Testing rules are also a block**, like the others.
-4. **Four steps.** Step 4 is the only place where analysis and generation happen. Analysis runs before generation, and the privacy checkbox must be ticked before Analyze.
-5. **Download zip** is enabled only after generation, and the zip holds exactly the tree shown.
-6. **Nothing is stored between visits.** Reloading clears the wizard.
+The flow tab and its toolbox are F-06's screen: `spec/design/features/F-06-visual-builder/06-flow-tab-toolbox.svg`.
 
-## Spec impact (not applied yet)
+## Decisions these screens take
 
-These screens change approved requirements. They need their own stories and plan changes before any code:
+1. **Four steps, navigated by Back and Next.** The stepper shows progress and is not clickable.
+2. **Name and idea are required.** Next is never blocked by an empty field; Analyze (F-22) reports it.
+3. **Nothing is stored between visits.** Reloading clears the wizard.
+4. **The Map tab is the first tab, with no block toolbox.** The + on the tab row adds a flow. Each flow opens in its own tab, where the toolbox lists every block kind (F-06 screen).
+5. **Privacy notice on step 4 only** (F-22).
 
-- **F-05 stories**: remove the module rows and their checks; code rules become rule blocks with a title and a body; the single form becomes the wizard; the Analyze gate and privacy notice move to step 4.
-- **F-06 stories**: the builder is step 3 of the wizard, showing the pipeline on the Map tab: its flows in order, with the gates and checks between them, and a tab per flow with its blocks; the Brief / Builder switch (task T014) is replaced by the wizard flow.
-- **Model (`source/packages/core`, F-01)**: `architecture.modules` is no longer entered; code rules become blocks with a title, a file name and a body. The analyzer's layer checks (F-04) then have nothing to check; decide whether to remove them or keep them optional.
-- **Generator (F-02, F-03)**: one generated Markdown file per rule block, named from its title; the file list stays deterministic.
-- **API (F-07)**: step 4 calls analyze, then generate, then the zip download.
+## Review history
 
-## Open points for layout review
+On 2026-11-15 the wizard set (then one feature) was reviewed by the `usability` and `visual` agents and their findings were applied. The findings and their record stay in git history; the set was split into F-05, F-21 and F-22 afterwards.
 
-1. **Stepper.** Four steps above the card; the current one filled. Should completed steps be clickable to go back?
-2. **Rule blocks.** The file name is shown on each block and again in the step 4 tree. Is that the right amount of repetition?
-3. **Privacy.** The checkbox sits on step 4, next to Analyze, as before. Should the notice repeat at step 1, where the idea is first typed?
-4. **Testing rules.** A block like the others. Keep, or make a fixed "Testing" block that cannot be removed?
-5. **Findings.** Analysis findings are shown as the analyzer returns them. Should a warning link to the step where it can be fixed?
-6. **Generate before analysis.** The screen allows Generate at any time. Should Generate wait for a completed analysis?
+## Open points for the owner
+
+- **Gate on the Map tab.** The Map tab has no toolbox, so how a gate or check is added to a connection is open. Decide it in F-06's specify.
+- **Pipeline properties.** Screen 02 puts them beside the diagram; `building-blocks.md` §1 says above. Confirm which.

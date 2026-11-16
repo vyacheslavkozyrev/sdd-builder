@@ -39,3 +39,8 @@ The tab row is the same on every screen: **Map** (the pipeline), one tab per flo
 3. **Refusal of a nested flow.** The refusal is shown as a message in the panel (screen 05). Should the toolbox hide Flow in flow tabs instead of refusing a drop?
 4. **Required markers.** Approvals between flows and the diff-size guard are required (thick outline). Confirm, as in `building-blocks.md` §9, question 1.
 5. **Clarifying questions.** The main session asks them before each agent starts, and the answers are handed over as an artifact. That Connection is not drawn yet; it is added when the flows are re-specified.
+
+## Added 2026-11-15 (from the F-05 wizard review)
+
+- `06-flow-tab-toolbox.svg`: a flow tab. The toolbox lists every block kind (Start, Agent, Condition, Connection, End). The tab row holds the Map tab, one tab per flow, and a + that adds a flow after the last tab. The Map tab has no block toolbox.
+- Open for this feature's specify: how a gate is added to a connection on the Map tab, since the Map tab has no toolbox.

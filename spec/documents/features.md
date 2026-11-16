@@ -10,10 +10,12 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator was removed in F-07 |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete in `source/templates/claude-code/` and `source/packages/core/src/pipeline/` (16 tasks, 31 criteria, 1343 core tests); the flat layouts and generator were removed in F-07 |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ✅ Complete (26 tasks, 25 criteria, 2090 tests across api, web and core; the flat analyzer is removed; see `spec/specifications/F-04-analyzer/verify.md`) |
-| F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | Not started |
+| F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Specified 2026-11-15; UX pending |
+| F-21 | Project wizard step 2: technical details and code rules | MVP | User | source/apps/web | 2 | F-05 | Specified 2026-11-15 (split from F-05); UX pending |
+| F-22 | Project wizard step 4: analyze and generate | MVP | User | source/apps/web | 2 | F-04, F-05, F-07 | Specified 2026-11-15 (split from F-05); UX pending |
 | F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
 | F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ✅ Complete in `source/apps/api/`, `source/packages/core/` and `spec/specifications/F-07-api-and-zip/` (25 tasks, 28 criteria, 2086 tests across api, web and core; flat generator and flat templates removed; see `verify.md`) |
-| F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06 | Not started |
+| F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06, F-21, F-22 | Not started |
 | F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
 | F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | Not started |
 | F-11 | Cursor target | Post-MVP | User | templates, core | — | F-03 | Not started |
@@ -27,9 +29,9 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-19 | Read-only share link for clients | Post-MVP | User | source/apps/web | — | F-18 | Not started |
 | F-20 | Browser-local autosave | Post-MVP | User | source/apps/web | — | F-06 | Not started |
 
-**Totals:** 20 features, two of them merged into F-06 (F-14, F-15). MVP: 9 (F-01 to F-07, F-13, F-18). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
+**Totals:** 22 features, two of them merged into F-06 (F-14, F-15). MVP: 11 (F-01 to F-07, F-13, F-18, F-21, F-22). Post-MVP: 9 (F-08 to F-12, F-16, F-17, F-19, F-20).
 
-**Build order (2026-11-14):** F-01 first, since everything depends on the domain model. Then F-02 and F-03 together, F-04, F-07, F-05, F-06 (with gates and custom agents), F-13 (caps update), F-18.
+**Build order (2026-11-14):** F-01 first, since everything depends on the domain model. Then F-02 and F-03 together, F-04, F-07, F-05 and F-06 (with gates and custom agents), then F-21 and F-22 (wizard steps 2 and 4), F-13 (caps update), F-18. F-05 needs F-06 for its step 3.
 
 **↻ Built on the previous model.** The rows marked ↻ were built or specified on the flat model (workflows as tabs of steps, nine node kinds). Their code and their specs are not reused as they are: each is re-specified after F-01 is reworked, and its stories and tasks are rewritten to the new model. Completed work stays in the history.
 
@@ -55,16 +57,31 @@ Layouts for `CLAUDE.md`, `spec/documents/process.md` (without a diagram: the Mer
 - *Semantic (in `source/apps/api`, LLM):* a fixed review prompt over the brief and the process; output validated against the `AnalysisFinding` shape; invalid output dropped and counted. Covers gaps in the idea, contradictory or unverifiable rules, test rules that name tools outside the stack, and suggested blocks. Advice only.
 - Structural findings are returned even when the LLM step fails.
 
-### F-05 Project wizard
+### F-05 Project wizard: frame, name and idea, workflow host
 
-Four steps (`spec/design/features/F-05-project-brief-form/`):
+The wizard shell for four steps, in order (screens: `spec/design/features/F-05-project-brief-form/`). This feature builds:
 
-1. **Project name and idea.** The name is required. The idea has a counter (8,000 characters).
-2. **Technical details.** Architecture style; language, framework, test framework and build tool. Code rules are rule blocks: each has a title and a body, and becomes one Markdown file in `.claude/rules/`. No module list.
-3. **Workflow.** The builder (F-06), showing the pipeline on the Map tab.
-4. **Analyze and generate.** The privacy notice with a checkbox before Analyze; the findings; Generate; the file tree; Download zip after generation (F-07).
+1. **The frame.** Four steps, Back and Next, the stepper (not clickable), state in memory only.
+2. **Step 1, project name and idea.** The name is required. The idea has a counter (8,000 characters). A Project name field maps to `name`.
+3. **Step 3, the workflow host.** Shows the builder (F-06) on its Map tab, with the + that adds a flow after the last tab. Depends on F-06.
 
-The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `source/apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only. A Project name field maps to `name`.
+Steps 2 and 4 are their own features: F-21 (technical details and code rules) and F-22 (analyze and generate). The privacy of the brief and the no-secrets check for the web app are here.
+
+The web app is Vite + React; its logic is tested with Vitest and the dev server forwards `/analyze` and `/generate` to `source/apps/api` (`architecture.md` §6, decision 13). The browser keeps the wizard in memory only.
+
+### F-21 Project wizard step 2: technical details and code rules
+
+Step 2 of the wizard (screens: `spec/design/features/F-21-wizard-technical-details/`).
+
+- **Architecture and stack.** An architecture style text (optional, `architecture` in the config); language (required), framework, platform, build tool and test framework.
+- **Code rules.** Each rule is a rule block with a title and a body; the block shows the file it becomes, `.claude/rules/<id>.md`. Blocks can be added and removed; at most 60. Testing rules are an ordinary block. No module list.
+
+### F-22 Project wizard step 4: analyze and generate
+
+Step 4 of the wizard (screens: `spec/design/features/F-22-wizard-analyze-generate/`).
+
+- **Analyze.** The privacy notice with a checkbox before Analyze; the findings as the analyzer returns them (`POST /analyze`, F-04 and F-07).
+- **Generate.** Waits for an analysis with no blockers; the file tree is shown before Generate (from core's `planGeneration`); then `POST /generate` and Download zip (F-07).
 
 ### F-06 Visual builder: the Map tab, flow tabs, gates and checks, custom agents
 
@@ -72,8 +89,8 @@ Absorbs F-14 (custom agents) and F-15 (gates and checks), merged 2026-11-14.
 
 Screens: `spec/design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
 
-- **Map tab (the pipeline).** The pipeline's child flows in order, as nodes. Connections between flows carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. A toolbox holds Flow, Condition and Connection. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are shown above the diagram.
-- **Flow tabs.** One tab per child flow, with its blocks in order and a toolbox of Start, Agent, Condition, Connection and End. A flow has one Start and at least one End.
+- **Map tab (the pipeline).** A tab row: the Map tab, then one tab per child flow in order, and a + at the end that adds a flow after the last tab. The Map canvas shows the flows as nodes, with connections that carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are shown beside the diagram. The Map tab has no block toolbox (decided 2026-11-15); how a gate is added to a connection is decided in this feature's specify.
+- **Flow tabs.** One tab per child flow, opened from the tab row. The flow's blocks in order, and a toolbox that lists every block kind: Start, Agent, Condition, Connection and End. A flow has one Start and at least one End. Screen: `spec/design/features/F-06-visual-builder/06-flow-tab-toolbox.svg`.
 - **Property panels** for each block (Start, Agent, Condition, Connection, End, Flow), as `building-blocks.md` §3 lists them. Every block shows its generated file and its rule tags.
 - Blocks and flows can be switched off; a switched-off item stays in place with its properties.
 - The state lives in the browser session only. Reloading clears it (see F-20).

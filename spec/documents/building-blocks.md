@@ -28,7 +28,7 @@ Status: decided 2026-11-14 with the owner, revised the same day three times. The
 - A Connection between two flows is drawn as an arrow with the artifact label. A Condition on that connection (a gate or a check) is drawn as a diamond on the arrow, with its pass and fail outputs.
 - Selecting a flow opens its tab (below). Selecting a connection or a gate opens its property panel.
 - The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel above the diagram.
-- A toolbox beside the diagram holds Flow (to add a child flow), Condition and Connection. Click or drag to add.
+- A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab. The Map tab has no block toolbox; how a gate is added to a connection is decided in F-06's specify (2026-11-15).
 
 ## 2. Flow tabs
 

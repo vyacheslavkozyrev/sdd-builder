@@ -27,8 +27,8 @@ Status: decided 2026-11-14 with the owner, revised the same day three times. The
 - Each flow is a node. It shows its name, its scope and its number of blocks.
 - A Connection between two flows is drawn as an arrow with the artifact label. A Condition on that connection (a gate or a check) is drawn as a diamond on the arrow, with its pass and fail outputs.
 - Selecting a flow opens its tab (below). Selecting a connection or a gate opens its property panel.
-- The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel above the diagram.
-- A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab. The Map tab has no block toolbox; how a gate is added to a connection is decided in F-06's specify (2026-11-15).
+- The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram (decided 2026-11-15).
+- A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15). Drag an Approval or a Check onto a connection between two flows. A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab.
 
 ## 2. Flow tabs
 

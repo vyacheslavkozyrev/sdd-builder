@@ -18,6 +18,10 @@ Shared with F-05 and F-21: top bar 0–56; stepper; card x 40–1240, y 152–77
 
 Criteria with no screen are not visual: AC-002 (request body), AC-012 (zip paths) and the rest are checked by tests.
 
+## Colours
+
+Rule-file chips (`from rule: …`) are violet (`#8b5cf6`), so that approval gates in the Map tab (F-05, screen 02) keep orange. Decided by the owner on 2026-11-15.
+
 ## Decisions these screens take
 
 1. **Generate waits for an analysis** with no blockers. Warnings do not block it. Any edit makes the analysis out of date.

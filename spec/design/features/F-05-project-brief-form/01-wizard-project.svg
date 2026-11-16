@@ -20,11 +20,11 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 .stepLabelOn{font-size:12px;font-weight:700;fill:#0f172a}
 .bt-primary{fill:#ffffff;font-weight:600}
 .bt-secondary{fill:#1e293b;font-weight:600}
-.bt-disabled{fill:#94a3b8;font-weight:600}
+.bt-disabled{fill:#64748b;font-weight:600}
 .ct-blocker{font-size:11px;font-weight:600;fill:#991b1b}
 .ct-warn{font-size:11px;font-weight:600;fill:#92400e}
 .ct-info{font-size:11px;font-weight:600;fill:#1e40af}
-.ct-rule{font-size:11px;font-weight:600;fill:#9a3412}
+.ct-rule{font-size:11px;font-weight:600;fill:#5b21b6}
 .ct-file{font-size:11px;font-weight:600;fill:#334155}
 .ct-nofile{font-size:11px;font-weight:600;fill:#64748b}
 .errT{font-size:12px;fill:#991b1b}
@@ -46,7 +46,7 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 .chip-blocker{fill:#fee2e2;stroke:#ef4444}
 .chip-warn{fill:#fef3c7;stroke:#f59e0b}
 .chip-info{fill:#dbeafe;stroke:#93c5fd}
-.chip-rule{fill:#ffedd5;stroke:#fb923c}
+.chip-rule{fill:#ede9fe;stroke:#8b5cf6}
 .chip-file{fill:#f1f5f9;stroke:#cbd5e1}
 .chip-nofile{fill:#f1f5f9;stroke:#cbd5e1;stroke-dasharray:3 2}
 .chk-on{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
@@ -113,17 +113,19 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 <text x="72" y="270" class="label">Project name<tspan class="req"> *</tspan></text>
 <rect x="72" y="280" width="1136" height="40" rx="6" class="input"/>
 <text x="84" y="304.5">Demo project</text>
-<text x="72" y="338" class="small">Used as the project name in the generated CLAUDE.md.</text>
+<text x="72" y="338" class="small">A short name. It appears as the project name in the generated CLAUDE.md.</text>
 <text x="72" y="370" class="label">Idea<tspan class="req"> *</tspan></text>
 <rect x="72" y="380" width="1136" height="196" rx="6" class="input"/>
 <text x="84" y="404">A tracker for hourly work. Freelancers log time against clients,</text>
 <text x="84" y="424">see weekly totals, and export a monthly summary for invoicing.</text>
-<text x="1192" y="556" class="small" text-anchor="end">142 / 8000</text>
+<text x="1196" y="556" class="small" text-anchor="end">142 / 8,000</text>
 <text x="72" y="604" class="muted">Describe what the product does and who uses it. Leave out how it is built.</text>
-<text x="72" y="630" class="small">Nothing is stored between visits. Reloading clears the wizard.</text>
+<text x="72" y="628" class="small">Nothing is stored between visits. Reloading clears the wizard.</text>
+<text x="72" y="652" class="small">Up to 8,000 characters. Text past the limit is cut.</text>
 <line x1="40" y1="700" x2="1240" y2="700" class="div"/>
 <rect x="72" y="716" width="120" height="40" rx="8" class="disabled"/>
 <text x="132.0" y="740.5" class="bt-disabled" text-anchor="middle">Back</text>
+<text x="204" y="740.5" class="small">Back is available from step 2.</text>
 <rect x="1112" y="716" width="96" height="40" rx="8" class="primary"/>
 <text x="1160.0" y="740.5" class="bt-primary" text-anchor="middle">Next</text>
 </svg>

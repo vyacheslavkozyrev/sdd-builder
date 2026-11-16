@@ -42,5 +42,6 @@ The tab row is the same on every screen: **Map** (the pipeline), one tab per flo
 
 ## Added 2026-11-15 (from the F-05 wizard review)
 
-- `06-flow-tab-toolbox.svg`: a flow tab. The toolbox lists every block kind (Start, Agent, Condition, Connection, End). The tab row holds the Map tab, one tab per flow, and a + that adds a flow after the last tab. The Map tab has no block toolbox.
-- Open for this feature's specify: how a gate is added to a connection on the Map tab, since the Map tab has no toolbox.
+- `06-flow-tab-toolbox.svg`: a flow tab. The toolbox lists every block kind (Start, Agent, Condition, Connection, End). The tab row holds the Map tab, one tab per flow, and a + that adds a flow after the last tab.
+- The Map tab's toolbox (left of the diagram: Connection, Approval, Check) is drawn in `spec/design/features/F-05-project-brief-form/02-wizard-workflow.svg`.
+- **Decided 2026-11-15:** drag is the main way to add an Approval or a Check to a connection. This feature's specify adds a select-then-add route as well: select a connection, then Add approval or Add check from its panel. Keyboard and touch users need that route.

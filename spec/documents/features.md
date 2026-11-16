@@ -10,7 +10,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator was removed in F-07 |
 | F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete in `source/templates/claude-code/` and `source/packages/core/src/pipeline/` (16 tasks, 31 criteria, 1343 core tests); the flat layouts and generator were removed in F-07 |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ✅ Complete (26 tasks, 25 criteria, 2090 tests across api, web and core; the flat analyzer is removed; see `spec/specifications/F-04-analyzer/verify.md`) |
-| F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Specified 2026-11-15; UX pending |
+| F-05 | Project wizard: frame, name and idea, workflow host (step 3) | MVP | User | source/apps/web | 2 | F-01, F-06 | Specified and UX approved 2026-11-15 |
 | F-21 | Project wizard step 2: technical details and code rules | MVP | User | source/apps/web | 2 | F-05 | Specified 2026-11-15 (split from F-05); UX pending |
 | F-22 | Project wizard step 4: analyze and generate | MVP | User | source/apps/web | 2 | F-04, F-05, F-07 | Specified 2026-11-15 (split from F-05); UX pending |
 | F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
@@ -89,7 +89,7 @@ Absorbs F-14 (custom agents) and F-15 (gates and checks), merged 2026-11-14.
 
 Screens: `spec/design/features/F-06-visual-builder/` (to be redrawn for flows, gates and checks).
 
-- **Map tab (the pipeline).** A tab row: the Map tab, then one tab per child flow in order, and a + at the end that adds a flow after the last tab. The Map canvas shows the flows as nodes, with connections that carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are shown beside the diagram. The Map tab has no block toolbox (decided 2026-11-15); how a gate is added to a connection is decided in this feature's specify.
+- **Map tab (the pipeline).** A tab row: the Map tab, then one tab per child flow in order, and a + at the end that adds a flow after the last tab. The Map canvas shows the flows as nodes, with connections that carry the artifact label. Gates and checks sit on those connections, drawn as diamonds on the arrow. A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15); an Approval or a Check is dragged onto a connection. The pipeline's properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram.
 - **Flow tabs.** One tab per child flow, opened from the tab row. The flow's blocks in order, and a toolbox that lists every block kind: Start, Agent, Condition, Connection and End. A flow has one Start and at least one End. Screen: `spec/design/features/F-06-visual-builder/06-flow-tab-toolbox.svg`.
 - **Property panels** for each block (Start, Agent, Condition, Connection, End, Flow), as `building-blocks.md` §3 lists them. Every block shows its generated file and its rule tags.
 - Blocks and flows can be switched off; a switched-off item stays in place with its properties.

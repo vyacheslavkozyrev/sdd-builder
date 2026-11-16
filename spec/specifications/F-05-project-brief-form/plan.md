@@ -18,7 +18,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 - [x] T006 [Web] Remove the flat brief config tests — `source/apps/web/test/brief-config.test.ts` — covers none (removal)
 - [x] T007 [Web] Remove the flat brief dependency and gate tests — `source/apps/web/test/brief-depends.test.ts`, `source/apps/web/test/brief-gate.test.ts` — covers none (removal)
 - [x] T008 [Web] Remove the flat brief form components (BriefForm, ModuleRows, RuleList) — `source/apps/web/src/brief/BriefForm.tsx`, `source/apps/web/src/brief/ModuleRows.tsx`, `source/apps/web/src/brief/RuleList.tsx` — covers none (removal)
-- [ ] T009 [Web] Remove the flat placement logic (amendment 4: only this file now; nothing imports it) — `source/apps/web/src/brief/placement.ts` — covers none (removal)
+- [x] T009 [Web] Remove the flat placement logic (amendment 4: only this file now; nothing imports it) — `source/apps/web/src/brief/placement.ts` — covers none (removal)
 - [ ] T010 [Web] Remove the remaining flat brief files (Messages, PrivacyGate, state, privacy, counter) — `source/apps/web/src/brief/Messages.tsx`, `source/apps/web/src/brief/PrivacyGate.tsx`, `source/apps/web/src/brief/state.ts`, `source/apps/web/src/brief/privacy.ts` — covers none (removal; amendment 3: `counter.ts` moved to `source/apps/web/src/wizard/counter.ts` and stays)
 - [ ] T011 [Web] Remove the flat analyze request tests — `source/apps/web/test/analyze-request.test.ts` — covers none (removal; F-22 rebuilds analyze)
 - [ ] T012 [Web] Remove the flat analyze result tests — `source/apps/web/test/analyze-result.test.ts` — covers none (removal)

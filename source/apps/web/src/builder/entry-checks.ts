@@ -70,6 +70,13 @@ export function checkToolName(name: string): EntryCheck<string> {
   return { ok: false, message: `Tool "${name}": a tool name has no space, comma or control character.` };
 }
 
+/** A rule tag names a rule file: file-safe, without the folder, so it follows the id rule (F-06 AC-025). It is stored trimmed. */
+export function checkRuleTag(tag: string): EntryCheck<string> {
+  const trimmed = tag.trim();
+  if (pipeline.isValidId(trimmed)) return { ok: true, value: trimmed };
+  return { ok: false, message: `Rule tag "${tag}": the rule's file name, without the folder, ${pipeline.ID_MESSAGE}.` };
+}
+
 /** An agent body of at most `AGENT_BODY_CAP` characters, counted as JavaScript string length (F-06 AC-030). */
 export function checkAgentBody(text: string): EntryCheck<string> {
   if (text.length <= AGENT_BODY_CAP) return { ok: true, value: text };

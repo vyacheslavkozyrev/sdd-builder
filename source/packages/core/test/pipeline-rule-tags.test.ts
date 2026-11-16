@@ -1,6 +1,6 @@
 // F-03 AC-029 and AC-030: rule tags on Agent blocks and flows. The parser reads `ruleTags` as a list of non-empty
 // strings and gives an empty list when the key is absent; the structural check refuses a tag that names no entry of
-// `ProjectConfig.rules`, and lists every such tag at its path.
+// `ProjectConfig.rules`, and lists every such tag at its path. F-06 AC-025 extends the same check to the pipeline's own tags.
 import { describe, expect, it } from 'vitest';
 import defaultPipeline from '../../../templates/pipeline/default.json' with { type: 'json' };
 import { ruleTagProblems } from '../src/pipeline/generate/refusals-names.js';
@@ -180,5 +180,65 @@ describe('F-03 AC-029 the structural check on rule tags', () => {
     expect(problems).toContain(
       'pipeline.blocks[0].blocks[1].ruleTags[0]: "missing" names no rule; every ruleTags entry must be the id of a project rule',
     );
+  });
+});
+
+/** A configuration whose pipeline itself takes these rule tags, around the given blocks. */
+function configWithPipelineTags(tags: string[], ruleIds: readonly string[] = ['style']): ProjectConfig {
+  const config = configOf([flow('f', [start('f-start'), end('f-end')])], ruleIds);
+  return { ...config, pipeline: { ...config.pipeline, ruleTags: tags } };
+}
+
+describe('F-06 AC-025 rule tags on the pipeline', () => {
+  it('F-06 AC-025 accepts a pipeline tag that names a project rule', () => {
+    const problems = ruleTagProblems(configWithPipelineTags(['style']));
+    expect(problems).toEqual([]);
+  });
+
+  it('F-06 AC-025 refuses a pipeline tag that names no rule, at the pipeline path', () => {
+    const problems = ruleTagProblems(configWithPipelineTags(['missing']));
+    expect(problems).toEqual<PipelineProblem[]>([
+      {
+        path: 'pipeline.ruleTags[0]',
+        message: '"missing" names no rule; every ruleTags entry must be the id of a project rule',
+      },
+    ]);
+  });
+
+  it('F-06 AC-025 lists every unknown pipeline tag and leaves the known one out', () => {
+    const paths = ruleTagProblems(configWithPipelineTags(['gone', 'style', 'missing'])).map((problem) => problem.path);
+    expect(paths).toEqual(['pipeline.ruleTags[0]', 'pipeline.ruleTags[2]']);
+  });
+
+  it('F-06 AC-025 refuses a pipeline tag when the project has no rules', () => {
+    const paths = ruleTagProblems(configWithPipelineTags(['style'], [])).map((problem) => problem.path);
+    expect(paths).toEqual(['pipeline.ruleTags[0]']);
+  });
+
+  it('F-06 AC-025 lists the pipeline tag before the tags of its flows and Agent blocks', () => {
+    const config = configOf([{ ...flowWithAgent(['missing']), ruleTags: ['gone'] }]);
+    const withTags: ProjectConfig = { ...config, pipeline: { ...config.pipeline, ruleTags: ['absent'] } };
+    expect(ruleTagProblems(withTags).map((problem) => problem.path)).toEqual([
+      'pipeline.ruleTags[0]',
+      'pipeline.blocks[0].ruleTags[0]',
+      'pipeline.blocks[0].blocks[1].ruleTags[0]',
+    ]);
+  });
+
+  it('F-06 AC-025 generate refuses an unknown pipeline tag with its path in the refusal', () => {
+    const problems = refusalOf(configWithPipelineTags(['missing']));
+    expect(problems).toContain(
+      'pipeline.ruleTags[0]: "missing" names no rule; every ruleTags entry must be the id of a project rule',
+    );
+  });
+
+  it('F-06 AC-025 refuses an unknown pipeline tag read from JSON, after the parser accepts its shape', () => {
+    const json = defaultJson();
+    (json['pipeline'] as JsonObject)['ruleTags'] = ['style', 'missing'];
+    const result = parsePipelineConfig(json);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const withRules: ProjectConfig = { ...result.config, rules: rulesOf(['style']) };
+    expect(ruleTagProblems(withRules).map((problem) => problem.path)).toEqual(['pipeline.ruleTags[1]']);
   });
 });

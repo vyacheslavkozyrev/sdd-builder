@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 13 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 14 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ None.
 | T011a | Agent and pipeline fields in core (amendment 4): optional model, tools and body on Agent blocks; description, rule tags, model, tools and body on the pipeline; tool names with spaces or control characters refused | reviewed: 1 blocker fixed (tool names with spaces or control characters), 0 warnings, 0 suggestions; 1 question deferred (spaced permission form, kept refused) | task check passed (exit 0), 1313 tests |
 | T011b | Generator writes the agent fields: agent files start with frontmatter (name, description as JSON strings, then model and tools when set); body after the generated text; pipeline command takes model, tools and body; tool names with commas refused | reviewed: 2 blockers fixed (name and description frontmatter; commas refused), 1 warning fixed (YAML quoting), 1 suggestion fixed; 1 deferred (YAML indicator in tool names) | task check passed (exit 0), 1333 tests |
 | T011 | Agent blocks and custom agents: name (file-safe, unique), description, scope and iteration warning, model, tools, body capped at 4,000 characters, path `.claude/agents/<name>.md` | reviewed: 1 blocker fixed (new agent gets a unique name), 1 warning fixed (blank description test), 1 suggestion fixed; 2 deferred (iteration warning matched by message; plural wording) | task check passed (exit 0), 1333 core, 480 api, 569 web tests |
+| T012 | Rule tags on Agent blocks, flows and the pipeline (file-safe, no folder, a repeat refused on the same block); pipeline properties (name, description, model, tools, body) and arguments with unique names (amendment 5 checks the pipeline's tags in core) | reviewed: 0 blockers, 3 warnings fixed (round 1: 2; core pipeline-level rule tags, amendment 5), 2 suggestions fixed (round 1: 1; tag refusal wording "must be" after a full stop); 1 deferred (repeated helpers, with T021) | task check passed (exit 0), 1340 core, 480 api, 610 web tests |
 
 ---
 
@@ -60,6 +61,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T011b review, SUGGESTION: `source/packages/core/src/pipeline/parse-scope.ts` `readTools` accepts a tool name that starts with a YAML indicator (`*`, `&`, `!`, `[`, `{`, `%`, `@`, a backtick, a quote), which would make the plain `tools:` line invalid YAML. Not applied: Claude Code tool names start with a letter, and the tools line format is the one AC-031 and the tests pin; quoting the tools line or refusing such names is a product choice to decide with the spaced-name question above.
 - T011 review, SUGGESTION: `source/apps/web/src/builder/agent-edit.ts` `agentIterationWarning` finds the F-04 finding by its message prefix; a reworded core message would drop the warning without a failing build (the AC-028 tests pin the current text). Not applied: the message is the core analyzer's contract and F-04 exposes no stable code for it; revisit if F-04 adds one.
 - T011 review, SUGGESTION: `source/apps/web/src/builder/entry-checks.ts` `checkAgentBody` says "Cut 1 characters." for one character over. Not applied: the body cap wording is pinned by the AC-030 test and the cap was to be kept as built.
+- T012 review, SUGGESTION: `source/apps/web/src/builder/pipeline-edit.ts` `requireFlow` and `refuse` repeat helpers of the other builder modules. Not applied: the same call as the T007 and T009 entries; revisit with T021.
+- T012 review, WARNING, RESOLVED (amendment 5, owner decision 2026-11-16): `source/packages/core/src/pipeline/generate/refusals-names.ts` `ruleTagProblems` checked the tags of enabled flows and Agent blocks only, so a pipeline-level rule tag that names no project rule was not refused. Now the pipeline's own tags are checked with the same wording and path form (`pipeline.ruleTags[i]`); tests named F-06 AC-025 in `source/packages/core/test/pipeline-rule-tags.test.ts`. Open follow-up: F-03 `stories.md` AC-029 still says "on an Agent block or a flow"; its wording is not edited here (the owner asked for the amendment record only).
 
 ---
 
@@ -70,6 +73,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 5 — 2026-11-16
+**Changed**: the pipeline's own rule tags are checked by the generator like flows and Agent blocks: a tag that names no project rule is refused at `pipeline.ruleTags[i]` with the same wording (F-03 AC-029, F-06 AC-025). This widens F-03 AC-029's scope from flows and Agent blocks to the pipeline as well.
+**Reason**: the pipeline takes rule tags (amendment 4, F-06 AC-042), and the review of T012 found that an unknown pipeline tag was not refused. Owner decision, 2026-11-16.
+**Impact**: `source/packages/core/src/pipeline/generate/refusals-names.ts` and its tests (`source/packages/core/test/pipeline-rule-tags.test.ts`). No change to the parser or the builder.
 
 ### Amendment 4 — 2026-11-16
 **Changed**: `plan.md` adds T011a (model and parser: agent and pipeline model, tools, body) and T011b (generator output) before T011. `architecture.md` §6 decision 26 records the fields.

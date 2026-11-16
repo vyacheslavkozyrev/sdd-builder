@@ -1,9 +1,21 @@
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { pipeline } from '@sddbuilder/core';
-import { addArgument, editArgument, editPipeline, removeArgument, setRuleTags } from '../src/builder/pipeline-edit.js';
+import { pipeline, templateSourceFromRecord } from '@sddbuilder/core';
+import {
+  addArgument,
+  editArgument,
+  editPipeline,
+  PIPELINE_COMMAND_FILE,
+  removeArgument,
+  setRuleTags,
+} from '../src/builder/pipeline-edit.js';
 import type { ConfigEdit } from '../src/builder/flow-edit.js';
 import { addBlock } from '../src/builder/block-edit.js';
 import { AGENT_BODY_CAP } from '../src/builder/entry-checks.js';
+
+/** The template folder of the repository, `source/templates`. */
+const TEMPLATES_DIR = join(import.meta.dirname, '..', '..', '..', 'templates');
 
 type ProjectConfig = pipeline.ProjectConfig;
 type PipelineStartBlock = pipeline.PipelineStartBlock;
@@ -67,6 +79,31 @@ function buildFlowOf(config: ProjectConfig): FlowBlock {
   if (flow === undefined) throw new Error('no build flow');
   return flow;
 }
+
+/** Every file under source/templates, keyed by its path relative to that folder (read once, no network). */
+function realTemplates(dir: string, current = dir, files: Record<string, string> = {}): Record<string, string> {
+  for (const entry of readdirSync(current, { withFileTypes: true })) {
+    const full = join(current, entry.name);
+    if (entry.isDirectory()) {
+      realTemplates(dir, full, files);
+    } else {
+      files[relative(dir, full).split(sep).join('/')] = readFileSync(full, 'utf8');
+    }
+  }
+  return files;
+}
+
+describe('F-06 AC-024 the pipeline panel file', () => {
+  it('F-06 AC-024 the pipeline panel generates .claude/commands/pipeline.md', () => {
+    expect(PIPELINE_COMMAND_FILE).toBe('.claude/commands/pipeline.md');
+  });
+
+  it('F-06 AC-024 the panel file is the pipeline command path that core plans for the default pipeline', () => {
+    const templates = templateSourceFromRecord(realTemplates(TEMPLATES_DIR));
+    const planned = pipeline.planGeneration(pipeline.defaultProjectConfig, templates).map((entry) => entry.path);
+    expect(planned).toContain(PIPELINE_COMMAND_FILE);
+  });
+});
 
 describe('F-06 AC-025 rule tags on Agent blocks, flows and the pipeline', () => {
   it('F-06 AC-025 accepts a file-safe rule name on an agent, a flow and the pipeline', () => {

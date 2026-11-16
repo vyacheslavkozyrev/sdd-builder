@@ -3,7 +3,14 @@
 // AC-025, AC-042). The rules are the edit functions of map-edit, pipeline-edit and entry-checks; this view binds them.
 import { useState } from 'react';
 import type { pipeline } from '@sddbuilder/core';
-import { addArgument, editArgument, editPipeline, removeArgument, setRuleTags } from './pipeline-edit.js';
+import {
+  addArgument,
+  editArgument,
+  editPipeline,
+  PIPELINE_COMMAND_FILE,
+  removeArgument,
+  setRuleTags,
+} from './pipeline-edit.js';
 import type { PipelineChange } from './pipeline-edit.js';
 import { failRouteOptions, setGateSettings } from './map-edit.js';
 import type { GateSettings } from './map-edit.js';
@@ -42,6 +49,7 @@ export function PipelinePanel({ config, onChange }: PipelinePanelProps) {
   return (
     <section aria-label="Pipeline panel">
       <h2>Pipeline: {current.name}</h2>
+      <p>Generates {PIPELINE_COMMAND_FILE}</p>
       <TextDraft label="Name" value={current.name} onApply={(text) => edit({ field: 'name', value: text })} />
       <TextDraft
         label="Description"

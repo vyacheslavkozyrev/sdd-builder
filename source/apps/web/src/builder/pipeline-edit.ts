@@ -36,6 +36,9 @@ export type ArgumentChange = { field: 'name'; value: string } | { field: 'requir
 /** The name a new argument gets; the user renames it. */
 const DEFAULT_ARGUMENT_NAME = 'argument';
 
+/** The file the pipeline panel shows as generated: the pipeline command (F-06 AC-024), as the generator writes it. */
+export const PIPELINE_COMMAND_FILE = '.claude/commands/pipeline.md';
+
 /**
  * Sets the rule tags of an Agent block, a flow or the pipeline (F-06 AC-025). Each tag is a file-safe rule name without the
  * folder. A tag that is refused, or a tag repeated on the same block, refuses the whole list; the owner keeps its tags.

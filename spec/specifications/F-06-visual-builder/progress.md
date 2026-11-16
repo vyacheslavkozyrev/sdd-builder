@@ -78,6 +78,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 8 — 2026-11-16
+**Changed**: `plan.md` T014 records the Map node rules: scope is the one scope of the enabled Agent blocks, "mixed" when they differ, "no agent" when there is none; the block count is all blocks.
+**Reason**: AC-001 says the node shows its scope, but the spec did not say what a flow with mixed or no agents shows. Approved by the user on 2026-11-16.
+**Impact**: T014 only.
+
 ### Amendment 7 — 2026-11-16
 **Changed**: the parser refuses a disabled pipeline Start or End, at the path of the block (`pipeline.blocks[i]`). A child flow's disabled Start or End is unchanged. `building-blocks.md` §7 records the rule.
 **Reason**: owner decision, 2026-11-16. The pipeline must always have one enabled Start and one enabled End; the T013 review found the parser accepted a disabled one, and the live marks had no mark for it.

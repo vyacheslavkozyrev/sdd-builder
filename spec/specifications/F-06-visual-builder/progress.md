@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 4 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 5 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ None.
 | T002 | Remove `review` from the check types: model, parser and generator list; the default's build review gate becomes `checks` so the default still parses (its description is T003) | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed; 2 deferred (flat `FIXED_GATES` in catalog test, removed in T021; default description in T003) | task check passed (exit 0), 1257 tests |
 | T003 | Condition description in core: required, non-blank on every Condition (parser and generator refuse a blank one); the pipeline command's check rule text carries it; default's build review gate is `checks` with its description (amendment 1) | reviewed: 0 blockers, 1 warning fixed (generator refuses a blank Condition description), 2 suggestions fixed; 1 deferred (line breaks in the description) | task check passed (exit 0), 1273 tests |
 | T004 | Builder state and host contract: `builder/state.ts` starts from the default pipeline (or the host's initial config), reports each change through `onChange`; the default is exported from core; a scan test finds no network or storage call in the builder folder | reviewed: 0 blockers, 1 warning fixed (shared default object cloned), 1 suggestion fixed (scan covers subfolders) | task check passed (exit 0), 1273 core, 357 web, 480 api tests |
+| T005 | Flows on the Map: add a flow after the last one with a unique id, one Start, one End and a default name; refuse an unsafe or repeated flow id and keep the old one; rename a flow (blank refused); core exports `isValidId` for the builder | reviewed: 0 blockers, 0 warnings, 0 suggestions | task check passed (exit 0), 1273 tests |
 
 ---
 

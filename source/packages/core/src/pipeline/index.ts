@@ -23,6 +23,7 @@ export type {
 export { analyzeStructure, skippedAnalysis } from './analyze/index.js';
 export { pipelineCapProblems } from './caps.js';
 export { defaultProjectConfig } from './default.js';
+export { ID_MESSAGE, isValidId } from './ids.js';
 export { checkReview, type ReviewReplyCheck } from './analyze/review-reply.js';
 export { configProblems, generate } from './generate/generate.js';
 export { parsePipelineConfig } from './parse.js';

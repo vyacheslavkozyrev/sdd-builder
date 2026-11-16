@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 14 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 15 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ None.
 | T011b | Generator writes the agent fields: agent files start with frontmatter (name, description as JSON strings, then model and tools when set); body after the generated text; pipeline command takes model, tools and body; tool names with commas refused | reviewed: 2 blockers fixed (name and description frontmatter; commas refused), 1 warning fixed (YAML quoting), 1 suggestion fixed; 1 deferred (YAML indicator in tool names) | task check passed (exit 0), 1333 tests |
 | T011 | Agent blocks and custom agents: name (file-safe, unique), description, scope and iteration warning, model, tools, body capped at 4,000 characters, path `.claude/agents/<name>.md` | reviewed: 1 blocker fixed (new agent gets a unique name), 1 warning fixed (blank description test), 1 suggestion fixed; 2 deferred (iteration warning matched by message; plural wording) | task check passed (exit 0), 1333 core, 480 api, 569 web tests |
 | T012 | Rule tags on Agent blocks, flows and the pipeline (file-safe, no folder, a repeat refused on the same block); pipeline properties (name, description, model, tools, body) and arguments with unique names (amendment 5 checks the pipeline's tags in core) | reviewed: 0 blockers, 3 warnings fixed (round 1: 2; core pipeline-level rule tags, amendment 5), 2 suggestions fixed (round 1: 1; tag refusal wording "must be" after a full stop); 1 deferred (repeated helpers, with T021) | task check passed (exit 0), 1340 core, 480 api, 610 web tests |
+| T013a | Cycle finding in core (amendment 6): a Connection that closes a cycle in its list is one blocker, at its path; disabled Connections and flows skipped; added to analyzeStructure | reviewed: 0 blockers, 2 warnings fixed (criterion on each test name; whole-output assertion), 1 suggestion fixed | task check passed (exit 0), 1353 tests |
 
 ---
 

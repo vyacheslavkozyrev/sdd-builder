@@ -5,6 +5,7 @@ import type { AnalysisFinding, AnalysisResult } from '../../model.js';
 import { comparePaths, compareText } from '../generate/generate.js';
 import type { ProjectConfig } from '../model.js';
 import { briefFindings } from './brief.js';
+import { cycleFindings } from './cycles.js';
 import { inputFindings } from './inputs.js';
 import { refusalFindings } from './refusals.js';
 import { retryFindings } from './retries.js';
@@ -24,6 +25,7 @@ export function analyzeStructure(config: ProjectConfig): AnalysisFinding[] {
   const findings = [
     ...refusalFindings(config),
     ...retryFindings(config),
+    ...cycleFindings(config),
     ...inputFindings(config),
     ...briefFindings(config),
   ];

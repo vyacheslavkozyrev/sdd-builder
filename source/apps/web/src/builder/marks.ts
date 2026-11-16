@@ -118,18 +118,31 @@ function drawnPaths(config: ProjectConfig): Set<string> {
   return drawn;
 }
 
+/** The subject of the findings on the pipeline itself (no Start block, two or more, or no End block): the Map draws no item for it. */
+const PIPELINE_SUBJECT = 'pipeline';
+
+/**
+ * A pipeline-level Start or End. The Map draws no item for it, so a finding on a switched-off one has no item to be
+ * shown on and is listed instead (AC-039).
+ */
+function isPipelineEndpoint(item: Item): boolean {
+  return item.flow === undefined && (item.kind === 'start' || item.kind === 'end');
+}
+
 /**
  * The live structural findings that no drawn item carries, in the analyzer's order: a Connection that does not join
  * two flows, for one. The Map lists them under the diagram, so a problem always has a visible reason (AC-039). A
- * finding on a disabled item is not listed (AC-033). A finding that names no pipeline item (the brief, the stack) is
- * not a structural mark (T013) and is not listed. A mark the Map draws is never repeated here.
+ * finding on a switched-off item is not listed (AC-033), except a switched-off pipeline Start or End, and the findings on
+ * the pipeline itself (subject `pipeline`: its Start count or its End count), which no drawn item carries. A finding that names no pipeline item
+ * (the brief, the stack) is not a structural mark (T013) and is not listed. A mark the Map draws is never repeated here.
  */
 export function unplacedMarks(config: ProjectConfig): UnplacedMark[] {
   const all = items(config);
   const drawn = drawnPaths(config);
   return pipeline.analyzeStructure(config).flatMap((finding): UnplacedMark[] => {
+    if (finding.subject === PIPELINE_SUBJECT) return [{ severity: finding.severity, message: finding.message }];
     const item = namedItem(finding.subject, all);
-    const shown = item === undefined ? undefined : shownItem(item);
+    const shown = item === undefined ? undefined : (shownItem(item) ?? (isPipelineEndpoint(item) ? item : undefined));
     if (shown === undefined || drawn.has(shown.path)) return [];
     return [{ severity: finding.severity, message: finding.message }];
   });

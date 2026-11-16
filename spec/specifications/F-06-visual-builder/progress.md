@@ -56,6 +56,7 @@ None.
 | T023 | Draw the live marks on the Map and the flow tabs (severity, message, next to the item); a fallback list for marks the Map cannot place (AC-039); brief and stack findings stay off the Map (they belong to the analyze step, F-22) | reviewed: 0 blockers, 1 warning fixed (status lines), 3 suggestions fixed; 2 deferred (pipeline subject with no item; recompute per render) | task check passed (exit 0), 1340 core, 480 api, 433 web tests |
 | T024 | Verify gap AC-010: tests that an approval keeps its decider human and a check keeps agent after a gate settings edit (amendment 17) | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (a needless cast removed) | task check passed (exit 0), 1340 tests |
 | T025 | Verify gap AC-024: the pipeline panel shows the pipeline command file it generates; a test checks it against core's planned path (amendment 17) | reviewed: 0 blockers, 1 warning fixed (the test now reads core's planned path, not the literal), 0 suggestions | task check passed (exit 0), 1340 tests |
+| T026 | Verify gap AC-039: unplaced marks for a pipeline with no Start or End, or a disabled pipeline Start or End; the state holds a host config through the parser (a refused one is held as given, with marks, owner decision) (amendment 17) | reviewed: 0 blockers, 1 warning fixed (test for the no-Start finding), 1 suggestion fixed; deferred: the parser path test cannot tell parse from copy (owner deviation recorded) | task check passed (exit 0), 1340 core, 480 api, 440 web tests |
 
 ---
 
@@ -104,6 +105,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T023 review, owner decision: brief and stack findings (today the default shows "rules is empty") are not listed under the Map, as T013 decided, since they name no pipeline item. Reading "a subject the Map does not draw must be shown" literally would list them. Not applied: it would put a brief warning on the default Map. Owner decides.
 - T023 review, SUGGESTION: `MapTab.tsx` recomputes `structuralMarks` and `unplacedMarks` (each runs `analyzeStructure`) on every render. Not applied: the pipeline is small, and memoizing adds state with no measurable gain.
 - T023 review, note for Verify: the marks inside the fixed-size flow node and the Connection label, and the "Not on a drawn item" list, are not checked in a browser (no browser tests in the MVP). Put a visual check of overflow on the manual checklist.
+- T026 review, owner deviation (not a finding, accepted by the caller): plan T026 says the state accepts a host config only through the parser. `source/apps/web/src/builder/state.ts` `heldConfig` holds a refused host config as given, not parsed and not checked against the model, so `analyzeStructure` runs on that config unchecked. Kept because AC-039's second clause (a state that holds a mark saying why it is incomplete) covers it. Owner to confirm the deviation or ask for a shape check before marks are computed on a refused host config.
+- T026 review, SUGGESTION: `source/apps/web/test/builder-marks.test.ts` "holds a host configuration the parser accepts" cannot tell the parser path from a plain copy, since the default parses to itself. Not applied: no accepted configuration comes back changed, so only a spy on the parser would separate the two paths; the refused-path test covers the branch that matters.
 
 ---
 ## Test Results

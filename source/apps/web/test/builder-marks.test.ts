@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { pipeline } from '@sddbuilder/core';
 import { addBlock, addFlowConnection, deleteBlock, setBlockEnabled, setConditionRoutes } from '../src/builder/block-edit.js';
 import { addFlow, deleteFlow, renameFlow, setFlowEnabled } from '../src/builder/flow-edit.js';
-import { itemPath, marksAt, structuralMarks } from '../src/builder/marks.js';
+import { itemPath, marksAt, structuralMarks, unplacedMarks } from '../src/builder/marks.js';
 import type { StructuralMark } from '../src/builder/marks.js';
 import { addConnection } from '../src/builder/map-edit.js';
+import { createBuilderState } from '../src/builder/state.js';
 
 type ProjectConfig = pipeline.ProjectConfig;
 type FlowBlock = pipeline.FlowBlock;
@@ -338,7 +339,8 @@ describe('F-06 AC-039 after any sequence of edits the state is accepted or carri
         accepted += 1;
         return;
       }
-      expect(structuralMarks(config).length, `after "${step}" the state is refused with no mark`).toBeGreaterThan(0);
+      const marks = structuralMarks(config).length + unplacedMarks(config).length;
+      expect(marks, `after "${step}" the state is refused with no mark`).toBeGreaterThan(0);
     };
 
     const added = addFlow(config);
@@ -394,5 +396,66 @@ describe('F-06 AC-039 after any sequence of edits the state is accepted or carri
     expect(accepted).toBeGreaterThan(0);
     expect(parserAccepts(config)).toBe(true);
     expect(structuralMarks(config).filter((mark) => mark.severity === 'blocker')).toEqual([]);
+  });
+});
+
+describe('F-06 AC-039 a pipeline-level Start or End with no drawn item is listed under the Map', () => {
+  it('F-06 AC-039 lists the finding that the pipeline has no End block, with no item to mark', () => {
+    const config = copyDefault();
+    config.pipeline.blocks = config.pipeline.blocks.filter((block) => block.id !== 'pipeline-end');
+    expect(parserAccepts(config)).toBe(false);
+    expect(unplacedMarks(config)).toContainEqual({ severity: 'blocker', message: 'the pipeline has no End block' });
+  });
+
+  it('F-06 AC-039 lists the finding that the pipeline has no Start block, with no item to mark', () => {
+    const config = copyDefault();
+    config.pipeline.blocks = config.pipeline.blocks.filter((block) => block.id !== 'pipeline-start');
+    expect(parserAccepts(config)).toBe(false);
+    expect(unplacedMarks(config)).toContainEqual({ severity: 'blocker', message: 'the pipeline has no Start block' });
+  });
+
+  it('F-06 AC-039 lists a switched-off pipeline End, which the Map does not draw', () => {
+    const config = copyDefault();
+    const end = config.pipeline.blocks[topIndex(config, 'pipeline-end')];
+    if (end === undefined) throw new Error('no pipeline End');
+    end.enabled = false;
+    expect(parserAccepts(config)).toBe(false);
+    expect(unplacedMarks(config)).toContainEqual({
+      severity: 'blocker',
+      message: 'End block "pipeline-end" is disabled; the pipeline needs an enabled End block',
+    });
+    expect(marksAt(structuralMarks(config), itemPath(topIndex(config, 'pipeline-end')))).toEqual([]);
+  });
+
+  it('F-06 AC-039 lists a switched-off pipeline Start, which the Map does not draw', () => {
+    const config = copyDefault();
+    const start = config.pipeline.blocks[topIndex(config, 'pipeline-start')];
+    if (start === undefined) throw new Error('no pipeline Start');
+    start.enabled = false;
+    expect(unplacedMarks(config)).toContainEqual({
+      severity: 'blocker',
+      message: 'Start block "pipeline-start" is disabled; the pipeline needs an enabled Start block',
+    });
+    expect(marksAt(structuralMarks(config), itemPath(topIndex(config, 'pipeline-start')))).toEqual([]);
+  });
+
+  it('F-06 AC-039 lists nothing when the pipeline Start and End are enabled', () => {
+    expect(unplacedMarks(copyDefault())).toEqual([]);
+  });
+});
+
+describe('F-06 AC-039 the host configuration is held through the parser', () => {
+  it('F-06 AC-039 holds a host configuration the parser accepts, as the parser returns it', () => {
+    const state = createBuilderState({ initial: copyDefault() });
+    expect(parserAccepts(state.current())).toBe(true);
+    expect(state.current()).toEqual(pipeline.defaultProjectConfig);
+  });
+
+  it('F-06 AC-039 holds a host configuration the parser refuses as given, so its mark says why it is incomplete', () => {
+    const incomplete = copyDefault();
+    incomplete.pipeline.blocks = incomplete.pipeline.blocks.filter((block) => block.id !== 'pipeline-end');
+    const state = createBuilderState({ initial: incomplete });
+    expect(state.current()).toEqual(incomplete);
+    expect(unplacedMarks(state.current())).toContainEqual({ severity: 'blocker', message: 'the pipeline has no End block' });
   });
 });

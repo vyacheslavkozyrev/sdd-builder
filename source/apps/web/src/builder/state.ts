@@ -22,10 +22,21 @@ export interface BuilderState {
   replace(next: ProjectConfig): void;
 }
 
+/**
+ * The host's configuration, held through the parser (AC-039). A configuration the parser accepts is held as the parser
+ * returns it. A refused one is held as given: the wizard hands back a configuration the builder reached by edits, and
+ * such a state carries marks that say why it is not complete (`marks.ts`). Either way the state holds a copy (AC-044).
+ */
+function heldConfig(initial: ProjectConfig): ProjectConfig {
+  const parsed = pipeline.parsePipelineConfig(structuredClone(initial));
+  return parsed.ok ? parsed.config : structuredClone(initial);
+}
+
 /** Creates the builder state for one page session. */
 export function createBuilderState(host: BuilderHost = {}): BuilderState {
   // A copy, so that edits to the state never reach the host's object or the shared default (AC-044).
-  let config: ProjectConfig = structuredClone(host.initial ?? pipeline.defaultProjectConfig);
+  let config: ProjectConfig =
+    host.initial === undefined ? structuredClone(pipeline.defaultProjectConfig) : heldConfig(host.initial);
   return {
     current: () => config,
     replace(next) {

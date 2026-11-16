@@ -1,7 +1,7 @@
-// Block edits inside a flow on the flow tab: add a block, connect two blocks, move a block up or down, and set a
-// Condition's routes (F-06 AC-017 to AC-021). Pure: no DOM, no storage, no network. Every edit returns a new
-// configuration; a refused edit returns a message and leaves the caller's configuration as it was. An unknown flow or
-// block id is a programmer error and throws.
+// Block edits inside a flow on the flow tab: add a block, connect two blocks, move a block up or down, set a
+// Condition's routes, switch a block off and on, and delete a block (F-06 AC-017 to AC-021, AC-032, AC-034, AC-035).
+// Pure: no DOM, no storage, no network. Every edit returns a new configuration; a refused edit returns a message and
+// leaves the caller's configuration as it was. An unknown flow or block id is a programmer error and throws.
 import { pipeline } from '@sddbuilder/core';
 import { pipelineIds } from './flow-edit.js';
 
@@ -147,6 +147,42 @@ export function backRouteTargets(config: ProjectConfig, flowId: string, conditio
   const flow = requireFlow(config, flowId);
   const at = requireChild(flow, conditionId);
   return flow.blocks.slice(0, at).map((block) => block.id);
+}
+
+/**
+ * Switches a block off or on. It stays in its place with its properties, so switching it on again restores it
+ * (F-06 AC-032).
+ */
+export function setBlockEnabled(config: ProjectConfig, flowId: string, blockId: string, enabled: boolean): ProjectConfig {
+  const flow = requireFlow(config, flowId);
+  const at = requireChild(flow, blockId);
+  const blocks = replaceAt(flow.blocks, at, { ...(flow.blocks[at] as ChildBlock), enabled });
+  return withFlowBlocks(config, flowId, blocks);
+}
+
+/** The question the confirmation dialog asks before a block is deleted (F-06 AC-034). It names the block. */
+export function deleteBlockQuestion(config: ProjectConfig, flowId: string, blockId: string): string {
+  const flow = requireFlow(config, flowId);
+  const block = flow.blocks[requireChild(flow, blockId)] as ChildBlock;
+  const label = block.kind === 'agent' ? block.name : block.id;
+  return `Delete ${label}? Its connections are removed. Routes that pointed to it are left unwired and marked until you set them again.`;
+}
+
+/**
+ * Removes a block from its flow, with the connections that run from or to it (F-06 AC-034). The routes of a Condition
+ * that pointed to it keep their target, which no longer exists, so the structural analysis marks them. The Start of a
+ * flow cannot be deleted; the refusal names the flow (F-06 AC-035). Call it only after the user has confirmed.
+ */
+export function deleteBlock(config: ProjectConfig, flowId: string, blockId: string): BlockEdit {
+  const flow = requireFlow(config, flowId);
+  const at = requireChild(flow, blockId);
+  if (flow.blocks[at]?.kind === 'start') {
+    return refuse(`Refused: the Start block of ${flow.name} cannot be deleted. A flow has one Start.`);
+  }
+  const blocks = flow.blocks.filter(
+    (block, index) => index !== at && !(block.kind === 'connection' && (block.from === blockId || block.to === blockId)),
+  );
+  return { ok: true, config: withFlowBlocks(config, flowId, blocks), id: blockId };
 }
 
 function newBlock(kind: NewBlockKind, id: string): ChildBlock {

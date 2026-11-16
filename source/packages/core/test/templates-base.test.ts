@@ -26,7 +26,7 @@ describe('F-03 T004 base layouts', () => {
     }
   });
 
-  it('F-03 AC-001 the base CLAUDE.md has Overview, Layout, Working rules, Commands and agents, Rules, in that order', () => {
+  it('F-03 the base CLAUDE.md has Overview, Layout, Working rules, Commands and agents, Rules, in that order', () => {
     expect(sectionHeadings(read('CLAUDE.md'))).toEqual([
       'Overview',
       'Layout',
@@ -46,7 +46,7 @@ describe('F-03 T005 spec-template layouts', () => {
     }
   });
 
-  it('F-03 AC-004 each spec-template layout is byte-identical to the F-00 template', () => {
+  it('F-03 each spec-template layout is byte-identical to the F-00 template', () => {
     for (const name of SPEC_FILES) {
       const layout = readFileSync(join(SPEC_TEMPLATE, name));
       const original = readFileSync(join(F00_TEMPLATE, name));

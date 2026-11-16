@@ -61,7 +61,7 @@ function layoutFindings(row: LayoutRow): string[] {
 describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
   const rows = layoutRows(readFileSync(README, 'utf8'));
 
-  it('F-03 AC-029 the table is read: every row has an output and a source', () => {
+  it('F-03 the table is read: every row has an output and a source', () => {
     expect(rows.length).toBeGreaterThan(0);
     for (const row of rows) {
       expect(row.output).not.toBe('');
@@ -69,7 +69,7 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     }
   });
 
-  it('F-03 AC-029 the parser reads only the Claude Code layout table', () => {
+  it('F-03 the parser reads only the Claude Code layout table', () => {
     const text = [
       '## Placeholders',
       '',
@@ -92,7 +92,7 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     expect(layoutRows(text)).toEqual([{ output: 'CLAUDE.md', source: 'base/CLAUDE.md' }]);
   });
 
-  it('F-03 AC-029 the parser throws on a row it cannot read instead of skipping it', () => {
+  it('F-03 the parser throws on a row it cannot read instead of skipping it', () => {
     const text = [
       '## Claude Code layout (MVP)',
       '',
@@ -105,17 +105,17 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     expect(() => layoutRows(threeCells)).toThrow('is not two cells');
   });
 
-  it('F-03 AC-029 every source in the Claude Code layout table exists under templates/', () => {
+  it('F-03 AC-001 every source in the Claude Code layout table exists under templates/', () => {
     const findings = rows.flatMap((row) => layoutFindings(row));
     expect(findings).toEqual([]);
   });
 
-  it('F-03 AC-029 a row whose concrete source is missing is reported', () => {
+  it('F-03 AC-001 a row whose concrete source is missing is reported', () => {
     const row = { output: 'CLAUDE.md', source: 'base/missing.md' };
     expect(layoutFindings(row)).toEqual(['CLAUDE.md: source "base/missing.md" is missing']);
   });
 
-  it('F-03 AC-029 a row whose directory source is missing or is a file is reported', () => {
+  it('F-03 AC-001 a row whose directory source is missing or is a file is reported', () => {
     expect(layoutFindings({ output: 'x', source: 'no-such-dir/' })).toEqual([
       'x: directory "no-such-dir/" is missing',
     ]);
@@ -124,7 +124,7 @@ describe('F-03 T016 Claude Code layout table in templates/README.md', () => {
     ]);
   });
 
-  it('F-03 AC-029 a source that holds an unknown placeholder is reported', () => {
+  it('F-03 a source that holds an unknown placeholder is reported', () => {
     expect(layoutFindings({ output: 'x', source: 'base/<name>.md' })).toEqual([
       'x: source "base/<name>.md" has an unknown placeholder',
     ]);

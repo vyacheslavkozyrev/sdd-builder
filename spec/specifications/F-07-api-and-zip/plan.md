@@ -37,7 +37,7 @@ Scope note: the new generation path is built beside the flat one (decision 19), 
 - [x] T022 [Core] Reply-key shortening (AC-026): `source/packages/core/src/pipeline/reply-check.ts` shortens a reply key longer than 120 characters in its finding message, keeping the first 120 characters and an ellipsis; test `source/packages/core/test/pipeline-reply-shorten.test.ts` named "F-07 AC-026 ...". Covers AC-026.
 - [x] T023 [Core] Line endings (AC-027): the generated text of every file is normalised to LF with exactly one trailing newline, in `source/packages/core/src/pipeline/` (a pure function applied to each file's content before it is returned); test `source/packages/core/test/pipeline-line-endings.test.ts` named "F-07 AC-027 ...". Covers AC-027.
 - [x] T024 [Core] Selection helper tests (AC-028): `source/packages/core/test/selection.test.ts` covers the cycle error of `selectWorkflows` and the unknown-step error of `selectSteps`/`findStep`, named "F-07 AC-028 ...". Covers AC-028.
-- [ ] T025 [Core] Label cleanup (Amendment 11 g): correct the F-03 labels in `source/packages/core/test/templates-readme.test.ts` and `templates-base.test.ts` to the current F-03 criteria; no assertion changes. Covers none (labels).
+- [x] T025 [Core] Label cleanup (Amendment 11 g): correct the F-03 labels in `source/packages/core/test/templates-readme.test.ts` and `templates-base.test.ts` to the current F-03 criteria; no assertion changes. Covers none (labels).
 
 ## Amendments
 

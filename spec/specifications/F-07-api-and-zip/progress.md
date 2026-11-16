@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-15 | 25 of 25 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7; T020 to T025 added by Amendments 10 and 11) |
-| Verify   | ⏳ Pending  | | Re-run after T021 to T025 (Amendment 11) |
+| Verify   | ✅ Complete | 2026-11-15 | Final run after Amendment 11: 28 criteria covered by passing tests; no gaps; manual checklist empty. Matrix in `verify.md` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -55,7 +55,7 @@ None.
 
 ## Test Results
 
-Verify run on 2026-11-15 after T020 (`source/scripts/task-check.sh`, exit 0): api 479 tests in 28 files, web 348 in 14, core 1235 in 64; 2062 passed, 0 failed, 0 skipped. All 25 criteria are `[auto]` and each has at least one passing test that names it. No gaps. Full matrix in `spec/specifications/F-07-api-and-zip/verify.md`. Manual checklist empty.
+Verify run on 2026-11-15 after T025, the final run after Amendment 11 (`source/scripts/task-check.sh`, exit 0): api 480 tests in 28 files, web 348 in 14, core 1258 in 66; 2086 passed, 0 failed, 0 skipped. All 28 criteria (AC-001 to AC-028) are `[auto]` and each has at least one passing test that names it. No gaps. Full matrix in `spec/specifications/F-07-api-and-zip/verify.md`. Manual checklist empty.
 
 ---
 
@@ -71,6 +71,7 @@ Verify run on 2026-11-15 after T020 (`source/scripts/task-check.sh`, exit 0): ap
 - **Amendment 8 (2026-11-15), T014 edits the F-04 root-export test.** `source/packages/core/test/pipeline-analyze-root.test.ts` (F-04 T002) asserts that the root exports the flat names `generate`, `planGeneration`, `checkReply`, `finishFileList` and `BASE_FILES`. T014 removes those five, so the test now keeps only `validateConfig`, `parseProjectConfig` and `InvalidConfigError` (still exported until T015 and T016). T016 checks the removals. Owner approved, 2026-11-15.
 
 - **Amendment 9 (2026-11-15), T015 keeps `render/mermaid.ts`.** T015 removes `validate/` and the rest of `render/`, but `source/packages/core/src/render/mermaid.ts` has no flat consumer left (it imports only `model` and `selection`) and is kept for F-18, as the T015 line in `plan.md` states. Owner confirmation pending; recorded here so the plan line has its record.
+- **Amendment 11 (2026-11-15), follow-up after the owner walk-through.** Owner approved the recommendations: Amendment 5 confirmed (`layouts-base.test.ts` stays); `render/mermaid.ts` and its test deleted (closes Amendment 9); the retry prompt keeps every finding (no cap); reply keys over 120 characters shortened again (AC-026); generated text LF with one trailing newline (AC-027); selection helper error paths tested (AC-028); F-03 test labels corrected. Tasks T021 to T025, all committed. Owner approved, 2026-11-15.
 
 ---
 

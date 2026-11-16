@@ -12,7 +12,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ✅ Complete (26 tasks, 25 criteria, 2090 tests across api, web and core; the flat analyzer is removed; see `spec/specifications/F-04-analyzer/verify.md`) |
 | F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | Not started |
 | F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
-| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | 🔄 In progress: follow-up tasks T021 to T025 (Amendment 11) |
+| F-07 | API: analyze and generate, zip download | MVP | User | source/apps/api | 2 | F-02, F-03, F-04 | ✅ Complete in `source/apps/api/`, `source/packages/core/` and `spec/specifications/F-07-api-and-zip/` (25 tasks, 28 criteria, 2086 tests across api, web and core; flat generator and flat templates removed; see `verify.md`) |
 | F-08 | Save, import and export of projects | Post-MVP | User | source/apps/web | — | F-05, F-06 | Not started |
 | F-09 | Presets: other starting pipelines | Post-MVP | User | source/packages/core, source/apps/web | 3 | F-06 | Not started |
 | F-10 | Generated-project self-check | Post-MVP | Enabler | source/packages/core | 3 | F-03 | Not started |

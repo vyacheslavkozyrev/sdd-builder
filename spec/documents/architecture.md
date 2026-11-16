@@ -138,6 +138,8 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 25. **Every Condition has a description in the model (F-06 amendment 1, 2026-11-15).** The description says what passing means, and the generator writes the flow's rule text from it. The parser refuses a missing or blank description on any Condition. Before this decision the field was in building-blocks §3 but not in the model.
 
+26. **Agent blocks and the pipeline carry model, tools and body (F-06 amendment 4, 2026-11-16).** An Agent block takes an optional model (`haiku`, `sonnet`, `opus`, `inherit`), an optional list of tool names and an optional body. The pipeline takes the same three, and its description and rule tags. The parser checks their shape; the generator writes them into the agent file frontmatter and body, and into the pipeline command. The body length cap (4,000 characters) is an entry check in the builder (F-06 AC-030), not a parse rule. Before this decision the fields were in building-blocks §3 but not in the model.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

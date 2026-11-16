@@ -64,6 +64,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 4 — 2026-11-16
+**Changed**: `plan.md` adds T011a (model and parser: agent and pipeline model, tools, body) and T011b (generator output) before T011. `architecture.md` §6 decision 26 records the fields.
+**Reason**: the core Agent block and the pipeline had no model, tools or body, so AC-026, AC-030, AC-031 and AC-042 could not be stored or checked. Approved by the user on 2026-11-16 (add the fields to core).
+**Impact**: T011a and T011b are new; T011 and T012 use the fields. The 4,000-character body cap stays an entry check in the builder.
+
 ### Amendment 3 — 2026-11-16
 **Changed**: `stories.md` AC-014 now allows a gate's fail route back to the flow its connection starts from, as well as to an earlier flow. `plan.md` T008 notes it.
 **Reason**: the approved AC-014 excluded the same flow, but every default gate fails back to the flow its connection starts from (building-blocks §4 and §7). T008's review found that the default's routes would be refused. Approved by the user on 2026-11-16.

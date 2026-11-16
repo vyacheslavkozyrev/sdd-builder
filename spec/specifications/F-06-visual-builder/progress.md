@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 15 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 16 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ None.
 | T011 | Agent blocks and custom agents: name (file-safe, unique), description, scope and iteration warning, model, tools, body capped at 4,000 characters, path `.claude/agents/<name>.md` | reviewed: 1 blocker fixed (new agent gets a unique name), 1 warning fixed (blank description test), 1 suggestion fixed; 2 deferred (iteration warning matched by message; plural wording) | task check passed (exit 0), 1333 core, 480 api, 569 web tests |
 | T012 | Rule tags on Agent blocks, flows and the pipeline (file-safe, no folder, a repeat refused on the same block); pipeline properties (name, description, model, tools, body) and arguments with unique names (amendment 5 checks the pipeline's tags in core) | reviewed: 0 blockers, 3 warnings fixed (round 1: 2; core pipeline-level rule tags, amendment 5), 2 suggestions fixed (round 1: 1; tag refusal wording "must be" after a full stop); 1 deferred (repeated helpers, with T021) | task check passed (exit 0), 1340 core, 480 api, 610 web tests |
 | T013a | Cycle finding in core (amendment 6): a Connection that closes a cycle in its list is one blocker, at its path; disabled Connections and flows skipped; added to analyzeStructure | reviewed: 0 blockers, 2 warnings fixed (criterion on each test name; whole-output assertion), 1 suggestion fixed | task check passed (exit 0), 1353 tests |
+| T013 | Live structural marks in `marks.ts` on `analyzeStructure` findings; a disabled flow Start or End is marked on its enabled flow (AC-037 fix, owner directive); no core change | review round 1: 0 blockers, 0 warnings, 1 suggestion fixed (header comment); AC-037 fix applied; 1 warning unresolved (deferred). Round 2 (owner decision, amendment 7): warning resolved in core, 3 AC-039 parser tests added, 0 blockers, 0 warnings left | task check passed (exit 0), 1356 core, 480 api, 630 web tests (20 in builder-marks) |
 
 ---
 
@@ -63,6 +64,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T011 review, SUGGESTION: `source/apps/web/src/builder/agent-edit.ts` `agentIterationWarning` finds the F-04 finding by its message prefix; a reworded core message would drop the warning without a failing build (the AC-028 tests pin the current text). Not applied: the message is the core analyzer's contract and F-04 exposes no stable code for it; revisit if F-04 adds one.
 - T011 review, SUGGESTION: `source/apps/web/src/builder/entry-checks.ts` `checkAgentBody` says "Cut 1 characters." for one character over. Not applied: the body cap wording is pinned by the AC-030 test and the cap was to be kept as built.
 - T012 review, SUGGESTION: `source/apps/web/src/builder/pipeline-edit.ts` `requireFlow` and `refuse` repeat helpers of the other builder modules. Not applied: the same call as the T007 and T009 entries; revisit with T021.
+- T013 review, WARNING, RESOLVED (amendment 7, owner decision 2026-11-16): a disabled pipeline-level Start or End (`pipeline.blocks[i]`) had no owning flow, so `source/apps/web/src/builder/marks.ts` gave it no mark. Now `source/packages/core/src/pipeline/parse-structure.ts` refuses it at its own path (`is disabled; the pipeline needs an enabled Start block`); tests named F-06 AC-039 in `source/packages/core/test/pipeline-parse-structure.test.ts`. The builder cannot switch a pipeline-level endpoint off (`setBlockEnabled` takes a flow id), so no mark is needed. Original finding: a disabled pipeline-level Start or End (`pipeline.blocks[i]`, core blocker "Start block ... is disabled; the pipeline needs an enabled Start block") has no owning flow, so `source/apps/web/src/builder/marks.ts` gives it no mark. Not fixed: the fix needs core or a Map-level mark, and the owner asked for no core change. The caller's note said the parser refuses this state; a probe on 2026-11-16 found `parsePipelineConfig` accepts it (and accepts a flow whose only Start or End is off). So the gap is that the analyzer blocker has no visible mark while the parser accepts the state, not a parser refusal. AC-039 gap for this state; decide with the owner before T016.
+- T013 review, SUGGESTION: a pipeline with no End block (subject `pipeline`, "the pipeline has no End block") gets no mark, and the parser refuses it. The builder's edit functions cannot reach it (block edits are scoped to a flow), so it arises only from a loaded file. Not applied: no mark has an owner for a pipeline-level finding; revisit with the item in the entry above.
 - T012 review, WARNING, RESOLVED (amendment 5, owner decision 2026-11-16): `source/packages/core/src/pipeline/generate/refusals-names.ts` `ruleTagProblems` checked the tags of enabled flows and Agent blocks only, so a pipeline-level rule tag that names no project rule was not refused. Now the pipeline's own tags are checked with the same wording and path form (`pipeline.ruleTags[i]`); tests named F-06 AC-025 in `source/packages/core/test/pipeline-rule-tags.test.ts`. Open follow-up: F-03 `stories.md` AC-029 still says "on an Agent block or a flow"; its wording is not edited here (the owner asked for the amendment record only).
 
 ---
@@ -74,6 +77,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 7 — 2026-11-16
+**Changed**: the parser refuses a disabled pipeline Start or End, at the path of the block (`pipeline.blocks[i]`). A child flow's disabled Start or End is unchanged. `building-blocks.md` §7 records the rule.
+**Reason**: owner decision, 2026-11-16. The pipeline must always have one enabled Start and one enabled End; the T013 review found the parser accepted a disabled one, and the live marks had no mark for it.
+**Impact**: core parser (`source/packages/core/src/pipeline/parse-structure.ts`) and its tests (`source/packages/core/test/pipeline-parse-structure.test.ts`, F-06 AC-039). No other core test built a disabled pipeline endpoint, and the API and web suites are unchanged.
 
 ### Amendment 6 — 2026-11-16
 **Changed**: `plan.md` adds T013a (a core cycle finding in `analyzeStructure`) before T013, and corrects the T013 rationale: `analyzeStructure` does not report cycles today. `building-blocks.md` §7 records the no-cycle rule.

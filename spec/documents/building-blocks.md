@@ -96,7 +96,7 @@ Post-MVP: skills and scripts as blocks; custom agent blocks (F-14); presets (F-0
 
 ## 7. Structural rules (the analyzer, F-04)
 
-- The pipeline has exactly one Start block and at least one End block; each child flow has exactly one Start and at least one End.
+- The pipeline has exactly one Start block and at least one End block; each child flow has exactly one Start and at least one End. The pipeline's own Start and End blocks must be enabled (the parser refuses a disabled one, F-06 amendment 7).
 - Only the pipeline contains Flow blocks; a flow contains no Flow block (one nesting level).
 - Every Connection joins two blocks of the same flow, or two flows of the pipeline.
 - No cycle: the Connections of a flow, and the Connections of the pipeline, form no cycle. A back route is a Condition's retry, not a Connection (§10). A Connection that closes a cycle is a structural problem (F-06 amendment 6).

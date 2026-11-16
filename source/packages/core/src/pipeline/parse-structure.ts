@@ -218,6 +218,10 @@ function parsePipelineBlock(
   if (head.kind === 'flow') return parseFlow(head, path, registry, problems);
   if (head.id === undefined || head.enabled === undefined) return undefined;
   const { kind, id, enabled, obj } = head;
+  if (!enabled && (kind === 'start' || kind === 'end')) {
+    const label = kind === 'start' ? 'Start' : 'End';
+    problems.push({ path, message: `is disabled; the pipeline needs an enabled ${label} block` });
+  }
   switch (kind) {
     case 'start':
     case 'condition':

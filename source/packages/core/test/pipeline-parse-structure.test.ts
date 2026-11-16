@@ -355,3 +355,25 @@ describe('F-01 AC-003 the success result carries the blocks that passed the chec
     expect(build.blocks.map((block) => block.kind)).toEqual(['start', 'agent', 'end']);
   });
 });
+
+describe('F-06 AC-039 the parser refuses a disabled pipeline Start or End at its own path, and accepts an enabled one', () => {
+  it('refuses a disabled pipeline Start at the path of the Start block', () => {
+    const blocks = validBlocks();
+    blocks[0] = { kind: 'start', id: 'start', enabled: false, arguments: [] };
+    expect(problemsOf(configWith(blocks))).toEqual([
+      { path: 'pipeline.blocks[0]', message: 'is disabled; the pipeline needs an enabled Start block' },
+    ]);
+  });
+
+  it('refuses a disabled pipeline End at the path of the End block', () => {
+    const blocks = validBlocks();
+    blocks[2] = { kind: 'end', id: 'end', enabled: false, outcome: 'done' };
+    expect(problemsOf(configWith(blocks))).toEqual([
+      { path: 'pipeline.blocks[2]', message: 'is disabled; the pipeline needs an enabled End block' },
+    ]);
+  });
+
+  it('accepts an enabled pipeline Start and End', () => {
+    expect(parsePipelineConfig(configWith(validBlocks())).ok).toBe(true);
+  });
+});

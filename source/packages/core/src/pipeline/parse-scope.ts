@@ -18,8 +18,22 @@ import {
   type PipelineProblem,
 } from './parse-util.js';
 
-const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description', 'ruleTags', 'model', 'tools', 'body'];
+const AGENT_KEYS: readonly string[] = [
+  'kind',
+  'id',
+  'enabled',
+  'name',
+  'scope',
+  'description',
+  'ruleTags',
+  'model',
+  'tools',
+  'body',
+  'reads',
+  'writes',
+];
 const AGENT_MODELS: readonly string[] = ['haiku', 'sonnet', 'opus', 'inherit'];
+const ARTIFACT_KEYS = ['reads', 'writes'] as const;
 /**
  * A tool name cannot hold a space, a comma or a control character: a line break would corrupt the frontmatter, and a comma
  * would split the comma-joined tools line (F-06 AC-026).
@@ -99,17 +113,72 @@ export function readRuleTags(obj: Obj, path: string, problems: PipelineProblem[]
   return tags.length === list.length ? tags : undefined;
 }
 
-/** An Agent block with its scope, description, rule tags and settings. The name and the id were checked in the structure. */
+/** An Agent block with its scope, description, rule tags, artifacts and settings. The name and the id were checked in the structure. */
 export function toAgentBlock(block: AgentStructure, problems: PipelineProblem[]): AgentBlock | undefined {
   const keysOk = keysAllowed(block.fields, AGENT_KEYS, block.path, problems);
   const scope = readScope(block.fields, block.path, problems);
   const description = readDescription(block.fields, block.path, problems);
   const ruleTags = readRuleTags(block.fields, block.path, problems);
   const settings = readAgentSettings(block.fields, block.path, problems);
-  if (!keysOk || scope === undefined || description === undefined || ruleTags === undefined || settings === undefined) {
+  const artifacts = readArtifactLists(block.fields, block.path, problems);
+  if (
+    !keysOk ||
+    scope === undefined ||
+    description === undefined ||
+    ruleTags === undefined ||
+    settings === undefined ||
+    artifacts === undefined
+  ) {
     return undefined;
   }
-  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description, ruleTags, ...settings };
+  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description, ruleTags, ...settings, ...artifacts };
+}
+
+/** The artifact lists of an Agent block (F-06 amendment 9). Each key that is present is set; an absent key is left out. */
+export interface ArtifactLists {
+  reads?: string[];
+  writes?: string[];
+}
+
+/**
+ * The reads and writes of an Agent block: each optional list holds artifact names, each non-blank and listed once.
+ * Returns undefined when a present list is invalid; the problem is recorded at the item's own path.
+ */
+export function readArtifactLists(obj: Obj, path: string, problems: PipelineProblem[]): ArtifactLists | undefined {
+  const lists: ArtifactLists = {};
+  let valid = true;
+  for (const key of ARTIFACT_KEYS) {
+    if (!has(obj, key)) continue;
+    const names = readArtifactNames(obj, key, path, problems);
+    if (names === undefined) valid = false;
+    else lists[key] = names;
+  }
+  return valid ? lists : undefined;
+}
+
+function readArtifactNames(obj: Obj, key: (typeof ARTIFACT_KEYS)[number], path: string, problems: PipelineProblem[]): string[] | undefined {
+  const list = readList(obj, key, path, problems);
+  if (list === undefined) return undefined;
+  const listPath = childPath(path, key);
+  const seen = new Set<string>();
+  const names = list.flatMap((item, index) => {
+    const itemPath = indexPath(listPath, index);
+    if (typeof item !== 'string') {
+      problems.push({ path: itemPath, message: 'must be a string' });
+      return [];
+    }
+    if (item.trim() === '') {
+      problems.push({ path: itemPath, message: 'must not be blank' });
+      return [];
+    }
+    if (seen.has(item)) {
+      problems.push({ path: itemPath, message: 'is listed more than once' });
+      return [];
+    }
+    seen.add(item);
+    return [item];
+  });
+  return names.length === list.length ? names : undefined;
 }
 
 /**

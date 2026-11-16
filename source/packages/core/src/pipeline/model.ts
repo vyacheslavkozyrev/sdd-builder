@@ -97,6 +97,10 @@ export interface AgentBlock extends AgentSettings {
   description: string;
   /** Ids of the project rules this agent takes (`ProjectConfig.rules`). Absent in code means none; the parser sets `[]`. */
   ruleTags?: string[];
+  /** Artifact names the agent reads (F-06 amendment 9). Absent means not set; each is non-blank and listed once. */
+  reads?: string[];
+  /** Artifact names the agent writes (F-06 amendment 9). Absent means not set; each is non-blank and listed once. */
+  writes?: string[];
 }
 
 interface ConditionCommon {

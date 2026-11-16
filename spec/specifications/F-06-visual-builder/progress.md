@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 18 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 19 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -43,6 +43,7 @@ None.
 | T013 | Live structural marks in `marks.ts` on `analyzeStructure` findings; a disabled flow Start or End is marked on its enabled flow (AC-037 fix, owner directive); no core change | review round 1: 0 blockers, 0 warnings, 1 suggestion fixed (header comment); AC-037 fix applied; 1 warning unresolved (deferred). Round 2 (owner decision, amendment 7): warning resolved in core, 3 AC-039 parser tests added, 0 blockers, 0 warnings left | task check passed (exit 0), 1356 core, 480 api, 630 web tests (20 in builder-marks) |
 | T014 | Map view-model: tab row, flow nodes (scope with mixed and no agent, all-block count), flow-to-flow edges with artifact labels, gates as diamonds with routes, toolbox items | reviewed: 0 blockers, 1 warning fixed (label trim and non-flow connection tested), 1 suggestion fixed (trim once) | task check passed (exit 0), 1356 tests |
 | T015 | Flow tab view-model: blocks numbered in order, flow toolbox (Start disabled when one exists), property panels per block kind, generated file per block. Reads and writes are not yet in the panel (amendment 9: T015a model, T015b panel) | reviewed: 0 blockers, 1 warning fixed (back-route titles numbered), 1 suggestion fixed (copies of lists); 2 deferred (agentFilePath location; back route to a Connection, AC-021) | task check passed (exit 0), 1356 tests |
+| T015a | Reads and writes on Agent blocks in core (amendment 9): optional lists of artifact names, non-blank, no duplicates within a list | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (line wrap); 1 deferred (trim or file-safe names, for the owner) | task check passed (exit 0), 1371 tests |
 
 ---
 
@@ -71,6 +72,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 review, WARNING, RESOLVED (amendment 5, owner decision 2026-11-16): `source/packages/core/src/pipeline/generate/refusals-names.ts` `ruleTagProblems` checked the tags of enabled flows and Agent blocks only, so a pipeline-level rule tag that names no project rule was not refused. Now the pipeline's own tags are checked with the same wording and path form (`pipeline.ruleTags[i]`); tests named F-06 AC-025 in `source/packages/core/test/pipeline-rule-tags.test.ts`. Open follow-up: F-03 `stories.md` AC-029 still says "on an Agent block or a flow"; its wording is not edited here (the owner asked for the amendment record only).
 - T015 review, SUGGESTION: `source/apps/web/src/builder/tab-view.ts` imports `agentFilePath` from `agent-edit.ts`, so a view module depends on an edit module. Not applied: moving the helper touches `agent-edit.ts`, outside T015's file list; revisit with T021 or when a shared builder path helper is added.
 - T015 review, SUGGESTION: `source/apps/web/src/builder/tab-view.ts` `routeTargetNames` shows a back route to a Connection by its raw id, because `backRouteTargets` (`source/apps/web/src/builder/block-edit.ts:148`) offers Connection ids as targets. Not applied: the target list is block-edit's contract (AC-021 says "block"), and changing it is outside T015; decide with the owner whether a Connection may be a back target.
+- T015a review, SUGGESTION: `source/packages/core/src/pipeline/parse-scope.ts` `readArtifactNames` compares names as typed, so `plan` and `plan ` (or ` plan`) are two different artifacts and both pass. Not applied: the stories say "non-blank text" and do not say whether names are trimmed or restricted to file-safe characters. Decide before T015b shows or generates them (same product choice as the T003 entry on line breaks).
 
 ---
 

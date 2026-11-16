@@ -58,7 +58,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 #### Acceptance Criteria
 
 - [ ] AC-007 `[auto]`: The name field maps to `name` in the config and is stored as typed. Spaces only are kept as typed; the form does not trim it, and the analyzer decides that it is blank.
-- [ ] AC-008 `[auto]`: The idea field accepts at most 8,000 characters, counted as JavaScript string length without trimming. Typing or pasting beyond the limit keeps the first 8,000 characters, and the counter reads `8,000 / 8,000` (thousands separator, as on the approved screen) (negative case: a paste of 9,000 characters).
+- [ ] AC-008 `[auto]`: The idea field accepts at most 8,000 characters, counted in code points (a surrogate pair counts as one character; a cut never splits a pair) without trimming. Typing or pasting beyond the limit keeps the first 8,000 characters, and the counter reads `8,000 / 8,000` (thousands separator, as on the approved screen) (negative case: a paste of 9,000 characters).
 - [ ] AC-009 `[auto]`: Boundary: at 7,999 characters the field accepts one more character; at 8,000 it accepts none. The counter shows the current count at each length in a table test (0, 1, 7,999, 8,000).
 
 ---

@@ -76,6 +76,18 @@ describe('F-05 AC-002 idea length limit', () => {
     expect(validateBrief(brief, startState())).toEqual([]);
   });
 
+  it('F-05 AC-008 accepts 8,000 emoji, which are 16,000 JavaScript characters', () => {
+    const brief = { ...wireframeBrief(), idea: '\u{1F600}'.repeat(8000) };
+    expect(validateBrief(brief, startState())).toEqual([]);
+  });
+
+  it('F-05 AC-008 gives a problem at idea for 8,001 emoji', () => {
+    const brief = { ...wireframeBrief(), idea: '\u{1F600}'.repeat(8001) };
+    expect(validateBrief(brief, startState())).toEqual([
+      { path: 'idea', reason: 'must be at most 8,000 characters' },
+    ]);
+  });
+
   it('F-05 AC-002 gives a problem at idea for 8,001 characters', () => {
     const problems = validateBrief({ ...wireframeBrief(), idea: 'x'.repeat(8001) }, startState());
     expect(problems).toEqual([{ path: 'idea', reason: 'must be at most 8,000 characters' }]);
@@ -106,7 +118,7 @@ describe('F-05 AC-003 idea counter', () => {
     ['exactly 8,000 characters', 'x'.repeat(8000), '8,000 / 8,000'],
     ['8,001 characters', 'x'.repeat(8001), '8,001 / 8,000'],
     ['spaces at both ends, counted', '  a  ', '5 / 8,000'],
-    ['an emoji, counted as two JavaScript characters', '\u{1F600}', '2 / 8,000'],
+    ['an emoji, counted as one character', '\u{1F600}', '1 / 8,000'],
   ])('F-05 AC-003 reads the counter for %s', (_label, text, expected) => {
     expect(ideaCounter(text)).toBe(expected);
   });

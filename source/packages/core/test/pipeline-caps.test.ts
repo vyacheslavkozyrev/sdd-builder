@@ -23,6 +23,7 @@ describe('F-04 AC-021 the pipeline input caps are 8,000 idea characters and 60 r
 
   const passing: { name: string; idea: string; ruleCount: number }[] = [
     { name: 'an idea of exactly 8,000 characters', idea: 'x'.repeat(8000), ruleCount: 0 },
+    { name: 'an emoji idea of exactly 8,000 code points', idea: '\u{1F600}'.repeat(8000), ruleCount: 0 },
     { name: 'exactly 60 rules', idea: 'Short idea.', ruleCount: 60 },
     { name: 'the default configuration', idea: defaultProjectConfig.idea, ruleCount: defaultProjectConfig.rules.length },
   ];
@@ -37,6 +38,12 @@ describe('F-04 AC-021 the pipeline input caps are 8,000 idea characters and 60 r
     {
       name: 'an idea of 8,001 characters',
       idea: 'x'.repeat(8001),
+      ruleCount: 0,
+      expected: ['idea: 8001 characters, the limit is 8000'],
+    },
+    {
+      name: 'an emoji idea of 8,001 code points',
+      idea: '\u{1F600}'.repeat(8001),
       ruleCount: 0,
       expected: ['idea: 8001 characters, the limit is 8000'],
     },
@@ -60,10 +67,19 @@ describe('F-04 AC-021 the pipeline input caps are 8,000 idea characters and 60 r
     });
   }
 
-  it('F-04 AC-021 counts the idea in string length as submitted, with no trimming', () => {
+  it('F-04 AC-021 counts the idea in code points as submitted, with no trimming', () => {
     const padded = ` ${'x'.repeat(8000)} `;
     expect(pipelineCapProblems(configWith(padded, 0))).toEqual([
       'idea: 8002 characters, the limit is 8000',
+    ]);
+  });
+
+  it('F-04 AC-021 counts an emoji as one character, so 8,000 emoji code points pass and one more is refused', () => {
+    const emoji = '\u{1F600}';
+    expect(emoji.length).toBe(2);
+    expect(pipelineCapProblems(configWith(emoji.repeat(8000), 0))).toEqual([]);
+    expect(pipelineCapProblems(configWith(`${emoji.repeat(8000)}x`, 0))).toEqual([
+      'idea: 8001 characters, the limit is 8000',
     ]);
   });
 

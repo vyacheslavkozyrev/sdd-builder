@@ -1,16 +1,19 @@
 import { INPUT_CAPS, parseProjectConfig } from '@sddbuilder/core';
 import type { ConfigProblem } from '@sddbuilder/core';
-import { groupThousands } from './counter.js';
+import { codePointLength, groupThousands } from './counter.js';
 import type { MapState } from '../builder/map-state.js';
 import type { BriefState } from './state.js';
 import { toProjectConfig } from './to-config.js';
 
-/** The idea problems: blank or whitespace-only, or over the cap. The cap counts the raw text (F-05 AC-002). */
+/**
+ * The idea problems: blank or whitespace-only, or over the cap. The cap counts the raw text in code
+ * points (F-05 AC-002, AC-008).
+ */
 function ideaProblems(idea: string): ConfigProblem[] {
   if (idea.trim() === '') {
     return [{ path: 'idea', reason: 'is required' }];
   }
-  if (idea.length > INPUT_CAPS.ideaCharacters) {
+  if (codePointLength(idea) > INPUT_CAPS.ideaCharacters) {
     const cap = groupThousands(INPUT_CAPS.ideaCharacters);
     return [{ path: 'idea', reason: `must be at most ${cap} characters` }];
   }

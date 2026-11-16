@@ -11,7 +11,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 ## Tasks
 
 - [x] T001 [Web] Wizard state: four steps, Back and Next, values kept between steps — `source/apps/web/src/wizard/state.ts`, `source/apps/web/test/wizard-state.test.ts` — covers AC-001, AC-002, AC-004, AC-005
-- [ ] T002 [Web] Name and idea state: name stored as typed, idea capped at 8,000 characters with the counter — `source/apps/web/src/wizard/name-idea.ts`, `source/apps/web/test/wizard-name-idea.test.ts` — covers AC-007, AC-008, AC-009
+- [x] T002 [Web] Name and idea state: name stored as typed, idea capped at 8,000 characters with the counter — `source/apps/web/src/wizard/name-idea.ts`, `source/apps/web/test/wizard-name-idea.test.ts` — covers AC-007, AC-008, AC-009
 - [ ] T003 [Web] Stepper and footer view model: done, current and todo steps; no click target on the stepper; Next hidden on step 4 — `source/apps/web/src/wizard/view.ts`, `source/apps/web/test/wizard-view.test.ts` — covers AC-002, AC-003
 - [ ] T004 [Web] Wizard screen and App wiring: stepper, footer, step 1 form, placeholders for steps 2 and 4, the flat builder kept at step 3 until F-06, Brief/Builder switch removed — `source/apps/web/src/wizard/Wizard.tsx`, `source/apps/web/src/wizard/NameIdeaStep.tsx`, `source/apps/web/src/wizard/StepPlaceholder.tsx`, `source/apps/web/src/App.tsx`, `source/apps/web/src/styles.css` — covers AC-001, AC-014 (`[device]`: checked against the screens)
 - [ ] T005 [Web] Remove the flat brief validation tests — `source/apps/web/test/brief-validation.test.ts`, `source/apps/web/test/brief-placement.test.ts` — covers none (removal)

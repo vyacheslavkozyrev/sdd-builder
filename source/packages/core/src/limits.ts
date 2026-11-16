@@ -1,8 +1,9 @@
+import { codePointCount } from './code-points.js';
 import type { ProjectConfig } from './model.js';
 
 /**
  * Input caps for the brief (F-13, decision 12). Both routes check them before any model call.
- * The idea is counted in JavaScript string length, as submitted, with no trimming.
+ * The idea is counted in code points (a surrogate pair counts as one character), as submitted, with no trimming.
  */
 export const INPUT_CAPS = {
   ideaCharacters: 8000,
@@ -17,7 +18,7 @@ export const INPUT_CAPS = {
  */
 export function capProblems(config: ProjectConfig): string[] {
   const problems: string[] = [];
-  const ideaLength = config.idea.length;
+  const ideaLength = codePointCount(config.idea);
   if (ideaLength > INPUT_CAPS.ideaCharacters) {
     problems.push(`idea: ${ideaLength} characters, the limit is ${INPUT_CAPS.ideaCharacters}`);
   }

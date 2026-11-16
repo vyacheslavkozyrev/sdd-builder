@@ -72,7 +72,7 @@ describe('F-13 AC-012 code rules and test rules are capped at 60 together', () =
   });
 });
 
-describe('F-13 AC-013 idea length is the JavaScript string length as submitted, with no trimming', () => {
+describe('F-13 AC-013 idea length is counted in code points as submitted, with no trimming', () => {
   it('F-13 AC-013 counts surrounding whitespace in the idea length', () => {
     const padded = ` ${'x'.repeat(7999)} `;
     expect(padded.length).toBe(8001);
@@ -81,11 +81,24 @@ describe('F-13 AC-013 idea length is the JavaScript string length as submitted, 
     ]);
   });
 
-  it('F-13 AC-013 counts a surrogate pair as two characters, as JavaScript does', () => {
-    const emoji = '\u{1F600}'.repeat(4000);
-    expect(emoji.length).toBe(8000);
-    expect(capProblems(baseConfig({ idea: emoji }))).toEqual([]);
-    expect(capProblems(baseConfig({ idea: `${emoji}x` }))).toEqual([
+  it('F-13 AC-013 counts an emoji as one character', () => {
+    const emoji = '\u{1F600}';
+    expect(emoji.length).toBe(2);
+    expect(capProblems(baseConfig({ idea: `${emoji}${'x'.repeat(7999)}` }))).toEqual([]);
+    expect(capProblems(baseConfig({ idea: `${emoji}${'x'.repeat(8000)}` }))).toEqual([
+      'idea: 8001 characters, the limit is 8000',
+    ]);
+  });
+
+  it('F-13 AC-013 accepts an idea of 8,000 code points made of emoji (16,000 JavaScript characters)', () => {
+    const idea = '\u{1F600}'.repeat(8000);
+    expect(idea.length).toBe(16000);
+    expect(capProblems(baseConfig({ idea }))).toEqual([]);
+  });
+
+  it('F-13 AC-013 refuses an idea of 8,001 code points made of emoji', () => {
+    const idea = '\u{1F600}'.repeat(8001);
+    expect(capProblems(baseConfig({ idea }))).toEqual([
       'idea: 8001 characters, the limit is 8000',
     ]);
   });

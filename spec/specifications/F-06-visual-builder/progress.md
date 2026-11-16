@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 12 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 13 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ None.
 | T010 | Blocks: switch a block off and on (kept in place with its properties); delete a block with its connections (confirmation question), routes to it left unwired; the flow Start refused with a message naming the flow | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (header comment reflowed) | task check passed (exit 0), 1273 core, 480 web, 523 api tests |
 | T011a | Agent and pipeline fields in core (amendment 4): optional model, tools and body on Agent blocks; description, rule tags, model, tools and body on the pipeline; tool names with spaces or control characters refused | reviewed: 1 blocker fixed (tool names with spaces or control characters), 0 warnings, 0 suggestions; 1 question deferred (spaced permission form, kept refused) | task check passed (exit 0), 1313 tests |
 | T011b | Generator writes the agent fields: agent files start with frontmatter (name, description as JSON strings, then model and tools when set); body after the generated text; pipeline command takes model, tools and body; tool names with commas refused | reviewed: 2 blockers fixed (name and description frontmatter; commas refused), 1 warning fixed (YAML quoting), 1 suggestion fixed; 1 deferred (YAML indicator in tool names) | task check passed (exit 0), 1333 tests |
+| T011 | Agent blocks and custom agents: name (file-safe, unique), description, scope and iteration warning, model, tools, body capped at 4,000 characters, path `.claude/agents/<name>.md` | reviewed: 1 blocker fixed (new agent gets a unique name), 1 warning fixed (blank description test), 1 suggestion fixed; 2 deferred (iteration warning matched by message; plural wording) | task check passed (exit 0), 1333 core, 480 api, 569 web tests |
 
 ---
 
@@ -57,6 +58,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T008 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` `setGateSettings` accepts a description with line breaks. Not applied: this is the open product choice recorded under T003 above (line breaks in a rule); decide it there, then enforce it in `checkDescription`.
 - T011a review, QUESTION (product): `source/packages/core/src/pipeline/parse-scope.ts` `readTools` now refuses a tool name with a space, as the user directed for AC-026, so Claude Code's spaced form `Bash(git add:*)` is refused. Applied as directed (`Bash(git:*)` stays allowed). Open: confirm with the user before T011b whether the spaced form should be allowed in a tool list.
 - T011b review, SUGGESTION: `source/packages/core/src/pipeline/parse-scope.ts` `readTools` accepts a tool name that starts with a YAML indicator (`*`, `&`, `!`, `[`, `{`, `%`, `@`, a backtick, a quote), which would make the plain `tools:` line invalid YAML. Not applied: Claude Code tool names start with a letter, and the tools line format is the one AC-031 and the tests pin; quoting the tools line or refusing such names is a product choice to decide with the spaced-name question above.
+- T011 review, SUGGESTION: `source/apps/web/src/builder/agent-edit.ts` `agentIterationWarning` finds the F-04 finding by its message prefix; a reworded core message would drop the warning without a failing build (the AC-028 tests pin the current text). Not applied: the message is the core analyzer's contract and F-04 exposes no stable code for it; revisit if F-04 adds one.
+- T011 review, SUGGESTION: `source/apps/web/src/builder/entry-checks.ts` `checkAgentBody` says "Cut 1 characters." for one character over. Not applied: the body cap wording is pinned by the AC-030 test and the cap was to be kept as built.
 
 ---
 

@@ -39,6 +39,8 @@ const CONDITION_DEFAULT_DESCRIPTION = 'the checks pass.';
  * Adds a block to a flow. A Start is placed first in the flow, and only when the flow has none (a second Start is
  * refused, F-06 AC-018). Other blocks go right after the selected block, or at the end of the flow when none is
  * selected. An End goes last. No block goes after an End block, so the End blocks stay last (F-06 AC-017, AC-019).
+ * A new Agent block is named after its id, or with the first free numeric suffix when another Agent block already has
+ * that name, so agent names stay unique (F-06 AC-027).
  */
 export function addBlock(config: ProjectConfig, flowId: string, kind: NewBlockKind, selectedId: string | null): BlockEdit {
   const flow = requireFlow(config, flowId);
@@ -49,7 +51,7 @@ export function addBlock(config: ProjectConfig, flowId: string, kind: NewBlockKi
   if (!pipeline.isValidId(id)) {
     return refuse(`Block id "${id}" is refused: ${pipeline.ID_MESSAGE}. The block was not added.`);
   }
-  const block = newBlock(kind, id);
+  const block = newBlock(kind, id, uniqueId(id, agentNames(config)));
   const at = kind === 'start' ? 0 : kind === 'end' ? flow.blocks.length : insertionIndex(flow, selectedId);
   return { ok: true, config: withFlowBlocks(config, flowId, insertAt(flow.blocks, at, block)), id };
 }
@@ -185,11 +187,24 @@ export function deleteBlock(config: ProjectConfig, flowId: string, blockId: stri
   return { ok: true, config: withFlowBlocks(config, flowId, blocks), id: blockId };
 }
 
-function newBlock(kind: NewBlockKind, id: string): ChildBlock {
+/** The names of the Agent blocks in the project, in any flow and enabled or not (F-06 AC-027). */
+function agentNames(config: ProjectConfig): Set<string> {
+  const names = new Set<string>();
+  for (const block of config.pipeline.blocks) {
+    if (block.kind !== 'flow') continue;
+    for (const child of block.blocks) {
+      if (child.kind === 'agent') names.add(child.name);
+    }
+  }
+  return names;
+}
+
+/** A new Agent block takes `name` as its name; the other kinds take no name and ignore it. */
+function newBlock(kind: NewBlockKind, id: string, name: string): ChildBlock {
   if (kind === 'start') return { kind: 'start', id, enabled: true };
   if (kind === 'end') return { kind: 'end', id, enabled: true, outcome: 'done' };
   if (kind === 'agent') {
-    return { kind: 'agent', id, enabled: true, name: id, scope: 'project', description: AGENT_PLACEHOLDER };
+    return { kind: 'agent', id, enabled: true, name, scope: 'project', description: AGENT_PLACEHOLDER };
   }
   return {
     kind: 'condition',

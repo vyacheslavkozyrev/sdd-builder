@@ -1,6 +1,7 @@
-// Entry checks on the gate settings (F-06 AC-013, AC-014, AC-015, AC-016). Pure: no DOM, no storage, no network. A check
-// refuses a value the model cannot hold, and gives the reason; the settings edit is then not applied. The unbounded-retry
-// warning is not a refusal: the panel shows it beside a retry that has no round limit (building-blocks §12).
+// Entry checks on the gate settings (F-06 AC-013, AC-014, AC-015, AC-016) and on the custom agent fields (F-06 AC-026,
+// AC-027, AC-030). Pure: no DOM, no storage, no network. A check refuses a value the model cannot hold, and gives the
+// reason; the settings edit is then not applied. The unbounded-retry warning is not a refusal: the panel shows it beside
+// a retry that has no round limit (building-blocks §12).
 import { pipeline } from '@sddbuilder/core';
 
 type PipelineConditionBlock = pipeline.PipelineConditionBlock;
@@ -41,4 +42,37 @@ export function unboundedRetryWarning(gate: PipelineConditionBlock): string | nu
   const retries = gate.passRoute.kind === 'back' || gate.failRoute.kind === 'back';
   if (!retries || gate.roundLimit !== undefined) return null;
   return `The retry of "${gate.id}" is unbounded: it has no round limit.`;
+}
+
+/** The longest body an agent takes, in characters (F-06 AC-030). The model holds no cap; the builder refuses above it. */
+export const AGENT_BODY_CAP = 4000;
+
+/** A tool name cannot hold a space, a comma or a control character (the core parser's rule, F-06 AC-026). */
+const UNSAFE_TOOL_CHARACTER = /[\s,\p{Cc}]/u;
+
+/** An agent name is file-safe: it becomes `.claude/agents/<name>.md`, so it follows the id rule (F-06 AC-027). */
+export function checkAgentName(name: string): EntryCheck<string> {
+  if (pipeline.isValidId(name)) return { ok: true, value: name };
+  return { ok: false, message: `Name: ${pipeline.ID_MESSAGE}.` };
+}
+
+/** An agent's description says when Claude should use it: required, and not blank (F-06 AC-026). It is stored trimmed. */
+export function checkAgentDescription(text: string): EntryCheck<string> {
+  const trimmed = text.trim();
+  if (trimmed !== '') return { ok: true, value: trimmed };
+  return { ok: false, message: 'Description: required. Say when Claude should use this agent.' };
+}
+
+/** A tool name, trimmed: not blank, and no space, comma or control character (F-06 AC-026). */
+export function checkToolName(name: string): EntryCheck<string> {
+  const trimmed = name.trim();
+  if (trimmed !== '' && !UNSAFE_TOOL_CHARACTER.test(trimmed)) return { ok: true, value: trimmed };
+  return { ok: false, message: `Tool "${name}": a tool name has no space, comma or control character.` };
+}
+
+/** An agent body of at most `AGENT_BODY_CAP` characters, counted as JavaScript string length (F-06 AC-030). */
+export function checkAgentBody(text: string): EntryCheck<string> {
+  if (text.length <= AGENT_BODY_CAP) return { ok: true, value: text };
+  const over = text.length - AGENT_BODY_CAP;
+  return { ok: false, message: `Body: ${text.length} / ${AGENT_BODY_CAP}. Cut ${over} characters.` };
 }

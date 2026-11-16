@@ -132,7 +132,7 @@ function refuse(message: string): ConfigEdit {
 }
 
 /** Every id in the pipeline: its own blocks, its flows and the blocks inside them. Disabled items count too. */
-function pipelineIds(config: ProjectConfig): Set<string> {
+export function pipelineIds(config: ProjectConfig): Set<string> {
   const ids = new Set<string>();
   for (const block of config.pipeline.blocks) {
     ids.add(block.id);

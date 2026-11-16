@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 6 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 7 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ None.
 | T004 | Builder state and host contract: `builder/state.ts` starts from the default pipeline (or the host's initial config), reports each change through `onChange`; the default is exported from core; a scan test finds no network or storage call in the builder folder | reviewed: 0 blockers, 1 warning fixed (shared default object cloned), 1 suggestion fixed (scan covers subfolders) | task check passed (exit 0), 1273 core, 357 web, 480 api tests |
 | T005 | Flows on the Map: add a flow after the last one with a unique id, one Start, one End and a default name; refuse an unsafe or repeated flow id and keep the old one; rename a flow (blank refused); core exports `isValidId` for the builder | reviewed: 0 blockers, 0 warnings, 0 suggestions | task check passed (exit 0), 1273 tests |
 | T006 | Flows on the Map: switch a flow off and on (`enabled`, properties kept); delete a flow with its connections and gates (confirmation question), routes to it left unwired and marked by the analysis; the pipeline Start refusal | reviewed: 0 blockers, 1 warning fixed (dangling-route test asserted only "some blocker"; now asserts the exact finding), 1 suggestion fixed (Start guard simplified); 1 deferred (AC-035 wording "naming the flow") | task check passed (exit 0), 1273 tests |
+| T007 | Connections and gates: a connection needs a non-blank artifact label; a gate by drop or button (approval human, or checks and diff-size agent) with the amendment 2 defaults; one gate per connection; `gateTargetAt` hit test | reviewed: 0 blockers, 1 warning fixed (file-safe id asserted), 0 suggestions; 2 deferred (`gateTargetAt` has no caller until T016; shared `pipelineIds` import) | task check passed (exit 0), 1273 core, 437 web tests |
 
 ---
 
@@ -43,6 +44,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T002 review, SUGGESTION: `source/templates/pipeline/default.json:127` build review gate is set to `checks` in T002 (outside T002's file list, needed so the default still parses). The generated line now reads "Check checks, decided by agent". Not applied here: T003 owns the gate's description and its generated text.
 - T003 review, SUGGESTION: `source/packages/core/src/pipeline/generate/rules-text.ts` `checkRule` writes the Condition's description into one numbered rule line, so a description with a line break splits the list in the command file. Not applied: the parser allows any non-blank text, and whether to refuse line breaks or to collapse them is a product choice that the stories do not settle. Decide before F-06 T008 (the web gate settings) so the builder can enforce the same rule.
 - T006 review, SUGGESTION: `source/apps/web/src/builder/flow-edit.ts` `deletePipelineStart` refuses with "The Start of the pipeline ... cannot be deleted", but AC-035 says the message names "the flow". Not applied: the pipeline is the container the Start belongs to, the message names it, and the stories do not define the wording further. Confirm the wording with the user before the Map view wires this refusal (T010 or later).
+
+- T007 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` `gateTargetAt` has no caller yet. Not applied: the plan puts the Map view's drag-and-drop wiring in T016, so the function is consumed when that task lands; the test file covers its contract now.
+- T007 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` imports `pipelineIds` from `flow-edit.ts`. Not applied: a shared module would be a refactor with no behaviour change, and T021 removes the flat builder files around it; revisit when T021 lands.
 
 ---
 

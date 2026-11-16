@@ -54,6 +54,7 @@ None.
 | T021b | Core flat-model removal: the result types move to the pipeline model with root re-exports (API unchanged); catalog, selection and cycle deleted with their tests; fixtures as literals (amendments 13-15); size guard waived by the owner | reviewed: 0 blockers; 2 warnings closed by the owner (F-03 AC-028 reworded; F-07 AC-028 retired); 2 suggestions fixed | task check passed (exit 0), 1340 core, 480 api, 419 web tests |
 | T022 | Docs: architecture §10 and building-blocks §1 and §2 describe the built builder; the marks are computed and drawn by T023 (amendment 16) | reviewed: 4 doc fixes applied (gate buttons, flow header, Connections section, diff-size threshold); 3 warnings closed (marks by T023; the tab-view header comment is fixed in T023; decision 24 reworded) | task check passed (exit 0), 1340 core, 480 api, 419 web tests |
 | T023 | Draw the live marks on the Map and the flow tabs (severity, message, next to the item); a fallback list for marks the Map cannot place (AC-039); brief and stack findings stay off the Map (they belong to the analyze step, F-22) | reviewed: 0 blockers, 1 warning fixed (status lines), 3 suggestions fixed; 2 deferred (pipeline subject with no item; recompute per render) | task check passed (exit 0), 1340 core, 480 api, 433 web tests |
+| T024 | Verify gap AC-010: tests that an approval keeps its decider human and a check keeps agent after a gate settings edit (amendment 17) | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (a needless cast removed) | task check passed (exit 0), 1340 tests |
 
 ---
 

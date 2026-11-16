@@ -56,6 +56,54 @@ function withDiffSizeGate(): { config: ProjectConfig; gateId: string } {
   return { config: gate.config, gateId: gate.id };
 }
 
+describe('F-06 AC-010 who decides a gate is kept by a settings edit', () => {
+  it('F-06 AC-010 an approval keeps decidedBy human and checkType approval after a settings edit', () => {
+    const edit = applied(
+      setGateSettings(pipeline.defaultProjectConfig, 'approve-plan', validSettings({ description: 'the plan is complete.' })),
+    );
+    expect(gateOf(edit.config, 'approve-plan')).toMatchObject({ checkType: 'approval', decidedBy: 'human' });
+  });
+
+  it('F-06 AC-010 an approval keeps decidedBy human when its fail route and round limit change', () => {
+    const edit = applied(
+      setGateSettings(
+        pipeline.defaultProjectConfig,
+        'approve-plan',
+        validSettings({ failRoute: { kind: 'back', blockId: 'ux' }, roundLimit: '2' }),
+      ),
+    );
+    expect(gateOf(edit.config, 'approve-plan')).toMatchObject({
+      checkType: 'approval',
+      decidedBy: 'human',
+      failRoute: { kind: 'back', blockId: 'ux' },
+      roundLimit: 2,
+    });
+  });
+
+  it('F-06 AC-010 a check keeps decidedBy agent and checkType checks after a settings edit', () => {
+    const edit = applied(
+      setGateSettings(
+        pipeline.defaultProjectConfig,
+        'checks-built',
+        validSettings({ description: 'every built task passes the checks.', failRoute: { kind: 'stop' } }),
+      ),
+    );
+    expect(gateOf(edit.config, 'checks-built')).toMatchObject({ checkType: 'checks', decidedBy: 'agent' });
+  });
+
+  it('F-06 AC-010 a diff-size check keeps decidedBy agent and its threshold after a settings edit', () => {
+    const { config, gateId } = withDiffSizeGate();
+    const edit = applied(setGateSettings(config, gateId, validSettings({ threshold: 300, failRoute: { kind: 'stop' } })));
+    expect(gateOf(edit.config, gateId)).toMatchObject({ checkType: 'diff-size', decidedBy: 'agent', threshold: 300 });
+  });
+
+  it('F-06 AC-010 a decidedBy sent with the settings is ignored, so an approval cannot become agent-decided', () => {
+    const smuggled = { ...validSettings(), decidedBy: 'agent' };
+    const edit = applied(setGateSettings(pipeline.defaultProjectConfig, 'approve-plan', smuggled));
+    expect(gateOf(edit.config, 'approve-plan')).toMatchObject({ checkType: 'approval', decidedBy: 'human' });
+  });
+});
+
 describe('F-06 AC-013 a diff-size threshold in lines', () => {
   it('F-06 AC-013 a positive whole number is accepted as the threshold and stored', () => {
     const { config, gateId } = withDiffSizeGate();

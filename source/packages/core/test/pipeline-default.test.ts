@@ -85,7 +85,7 @@ describe('F-01 AC-015 the gates between the flows equal the table of building-bl
     expect(steps).toEqual([
       'agent implement',
       'agent review',
-      'condition review fail back to build-implement',
+      'condition checks fail back to build-implement',
       'agent test',
       'condition checks fail back to build-implement',
       'condition diff-size fail stop',

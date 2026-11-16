@@ -124,7 +124,7 @@
             "kind": "condition",
             "id": "build-review-gate",
             "enabled": true,
-            "checkType": "review",
+            "checkType": "checks",
             "decidedBy": "agent",
             "passRoute": { "kind": "next" },
             "failRoute": { "kind": "back", "blockId": "build-implement" }

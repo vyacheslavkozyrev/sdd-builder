@@ -101,7 +101,7 @@ describe('F-02 AC-023 enabled blocks are numbered steps in block order', () => {
     expect(steps).toEqual([
       '1. Start the flow (`a-start`).',
       '2. Run the agent in `.claude/agents/writer.md`, once per feature (`a1`).',
-      '3. Check review, decided by agent (`a-check`). On pass, continue to the next step. On fail, stop the process.',
+      '3. Check checks, decided by agent (`a-check`). On pass, continue to the next step. On fail, stop the process.',
       '4. Hand over a1 output from `a1` to `a-end` (`a-link`).',
       '5. End the flow with outcome done (`a-end`).',
     ]);
@@ -247,7 +247,7 @@ describe('F-02 AC-023 a back route is shown in the step that names its target', 
     ]);
     const steps = stepsOf(fileAt(renderFlowCommands(config), '.claude/commands/a.md'));
     expect(steps[2]).toBe(
-      '3. Check review, decided by agent (`a-check`). On pass, continue to the next step. On fail, go back to block `a1` and run again from there.',
+      '3. Check checks, decided by agent (`a-check`). On pass, continue to the next step. On fail, go back to block `a1` and run again from there.',
     );
   });
 });

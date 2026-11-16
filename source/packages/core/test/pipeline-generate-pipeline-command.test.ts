@@ -19,7 +19,7 @@ function startWith(args: Array<{ name: string; required: boolean }>, enabled = t
 /** A gate with a given check type and decider, on the pipeline connection `a-to-b`. */
 function checkGate(
   id: string,
-  checkType: 'approval' | 'checks' | 'review',
+  checkType: 'approval' | 'checks',
   decidedBy: 'human' | 'agent',
   enabled = true,
 ): PipelineConditionBlock {
@@ -142,7 +142,7 @@ describe('F-02 AC-024 the pipeline command file', () => {
     const config = configWith([
       startWith([]),
       validFlow('a', []),
-      checkGate('gate-off', 'review', 'agent', false),
+      checkGate('gate-off', 'checks', 'agent', false),
       validFlow('b', []),
       pipelineEnd(),
     ]);
@@ -167,12 +167,12 @@ describe('F-02 AC-025 back routes become numbered rules with their round limit',
   const rows: Array<{ name: string; block: PipelineConditionBlock; expected: string[] }> = [
     {
       name: 'a back fail route without a limit says no limit set',
-      block: { ...checkGate('g1', 'review', 'agent'), failRoute: back('a-write') },
+      block: { ...checkGate('g1', 'checks', 'agent'), failRoute: back('a-write') },
       expected: ['1. On fail, go back to `a-write` and run again from there; no limit set.'],
     },
     {
       name: 'a back fail route with a limit shows the limit',
-      block: { ...checkGate('g1', 'review', 'agent'), failRoute: back('a-write'), roundLimit: 3 },
+      block: { ...checkGate('g1', 'checks', 'agent'), failRoute: back('a-write'), roundLimit: 3 },
       expected: ['1. On fail, go back to `a-write` and run again from there; round limit 3.'],
     },
     {
@@ -236,11 +236,6 @@ describe('F-02 AC-025 checks show their threshold or their decider', () => {
       name: 'a checks check shows an agent decider',
       block: checkGate('tests', 'checks', 'agent'),
       expected: 'Check checks, decided by agent (`tests`).',
-    },
-    {
-      name: 'a review check shows an agent decider',
-      block: checkGate('review', 'review', 'agent'),
-      expected: 'Check review, decided by agent (`review`).',
     },
   ];
 

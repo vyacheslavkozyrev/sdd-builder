@@ -43,11 +43,11 @@ const checksCondition: ConditionBlock = {
   roundLimit: 3,
 };
 
-const reviewCondition: ConditionBlock = {
+const disabledChecksCondition: ConditionBlock = {
   kind: 'condition',
-  id: 'review-code',
+  id: 'run-checks-off',
   enabled: false,
-  checkType: 'review',
+  checkType: 'checks',
   decidedBy: 'agent',
   passRoute: { kind: 'next' },
   failRoute: { kind: 'stop' },
@@ -89,7 +89,7 @@ const buildFlow: Flow = {
   name: 'Build',
   description: 'Implements each planned task.',
   enabled: true,
-  blocks: [startBlock, agentBlock, checksCondition, reviewCondition, diffSizeCondition, connectionBlock, endBlock],
+  blocks: [startBlock, agentBlock, checksCondition, disabledChecksCondition, diffSizeCondition, connectionBlock, endBlock],
 };
 
 const pipelineBlocks: PipelineBlock[] = [
@@ -163,11 +163,11 @@ describe('F-01 AC-003 the block kinds are Start, Agent, Condition, Connection, E
 });
 
 describe('F-01 AC-003 each condition type has a typed fixture', () => {
-  it('has a fixture of each of the four check types', () => {
-    const types = [approvalCondition, checksCondition, reviewCondition, diffSizeCondition].map(
+  it('has a fixture of each of the three check types, the disabled checks Condition included', () => {
+    const types = [approvalCondition, checksCondition, disabledChecksCondition, diffSizeCondition].map(
       (condition) => condition.checkType,
     );
-    expect(types).toEqual(['approval', 'checks', 'review', 'diff-size']);
+    expect(types).toEqual(['approval', 'checks', 'checks', 'diff-size']);
   });
 
   it('gives a threshold to diff-size only, and refuses one on any other check type', () => {
@@ -182,9 +182,12 @@ describe('F-01 AC-003 each condition type has a typed fixture', () => {
     expect(diffSizeWithout).toBeDefined();
   });
 
-  it('refuses a check type outside the four and a decider outside human and agent', () => {
-    // @ts-expect-error a check type outside the four is not a condition
+  it('refuses a check type outside the three, review included, and a decider outside human and agent', () => {
+    // @ts-expect-error a check type outside the three is not a condition
     const unknownCheck: ConditionBlock = { ...approvalCondition, checkType: 'lint' };
+    // @ts-expect-error review is no longer a check type (F-06 AC-011)
+    const reviewCheck: ConditionBlock = { ...approvalCondition, checkType: 'review' };
+    expect(reviewCheck).toBeDefined();
     // @ts-expect-error decidedBy is human or agent
     const unknownDecider: ConditionBlock = { ...approvalCondition, decidedBy: 'bot' };
     expect(unknownCheck).toBeDefined();

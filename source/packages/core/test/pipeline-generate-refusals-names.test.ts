@@ -319,9 +319,9 @@ describe('F-02 AC-011 a Condition has a fixed check type, and a threshold only f
   const at = 'pipeline.blocks[1].blocks[2]';
   const rows: Array<{ name: string; block: ConditionBlock; expected: string[] }> = [
     {
-      name: 'refuses a check type outside the four fixed values',
+      name: 'refuses a check type outside the three fixed values',
       block: withCheck('lint'),
-      expected: [`${at}: Condition "c" has a check type outside approval, checks, review, diff-size`],
+      expected: [`${at}: Condition "c" has a check type outside approval, checks, diff-size`],
     },
     {
       name: 'refuses a diff-size Condition with no threshold',
@@ -364,9 +364,9 @@ describe('F-02 AC-011 a Condition has a fixed check type, and a threshold only f
       expected: [`${at}: Condition "c" is approval and has a threshold; only diff-size takes one`],
     },
     {
-      name: 'refuses a threshold on a review Condition',
-      block: withCheck('review', { threshold: 1 }),
-      expected: [`${at}: Condition "c" is review and has a threshold; only diff-size takes one`],
+      name: 'refuses a threshold on a checks Condition',
+      block: withCheck('checks', { threshold: 1 }),
+      expected: [`${at}: Condition "c" is checks and has a threshold; only diff-size takes one`],
     },
     {
       name: 'accepts a diff-size threshold of 1',
@@ -395,7 +395,7 @@ describe('F-02 AC-011 a Condition has a fixed check type, and a threshold only f
       ...gatesWith({ ...withCheck('lint'), id: 'approve-plan', onConnection: 'a-to-b' }),
       pipelineEnd(),
     ]);
-    expect(refusalOf(config)).toEqual(['pipeline.blocks[4]: Condition "approve-plan" has a check type outside approval, checks, review, diff-size']);
+    expect(refusalOf(config)).toEqual(['pipeline.blocks[4]: Condition "approve-plan" has a check type outside approval, checks, diff-size']);
   });
 
   it('F-02 AC-011 skips the check of a disabled Condition, as AC-014 requires', () => {

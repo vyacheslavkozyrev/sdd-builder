@@ -31,7 +31,7 @@ interface ListBlock {
 }
 
 const BLOCKS_PATH = childPath('pipeline', 'blocks');
-const CHECK_TYPES: readonly string[] = ['approval', 'checks', 'review', 'diff-size'];
+const CHECK_TYPES: readonly string[] = ['approval', 'checks', 'diff-size'];
 
 /** The gates between flows of the default pipeline. They are required in every pipeline (architecture.md decision 8). */
 const REQUIRED_GATE_IDS: readonly string[] = defaultProjectConfig.pipeline.blocks.flatMap((block) =>

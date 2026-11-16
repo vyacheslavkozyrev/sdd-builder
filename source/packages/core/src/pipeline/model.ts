@@ -36,7 +36,7 @@ export interface ProjectStack {
 export type Scope = 'project' | 'feature' | 'task';
 
 /** The fixed set of check types a Condition can take. User-written check commands are not allowed. */
-export type CheckType = 'approval' | 'checks' | 'review' | 'diff-size';
+export type CheckType = 'approval' | 'checks' | 'diff-size';
 
 /** Who decides the outcome of a Condition. */
 export type DecidedBy = 'human' | 'agent';
@@ -99,7 +99,7 @@ interface ConditionCommon {
 export type ConditionBlock = ConditionCommon &
   (
     | { checkType: 'diff-size'; threshold: number }
-    | { checkType: 'approval' | 'checks' | 'review' }
+    | { checkType: 'approval' | 'checks' }
   );
 
 /** A runs-after link between two blocks of one flow, or between two flows of the pipeline. */

@@ -22,10 +22,10 @@ const BACK_KEYS: readonly string[] = ['kind', 'blockId'];
 const WHOLE_MESSAGE = 'must be a whole number of at least 1';
 
 /** The check type with the threshold it takes: diff-size takes one, the other check types take none. */
-type CheckFields = { checkType: 'diff-size'; threshold: number } | { checkType: 'approval' | 'checks' | 'review' };
+type CheckFields = { checkType: 'diff-size'; threshold: number } | { checkType: 'approval' | 'checks' };
 
 function isCheckType(value: unknown): value is CheckType {
-  return value === 'approval' || value === 'checks' || value === 'review' || value === 'diff-size';
+  return value === 'approval' || value === 'checks' || value === 'diff-size';
 }
 
 function isDecidedBy(value: unknown): value is DecidedBy {
@@ -40,7 +40,7 @@ function readCheckType(obj: Obj, path: string, problems: PipelineProblem[]): Che
   if (!requirePresent(obj, 'checkType', path, problems)) return undefined;
   const value = obj['checkType'];
   if (isCheckType(value)) return value;
-  problems.push({ path: childPath(path, 'checkType'), message: 'must be approval, checks, review or diff-size' });
+  problems.push({ path: childPath(path, 'checkType'), message: 'must be approval, checks or diff-size' });
   return undefined;
 }
 

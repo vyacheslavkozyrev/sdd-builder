@@ -151,7 +151,7 @@ describe('F-02 AC-022 process.md is text listing the flows, blocks and gates in 
         '  - Start (a-start)',
         '  - Agent a1 (a1)',
         '  - End, done (a-end)',
-        '- Gate review on connection a-to-b (g1)',
+        '- Gate checks on connection a-to-b (g1)',
         '- Flow c flow (c), with its blocks in order:',
         '  - Start (c-start)',
         '  - Agent c1 (c1)',

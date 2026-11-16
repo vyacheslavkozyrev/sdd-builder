@@ -44,7 +44,7 @@ describe('F-03 AC-005 flowStepList numbers the enabled blocks of a flow in block
       expected: [
         '1. Start the flow (`a-start`).',
         '2. Run the agent in `.claude/agents/a1.md`, once per task (`a1`).',
-        '3. Check review, decided by agent (`c1`). On pass, continue to the next step. On fail, stop the process.',
+        '3. Check checks, decided by agent (`c1`). On pass, continue to the next step. On fail, stop the process.',
         '4. End the flow with outcome done (`a-end`).',
       ],
     },
@@ -101,7 +101,7 @@ describe('F-03 AC-005 pipelineStepList lists the enabled flows and checks in pip
       ],
       expected: [
         '1. Run the flow `a flow` (`a`), following `.claude/commands/a.md`.',
-        '2. Check review, decided by agent (`g1`).',
+        '2. Check checks, decided by agent (`g1`).',
         '3. Run the flow `c flow` (`c`), following `.claude/commands/c.md`.',
       ],
     },

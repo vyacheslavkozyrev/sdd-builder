@@ -42,7 +42,7 @@ function connection(id: string, from: string, to: string, enabled = true): Conne
 }
 
 function condition(id: string, enabled = true): ConditionBlock {
-  return { kind: 'condition', id, enabled, decidedBy: 'agent', checkType: 'review', passRoute: NEXT, failRoute: STOP };
+  return { kind: 'condition', id, enabled, decidedBy: 'agent', checkType: 'checks', passRoute: NEXT, failRoute: STOP };
 }
 
 /** A Condition with one output left unwired. The key is removed, as a config read from outside could lack it. */

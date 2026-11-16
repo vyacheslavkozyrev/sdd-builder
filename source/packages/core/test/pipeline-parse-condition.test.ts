@@ -74,11 +74,10 @@ function buildBlock(value: unknown, index: number): ChildBlock {
 
 const CHECK_PATH = 'pipeline.blocks[1].blocks[1]';
 
-describe('F-01 AC-005 the check type is approval, checks, review or diff-size; any other value is refused at its path', () => {
+describe('F-01 AC-005 the check type is approval, checks or diff-size; any other value is refused at its path', () => {
   it.each([
     ['approval', {}],
     ['checks', {}],
-    ['review', {}],
     ['diff-size', { threshold: 5 }],
   ])('accepts check type %s and keeps it on the parsed Condition', (checkType, extra) => {
     const block = buildBlock(withFlow([check({ checkType, ...extra })]), 1);
@@ -92,7 +91,7 @@ describe('F-01 AC-005 the check type is approval, checks, review or diff-size; a
     ['a non-string value', 3],
   ])('refuses %s at the path of the check type', (_label, checkType) => {
     expect(problemsOf(withFlow([check({ checkType })]))).toEqual([
-      { path: `${CHECK_PATH}.checkType`, message: 'must be approval, checks, review or diff-size' },
+      { path: `${CHECK_PATH}.checkType`, message: 'must be approval, checks or diff-size' },
     ]);
   });
 
@@ -104,6 +103,20 @@ describe('F-01 AC-005 the check type is approval, checks, review or diff-size; a
   it('refuses an unknown key inside a Condition, at the key path', () => {
     expect(problemsOf(withFlow([check({ description: 'what passing means' })]))).toEqual([
       { path: `${CHECK_PATH}.description`, message: 'is not a known key' },
+    ]);
+  });
+});
+
+describe('F-06 AC-011 the review check type is removed: the parser refuses review at the check type path', () => {
+  it('refuses review as a check type, with the same message as any other unknown value', () => {
+    expect(problemsOf(withFlow([check({ checkType: 'review' })]))).toEqual([
+      { path: `${CHECK_PATH}.checkType`, message: 'must be approval, checks or diff-size' },
+    ]);
+  });
+
+  it('refuses review on a pipeline gate as well', () => {
+    expect(problemsOf(gateWith(gate({ checkType: 'review' })))).toEqual([
+      { path: 'pipeline.blocks[2].checkType', message: 'must be approval, checks or diff-size' },
     ]);
   });
 });
@@ -132,7 +145,7 @@ describe('F-01 AC-006 diff-size takes a whole-number threshold of at least 1; th
     ]);
   });
 
-  it.each(['approval', 'checks', 'review'])('refuses a threshold on a %s check', (checkType) => {
+  it.each(['approval', 'checks'])('refuses a threshold on a %s check', (checkType) => {
     expect(problemsOf(withFlow([check({ checkType, threshold: 5 })]))).toEqual([
       { path: `${CHECK_PATH}.threshold`, message: 'is only for diff-size' },
     ]);

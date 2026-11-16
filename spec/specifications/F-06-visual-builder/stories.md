@@ -81,7 +81,7 @@ Every automated test names the feature and criterion it covers (`F-06 AC-003`).
 - [ ] AC-011 `[auto]`: Dragging a Check onto a connection places a Condition with check type `checks` or `diff-size`, chosen in its panel. Its decided-by is `agent`. The check type `review` is not offered.
 - [ ] AC-012 `[auto]`: Selecting a connection and adding an Approval or a Check from its panel places the same Condition as the drag does (AC-010 and AC-011 apply to both).
 - [ ] AC-013 `[auto]`: A `diff-size` check has a threshold in lines. A threshold that is not a positive whole number is refused at entry.
-- [ ] AC-014 `[auto]`: A gate's pass route goes to the next flow. Its fail route is either to stop, or back to an earlier flow. Routes to the same flow or to a later flow are not offered.
+- [ ] AC-014 `[auto]`: A gate's pass route goes to the next flow. Its fail route is either to stop, or back to the flow its connection starts from or to an earlier flow. Routes to a later flow are not offered.
 - [ ] AC-015 `[auto]`: A back route on a gate has an optional round limit. An empty limit means no limit and the panel shows a warning that the retry is unbounded (building-blocks §12). A limit that is not a positive whole number is refused at entry.
 - [ ] AC-016 `[auto]`: A Condition's description (what passing means) is required. An empty description is refused at entry.
 

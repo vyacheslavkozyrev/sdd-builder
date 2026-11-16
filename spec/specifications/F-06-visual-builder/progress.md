@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-None.
+T008 — reviewed: 1 blocker fixed (fail route may go back to the connection's source flow), 0 warnings and 0 suggestions applied; AC-014 wording amendment open (see Deferred Findings)
 
 ---
 
@@ -47,6 +47,8 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T007 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` `gateTargetAt` has no caller yet. Not applied: the plan puts the Map view's drag-and-drop wiring in T016, so the function is consumed when that task lands; the test file covers its contract now.
 - T007 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` imports `pipelineIds` from `flow-edit.ts`. Not applied: a shared module would be a refactor with no behaviour change, and T021 removes the flat builder files around it; revisit when T021 lands.
+- T008 review, WARNING (spec text): `spec/specifications/F-06-visual-builder/stories.md` AC-014 and the T008 line in `plan.md` say routes to the same flow are not offered. The T008 fix offers the connection's own source flow as the fail route, as the caller directed, because the default pipeline needs it (building-blocks §4: approve-stories, approve-screens, approve-plan and approve-checklist fail back to their source flows) and `setGateSettings` must accept those routes. Stories were not edited. Open: the user must approve an amendment that replaces "the same flow" with "the flow the connection starts from" in AC-014 and T008 before the next task advances.
+- T008 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` `setGateSettings` accepts a description with line breaks. Not applied: this is the open product choice recorded under T003 above (line breaks in a rule); decide it there, then enforce it in `checkDescription`.
 
 ---
 
@@ -57,6 +59,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 3 — 2026-11-16
+**Changed**: `stories.md` AC-014 now allows a gate's fail route back to the flow its connection starts from, as well as to an earlier flow. `plan.md` T008 notes it.
+**Reason**: the approved AC-014 excluded the same flow, but every default gate fails back to the flow its connection starts from (building-blocks §4 and §7). T008's review found that the default's routes would be refused. Approved by the user on 2026-11-16.
+**Impact**: T008 only (the route options and their tests). The default pipeline is unchanged.
 
 ### Amendment 2 — 2026-11-15
 **Changed**: `plan.md` T007 records the defaults for a gate placed by drop or button (approval and check descriptions, the `checks` type, pass next and fail stop, the ids, the hit test); T014 uses `map-tab-view.ts`, a new name, so the flat `map-view.ts` is not overwritten before T021.

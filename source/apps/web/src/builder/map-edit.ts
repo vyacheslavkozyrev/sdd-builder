@@ -1,14 +1,28 @@
-// Connections between flows and the gates on them, on the Map tab (F-06 AC-008, AC-010, AC-011, AC-012). Pure: no DOM,
+// Connections between flows and the gates on them, on the Map tab (F-06 AC-008, AC-010 to AC-016). Pure: no DOM,
 // no storage, no network. A Connection carries an artifact label; a gate (an approval or a check) sits on one
 // Connection, and a connection holds at most one gate. Every edit returns a new configuration; a refused edit returns
 // a message and leaves the caller's configuration as it was. An unknown block id is a programmer error and throws.
 import { pipeline } from '@sddbuilder/core';
 import { pipelineIds } from './flow-edit.js';
+import { checkDescription, checkRoundLimit, checkThreshold } from './entry-checks.js';
 
 type ProjectConfig = pipeline.ProjectConfig;
 type PipelineBlock = pipeline.PipelineBlock;
 type PipelineConditionBlock = pipeline.PipelineConditionBlock;
 type ConnectionBlock = pipeline.ConnectionBlock;
+type Route = pipeline.Route;
+
+/**
+ * The settings the gate panel saves. The description is what passing means. The threshold (lines) is read for a
+ * `diff-size` gate only. The round limit is the panel's text: empty means no limit, and it is kept only when the fail
+ * route goes back.
+ */
+export interface GateSettings {
+  description: string;
+  threshold?: number;
+  failRoute: Route;
+  roundLimit: string;
+}
 
 /** An edit either succeeds with the new configuration and the id of the block it made, or is refused with the reason. */
 export type MapEdit =
@@ -80,6 +94,50 @@ export function addGate(config: ProjectConfig, connectionId: string, choice: Gat
   }
   const gate = gateBlock(id, connection, choice);
   return { ok: true, config: withBlocks(config, insertAfter(config.pipeline.blocks, connectionId, gate)), id };
+}
+
+/**
+ * The fail routes a gate on a connection is offered: stop, or back to a flow no later than the one the connection
+ * starts from (F-06 AC-014). That flow is included, since a gate that fails back to the flow it follows is a retry
+ * (building-blocks §7); flows after it are not offered.
+ */
+export function failRouteOptions(config: ProjectConfig, gateId: string): Route[] {
+  const gate = requireGate(config, gateId);
+  return [{ kind: 'stop' }, ...sourceAndEarlierFlowIds(config, gate).map((blockId): Route => ({ kind: 'back', blockId }))];
+}
+
+/**
+ * Saves a gate's settings: its description (required, F-06 AC-016), its threshold for a `diff-size` gate (a positive
+ * whole number, AC-013), its fail route (stop or back to an earlier flow, AC-014) and its round limit (empty for none,
+ * else a positive whole number, AC-015). The pass route stays the next flow. A refused edit saves nothing.
+ */
+export function setGateSettings(config: ProjectConfig, gateId: string, settings: GateSettings): MapEdit {
+  const gate = requireGate(config, gateId);
+  const description = checkDescription(settings.description);
+  if (!description.ok) return refuse(`${description.message} The settings were not saved.`);
+  let threshold: number | undefined;
+  if (gate.checkType === 'diff-size') {
+    const check = checkThreshold(settings.threshold ?? Number.NaN);
+    if (!check.ok) return refuse(`${check.message} The settings were not saved.`);
+    threshold = check.value;
+  }
+  const roundLimit = checkRoundLimit(settings.roundLimit);
+  if (!roundLimit.ok) return refuse(`${roundLimit.message} The settings were not saved.`);
+  const offered = failRouteOptions(config, gateId).some((option) => sameRoute(option, settings.failRoute));
+  if (!offered) {
+    return refuse('A fail route is stop, or back to an earlier flow. The settings were not saved.');
+  }
+  const next: PipelineConditionBlock = { ...gate, description: description.value, failRoute: settings.failRoute };
+  if (settings.failRoute.kind === 'back' && roundLimit.value !== undefined) {
+    next.roundLimit = roundLimit.value;
+  } else {
+    delete next.roundLimit;
+  }
+  if (next.checkType === 'diff-size' && threshold !== undefined) {
+    next.threshold = threshold;
+  }
+  const blocks = config.pipeline.blocks.map((block) => (block.id === gateId ? next : block));
+  return { ok: true, config: withBlocks(config, blocks), id: gateId };
 }
 
 /**
@@ -163,6 +221,27 @@ function requireConnection(config: ProjectConfig, connectionId: string): Connect
     throw new Error(`Unknown connection id: ${connectionId}`);
   }
   return connection;
+}
+
+function requireGate(config: ProjectConfig, gateId: string): PipelineConditionBlock {
+  const gate = config.pipeline.blocks.find((block) => block.kind === 'condition' && block.id === gateId);
+  if (gate?.kind !== 'condition') {
+    throw new Error(`Unknown gate id: ${gateId}`);
+  }
+  return gate;
+}
+
+/** The ids of the flow the gate's connection starts from and the flows before it, in pipeline order. */
+function sourceAndEarlierFlowIds(config: ProjectConfig, gate: PipelineConditionBlock): string[] {
+  const connection = requireConnection(config, gate.onConnection);
+  const flowIds = config.pipeline.blocks.flatMap((block): string[] => (block.kind === 'flow' ? [block.id] : []));
+  const at = flowIds.indexOf(connection.from);
+  return at < 0 ? [] : flowIds.slice(0, at + 1);
+}
+
+function sameRoute(a: Route, b: Route): boolean {
+  if (a.kind === 'back') return b.kind === 'back' && a.blockId === b.blockId;
+  return a.kind === b.kind;
 }
 
 function refuse(message: string): MapEdit {

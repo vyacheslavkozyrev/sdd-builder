@@ -74,6 +74,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 6 — 2026-11-16
+**Changed**: `plan.md` adds T013a (a core cycle finding in `analyzeStructure`) before T013, and corrects the T013 rationale: `analyzeStructure` does not report cycles today. `building-blocks.md` §7 records the no-cycle rule.
+**Reason**: AC-009 (a Connection that closes a cycle is marked) had no implementation; the analyzer had no cycle check. The owner chose a core finding over a web-only check, so the rule has one implementation (AC-038). Approved by the user on 2026-11-16.
+**Impact**: T013a changes F-04's analyzer output (one more finding kind); its tests are updated in T013a. T013 maps the finding to the Connection.
+
 ### Amendment 5 — 2026-11-16
 **Changed**: the pipeline's own rule tags are checked by the generator like flows and Agent blocks: a tag that names no project rule is refused at `pipeline.ruleTags[i]` with the same wording (F-03 AC-029, F-06 AC-025). This widens F-03 AC-029's scope from flows and Agent blocks to the pipeline as well.
 **Reason**: the pipeline takes rule tags (amendment 4, F-06 AC-042), and the review of T012 found that an unknown pipeline tag was not refused. Owner decision, 2026-11-16.

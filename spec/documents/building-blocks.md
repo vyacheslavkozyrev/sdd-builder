@@ -99,6 +99,7 @@ Post-MVP: skills and scripts as blocks; custom agent blocks (F-14); presets (F-0
 - The pipeline has exactly one Start block and at least one End block; each child flow has exactly one Start and at least one End.
 - Only the pipeline contains Flow blocks; a flow contains no Flow block (one nesting level).
 - Every Connection joins two blocks of the same flow, or two flows of the pipeline.
+- No cycle: the Connections of a flow, and the Connections of the pipeline, form no cycle. A back route is a Condition's retry, not a Connection (§10). A Connection that closes a cycle is a structural problem (F-06 amendment 6).
 - Both outputs of every Condition are wired.
 - Every block and every flow is reachable from the pipeline's Start.
 - A back route goes to an earlier block of the same flow, or in the pipeline to an earlier flow. A back route in a child flow never leaves the flow.

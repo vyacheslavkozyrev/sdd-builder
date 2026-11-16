@@ -100,6 +100,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 14 — 2026-11-16
+**Changed**: `plan.md` T021b: `packages/core/test/fixtures.ts` takes the default flat workflows and connections as literal test data, so the kept parse-config and limits suites keep their inputs.
+**Reason**: catalog.ts is deleted in T021b, and the kept suites read the default data through fixtures.ts. Approved by the user on 2026-11-16 (copy the data as test literals).
+**Impact**: test data only, in T021b.
+
 ### Amendment 13 — 2026-11-16
 **Changed**: `plan.md` T021b scope: the result types move into the pipeline model and the package root re-exports them, so the API is not changed in this task; the core tests and smoke test are re-pointed; catalog, selection and cycle are deleted.
 **Reason**: the result types reach the API through the package root and the core pipeline, so moving them without a re-export would break the API build. Approved by the user on 2026-11-16 (core only, root re-exports).

@@ -146,7 +146,7 @@ Every automated test names the feature and criterion it covers (`F-06 AC-003`).
 - [ ] AC-032 `[auto]`: Switching a block or flow off sets it to disabled. It stays in place, keeps its properties and is drawn in a muted style with an "off" label. Switching it on again restores it.
 - [ ] AC-033 `[auto]`: A disabled block or flow is not marked as a structural problem (building-blocks §13).
 - [ ] AC-034 `[auto]`: Deleting a block or a flow asks for confirmation. After confirmation it is removed with its connections, and the routes that pointed to it are left unwired and marked as a structural problem.
-- [ ] AC-035 `[auto]`: The Start block of a flow, and the Start block of the pipeline, cannot be deleted. The request is refused with a message naming the flow.
+- [ ] AC-035 `[auto]`: The Start block of a flow, and the Start block of the pipeline, cannot be deleted. The request is refused with a message naming the flow, or, for the pipeline Start, naming the pipeline (amended 2026-11-16).
 
 ### US-008: Live structural marks
 

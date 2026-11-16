@@ -108,9 +108,85 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
+**Verify run, 2026-11-16.** Preconditions met: all 23 plan tasks ticked, Current Task None, branch `main`, clean tree.
+
+Totals from `source/scripts/task-check.sh` (exit 0; typecheck passed on all workspaces):
+
+| Workspace | Test files | Tests | Failed | Skipped |
+|---|---|---|---|---|
+| core | 68 | 1340 | 0 | 0 |
+| api | 28 | 480 | 0 | 0 |
+| web | 20 | 433 | 0 | 0 |
+| **Total** | **116** | **2253** | **0** | **0** |
+
+Criteria: 45 in `stories.md`, 43 `[auto]`, 2 `[device]`. Result: 40 `[auto]` covered by passing tests, 3 `[auto]` with a gap or a partial gap (AC-010, AC-024, AC-039), 1 wording question (AC-035), 2 `[device]` on `checklist.md`.
+
+| AC | Tag | Covering tests (passing) | Result |
+|---|---|---|---|
+| AC-001 | auto | `builder-map-tab-view`: "draws the default pipeline as six flows, left to right, with their scope and count"; "flow nodes show name, scope and block count, in order" | covered |
+| AC-002 | auto | `builder-map-tab-view`: "the tab row is the Map, then one tab per flow in order, then the + tab"; "each flow node names the tab that opens it" | covered (view-model; the click wiring in `MapTab.tsx` has no test) |
+| AC-003 | auto | `builder-map-tab-view`: "draws the connection between two flows with its artifact" | covered |
+| AC-004 | auto | `builder-map-tab-view`: "a gate on a connection is a diamond with its pass and fail outputs" | covered |
+| AC-005 | device | checklist, check 1 | manual |
+| AC-006 | auto | `builder-flow-add`: "the + adds a flow after the last tab"; "the new flow holds one Start block and one End block..." | covered |
+| AC-007 | auto | `builder-flow-add`: "refuses an id with %s and the flow keeps its id"; "skips an id that another flow already uses" | covered |
+| AC-008 | auto | `builder-map-gates`: "a connection drawn from one flow to another adds a connection with the artifact label"; `builder-map-gates`: "an empty artifact label %j is refused at entry" | covered |
+| AC-009 | auto | core `pipeline-analyze-cycles`: "marks the Connection that closes a three-block cycle, and only that one"; web `builder-marks`: "a Connection that closes a cycle is marked and the edit is kept"; `builder-mark-drawing`: "the Map draws the cycle mark on the Connection that closes it" | covered |
+| AC-010 | auto | `builder-map-gates`: "an approval placed on a connection is a condition with check type approval, decided by a human" | GAP (partial): proves decided-by `human`; no test proves it "cannot be changed" (`setGateSettings` takes no decided-by field, but nothing asserts it) |
+| AC-011 | auto | `builder-map-gates`: "a check of type %j is decided by an agent"; "a diff-size check keeps its line threshold"; core `pipeline-parse-condition`: "the review check type is removed: the parser refuses review" | covered |
+| AC-012 | auto | `builder-map-gates`: "one gate per connection"; "a second gate on a connection is refused with..."; "a connection with a default gate (the default pipeline) refuses an approval from the panel" | covered (the Add buttons in `MapTab.tsx` have no test; `addGate` is tested) |
+| AC-013 | auto | `builder-gate-settings`: "a threshold that is %s is refused at entry and nothing is saved"; "a positive whole number is accepted as the threshold and stored" | covered |
+| AC-014 | auto | `builder-gate-settings`: "a back route to a later flow is refused at entry"; "the fail route is offered as stop, or back to the source flow or an earlier flow" | covered |
+| AC-015 | auto | `builder-gate-settings`: "a back route with no round limit shows the unbounded retry warning"; "a round limit of %s is refused at entry" | covered |
+| AC-016 | auto | `builder-gate-settings`: "a description of %s is refused at entry"; core `pipeline-condition-description`: "generate refuses an enabled Condition with a blank or missing description" | covered |
+| AC-017 | auto | `builder-tab-view`: "a flow tab shows its blocks in order, numbered, with the Start first and the End last"; `builder-block-edit`: "a new Agent block lands before the End when no block is selected" | covered |
+| AC-018 | auto | `builder-block-edit`: "a second Start in a flow is refused and the flow is unchanged"; `builder-tab-view`: "disables the Start item with its reason when the flow already has a Start" | covered |
+| AC-019 | auto | `builder-block-edit`: "moving a block up swaps it with the one before and keeps the others in order"; "moving a block down swaps it with the next one..." | covered |
+| AC-020 | auto | `builder-block-edit`: "a Connection to a block in another flow is refused and the flow is unchanged" | covered |
+| AC-021 | auto | `builder-block-edit`: "offers next, stop and the back routes given, in that order"; "a back route to a block of another flow is refused" | covered |
+| AC-022 | auto | `builder-marks`: "a flow with no End block is marked until an End is added"; `builder-mark-drawing`: "the Map and the flow tab draw the no-End mark until an End is added" | covered |
+| AC-023 | auto | `builder-tab-view`: "opens the Agent panel with...", "...Condition...", "...Connection...", "...End...", "...Start...", "...flow panel..." | covered |
+| AC-024 | auto | `builder-tab-view`: "a Flow panel generates .claude/commands/<flow>.md"; `builder-agent-edit`: "the agent file path" | GAP (partial): the pipeline command file (`.claude/commands/pipeline.md`) is in no test, and `PipelinePanel.tsx` shows no generated file |
+| AC-025 | auto | `builder-pipeline-props`: "refuses a rule tag with %s"; "refuses a repeated tag on the same block..."; core `pipeline-rule-tags`: "refuses a pipeline tag that names no rule, at the pipeline path" | covered |
+| AC-026 | auto | `builder-agent-edit`: "refuses the name"; "refuses the tool name"; "refuses a blank description"; core `pipeline-parse-agent-fields`: "refuses a tool name with %s..." | covered |
+| AC-027 | auto | `builder-agent-edit`: "refuses a name another Agent block in a different flow already uses"; "agent name is file-safe and unique among Agent blocks" | covered |
+| AC-028 | auto | `builder-agent-edit`: "warns a task-scope agent with no iteration source"; "warns a feature-scope agent with no iteration source in the first flow"; "the default pipeline has no agent without an iteration source" | covered |
+| AC-029 | auto | `builder-agent-edit`: "adds an Agent block to a flow with the properties of an Agent block"; "a flow may have no custom agent: the default pipeline parses without one" | covered |
+| AC-030 | auto | `builder-agent-edit`: "accepts a body of exactly 4,000 characters"; "refuses a body of 4,001 characters with the count and the cut" | covered |
+| AC-031 | auto | core `pipeline-generate-agent-fields`: "agent file frontmatter for model and tools"; "a body is written after the stub text"; `builder-agent-edit`: "keeps name, description, model, tools and body together, and the result parses" | covered |
+| AC-032 | auto | `builder-flow-switch-delete`: "switching a flow off and on"; `builder-block-switch-delete`: "switching a block off sets it to disabled and keeps its properties" | covered |
+| AC-033 | auto | `builder-marks`: "a disabled block or flow is not marked" | covered |
+| AC-034 | auto | `builder-block-switch-delete`: "deleting a block asks for confirmation and removes its connections"; `builder-flow-switch-delete`: "deleting a flow asks for confirmation and removes its connections and gates"; "a route that pointed to the deleted block is left unwired and keeps its target" | covered |
+| AC-035 | auto | `builder-flow-switch-delete`: "refuses to delete the pipeline Start with a message that names the pipeline"; `builder-block-switch-delete`: "refuses to delete the Start of a flow with a message that names the flow" | covered; WORDING QUESTION: the criterion says the message names "the flow" for both Starts, the pipeline case names the pipeline (T006 deferred item) |
+| AC-036 | auto | `builder-marks`: "a Condition with an unwired output is marked next to the item"; `builder-mark-drawing`: "a Condition with an unwired output is drawn with its mark on its box" | covered |
+| AC-037 | auto | `builder-marks`: "a flow with no Start or no End is marked; a second Start is refused"; "marks the owning flow when its only Start is off..." | covered |
+| AC-038 | auto | `builder-marks`: "the marks are the analyzer findings, placed on the item they name" | covered |
+| AC-039 | auto | `builder-marks`: "after any sequence of edits the state is accepted or carries a mark"; core `pipeline-parse-structure`: "the parser refuses a disabled pipeline Start or End at its own path" | GAP (partial): a pipeline with no End block gets no mark (`marks.ts` `unplacedMarks` drops subject `pipeline`); the state can hold it only from a host-supplied initial configuration, since `state.ts` does not parse it (T013 deferred) |
+| AC-040 | auto | `builder-marks`: "a retry with no round limit is a warning, not an error" | covered |
+| AC-041 | auto | `builder-state`: "the default pipeline holds the six flows and the five gates of building-blocks §4"; "the builder starts from the default pipeline" | covered |
+| AC-042 | auto | `builder-pipeline-props`: "refuses a name another row already uses, names the row and keeps its name"; "accepts a body of exactly the cap, and refuses one character more" | covered |
+| AC-043 | auto | `builder-state`: "reports the current configuration to the host after each change, in order"; "accepts an initial configuration from the host instead of the default" | covered |
+| AC-044 | auto | `builder-state`: "the builder folder has no request, socket or storage call"; "nothing persists between states" | covered |
+| AC-045 | device | checklist, check 2 | manual |
+
+**Scope (`features.md` F-06: Map tab, flow tabs, gates and checks, custom agents):** covered by US-001 to US-009 (R-01 to R-09).
+
+**Manual checklist:** `spec/specifications/F-06-visual-builder/checklist.md`. AC-005 and AC-045, plus one extra check from the T023 note (marks fit on screen). Status: all three pending.
+
+**Verify result: GAPS, not complete.** Verify stays ⏳ Pending. To close:
+1. AC-010: add a test that a human-decided approval keeps `decidedBy: 'human'` after a settings edit, or confirm the criterion is met by the type alone.
+2. AC-024: show the pipeline command file in the pipeline panel and test its path, or confirm with the owner that the pipeline panel is out of scope.
+3. AC-039: a pipeline with no End is unmarked (T013 deferred item). Either mark it in the fallback list or refuse the host's initial configuration when it lacks a pipeline End.
+4. AC-035: the owner confirms the wording for the pipeline Start refusal ("the flow" or "the pipeline").
+
 ---
 
 ## Amendments
+
+### Amendment 17 — 2026-11-16
+**Changed**: `stories.md` AC-035 names the pipeline for the pipeline Start (owner decision). `plan.md` adds T024 (AC-010 test), T025 (AC-024 pipeline command path in the panel), T026 (AC-039 pipeline End gap) and T027 (AC-035 wording), found by Verify.
+**Reason**: Verify found three automated gaps and one wording question. Approved by the user on 2026-11-16.
+**Impact**: stories AC-035; T024 to T027 (new).
 
 ### Amendment 16 — 2026-11-16
 **Changed**: `plan.md` adds T023 (draw the live marks on the Map and the flow tabs, next to the item) after T022. `architecture.md` §6 decision 24 says the marks are computed now and drawn by T023.

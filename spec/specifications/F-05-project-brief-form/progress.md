@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user, then split on 2026-11-15 into F-05 (frame, step 1, step 3 host, privacy: 14 criteria), F-21 (step 2: 10 criteria) and F-22 (step 4: 15 criteria). Criteria renumbered per feature. Decisions carried over: Generate waits for an analysis with no blockers; privacy notice on step 4 only; testing rules an ordinary block; stepper by Back and Next only; findings as plain text; file tree from core `planGeneration`; optional `architecture` string in the config (needs its `architecture.md` §5 record before the plan). Depends on F-06 for step 3 (AC-010, AC-011) |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. Reviewed by the `usability` and `visual` agents; the three open points decided (drag plus a select-then-add route in F-06; storage line kept on step 1; approval gates orange, rule chips violet) |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 16 tasks (T001–T016); T016 blocked until F-06 is complete |
-| Build    | 🔄 In Progress | 2026-11-15 | 15 of 16 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 16 of 16 tasks committed; Build waits for F-06 (T016) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ None.
 | T013 | Remove the flat analyze panel and logic (AnalysisPanel, in-flight, request, result); covers none | reviewed: 1 warning accepted by the owner (the flat Analyze step and its tests lost until F-22 AC-001 to AC-005 and AC-010), 1 suggestion fixed (comment in PrivacyGate) | task check passed (exit 0), 1376 tests |
 | T013a | Remove the remaining flat brief logic (validate, to-config, progress, gate, PrivacyGate, state, privacy; amendment 5); covers none | reviewed: 1 warning accepted by the owner (the form's own field checks move to /analyze, F-04 AC-010) | task check passed (exit 0), 1376 tests |
 | T014 | Privacy and storage static tests: no storage or console calls in the web source; no provider key or variable name in it (AC-006, AC-012, AC-013) | reviewed: 0 blockers, 1 warning fixed (non-vacuous scan), 3 suggestions fixed | task check passed (exit 0), 1376 tests |
+| T015 | Architecture web row describes the wizard frame, its four steps, the builder hosted at step 3 and the privacy notice on step 4 (F-22); covers none | reviewed: 0 blockers, 1 warning fixed (the row said F-05 owns the step 4 privacy notice; F-22 AC-001 builds it), 0 suggestions | task check passed (exit 0), 1376 tests |
 
 ---
 

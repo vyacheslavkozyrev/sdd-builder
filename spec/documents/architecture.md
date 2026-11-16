@@ -29,7 +29,7 @@ Status: proposed. Technology choices in §5 are proposals to confirm before the 
 | `source/packages/core` | Domain types (commands, blocks, conditions, map), the default pipeline, structural checks, file-tree generation. No I/O, no HTTP, no UI, no LLM calls. | nothing |
 | `source/templates/` | Text templates with `{{placeholders}}`, Claude Code layout. Data, not code. | — |
 | `source/apps/api` | HTTP routing, request validation, LLM review, rate and cost limits, zip packaging. Stateless. | `core` |
-| `source/apps/web` | Map tab (the pipeline), the wizard (brief, workflow, analyze and generate), presentation mode, privacy notice before analysis. Holds state in browser memory only (no `localStorage`, `sessionStorage` or `indexedDB`, decision 13). | `core` (types only) |
+| `source/apps/web` | The project wizard, four steps in order: step 1 project name and idea (F-05), step 2 technical details and code rules (F-21), step 3 workflow, which hosts the builder on its Map tab (F-05 hosts it, F-06 builds it), and step 4 analyze and generate (F-22). F-05 also owns the frame (Back and Next, the stepper that is not clickable) and the web app's privacy rules (no storage or console calls, no provider key in the source). The privacy notice with its checkbox sits on step 4 and is built by F-22. Presentation mode (F-18) is in the same app. Holds state in browser memory only (no `localStorage`, `sessionStorage` or `indexedDB`, decision 13). | `core` (types only) |
 
 Dependency direction: `web → core`, `api → core`, `core → templates` (read at build time). Nothing depends on `web` or `api`. The LLM is called only from `source/apps/api`.
 

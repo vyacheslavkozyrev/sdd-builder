@@ -25,7 +25,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 - [x] T013 [Web] Remove the flat analyze panel and logic — `source/apps/web/src/analyze/AnalysisPanel.tsx`, `source/apps/web/src/analyze/in-flight.ts`, `source/apps/web/src/analyze/request.ts`, `source/apps/web/src/analyze/result.ts` — covers none (removal)
 - [x] T013a [Web] Remove the remaining flat brief logic (amendment 4, after T013 removes the importers): `source/apps/web/src/brief/validate.ts`, `source/apps/web/src/brief/to-config.ts`, `source/apps/web/src/brief/progress.ts`, `source/apps/web/src/brief/gate.ts`, `source/apps/web/src/brief/PrivacyGate.tsx`, `source/apps/web/src/brief/state.ts`, `source/apps/web/src/brief/privacy.ts` (amendment 5 adds the last three) — covers none (removal)
 - [x] T014 [Web] Privacy and storage static tests: no brief content in console or storage calls, no provider key or variable name in the web source — `source/apps/web/test/wizard-privacy.test.ts` — covers AC-006, AC-012, AC-013
-- [ ] T015 [Docs] Architecture web row describes the wizard frame and its steps (F-05, F-21, F-22) and the builder hosted at step 3 (F-06) — `spec/documents/architecture.md` — covers none
+- [x] T015 [Docs] Architecture web row describes the wizard frame and its steps (F-05, F-21, F-22) and the builder hosted at step 3 (F-06) — `spec/documents/architecture.md` — covers none
 - [ ] T016 [Web] Step 3 hosts the F-06 builder on its Map tab, starting from the default pipeline; the pipeline is kept in the wizard state for step 4 — `source/apps/web/src/wizard/WorkflowStep.tsx`, `source/apps/web/src/wizard/Wizard.tsx`, `source/apps/web/test/wizard-workflow-host.test.ts` — covers AC-010, AC-011. **Blocked until F-06 is complete.**
 
 ## Rationale

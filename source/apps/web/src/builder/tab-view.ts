@@ -1,6 +1,7 @@
-// Flow tab read model: the blocks of one flow in order with their numbers, the Connections drawn as arrows between them,
-// the flow toolbox, and the property panel of the selected block or of the flow (F-06 AC-017, AC-018, AC-023, AC-024).
-// Pure: no DOM, no storage, no network. The numbers count the blocks drawn as boxes; a Connection is an arrow and gets no
+// Flow tab read model: the blocks of one flow in order with their numbers, the Connections of the flow (listed in a
+// section below the numbered boxes, not drawn as arrows), the flow toolbox, and the property panel of the selected block
+// or of the flow (F-06 AC-017, AC-018, AC-023, AC-024).
+// Pure: no DOM, no storage, no network. The numbers count the blocks drawn as boxes; a Connection is listed and gets no
 // number. A panel lists the properties building-blocks §3 gives for its kind, the file it generates and its rule tags.
 // An unknown flow id or selected id is a programmer error and throws.
 import { pipeline } from '@sddbuilder/core';
@@ -34,7 +35,7 @@ export interface FlowBox {
   enabled: boolean;
 }
 
-/** A Connection drawn as an arrow between two boxes. `label` is the artifact; null when it is blank. */
+/** A Connection of the flow, listed below the boxes as "#from to #to". `label` is the artifact; null when it is blank. */
 export interface FlowArrow {
   id: string;
   from: string;

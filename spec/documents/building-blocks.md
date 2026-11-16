@@ -30,7 +30,7 @@ Status: decided 2026-11-14 with the owner, revised the same day three times, and
 - The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram, shown when nothing is selected (decided 2026-11-15).
 - A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15). Drag an Approval or a Check onto a connection between two flows; the panel of a connection with no gate also adds one. A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab.
 - A gate or check shows its settings in its panel: a description, the fail route, and an optional round limit. A `diff-size` check also takes a threshold, a positive whole number of lines. A retry with no round limit shows a warning.
-- Structural problems (a cycle, an unwired output, a flow with no End, a retry with no limit) are computed as live marks from the F-04 rules. A mark never stops an edit. Status: the marks are computed but not yet drawn on the Map.
+- Structural problems (a cycle, an unwired output, a flow with no End, a retry with no limit) are computed as live marks from the F-04 rules. A mark never stops an edit. The Map and the flow tabs draw each mark beside its item; a mark on an item the Map does not draw is listed under the diagram.
 
 ## 2. Flow tabs
 

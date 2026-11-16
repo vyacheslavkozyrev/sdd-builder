@@ -181,9 +181,9 @@ The builder is the process diagram. It draws the process from the same `ProjectC
 
 - **Map tab (built, F-06):** the pipeline as one diagram of its child flows in order, drawn with React Flow (§5). The tab row holds Map, one tab per flow in order, and a + that adds a flow after the last tab. A flow is a node with its name, its scope (the one scope of its enabled Agent blocks, `mixed` when they differ, `no agent` when it has none) and its block count, which counts switched-off blocks too. A Connection between two flows is an edge with its artifact label; a gate or check on it is a diamond with its pass and fail outputs. The Map toolbox (left of the diagram) holds Connection, Approval and Check; an Approval or a Check is dragged onto a connection, and a connection takes one gate at most. The pipeline's properties sit in a panel to the right of the diagram, shown when nothing is selected; a selected gate or check opens its own panel with its description, fail route and round limit; a `diff-size` check also takes a threshold.
 - **Flow tabs and property panels (built, F-06):** each flow's blocks in order, numbered, with the flow toolbox (Start, Agent, Condition, Connection, End). The Connections between blocks are listed in a section below the numbered boxes. Move up and Move down reorder the selected block. The property panel shows the selected block's properties (or the flow's, when no block is selected), the file it generates, its rule tags, and the footer with Switch off and Delete; Delete asks for confirmation first. An unbounded retry shows a warning beside it. Properties are as `building-blocks.md` §2 and §3 list them.
-- **Live marks (computed, F-06 T013):** `marks.ts` maps each finding of `pipeline.analyzeStructure` (core, the F-04 rules) to the flow, block or Connection its path names. Disabled items get no mark. A mark never refuses an edit. Status: the marks are computed and tested, but no Map or flow view draws them yet; drawing them is not in any F-06 task.
+- **Live marks (built, F-06 T013 and T023):** `marks.ts` maps each finding of `pipeline.analyzeStructure` (core, the F-04 rules) to the flow, block or Connection its path names. The Map and the flow tabs draw each mark beside its item, with its severity (blocker red, warning amber) and message. Disabled items get no mark. A mark never refuses an edit. A live finding on an item the Map does not draw (a Connection that does not join two flows) is listed under the diagram with its severity and message (`unplacedMarks`, AC-039). Brief and stack findings name no pipeline item and are not listed.
 
-Builder file list (`source/apps/web/src/builder/`, as of F-06 T021b):
+Builder file list (`source/apps/web/src/builder/`, as of F-06 T023):
 
 | File | Role |
 |---|---|
@@ -194,7 +194,8 @@ Builder file list (`source/apps/web/src/builder/`, as of F-06 T021b):
 | `map-tab-view.ts`, `tab-view.ts` | Read models of the Map tab and of a flow tab (pure) |
 | `map-edit.ts`, `block-edit.ts`, `flow-edit.ts`, `agent-edit.ts`, `pipeline-edit.ts` | Edit rules: gates, blocks, flows, custom agents, the pipeline. Each returns the new configuration or the refusal |
 | `entry-checks.ts` | Entry checks that refuse a value the model cannot hold, and the unbounded-retry warning |
-| `marks.ts` | Live structural marks from `analyzeStructure` |
+| `marks.ts` | Live structural marks from `analyzeStructure`, and the marks no drawn item carries |
+| `MarkList.tsx` | The list of marks: drawn beside an item, or under the Map |
 | `state.ts` | Builder state in memory and the host contract (initial configuration in, changes out) |
 
 Three uses, in order of priority:

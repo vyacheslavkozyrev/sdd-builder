@@ -1,6 +1,7 @@
 // The Map tab: flows as nodes, Connections as arrows with their gates on them, the Map toolbox and the connection panel
-// (F-06 AC-005, AC-010 to AC-012). The read model is `mapTabView`, the rules are `addGate` and `gateTargetAt`; this view
-// only binds them. A gate dropped on an arrow and a gate added from the panel go through the same `addGate` call.
+// (F-06 AC-005, AC-010 to AC-012), and under the diagram the marks no drawn item carries (AC-039). The read model is
+// `mapTabView`, the rules are `addGate` and `gateTargetAt`; this view only binds them. A gate dropped on an arrow and a
+// gate added from the panel go through the same `addGate` call.
 import { useState } from 'react';
 import type { DragEvent } from 'react';
 import { Background, Controls, Position, ReactFlow, ReactFlowProvider, useReactFlow } from '@xyflow/react';
@@ -11,6 +12,9 @@ import { addGate, gateTargetAt } from './map-edit.js';
 import type { GateChoice, MapPoint } from './map-edit.js';
 import { COLUMN_STEP, MAP_LAYOUT, connectionBoxes, mapTabView } from './map-tab-view.js';
 import type { ConnectionEdge, FlowNode } from './map-tab-view.js';
+import { MarkList } from './MarkList.js';
+import { marksAt, pipelinePathOf, structuralMarks, unplacedMarks } from './marks.js';
+import type { StructuralMark } from './marks.js';
 import { GatePanel, PipelinePanel } from './PipelinePanel.js';
 import { GATE_DRAG_TYPE, Toolbox, isGateKind } from './Toolbox.js';
 import type { GateKind } from './Toolbox.js';
@@ -45,6 +49,9 @@ function MapTabBody({ config, onChange }: MapTabProps) {
   const boxes = connectionBoxes(view.edges, columns);
   // A connection removed from the configuration leaves the panel with nothing to show.
   const selected = view.edges.find((edge) => edge.id === selectedId);
+  const marks = structuralMarks(config);
+  const marksOf = (id: string): StructuralMark[] => marksAt(marks, pipelinePathOf(config, id));
+  const unplaced = unplacedMarks(config);
 
   const nodes: Node[] = view.nodes.map((node) => ({
     id: node.id,
@@ -59,7 +66,7 @@ function MapTabBody({ config, onChange }: MapTabProps) {
       height: MAP_LAYOUT.nodeHeight,
       ...(node.enabled ? nodeStyle : { ...nodeStyle, border: '1.5px dashed #a1a1aa', background: '#fafafa' }),
     },
-    data: { label: <FlowLabel node={node} /> },
+    data: { label: <FlowLabel node={node} marks={marksOf(node.id)} /> },
   }));
 
   const edges: Edge[] = view.edges.map((edge) => ({
@@ -69,7 +76,7 @@ function MapTabBody({ config, onChange }: MapTabProps) {
     type: 'straight',
     selected: edge.id === selectedId,
     style: edge.enabled ? {} : { strokeDasharray: '5 4' },
-    label: <ConnectionLabel edge={edge} highlighted={edge.id === dropTarget} />,
+    label: <ConnectionLabel edge={edge} highlighted={edge.id === dropTarget} marksOf={marksOf} />,
   }));
 
   function pointOf(event: DragEvent<HTMLDivElement>): MapPoint {
@@ -142,6 +149,12 @@ function MapTabBody({ config, onChange }: MapTabProps) {
           </ReactFlow>
         </div>
         {message !== null && <p role="alert">{message}</p>}
+        {unplaced.length > 0 && (
+          <section aria-label="Marks not on a drawn item">
+            <h3>Not on a drawn item</h3>
+            <MarkList marks={unplaced} />
+          </section>
+        )}
       </div>
 
       <aside style={{ width: 260 }}>
@@ -204,18 +217,30 @@ function ConnectionPanel({ edge, from, to, onAdd }: ConnectionPanelProps) {
   );
 }
 
-function FlowLabel({ node }: { node: FlowNode }) {
+interface FlowLabelProps {
+  node: FlowNode;
+  marks: readonly StructuralMark[];
+}
+
+function FlowLabel({ node, marks }: FlowLabelProps) {
   const blocks = `${node.blockCount} ${node.blockCount === 1 ? 'block' : 'blocks'}`;
   return (
     <div>
       <strong>{node.name}</strong>
       <div>{node.scope}</div>
       <div>{node.enabled ? blocks : `${blocks}, switched off`}</div>
+      <MarkList marks={marks} />
     </div>
   );
 }
 
-function ConnectionLabel({ edge, highlighted }: { edge: ConnectionEdge; highlighted: boolean }) {
+interface ConnectionLabelProps {
+  edge: ConnectionEdge;
+  highlighted: boolean;
+  marksOf: (id: string) => StructuralMark[];
+}
+
+function ConnectionLabel({ edge, highlighted, marksOf }: ConnectionLabelProps) {
   return (
     <div
       style={{
@@ -229,6 +254,7 @@ function ConnectionLabel({ edge, highlighted }: { edge: ConnectionEdge; highligh
       }}
     >
       <div>{edge.label ?? 'no artifact label'}</div>
+      <MarkList marks={marksOf(edge.id)} />
       {edge.gates.map((gate) => (
         <div key={gate.id} style={{ color: '#9a3412' }}>
           <span
@@ -244,6 +270,7 @@ function ConnectionLabel({ edge, highlighted }: { edge: ConnectionEdge; highligh
             }}
           />
           {gate.text}
+          <MarkList marks={marksOf(gate.id)} />
         </div>
       ))}
     </div>

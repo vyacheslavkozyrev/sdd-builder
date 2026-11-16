@@ -6,6 +6,9 @@ import { useState } from 'react';
 import type { pipeline } from '@sddbuilder/core';
 import { addBlock, addFlowConnection, moveBlock } from './block-edit.js';
 import type { BlockEdit, MoveDirection } from './block-edit.js';
+import { MarkList } from './MarkList.js';
+import { flowBlockPathOf, marksAt, pipelinePathOf, structuralMarks } from './marks.js';
+import type { StructuralMark } from './marks.js';
 import { PropertyPanel } from './PropertyPanel.js';
 import { flowTabView } from './tab-view.js';
 import type { FlowBox, ToolboxKind } from './tab-view.js';
@@ -33,6 +36,9 @@ export function FlowTab({ config, flowId, onChange, onFlowDeleted }: FlowTabProp
   const known = new Set([...everything.boxes, ...everything.arrows].map((item) => item.id));
   const selected = selectedId !== null && known.has(selectedId) ? selectedId : null;
   const view = flowTabView(config, flowId, selected);
+  const marks = structuralMarks(config);
+  const flowMarks = marksAt(marks, pipelinePathOf(config, flowId));
+  const marksOfBlock = (blockId: string): StructuralMark[] => marksAt(marks, flowBlockPathOf(config, flowId, blockId));
 
   function apply(edit: BlockEdit) {
     if (edit.ok) {
@@ -101,12 +107,14 @@ export function FlowTab({ config, flowId, onChange, onFlowDeleted }: FlowTabProp
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <h2>Flow: {view.name}</h2>
+        <MarkList marks={flowMarks} />
         {message !== null && <p role="alert">{message}</p>}
 
         <ol aria-label="Blocks in order" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {view.boxes.map((box) => (
             <li key={box.id}>
               <BlockBox box={box} selected={box.id === selected} onSelect={() => setSelectedId(box.id)} />
+              <MarkList marks={marksOfBlock(box.id)} />
             </li>
           ))}
         </ol>
@@ -122,6 +130,7 @@ export function FlowTab({ config, flowId, onChange, onFlowDeleted }: FlowTabProp
                   #{arrow.fromNumber} to #{arrow.toNumber}
                   {arrow.label !== null ? `: ${arrow.label}` : ''}
                   {arrow.enabled ? '' : ' (off)'}
+                  <MarkList marks={marksOfBlock(arrow.id)} />
                 </li>
               ))}
             </ul>

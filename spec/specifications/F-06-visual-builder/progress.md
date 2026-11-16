@@ -82,6 +82,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment 9 — 2026-11-16
+**Changed**: `plan.md` adds T015a (model and parser: reads and writes on Agent blocks) and T015b (the Agent panel shows them) before T016. `architecture.md` §6 decision 27 records the fields.
+**Reason**: building-blocks §3 and screen 06 show reads and writes on an Agent block, but the model had no such field, so AC-023 was incomplete. Approved by the user on 2026-11-16 (add them to the model).
+**Impact**: T015 was committed without the reads and writes rows (`1375e1f`); T015a and T015b add them. Their criteria are AC-023 only.
+
 ### Amendment 8 — 2026-11-16
 **Changed**: `plan.md` T014 records the Map node rules: scope is the one scope of the enabled Agent blocks, "mixed" when they differ, "no agent" when there is none; the block count is all blocks.
 **Reason**: AC-001 says the node shows its scope, but the spec did not say what a flow with mixed or no agents shows. Approved by the user on 2026-11-16.

@@ -140,6 +140,8 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 26. **Agent blocks and the pipeline carry model, tools and body (F-06 amendment 4, 2026-11-16).** An Agent block takes an optional model (`haiku`, `sonnet`, `opus`, `inherit`), an optional list of tool names and an optional body. The pipeline takes the same three, and its description and rule tags. The parser checks their shape; the generator writes them into the agent file frontmatter and body, and into the pipeline command. The body length cap (4,000 characters) is an entry check in the builder (F-06 AC-030), not a parse rule. Before this decision the fields were in building-blocks §3 but not in the model.
 
+27. **Agent blocks carry reads and writes (F-06 amendment 9, 2026-11-16).** An Agent block takes optional `reads` and `writes` lists of artifact names (non-blank text, no duplicates). The parser checks them; the Agent panel shows them. They are the artifacts an agent reads and writes, as building-blocks §3 lists. Before this decision the fields were in building-blocks §3 but not in the model.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

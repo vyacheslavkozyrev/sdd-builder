@@ -58,7 +58,7 @@ These are the files F-02 writes for a pipeline config. The flow, pipeline, agent
 | `spec/specifications/F-00-template/*` | each file under `base/spec-template/`, rendered |
 | `.claude/commands/<flow-id>.md` | one per enabled child flow: its enabled blocks as numbered steps, in block order |
 | `.claude/commands/pipeline.md` | the arguments, then the enabled flows and checks in pipeline order as numbered steps, then a numbered rule for each back route |
-| `.claude/agents/<name>.md` | one per enabled Agent block in an enabled flow; its description is the text (stub text until F-07 writes the content) |
+| `.claude/agents/<name>.md` | one per enabled Agent block in an enabled flow; its description is the input the model writes the file from at `/generate` (decision 7 in `architecture.md`); `pipeline.generate` writes it as stub text, `# <name>` then the description |
 | `.claude/rules/<id>.md` | one per `ProjectConfig.rules` entry; its title and text from the config |
 
 The files come out sorted by path. Two files with the same path refuse the generation.

@@ -6,9 +6,9 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 
 | ID | Feature | Scope | Type | Where | Phase | Depends on | Status |
 |---|---|---|---|---|---|---|---|
-| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model is removed when F-02 to F-07 are rebuilt |
-| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator is removed when F-07 is rebuilt |
-| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete in `source/templates/claude-code/` and `source/packages/core/src/pipeline/` (16 tasks, 31 criteria, 1343 core tests); the flat layouts and generator are removed when F-07 is rebuilt |
+| F-01 | Domain model: the pipeline, its flows, blocks and the default pipeline | MVP | Enabler | source/packages/core | 0 | — | ✅ Complete in `source/packages/core/src/pipeline/` (9 tasks, 27 criteria, 784 tests); the flat model files stay until F-05 rebuilds the web app |
+| F-02 | Generator core: pipeline, agents and rules to file tree | MVP | Enabler | source/packages/core | 1 | F-01 | ✅ Complete in `source/packages/core/src/pipeline/generate/` (17 tasks, 34 criteria, 1059 tests); the flat generator was removed in F-07 |
+| F-03 | Claude Code templates | MVP | User | templates, core | 1 | F-02 | ✅ Complete in `source/templates/claude-code/` and `source/packages/core/src/pipeline/` (16 tasks, 31 criteria, 1343 core tests); the flat layouts and generator were removed in F-07 |
 | F-04 | Analyzer: structural checks and LLM review | MVP | User | source/packages/core, source/apps/api | 2 | F-01 | ✅ Complete (26 tasks, 25 criteria, 2090 tests across api, web and core; the flat analyzer is removed; see `spec/specifications/F-04-analyzer/verify.md`) |
 | F-05 | Project wizard: name and idea, technical details, workflow, analyze and generate | MVP | User | source/apps/web | 2 | F-01 | Not started |
 | F-06 | Visual builder: Map tab, flow tabs, gates and checks, custom agents | MVP | User | source/apps/web | 2 | F-01 | Not started |
@@ -39,7 +39,7 @@ Status: updated 2026-11-14 to the model of a pipeline with flows (one nesting le
 
 ### F-01 Domain model: the pipeline, blocks and the default pipeline
 
-The types for `ProjectConfig`, the pipeline and its flows (one nesting level), the five block kinds (start, agent, condition, connection, end) and the Flow block, conditions with their fixed check types and routes, scope on agent blocks, the `AnalysisResult` and `GenerationResult`, and the default pipeline (`building-blocks.md` §4). The scaffold in `source/packages/core/src/` still has the flat model and must be changed to match `building-blocks.md` before F-02.
+The types for `ProjectConfig`, the pipeline and its flows (one nesting level), the five block kinds (start, agent, condition, connection, end) and the Flow block, conditions with their fixed check types and routes, scope on agent blocks, the `AnalysisResult` and `GenerationResult`, and the default pipeline (`building-blocks.md` §4). The scaffold in `source/packages/core/src/` had only the flat model; the pipeline model was added beside it in `src/pipeline/` before F-02, to match `building-blocks.md`. The flat model files stay until F-05 (decision 19 in `architecture.md`).
 
 ### F-02 Generator core
 

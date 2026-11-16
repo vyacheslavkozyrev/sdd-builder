@@ -70,6 +70,8 @@ export type BlockPanel =
       model: AgentModel | null;
       tools: string[];
       body: string;
+      reads: string[];
+      writes: string[];
       ruleTags: string[];
       generatedFile: string;
     }
@@ -243,6 +245,8 @@ function blockPanel(flow: FlowBlock, block: ChildBlock, titles: ReadonlyMap<stri
         model: block.model ?? null,
         tools: [...(block.tools ?? [])],
         body: block.body ?? '',
+        reads: [...(block.reads ?? [])],
+        writes: [...(block.writes ?? [])],
         ruleTags: [...(block.ruleTags ?? [])],
         generatedFile: agentFilePath(block.name),
       };

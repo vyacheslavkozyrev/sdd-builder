@@ -32,6 +32,8 @@ function buildFlow(): FlowBlock {
       model: 'sonnet',
       tools: ['Read', 'Edit'],
       body: 'Implement one task.',
+      reads: ['spec', 'plan'],
+      writes: ['code'],
       ruleTags: ['typescript'],
     },
     {
@@ -188,6 +190,23 @@ describe('F-06 AC-023 selecting a block or a flow opens its property panel with 
     });
   });
 
+  it('F-06 AC-023 shows the reads and writes of an Agent block, in the order the model holds them', () => {
+    expect(flowTabView(cfg, 'build', 'implement').panel).toMatchObject({
+      kind: 'agent',
+      reads: ['spec', 'plan'],
+      writes: ['code'],
+    });
+  });
+
+  it('F-06 AC-023 shows empty reads and writes when the Agent block has none set', () => {
+    const plain = flow('plain', [
+      { kind: 'start', id: 'plain-start', enabled: true },
+      { kind: 'agent', id: 'a', enabled: true, name: 'a', scope: 'project', description: 'job' },
+      { kind: 'end', id: 'plain-end', enabled: true, outcome: 'done' },
+    ]);
+    expect(flowTabView(config([START, plain, END]), 'plain', 'a').panel).toMatchObject({ reads: [], writes: [] });
+  });
+
   it('F-06 AC-023 opens the Condition panel with check type, decider, description, threshold and routes', () => {
     expect(flowTabView(cfg, 'build', 'checks-gate').panel).toEqual({
       kind: 'condition',
@@ -300,9 +319,16 @@ describe('F-06 AC-023 selecting a block or a flow opens its property panel with 
       throw new Error('expected an agent panel');
     }
     panel.tools.push('Bash');
+    panel.reads.push('extra');
+    panel.writes.push('extra');
     panel.ruleTags.push('extra');
     const agent = (fresh.pipeline.blocks[1] as FlowBlock).blocks[1];
-    expect(agent).toMatchObject({ tools: ['Read', 'Edit'], ruleTags: ['typescript'] });
+    expect(agent).toMatchObject({
+      tools: ['Read', 'Edit'],
+      reads: ['spec', 'plan'],
+      writes: ['code'],
+      ruleTags: ['typescript'],
+    });
   });
 
   it('F-06 AC-023 throws on a selected block id that is unknown to the flow', () => {

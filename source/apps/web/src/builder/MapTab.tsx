@@ -11,6 +11,7 @@ import { addGate, gateTargetAt } from './map-edit.js';
 import type { GateChoice, MapPoint } from './map-edit.js';
 import { COLUMN_STEP, MAP_LAYOUT, connectionBoxes, mapTabView } from './map-tab-view.js';
 import type { ConnectionEdge, FlowNode } from './map-tab-view.js';
+import { GatePanel, PipelinePanel } from './PipelinePanel.js';
 import { GATE_DRAG_TYPE, Toolbox, isGateKind } from './Toolbox.js';
 import type { GateKind } from './Toolbox.js';
 
@@ -144,13 +145,20 @@ function MapTabBody({ config, onChange }: MapTabProps) {
       </div>
 
       <aside style={{ width: 260 }}>
-        {selected !== undefined && (
-          <ConnectionPanel
-            edge={selected}
-            from={names.get(selected.from) ?? selected.from}
-            to={names.get(selected.to) ?? selected.to}
-            onAdd={(kind) => place(selected.id, kind)}
-          />
+        {selected === undefined ? (
+          <PipelinePanel config={config} onChange={onChange} />
+        ) : (
+          <>
+            <ConnectionPanel
+              edge={selected}
+              from={names.get(selected.from) ?? selected.from}
+              to={names.get(selected.to) ?? selected.to}
+              onAdd={(kind) => place(selected.id, kind)}
+            />
+            {selected.gates.map((gate) => (
+              <GatePanel key={gate.id} config={config} gateId={gate.id} onChange={onChange} />
+            ))}
+          </>
         )}
       </aside>
     </section>

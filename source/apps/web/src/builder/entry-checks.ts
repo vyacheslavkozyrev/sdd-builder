@@ -4,8 +4,6 @@
 // a retry that has no round limit (building-blocks §12).
 import { pipeline } from '@sddbuilder/core';
 
-type PipelineConditionBlock = pipeline.PipelineConditionBlock;
-
 /** A value that passed its entry check, or the reason it was refused. */
 export type EntryCheck<T> = { ok: true; value: T } | { ok: false; message: string };
 
@@ -34,11 +32,14 @@ export function checkDescription(text: string): EntryCheck<string> {
   return { ok: false, message: 'A gate needs a description: what passing means.' };
 }
 
+/** The fields of a Condition the retry rule reads: a flow's Condition or a pipeline gate. */
+type RetryFields = Pick<pipeline.ConditionBlock, 'id' | 'passRoute' | 'failRoute' | 'roundLimit'>;
+
 /**
  * The warning the panel shows for a gate whose pass or fail route goes back with no round limit (building-blocks §12).
  * Null when no route is a retry, or when the retry has a limit.
  */
-export function unboundedRetryWarning(gate: PipelineConditionBlock): string | null {
+export function unboundedRetryWarning(gate: RetryFields): string | null {
   const retries = gate.passRoute.kind === 'back' || gate.failRoute.kind === 'back';
   if (!retries || gate.roundLimit !== undefined) return null;
   return `The retry of "${gate.id}" is unbounded: it has no round limit.`;

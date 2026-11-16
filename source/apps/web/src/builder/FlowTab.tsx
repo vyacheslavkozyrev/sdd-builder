@@ -1,11 +1,12 @@
 // The flow tab: the blocks of one flow in order, the flow toolbox, the selected block with Move up and Move down, and
 // the Connections drawn as a list between the numbered blocks (F-06 AC-017 to AC-021). The read model is `flowTabView`;
 // the rules are `addBlock`, `addFlowConnection` and `moveBlock`. This view only binds them and keeps the selection in
-// React memory. The property panels and the footer are the Inspector (T018), not this view.
+// React memory. The property panel of the selection is `PropertyPanel` (T018), on the right.
 import { useState } from 'react';
 import type { pipeline } from '@sddbuilder/core';
 import { addBlock, addFlowConnection, moveBlock } from './block-edit.js';
 import type { BlockEdit, MoveDirection } from './block-edit.js';
+import { PropertyPanel } from './PropertyPanel.js';
 import { flowTabView } from './tab-view.js';
 import type { FlowBox, ToolboxKind } from './tab-view.js';
 
@@ -18,9 +19,11 @@ export interface FlowTabProps {
   config: ProjectConfig;
   flowId: string;
   onChange: (config: ProjectConfig) => void;
+  /** Called after the flow itself is deleted from its own panel, so the host leaves this tab. */
+  onFlowDeleted: () => void;
 }
 
-export function FlowTab({ config, flowId, onChange }: FlowTabProps) {
+export function FlowTab({ config, flowId, onChange, onFlowDeleted }: FlowTabProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [artifactLabel, setArtifactLabel] = useState('');
@@ -125,6 +128,17 @@ export function FlowTab({ config, flowId, onChange }: FlowTabProps) {
           )}
         </section>
       </div>
+
+      <aside style={{ width: 260 }}>
+        <PropertyPanel
+          key={view.selected}
+          config={config}
+          flowId={flowId}
+          panel={view.panel}
+          onChange={onChange}
+          onFlowDeleted={onFlowDeleted}
+        />
+      </aside>
     </section>
   );
 }

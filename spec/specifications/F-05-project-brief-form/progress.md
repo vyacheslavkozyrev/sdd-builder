@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user, then split on 2026-11-15 into F-05 (frame, step 1, step 3 host, privacy: 14 criteria), F-21 (step 2: 10 criteria) and F-22 (step 4: 15 criteria). Criteria renumbered per feature. Decisions carried over: Generate waits for an analysis with no blockers; privacy notice on step 4 only; testing rules an ordinary block; stepper by Back and Next only; findings as plain text; file tree from core `planGeneration`; optional `architecture` string in the config (needs its `architecture.md` §5 record before the plan). Depends on F-06 for step 3 (AC-010, AC-011) |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. Reviewed by the `usability` and `visual` agents; the three open points decided (drag plus a select-then-add route in F-06; storage line kept on step 1; approval gates orange, rule chips violet) |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 16 tasks (T001–T016); T016 blocked until F-06 is complete |
-| Build    | 🔄 In Progress | 2026-11-15 | 10 of 16 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 11 of 16 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None.
 | T008 | Remove the flat brief form components (BriefForm, ModuleRows, RuleList); covers none | reviewed: 2 warnings closed by the owner (module table: the module list leaves the config; progress panel: dropped, the stepper is the progress view); 1 suggestion deferred to the last removal task (unused CSS selectors) | task check passed (exit 0), 1376 tests |
 | T009 | Remove the flat placement logic (placement.ts; amendment 4); covers none | reviewed: 1 warning closed by the owner (inline placement of problems dropped; F-22 lists every finding) | task check passed (exit 0), 1376 tests |
 | T010 | Remove the flat Messages component (amendment 5); covers none | reviewed: 0 blockers, 0 warnings, 0 suggestions | task check passed (exit 0), 1376 tests |
+| T011 | Remove the flat analyze request tests (analyze-request); covers none | reviewed: 1 warning accepted by the owner (the request body and URL test is lost; F-22 AC-002 and AC-010 rebuild it) | task check passed (exit 0), 1376 tests |
 
 ---
 
@@ -55,6 +56,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T008 `source/apps/web/src/brief/BriefForm.tsx` (WARNING, unresolved): the progress panel (`progressEntries` marks and the "(incomplete)" label) is not in `stories.md` (F-05, F-21, F-22) or in the approved F-05 screens, and no test covers it. The owner must confirm it is dropped; if it stays, a criterion and a screen come first.
 - T009 `source/apps/web/src/brief/placement.ts` (WARNING, unresolved): the removed `isShownBeside` and `messagesAt` decided which analyzer problems show beside their field and which go to an "Other problems" list. The flat spec had this as AC-026 ("Other problems to fix" list appears only when a problem has no field of its own) and the placement comments cite AC-010 and AC-027 of the flat numbering. The split (commit 121d04e) dropped that rule without a recorded decision, and no current criterion (F-05, F-21, F-22) or screen covers field-level placement. The visibility guarantee survives in F-22 AC-003 (every finding listed with its subject and message), so no blocker is hidden; only the inline placement is lost. Not restored: the owner must confirm the inline placement is dropped (record it as an amendment to F-21 or F-22) or add a criterion before T009 is accepted.
 - T008 `source/apps/web/src/styles.css:52,152,194` (SUGGESTION): the selectors `.brief-form`, `.module-rows`, `.rule-list` and `.progress` have no users after T008. Reason: no plan line for stylesheet cleanup; remove them in the last flat-brief removal task.
+- T011 `source/apps/web/test/analyze-request.test.ts` (WARNING, unresolved): the removal drops the only tests of the web client's `POST /analyze` request: method, URL `/analyze`, `Content-Type: application/json`, and a body equal to the config from `toProjectConfig` (`schemaVersion` 1 config, `DEFAULT_WORKFLOWS` and `DEFAULT_CONNECTIONS` included). Its labels (F-05 AC-018 for the request, F-05 AC-020 for the in-flight guard) match no criterion in F-05 `stories.md`, which has AC-001 to AC-014. No remaining test covers the body: `source/apps/api/test/analyze-route.test.ts` tests the server only, and no core or web test sends it. The guard tests are dropped too (`source/apps/web/src/analyze/in-flight.ts`, removed in T013). Not restored: the plan says T011 covers none, and F-22 AC-002 (body from the wizard state) and AC-010 (pending Generate) own this behaviour. Owner decision: restore a request-body test now (under F-05 or in F-22 when `analyze/request.ts` is rebuilt) or accept the gap until F-22.
 
 ---
 

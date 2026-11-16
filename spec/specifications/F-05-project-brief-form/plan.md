@@ -19,7 +19,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 - [x] T007 [Web] Remove the flat brief dependency and gate tests — `source/apps/web/test/brief-depends.test.ts`, `source/apps/web/test/brief-gate.test.ts` — covers none (removal)
 - [x] T008 [Web] Remove the flat brief form components (BriefForm, ModuleRows, RuleList) — `source/apps/web/src/brief/BriefForm.tsx`, `source/apps/web/src/brief/ModuleRows.tsx`, `source/apps/web/src/brief/RuleList.tsx` — covers none (removal)
 - [x] T009 [Web] Remove the flat placement logic (amendment 4: only this file now; nothing imports it) — `source/apps/web/src/brief/placement.ts` — covers none (removal)
-- [ ] T010 [Web] Remove the flat Messages component (amendment 5: only this file now; nothing imports it) — `source/apps/web/src/brief/Messages.tsx` — covers none (removal)
+- [x] T010 [Web] Remove the flat Messages component (amendment 5: only this file now; nothing imports it) — `source/apps/web/src/brief/Messages.tsx` — covers none (removal)
 - [ ] T011 [Web] Remove the flat analyze request tests — `source/apps/web/test/analyze-request.test.ts` — covers none (removal; F-22 rebuilds analyze)
 - [ ] T012 [Web] Remove the flat analyze result tests — `source/apps/web/test/analyze-result.test.ts` — covers none (removal)
 - [ ] T013 [Web] Remove the flat analyze panel and logic — `source/apps/web/src/analyze/AnalysisPanel.tsx`, `source/apps/web/src/analyze/in-flight.ts`, `source/apps/web/src/analyze/request.ts`, `source/apps/web/src/analyze/result.ts` — covers none (removal)

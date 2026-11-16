@@ -1,7 +1,7 @@
 import { ID_MESSAGE, isValidId } from './ids.js';
 import type { ChildBlock, FlowBlock, Pipeline, PipelineBlock, ProjectConfig, ProjectStack, Rule } from './model.js';
 import { parsePipelineStructure, type ChildStructure, type FlowStructure, type PipelineStructure } from './parse-structure.js';
-import { readRuleTags, toAgentBlock, toChildStart, toPipelineStart } from './parse-scope.js';
+import { readAgentSettings, readRuleTags, toAgentBlock, toChildStart, toPipelineStart } from './parse-scope.js';
 import { toCondition, toPipelineCondition } from './parse-condition.js';
 import { toConnection, toEnd } from './parse-connection-end.js';
 import {
@@ -26,7 +26,7 @@ export type ParsePipelineResult = { ok: true; config: ProjectConfig } | { ok: fa
 
 const ROOT_KEYS: readonly string[] = ['schemaVersion', 'name', 'idea', 'stack', 'pipeline', 'rules'];
 const STACK_KEYS: readonly string[] = ['language', 'framework', 'platform', 'buildTool', 'testFramework'];
-const PIPELINE_KEYS: readonly string[] = ['name', 'blocks'];
+const PIPELINE_KEYS: readonly string[] = ['name', 'description', 'blocks', 'ruleTags', 'model', 'tools', 'body'];
 const FLOW_KEYS: readonly string[] = ['kind', 'id', 'name', 'description', 'enabled', 'blocks', 'ruleTags'];
 const RULE_KEYS: readonly string[] = ['id', 'title', 'text'];
 
@@ -163,15 +163,34 @@ function parsePipeline(value: unknown, path: string, problems: PipelineProblem[]
   checkKeys(obj, PIPELINE_KEYS, path, problems);
   // The pipeline name is free text: it is a display name, not a file name (architecture §4 writes `pipeline.md`).
   const name = readString(obj, 'name', path, problems);
+  const description = has(obj, 'description') ? readString(obj, 'description', path, problems) : undefined;
   const list = readList(obj, 'blocks', path, problems);
   const structures = list === undefined ? undefined : parsePipelineStructure(list, childPath(path, 'blocks'), problems);
-  if (name === undefined || list === undefined || structures === undefined) return undefined;
+  const ruleTags = readRuleTags(obj, path, problems);
+  const settings = readAgentSettings(obj, path, problems);
+  const descriptionOk = !has(obj, 'description') || description !== undefined;
+  if (
+    name === undefined ||
+    list === undefined ||
+    structures === undefined ||
+    ruleTags === undefined ||
+    settings === undefined ||
+    !descriptionOk
+  ) {
+    return undefined;
+  }
   const ids = describeList(list);
   const blocks = structures.flatMap((block) => {
     const converted = convertPipelineBlock(block, ids, problems);
     return converted === undefined ? [] : [converted];
   });
-  return { name, blocks };
+  return {
+    name,
+    ...(description === undefined ? {} : { description }),
+    blocks,
+    ruleTags,
+    ...settings,
+  };
 }
 
 /**

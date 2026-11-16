@@ -1,6 +1,8 @@
 export type {
   Argument,
   AgentBlock,
+  AgentModel,
+  AgentSettings,
   ChildBlock,
   CheckType,
   ConditionBlock,

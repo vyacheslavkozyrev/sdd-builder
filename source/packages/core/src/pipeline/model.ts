@@ -72,8 +72,23 @@ export interface PipelineStartBlock {
   arguments: Argument[];
 }
 
+/** The model an agent runs on. `inherit` takes the model of the session that runs it. */
+export type AgentModel = 'haiku' | 'sonnet' | 'opus' | 'inherit';
+
+/**
+ * The optional settings of an agent file, also held by the pipeline (F-06 amendment 4). Absent means not set:
+ * the generator writes a frontmatter line for a setting only when it is set.
+ */
+export interface AgentSettings {
+  model?: AgentModel;
+  /** The tool names the agent may use. Each is a non-blank string with no space or control character. */
+  tools?: string[];
+  /** The agent's own text, written after the frontmatter. Not capped at parse; the builder caps it at entry (F-06 AC-030). */
+  body?: string;
+}
+
 /** Runs one agent (`.claude/agents/<name>.md`) with a scope. The description is the agent's job, its stub text. */
-export interface AgentBlock {
+export interface AgentBlock extends AgentSettings {
   kind: 'agent';
   id: string;
   enabled: boolean;
@@ -164,7 +179,11 @@ export type PipelineBlock =
   | FlowBlock;
 
 /** The top-level flow. It contains child flows, connections and gates between them. */
-export interface Pipeline {
+export interface Pipeline extends AgentSettings {
   name: string;
+  /** What the pipeline does, as the pipeline command's text. Optional; absent means none. */
+  description?: string;
+  /** Ids of the project rules the pipeline takes (`ProjectConfig.rules`). Absent in code means none; the parser sets `[]`. */
+  ruleTags?: string[];
   blocks: PipelineBlock[];
 }

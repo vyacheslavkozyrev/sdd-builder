@@ -99,8 +99,8 @@ describe('F-01 AC-010 every Agent block has a scope of project, feature or task'
   });
 
   it('refuses an unknown key inside an Agent block at the path of the key', () => {
-    expect(problemsOf(configWith(validBlocks([agent('task', { model: 'haiku' })])))).toEqual([
-      { path: 'pipeline.blocks[1].blocks[1].model', message: 'is not a known key' },
+    expect(problemsOf(configWith(validBlocks([agent('task', { colour: 'blue' })])))).toEqual([
+      { path: 'pipeline.blocks[1].blocks[1].colour', message: 'is not a known key' },
     ]);
   });
 

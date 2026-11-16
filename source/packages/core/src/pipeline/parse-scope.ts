@@ -3,7 +3,7 @@
 // none (AC-012). The structure is checked in parse-structure.ts; this file types the blocks as
 // the model types. Unknown keys are refused here, at the path of the key.
 import { ID_MESSAGE, isValidId } from './ids.js';
-import type { AgentBlock, Argument, PipelineStartBlock, Scope, StartBlock } from './model.js';
+import type { AgentBlock, AgentModel, AgentSettings, Argument, PipelineStartBlock, Scope, StartBlock } from './model.js';
 import type { AgentStructure, StartStructure } from './parse-structure.js';
 import {
   checkKeys,
@@ -18,13 +18,20 @@ import {
   type PipelineProblem,
 } from './parse-util.js';
 
-const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description', 'ruleTags'];
+const AGENT_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'name', 'scope', 'description', 'ruleTags', 'model', 'tools', 'body'];
+const AGENT_MODELS: readonly string[] = ['haiku', 'sonnet', 'opus', 'inherit'];
+/** A tool name cannot hold a space or a control character: a line break would corrupt the frontmatter (F-06 AC-026). */
+const UNSAFE_TOOL_CHARACTER = /[\s\p{Cc}]/u;
 const CHILD_START_KEYS: readonly string[] = ['kind', 'id', 'enabled'];
 const PIPELINE_START_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'arguments'];
 const ARGUMENT_KEYS: readonly string[] = ['name', 'required', 'hint'];
 
 function isScope(value: unknown): value is Scope {
   return value === 'project' || value === 'feature' || value === 'task';
+}
+
+function isAgentModel(value: unknown): value is AgentModel {
+  return typeof value === 'string' && AGENT_MODELS.includes(value);
 }
 
 /** Runs the key check and reports whether it added no problem. */
@@ -89,14 +96,77 @@ export function readRuleTags(obj: Obj, path: string, problems: PipelineProblem[]
   return tags.length === list.length ? tags : undefined;
 }
 
-/** An Agent block with its scope, description and rule tags. The name and the id were checked in the structure. */
+/** An Agent block with its scope, description, rule tags and settings. The name and the id were checked in the structure. */
 export function toAgentBlock(block: AgentStructure, problems: PipelineProblem[]): AgentBlock | undefined {
   const keysOk = keysAllowed(block.fields, AGENT_KEYS, block.path, problems);
   const scope = readScope(block.fields, block.path, problems);
   const description = readDescription(block.fields, block.path, problems);
   const ruleTags = readRuleTags(block.fields, block.path, problems);
-  if (!keysOk || scope === undefined || description === undefined || ruleTags === undefined) return undefined;
-  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description, ruleTags };
+  const settings = readAgentSettings(block.fields, block.path, problems);
+  if (!keysOk || scope === undefined || description === undefined || ruleTags === undefined || settings === undefined) {
+    return undefined;
+  }
+  return { kind: 'agent', id: block.id, enabled: block.enabled, name: block.name, scope, description, ruleTags, ...settings };
+}
+
+/**
+ * The optional settings of an agent file, also read for the pipeline (F-06 amendment 4): the model (one of the four
+ * values), the tool names (non-blank strings) and the body (a string, not capped here). A key that is absent is left
+ * out of the result. Returns undefined when a present key is invalid; the problem is recorded at its own path.
+ */
+export function readAgentSettings(obj: Obj, path: string, problems: PipelineProblem[]): AgentSettings | undefined {
+  const settings: AgentSettings = {};
+  let valid = true;
+  if (has(obj, 'model')) {
+    const model = readAgentModel(obj, path, problems);
+    if (model === undefined) valid = false;
+    else settings.model = model;
+  }
+  if (has(obj, 'tools')) {
+    const tools = readTools(obj, path, problems);
+    if (tools === undefined) valid = false;
+    else settings.tools = tools;
+  }
+  if (has(obj, 'body')) {
+    const body = readString(obj, 'body', path, problems);
+    if (body === undefined) valid = false;
+    else settings.body = body;
+  }
+  return valid ? settings : undefined;
+}
+
+function readAgentModel(obj: Obj, path: string, problems: PipelineProblem[]): AgentModel | undefined {
+  const value = obj['model'];
+  if (isAgentModel(value)) return value;
+  problems.push({ path: childPath(path, 'model'), message: 'must be haiku, sonnet, opus or inherit' });
+  return undefined;
+}
+
+/**
+ * The tool names of an agent: a list of strings, none blank, none with a space or control character (F-06 AC-026).
+ * Each item that breaks a rule is refused at its own path.
+ */
+function readTools(obj: Obj, path: string, problems: PipelineProblem[]): string[] | undefined {
+  const list = readList(obj, 'tools', path, problems);
+  if (list === undefined) return undefined;
+  const toolsPath = childPath(path, 'tools');
+  const tools = list.flatMap((item, index) => {
+    const itemPath = indexPath(toolsPath, index);
+    if (typeof item !== 'string') {
+      problems.push({ path: itemPath, message: 'must be a string' });
+      return [];
+    }
+    if (item.trim() === '') {
+      problems.push({ path: itemPath, message: 'must not be blank' });
+      return [];
+    }
+    if (UNSAFE_TOOL_CHARACTER.test(item)) {
+      problems.push({ path: itemPath, message: 'must not contain spaces or control characters' });
+      return [];
+    }
+    return [item];
+  });
+  return tools.length === list.length ? tools : undefined;
 }
 
 /** A Start block of a child flow. It carries no arguments: an `arguments` key is refused. */

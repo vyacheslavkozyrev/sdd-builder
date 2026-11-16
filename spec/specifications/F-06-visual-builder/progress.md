@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 10 of 22 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 11 of 22 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ None.
 | T008 | Gate settings: diff-size threshold, route options (stop, the source flow, earlier flows), optional round limit (kept only for a back route), required description, unbounded-retry warning. Code went into commit 6276381 by mistake (with amendment 3; not amended) | reviewed: 1 blocker fixed (source flow offered, as amendment 3 approves), 0 warnings, 0 suggestions applied; 2 deferred (description line breaks; a second unbounded-retry rule in the analyzer) | task check passed (exit 0), 1273 core, 480 api, 470 web tests |
 | T009 | Blocks in a flow: add after the selection (Start once, End last), move up or down (refused if it breaks a back route), connection inside the flow only, Condition routes (back to an earlier block, optional limit). One commit by the owner's approval; the 400-line guard was waived for this task | reviewed: 0 blockers, 1 warning fixed (move keeps back routes earlier), 1 suggestion fixed; 1 deferred (duplicated helpers, with T021) | task check passed (exit 0), 1273 core, 480 api, 505 web tests |
 | T010 | Blocks: switch a block off and on (kept in place with its properties); delete a block with its connections (confirmation question), routes to it left unwired; the flow Start refused with a message naming the flow | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (header comment reflowed) | task check passed (exit 0), 1273 core, 480 web, 523 api tests |
+| T011a | Agent and pipeline fields in core (amendment 4): optional model, tools and body on Agent blocks; description, rule tags, model, tools and body on the pipeline; tool names with spaces or control characters refused | reviewed: 1 blocker fixed (tool names with spaces or control characters), 0 warnings, 0 suggestions; 1 question deferred (spaced permission form, kept refused) | task check passed (exit 0), 1313 tests |
 
 ---
 
@@ -53,6 +54,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T008 review, WARNING (spec text): `spec/specifications/F-06-visual-builder/stories.md` AC-014 and the T008 line in `plan.md` say routes to the same flow are not offered. The T008 fix offers the connection's own source flow as the fail route, as the caller directed, because the default pipeline needs it (building-blocks §4: approve-stories, approve-screens, approve-plan and approve-checklist fail back to their source flows) and `setGateSettings` must accept those routes. Stories were not edited. Open: the user must approve an amendment that replaces "the same flow" with "the flow the connection starts from" in AC-014 and T008 before the next task advances.
 - T009 review, SUGGESTION: `source/apps/web/src/builder/block-edit.ts` `refuse` and `requireFlow` repeat helpers of `flow-edit.ts`. Not applied: a shared module is a refactor with no behaviour change, the same call as the T007 entry on `pipelineIds`; revisit with T021.
 - T008 review, SUGGESTION: `source/apps/web/src/builder/map-edit.ts` `setGateSettings` accepts a description with line breaks. Not applied: this is the open product choice recorded under T003 above (line breaks in a rule); decide it there, then enforce it in `checkDescription`.
+- T011a review, QUESTION (product): `source/packages/core/src/pipeline/parse-scope.ts` `readTools` now refuses a tool name with a space, as the user directed for AC-026, so Claude Code's spaced form `Bash(git add:*)` is refused. Applied as directed (`Bash(git:*)` stays allowed). Open: confirm with the user before T011b whether the spaced form should be allowed in a tool list.
 
 ---
 

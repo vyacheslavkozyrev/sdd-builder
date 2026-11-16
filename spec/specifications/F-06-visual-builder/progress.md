@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user as written; 45 criteria (43 `[auto]`, 2 `[device]` — AC-005, AC-045). Decisions: Map offers Approval and Check only (Check = `checks` or `diff-size`; review is an Agent block); live structural marks use the core rules. Open for Plan: who builds the core rule module, F-06 or F-04; `features.md` still lists F-01 only as the dependency |
 | UX       | ✅ Complete | 2026-11-15 | Approved by the user. 11 screens. Decisions from approval: one gate per connection (Add buttons disabled when the arrow has one); custom-agent edits apply as made (no Save button). Open for Plan: visual points V1 (marks red or amber), V2 (10 px hint text), V3 (toolbox shift on the Start refusal); Start/End panels not drawn; refused states for a repeated flow id, rule tag and agent name not drawn |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written; 22 tasks. Prerequisite: T020 and T021 wait for F-05 T001 to T015 committed; review is removed as a check type (T002, T003) |
-| Build    | 🔄 In Progress | 2026-11-15 | 24 of 27 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-15 | 25 of 27 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -49,6 +49,7 @@ None.
 | T017 | Flow tab component: blocks in order with numbers, flow toolbox (Start disabled when one exists), selected block with move up and down, a Connection with its artifact label typed in a field (amendment 10); refusals shown; the component has no DOM test | reviewed: 0 blockers, 0 warnings, 1 suggestion fixed (aria-required); 1 deferred (test title AC-008 vs AC-020) | task check passed (exit 0), 1371 tests |
 | T018 | Property panels: `PropertyPanel` (block or flow, with switch off and delete footer and confirmation), `PipelinePanel` (pipeline and gate panels), `FormFields` controls with inline refusals; the 400-line guard was waived by the owner (one commit approved); editing controls for Agent reads and writes, Connection, End, Start, Condition checks and flow description are not built (text only, per the owner's note) | reviewed: 0 blockers, 2 warnings fixed (round limit field kept a stale value after a route change, Condition and gate; threshold accepted `1e3` and `0x10`), 3 suggestions fixed (dead `commitOn` option removed; model constants shared; whole-number parse tested); 2 deferred (stale draft on external config replacement; panel bindings have no component test) | task check passed (exit 0), 700 web tests (17 new), 480 api, 1371 workspace |
 | T019 | Builder root `PipelineBuilder`: host props (`initial`, `onChange`) through the builder state, tab row (Map, flows, +), selection, start from the default pipeline on load (AC-043 host, AC-045 `[device]` checked in a browser) | reviewed: 0 blockers, 0 warnings, 2 suggestions fixed (switched-off flow tabs marked; selection dropped when its flow leaves the configuration); 0 deferred | task check passed (exit 0), 1371 tests |
+| T020 | Step 3 uses the pipeline builder in place of the flat builder; the pipeline config now lives in App state, so step 4 can read it (amendment 11); the flat map state is removed | reviewed: 0 blockers, 1 warning fixed (step-4 read; amendment 11), 1 suggestion fixed, 1 deferred (builder reads initial at mount only) | task check passed (exit 0), 1376 tests |
 
 ---
 
@@ -85,6 +86,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T018 review, WARNING (plan): `plan.md` T018 names `source/apps/web/src/builder/Inspector.tsx`, which is the flat builder's old inspector (untouched since 2026-11-14, deleted by T021). T018 put the panels in `PropertyPanel.tsx` and `PipelinePanel.tsx` instead. The file exists, so the pre-flight passes, but the plan line is out of date. Fix the plan line (amendment) before T019 or in the T021 entry; the owner decides which.
 - T018 review, SUGGESTION: `source/apps/web/src/builder/FormFields.tsx` `TextDraft` keeps its draft from mount and does not re-read `value` when it changes, so a configuration replaced by the host while a panel stays mounted would show the old text. Not applied: the only host input is the initial configuration (AC-043), and a re-sync would break typing, because the stored value is trimmed (a trailing space or newline would be removed on each keystroke). Revisit with the F-05 host wiring (T019 or later).
 - T018 review, SUGGESTION: the panels' handlers (`PropertyPanel.tsx`, `PipelinePanel.tsx`) have no component test; the rules they call are tested in the edit modules and the view-model (AC-023 to AC-035). Not applied: the web tests are view-model and logic tests (`qa.md`), and no DOM test exists in the MVP. The bindings are not covered by any automated test yet; a browser check is the only way to catch a wrong handler.
+- T020 review, WARNING (RESOLVED 2026-11-16): `source/apps/web/src/wizard/Wizard.tsx` rendered `<PipelineBuilder />` with no props, so `onChange` was never supplied and the config lived only inside `PipelineBuilder.tsx`; step 4 could not read the pipeline. Fixed by Amendment 11: `App.tsx` holds the config (initialised from `defaultProjectConfig`), `Wizard.tsx` passes it as `initial` and `onChange`, and the builder reports every change to App. Wiring asserted in `source/apps/web/test/builder-wiring.test.ts` (F-06 T020).
+- T020 review round 2, SUGGESTION: `source/apps/web/src/builder/PipelineBuilder.tsx` reads `initial` once, at mount; later changes to the prop are ignored, and App now re-renders with a new config object after each change. Not applied: the builder is the source of truth after mount, and changing the prop doc would widen the change beyond the impact in Amendment 11 (App, Wizard, wiring test). Revisit when step 4 reads the config (F-05 T016) or with the F-06 T021 cleanup.
 
 ---
 ## Test Results
@@ -94,6 +97,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 11 — 2026-11-16
+**Changed**: step 3 keeps the pipeline config in App state, so step 4 can read it. `App.tsx` holds the config, initialised from the default pipeline; `Wizard.tsx` passes it to `PipelineBuilder` as `initial` and receives each change through `onChange`, which updates App's state. The builder stays mounted while hidden.
+**Reason**: owner decision, 2026-11-16 (F-05 AC-011). The T020 review found that the wizard could not read the builder's pipeline, because the builder kept its config inside its own state.
+**Impact**: `source/apps/web/src/App.tsx`, `source/apps/web/src/wizard/Wizard.tsx` and the wiring test `source/apps/web/test/builder-wiring.test.ts` only.
 
 ### Amendment 10 — 2026-11-16
 **Changed**: the flow tab's Connection takes its artifact from a typed text field (required, non-blank) next to the Connection button, not from the selected Agent's writes. The trimmed text goes to `addFlowConnection`, which keeps its refusal for a blank label.

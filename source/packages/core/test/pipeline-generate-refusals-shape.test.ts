@@ -147,7 +147,7 @@ describe('F-02 AC-002 a pipeline or a child flow with more than one Start block,
         pipelineStart(),
         flow('specify', [
           start('s'),
-          { kind: 'condition', id: 'c', enabled: true, decidedBy: 'agent', checkType: 'checks', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } },
+          { kind: 'condition', id: 'c', enabled: true, description: 'The check passes.', decidedBy: 'agent', checkType: 'checks', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } },
           end('e1'),
           { ...end('e2'), outcome: 'stopped' },
         ]),

@@ -32,6 +32,7 @@ function diffGate(id: string, threshold: number): PipelineConditionBlock {
     kind: 'condition',
     id,
     enabled: true,
+    description: 'The diff stays within the threshold.',
     decidedBy: 'agent',
     checkType: 'diff-size',
     threshold,
@@ -119,9 +120,9 @@ describe('F-02 AC-024 the pipeline command file', () => {
     const steps = sectionLines(commandOf(config), '## Steps');
     expect(steps).toEqual([
       '1. Run the flow `a flow` (`a`), following `.claude/commands/a.md`.',
-      '2. Check approval, decided by human (`g1`).',
+      '2. Check approval, decided by human (`g1`). Passing means: The check passes.',
       '3. Run the flow `b flow` (`b`), following `.claude/commands/b.md`.',
-      '4. Check checks, decided by agent (`g2`).',
+      '4. Check checks, decided by agent (`g2`). Passing means: The check passes.',
       '5. Run the flow `c flow` (`c`), following `.claude/commands/c.md`.',
     ]);
   });
@@ -225,17 +226,17 @@ describe('F-02 AC-025 checks show their threshold or their decider', () => {
     {
       name: 'a diff-size check shows its threshold',
       block: diffGate('size', 400),
-      expected: 'Check diff-size: the staged change is at most 400 lines (`size`).',
+      expected: 'Check diff-size: the staged change is at most 400 lines (`size`). Passing means: The diff stays within the threshold.',
     },
     {
       name: 'an approval check shows a human decider',
       block: checkGate('approve', 'approval', 'human'),
-      expected: 'Check approval, decided by human (`approve`).',
+      expected: 'Check approval, decided by human (`approve`). Passing means: The check passes.',
     },
     {
       name: 'a checks check shows an agent decider',
       block: checkGate('tests', 'checks', 'agent'),
-      expected: 'Check checks, decided by agent (`tests`).',
+      expected: 'Check checks, decided by agent (`tests`). Passing means: The check passes.',
     },
   ];
 
@@ -247,7 +248,7 @@ describe('F-02 AC-025 checks show their threshold or their decider', () => {
 
   it('F-02 AC-025 the check step of a diff-size gate appears in the pipeline command', () => {
     const config = configWith([startWith([]), validFlow('a', []), diffGate('size', 250), validFlow('b', []), pipelineEnd()]);
-    expect(sectionLines(commandOf(config), '## Steps')[1]).toBe('2. Check diff-size: the staged change is at most 250 lines (`size`).');
+    expect(sectionLines(commandOf(config), '## Steps')[1]).toBe('2. Check diff-size: the staged change is at most 250 lines (`size`). Passing means: The diff stays within the threshold.');
   });
 
   it('F-02 AC-025 backRouteRule gives no rule for an outcome that does not route back', () => {

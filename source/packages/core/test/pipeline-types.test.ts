@@ -26,6 +26,7 @@ const approvalCondition: ConditionBlock = {
   kind: 'condition',
   id: 'approve-spec',
   enabled: true,
+  description: 'The check passes.',
   checkType: 'approval',
   decidedBy: 'human',
   passRoute: { kind: 'next' },
@@ -36,6 +37,7 @@ const checksCondition: ConditionBlock = {
   kind: 'condition',
   id: 'run-checks',
   enabled: true,
+  description: 'The check passes.',
   checkType: 'checks',
   decidedBy: 'agent',
   passRoute: { kind: 'next' },
@@ -47,6 +49,7 @@ const disabledChecksCondition: ConditionBlock = {
   kind: 'condition',
   id: 'run-checks-off',
   enabled: false,
+  description: 'The check passes.',
   checkType: 'checks',
   decidedBy: 'agent',
   passRoute: { kind: 'next' },
@@ -57,6 +60,7 @@ const diffSizeCondition: ConditionBlock = {
   kind: 'condition',
   id: 'diff-size',
   enabled: true,
+  description: 'The check passes.',
   checkType: 'diff-size',
   threshold: 400,
   decidedBy: 'agent',
@@ -95,7 +99,7 @@ const buildFlow: Flow = {
 const pipelineBlocks: PipelineBlock[] = [
   { kind: 'start', id: 'pipeline-start', enabled: true, arguments: [{ name: 'feature', required: true, hint: 'F-XX id' }] },
   { kind: 'flow', ...specifyFlow },
-  { kind: 'condition', id: 'between', enabled: true, checkType: 'approval', decidedBy: 'human', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' }, onConnection: 'specify-to-build' },
+  { kind: 'condition', id: 'between', enabled: true, description: 'The check passes.', checkType: 'approval', decidedBy: 'human', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' }, onConnection: 'specify-to-build' },
   { kind: 'connection', id: 'specify-to-build', enabled: true, from: 'specify', to: 'build', artifact: 'plan.md' },
   { kind: 'flow', ...buildFlow },
   { kind: 'end', id: 'pipeline-end', enabled: true, outcome: 'done' },
@@ -157,7 +161,7 @@ describe('F-01 AC-003 the block kinds are Start, Agent, Condition, Connection, E
 
   it('refuses a pipeline gate that does not name the connection it sits on', () => {
     // @ts-expect-error a gate between flows names its connection (building-blocks §1, §3)
-    const gateWithoutConnection: PipelineBlock = { kind: 'condition', id: 'g', enabled: true, checkType: 'approval', decidedBy: 'human', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } };
+    const gateWithoutConnection: PipelineBlock = { kind: 'condition', id: 'g', enabled: true, description: 'The check passes.', checkType: 'approval', decidedBy: 'human', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } };
     expect(gateWithoutConnection).toBeDefined();
   });
 });
@@ -177,7 +181,7 @@ describe('F-01 AC-003 each condition type has a typed fixture', () => {
     // @ts-expect-error a threshold belongs to diff-size only
     const approvalWithThreshold: ConditionBlock = { ...approvalCondition, threshold: 400 };
     // @ts-expect-error diff-size needs a threshold
-    const diffSizeWithout: ConditionBlock = { kind: 'condition', id: 'd', enabled: true, checkType: 'diff-size', decidedBy: 'agent', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } };
+    const diffSizeWithout: ConditionBlock = { kind: 'condition', id: 'd', enabled: true, description: 'The check passes.', checkType: 'diff-size', decidedBy: 'agent', passRoute: { kind: 'next' }, failRoute: { kind: 'stop' } };
     expect(approvalWithThreshold).toBeDefined();
     expect(diffSizeWithout).toBeDefined();
   });

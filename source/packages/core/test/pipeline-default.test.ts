@@ -131,3 +131,31 @@ describe('F-01 AC-017 a changed copy of the default is refused at the path of th
     });
   });
 });
+
+describe('F-06 AC-016 every Condition of the default carries a description; the build review gate is a checks gate', () => {
+  function conditionsOf(blocks: readonly unknown[]): { id: string; description: unknown }[] {
+    return blocks.flatMap((block): { id: string; description: unknown }[] => {
+      if (typeof block !== 'object' || block === null) return [];
+      const entry = block as { kind?: unknown; id?: unknown; description?: unknown; blocks?: unknown };
+      const own = entry.kind === 'condition' && typeof entry.id === 'string' ? [{ id: entry.id, description: entry.description }] : [];
+      return [...own, ...(Array.isArray(entry.blocks) ? conditionsOf(entry.blocks) : [])];
+    });
+  }
+
+  it('gives each Condition of the default JSON a non-blank description', () => {
+    const conditions = conditionsOf([(defaultJson as JsonObject)['pipeline']]);
+    expect(conditions).toHaveLength(8);
+    for (const condition of conditions) {
+      expect(typeof condition.description === 'string' && condition.description.trim() !== '').toBe(true);
+    }
+  });
+
+  it('makes the build review gate a checks Condition whose description is the review text', () => {
+    const build = flows().find((flow) => flow.id === 'build');
+    expect(build?.blocks.find((block) => block.kind === 'condition' && block.id === 'build-review-gate')).toMatchObject({
+      kind: 'condition',
+      checkType: 'checks',
+      description: 'the review reports no blocker or warning',
+    });
+  });
+});

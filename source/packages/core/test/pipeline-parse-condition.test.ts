@@ -31,6 +31,7 @@ function check(overrides: Record<string, unknown> = {}): Record<string, unknown>
     kind: 'condition',
     id: 'check',
     enabled: true,
+    description: 'The check passes.',
     checkType: 'approval',
     decidedBy: 'human',
     passRoute: { kind: 'next' },
@@ -101,9 +102,43 @@ describe('F-01 AC-005 the check type is approval, checks or diff-size; any other
   });
 
   it('refuses an unknown key inside a Condition, at the key path', () => {
-    expect(problemsOf(withFlow([check({ description: 'what passing means' })]))).toEqual([
-      { path: `${CHECK_PATH}.description`, message: 'is not a known key' },
+    expect(problemsOf(withFlow([check({ summary: 'what passing means' })]))).toEqual([
+      { path: `${CHECK_PATH}.summary`, message: 'is not a known key' },
     ]);
+  });
+});
+
+describe('F-06 AC-016 a Condition has a required, non-blank description (what passing means)', () => {
+  it('accepts a description on a child Condition and keeps it', () => {
+    expect(buildBlock(withFlow([check({ description: 'the review reports no blocker' })]), 1)).toMatchObject({
+      kind: 'condition',
+      description: 'the review reports no blocker',
+    });
+  });
+
+  it('accepts a description on a pipeline gate and keeps it', () => {
+    expect(pipelineBlockAt(gateWith(gate({ description: 'the user approves' })), 2)).toMatchObject({
+      kind: 'condition',
+      description: 'the user approves',
+    });
+  });
+
+  it('refuses a Condition without a description, at the Condition path', () => {
+    const { description: _removed, ...withoutDescription } = check();
+    expect(problemsOf(withFlow([withoutDescription]))).toEqual([{ path: CHECK_PATH, message: 'description is required' }]);
+  });
+
+  it('refuses a pipeline gate without a description, at its path', () => {
+    const { description: _removed, ...withoutDescription } = gate();
+    expect(problemsOf(gateWith(withoutDescription))).toEqual([{ path: 'pipeline.blocks[2]', message: 'description is required' }]);
+  });
+
+  it.each(['', '   ', '\n\t'])('refuses the blank description %j at the Condition path', (description) => {
+    expect(problemsOf(withFlow([check({ description })]))).toEqual([{ path: CHECK_PATH, message: 'description must not be blank' }]);
+  });
+
+  it('refuses a description that is not a string, at the Condition path', () => {
+    expect(problemsOf(withFlow([check({ description: 42 })]))).toEqual([{ path: CHECK_PATH, message: 'description must be a string' }]);
   });
 });
 

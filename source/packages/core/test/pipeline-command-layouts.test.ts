@@ -101,7 +101,7 @@ describe('F-03 AC-005 pipelineStepList lists the enabled flows and checks in pip
       ],
       expected: [
         '1. Run the flow `a flow` (`a`), following `.claude/commands/a.md`.',
-        '2. Check checks, decided by agent (`g1`).',
+        '2. Check checks, decided by agent (`g1`). Passing means: The check passes.',
         '3. Run the flow `c flow` (`c`), following `.claude/commands/c.md`.',
       ],
     },

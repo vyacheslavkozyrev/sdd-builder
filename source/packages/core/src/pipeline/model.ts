@@ -88,6 +88,8 @@ interface ConditionCommon {
   kind: 'condition';
   id: string;
   enabled: boolean;
+  /** What passing means, as the rule text. Required and not blank (F-06 AC-016). */
+  description: string;
   decidedBy: DecidedBy;
   passRoute: Route;
   failRoute: Route;

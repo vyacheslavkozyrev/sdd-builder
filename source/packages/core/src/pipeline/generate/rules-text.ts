@@ -6,12 +6,16 @@ import type { ConditionBlock } from '../model.js';
 /** Which output of a Condition a rule is about. */
 export type Outcome = 'pass' | 'fail';
 
-/** The rule for a Condition's check. A diff-size check shows its threshold; the other check types show their decider. */
+/**
+ * The rule for a Condition's check. A diff-size check shows its threshold; the other check types show their decider.
+ * The Condition's description, what passing means, follows the check (F-06 AC-016).
+ */
 export function checkRule(block: ConditionBlock): string {
+  const passing = `Passing means: ${block.description}`;
   if (block.checkType === 'diff-size') {
-    return `Check diff-size: the staged change is at most ${block.threshold} lines (\`${block.id}\`).`;
+    return `Check diff-size: the staged change is at most ${block.threshold} lines (\`${block.id}\`). ${passing}`;
   }
-  return `Check ${block.checkType}, decided by ${block.decidedBy} (\`${block.id}\`).`;
+  return `Check ${block.checkType}, decided by ${block.decidedBy} (\`${block.id}\`). ${passing}`;
 }
 
 /**

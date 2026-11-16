@@ -1,6 +1,6 @@
 // Refusals of names, required blocks and Condition checks (F-02 AC-008 to AC-011, AC-013), and of the descriptions of
-// the pipeline's Agent blocks (F-02 AC-029). The parser refuses the same cases for a config read from JSON; these checks
-// keep generate refusing them for a config built in code. The rule tags that name no project rule (F-03 AC-029) are
+// the flows, Agent blocks and Conditions (F-02 AC-029, F-06 AC-016). The parser refuses the same cases for a config read
+// from JSON; these checks keep generate refusing them for a config built in code. The rule tags that name no project rule (F-03 AC-029) are
 // refused only here: the parser reads the tags' shape, and the rules are checked against the whole config.
 //
 // Names: every block and flow id, and every argument name, is file-safe and unique across the pipeline. An Agent block is
@@ -38,25 +38,34 @@ const REQUIRED_GATE_IDS: readonly string[] = defaultProjectConfig.pipeline.block
   block.kind === 'condition' ? [block.id] : [],
 );
 
+/** Whether a description is missing, not a string, or blank. */
+function isBlankDescription(description: unknown): boolean {
+  return typeof description !== 'string' || description.trim() === '';
+}
+
 /**
- * The description problems of the enabled child flows and of the enabled Agent blocks of those flows. A flow's description
- * is its command's text, and an Agent block's is its stub text; a blank one is refused at the path of its own block.
+ * The description problems of the enabled flows and of the enabled blocks inside them: a flow's description is its command's
+ * text, an Agent block's is its stub text, and a Condition's (what passing means, F-06 AC-016) is its rule text. A blank one is
+ * refused at the path of its own block; the pipeline's own gates are checked the same way.
  */
 export function descriptionProblems(config: ProjectConfig): PipelineProblem[] {
   const problems: PipelineProblem[] = [];
   config.pipeline.blocks.forEach((block, index) => {
+    const blockPath = indexPath(BLOCKS_PATH, index);
+    if (block.kind === 'condition' && block.enabled && isBlankDescription(block.description)) {
+      problems.push({ path: blockPath, message: `Condition "${block.id}" has no description; its rule text would be empty` });
+    }
     if (block.kind !== 'flow' || !block.enabled) return;
-    const flowPath = indexPath(BLOCKS_PATH, index);
-    if (typeof block.description !== 'string' || block.description.trim() === '') {
-      problems.push({ path: flowPath, message: `Flow "${block.id}" has no description; its command text would be empty` });
+    if (isBlankDescription(block.description)) {
+      problems.push({ path: blockPath, message: `Flow "${block.id}" has no description; its command text would be empty` });
     }
     block.blocks.forEach((child, childIndex) => {
-      if (child.kind !== 'agent' || !child.enabled) return;
-      if (typeof child.description !== 'string' || child.description.trim() === '') {
-        problems.push({
-          path: indexPath(childPath(flowPath, 'blocks'), childIndex),
-          message: `Agent block "${child.id}" has no description; its stub text would be empty`,
-        });
+      const childAt = indexPath(childPath(blockPath, 'blocks'), childIndex);
+      if (child.kind === 'agent' && child.enabled && isBlankDescription(child.description)) {
+        problems.push({ path: childAt, message: `Agent block "${child.id}" has no description; its stub text would be empty` });
+      }
+      if (child.kind === 'condition' && child.enabled && isBlankDescription(child.description)) {
+        problems.push({ path: childAt, message: `Condition "${child.id}" has no description; its rule text would be empty` });
       }
     });
   });

@@ -1,8 +1,10 @@
 // Field-level rules of the Condition blocks: the check type (AC-005), the threshold of diff-size
 // (AC-006), who decides (AC-007), the pass and fail routes (AC-008) and the round limit (AC-009).
-// A pipeline Condition also names the Connection it sits on. Unknown keys are refused at their path.
+// A pipeline Condition also names the Connection it sits on. Its description (what passing means) is required (F-06
+// AC-016). Unknown keys are refused at their path.
 import type { CheckType, ConditionBlock, DecidedBy, PipelineConditionBlock, Route } from './model.js';
 import type { ConditionStructure } from './parse-structure.js';
+import { readDescription } from './parse-scope.js';
 import {
   checkKeys,
   childPath,
@@ -15,7 +17,7 @@ import {
   type PipelineProblem,
 } from './parse-util.js';
 
-const CONDITION_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'checkType', 'decidedBy', 'threshold', 'passRoute', 'failRoute', 'roundLimit'];
+const CONDITION_KEYS: readonly string[] = ['kind', 'id', 'enabled', 'description', 'checkType', 'decidedBy', 'threshold', 'passRoute', 'failRoute', 'roundLimit'];
 const PIPELINE_CONDITION_KEYS: readonly string[] = [...CONDITION_KEYS, 'onConnection'];
 const NEXT_OR_STOP_KEYS: readonly string[] = ['kind'];
 const BACK_KEYS: readonly string[] = ['kind', 'blockId'];
@@ -130,16 +132,24 @@ function readCondition(
 ): ConditionBlock | undefined {
   const { id, enabled, path, fields: obj } = block;
   checkKeys(obj, allowed, path, problems);
+  const description = readDescription(obj, path, problems);
   const checkType = readCheckType(obj, path, problems);
   const check = checkType === undefined ? undefined : readCheckFields(obj, checkType, path, problems);
   const decidedBy = readDecidedBy(obj, path, problems);
   const passRoute = readRoute(obj, 'passRoute', path, ids, id, problems);
   const failRoute = readRoute(obj, 'failRoute', path, ids, id, problems);
   const roundLimit = readRoundLimit(obj, path, problems);
-  if (check === undefined || decidedBy === undefined || passRoute === undefined || failRoute === undefined || roundLimit === undefined) {
+  if (
+    description === undefined ||
+    check === undefined ||
+    decidedBy === undefined ||
+    passRoute === undefined ||
+    failRoute === undefined ||
+    roundLimit === undefined
+  ) {
     return undefined;
   }
-  return { kind: 'condition', id, enabled, decidedBy, passRoute, failRoute, ...roundLimit, ...check };
+  return { kind: 'condition', id, enabled, description, decidedBy, passRoute, failRoute, ...roundLimit, ...check };
 }
 
 /** A Condition inside a child flow. Its routes name blocks of the same flow. */

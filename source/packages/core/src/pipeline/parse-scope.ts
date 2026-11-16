@@ -43,10 +43,11 @@ function readScope(obj: Obj, path: string, problems: PipelineProblem[]): Scope |
 }
 
 /**
- * The description of an Agent block: its job, which becomes the agent's stub text. It must be present, a string
- * and not blank. The problem is recorded at the block's path, since the description is the block's own content.
+ * The description of a block that carries one (a flow, an Agent block or a Condition): its text, which becomes the command
+ * or stub text, or the rule text. It must be present, a string and not blank. The problem is recorded at the block's path,
+ * since the description is the block's own content.
  */
-function readDescription(obj: Obj, path: string, problems: PipelineProblem[]): string | undefined {
+export function readDescription(obj: Obj, path: string, problems: PipelineProblem[]): string | undefined {
   if (!has(obj, 'description')) {
     problems.push({ path, message: 'description is required' });
     return undefined;

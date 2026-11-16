@@ -57,7 +57,7 @@ export function agent(id: string, enabled = true): AgentBlock {
 }
 
 export function condition(id: string, passRoute: Route, failRoute: Route, enabled = true): ConditionBlock {
-  return { kind: 'condition', id, enabled, decidedBy: 'agent', checkType: 'checks', passRoute, failRoute };
+  return { kind: 'condition', id, enabled, description: 'The check passes.', decidedBy: 'agent', checkType: 'checks', passRoute, failRoute };
 }
 
 export function gate(id: string, passRoute: Route, failRoute: Route, enabled = true): PipelineConditionBlock {

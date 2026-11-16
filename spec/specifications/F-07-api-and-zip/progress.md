@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-15 | Stories approved by the user: 7 stories, 25 criteria, all `[auto]`. Decisions: pipeline config only on `/generate` (flat body refused with 400); flat generator removed in this feature; duplicate output path is a 500 |
 | UX       | ➖ Not needed | 2026-11-15 | No user interface in this feature; every criterion is tested over HTTP or in core |
 | Plan     | ✅ Complete | 2026-11-15 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 15 of 19 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7) |
+| Build    | 🔄 In Progress | | 16 of 19 tasks committed (T010 retired by Amendment 1; T014a added by Amendment 7) |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ None.
 | T014a | Moved the selection helpers (`selectWorkflows`, `selectSteps`, `selectConditions`, `SelectedStep`) to `src/selection.ts` (byte-identical copy); root export and render imports repointed; web unchanged | 0 blockers, 0 warnings, 0 fixed; 2 suggestions deferred | task check passed: 479 api, 348 web, 1193 core |
 | T014 | Removed the flat generator sources `generate.ts`, `plan.ts`, `reply-check.ts`, `select.ts`, `file-list.ts` and their root exports; `pipeline-analyze-root` keeps only the flat names still exported (Amendment 8); README sentence updated | 0 blockers, 1 warning fixed, 0 deferred. Deletion-only exception to the size guard, owner approved | task check passed: 479 api, 348 web, 1193 core |
 | T015 | Moved `wouldCreateCycle` to `src/cycle.ts` with its restored F-06 table in `test/cycle.test.ts` (Amendment 6); removed `src/validate/` and the render files except `render/mermaid.ts` (kept, Amendment 5); stale comment in `pipeline/generate/rules-text.ts` removed; `validateConfig` dropped from the root-export test | 0 blockers, 1 warning fixed (Amendment 9 recorded), 1 suggestion fixed, 0 deferred. Owner waived the size guard: one commit, 734 lines | task check passed: 479 api, 348 web, 1206 core |
+| T016 | Root exports test: runtime and compile-time absence checks for every removed flat name and type; presence checks for the web app's real value and type imports (the pipeline namespace is kept as a separate check) | 0 blockers, 1 warning fixed, 2 suggestions fixed, 1 deferred (plan wording on `pipeline`). Probes confirmed each check fails when its name returns | task check passed: 479 api, 348 web, 1245 core |
 
 ---
 
@@ -85,3 +86,4 @@ _Review suggestions intentionally not applied, with the reason._
 - T013 F-02 AC-033 LF and single trailing newline (suggestion, no criterion): the deleted `file-list.test.ts` tested `finishFileList` (LF, one trailing newline), labelled F-02 AC-033. F-02 `stories.md` has no such criterion (AC-033 is purity), so no criterion is lost. The pipeline does not normalise content line endings. Add a criterion if the owner wants that guarantee for the pipeline.
 - T014a `spec/specifications/F-07-api-and-zip/plan.md` line 29 (suggestion, plan wording): the line says the web app's `builder/map-view.ts` import points to the new module. The web app imports `selectConditions` from the `@sddbuilder/core` root, which keeps the export, and AC-025 forbids web changes. Not changed: the web file stays as it is; the plan line should be amended to say the web import stays on the root.
 - T014a `source/packages/core/src/selection.ts` `selectWorkflows` cycle throw and `findStep` unknown-step throw (suggestion, pre-existing gap): no test calls the helpers directly, and the flat tests that covered them went in T012 and T013. Not added: T014a is a move with no behaviour change and covers none. A direct `selection` test belongs with T016 or a later coverage task.
+- T016 `spec/specifications/F-07-api-and-zip/plan.md` line 31 (suggestion, plan wording): the line says the web app imports `pipeline`; `grep` over `source/apps/web/src` and `source/apps/web/test` finds no such import. The root test no longer lists it under AC-025 and keeps its parser and generator check under F-07 AC-024. Not changed: the plan line is owner-approved text; it should drop `pipeline` from the web list.

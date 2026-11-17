@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 14 criteria: 12 `[auto]`, 2 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
-| Build    | 🔄 In Progress | 2026-11-17 | 1 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 2 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Material UI 9.5.0 and Emotion pins (react 11.14.0, styled 11.14.1); lockfile committed separately in 82acfa7; Emotion recorded in architecture §5 | 0 blockers, 2 warnings fixed (plan T001 pins, Emotion peer wording) | task check passed: api 57, web 3, core 1017 |
+| T002 | Frame sizing as a pure style function (width, 1024 px minimum, full-height, no hidden overflow) | 0 blockers, 0 warnings, 2 suggestions fixed (minWidth tied to the exported constant; determinism test relabelled) | task check passed: api 57, web 9, core 1017 |
 
 ---
 

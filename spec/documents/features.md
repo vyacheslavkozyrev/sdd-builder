@@ -34,7 +34,7 @@ Use: internal use on localhost only for now. Deployment is not needed.
 | F-09 | Project step (UI only): name and idea (5,000 characters, counter) | 4 | F-08 |
 | F-10 | Technical details step (UI only): stack, architecture, rules as blocks | 5 | F-08 |
 | F-11 | Pipeline builder (UI only): the Pipeline tab, flow tabs and +, the Pipeline toolbox, the live structure marks | 6 | F-02, F-03, F-07, F-08 |
-| F-12 | Workflow builder (UI only): a flow tab, its blocks, properties, custom agents, switch off and delete | 7 | F-11 |
+| F-12 | Workflow builder (UI only): a flow tab, its blocks, properties, custom agents and delete | 7 | F-11 |
 | F-13 | Analyze and generate step (UI only): privacy notice, Analyze block, project preview, Generate and download button | 8 | F-09, F-10, F-12 |
 | F-14 | Analyze API: `POST /analyze` takes the configuration, returns the findings | 9 | F-06 |
 | F-15 | Generate and Download API: `POST /generate` takes the configuration, returns the zip | 10 | F-04, F-05, F-14 |
@@ -82,7 +82,7 @@ Each description is the starting point for the feature's specification. Decision
 
 **F-11 Pipeline builder.** The Pipeline tab (it cannot be removed), one tab per flow, and a + button after the last tab to add a flow. The canvas shows flows as boxes, connections as arrows, and approval and check blocks on the arrows (one gate per arrow). It has a properties panel for the pipeline (including its arguments, such as `feature-id`) and shows structure marks next to the items they name. There are no Start or End blocks on this tab.
 
-**F-12 Workflow builder.** A flow tab with the toolbox Start, Agent, Approval, Check, Connection and End. Blocks are numbered in order, with Start first and End last. Approval stops and waits for a person; Check has a true output and a false output. Blocks can be moved up and down, switched off, and deleted after confirmation. Agent properties are name, description, arguments, restrictions, model and body (at most 1,000 characters); custom agents are Agent blocks.
+**F-12 Workflow builder.** A flow tab with the toolbox Start, Agent, Approval, Check, Connection and End. Blocks are numbered in order, with Start first and End last. Approval stops and waits for a person; Check has a true output and a false output. Blocks can be moved up and down, and deleted after confirmation (no switch-off: architecture decision 34). Agent properties are name, description, arguments, restrictions, model and body (at most 1,000 characters); custom agents are Agent blocks.
 
 **F-13 Analyze and generate step.** A privacy notice with a checkbox sits above Analyze, which is disabled until the box is ticked. The Analyze block lists the findings with severity, subject and message, and notes a skipped or failed review. The project preview shows the file tree and one button, Generate and download, which is enabled only when the analysis has no blocker or warning. Any change to the project makes the analysis out of date.
 

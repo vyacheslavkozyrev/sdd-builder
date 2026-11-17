@@ -90,7 +90,7 @@ Two areas on the step:
 
 ### 3.4 Property panels and footer
 - Each panel shows the file the item generates and, where the item has them, its arguments.
-- Footer of a block or flow: **Switch off** / **Switch on** (keeps every property; a switched-off item is shown muted and is not checked or generated), and **Delete**, which asks for confirmation and names the connections it removes.
+- Footer of a block or flow: **Delete**, which asks for confirmation and names the connections it removes. There is no switch-off: every block and flow is part of the process (architecture decision 34).
 - An edit that is refused keeps the previous value and says why, next to the field.
 
 ### 3.5 Structure marks

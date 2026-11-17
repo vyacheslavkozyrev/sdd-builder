@@ -50,7 +50,7 @@ Findings never change the configuration. The user decides what to apply.
 
 - **Input:** `ProjectConfig` plus the default pipeline (the default pipeline, §11).
 - **Step 1, check:** the structural rules. A configuration that fails them is refused with every problem listed (F-02, `InvalidConfigError`).
-- **Step 2, select:** enabled flows and blocks, in pipeline order and in each flow's block order. Required blocks and gates are always present.
+- **Step 2, select:** all flows and blocks, in pipeline order and in each flow's block order. Required blocks and gates are always present.
 - **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (text listing the flows, blocks and gates; the Mermaid view is F-18), placeholder values.
 - **Step 4, render per flow:** the pipeline command file `pipeline.md` (its arguments, its flows in order, and the gates and checks between them), and one command file per child flow, with its Agent calls and its conditions as numbered rules, with their round limits (or "no limit set").
 - **Step 5, write per file (LLM):** the LLM writes the content of each command and agent file, from its description and its template, and the rule files they carry. `core` fixes the file path and the place of each file in the output.
@@ -207,6 +207,8 @@ type Route = { to: Id; roundLimit?: number } | { stop: true };  // roundLimit: p
 
 Parser rules that follow from the schema (shape only; references are checked by F-03): every object refuses unknown keys, with their path; `kind` selects the allowed keys, so `connectedTo` on an End, or `outcome` on an Agent, is refused; a Check without both outputs, or a `threshold` that does not match its type, is refused; every id follows decision 18; text fields are non-blank where marked; lists have no duplicates; the two body caps of decision 28 apply. Routes name block ids, and a route to an earlier block is a retry (F-03 checks order, reachability and round limits). Supersedes the Connection block kind of decisions 14 and 30; the UI keeps the Connection tool as the way to draw a `connectedTo` link (ui.md §4 to be aligned in the F-11 specification).
 
+34. **Blocks and flows have no enabled property (2026-11-16, decided by the owner).** Every block and every flow is part of the process: it is checked, generated and shown. The schema carries no `enabled`, `disabled`, switch or similar key on a block or a flow; the parser refuses such a key as an unknown key (decision 33). The switch-off footer of `ui.md` §3.4 and the disabled rules of §12 are removed. Recorded 2026-11-16, F-03.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.
@@ -294,9 +296,9 @@ Approvals and checks between the flows:
 
 The pipeline's arguments include `feature-id` (required). They are set in the pipeline's properties panel, not by a Start block (decision 30). The pipeline has no release flow. A release flow can be added by the user. Presets (F-09) are other starting pipelines; the default is the first.
 
-## 12. Structural rules (the analyzer, F-04)
+## 12. Structural rules (the structural checks, F-03)
 
-- The pipeline has exactly one Start block and at least one End block; each child flow has exactly one Start and at least one End. The pipeline's own Start and End blocks must be enabled (the parser refuses a disabled one, F-06 amendment 7).
+- The pipeline model has no blocks of its own (decision 30): its Start is the Start of the first flow, in pipeline order. Each flow has exactly one Start and at least one End. The pipeline has at least one flow.
 - Only the pipeline contains flows; a flow contains no flow (one nesting level).
 - Every Connection joins two blocks of the same flow, or two flows of the pipeline.
 - No cycle: the Connections of a flow, and the Connections of the pipeline, form no cycle. A back route is a Check's retry, not a Connection. A Connection that closes a cycle is a structural problem (F-06 amendment 6).
@@ -306,4 +308,4 @@ The pipeline's arguments include `feature-id` (required). They are set in the pi
 - Every Agent block has a name that is file-safe and unique in the project, and a description.
 - Argument names are unique.
 - A retry with no round limit is a warning.
-- Disabled blocks and flows are not checked.
+- Every block and flow is checked. No block or flow can be switched off (decision 34).

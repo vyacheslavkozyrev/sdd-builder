@@ -62,7 +62,7 @@ Each description is the starting point for the feature's specification. Decision
 
 **F-01 Project scaffolding.** npm workspaces for `apps/api`, `apps/web` and `packages/core`, TypeScript strict with NodeNext imports, and Vitest in each package. The task check script `source/scripts/task-check.sh` typechecks and runs every test; the working process runs it after every task.
 
-**F-02 Pipeline model and the default pipeline.** `ProjectConfig` with `schemaVersion` 2 and one pipeline. Flows hold blocks (one nesting level): start, agent, approval, check, connection and end. The parser returns problems with their paths, refuses unknown keys, and loads the default pipeline as data at build time.
+**F-02 Pipeline model and the default pipeline.** `ProjectConfig` with `schemaVersion` 2 and one pipeline. Flows hold blocks (one nesting level): start, agent, approval, check and end. Connections are `connectedTo` properties on flows and blocks, and the pipeline is one JSON object with the schema of `architecture.md` §6 decision 33. The parser returns problems with their paths, refuses unknown keys, and loads the default pipeline (`source/templates/pipeline/default.json`) as data at build time.
 
 **F-03 Structural checks.** The rules of `architecture.md` §12: one start and one end per flow, connections that join blocks of one flow or flows of the pipeline, no cycles, both outputs of every check wired, reachability, back routes only to earlier blocks, unique file-safe names, and a warning for a retry with no limit. These are pure functions used by both the builder marks and the analyzer, so each rule has one implementation.
 

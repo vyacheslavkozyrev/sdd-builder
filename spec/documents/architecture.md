@@ -154,6 +154,59 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 32. **Wizard navigation and step 4 (2026-11-16).** The wizard's stepper is not clickable. Prev and Next are buttons beside it, and step 4 has no Next. Step 4 has an analyze block (the privacy notice with its checkbox, Analyze, and the findings) and a project preview (the file tree). One button, **Generate and download**, is enabled only when the analysis has no blocker. This replaces the separate Generate and Download steps of F-22 AC-010 and AC-011.
 
+33. **Connections are `connectedTo` properties, and the pipeline is a JSON file (2026-11-16, F-02).** Decided by the owner. A Connection is not a block kind. A flow or a block may carry a `connectedTo` property that names where it continues. A flow's blocks are the five kinds of decision 14 without Connection: start, agent, approval, check, end. The pipeline is one JSON object: `source/templates/pipeline/default.json` is that object, and it becomes the `pipeline` of `ProjectConfig` (decision 16). Its schema, as TypeScript types (`Id` and the id rule are decision 18; `Model` is `"haiku" | "sonnet" | "opus" | "inherit"`):
+
+```ts
+interface ProjectConfig { schemaVersion: 2; rules: Rule[]; pipeline: Pipeline }
+interface Rule { id: Id; title: string; text: string }
+
+interface Pipeline {                 // default.json
+  name: string;                      // non-blank
+  description: string;               // non-blank
+  arguments: Argument[];             // structured; default: feature-id, required
+  model?: Model;
+  tools?: string[];                  // non-blank, no duplicates
+  ruleTags?: Id[];                   // ids of rules (refused by F-03 when unknown)
+  body?: string;                     // at most 1,000 characters
+  flows: Flow[];                     // in pipeline order
+}
+interface Argument { id: Id; required: boolean; hint: string }
+
+interface Flow {
+  id: Id;
+  name: string;
+  description: string;
+  arguments: string;                 // text: once, per feature, or per task
+  model?: Model;
+  ruleTags?: Id[];
+  body?: string;                     // at most 1,000 characters
+  blocks: Block[];                   // in block order
+  connectedTo?: FlowLink;            // absent: the next flow in the array, no label, no gate
+}
+
+type Block = Start | Agent | Approval | Check | End;
+interface Start    { id: Id; kind: "start"; connectedTo?: BlockLink }
+interface Agent    { id: Id; kind: "agent"; name: Id; description: string; arguments: string;
+                     restrictions?: string; model?: Model; tools?: string[];
+                     reads?: string[]; writes?: string[]; ruleTags?: Id[];
+                     body?: string; connectedTo?: BlockLink }   // name: file-safe, unique among agents
+interface Approval { id: Id; kind: "approval"; description: string; connectedTo?: BlockLink }
+interface Check   { id: Id; kind: "check"; description: string; type: "checks" | "diff size";
+                    threshold?: number;   // required for "diff size", refused otherwise; positive whole number
+                    connectedTo: { true: Route; false: Route } }   // required: both outputs
+interface End      { id: Id; kind: "end"; outcome: "done" | "stopped"; producedArtifact?: string }
+
+interface BlockLink { to: Id; label: string }                 // label: artifact, non-blank
+interface FlowLink  { to: Id; label: string; gate?: Gate }    // gate sits on the arrow between flows
+type Gate =
+  | { kind: "approval"; description: string }
+  | { kind: "check"; description: string; type: "checks" | "diff size"; threshold?: number };
+  // a gate's fail output stops the process; its pass output is the arrow
+type Route = { to: Id; roundLimit?: number } | { stop: true };  // roundLimit: positive whole number
+```
+
+Parser rules that follow from the schema (shape only; references are checked by F-03): every object refuses unknown keys, with their path; `kind` selects the allowed keys, so `connectedTo` on an End, or `outcome` on an Agent, is refused; a Check without both outputs, or a `threshold` that does not match its type, is refused; every id follows decision 18; text fields are non-blank where marked; lists have no duplicates; the two body caps of decision 28 apply. Routes name block ids, and a route to an earlier block is a retry (F-03 checks order, reachability and round limits). Supersedes the Connection block kind of decisions 14 and 30; the UI keeps the Connection tool as the way to draw a `connectedTo` link (ui.md §4 to be aligned in the F-11 specification).
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

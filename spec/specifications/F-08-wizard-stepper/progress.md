@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 15 criteria: 14 `[auto]`, 1 `[device]`; step bodies are a placeholder per step (user decision); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks; no new library, arrows as inline SVG) |
-| Build    | 🔄 In Progress |      | 2 of 5 tasks committed |
+| Build    | 🔄 In Progress |      | 3 of 5 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ None
 | ---- | ------- | ------ | ----- |
 | T001 | Step model as pure functions: titles, states, Prev/Next rules | 0 blockers, 0 warnings, 2 suggestions fixed | task check passed: api 57, web 51, core 1017 |
 | T002 | Wizard state reducer: step and in-memory values, restart, privacy check | 0 blockers, 4 warnings fixed (weak test patches) | task check passed: api 57, web 60, core 1017 |
+| T003 | Material UI stepper (not clickable) and round Prev/Next buttons with arrows | 0 blockers, 2 warnings fixed (weak tests), 1 suggestion fixed (shared nav styles) | task check passed: api 57, web 83, core 1017 |
 
 ---
 

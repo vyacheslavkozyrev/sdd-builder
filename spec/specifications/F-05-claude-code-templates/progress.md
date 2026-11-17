@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 7 stories, 35 criteria, all `[auto]`; approved by the user. Mermaid diagram in `process.md` included (features.md scope); AC-008 keeps Start and End as steps, as F-04 renders them; AC-010, AC-021, AC-023 and AC-028 amended 2026-11-17: Start and End kept as steps; no project name, idea or stack in F-05 (F-09, F-21 add them); a pipeline gate has no fail route in the model |
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: templates and a pure generator in `source/packages/core` (the stories have no user-facing criterion) |
 | Plan     | ✅ Complete | 2026-11-17 | 13 tasks, all 35 criteria covered; approved by the user |
-| Build    | 🔄 In Progress | 2026-11-17 | 12 of 13 tasks committed |
+| Build    | ✅ Complete | 2026-11-17 | 13 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ None
 | T010 | Generated project's CLAUDE.md layout (process, commands, agents, rules lists); manifest lists it first | 0 blockers, 5 warnings and 2 suggestions fixed | task check passed: core 876 of 876 (47 files), api 6 of 6, web 3 of 3 |
 | T011 | Process text layout (process.md) with the Mermaid diagram fence; manifest lists it second; README placeholder rows | 0 blockers, 4 warnings and 1 suggestion fixed | task check passed: core 887 of 887 (48 files), api 6 of 6, web 3 of 3 |
 | T012 | Self-containment and determinism tests over the real layouts (tests only); AC-033 checks the layout files on disk | 0 blockers, 1 warning fixed, 1 suggestion deferred | task check passed: core 904 of 904 (49 files), api 6 of 6, web 3 of 3 |
+| T013 | Templates README matched to the finished layouts (status, placeholders, layout tables, values sources, branch and gate text) | 0 blockers, 2 warnings and 1 suggestion fixed | task check passed: core 904 of 904 (49 files), api 6 of 6, web 3 of 3 |
 
 ---
 

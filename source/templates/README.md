@@ -2,104 +2,79 @@
 
 Text files that describe the layout of a project and what each file should contain. The generator (`source/packages/core/src/pipeline/generate/`) fills their placeholders from the project config and fixes the file list. Templates are data: changing a template changes the output, not the generator code. Templates contain no scripts.
 
-## Status of the shipped templates
+## Status of the shipped layouts
 
-The base templates in `base/` are the pipeline's. They use only placeholders the pipeline config fills: `base/CLAUDE.md` and `base/process.md` list the flows, agents and rules from the selection through list placeholders, and `base/spec-template/` has no placeholders. The pipeline layouts for the command, agent and rule files are in `claude-code/`. The renderer still reads `#enabled:<id>` sections (see Section rules), but no base or `claude-code/` layout uses one.
+All the layouts below are in use. `base/manifest.json` lists the five base files with their output paths, in output order: `base/CLAUDE.md`, `base/process.md`, and the three files of `base/spec-template/` (`stories.md`, `plan.md`, `progress.md`). `claude-code/` holds the four layouts of the Claude Code files built from the config: `pipeline-command.md`, `command.md`, `agent.md` and `rule.md`. No layout uses an enabled section, and no layout uses a placeholder that the config does not fill. The `base/spec-template/` files have no placeholders.
 
-The flat base templates (`flat/base/`) and the flat `workflows/` and `rules/` layouts were removed in F-07 (T017), and the flat generator that read them was removed from core in F-07 (T014). The pipeline `generate` fails on a placeholder with no value, and names it.
+The flat layouts (`flat/`, `workflows/`, `rules/` and `steps/`) were removed in F-07.
 
 ## Placeholders
 
-The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/generate/render.ts` and `base-files.ts`.
+A placeholder is `{{name}}`. The generator fills it from the values of its file: the base and agent and rule values in `values-agent.ts` (`baseValues`, `agentValues`, `ruleValues`), and the command values in `values-command.ts` (`flowValues`, `pipelineValues`). The Mermaid diagram comes from `mermaid.ts`. `render.ts` fills the placeholders in one pass. A placeholder with no value fails generation with an error that names it, and it is never left in the output.
 
-| Placeholder | Value |
-|---|---|
-| `{{projectName}}` | `ProjectConfig.name` |
-| `{{idea}}` | `ProjectConfig.idea` |
-| `{{stack.language}}` | `ProjectConfig.stack.language` (required) |
-| `{{stack.framework}}`, `{{stack.platform}}`, `{{stack.buildTool}}`, `{{stack.testFramework}}` | the optional stack value, only when the key is present in the config; a template that uses it when the key is absent fails generation |
-| `{{processList}}` | the process as text, built from the selection: each enabled pipeline block in order, and under each enabled flow its enabled blocks in order |
-| `{{commandList}}` | the command files as a list: `pipeline.md`, then one per enabled child flow in pipeline order; built from the selection, so a disabled flow is not listed |
-| `{{agentList}}` | the agent files as a list: one per enabled Agent block of an enabled flow, in flow order |
-| `{{ruleList}}` | the rule files as a list: one per `ProjectConfig.rules` entry, with its title |
-| `{{flowId}}`, `{{flowName}}` | `claude-code/command.md` (a flow's command file): the flow's id and name |
-| `{{description}}` | `claude-code/command.md`: the description of the flow, carried into the Purpose section |
-| `{{ruleTags}}` | `claude-code/command.md`: the rule-set tags of the flow, as a comma-separated list; `none` when the flow has no tags |
-| `{{stepList}}` | `claude-code/command.md`: the enabled blocks of the flow as numbered steps, in block order; built by `command-layouts.ts` |
-| `{{routeRules}}` | `claude-code/command.md` and `claude-code/pipeline-command.md`: one numbered rule per back route of an enabled check, naming its target block and round limit (`no limit set` when the limit is absent); an outcome with no back route gives no rule; built by `command-layouts.ts` |
-| `{{argumentList}}` | `claude-code/pipeline-command.md`: the arguments of the pipeline Start block, one line each with its required flag; built by `command-layouts.ts` |
-| `{{pipelineStepList}}` | `claude-code/pipeline-command.md`: the enabled flows and checks of the pipeline as numbered steps, in pipeline order; built by `command-layouts.ts` |
-| `{{name}}` | `claude-code/agent.md`: the agent's name, from its Agent block; the file is `.claude/agents/<name>.md` |
-| `{{description}}` | `claude-code/agent.md`: the description of the Agent block, carried into the Purpose section |
-| `{{frontmatterDescription}}` | `claude-code/agent.md`: the description of the Agent block as one YAML value for the frontmatter; written as it is when a plain YAML value reads it back unchanged, and as a double-quoted string otherwise (a colon, a comment mark, a line break, a leading or trailing space) |
-| `{{optionalFrontmatter}}` | `claude-code/agent.md`: the `model` and `tools` lines, each only when the Agent block sets it; empty otherwise |
-| `{{bodySection}}` | `claude-code/agent.md`: the `## Instructions` section with the block's body, starting with a blank line; empty when the block has no body |
-| `{{ruleTags}}` | `claude-code/agent.md`: the rule-set tags of the Agent block, as a comma-separated list; `none` when the block has no tags |
-| `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules`, with its line breaks replaced by spaces so the heading stays one line |
-| `{{ruleText}}` | `claude-code/rule.md`: the text of the rule entry in `ProjectConfig.rules` |
-| `{{processDiagram}}` | `base/process.md`: the Mermaid flowchart of the pipeline (`flowchart TD`, one node per flow, a decision node per gate), placed inside a fenced `mermaid` block; built by `generate/mermaid.ts` |
-| `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | no layout uses them since the flat base was removed (T017); not filled by the pipeline config (see the status above) |
-| `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
-| `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
-| `{{#step:<id>}}…{{/step:<id>}}` | no layout uses it since the flat `steps/` layouts were removed in F-07 (T018); the pipeline renderer does not read it and fails generation on it |
-| Section `#enabled:<id>` … `/enabled:<id>`, placed between double curly braces | the section: content kept only when the block or flow with that id is enabled in the selection; a child block of a disabled flow is not enabled |
+| Placeholder | Used by | Value |
+|---|---|---|
+| `{{processList}}` | `base/CLAUDE.md`, `base/process.md` | The process as text: each flow of the pipeline in order, as `- Run the flow <id> (<name>)`, its steps indented under it, then the gate that follows it, if any, as a `- ` line |
+| `{{processDiagram}}` | `base/process.md` | The Mermaid flowchart of the pipeline (`flowchart TD`, one node per flow, a decision node per gate), built by `mermaid.ts` |
+| `{{commandList}}` | `base/CLAUDE.md`, `base/process.md`, `claude-code/pipeline-command.md` | The command files as a list: `.claude/commands/pipeline.md`, then one per flow of the pipeline in order |
+| `{{agentList}}` | `base/CLAUDE.md` | The agent files as a list: one `- .claude/agents/<name>.md` per Agent block, in flow order |
+| `{{ruleList}}` | `base/CLAUDE.md` | The rule files as a list: one `- .claude/rules/<id>.md: <title>` per `ProjectConfig.rules` entry, in config order |
+| `{{argumentList}}` | `claude-code/pipeline-command.md` | The pipeline's arguments, one line each: the id in code, `required` or `optional`, and the hint when it has one |
+| `{{pipelineStepList}}` | `claude-code/pipeline-command.md` | The flows and gates of the pipeline as numbered steps, in pipeline order: `Run the flow <id> (<name>)`, then the gate that follows the flow, if any (`Approval: <description>` or the check text) |
+| `{{routeRules}}` | `claude-code/command.md` (the flow's back routes), `claude-code/pipeline-command.md` (the back routes of all flows) | One numbered rule per back route to an earlier block of the same flow: `On pass` or `On fail`, go back to the target block and run again from there; round limit N, or `no limit set`. A route that stops, or that goes forward, gives no rule |
+| `{{flowId}}`, `{{flowName}}` | `claude-code/command.md` | The flow's id and name |
+| `{{description}}` | `claude-code/command.md` | The flow's description, carried into the Purpose section |
+| `{{description}}` | `claude-code/agent.md` | The Agent block's description, carried into the Purpose section |
+| `{{ruleTags}}` | `claude-code/command.md`, `claude-code/agent.md` | The rule-set tags of the flow or the Agent block, comma-separated; `none` when there are none |
+| `{{stepList}}` | `claude-code/command.md` | The blocks of the flow as numbered steps, in block order: `Start with the arguments <arguments>`, `Run the agent <name> with <arguments>: <description>`, `Approval: <description>`, `Check: <description> (type <type>)` with `, threshold N` for a check that sets one, or `End as <outcome>`, with `, producing <artifact>` when the End block names one |
+| `{{name}}` | `claude-code/agent.md` | The Agent block's name; the file is `.claude/agents/<name>.md` |
+| `{{frontmatterDescription}}` | `claude-code/agent.md` | The Agent block's description as one YAML value for the frontmatter. It is written as it is only when it starts with a letter or a digit, holds nothing but letters, digits, spaces and `_ , . ( ) ' / -`, does not end in a space, and is not a word YAML reads as a boolean, null or number; otherwise it is a double-quoted string (so a colon, a comment mark, a line break or any other character outside that set is quoted) |
+| `{{optionalFrontmatter}}` | `claude-code/agent.md` | The `model:` line and the `tools:` line, each only when the Agent block sets it, each ending in a newline; empty otherwise |
+| `{{bodySection}}` | `claude-code/agent.md` | The `## Instructions` section with the block's body, starting with a blank line; empty when the block has no body or only whitespace |
+| `{{ruleTitle}}` | `claude-code/rule.md` | The rule's title, with each line break and the spaces around it replaced by one space, so the heading stays one line |
+| `{{ruleText}}` | `claude-code/rule.md` | The rule's text, as given |
 
-Section rules:
+Rules for the values:
 
-- Sections are not nested. A nested, mismatched or unclosed section marker fails generation.
-- An `enabled:<id>` section whose id matches no block or flow is removed, with its content, without an error.
-- Placeholders are replaced after the sections. A placeholder with no value fails generation with a clear error; it is never left in the output.
-
-## Files the generator writes
-
-These are the files F-02 writes for a pipeline config. The flow, pipeline, agent and rule files are built from the config, each filled into its layout in `claude-code/` (see the Claude Code layout below).
-
-| Output file | Source |
-|---|---|
-| `CLAUDE.md` | `base/CLAUDE.md`, rendered |
-| `spec/documents/process.md` | `base/process.md`, rendered |
-| `spec/specifications/F-00-template/*` | each file under `base/spec-template/`, rendered |
-| `.claude/commands/<flow-id>.md` | one per enabled child flow: its enabled blocks as numbered steps, in block order |
-| `.claude/commands/pipeline.md` | the arguments, then the enabled flows and checks in pipeline order as numbered steps, then a numbered rule for each back route |
-| `.claude/agents/<name>.md` | one per enabled Agent block in an enabled flow; its description is the input the model writes the file from at `/generate` (decision 7 in `architecture.md`); `pipeline.generate` writes it as stub text, `# <name>` then the description |
-| `.claude/rules/<id>.md` | one per `ProjectConfig.rules` entry; its title and text from the config |
-
-The files come out sorted by path, in code-point order, whatever the order of the rules, or of the flows after the first (decision 35 in `architecture.md`). Two files with the same path throw `GenerationError`: a bug in the generator, not a refusal of the configuration (decision 23 in `architecture.md`). A flow named `pipeline` is refused before that, because its command file would be `.claude/commands/pipeline.md` (decision 35).
+- A value is inserted as written and is never rendered again, so a value that holds `{{...}}` text (a rule's text, for example) comes out unchanged.
+- The layouts hold no conditionals. A line that is set only sometimes is a value built in code that ends in a newline (or is empty), and the layout puts its placeholder at the start of a line: `{{optionalFrontmatter}}` sits before the closing `---` of the agent frontmatter, and `{{bodySection}}` sits on a line of its own.
 
 ## Claude Code layout (MVP)
 
-This is the layout of the Claude Code output for the pipeline. The first table is what the pipeline generator (`source/packages/core/src/pipeline/generate/`) writes, one file per row, from the source named in it; "Files the generator writes" above says what each file holds. Each source in `base/` and `claude-code/` is rendered with values from the config. The list and step values come from the builders in `base-files.ts` and `command-layouts.ts`.
+This is the layout of the Claude Code output for the pipeline: one file per row, from the source named in it. Each source is rendered with the values of its file. The file list is sorted by path, in code-point order, whatever the order of the rules, or of the flows after the first (decision 35 in `architecture.md`). Two files with the same path throw `GenerationError`: a bug in the generator, not a refusal of the configuration (decision 23). A flow whose id is `pipeline` is a blocker in the config, because its command file would be `.claude/commands/pipeline.md` (decision 35).
 
 | Output file | Source |
 |---|---|
-| `CLAUDE.md` | `base/CLAUDE.md`, rendered |
-| `spec/documents/process.md` | `base/process.md`, rendered: the flows, blocks and gates as text, and the Mermaid diagram of the process |
-| `spec/specifications/F-00-template/*` | `base/spec-template/`, each file rendered |
-| `.claude/commands/pipeline.md` | `claude-code/pipeline-command.md`: the arguments, the enabled flows and checks, and the back routes |
-| `.claude/commands/<flow-id>.md` | `claude-code/command.md`, one per enabled child flow |
-| `.claude/agents/<name>.md` | `claude-code/agent.md`, one per enabled Agent block of an enabled flow |
+| `CLAUDE.md` | `base/CLAUDE.md` (manifest entry 1), rendered |
+| `spec/documents/process.md` | `base/process.md` (manifest entry 2), rendered: the flows, blocks and gates as text, and the Mermaid diagram of the process |
+| `spec/specifications/F-00-template/stories.md` | `base/spec-template/stories.md` (manifest entry 3) |
+| `spec/specifications/F-00-template/plan.md` | `base/spec-template/plan.md` (manifest entry 4) |
+| `spec/specifications/F-00-template/progress.md` | `base/spec-template/progress.md` (manifest entry 5) |
+| `.claude/commands/pipeline.md` | `claude-code/pipeline-command.md`: the arguments, the flows and gates, the back routes, and the command files |
+| `.claude/commands/<flow-id>.md` | `claude-code/command.md`, one per flow of the pipeline |
+| `.claude/agents/<name>.md` | `claude-code/agent.md`, one per Agent block of a flow |
 | `.claude/rules/<id>.md` | `claude-code/rule.md`, one per `ProjectConfig.rules` entry |
 
-No layout holds a script: the Claude Code output has no `scripts/` folder. Templates never contain a script.
+The LLM writes the content of the command and agent files at `/generate` from the planned text, their descriptions and their rule tags (`architecture.md` §3, step 5). No layout holds a script: the Claude Code output has no `scripts/` folder.
 
 ## Folders
 
 ```
 source/templates/
-  base/           the pipeline's base files (CLAUDE.md, process.md, spec template); in use
-  claude-code/    the pipeline layouts (pipeline command, flow command, agent, rule); in use
-  pipeline/       default.json, a sample pipeline config (data); in use
+  base/           the base files (CLAUDE.md, process.md, spec template) and manifest.json; in use
+  claude-code/    the layouts of the pipeline's Claude Code files (pipeline command, flow command, agent, rule); in use
+  pipeline/       default.json, the default pipeline config (data); in use
 ```
 
 Cursor and Copilot are post-MVP. Their mapping is not planned yet; when the feature is specified, the mapping is confirmed against each tool's current documentation.
 
 ## Branch and gate text
 
-The pipeline command writes each check as a numbered step in its Steps section, and each back route as a numbered rule in its Rules section (`source/packages/core/src/pipeline/generate/rules-text.ts`). For example, a check step:
+The pipeline command and a flow's command write their steps and rules as numbered lines (`source/packages/core/src/pipeline/generate/values-command.ts`). A check step reads:
 
-> 2. Check review, decided by agent (`review`).
+> 2. Check: <description> (type <type>, threshold <n>).
 
-and a back route rule:
+The threshold is written only for a check that sets one. A back route reads:
 
 > 1. On fail, go back to `implement` and run again from there; round limit 2.
 

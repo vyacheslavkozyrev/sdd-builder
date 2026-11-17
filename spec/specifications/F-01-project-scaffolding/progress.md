@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 13 criteria, all `[auto]`; approved by the user |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: build tooling only |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-16 | 2 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 3 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Workspace and compiler settings; placeholders and smoke tests in all three packages | 0 blockers; 2 warnings and 2 suggestions fixed; 1 suggestion deferred | task check passed: core 14, api 1, web 1 |
 | T002 | NodeNext import rule: in-memory compile, missing `.js` gives TS2834 | 1 warning (undeclared `typescript`) fixed by the user-approved devDependency `typescript` 5.9.3 in core; 1 suggestion deferred | task check passed: core 16, api 1, web 1 |
+| T003 | Vitest script check: every package `test` script is `vitest run`; root runs the workspaces | 0 blockers, 0 warnings; 1 suggestion fixed (type guard instead of cast) | task check passed: 20 tests across four test files |
 
 ---
 

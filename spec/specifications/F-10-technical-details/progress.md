@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; no new library; AC-007 configuration half checked when F-13 adds the configuration function) |
 | Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-17 | 23 criteria: 22 `[auto]` covered by passing tests; AC-007 reducer half covered, configuration half open until F-13; AC-023 `[device]` passed by the user (C-01, checklist.md) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -48,6 +48,40 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+**Verify run 2026-11-17, branch `main`, clean tree.** Type check passed for api, web and core. Tests: api 57 passed, web 303 passed (18 files), core 1017 passed (53 files); `source/scripts/task-check.sh` passed.
+
+| Criterion | Tag | Covering tests (all passed) | Result |
+| --- | --- | --- | --- |
+| AC-001 | auto | TechnicalStep.test.tsx | covered |
+| AC-002 | auto | TechnicalStep.test.tsx | covered |
+| AC-003 | auto | TechnicalStep.test.tsx | covered |
+| AC-004 | auto | technical.test.ts, TechnicalStep.test.tsx | covered |
+| AC-005 | auto | TechnicalStep.test.tsx | covered |
+| AC-006 | auto | technical.test.ts, TechnicalStep.test.tsx | covered |
+| AC-007 | auto | state.test.ts (reducer: Next, Prev, no trim) | covered for the reducer; configuration-function half open until F-13, as the approved plan records |
+| AC-008 | auto | state.test.ts, App.test.tsx, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
+| AC-009 | auto | state.test.ts, App.test.tsx, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
+| AC-010 | auto | state.test.ts, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
+| AC-011 | auto | RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
+| AC-012 | auto | state.test.ts, technical.test.ts, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
+| AC-013 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
+| AC-014 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
+| AC-015 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
+| AC-016 | auto | RuleBlocks.test.tsx | covered |
+| AC-017 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
+| AC-018 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
+| AC-019 | auto | Wizard.test.tsx, App.test.tsx | covered |
+| AC-020 | auto | state.test.ts, App.test.tsx | covered |
+| AC-021 | auto | state.test.ts, App.test.tsx | covered |
+| AC-022 | auto | TechnicalStep.test.tsx, RuleBlocks.test.tsx, wizard-privacy.test.ts | covered |
+| AC-023 | device | `checklist.md` C-01 | awaiting the user's result |
+
+**Scope (`features.md` F-10):** each part of the scope (language required, four optional stack fields, architecture at most 5,000, rule name and description limits, file name per block, at most 60 blocks, duplicate ids flagged, list starts empty) is covered by at least one criterion above.
+
+**Gaps:** none blocking. AC-007 is partly open by design (approved plan): the configuration-function half waits for F-13.
+
+**Manual checklist:** `spec/specifications/F-10-technical-details/checklist.md`, one item (C-01, AC-023), result pending. The owner's open layout points (inner scroll, block height at three blocks, clipped name) and the rule-name help line decision are recorded there.
 
 ---
 

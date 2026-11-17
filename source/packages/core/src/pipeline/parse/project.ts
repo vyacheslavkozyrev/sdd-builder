@@ -1,8 +1,7 @@
 // The parser entry for the whole config (architecture.md §6 decisions 33 and 3). It takes any value,
 // never throws, and returns either the typed config or every problem, in document order.
-// This task parses the root and the rules; the pipeline is parsed in F-02 T007.
 
-import type { ProjectConfig, Rule } from '../model.js';
+import type { ProjectConfig, Rule, Pipeline } from '../model.js';
 import {
   childPath,
   createProblems,
@@ -14,6 +13,7 @@ import {
   type Problems,
   visitKeys,
 } from '../check/primitives.js';
+import { parsePipeline } from './pipeline.js';
 
 export type ParseResult = { ok: true; config: ProjectConfig } | { ok: false; problems: Problem[] };
 
@@ -26,6 +26,10 @@ export function parseProjectConfig(input: unknown): ParseResult {
   if (root === undefined) {
     return { ok: false, problems: problems.list };
   }
+  const found: { rules: Rule[] | undefined; pipeline: Pipeline | undefined } = {
+    rules: undefined,
+    pipeline: undefined,
+  };
   visitKeys(root, ROOT_KEYS, '', problems, (key) => {
     const value = root[key];
     if (key === 'schemaVersion') {
@@ -33,14 +37,17 @@ export function parseProjectConfig(input: unknown): ParseResult {
         problems.add('schemaVersion', 'must be the number 2');
       }
     } else if (key === 'rules') {
-      parseRules(value, 'rules', problems);
+      found.rules = parseRules(value, 'rules', problems);
     } else if (value === undefined) {
       problems.add('pipeline', 'is required');
+    } else {
+      found.pipeline = parsePipeline(value, 'pipeline', problems);
     }
   });
-  // Until F-02 T007 parses the pipeline, a config is never returned as typed.
-  problems.add('pipeline', 'is not parsed yet (F-02 T007)');
-  return { ok: false, problems: problems.list };
+  if (problems.list.length > 0 || found.rules === undefined || found.pipeline === undefined) {
+    return { ok: false, problems: problems.list };
+  }
+  return { ok: true, config: { schemaVersion: 2, rules: found.rules, pipeline: found.pipeline } };
 }
 
 function parseRules(value: unknown, path: string, problems: Problems): Rule[] | undefined {

@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { parseProjectConfig } from '../../src/pipeline/parse/project.js';
 
-// Until F-02 T007 parses the pipeline, every result carries this problem last.
-const PIPELINE_PENDING = 'pipeline';
-
 function rule(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return { id: 'no-secrets', title: 'No secrets', text: 'Never commit keys.', ...overrides };
 }
 
+function validPipeline(): Record<string, unknown> {
+  return {
+    name: 'Feature flow',
+    description: 'Runs one feature from brief to commit.',
+    arguments: [],
+    flows: [{ id: 'build', name: 'Build', description: 'Builds one task', arguments: '', blocks: [] }],
+  };
+}
+
 function root(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return { schemaVersion: 2, rules: [rule()], pipeline: {}, ...overrides };
+  return { schemaVersion: 2, rules: [rule()], pipeline: validPipeline(), ...overrides };
 }
 
 function pathsOf(input: unknown): string[] {
@@ -35,7 +41,7 @@ describe('F-02 AC-002 schemaVersion must be the number 2', () => {
     const result = parseProjectConfig(input);
     expect(result.ok).toBe(false);
     expect(result).not.toHaveProperty('config');
-    expect(pathsOf(input)).toEqual(['schemaVersion', PIPELINE_PENDING]);
+    expect(pathsOf(input)).toEqual(['schemaVersion']);
   });
 });
 
@@ -55,13 +61,12 @@ describe('F-02 AC-003 the root must be an object', () => {
 
 describe('F-02 AC-004 unknown keys at the root and rule levels', () => {
   it('F-02 AC-004 names the unknown key at the root', () => {
-    expect(pathsOf(root({ extra: 1 }))).toEqual(['extra', PIPELINE_PENDING]);
+    expect(pathsOf(root({ extra: 1 }))).toEqual(['extra']);
   });
 
   it('F-02 AC-004 names the unknown key of a rule with its index', () => {
     expect(pathsOf(root({ rules: [rule({ extra: true })] }))).toEqual([
       'rules[0].extra',
-      PIPELINE_PENDING,
     ]);
   });
 });
@@ -69,19 +74,19 @@ describe('F-02 AC-004 unknown keys at the root and rule levels', () => {
 describe('F-02 AC-023 rule ids are unique', () => {
   it('F-02 AC-023 refuses a rule id equal to an earlier rule id, at the second rule', () => {
     const input = root({ rules: [rule(), rule({ title: 'Other' })] });
-    expect(pathsOf(input)).toEqual(['rules[1].id', PIPELINE_PENDING]);
+    expect(pathsOf(input)).toEqual(['rules[1].id']);
   });
 
   it('F-02 AC-023 refuses a third rule that repeats the first id, with its own path', () => {
     const input = root({
       rules: [rule({ id: 'a-rule' }), rule({ id: 'b-rule' }), rule({ id: 'a-rule' })],
     });
-    expect(pathsOf(input)).toEqual(['rules[2].id', PIPELINE_PENDING]);
+    expect(pathsOf(input)).toEqual(['rules[2].id']);
   });
 
-  it('F-02 AC-023 reports no rule problem for distinct ids (the config is still refused by the pipeline placeholder)', () => {
+  it('F-02 AC-023 returns the config when the rule ids are distinct', () => {
     const input = root({ rules: [rule({ id: 'a-rule' }), rule({ id: 'b-rule' })] });
-    expect(pathsOf(input)).toEqual([PIPELINE_PENDING]);
+    expect(parseProjectConfig(input).ok).toBe(true);
   });
 });
 
@@ -98,17 +103,17 @@ describe('F-02 AC-027 a rule needs id, title and text, all non-blank', () => {
     { label: 'a rule that is not an object', value: 'no-secrets', paths: ['rules[0]'] },
   ])('F-02 AC-027 refuses a rule with $label, at its path', ({ value, paths }) => {
     const input = root({ rules: [value] });
-    expect(pathsOf(input)).toEqual([...paths, PIPELINE_PENDING]);
+    expect(pathsOf(input)).toEqual([...paths]);
   });
 
   it('F-02 AC-027 refuses rules that are not a list', () => {
-    expect(pathsOf(root({ rules: 'none' }))).toEqual(['rules', PIPELINE_PENDING]);
+    expect(pathsOf(root({ rules: 'none' }))).toEqual(['rules']);
   });
 
   it('F-02 AC-027 refuses a missing rules list', () => {
     const input = root();
     delete input['rules'];
-    expect(pathsOf(input)).toEqual(['rules', PIPELINE_PENDING]);
+    expect(pathsOf(input)).toEqual(['rules']);
   });
 });
 
@@ -128,7 +133,6 @@ describe('F-02 AC-028 all problems come back in document order', () => {
       'rules[0].title',
       'rules[1].id',
       'rules[2].text',
-      PIPELINE_PENDING,
     ]);
     for (const problem of result.problems) {
       expect(problem.message).not.toBe('');
@@ -138,13 +142,13 @@ describe('F-02 AC-028 all problems come back in document order', () => {
 
 describe('F-02 AC-028 problems follow the order the keys were written in', () => {
   it('F-02 AC-028 keeps a root key that comes before schemaVersion ahead of it', () => {
-    const input = { rules: [rule({ title: ' ' })], schemaVersion: 1, pipeline: {} };
-    expect(pathsOf(input)).toEqual(['rules[0].title', 'schemaVersion', PIPELINE_PENDING]);
+    const input = { rules: [rule({ title: ' ' })], schemaVersion: 1, pipeline: validPipeline() };
+    expect(pathsOf(input)).toEqual(['rules[0].title', 'schemaVersion']);
   });
 
   it('F-02 AC-028 puts an unknown root key where it was written, between known keys', () => {
-    const input = { rules: [rule({ title: ' ' })], extra: 1, schemaVersion: 1, pipeline: {} };
-    expect(pathsOf(input)).toEqual(['rules[0].title', 'extra', 'schemaVersion', PIPELINE_PENDING]);
+    const input = { rules: [rule({ title: ' ' })], extra: 1, schemaVersion: 1, pipeline: validPipeline() };
+    expect(pathsOf(input)).toEqual(['rules[0].title', 'extra', 'schemaVersion']);
   });
 
   it('F-02 AC-028 reports a duplicate id in the order its key was written, after or before the title', () => {
@@ -152,13 +156,11 @@ describe('F-02 AC-028 problems follow the order the keys were written in', () =>
     expect(pathsOf(root({ rules: [rule(), titleFirst] }))).toEqual([
       'rules[1].title',
       'rules[1].id',
-      PIPELINE_PENDING,
     ]);
     const idFirst = { id: 'no-secrets', title: ' ', text: 'Text.' };
     expect(pathsOf(root({ rules: [rule(), idFirst] }))).toEqual([
       'rules[1].id',
       'rules[1].title',
-      PIPELINE_PENDING,
     ]);
   });
 });

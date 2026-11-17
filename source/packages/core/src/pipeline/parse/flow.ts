@@ -1,6 +1,6 @@
 // The flow parser (architecture.md §6 decision 33): a flow holds its blocks in order. Its optional `connectedTo` is the
 // arrow to the next flow, with an optional gate: an approval, or a check with a type and, for `diff size`, a threshold.
-// Shape only: whether `to` names a flow that exists is checked by F-03. Pipeline wiring is F-02 T007.
+// Shape only: whether `to` names a flow that exists is checked by F-03. The pipeline that holds the flows is in ./pipeline.ts.
 
 import type { Block, Flow, FlowLink, Gate, Id, Model } from '../model.js';
 import {

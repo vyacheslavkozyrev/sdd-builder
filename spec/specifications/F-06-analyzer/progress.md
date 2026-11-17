@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 6 stories, 32 criteria, all `[auto]`; approved by the user. Owner decision 2026-11-17: brief fields (`name`, `idea`, `architecture`, `stack`) added to the pipeline model in F-06, and brief checks run in F-06 in their own function, not in `analyzeStructure`. Review: fixed limits (8192 tokens, 60 s), at most 10 kept entries, no retry, no daily ceiling (F-17) |
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: model, checks and analysis function only (the stories have no user-facing criterion) |
 | Plan     | ✅ Complete | 2026-11-17 | 7 tasks, all 32 criteria covered; approved by the user before any code is written |
-| Build    | 🔄 In Progress | | 4 of 7 tasks committed |
+| Build    | 🔄 In Progress | | 5 of 7 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T005 | Review request in `apps/api`: fixed prompt (`review/prompt.ts`); request text from the brief, rules and pipeline in fixed key order; call parameters 8192 tokens, 60 s, no SDK retry, and `callReview` with a fake client (`review/anthropic.ts`) | 1 blocker fixed (`callReview` had no test), 1 warning fixed (key order of `rules` and `pipeline` not fixed), 1 suggestion fixed (duplicate order assertion removed) | task check passed: core 1017 of 1017 (53 files), api 21 of 21 (4 files), web 3 of 3 |
 | T004 | `checkReview` in `analyze/review.ts`: `failed` for non-JSON or a non-array; entries kept only with severity `warning`, `info` or `blocker` (kept as `warning`) and non-blank `subject` and `message`; at most 10 kept, in reply order; the rest counted in `dropped` | 0 blockers, 0 warnings, 1 suggestion fixed (no-trim behaviour tested) | task check passed: core 1017 of 1017 (53 files), api 6 of 6, web 3 of 3 |
 | T003 | `analyzeBrief` in `analyze/brief.ts`: blockers for `name`, `idea`, `stack.language`; warnings for blank optional stack fields and empty `rules`; kept out of `analyzeStructure` (proved by a test) | 0 blockers, 2 warnings fixed (exact blocker list asserted; the stack-absent warnings tested), 1 suggestion fixed (test title) | task check passed: core 987 of 987 (52 files), api 6 of 6, web 3 of 3 |
 | T002 | Brief fields in the model (`name`, `idea`, `architecture`, `stack`, optional) and the parser (`parse/brief.ts`); 5,000-code-point limit on `idea` and `architecture`; unknown `stack` keys refused with their path | 0 blockers, 1 warning fixed (surrogate-pair boundary tested for `architecture`), 1 suggestion fixed (unused export removed), 1 suggestion deferred (length check repeats `bodyText`; shared helper is outside T002) | task check passed: core 939 of 939 (50 files), api 6 of 6, web 3 of 3 |

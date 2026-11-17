@@ -1,132 +1,170 @@
-# SDDBuilder — Building Blocks
+# SDDBuilder — UI requirements
 
-Status: decided 2026-11-14 with the owner, revised the same day three times, and on 2026-11-15 (F-06: `review` is no longer a check type). The model has two levels of flow: the **pipeline** (the one flow that can contain other flows) and **flows** (which hold blocks only). Replaces the 2026-11-11 model (workflows as tabs of steps, nine node kinds). Not yet reflected in `source/packages/core` or in the feature specs; the features are re-specified after F-01 is reworked (`features.md`).
+Status: revised 2026-11-16 with the owner's decisions. Items marked **OPEN** are not decided and are listed in section 9. The block model and the default pipeline are in `building-blocks.md`; this document does not repeat them.
 
-## Decisions
+Scope: the MVP web app for **desktop browsers only**; reference size 1280 × 800. No mobile or tablet layout. Nothing the user enters is stored by the server, and nothing is kept after a browser refresh.
 
-1. **Two levels, one nesting.** The **pipeline** is the top-level flow. It contains **flows** (child flows, one per phase or step of the process). A flow contains blocks only. A flow cannot contain another flow.
-2. **The pipeline describes the process we built.** The default pipeline is the flow of `.claude/commands/pipeline.md`: specify, ux, plan, build (per task), verify, complete, with the approvals and checks between them (§4).
-3. **Gates and checks sit between flows.** A Condition can sit on a Connection between two flows in the pipeline. It holds the next flow until it passes. An approval or a check between flows is a gate.
-4. **Five block kinds inside a flow:** Start, Agent, Condition, Connection, End. In the pipeline there is one more kind, **Flow**, which holds a child flow.
-5. **Agents run agents, never flows.** An Agent block runs an agent (`.claude/agents/<name>.md`). Only the pipeline runs flows.
-6. **Scope is an attribute of an Agent block.** It says what the block repeats over: `project` (once), `feature` (for each feature in `features.md`), or `task` (for each task in `plan.md`). Start blocks carry the arguments.
-7. **Arguments are on the pipeline's Start block:** name, required or optional, hint. They become the pipeline command's argument hint.
-8. **A Condition has a fixed check type** (`approval`, `checks`, `diff-size`; `review` was removed on 2026-11-15, F-06: a review is an Agent block followed by a `checks` Condition). Its pass output and fail output are both wired. A fail output goes to the next block, back to an earlier block in the same flow (a retry), or, at pipeline level, to an earlier flow; or stops the process. A condition whose fail output stops is a quality gate.
-9. **A Connection is a "runs after" link** between two blocks, or between two flows in the pipeline. It carries the artifact it hands over, as a label. A gate on a connection is a Condition placed on it.
-10. **No cycles.** Flows and their connections form an acyclic order, except for retries of Conditions, which go back to an earlier block of the same flow or, at pipeline level, to an earlier flow.
-11. **Rule sets are tags** on Agent blocks and on flows. They point at files in `.claude/rules/`.
-12. **Round limits are optional and set by the user.** The framework sets no default. The analyzer warns when a retry has no limit, because each round can cost a model call.
-13. **A disabled block or flow is left out.** Switched off (`enabled: false`), it is not checked, not drawn, not generated and not sent to review. It keeps its properties, so it can be switched back on.
-14. **Human decisions are asked by the main session.** The pipeline command runs in the main session, so a Condition decided by a human is asked there, and so is the connection to the next flow when it waits for a person. Agents run as subagents and never ask questions.
-15. **The development environment is not generated.** This repository's own `.claude/` (commands, agents, rules) is our working environment. A generated project gets the pipeline command, one command file per child flow, the agent files of its Agent blocks, the rule files from the brief, and the base files.
-16. **Autosave is post-MVP** (F-20). The MVP keeps nothing between visits.
+Look and feel: **Material UI** React components (decision recorded in `architecture.md` §5).
 
-## 1. The Map tab
+---
 
-- The Map tab shows the **pipeline**: one diagram of its child flows, in order, left to right.
-- Each flow is a node. It shows its name, its scope and its number of blocks. The scope is the one scope of the flow's enabled Agent blocks; it reads `mixed` when they differ and `no agent` when the flow has no enabled Agent block. The block count counts every block, switched off or not.
-- A Connection between two flows is drawn as an arrow with the artifact label. A Condition on that connection (a gate or a check) is drawn as a diamond on the arrow, with its pass and fail outputs. A connection holds one gate at most.
-- Selecting a flow opens its tab (below). Selecting a connection or a gate opens its property panel.
-- The pipeline's own properties (name, description, arguments, model, tools, rule tags, body) are in a panel to the right of the diagram, shown when nothing is selected (decided 2026-11-15).
-- A toolbox to the left of the diagram holds Connection, Approval and Check (decided 2026-11-15). Drag an Approval or a Check onto a connection between two flows; the panel of a connection with no gate also adds one. A tab row holds the Map tab, one tab per flow in order, and a + that adds a flow after the last tab.
-- A gate or check shows its settings in its panel: a description, the fail route, and an optional round limit. A `diff-size` check also takes a threshold, a positive whole number of lines. A retry with no round limit shows a warning.
-- Structural problems (a cycle, an unwired output, a flow with no End, a retry with no limit) are computed as live marks from the F-04 rules. A mark never stops an edit. The Map and the flow tabs draw each mark beside its item; a mark on an item the Map does not draw is listed under the diagram.
+## 1. App layout
 
-## 2. Flow tabs
+**1.1 Header** (top, full width)
+- Left: logo.
+- Right: **New project** (opens the wizard at step 1), **Demo** (**OPEN**, section 9, D1).
 
-- Each child flow has its own tab. The tab shows the flow's blocks in order, numbered: Start, Agent, Condition, Connection, End. The Connections between blocks are listed in a section below the numbered boxes; a Connection is not numbered.
-- The tab's toolbox holds Start, Agent, Condition, Connection and End. A flow has one Start and at least one End.
-- The tab's heading shows the flow's name. Its description and scope are in the flow's panel, which shows when no block is selected. The scope is set on its Agent blocks (§3).
-- Move up and Move down reorder the selected block within its flow.
-- Selecting a block opens its property panel. With no block selected, the panel shows the flow's own properties. The panel shows the block's properties, the file it generates and its rule tags; its footer holds Switch off and Delete. Delete asks for confirmation first and names what is left unwired.
-- A Condition whose retry has no round limit shows a warning beside it (§1, §3).
+**1.2 App footer** (bottom, full width)
+- Annotation: the work is not saved and is lost when the browser is refreshed. Shown on every screen.
 
-## 3. Blocks
+**1.3 Wizard frame** (after New project)
+- **Wizard steps panel** (top of the wizard, full width): the four steps in order, each with its title and state (done, current, to do). Beside the steps, **Prev** and **Next** buttons. The steps themselves are **not clickable**; navigation is by Prev and Next only.
+- **Prev** is disabled on step 1. **Next** is hidden on step 4 (step 4 has no next step).
+- Below the panel: the step body.
 
-| Block | What it is | Properties | Diagram shape | Generated as (Claude Code) |
-|---|---|---|---|---|
-| **Start** | Entry of a flow. Exactly one per flow (the pipeline's Start carries the arguments) | arguments (pipeline only: name, required, hint) | circle | the argument hint of the pipeline command |
-| **Agent** | Runs an agent | name (file-safe, unique); description (when Claude should use it; required); scope (`project`, `feature`, `task`) with its iteration source; model (`haiku`, `sonnet`, `opus`, `inherit`); tools (allowed list); body (instructions); reads and writes (artifacts); rule tags | rounded rectangle, with an "agent" badge and the scope | `.claude/agents/<name>.md` with frontmatter (name, description, model, tools) and the body; a call in the flow's command file, repeated per scope |
-| **Condition** | A check with a pass and a fail output. Sits in a flow, or on a connection between flows | check type (`approval`, `checks`, `diff-size`); description (what passing means); decided by (`human` or `agent`); threshold (`diff-size` only, lines); pass route; fail route (next, back to a block with an optional round limit, or stop) | diamond with two labelled outputs | a numbered rule in the command file of the flow, or in the pipeline command when it sits between flows |
-| **Connection** | A "runs after" link between two blocks, or between two flows | artifact label (the file handed over) | arrow with a label | the handover named in the command file |
-| **Flow** (pipeline only) | A child flow | name; description; scope of the flow (project, feature, task, set from its Agent blocks); enabled | rounded rectangle with a "flow" badge and its block count | `.claude/commands/<flow>.md`, called in order by the pipeline command |
-| **End** | Exit of a flow (or of the pipeline). One or more | produced artifact (optional); outcome (`done` or `stopped`); description (optional) | circle | the last step of the command file |
+---
 
-Every block also has an **id** (stable, used by routes and by the self-check, F-10) and **enabled** (on or off).
+## 2. Wizard steps
 
-## 4. The default pipeline
+### Step 1 — Project
+- **Project name**: single-line text field, required. Stored as typed; spaces only are kept. A blank name does not block Next; the analysis reports it.
+- **Idea**: multi-line text field, required. Limit **5,000 characters**, counted in code points (an emoji counts as one). A counter shows `N / 5,000`. Typing or pasting past the limit keeps the first 5,000 characters.
+- Help text as on the approved screen 01.
 
-The default pipeline is the flow of `.claude/commands/pipeline.md`, written as flows. Its child flows, in order:
+### Step 2 — Technical details
+- **Stack**: language (required); framework, platform, build tool and test framework (optional).
+- **Architecture**: multi-line text field, optional. Limit **5,000 characters**, counted in code points.
+- **Rules** (a list of rule blocks):
+  - Each block has a **name** (single line) and a **description** (multi-line). Each description is limited to **1,000 characters**.
+  - Each block shows its file name `.claude/rules/<id>.md`. The id is the name in lower case, with each run of characters outside `a–z` and `0–9` replaced by one hyphen.
+  - **Add rule block** appends one empty block after the last one. **Remove block** removes that block only; the others keep their order.
+  - At most **60** blocks; Add is disabled at 60.
+  - Two blocks whose names give the same id both show a duplicate-id message; both are kept as entered.
+  - The list starts empty. The app never adds a rule block by itself.
 
-1. **specify** (flow). Agent `specify` (scope `feature`): drafts `stories.md`. Its questions are asked by the main session before it starts.
-2. **ux** (flow). Agent `ux` (scope `feature`): draws the screens under `spec/design/features/`, from the stories. Its screens are approved before the plan is written.
-3. **plan** (flow). Agent `plan` (scope `feature`): drafts `plan.md` from the stories and the approved screens.
-4. **build** (flow). Per task (scope `task`, iteration `plan.md`): Agent `implement` → Agent `review` → Condition `checks` (description: "the review reports no blocker or warning"; fail back to `implement`) → Agent `test` → Condition `checks` (the check runs; fail back to `implement`) → Condition `diff-size` (400 lines; fail stops) → Agent `commit`. One commit per task.
-5. **verify** (flow). Agent `verify` (scope `feature`, verify mode: every criterion covered).
-6. **complete** (flow). Agent `complete` (scope `feature`): marks the feature complete and commits its spec folder.
+### Step 3 — Workflow
+See section 3.
 
-Gates and checks between the flows:
+### Step 4 — Analyze and generate
+Two areas on the step:
 
-| Between | Gate or check | Decided by | Fail |
+**Analyze block**
+1. **Privacy notice** with a checkbox, above Analyze. Unticked at start. Analyze is disabled until it is ticked; unticking disables Analyze again.
+2. **Analyze** sends the project configuration once. While it is pending, Analyze is disabled.
+3. **Findings** are listed in the order the server returns them. Each shows its severity (`blocker`, `warning`, `info`), its subject and its message, as plain text. A review that is skipped or failed is noted beside the findings; the structural findings are still shown. An error (400, 422, 429, 500, 502 or a network failure) is shown as text and the entered values are kept; a 422 lists every problem.
+4. The analysis is **green** when it has run on the current configuration and has **no blocker** (warnings do not stop it; **OPEN** D8 asks to confirm).
+
+**Project preview**
+- The file tree of the project: the files the project will get, in plan order. Files that come from rule blocks are marked. The tree is computed in the browser, without a request.
+- One button, **Generate and download**: enabled only when the analysis is green. It generates the project and saves the zip file `sddbuilder-project.zip`.
+- Any change to a field, a rule block or the pipeline makes the analysis out of date. The button is disabled until Analyze runs again and is green.
+
+---
+
+## 3. Step 3 — Workflow builder
+
+### 3.1 Tab row
+- Full width of the available space (not centred, not a fixed width).
+- The first tab is **Pipeline** (the whole process). It cannot be removed.
+- One tab per **flow** (a child flow of the pipeline), in pipeline order.
+- A **+** button after the last tab adds a flow. Flows are added only this way.
+
+### 3.2 Pipeline tab
+- **Toolbox** (left, fixed width): **Approval** and **Check**.
+- **Canvas** (centre, all remaining space): an interactive diagram in the style of Miro (pan, select, drag, link). Each flow is a box with its name and its block count.
+- A **connection** between two flows is an arrow. A connection is made by linking one flow to the next on the canvas.
+- A gate sits on an arrow between two flows:
+  - **Approval**: a person decides.
+  - **Check**: an agent decides. Its type is `checks` (the check named in its description) or `diff size` (a threshold in lines).
+  - One gate per arrow.
+- **Placing a gate**: drag Approval or Check from the toolbox onto an arrow. A drop target appears on the arrow while dragging. The keyboard and touch path is the arrow's properties panel, with the buttons **Add approval** and **Add check**.
+- **Properties panel** (right, fixed width): the pipeline's properties when nothing is selected; the selected item's properties otherwise.
+
+### 3.3 Flow tab
+- **Toolbox** (left, fixed width): **Start**, **Agent**, **Approval**, **Check**, **End**. Start is disabled when the flow has one, with the reason shown.
+- **Canvas** (centre): the flow's blocks as numbered boxes in order. The Start is first and the End is last. A check has two outputs, pass and fail, shown as labelled ports.
+- Blocks are linked by drawing a connection from one block's output to the next block's input. The keyboard and touch path is the selected block's panel, with the button **Link to next block**, which then asks for the target block.
+- **Move up** and **Move down** for the selected block.
+- **Properties panel** (right, fixed width): the selected block's properties, or the flow's when none is selected.
+
+### 3.4 Property panels and footer
+- Each panel shows the file the item generates and, where the item has them, its arguments.
+- Footer of a block or flow: **Switch off** / **Switch on** (keeps every property; a switched-off item is shown muted and is not checked or generated), and **Delete**, which asks for confirmation and names the connections it removes.
+- An edit that is refused keeps the previous value and says why, next to the field.
+
+### 3.5 Structure marks
+- A structural problem is shown beside the item it names, with its severity colour (blocker red, warning amber, info grey) and its message.
+- A problem whose item is not drawn (for example a pipeline with no End) is listed under the Pipeline tab in a section "Not on a drawn item".
+- Brief problems (name, idea, stack, rules) are not shown on the pipeline; they appear at Analyze.
+- Marks never block an edit.
+
+---
+
+## 4. Blocks in the UI
+
+| Block | Added on | Properties | Generated as |
 |---|---|---|---|
-| specify → ux | `approval` on the stories | human | back to specify |
-| ux → plan | `approval` on the screens | human | back to ux |
-| plan → build | `approval` on the plan | human | back to plan |
-| build → verify | `checks`: all tasks committed and the check passes | agent | stop |
-| verify → complete | `approval`: the manual checklist results | human | back to verify |
+| **Start** | Flow tab (one per flow) | none on a flow. The pipeline's Start carries the arguments (below). | — |
+| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and its scope, written as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1,000 characters**) | `.claude/agents/<name>.md` |
+| **Approval** | Pipeline tab (between flows); flow tab (between blocks) | description (what the person approves). Decided by a person. | A human-approval step in the command |
+| **Check** | Pipeline tab (between flows); flow tab (between blocks) | description (what passing means; required); type (`checks` or `diff size`); threshold (diff size only, a positive whole number); pass output and fail output, each going to the next block, back to an earlier block (with an optional round limit), or stopping | A numbered rule in the command |
+| **End** | Flow tab (one or more) | outcome (`done` or `stopped`); produced artifact (optional) | The last step of the flow's command |
+| **Flow** | Pipeline tab, with **+** | name; description; arguments; model; body (at most **1,000 characters**) | `.claude/commands/<flow>.md` |
+| **Pipeline** | Pipeline tab (properties panel) | name; description; arguments (name, required or optional, hint); model; tools; rule tags; body (at most **1,000 characters**) | `.claude/commands/pipeline.md` |
 
-The pipeline's Start block takes the argument `feature-id` (required). The pipeline has no release flow: it does not release. A release flow can be added by the user.
+- The pipeline's arguments include `feature-id` (required) in the default pipeline.
+- Every block has a stable id. A switched-off block or flow is not checked and not generated.
+- A block's **arguments** explain it in text, including its scope (for example "for each task in `plan.md`"). **OPEN** D6: how the generator and the analysis use this text, now that there is no scope field.
 
-Presets (F-09) are other starting pipelines; the default is the first.
+---
 
-## 5. Recommended MVP set
+## 5. Interaction rules
+- **Selection**: one item at a time. Its properties show in the right panel.
+- **Adding**: a block is added after the selected block, or before the End when nothing is selected. The End stays last.
+- **Every drag has a button path.** Placing a gate uses the buttons **Add approval** and **Add check** on the arrow's panel; linking blocks uses **Link to next block** on the block's panel.
+- **Refusals** are shown inline and keep the previous value.
+- **Delete** always asks for confirmation.
+- **Reversible**: switching off is undone by switching on.
 
-1. The Map tab: the pipeline as flows, with connections, gates and checks between them
-2. Flow tabs: one per child flow, with Start, Agent, Condition, Connection and End
-3. The toolbox per diagram, and property panels per block
-4. Scope on Agent blocks; arguments on the pipeline's Start block
-5. Conditions: three fixed check types; quality gates and branches; optional round limits; human approval
-6. Rule-set tags on Agent blocks and flows
-7. The default pipeline, as §4 lists it
+---
 
-Post-MVP: skills and scripts as blocks; custom agent blocks (F-14); presets (F-09); the artifact shape; notes.
+## 6. Limits (summary)
 
-## 6. Other recommendations
-
-1. **Show the generated file for every block** in the property panel.
-2. **Give every block, flow and argument a stable id.** Routes and the self-check (F-10) refer to them.
-3. **Validate structure, not only content** (§7).
-4. **Warn on unbounded retries.** A retry without a limit is allowed, but the analyzer flags it.
-
-## 7. Structural rules (the analyzer, F-04)
-
-- The pipeline has exactly one Start block and at least one End block; each child flow has exactly one Start and at least one End. The pipeline's own Start and End blocks must be enabled (the parser refuses a disabled one, F-06 amendment 7).
-- Only the pipeline contains Flow blocks; a flow contains no Flow block (one nesting level).
-- Every Connection joins two blocks of the same flow, or two flows of the pipeline.
-- No cycle: the Connections of a flow, and the Connections of the pipeline, form no cycle. A back route is a Condition's retry, not a Connection (§10). A Connection that closes a cycle is a structural problem (F-06 amendment 6).
-- Both outputs of every Condition are wired.
-- Every block and every flow is reachable from the pipeline's Start.
-- A back route goes to an earlier block of the same flow, or in the pipeline to an earlier flow. A back route in a child flow never leaves the flow.
-- Every Agent block has a name that is file-safe and unique in the project, and a description.
-- Argument names are unique.
-- An Agent block with scope `task` or `feature` reads an iteration source that an upstream block produces.
-- A retry with no round limit is a warning.
-- Disabled blocks and flows are not checked.
-
-## 8. Impact on the current documents
-
-| Document | What changes |
+| Field | Limit |
 |---|---|
-| `spec/documents/idea.md` | the core concept and decisions: pipeline with flows, one nesting level, gates between flows |
-| `spec/documents/architecture.md` | §3 generation (a file per flow, the pipeline command), §6 decisions, §8 output mapping, §9 gates between flows, §10 the Map tab and the flow tabs |
-| `spec/documents/features.md` | F-01 to F-07, F-13 to F-15, F-18 re-scoped; F-09 presets; F-14 custom agents |
-| `spec/documents/process.md` | the pipeline section lists its flows |
-| `source/templates/README.md` | placeholders and layouts for the pipeline, flow and agent files |
-| `CLAUDE.md` | the working rule on nesting |
-| `source/packages/core/src/model.ts`, `catalog.ts` | the pipeline and flows; the five block kinds plus Flow; scope on the Agent block; the default pipeline |
-| `spec/specifications/F-02` to `F-07`, `F-13` to `F-15`, `F-18` | built or specified on the previous model; re-specified after F-01 is reworked |
+| Project name | single line, required |
+| Idea | 5,000 characters (code points), required |
+| Architecture | 5,000 characters (code points), optional |
+| Rule block description | 1,000 characters |
+| Agent body | 1,000 characters |
+| Flow body | 1,000 characters |
+| Pipeline body | 1,000 characters |
+| Rule blocks | 60 |
 
-## 9. Open questions
+---
 
-1. **Required blocks in the pipeline.** Proposed: the approvals between flows, the check build → verify, and the diff-size guard inside build stay required; the rest can be removed or disabled.
-2. **Flows outside the pipeline.** The owner's model puts every flow inside the pipeline. Confirm that no flow exists outside it.
+## 7. Desktop only
+- Reference layout 1280 × 800. The app is not laid out for phones or tablets in the MVP.
+
+---
+
+## 8. What this document does not define
+- The block model, the default pipeline and the structural rules: `building-blocks.md`.
+- The architecture, the technology and the decisions: `architecture.md`.
+- Presets: F-09, after the MVP.
+- The text of the generated files: F-02 and F-03.
+
+---
+
+## 9. Open decisions
+
+| # | Question | Conflict or gap |
+|---|---|---|
+| D1 | What does the **Demo** button do, and is it in the MVP? | No feature defines it. |
+| D2 | Body limit 1,000 characters for every body. Is that right for an agent body, which is the longest text? | Recommendation: keep 1,000 for flow, pipeline and rule bodies; an agent body of 4,000 gives room for a detailed agent. Earlier decision F-06 AC-030 was 4,000 for agents. |
+| D3 | Connections are drawn between blocks (no connection block in the toolbox). Confirm. | The approved F-06 design put Connection in the toolbox. |
+| D4 | Does the pipeline's own Start and End appear on the Pipeline tab? | The approved design shows flows and gates only. |
+| D5 | Is a **Check** the same thing as the approved Condition? Check types are `checks` and `diff size`. | The approved design allowed `approval` as a check type; here Approval is its own block. |
+| D6 | With no scope field, how do the generator and the analysis know an agent runs per task or per feature? | The build loop and the iteration-source rule depend on scope. Needs a model decision before the core is rebuilt. |
+| D7 | Phone or tablet layout. | Decided out of scope: desktop only. Confirm. |
+| D8 | Is "green" = no blocker, or no blocker and no warning? | Current reading: no blocker. |

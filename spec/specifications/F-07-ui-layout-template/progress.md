@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 14 criteria: 12 `[auto]`, 2 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
-| Build    | 🔄 In Progress | 2026-11-17 | 4 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 5 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Frame sizing as a pure style function (width, 1024 px minimum, full-height, no hidden overflow) | 0 blockers, 0 warnings, 2 suggestions fixed (minWidth tied to the exported constant; determinism test relabelled) | task check passed: api 57, web 9, core 1017 |
 | T003 | Header: wordmark left, New project right, no other control | 0 blockers, 1 warning fixed (New project filled on a white bar, as screen 01), 1 suggestion deferred | task check passed: api 57, web 17, core 1017 |
 | T004 | Footer: the not-saved note, no button or link, Material UI | 0 blockers, 1 warning fixed (border-box so the bar is 48 px), 1 suggestion fixed (FOOTER_NOTE no longer exported); 1 suggestion deferred | task check passed: api 57, web 22, core 1017 |
+| T005 | Frame: header, centre area with the children, footer, in that order, styled by frameStyle | 0 blockers, 1 warning fixed (style of the outer element tested against frameStyle), 1 suggestion fixed | task check passed: api 57, web 30, core 1017 |
 
 ---
 

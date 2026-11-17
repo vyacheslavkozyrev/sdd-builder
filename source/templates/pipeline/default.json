@@ -96,6 +96,92 @@
           "outcome": "done",
           "producedArtifact": "plan.md"
         }
+      ],
+      "connectedTo": {
+        "to": "build",
+        "label": "plan.md",
+        "gate": { "kind": "approval", "description": "Approval on the plan" }
+      }
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "description": "Builds each task of the plan: implements it, reviews it, tests it, checks its size and commits it.",
+      "arguments": "for each task",
+      "blocks": [
+        {
+          "id": "build-start",
+          "kind": "start",
+          "connectedTo": { "to": "build-implement", "label": "task-id" }
+        },
+        {
+          "id": "build-implement",
+          "kind": "agent",
+          "name": "implement",
+          "description": "Builds the task from plan.md and the approved screens, with its tests, in the files the task lists.",
+          "arguments": "feature-id and task-id",
+          "connectedTo": { "to": "build-review", "label": "change" }
+        },
+        {
+          "id": "build-review",
+          "kind": "agent",
+          "name": "review",
+          "description": "Reviews the change of the task against its stories, the plan and the rules, and reports each blocker and warning.",
+          "arguments": "feature-id and task-id",
+          "connectedTo": { "to": "build-review-check", "label": "review" }
+        },
+        {
+          "id": "build-review-check",
+          "kind": "check",
+          "description": "the review reports no blocker or warning",
+          "type": "checks",
+          "connectedTo": {
+            "true": { "to": "build-test" },
+            "false": { "to": "build-implement" }
+          }
+        },
+        {
+          "id": "build-test",
+          "kind": "agent",
+          "name": "test",
+          "description": "Runs the tests and checks the acceptance criteria the task covers.",
+          "arguments": "feature-id and task-id",
+          "connectedTo": { "to": "build-test-check", "label": "test report" }
+        },
+        {
+          "id": "build-test-check",
+          "kind": "check",
+          "description": "the check script of the project passes",
+          "type": "checks",
+          "connectedTo": {
+            "true": { "to": "build-diff-check" },
+            "false": { "to": "build-implement" }
+          }
+        },
+        {
+          "id": "build-diff-check",
+          "kind": "check",
+          "description": "the change of the task is at most 400 changed lines",
+          "type": "diff size",
+          "threshold": 400,
+          "connectedTo": {
+            "true": { "to": "build-commit" },
+            "false": { "stop": true }
+          }
+        },
+        {
+          "id": "build-commit",
+          "kind": "agent",
+          "name": "commit",
+          "description": "Commits the change of the task, with the feature ID at the start of the message.",
+          "arguments": "feature-id and task-id",
+          "connectedTo": { "to": "build-end", "label": "commit" }
+        },
+        {
+          "id": "build-end",
+          "kind": "end",
+          "outcome": "done"
+        }
       ]
     }
   ]

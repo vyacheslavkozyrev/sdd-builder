@@ -4,3 +4,5 @@
 export * from './model.js';
 export { parseProjectConfig } from './parse/project.js';
 export { defaultPipeline } from './default.js';
+export { analyzeStructure } from './analyze/index.js';
+export type { Finding, Severity } from './analyze/index.js';

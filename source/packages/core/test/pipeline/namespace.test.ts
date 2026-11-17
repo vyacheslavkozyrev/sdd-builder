@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import * as root from '../../src/index.js';
 import { defaultPipeline } from '../../src/pipeline/default.js';
+import { analyzeStructure } from '../../src/pipeline/analyze/index.js';
 import { parseProjectConfig } from '../../src/pipeline/parse/project.js';
 
 describe('F-02 AC-034 pipeline namespace', () => {
@@ -27,6 +28,23 @@ describe('F-02 AC-034 pipeline namespace', () => {
 
   it('F-02 AC-034 the pipeline namespace carries the model values, not only the types', () => {
     expect(root.pipeline.MODELS).toContain('haiku');
+  });
+
+  it('F-03 AC-029 the root exports only the namespace pipeline, and no other name', () => {
+    expect(Object.keys(root)).toEqual(['pipeline']);
+  });
+
+  it('F-03 AC-029 the pipeline namespace exposes analyzeStructure as the module function', () => {
+    expect(root.pipeline.analyzeStructure).toBe(analyzeStructure);
+  });
+
+  it('F-03 AC-029 the pipeline namespace exposes the Finding and Severity types', () => {
+    expectTypeOf<root.pipeline.Finding>().toEqualTypeOf<{
+      severity: 'blocker' | 'warning';
+      path: string;
+      message: string;
+    }>();
+    expectTypeOf<root.pipeline.Severity>().toEqualTypeOf<'blocker' | 'warning'>();
   });
 
   it('F-02 AC-034 the pipeline namespace exposes the model types', () => {

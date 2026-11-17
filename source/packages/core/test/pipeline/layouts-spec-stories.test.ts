@@ -14,9 +14,11 @@ describe('F-05 AC-021 the stories entry of the base manifest maps to the F-00 te
     expect(stories?.path).toBe('spec/specifications/F-00-template/stories.md');
   });
 
-  it('F-05 AC-021 lists the stories entry as the only base file so far, in its output order', () => {
+  it('F-05 AC-021 lists the three spec template entries in their output order', () => {
     expect(loadTemplates(templatesRoot).base.map((entry) => entry.path)).toEqual([
       'spec/specifications/F-00-template/stories.md',
+      'spec/specifications/F-00-template/plan.md',
+      'spec/specifications/F-00-template/progress.md',
     ]);
   });
 });

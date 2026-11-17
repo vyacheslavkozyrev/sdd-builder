@@ -1,14 +1,21 @@
-import { Typography } from '@mui/material';
+import { useReducer } from 'react';
 import { AppFrame } from './layout/AppFrame.js';
+import { Wizard } from './wizard/Wizard.js';
+import { initialWizardState, wizardReducer } from './wizard/state.js';
 
-// The application root (F-07 AC-008).
-// Renders the frame with a centre placeholder. The wizard replaces the
-// placeholder and wires New project in F-08.
+// The application root (F-07 AC-008, F-08 AC-008, AC-012).
+// Holds the wizard state in memory and renders the wizard inside the frame.
+// New project restarts the wizard; Prev and Next move it one step.
 
 export function App() {
+  const [state, dispatch] = useReducer(wizardReducer, undefined, initialWizardState);
   return (
-    <AppFrame onNewProject={() => undefined}>
-      <Typography>Screen content is added by the wizard (F-08).</Typography>
+    <AppFrame onNewProject={() => dispatch({ type: 'restart' })}>
+      <Wizard
+        step={state.step}
+        onPrev={() => dispatch({ type: 'prev' })}
+        onNext={() => dispatch({ type: 'next' })}
+      />
     </AppFrame>
   );
 }

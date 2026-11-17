@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidElement } from 'react';
+import { isValidElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { AppFrame } from '../src/layout/AppFrame.js';
 import { frameStyle } from '../src/layout/frameStyle.js';
@@ -59,6 +59,18 @@ describe('F-07 frame', () => {
   it('F-07 AC-007 leaves the centre area empty when there are no children', () => {
     const markup = render();
     expect(centreMarkup(markup).trim()).toBe('');
+  });
+
+  it('F-08 AC-015 (style part) makes the centre area a growing flex column; the fill itself is checked on the device at Verify', () => {
+    const outer = AppFrame({ onNewProject: () => undefined });
+    if (!isValidElement<{ children?: unknown }>(outer)) throw new Error('AppFrame did not return an element');
+    const children = Array.isArray(outer.props.children) ? outer.props.children : [outer.props.children];
+    const centre = children.find(
+      (child): child is ReactElement<{ component?: string; sx?: object }> =>
+        isValidElement<{ component?: string }>(child) && child.props.component === 'main',
+    );
+    if (centre === undefined) throw new Error('centre area <main> not found in the frame element');
+    expect(centre.props.sx).toMatchObject({ flexGrow: 1, display: 'flex', flexDirection: 'column' });
   });
 
   it('F-07 AC-007 still renders the header and the footer when there are no children', () => {

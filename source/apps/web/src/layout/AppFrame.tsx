@@ -18,7 +18,18 @@ export function AppFrame({ onNewProject, children }: AppFrameProps) {
   return (
     <Box sx={{ ...frameStyle(), display: 'flex', flexDirection: 'column' }}>
       <Header onNewProject={onNewProject} />
-      <Box component="main" sx={{ flexGrow: 1, boxSizing: 'border-box', px: 3, pt: 2, pb: 2 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          boxSizing: 'border-box',
+          px: 3,
+          pt: 2,
+          pb: 2,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {children}
       </Box>
       <Footer />

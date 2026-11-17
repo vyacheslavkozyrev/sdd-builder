@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-16 | 6 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 7 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T007 review: AC-007 says the same paths come out "whatever the order of the flows or rules in the config". The first flow is the pipeline's entry (reachability starts there), so reversing the flows refuses the config instead of reordering it. The intended wording is: the same paths in the same order whatever the order of the rules, or of the flows after the first; a reordering that leaves a flow unreached is refused. architecture.md decision 35 has the same broad wording. Not edited: the stories are approved, so this needs the user's decision on the wording.
 
 - T001 review: `source/templates/README.md` still says "enabled" in the command, agent and rule rows (lines 59–61 and 75–77). Decision 34 removed the enabled property, so the wording is stale. Not in T001's scope; to be fixed with the template placeholder work (F-04 T003 or a later Docs task).
 - T005 review: `source/templates/README.md` lines 28–31 name `command-layouts.ts` as the builder of the step, rule and argument values; they now live in `source/packages/core/src/pipeline/generate/values-command.ts`. The same lines carry the deferred "enabled" wording, so the file name is corrected with it.

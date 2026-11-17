@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 14 criteria: 12 `[auto]`, 2 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
-| Build    | 🔄 In Progress | 2026-11-17 | 2 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 3 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,12 +29,15 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Material UI 9.5.0 and Emotion pins (react 11.14.0, styled 11.14.1); lockfile committed separately in 82acfa7; Emotion recorded in architecture §5 | 0 blockers, 2 warnings fixed (plan T001 pins, Emotion peer wording) | task check passed: api 57, web 3, core 1017 |
 | T002 | Frame sizing as a pure style function (width, 1024 px minimum, full-height, no hidden overflow) | 0 blockers, 0 warnings, 2 suggestions fixed (minWidth tied to the exported constant; determinism test relabelled) | task check passed: api 57, web 9, core 1017 |
+| T003 | Header: wordmark left, New project right, no other control | 0 blockers, 1 warning fixed (New project filled on a white bar, as screen 01), 1 suggestion deferred | task check passed: api 57, web 17, core 1017 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- `source/apps/web/test/Header.test.tsx` (AC-001 order test): checks that the wordmark precedes the button in the markup, not the left and right regions. The left/right split is the flex spacer in `Header.tsx`; the server-rendered markup cannot prove the layout, so it needs a visual check against screen 01 at Verify.
 
 ---
 

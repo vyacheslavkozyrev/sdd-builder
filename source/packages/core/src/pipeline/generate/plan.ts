@@ -115,7 +115,7 @@ export function isFileSafe(path: string): boolean {
 
 // Orders two texts by code point. A plain `<` compares UTF-16 units, which puts an astral character before
 // U+FFFF, so the code points are compared one by one.
-function compareCodePoints(a: string, b: string): number {
+export function compareCodePoints(a: string, b: string): number {
   const x = Array.from(a, (char) => char.codePointAt(0) ?? 0);
   const y = Array.from(b, (char) => char.codePointAt(0) ?? 0);
   const length = Math.min(x.length, y.length);

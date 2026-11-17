@@ -1,8 +1,8 @@
 // The block parser (architecture.md §6 decision 33): dispatches on `kind` and checks the fields each kind allows.
-// This task parses the Start, Approval and End blocks. Agent and Check are parsed in F-02 T005, and the
-// `connectedTo` links of blocks in F-02 T004; until then those keys are refused as unknown.
+// Start, Approval and End are parsed, and Start and Approval take an optional `connectedTo` link (F-02 T004).
+// Agent and Check are parsed in F-02 T005; until then those kinds are refused.
 
-import type { Approval, Block, End, Id, Start } from '../model.js';
+import type { Approval, Block, BlockLink, End, Id, Start } from '../model.js';
 import {
   childPath,
   enumValue,
@@ -12,6 +12,7 @@ import {
   type Problems,
   visitKeys,
 } from '../check/primitives.js';
+import { parseBlockLink } from './link.js';
 
 const BLOCK_KINDS = ['start', 'agent', 'approval', 'check', 'end'] as const;
 const END_OUTCOMES = ['done', 'stopped'] as const;
@@ -41,16 +42,22 @@ export function parseBlock(value: unknown, path: string, problems: Problems): Bl
 
 function parseStart(object: Readonly<Record<string, unknown>>, path: string, problems: Problems): Start | undefined {
   const before = problems.list.length;
-  const found: { id: Id | undefined } = { id: undefined };
-  visitKeys(object, ['id', 'kind'], path, problems, (key) => {
+  const found: { id: Id | undefined; connectedTo: BlockLink | undefined } = { id: undefined, connectedTo: undefined };
+  visitKeys(object, ['id', 'kind', 'connectedTo'], path, problems, (key) => {
     if (key === 'id') {
       found.id = idValue(object['id'], childPath(path, 'id'), problems);
+    } else if (key === 'connectedTo' && object['connectedTo'] !== undefined) {
+      found.connectedTo = parseBlockLink(object['connectedTo'], childPath(path, 'connectedTo'), problems);
     }
   });
   if (found.id === undefined || problems.list.length > before) {
     return undefined;
   }
-  return { id: found.id, kind: 'start' };
+  const start: Start = { id: found.id, kind: 'start' };
+  if (found.connectedTo !== undefined) {
+    start.connectedTo = found.connectedTo;
+  }
+  return start;
 }
 
 function parseApproval(
@@ -59,18 +66,28 @@ function parseApproval(
   problems: Problems,
 ): Approval | undefined {
   const before = problems.list.length;
-  const found: { id: Id | undefined; description: string | undefined } = { id: undefined, description: undefined };
-  visitKeys(object, ['id', 'kind', 'description'], path, problems, (key) => {
+  const found: {
+    id: Id | undefined;
+    description: string | undefined;
+    connectedTo: BlockLink | undefined;
+  } = { id: undefined, description: undefined, connectedTo: undefined };
+  visitKeys(object, ['id', 'kind', 'description', 'connectedTo'], path, problems, (key) => {
     if (key === 'id') {
       found.id = idValue(object['id'], childPath(path, 'id'), problems);
     } else if (key === 'description') {
       found.description = nonBlankText(object['description'], childPath(path, 'description'), problems);
+    } else if (key === 'connectedTo' && object['connectedTo'] !== undefined) {
+      found.connectedTo = parseBlockLink(object['connectedTo'], childPath(path, 'connectedTo'), problems);
     }
   });
   if (found.id === undefined || found.description === undefined || problems.list.length > before) {
     return undefined;
   }
-  return { id: found.id, kind: 'approval', description: found.description };
+  const approval: Approval = { id: found.id, kind: 'approval', description: found.description };
+  if (found.connectedTo !== undefined) {
+    approval.connectedTo = found.connectedTo;
+  }
+  return approval;
 }
 
 function parseEnd(object: Readonly<Record<string, unknown>>, path: string, problems: Problems): End | undefined {

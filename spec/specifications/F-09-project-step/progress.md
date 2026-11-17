@@ -6,7 +6,7 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 16 criteria: 15 `[auto]`, 1 `[device]`; name limit 100 code points and idea trimmed when the configuration is built (owner decisions); approved by the user |
-| UX       | ⏳ Pending  |      | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
+| UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
 | Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
 | Build    | ⏳ Pending  |      | 0 of N tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |

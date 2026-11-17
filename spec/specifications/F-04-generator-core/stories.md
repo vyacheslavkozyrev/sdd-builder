@@ -51,7 +51,7 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 
 #### Acceptance Criteria
 
-- AC-007 `[auto]`: the planned files come out sorted by path, in code-point order, whatever the order of the flows or rules in the config.
+- AC-007 `[auto]`: the planned files come out sorted by path, in code-point order, whatever the order of the rules, or of the flows after the first; the first flow is the pipeline's entry, and a reordering that leaves a flow unreached is refused, not planned (Amendment 2026-11-17, the user's decision).
 - AC-008 `[auto]`: planning the same config and templates twice gives equal plans: the same paths, the same order, the same layouts, descriptions and tags.
 - AC-009 `[auto]`: no planned text contains a date, a time, a UUID or a random string; the test checks the output of a fixed config against a fixed list of patterns.
 - AC-010 `[auto]`: planning does not change the config or the templates it was given (both are unchanged after the call).

@@ -61,7 +61,7 @@ These are the files F-02 writes for a pipeline config. The flow, pipeline, agent
 | `.claude/agents/<name>.md` | one per enabled Agent block in an enabled flow; its description is the input the model writes the file from at `/generate` (decision 7 in `architecture.md`); `pipeline.generate` writes it as stub text, `# <name>` then the description |
 | `.claude/rules/<id>.md` | one per `ProjectConfig.rules` entry; its title and text from the config |
 
-The files come out sorted by path, in code-point order, whatever the order of the flows and rules in the config (decision 35 in `architecture.md`). Two files with the same path throw `GenerationError`: a bug in the generator, not a refusal of the configuration (decision 23 in `architecture.md`). A flow named `pipeline` is refused before that, because its command file would be `.claude/commands/pipeline.md` (decision 35).
+The files come out sorted by path, in code-point order, whatever the order of the rules, or of the flows after the first (decision 35 in `architecture.md`). Two files with the same path throw `GenerationError`: a bug in the generator, not a refusal of the configuration (decision 23 in `architecture.md`). A flow named `pipeline` is refused before that, because its command file would be `.claude/commands/pipeline.md` (decision 35).
 
 ## Claude Code layout (MVP)
 

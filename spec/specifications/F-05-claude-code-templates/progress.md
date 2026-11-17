@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: templates and a pure generator in `source/packages/core` (the stories have no user-facing criterion) |
 | Plan     | ✅ Complete | 2026-11-17 | 13 tasks, all 35 criteria covered; approved by the user |
 | Build    | ✅ Complete | 2026-11-17 | 13 of 13 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-17 | 35 of 35 criteria covered by passing tests; no `[device]` criteria, so the checklist has no entries (`checklist.md`) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -65,6 +65,54 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run 2026-11-17 on `main`, clean tree. `source/scripts/task-check.sh`: typecheck passed; tests passed in full: core 904 of 904 (49 files), api 6 of 6, web 3 of 3. F-05 filter in core: 150 passed, 0 failed (the other 754 skipped by the filter). Manual checklist: none (`checklist.md` has no entries; all 35 criteria are `[auto]`).
+
+Matrix (criterion → test file, test name). Names are shortened; the full name starts with `F-05 AC-###`.
+
+| Criterion | Covering tests (file: name) | Result |
+| --- | --- | --- |
+| AC-001 | `layouts-command.test.ts`: plans pipeline command at `.claude/commands/pipeline.md`; writes each argument with id and required flag; optional argument has optional flag and no hint | pass |
+| AC-002 | `layouts-command.test.ts`: lists each flow, its approval gate, then its check gate, in pipeline order | pass |
+| AC-003 | `layouts-command.test.ts`: writes "no limit set" for a back route with no round limit; writes the round limit number when set | pass |
+| AC-004 | `layouts-command.test.ts`: two rules for the build flow, not one per check outcome; no rule for a forward or stop route | pass |
+| AC-005 | `layouts-command.test.ts`: plans one flow step and no gate step for a one-flow pipeline | pass |
+| AC-006 | `layouts-command.test.ts`: one command file per flow at `.claude/commands/<flow-id>.md`; title and Purpose; rule tags comma-separated | pass |
+| AC-007 | `layouts-command.test.ts`: writes "none" as the rule tags of a flow that has none | pass |
+| AC-008 | `layouts-command.test.ts`: one step per block of the build flow, Start first and End last | pass |
+| AC-009 | `layouts-command.test.ts`: each back route of the build checks under Rules, numbered | pass |
+| AC-010 | `layouts-command.test.ts`: two steps and no rule for a Start-and-End flow; plans it with no error | pass |
+| AC-011 | `layouts-agent-rule.test.ts`: one agent file per Agent block of the default pipeline; block in a second flow planned with its name | pass |
+| AC-012 | `layouts-agent-rule.test.ts`: description as quoted YAML string; frontmatter name then description; title as name, description under Purpose | pass |
+| AC-013 | `values-agent.test.ts`: a model set writes the model line; `layouts-agent-rule.test.ts`: no model key for a block with no model | pass |
+| AC-014 | `layouts-agent-rule.test.ts`: no tools key without tools; tools as one comma-separated line in block order; quoted when YAML would break; no key for empty list | pass |
+| AC-015 | `layouts-agent-rule.test.ts`: no Instructions section for no body or whitespace-only body; body under Instructions heading | pass |
+| AC-016 | `layouts-agent-rule.test.ts`: `none` for no rule tags; rule tags comma-separated in order | pass |
+| AC-017 | `values-agent.test.ts`: a body with a placeholder kept as typed through the renderer; a placeholder naming a known value not filled twice | pass |
+| AC-018 | `layouts-agent-rule.test.ts`: title as heading and text as body; one file per rule entry at its id path | pass |
+| AC-019 | `layouts-agent-rule.test.ts`: blank lines and list lines of the rule text kept as given | pass |
+| AC-020 | `layouts-agent-rule.test.ts`: no file under `.claude/rules/` for a config with no rules | pass |
+| AC-021 | `layouts-claude-md.test.ts`, `layouts-process.test.ts`, `layouts-spec-plan.test.ts`, `layouts-spec-stories.test.ts`: manifest maps CLAUDE.md, process.md and the three F-00-template files; rendered from layouts | pass |
+| AC-022 | `layouts-claude-md.test.ts`: lists exactly the planned command, agent and rule files (commands, agents, rules, flow order) | pass |
+| AC-023 | `layouts-claude-md.test.ts`: default config with no error and no empty line for a project name; no repository path, SDDBuilder name or F-XX id in CLAUDE.md | pass |
+| AC-024 | `layouts-spec-stories.test.ts`, `layouts-spec-plan.test.ts`: exact level-2 headings of stories.md and plan.md/progress.md; tag rules; no repository names | pass |
+| AC-025 | `layouts-process.test.ts`: each flow once in pipeline order; each flow step under its flow, gate after them | pass |
+| AC-026 | `layouts-process.test.ts`: one mermaid fence; first line `flowchart`; `mermaid-flows.test.ts`: first line `flowchart TD`; `mermaid-gates.test.ts`: processDiagram in base values | pass |
+| AC-027 | `mermaid-flows.test.ts`: one node per flow in order; node ids F1, F2; plain edge to next flow with no FlowLink; edge to the FlowLink target; loop edge back; last flow gets no edge; refuses a FlowLink to an unknown flow | pass |
+| AC-028 | `mermaid-gates.test.ts`: approval and check gates as decision nodes with edge labelled `pass`; empty label unlabelled; gate back to earlier flow; no fail edge | pass |
+| AC-029 | `mermaid-flows.test.ts`, `mermaid-gates.test.ts`: quote, bracket, brace, pipe and hash escaped to entity codes; line break as space; empty name and label | pass |
+| AC-030 | `mermaid-gates.test.ts`: same configuration gives the same diagram text, parsed twice and on two calls | pass |
+| AC-031 | `layouts-default.test.ts`: default config planned twice gives the same file list, the same paths and the same text and plan | pass |
+| AC-032 | `layouts-default.test.ts`: no repository name in any output file or path; `layouts-process.test.ts`: raw layout and rendered text free of repository names | pass |
+| AC-033 | `layouts-default.test.ts`: reads every layout under `source/templates/`; every placeholder has a value; fixture with an unfilled placeholder fails | pass |
+| AC-034 | `layouts-default.test.ts`: no `{{`, no `#enabled` marker and no `#step:` marker in any output file | pass |
+| AC-035 | `layouts-default.test.ts`: renders through every layout with no error; plans exactly the 21 expected paths; no file under `.claude/rules/` | pass |
+
+Gaps: none. Every criterion has at least one passing test named with its `F-05 AC-###`.
+
+Notes for the caller (not gaps under the criteria as written):
+- AC-035 says the output files are one per row of the README's Claude Code layout table. The test checks the default pipeline's 21 paths against a fixed list in `layouts-default.test.ts` (`EXPECTED_PATHS`); it does not read the README. The list matches the eight README rows by hand check. A README change that the list does not follow would pass the tests.
+- `mermaid.ts` (`LABEL_REPLACEMENTS`) does not escape `<`, `>` or `&`, a deferred T002 suggestion. AC-029 does not name them, so it is not a gap; the rendered Mermaid output was not checked here.
 
 ---
 

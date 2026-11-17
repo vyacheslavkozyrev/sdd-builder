@@ -1,5 +1,5 @@
 // The wizard's step model (F-08 AC-001, AC-002, AC-005, AC-006, AC-007, AC-009).
-// Pure functions: no React, no storage, no console. The stepper and the
+// Pure functions: no React and no I/O of any kind. The stepper and the
 // navigation buttons read these results.
 
 export type StepNumber = 1 | 2 | 3 | 4;

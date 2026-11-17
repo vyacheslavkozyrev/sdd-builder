@@ -52,7 +52,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 
 - [ ] AC-001 `[auto]`: the tab row shows the Pipeline tab first, then one tab per flow in pipeline order, then a + button after the last tab.
 - [ ] AC-002 `[auto]`: the Pipeline tab has no remove control, and no control on the tab row removes it (negative case: the tab is still there after every flow is deleted).
-- [ ] AC-003 `[auto]`: + adds one flow with no blocks, with the id `flow-2`, `flow-3` and so on (the first number not used by another flow's id), which is file-safe and unique in the pipeline (decision 18); the new flow's tab is selected at once.
+- [ ] AC-003 `[auto]`: + adds one flow with no blocks, with the id `flow-2`, `flow-3` and so on (the first number not used by another flow's id or name, so that the new name, which starts as the id, does not clash; owner decision, 2026-11-17), which is file-safe and unique in the pipeline (decision 18); the new flow's tab is selected at once.
 - [ ] AC-004 `[auto]`: + is the only control that adds a flow (negative case: no toolbox, arrow panel or box panel on the Pipeline tab adds a flow).
 - [ ] AC-005 `[auto]`: a flow tab shows the flow's name and a one-line placeholder that its blocks are built in F-12; the Pipeline tab shows the canvas.
 - [ ] AC-006 `[device]`: the tab row spans the full width of the available space; it is not centred and has no fixed width.

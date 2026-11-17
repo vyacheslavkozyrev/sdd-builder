@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 13 of 13 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Build    | ✅ Complete | 2026-11-16 | 13 of 13 tasks committed |
+| Verify   | ✅ Complete | 2026-11-16 | 35 of 35 criteria covered by passing `[auto]` tests; no `[device]` criteria, so no manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -75,7 +75,55 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+Verify run 2026-11-16 on `main`, clean tree, Current Task None, 13 of 13 tasks ticked.
+
+**Suite:** `source/scripts/task-check.sh` passed (exit 0): core 438 tests in 16 files, api 6 in 3, web 3 in 2. The F-02 tests are in `source/packages/core/test/pipeline/` (418 tests in 12 files, run verbosely: all passed).
+
+**Gaps:** none. **Failures:** none. **Manual checklist:** none, because all 35 criteria are `[auto]`; no `checklist.md` is written.
+
+**Scope (`features.md` F-02):** `ProjectConfig` schema 2 with one pipeline (AC-001 to AC-003); flows hold blocks, five kinds (AC-006 to AC-014); `connectedTo` connections and flow gates (AC-016 to AC-020); decision 33 schema (AC-004 to AC-029); problems with paths and unknown keys refused (AC-004, AC-028, AC-029); default pipeline loaded as data at build time (AC-030 to AC-033). All covered.
+
+Counts are the passing runs of tests naming the criterion (a table-driven test counts once per row).
+
+| Criterion | Tag | Covering tests (file: test name, abridged) | Passing runs | Result |
+|---|---|---|---|---|
+| AC-001 | auto | pipeline.test: returns the typed config for a full fixture with rules and one pipeline | 2 | pass |
+| AC-002 | auto | project.test: refuses 1, 3, "2", missing and null at schemaVersion | 10 | pass |
+| AC-003 | auto | project.test: refuses null, array, string, number, boolean, undefined with one root problem | 12 | pass |
+| AC-004 | auto | project.test (root, rule); pipeline.test (pipeline, argument); flow.test (flow, link, gates); link.test (link, route); block-simple.test (start, approval, end); block-agent-check.test (agent, check) | 53 | pass |
+| AC-005 | auto | block-simple.test: refuses connectedTo on an End; block-agent-check.test: refuses outcome on an agent; refuses threshold on a checks check | 8 | pass |
+| AC-006 | auto | pipeline.test: refuses a pipeline without name, description or flows; refuses blank name or description | 30 | pass |
+| AC-007 | auto | flow.test: refuses a flow without id, name, description, arguments or blocks; accepts a flow with every key in array order | 13 | pass |
+| AC-008 | auto | pipeline.test: accepts arguments with id, required, hint; refuses a required that is not a boolean | 22 | pass |
+| AC-009 | auto | block-simple.test: accepts start, approval, end; refuses kind connection, gate, Start, empty, 3, null, missing | 20 | pass |
+| AC-010 | auto | block-agent-check.test: refuses an agent with no name, description or arguments; accepts file-safe names; ids.test: refuses a repeated agent name at the second agent | 58 | pass |
+| AC-011 | auto | block-simple.test: refuses a blank or missing Approval description | 10 | pass |
+| AC-012 | auto | block-agent-check.test: refuses a check with no true output, no false output, neither; refuses a blank description | 24 | pass |
+| AC-013 | auto | block-agent-check.test: refuses threshold 0, -1, 1.5, "10", null on diff size; accepts 1 and 400; refuses threshold on checks | 26 | pass |
+| AC-014 | auto | block-simple.test: accepts done and stopped; refuses other outcomes and missing outcome; producedArtifact optional text | 28 | pass |
+| AC-015 | auto | flow.test: accepts an empty blocks array | 1 | pass |
+| AC-016 | auto | link.test: refuses a key other than to and label (gate); refuses a blank or missing label; flow.test: refuses a flow link without label | 32 | pass |
+| AC-017 | auto | flow.test: accepts an approval gate with description; refuses one without description; refuses threshold on a checks gate; refuses a gate of any other kind | 9 | pass |
+| AC-018 | auto | link.test: refuses round limit 0, -1, 1.5, "2", null; refuses a route with both to and stop, or neither; refuses a round limit on a stop route | 32 | pass |
+| AC-019 | auto | link.test: accepts Start and Approval without connectedTo; block-agent-check.test: accepts an agent without connectedTo; refuses a check without connectedTo | 18 | pass |
+| AC-020 | auto | flow.test: accepts a flow with no connectedTo and leaves the link out | 1 | pass |
+| AC-021 | auto | primitives.test: accepts a, specify, feature-id-2; refuses uppercase, leading digit, underscore, space, dot, empty, leading hyphen, number, missing | 44 | pass |
+| AC-022 | auto | ids.test: refuses a clash across flows, blocks and arguments at the second occurrence; reports every clash in document order | 24 | pass |
+| AC-023 | auto | project.test: refuses a rule id equal to an earlier one, at the second rule | 6 | pass |
+| AC-024 | auto | pipeline.test: accepts 1,000 and refuses 1,001 characters at pipeline.body; flow.test: accepts 1,000 emoji; block-agent-check.test: counts code points; primitives.test: body cap | 36 | pass |
+| AC-025 | auto | pipeline.test, flow.test, block-agent-check.test: refuses a blank or duplicate entry in tools, reads, writes, ruleTags, with its path | 64 | pass |
+| AC-026 | auto | pipeline.test, flow.test, block-agent-check.test: accepts haiku, sonnet, opus, inherit; refuses other values; primitives.test: model values | 53 | pass |
+| AC-027 | auto | project.test: refuses a rule with a blank or missing id, title or text, and an unknown rule key | 22 | pass |
+| AC-028 | auto | project.test: returns every problem with path and message; keeps the problems in written key order | 8 | pass |
+| AC-029 | auto | project.test: returns problems and no config for undefined, a symbol, NaN, a string, rules as a string, a hole, and others | 20 | pass |
+| AC-030 | auto | default-data.test: parses default.json with parseProjectConfig and reports no problems | 2 | pass |
+| AC-031 | auto | default-data.test: lists specify, ux, plan, build, verify, complete; one start per flow; §11 gates on build and verify; build block order | 8 | pass |
+| AC-032 | auto | default-data.test: includes feature-id as a required argument | 2 | pass |
+| AC-033 | auto | default-import.test: deep-equals the parsed content of templates/pipeline/default.json | 2 | pass |
+| AC-034 | auto | namespace.test: the root exposes pipeline; the root exports no other pipeline name; the namespace exposes the functions, values and types | 12 | pass |
+| AC-035 | auto | purity.test: finds no forbidden import under src; scanner flags and accepts fixtures | 28 | pass |
+
+Naming notes (not gaps): the flow.test.ts titles for AC-007, AC-015, AC-017 and AC-020 carry the ID in their `describe` block, so the full test name carries it. The AC-009 acceptance of agent and check kinds is proven through the AC-010 and AC-012 tests, not by an AC-009-named test.
 
 ---
 

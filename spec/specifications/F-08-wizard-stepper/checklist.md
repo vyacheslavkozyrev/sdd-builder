@@ -23,6 +23,6 @@ Window: 1280 × 800.
 7. Click Prev three times to return to step 1. Expected: Prev is grey and disabled on step 1, Next is shown, and the layout is the same as in step 2.
 8. Optional visual check (compare with screen 01): the row sits about 80 to 140 px below the top of the page, the card runs 16 px below the row to 16 px above the footer, and the card spans the full width between the 24 px side margins.
 
-Result: [ ] Pass  [ ] Fail
+Result: [x] Pass  [ ] Fail (confirmed by the user on 2026-11-17)
 
 Notes: ______________________________________________

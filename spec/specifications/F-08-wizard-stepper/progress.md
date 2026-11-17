@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks; no new library, arrows as inline SVG) |
 | Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed (T006 added by amendment) |
-| Verify   | 🔄 In Progress | 2026-11-17 | Automated criteria all covered and passing; AC-015 awaits the manual checklist (`checklist.md`) |
+| Verify   | ✅ Complete | 2026-11-17 | 14 `[auto]` criteria covered by passing tests; AC-015 passed by the user (checklist.md) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -66,7 +66,7 @@ Verify re-run on 2026-11-17 on `main`, clean tree, all six tasks committed (T006
 
 Gaps among `[auto]` criteria: none. Scope in `features.md` (F-08: four steps in a stepper that is not clickable; done, current and to-do states; Prev and Next beside it; Prev disabled on step 1; Next shown disabled on step 4; values kept in memory) is covered by AC-001 to AC-014 as in the Requirement Coverage table.
 
-Manual checklist: `spec/specifications/F-08-wizard-stepper/checklist.md` (AC-015 at 1280 × 800, one step at a time through the four steps). Outcome: awaiting the user's results.
+Manual checklist: `spec/specifications/F-08-wizard-stepper/checklist.md` (AC-015 at 1280 × 800, one step at a time through the four steps). Outcome: passed by the user on 2026-11-17.
 
 Document note (not a gap): `screens.md` still records an open "story conflict" on AC-013 and shows Approval as pending. `stories.md` AC-013 already carries the 2026-11-17 amendment (placeholder line only), and the progress log records the UX as approved. The caller may want the screens file brought in line.
 

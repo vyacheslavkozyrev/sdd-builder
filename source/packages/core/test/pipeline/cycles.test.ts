@@ -193,7 +193,7 @@ const cases: Case[] = [
         kind: 'check',
         description: 'The build passes its checks.',
         type: 'checks',
-        connectedTo: { true: { to: 'build-agent' }, false: { stop: true } },
+        connectedTo: { true: { to: 'build-agent', roundLimit: 2 }, false: { stop: true } },
       });
       connect(config, 0, 'build-agent', 'build-check');
     }),
@@ -207,7 +207,7 @@ const cases: Case[] = [
         kind: 'check',
         description: 'The build passes its checks.',
         type: 'checks',
-        connectedTo: { true: { to: 'build-start' }, false: { stop: true } },
+        connectedTo: { true: { to: 'build-start', roundLimit: 2 }, false: { stop: true } },
       });
       connect(config, 0, 'build-agent', 'build-check');
     }),

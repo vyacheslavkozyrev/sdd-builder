@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 30 criteria, all `[auto]`; approved by the user. Decision 34 recorded in `architecture.md` §6 |
 | UX       | ➖ Not needed |      | No user interface: pure functions in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 5 of 8 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 6 of 8 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T006 | Check routes and retries: a route to the Check itself refused; a back route with no `roundLimit` is a warning (`analyze/routes.ts`); T005's AC-014 cases given `roundLimit: 2` so only the loop rule is tested | 0 blockers, 0 warnings; 1 suggestion fixed (duplicate AC-017 case removed) | task check passed: core 511, api 6, web 3 |
 | T005 | Loops among Connections: depth-first search over block Connections per flow and flow Connections of the pipeline; one blocker at the closing Connection; Check routes not in the graph (`analyze/cycles.ts`) | 0 blockers, 0 warnings; 1 suggestion fixed (iterative search, no recursion per block) | task check passed: core 496, api 6, web 3 |
 | T004 | Flow links and rule tags: a flow's `connectedTo` must name a flow of the pipeline; rule tags on the pipeline, flows and agents must name a rule (`analyze/references.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (shared position type; a test title made exact) | task check passed: core 481, api 6, web 3 |
 | T003 | Block and route references: a block's `connectedTo` and a Check's true and false routes must name a block of their own flow, or stop (`analyze/references.ts`); T002's AC-004 test isolated so only the End rule fires | 0 blockers, 0 warnings; 1 suggestion fixed (id sets built once per call) | task check passed: core 466, api 6, web 3 |

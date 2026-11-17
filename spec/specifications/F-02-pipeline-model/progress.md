@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 4 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 5 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Model types and primitive checks (decision 33 types; value rules of AC-021, AC-024 to AC-026). Built as one commit of about 440 changed lines by the user's decision, size guard waived for this task | 0 blockers, 2 warnings fixed (body cap reads at most 2,000 units; sparse list holes refused), 1 suggestion fixed (shared-rule tests not claimed as criteria) | task check passed: core 85, api 6, web 3 |
+| T005 | Agent and Check blocks; the placeholders are gone. Size of about 580 changed lines accepted by the user (guard waived for this task). Agent `description` and `arguments` accept blank text (the schema marks neither non-blank) | 0 blockers, 1 warning fixed (blank agent text accepted), 1 suggestion fixed (block.ts header comment) | task check passed: core 298, api 6, web 3 |
 | T004 | Block links `{ to, label }` and routes `{ to, roundLimit? }` or `{ stop: true }`; `connectedTo` optional on Start and Approval | 0 blockers, 1 warning fixed (two refusal tests renamed AC-019 to AC-016), 0 suggestions fixed | task check passed: core 212, api 6, web 3 |
 | T003 | Start, Approval and End blocks and the dispatch on `kind`; Agent and Check refused with a placeholder until T005. `producedArtifact` accepts blank text (AC-014 says optional text) | 0 blockers, 1 warning fixed (blank `producedArtifact` accepted), 1 suggestion fixed (AC-021 table extended) | task check passed: core 173, api 6, web 3 |
 | T002 | Parser entry `parseProjectConfig` and the root: non-object, unknown keys in written order (`visitKeys`), `schemaVersion` 2, rules with unique ids. The result stays refused until T007 (placeholder problem at `pipeline`) | 0 blockers, 2 warnings fixed (document order by written key order; a misleading test name); 1 suggestion deferred (see Deferred Findings) | task check passed: core 128, api 6, web 3 |

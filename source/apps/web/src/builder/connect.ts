@@ -3,6 +3,7 @@
 // A connection is the source flow's `connectedTo` (a flow has at most one outgoing arrow).
 
 import type { pipeline } from '@sddbuilder/core';
+import type { Connection } from './model.js';
 
 type Pipeline = pipeline.Pipeline;
 
@@ -50,4 +51,97 @@ export function connectFlows(config: Pipeline, request: ConnectRequest): Connect
       : flow,
   );
   return { ok: true, pipeline: { ...config, flows } };
+}
+
+export const NO_ARROW_REASON = 'This flow has no arrow to the next flow.';
+
+// Which end of an arrow to move, and the flow it moves to. The label and the gate stay (AC-015).
+export type RepointChange =
+  | { readonly end: 'target'; readonly flow: string }
+  | { readonly end: 'source'; readonly flow: string };
+
+// Changes one end of the arrow that starts at `sourceId`. Moving the target keeps the arrow on the
+// same source; moving the source moves the whole arrow (label and gate) to another flow. The same
+// refusals as a new connection apply: the flow must be in the pipeline, no self-connection, and one
+// outgoing arrow per flow. A refusal leaves the pipeline unchanged (AC-015).
+export function repointConnection(
+  config: Pipeline,
+  sourceId: string,
+  change: RepointChange,
+): ConnectResult {
+  const source = config.flows.find((flow) => flow.id === sourceId);
+  const link = source?.connectedTo;
+  if (source === undefined || link === undefined) {
+    return { ok: false, reason: NO_ARROW_REASON };
+  }
+  if (change.end === 'target') {
+    if (!config.flows.some((flow) => flow.id === change.flow)) {
+      return { ok: false, reason: TARGET_NOT_IN_PIPELINE_REASON };
+    }
+    if (change.flow === sourceId) {
+      return { ok: false, reason: SELF_CONNECTION_REASON };
+    }
+    const flows = config.flows.map((flow) =>
+      flow.id === sourceId ? { ...flow, connectedTo: { ...link, to: change.flow } } : flow,
+    );
+    return { ok: true, pipeline: { ...config, flows } };
+  }
+
+  const newSource = config.flows.find((flow) => flow.id === change.flow);
+  if (newSource === undefined) {
+    return { ok: false, reason: SOURCE_NOT_IN_PIPELINE_REASON };
+  }
+  if (change.flow === sourceId) {
+    return { ok: true, pipeline: { ...config } };
+  }
+  if (change.flow === link.to) {
+    return { ok: false, reason: SELF_CONNECTION_REASON };
+  }
+  if (newSource.connectedTo !== undefined) {
+    return { ok: false, reason: ALREADY_CONNECTED_REASON };
+  }
+  const flows = config.flows.map((flow) => {
+    if (flow.id === sourceId) {
+      const { connectedTo: _moved, ...rest } = flow;
+      return rest;
+    }
+    return flow.id === change.flow ? { ...flow, connectedTo: { ...link } } : flow;
+  });
+  return { ok: true, pipeline: { ...config, flows } };
+}
+
+// Removes the arrow that starts at `sourceId`, and its gate with it (AC-016). The flows stay.
+export function removeConnection(config: Pipeline, sourceId: string): ConnectResult {
+  const source = config.flows.find((flow) => flow.id === sourceId);
+  if (source === undefined || source.connectedTo === undefined) {
+    return { ok: false, reason: NO_ARROW_REASON };
+  }
+  const flows = config.flows.map((flow) => {
+    if (flow.id === sourceId) {
+      const { connectedTo: _removed, ...rest } = flow;
+      return rest;
+    }
+    return flow;
+  });
+  return { ok: true, pipeline: { ...config, flows } };
+}
+
+// The text the confirmation for Delete on an arrow shows (AC-016). It names the arrow, its artifact
+// and, when there is one, the gate that is removed with it.
+export interface ConnectionConfirmation {
+  readonly title: string;
+  readonly detail: string;
+}
+
+export function connectionConfirmation(connection: Connection): ConnectionConfirmation {
+  const title = `Delete the arrow ${connection.source} → ${connection.target}?`;
+  const gate = connection.gate;
+  const gateText =
+    gate === undefined
+      ? ''
+      : ` Its ${gate.kind === 'approval' ? 'approval' : 'check'} gate ("${gate.description}") is removed with it.`;
+  return {
+    title,
+    detail: `This removes the arrow with the artifact "${connection.label}".${gateText} The flows stay.`,
+  };
 }

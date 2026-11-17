@@ -118,10 +118,10 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 <rect x="72" y="380" width="1136" height="196" rx="6" class="input"/>
 <text x="84" y="404">A tracker for hourly work. Freelancers log time against clients,</text>
 <text x="84" y="424">see weekly totals, and export a monthly summary for invoicing.</text>
-<text x="1196" y="556" class="small" text-anchor="end">142 / 8,000</text>
+<text x="1196" y="556" class="small" text-anchor="end">142 / 5,000</text>
 <text x="72" y="604" class="muted">Describe what the product does and who uses it. Leave out how it is built.</text>
 <text x="72" y="628" class="small">Nothing is stored between visits. Reloading clears the wizard.</text>
-<text x="72" y="652" class="small">Up to 8,000 characters. Text past the limit is cut.</text>
+<text x="72" y="652" class="small">Up to 5,000 characters. Text past the limit is cut.</text>
 <line x1="40" y1="700" x2="1240" y2="700" class="div"/>
 <rect x="72" y="716" width="120" height="40" rx="8" class="disabled"/>
 <text x="132.0" y="740.5" class="bt-disabled" text-anchor="middle">Back</text>

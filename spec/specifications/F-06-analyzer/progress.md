@@ -42,7 +42,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 _Review suggestions intentionally not applied, with the reason._
 
 - T002 SUGGESTION `source/packages/core/src/pipeline/parse/brief.ts` `longBriefText`: repeats the two-part length check of `bodyText` (`check/primitives.ts`). A shared helper would change `bodyText`, an earlier task's code, so it is left for a later tidy-up.
-- Doc inconsistency found in T001 (not F-06 scope): `spec/documents/architecture.md` §4 "Input" still says the idea is capped at 8,000 characters; decision 28 supersedes it with 5,000 code points. To fix in a docs task.
+- Doc inconsistency found in T001 (not F-06 scope): `spec/documents/architecture.md` §4 "Input" still said the idea is capped at 8,000 characters. Resolved after F-06 completed: §4 Input and decision 12 now give 5,000 code points (decision 28), and the F-05 wireframe counter and limit text read 5,000.
 
 ---
 

@@ -5,6 +5,7 @@ export * from './model.js';
 export { parseProjectConfig } from './parse/project.js';
 export { defaultPipeline } from './default.js';
 export { analyzeStructure } from './analyze/index.js';
+export { analyzeBrief } from './analyze/brief.js';
 export type { Finding, Severity } from './analyze/index.js';
 export { configProblems } from './generate/problems.js';
 export { planGeneration } from './generate/plan.js';

@@ -43,11 +43,6 @@ function findElement(
   return findElement(node.props.children, predicate);
 }
 
-function navButton(step: StepNumber, label: 'Prev' | 'Next') {
-  const element = WizardStepper({ step, onPrev: () => undefined, onNext: () => undefined });
-  return findElement(element, (props) => props['aria-label'] === label);
-}
-
 function render(step: StepNumber): string {
   return renderToStaticMarkup(
     <WizardStepper step={step} onPrev={() => undefined} onNext={() => undefined} />,
@@ -145,16 +140,22 @@ describe('F-08 wizard stepper', () => {
     expect(onPrev).toHaveBeenCalledTimes(1);
   });
 
-  it('F-08 AC-007 does not render Next on step 4', () => {
+  it('F-08 AC-007 renders Next on step 4 with its caption, disabled (negative case: not enabled)', () => {
     const markup = render(4);
-    expect(markup).not.toContain('aria-label="Next"');
-    expect(markup).not.toContain('>Next<');
-    expect(navButton(4, 'Next')).toBeUndefined();
+    expect(markup).toContain('>Next<');
+    expect(buttonTag(markup, 'Next')).toContain('disabled=""');
   });
 
-  it('F-08 AC-007 renders Next on steps 1, 2 and 3', () => {
-    for (const step of [1, 2, 3] as const) {
-      expect(render(step)).toContain('aria-label="Next"');
+  it.each([1, 2, 3] as const)('F-08 AC-007 renders Next enabled on step %i', (step) => {
+    const markup = render(step);
+    expect(markup).toContain('>Next<');
+    expect(buttonTag(markup, 'Next').includes('disabled=""')).toBe(false);
+  });
+
+  it('F-08 AC-007 places Next after the stepper titles on every step, so its place does not change', () => {
+    for (const step of STEPS) {
+      const markup = render(step);
+      expect(markup.indexOf('aria-label="Next"')).toBeGreaterThan(markup.indexOf('>Analyze and generate<'));
     }
   });
 

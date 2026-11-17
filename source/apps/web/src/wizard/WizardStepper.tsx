@@ -1,11 +1,11 @@
 import { Box, Button, Step, StepLabel, Stepper, Typography } from '@mui/material';
-import { canGoPrev, hasNext, stepStatuses, type StepNumber } from './steps.js';
+import { canGoNext, canGoPrev, stepStatuses, type StepNumber } from './steps.js';
 
 // The stepper row (F-08 AC-001, AC-002, AC-003, AC-004, AC-005, AC-007, AC-014).
 // Prev sits on the left and Next on the right, with the four step titles
 // between them. The titles are not controls: the stepper has no click handler.
-// Next is not rendered on step 4, and its space stays empty so the stepper
-// does not move.
+// Next keeps its place on every step; on step 4 it is disabled, so the row
+// does not move and the last step is visible as the end of the wizard.
 
 export interface WizardStepperProps {
   step: StepNumber;
@@ -70,23 +70,20 @@ export function WizardStepper({ step, onPrev, onNext }: WizardStepperProps) {
         ))}
       </Stepper>
 
-      {hasNext(step) ? (
-        <Box sx={NAV_COLUMN_SX}>
-          <Button
-            aria-label="Next"
-            variant="contained"
-            onClick={() => onNext()}
-            sx={NAV_BUTTON_SX}
-          >
-            <ArrowIcon direction="next" />
-          </Button>
-          <Typography variant="caption" component="span">
-            Next
-          </Typography>
-        </Box>
-      ) : (
-        <Box sx={{ width: NAV_COLUMN_WIDTH, flexShrink: 0 }} />
-      )}
+      <Box sx={NAV_COLUMN_SX}>
+        <Button
+          aria-label="Next"
+          variant="contained"
+          disabled={!canGoNext(step)}
+          onClick={() => onNext()}
+          sx={NAV_BUTTON_SX}
+        >
+          <ArrowIcon direction="next" />
+        </Button>
+        <Typography variant="caption" component="span">
+          Next
+        </Typography>
+      </Box>
     </Box>
   );
 }

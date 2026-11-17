@@ -35,13 +35,15 @@ describe('F-08 wizard panel', () => {
     const next = markup.indexOf('aria-label="Next"');
     const body = markup.indexOf(PLACEHOLDER_LINE);
     expect(prev).toBeGreaterThanOrEqual(0);
-    expect(body).toBeGreaterThan(prev);
-    if (step === 4) {
-      expect(next).toBe(-1);
-    } else {
-      expect(next).toBeGreaterThanOrEqual(0);
-      expect(body).toBeGreaterThan(next);
-    }
+    expect(next).toBeGreaterThan(prev);
+    expect(body).toBeGreaterThan(next);
+  });
+
+  it('F-08 AC-007 on step 4 shows Next disabled above the step body (negative case: not enabled)', () => {
+    const markup = render(4);
+    const next = /<button[^>]*aria-label="Next"[^>]*>/.exec(markup)?.[0] ?? '';
+    expect(next).toContain('disabled=""');
+    expect(markup.indexOf('aria-label="Next"')).toBeLessThan(markup.indexOf(PLACEHOLDER_LINE));
   });
 
   it.each(STEPS)('F-08 AC-013 on step %i shows the placeholder line', (step) => {

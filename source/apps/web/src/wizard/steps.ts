@@ -45,15 +45,16 @@ export function canGoPrev(current: StepNumber): boolean {
   return current > FIRST_STEP;
 }
 
-// Next is not shown on step 4. It is never blocked by the content of a step.
-export function hasNext(current: StepNumber): boolean {
+// Next is disabled on step 4 and enabled on every earlier step. It is never
+// blocked by the content of a step.
+export function canGoNext(current: StepNumber): boolean {
   return current < LAST_STEP;
 }
 
 // Moves exactly one step. Calling it on the last step is a programmer error,
-// because the Next control is not rendered there.
+// because the Next control is disabled there.
 export function nextStep(current: StepNumber): StepNumber {
-  if (!hasNext(current)) {
+  if (!canGoNext(current)) {
     throw new RangeError(`There is no step after step ${current}`);
   }
   return (current + 1) as StepNumber;

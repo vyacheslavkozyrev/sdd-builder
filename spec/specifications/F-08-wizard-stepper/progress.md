@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 15 criteria: 14 `[auto]`, 1 `[device]`; step bodies are a placeholder per step (user decision); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks; no new library, arrows as inline SVG) |
-| Build    | 🔄 In Progress | 2026-11-17 | 5 of 6 tasks committed (T006 added by amendment) |
+| Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed (T006 added by amendment) |
 | Verify   | 🔄 In Progress | 2026-11-17 | Automated criteria all covered and passing; AC-015 awaits the manual checklist (`checklist.md`) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ None
 | T003 | Material UI stepper (not clickable) and round Prev/Next buttons with arrows | 0 blockers, 2 warnings fixed (weak tests), 1 suggestion fixed (shared nav styles) | task check passed: api 57, web 83, core 1017 |
 | T004 | Placeholder step body and the stepper-then-body wizard panel | 0 blockers, 1 warning fixed (conditional Next test), 1 suggestion fixed (unique gradient id) | task check passed: api 57, web 101, core 1017 |
 | T005 | Application root: reducer state, wizard in the frame, New project restarts, F-07 placeholder removed; AppFrame centre area as a flex column (approved deviation) | 0 blockers, 1 warning fixed (App test mock now runs the recorded reducer and checks it is wizardReducer; a wrong New project wiring fails), 1 suggestion fixed (AC-015 test name marks the style part only); deviation reviewed against F-07 AC-006 to AC-010, no regression | task check passed: api 57, web 110, core 1017 |
+| T006 | Next is shown disabled on step 4 (amendment to AC-007); Next kept in place on every step | 0 blockers, 0 warnings, 1 suggestion fixed | task check passed: api 57, web 114, core 1017 |
 
 ---
 

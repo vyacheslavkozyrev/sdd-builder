@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canGoNext,
   canGoPrev,
-  hasNext,
   nextStep,
   prevStep,
   stepStatuses,
@@ -70,20 +70,20 @@ describe('F-08 Next rule', () => {
     });
   }
 
-  it('F-08 AC-007 Next is not shown on step 4 (negative case: hidden, not only disabled)', () => {
-    expect(hasNext(4)).toBe(false);
+  it('F-08 AC-007 Next is disabled on step 4 and does not move the wizard past step 4 (negative case: not enabled)', () => {
+    expect(canGoNext(4)).toBe(false);
     expect(() => nextStep(4)).toThrow(RangeError);
   });
 
-  it('F-08 AC-007 Next is shown on steps 1, 2 and 3', () => {
-    expect(hasNext(1)).toBe(true);
-    expect(hasNext(2)).toBe(true);
-    expect(hasNext(3)).toBe(true);
+  it('F-08 AC-007 Next is enabled on steps 1, 2 and 3', () => {
+    expect(canGoNext(1)).toBe(true);
+    expect(canGoNext(2)).toBe(true);
+    expect(canGoNext(3)).toBe(true);
   });
 
   it('F-08 AC-009 Next depends only on the step, never on the content of step 1 (blank name does not block it)', () => {
     // The step model takes no content input, so Next can only depend on the step.
-    expect(hasNext(1)).toBe(true);
+    expect(canGoNext(1)).toBe(true);
     expect(nextStep(1)).toBe(2);
   });
 });

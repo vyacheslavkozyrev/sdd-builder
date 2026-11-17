@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-16 | 9 of 10 tasks committed |
+| Build    | ✅ Complete | 2026-11-16 | 10 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | Determinism and default plan tests (test-only); the flow-order wording of AC-007 is recorded as a deferred finding | 0 blockers, 2 weak tests fixed | task check passed: core 655 of 655, web 3 of 3, api 6 of 6 |
 | T008 | Reply check part 1: missing, extra, unsafe paths, empty text, placeholders, non-string values; the reply is narrowed with no throw | 0 blockers, 1 warning fixed | task check passed: core 686 of 686, web 3 of 3, api 6 of 6 |
 | T009 | Reply check part 2: required headings as whole lines; self-reference names; findings sorted by path then message; every applicable check runs on a text | 0 blockers, 1 defect fixed (early return removed for text checks) | task check passed: core 714 of 714, web 3 of 3, api 6 of 6 |
+| T010 | Namespace exports; purity scan over generate/ with positive samples, templates imports refused; fixed-templates test | 0 blockers, 1 warning and 1 suggestion fixed | task check passed: core 736 of 736, web 3 of 3, api 6 of 6 |
 
 ---
 

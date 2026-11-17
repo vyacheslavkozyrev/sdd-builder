@@ -3,6 +3,10 @@ import * as root from '../../src/index.js';
 import { defaultPipeline } from '../../src/pipeline/default.js';
 import { analyzeStructure } from '../../src/pipeline/analyze/index.js';
 import { parseProjectConfig } from '../../src/pipeline/parse/project.js';
+import { configProblems } from '../../src/pipeline/generate/problems.js';
+import { planGeneration } from '../../src/pipeline/generate/plan.js';
+import { checkReply } from '../../src/pipeline/generate/reply-check.js';
+import { GenerationError } from '../../src/pipeline/generate/errors.js';
 
 describe('F-02 AC-034 pipeline namespace', () => {
   it('F-02 AC-034 the root exposes the pipeline module as the namespace pipeline', () => {
@@ -45,6 +49,25 @@ describe('F-02 AC-034 pipeline namespace', () => {
       message: string;
     }>();
     expectTypeOf<root.pipeline.Severity>().toEqualTypeOf<'blocker' | 'warning'>();
+  });
+
+  it('F-04 AC-031 the pipeline namespace exposes configProblems, planGeneration and checkReply as the module functions', () => {
+    expect(root.pipeline.configProblems).toBe(configProblems);
+    expect(root.pipeline.planGeneration).toBe(planGeneration);
+    expect(root.pipeline.checkReply).toBe(checkReply);
+  });
+
+  it('F-04 AC-031 the pipeline namespace exposes GenerationError as the error class', () => {
+    expect(root.pipeline.GenerationError).toBe(GenerationError);
+    expect(new root.pipeline.GenerationError('fixture')).toBeInstanceOf(Error);
+  });
+
+  it('F-04 AC-031 the root export list gains no generator name, only the namespace pipeline', () => {
+    expect(Object.keys(root)).toEqual(['pipeline']);
+    expect(Object.keys(root)).not.toContain('planGeneration');
+    expect(Object.keys(root)).not.toContain('checkReply');
+    expect(Object.keys(root)).not.toContain('configProblems');
+    expect(Object.keys(root)).not.toContain('GenerationError');
   });
 
   it('F-02 AC-034 the pipeline namespace exposes the model types', () => {

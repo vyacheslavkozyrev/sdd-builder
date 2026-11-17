@@ -96,4 +96,4 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 2. **Required blocks in the default pipeline.** Proposed: the approvals and the diff-size gate stay required. To confirm in `building-blocks.md` §9.
 3. **Interactive phases.** Resolved 2026-11-14: the pipeline runs in the main session and asks; agents never ask (`building-blocks.md` §4, decision 13).
 4. **Body length.** Decided 2026-11-16: 1,000 characters for every body, agents included (`ui.md` D2).
-5. **Loops without a scope field.** Proposed: the arguments of a flow and of an agent say "for each feature" or "for each task", and the command text is written from them. The analysis would lose its check that a task-scoped agent reads a plan (`ui.md` D6). To confirm.
+5. **Loops without a scope field.** Decided 2026-11-16: the arguments of a flow and of an agent say "for each feature" or "for each task", and the command text is written from them. The analysis does not check that a task-scoped agent reads a plan (`ui.md` D6).

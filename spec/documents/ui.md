@@ -165,6 +165,6 @@ Two areas on the step:
 | D3 | Connections are drawn between blocks (no connection block in the toolbox). Confirm. | The approved F-06 design put Connection in the toolbox. |
 | D4 | Does the pipeline's own Start and End appear on the Pipeline tab? | The approved design shows flows and gates only. |
 | D5 | Is a **Check** the same thing as the approved Condition? Check types are `checks` and `diff size`. | The approved design allowed `approval` as a check type; here Approval is its own block. |
-| D6 | How does a command know to run per feature or per task, now that there is no scope field? | Proposed: no scope rule in the model. The flow's and the agent's arguments say "for each feature" or "for each task", and the command text is written from them (architecture decision 7). The analysis can no longer check that a task-scoped agent reads a plan. To confirm. |
+| D6 | How does a command know to run per feature or per task, now that there is no scope field? | Decided 2026-11-16: no scope rule in the model. The flow's and the agent's arguments say "for each feature" or "for each task", and the command text is written from them (architecture decision 7). The analysis no longer checks that a task-scoped agent reads a plan. |
 | D7 | Phone or tablet layout. | Decided out of scope: desktop only. Confirm. |
 | D8 | Is "green" = no blocker, or no blocker and no warning? | Current reading: no blocker. |

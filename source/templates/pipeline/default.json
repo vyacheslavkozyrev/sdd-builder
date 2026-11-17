@@ -1,0 +1,102 @@
+{
+  "name": "Default SDD pipeline",
+  "description": "The default spec-driven process for one feature at a time: specify the stories, design the screens, plan the tasks, build each task, verify the feature and complete it.",
+  "arguments": [
+    { "id": "feature-id", "required": true, "hint": "F-XX" }
+  ],
+  "model": "inherit",
+  "body": "The pipeline runs for one feature, named by its feature-id argument. Each flow works on that feature's spec folder under spec/specifications/. The human approves the stories, the screens and the plan before the next flow starts; a rejected approval sends the work back to the flow that made it.",
+  "flows": [
+    {
+      "id": "specify",
+      "name": "Specify",
+      "description": "Drafts the stories and acceptance criteria of the feature.",
+      "arguments": "for each feature",
+      "blocks": [
+        {
+          "id": "specify-start",
+          "kind": "start",
+          "connectedTo": { "to": "specify-agent", "label": "feature-id" }
+        },
+        {
+          "id": "specify-agent",
+          "kind": "agent",
+          "name": "specify",
+          "description": "Drafts stories.md for the feature: user stories and numbered acceptance criteria, each tagged for how it is tested. Asks its questions in the main session before it starts.",
+          "arguments": "feature-id",
+          "connectedTo": { "to": "specify-end", "label": "stories.md" }
+        },
+        {
+          "id": "specify-end",
+          "kind": "end",
+          "outcome": "done",
+          "producedArtifact": "stories.md"
+        }
+      ],
+      "connectedTo": {
+        "to": "ux",
+        "label": "stories.md",
+        "gate": { "kind": "approval", "description": "Approval on the stories" }
+      }
+    },
+    {
+      "id": "ux",
+      "name": "UX",
+      "description": "Draws the screens of the feature from its stories.",
+      "arguments": "for each feature",
+      "blocks": [
+        {
+          "id": "ux-start",
+          "kind": "start",
+          "connectedTo": { "to": "ux-agent", "label": "feature-id" }
+        },
+        {
+          "id": "ux-agent",
+          "kind": "agent",
+          "name": "ux",
+          "description": "Draws the screens of the feature as SVG under spec/design/features/, from its stories, with every state the stories name. Reviews them for usability and visual fit before they are offered for approval.",
+          "arguments": "feature-id",
+          "connectedTo": { "to": "ux-end", "label": "screens.md" }
+        },
+        {
+          "id": "ux-end",
+          "kind": "end",
+          "outcome": "done",
+          "producedArtifact": "screens.md"
+        }
+      ],
+      "connectedTo": {
+        "to": "plan",
+        "label": "screens.md",
+        "gate": { "kind": "approval", "description": "Approval on the screens" }
+      }
+    },
+    {
+      "id": "plan",
+      "name": "Plan",
+      "description": "Drafts the implementation plan of the feature from its stories and approved screens.",
+      "arguments": "for each feature",
+      "blocks": [
+        {
+          "id": "plan-start",
+          "kind": "start",
+          "connectedTo": { "to": "plan-agent", "label": "feature-id" }
+        },
+        {
+          "id": "plan-agent",
+          "kind": "agent",
+          "name": "plan",
+          "description": "Drafts plan.md for the feature: an ordered list of small tasks, each with its layer, its files and the criteria it covers, and every criterion covered by at least one task.",
+          "arguments": "feature-id",
+          "connectedTo": { "to": "plan-end", "label": "plan.md" }
+        },
+        {
+          "id": "plan-end",
+          "kind": "end",
+          "outcome": "done",
+          "producedArtifact": "plan.md"
+        }
+      ]
+    }
+  ]
+}

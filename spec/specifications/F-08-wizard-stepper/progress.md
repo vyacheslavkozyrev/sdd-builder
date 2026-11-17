@@ -6,7 +6,7 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 15 criteria: 14 `[auto]`, 1 `[device]`; step bodies are a placeholder per step (user decision); approved by the user |
-| UX       | ⏳ Pending  |      | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
+| UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
 | Build    | ⏳ Pending  |      | 0 of N tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
@@ -42,9 +42,7 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
-```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
-```
+### Amendment — 2026-11-17 (AC-013)
+**Changed**: `stories.md` AC-013: the step body shows the placeholder line only (no step title or counter); the step title is shown in the stepper (AC-001). Made by the user's decision during UX, before the screens were approved.
+**Reason**: The user removed the step pill and the body title from the card; the stepper names the step.
+**Impact**: None on tasks. The implementation must not render a title or counter in the step body.

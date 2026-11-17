@@ -5,6 +5,7 @@
 
 import type { Agent, Pipeline, ProjectConfig, Rule } from '../model.js';
 import type { PlaceholderValues } from './render.js';
+import { processDiagram } from './mermaid.js';
 import { commandList, pipelineSteps, stepList, tagList } from './values-command.js';
 
 // The values of an agent file: its name, description and rule tags.
@@ -21,10 +22,12 @@ export function ruleValues(rule: Rule): PlaceholderValues {
   return { ruleTitle: rule.title, ruleText: rule.text };
 }
 
-// The values of the base files: the lists of the process, the command files, the agent files and the rule files.
+// The values of the base files: the lists of the process, the command files, the agent files and the rule files,
+// and the Mermaid diagram of the process.
 export function baseValues(config: ProjectConfig): PlaceholderValues {
   return {
     processList: processList(config.pipeline),
+    processDiagram: processDiagram(config.pipeline),
     commandList: commandList(config.pipeline),
     agentList: agentList(config),
     ruleList: ruleList(config),

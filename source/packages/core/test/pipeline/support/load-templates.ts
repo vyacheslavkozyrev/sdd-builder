@@ -21,7 +21,7 @@ function readText(file: string): string {
   }
 }
 
-function readLayout(root: string, name: string): Layout {
+export function readLayout(root: string, name: string): Layout {
   const text = readText(join(root, 'claude-code', name));
   return { text, headings: headingsOf(text) };
 }

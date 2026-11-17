@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 16 criteria: 15 `[auto]`, 1 `[device]`; name limit 100 code points and idea trimmed when the configuration is built (owner decisions); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks); name help line kept as drawn, AC-016 wording still to be settled before Verify |
-| Build    | 🔄 In Progress |      | 2 of 5 tasks committed |
+| Build    | 🔄 In Progress |      | 3 of 5 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,12 +27,16 @@ None
 | ---- | ------- | ------ | ----- |
 | T001 | Project text rules as pure functions: 100 and 5,000 code-point limits, truncation that never splits an emoji, counter text, idea trim for the configuration | 0 blockers, 1 warning fixed (trim test could not fail; now idempotent), 1 suggestion fixed (paste-style name case) | task check passed: web 132, core 1017 |
 | T002 | Wizard values for the project step: name and idea held as typed, cleared by New project; F-08 state tests updated; App test fixtures shape-only | 0 blockers, 0 warnings, 1 suggestion fixed (state.ts header cites F-09 criteria) | task check passed: api 57, web 142, core 1017 |
+| T003 | Project step body: name and idea fields with limits on change, counter, help and limit notes, no storage call | 0 blockers, 1 warning fixed (runtime no-storage test added), 1 suggestion fixed (counter linked to the idea field) | task check passed: api 57, web 167, core 1017 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T003 `source/apps/web/test/ProjectStep.test.tsx` `fieldsOf`: calls `ProjectStep` as a plain function, which breaks if the component ever gains a hook. Not applied: the component is hook-free today and a render-based query would add a DOM dependency the other tests avoid.
+- T003 name help line (`ProjectStep.tsx` `NAME_HELP`, `NAME_LIMIT_NOTE`): the text follows screen 01 as drawn (adds the 100-character limit to the approved F-05 line), while F-09 AC-016 still says "as the approved screen". Open owner decision, recorded in the Plan notes; to settle before Verify. Not a code defect.
 
 ---
 

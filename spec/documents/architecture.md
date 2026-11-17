@@ -308,5 +308,6 @@ The pipeline's arguments include `feature-id` (required). They are set in the pi
 - A back route goes to an earlier block of the same flow, or in the pipeline to an earlier flow. A back route in a child flow never leaves the flow.
 - Every Agent block has a name that is file-safe and unique in the project, and a description.
 - Argument names are unique.
+- A flow whose id is `pipeline` is a blocker at the flow's path, because its command file would be `.claude/commands/pipeline.md`, the same file as the pipeline command (decision 35).
 - A retry with no round limit is a warning.
 - Every block and flow is checked. No block or flow can be switched off (decision 34).

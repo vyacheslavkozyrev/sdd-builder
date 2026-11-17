@@ -7,6 +7,7 @@ import { checkLoops } from './cycles.js';
 import { checkReachability } from './reach.js';
 import { checkRoutes } from './routes.js';
 import { checkBlockReferences, checkFlowAndTagReferences } from './references.js';
+import { checkGeneratedNames } from './generated-names.js';
 import { checkStartAndEnd } from './start-end.js';
 
 export type { Finding, LocatedFinding, Severity } from './finding.js';
@@ -21,6 +22,7 @@ const RULES: readonly Rule[] = [
   checkLoops,
   checkRoutes,
   checkReachability,
+  checkGeneratedNames,
 ];
 
 // Runs the rules in the given order and returns every finding, sorted by flow, then block, then rule

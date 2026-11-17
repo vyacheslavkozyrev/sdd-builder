@@ -8,13 +8,29 @@ import type { PlaceholderValues } from './render.js';
 import { processDiagram } from './mermaid.js';
 import { commandList, pipelineSteps, stepList, tagList } from './values-command.js';
 
-// The values of an agent file: its name, description and rule tags.
+// The values of an agent file: its name, description and rule tags, the optional frontmatter lines (model and tools)
+// and the body section. A line that the block does not set is left out entirely, not written empty.
 export function agentValues(agent: Agent): PlaceholderValues {
   return {
     name: agent.name,
     description: agent.description,
     ruleTags: tagList(agent.ruleTags),
+    optionalFrontmatter: optionalFrontmatter(agent),
+    bodySection: bodySection(agent),
   };
+}
+
+// The model and tools lines of the frontmatter, each ending in a newline; empty when the block sets neither.
+function optionalFrontmatter(agent: Agent): string {
+  const modelLine = agent.model !== undefined ? `model: ${agent.model}\n` : '';
+  const toolsLine = agent.tools !== undefined && agent.tools.length > 0 ? `tools: ${agent.tools.join(', ')}\n` : '';
+  return `${modelLine}${toolsLine}`;
+}
+
+// The Instructions section with the block's body, ending in a newline; empty when the block has no body (a body of
+// only whitespace counts as no body).
+function bodySection(agent: Agent): string {
+  return agent.body !== undefined && agent.body.trim() !== '' ? `## Instructions\n\n${agent.body}\n` : '';
 }
 
 // The values of a rule file: its title and text.

@@ -32,13 +32,14 @@ Look and feel: **Material UI** React components (recorded in `architecture.md` �
 - Help text as on the approved screen 01.
 
 ### Step 2 — Technical details
-- **Stack**: language (required); framework, platform, build tool and test framework (optional).
+- **Stack**: language (required); framework, platform, build tool and test framework (optional). Each is a single-line text field limited to **100 characters**, counted in code points (an emoji counts as one); typing or pasting past the limit keeps the first 100 characters.
 - **Architecture**: multi-line text field, optional. Limit **5,000 characters**, counted in code points.
 - **Rules** (a list of rule blocks):
-  - Each block has a **name** (single line) and a **description** (multi-line). Each description is limited to **1,000 characters**.
+  - Each block has a **name** (single line, limited to **100 characters**, counted and cut as in the stack fields) and a **description** (multi-line). Each description is limited to **1,000 characters**.
   - Each block shows its file name `.claude/rules/<id>.md`. The id is the name in lower case, with each run of characters outside `a–z` and `0–9` replaced by one hyphen.
+  - A name with no letter or digit (blank, spaces only, or only symbols) gives no id. The block shows a message in place of the file name saying the name needs a letter or digit, and no file name. The block is kept as typed, and Next stays enabled; the analysis reports it.
   - **Add rule block** appends one empty block after the last one. **Remove block** removes that block only; the others keep their order.
-  - At most **60** blocks; Add is disabled at 60.
+  - At most **60** blocks. At 60, Add is disabled and the reason is shown beside it: "Limit reached: 60 of 60 rule blocks. Remove a block to add one."
   - Two blocks whose names give the same id both show a duplicate-id message; both are kept as entered.
   - The list starts empty. The app never adds a rule block by itself.
 
@@ -135,7 +136,9 @@ Two areas on the step:
 |---|---|
 | Project name | 100 characters (code points), single line, required |
 | Idea | 5,000 characters (code points), required |
+| Stack fields (all five: language, framework, platform, build tool, test framework) | 100 characters (code points), single line |
 | Architecture | 5,000 characters (code points), optional |
+| Rule block name | 100 characters (code points), single line |
 | Rule block description | 1,000 characters |
 | Agent body | 1,000 characters |
 | Flow body | 1,000 characters |

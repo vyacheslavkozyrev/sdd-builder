@@ -57,9 +57,11 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Verify run 2026-11-17 on `main` (clean tree, all 10 tasks ticked, Current Task None). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 736 of 736 (37 files), web 3 of 3, api 6 of 6; total 745 of 745.
+Verify run 2 on 2026-11-17 on `main` (clean tree, all 12 tasks ticked, Current Task None, HEAD 4a2e691). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 738 of 738 (37 files), web 3 of 3, api 6 of 6; total 747 of 747. Production code is unchanged since T010 (T011 and T012 touched only test files and the plan and progress documents).
 
 All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklist.
+
+Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007). G2 (AC-017) and G3 (AC-020) are now proven by T011 and T012. No other criterion changed status from the first verify run.
 
 | Criterion | Test file | Status |
 | --- | --- | --- |
@@ -79,10 +81,10 @@ All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklis
 | AC-014 | `source/packages/core/test/pipeline/render.test.ts`, `plan-entries.test.ts` | Pass |
 | AC-015 | `source/packages/core/test/pipeline/plan-command.test.ts` | Pass |
 | AC-016 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
-| AC-017 | `source/packages/core/test/pipeline/plan-files.test.ts` | Gap (no-render clause, see G2) |
+| AC-017 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass (no-render clause proven by T011) |
 | AC-018 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
 | AC-019 | `source/packages/core/test/pipeline/generated-names.test.ts`, `plan-files.test.ts` | Pass |
-| AC-020 | `source/packages/core/test/pipeline/config-problems.test.ts` | Gap (planning clause, see G3) |
+| AC-020 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass (planning clause proven by T012) |
 | AC-021 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
 | AC-022 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
 | AC-023 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
@@ -100,10 +102,12 @@ All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklis
 Gaps (criterion as written is not proven by a passing test):
 
 - **G1 AC-007**: the criterion says the order is the same "whatever the order of the flows or rules". The tests reverse the rules and the flows after the first one. The first flow is never moved, and reversing it refuses the config (see the T007 deferred finding). Needs the user's decision on the wording, or a test for the agreed wording.
-- **G2 AC-017**: the test checks the problems and that no `files` are returned. Nothing proves that no layout is rendered for a refused config (for example, a refused config with a template placeholder that has no value still returns the problems, not a throw).
-- **G3 AC-020**: the test checks only `configProblems` for a pipeline with no flows. Nothing calls `planGeneration` on that config to prove that it returns no files.
 
-Note (not counted as a gap): AC-006 says every planned path is file-safe. The check runs on every planned path in one loop (`plan.ts`), but the tests only pass unsafe paths through the base files. Rule, agent and command paths are not tested with unsafe ids.
+Notes (not counted as gaps):
+
+- AC-006 says every planned path is file-safe. The check runs on every planned path in one loop (`plan.ts`), but the tests only pass unsafe paths through the base files. Rule, agent and command paths are not tested with unsafe ids.
+- G2 proof (`plan-files.test.ts`, "F-04 AC-017 refuses a blocked config before any layout is rendered"): a blocked config whose command layout holds `{{nope}}` returns the blockers and no `files`, while the same layout on a valid config throws (control). The blocked config therefore renders no layout.
+- G3 proof (`config-problems.test.ts`, "F-04 AC-020 planning a pipeline with no flows returns the no-flow blocker and no files"): `planGeneration` on a flow-less pipeline returns exactly `{ ok: false, problems: [no-flow blocker] }` with no `files` property.
 
 ---
 

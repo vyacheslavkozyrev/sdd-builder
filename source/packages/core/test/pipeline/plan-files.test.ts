@@ -10,7 +10,7 @@ import { buildConfig } from './analyze-fixture.js';
 // Fixture templates, given as data. The texts are small and invented; they only prove which file gets which layout.
 const fixtureTemplates: Templates = {
   base: [
-    { path: 'CLAUDE.md', text: '# {{projectName}}\n', headings: [] },
+    { path: 'CLAUDE.md', text: '# Fixture\n', headings: [] },
     { path: 'spec/documents/process.md', text: '{{processList}}\n', headings: [] },
     { path: 'spec/specifications/F-00-template/stories.md', text: '# Stories\n', headings: [] },
     { path: 'spec/specifications/F-00-template/plan.md', text: '# Plan\n', headings: [] },
@@ -174,7 +174,7 @@ describe('F-04 AC-003 planning gives one agent file per Agent block of every flo
   it('F-04 AC-003 gives each agent file the agent layout', () => {
     const plan = planGeneration(configWith([flowWith('alpha', ['build'])]), fixtureTemplates);
     expect(plan.ok && plan.files.find((file) => file.path === '.claude/agents/build.md')?.text).toBe(
-      fixtureTemplates.agent.text,
+      'agent layout build\n',
     );
   });
 });

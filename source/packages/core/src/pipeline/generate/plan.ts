@@ -1,19 +1,20 @@
 // The file list of the generator (architecture.md §6, decisions 23 and 35). Planning fixes which files are
-// written, their paths and their order, from the config and the template shapes. The command files are rendered
-// here, with the values of their flow or pipeline; the agent, rule and base files still carry their raw layout
-// text, and their entries are filled in later. Pure: no file is read and no config or template is changed.
+// written, their paths and their order, from the config and the template shapes. Every layout is rendered here,
+// with the values of its file (command, agent, rule or base); the description and rule tags come from the flow or
+// Agent block it is built from. Pure: no file is read and no config or template is changed.
 
 import type { Finding } from '../analyze/index.js';
-import type { Flow, Id, Pipeline, ProjectConfig } from '../model.js';
+import type { Agent, Flow, Id, Pipeline, ProjectConfig, Rule } from '../model.js';
 import { GenerationError } from './errors.js';
 import { configProblems } from './problems.js';
-import { renderText } from './render.js';
+import { type PlaceholderValues, renderText } from './render.js';
 import type { Layout, Templates } from './templates.js';
+import { agentValues, baseValues, ruleValues } from './values-agent.js';
 import { flowValues, pipelineValues } from './values-command.js';
 
-// One file the generator writes: its output path, its layout text (rendered for a command file, raw until its
-// entry is filled in otherwise), the `##` headings a Markdown output must carry (the reply check reads them from
-// the plan), and the description and rule tags of the flow or Agent block it is built from (empty when none).
+// One file the generator writes: its output path, its rendered layout text, the `##` headings a Markdown output
+// must carry (the reply check reads them from the plan), and the description and rule tags of the flow or Agent
+// block it is built from (empty when none).
 export interface PlannedFile {
   readonly path: string;
   readonly text: string;
@@ -36,16 +37,15 @@ export function planGeneration(config: ProjectConfig, templates: Templates): Pla
   }
 
   const { flows } = config.pipeline;
+  const base = baseValues(config);
   const files: PlannedFile[] = [
-    ...templates.base.map((file) => entry(file.path, file, '', [])),
+    ...templates.base.map((file) => entry(file.path, rendered(file.path, file, base), '', [])),
     pipelineCommand(config.pipeline, templates.pipelineCommand),
     ...flows.map((flow) => flowCommand(flow, templates.command)),
     ...flows.flatMap((flow) =>
-      flow.blocks.flatMap((block) =>
-        block.kind === 'agent' ? [entry(`.claude/agents/${block.name}.md`, templates.agent, '', [])] : [],
-      ),
+      flow.blocks.flatMap((block) => (block.kind === 'agent' ? [agentFile(block, templates.agent)] : [])),
     ),
-    ...config.rules.map((rule) => entry(`.claude/rules/${rule.id}.md`, templates.rule, '', [])),
+    ...config.rules.map((rule) => ruleFile(rule, templates.rule)),
   ];
 
   const seen = new Set<string>();
@@ -66,6 +66,23 @@ export function planGeneration(config: ProjectConfig, templates: Templates): Pla
 // A planned file from a layout, with the given description and rule tags.
 function entry(path: string, layout: Layout, description: string, ruleTags: readonly Id[]): PlannedFile {
   return { path, text: layout.text, headings: layout.headings, description, ruleTags };
+}
+
+// A layout with its placeholders filled from the values of its file; the headings are kept.
+function rendered(path: string, layout: Layout, values: PlaceholderValues): Layout {
+  return { text: renderText(path, layout.text, values), headings: layout.headings };
+}
+
+// The agent file of an Agent block: its layout rendered with the block's values, its description and rule tags.
+function agentFile(agent: Agent, layout: Layout): PlannedFile {
+  const path = `.claude/agents/${agent.name}.md`;
+  return entry(path, rendered(path, layout, agentValues(agent)), agent.description, agent.ruleTags ?? []);
+}
+
+// The rule file of a rule: its layout rendered with the rule's title and text, with no description and no tags.
+function ruleFile(rule: Rule, layout: Layout): PlannedFile {
+  const path = `.claude/rules/${rule.id}.md`;
+  return entry(path, rendered(path, layout, ruleValues(rule)), '', []);
 }
 
 // The pipeline command file: its layout rendered with the pipeline's values. It has no description or rule tags

@@ -14,9 +14,14 @@ export function flowValues(flow: Flow): PlaceholderValues {
     flowName: flow.name,
     description: flow.description,
     ruleTags: tagList(flow.ruleTags),
-    stepList: numbered(flow.blocks.map((block) => stepText(flow, block))),
+    stepList: stepList(flow),
     routeRules: numbered(backRouteRules(flow)),
   };
+}
+
+// The steps of a flow, one per block, numbered in block order.
+export function stepList(flow: Flow): string {
+  return numbered(flow.blocks.map((block) => stepText(flow, block)));
 }
 
 // The values of the pipeline command file: its arguments, its flow and gate steps, its back-route rules of all
@@ -26,14 +31,19 @@ export function pipelineValues(pipeline: Pipeline): PlaceholderValues {
     argumentList: pipeline.arguments.map(argumentLine).join('\n'),
     pipelineStepList: numbered(pipeline.flows.flatMap(pipelineSteps)),
     routeRules: numbered(pipeline.flows.flatMap(backRouteRules)),
-    commandList: ['.claude/commands/pipeline.md', ...pipeline.flows.map((flow) => `.claude/commands/${flow.id}.md`)]
-      .map((path) => `- ${path}`)
-      .join('\n'),
+    commandList: commandList(pipeline),
   };
 }
 
+// The command files of a pipeline as a list: pipeline.md first, then one per child flow in pipeline order.
+export function commandList(pipeline: Pipeline): string {
+  return ['.claude/commands/pipeline.md', ...pipeline.flows.map((flow) => `.claude/commands/${flow.id}.md`)]
+    .map((path) => `- ${path}`)
+    .join('\n');
+}
+
 // A rule-set tag list, comma-separated; `none` when there are no tags.
-function tagList(tags: readonly string[] | undefined): string {
+export function tagList(tags: readonly string[] | undefined): string {
   return tags !== undefined && tags.length > 0 ? tags.join(', ') : 'none';
 }
 
@@ -66,7 +76,7 @@ function stepText(flow: Flow, block: Block): string {
 }
 
 // The steps of the pipeline command for one flow: the flow itself, then the gate that follows it, if any.
-function pipelineSteps(flow: Flow): string[] {
+export function pipelineSteps(flow: Flow): string[] {
   const steps = [`Run the flow \`${flow.id}\` (${flow.name})`];
   const gate = flow.connectedTo?.gate;
   if (gate !== undefined) {

@@ -1,15 +1,16 @@
 // The structural checks entry (architecture.md §12). Every rule module adds itself to RULES; the order of
-// that list is the rule order used when findings sort. The list starts empty; rule modules are added to it.
+// that list is the rule order used when findings sort.
 
 import type { ProjectConfig } from '../model.js';
 import type { Finding, LocatedFinding } from './finding.js';
+import { checkStartAndEnd } from './start-end.js';
 
 export type { Finding, LocatedFinding, Severity } from './finding.js';
 
 // A rule module reads the config and returns the findings it finds, each with its position.
 export type Rule = (config: ProjectConfig) => LocatedFinding[];
 
-const RULES: readonly Rule[] = [];
+const RULES: readonly Rule[] = [checkStartAndEnd];
 
 // Runs the rules in the given order and returns every finding, sorted by flow, then block, then rule
 // order, then path. The positions are removed from the result.

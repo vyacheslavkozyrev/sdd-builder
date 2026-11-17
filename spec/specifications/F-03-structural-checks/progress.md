@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 30 criteria, all `[auto]`; approved by the user. Decision 34 recorded in `architecture.md` §6 |
 | UX       | ➖ Not needed |      | No user interface: pure functions in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 1 of 8 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 2 of 8 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -19,12 +19,15 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 None
 
+_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+
 ---
 
 ## Task Log
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T002 | Flow rules: one Start per flow (second Start refused), at least one End, empty flow gets both, pipeline with no flow refused (`analyze/start-end.ts`) | 0 blockers; 1 warning fixed (empty-flow test now checks which finding is the Start and which the End); 0 suggestions | task check passed: core 456, api 6, web 3 |
 | T001 | Finding type (`Severity`, `Finding`, `LocatedFinding`), `analyzeStructure` with the fixed sort (flow, block, rule, path) and the fixture `analyze-fixture.ts` | 0 blockers; 2 warnings fixed (AC-026 test could not fail, config now frozen; AC-027 test name overstated); 3 suggestions fixed | task check passed: core 449, api 6, web 3 |
 
 ---

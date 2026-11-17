@@ -42,9 +42,7 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
-```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
-```
+### Amendment 1 — 2026-11-16
+**Changed**: `plan.md`: the smoke tests for `packages/core`, `apps/api` and `apps/web` (AC-007) move from T003 into T001; T003 keeps only the script check (AC-006), with the AC-007 row of the coverage check now pointing to T001.
+**Reason**: T001 ran `task-check.sh`, which runs `npm test` in every workspace. Vitest exits 1 on a package with no test files, so the check could not pass at T001 while `apps/api` and `apps/web` had none. Adding `--passWithNoTests` was rejected: it would let a package pass with zero tests, which AC-007 forbids.
+**Impact**: T001 re-runs from the start (no commits yet; the earlier partial work in the tree is kept and extended). T003 is smaller. No criterion or scope change.

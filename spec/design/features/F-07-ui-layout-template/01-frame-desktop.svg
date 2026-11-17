@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#0f172a}
+.brand{font-size:15px;font-weight:700}
+.bt{fill:#ffffff;font-size:13px;font-weight:600}
+.muted{font-size:12px;fill:#64748b}
+.ph{font-size:13px;font-weight:600;fill:#334155}
+.caption{font-size:11px;fill:#64748b}
+.page{fill:#f5f7fa}
+.bar{fill:#ffffff}
+.primary{fill:#2563eb}
+.slot{fill:#f8fafc;stroke:#cbd5e1;stroke-width:1;stroke-dasharray:6 4}
+.div{stroke:#e2e8f0;stroke-width:1}
+</style>
+<rect class="page" x="0" y="0" width="1280" height="800"/>
+<!-- header -->
+<rect class="bar" x="0" y="0" width="1280" height="56"/>
+<line class="div" x1="0" y1="56" x2="1280" y2="56"/>
+<text class="brand" x="24" y="34">SDDBuilder</text>
+<rect class="primary" x="1120" y="12" width="136" height="32" rx="6"/>
+<text class="bt" x="1188" y="33" text-anchor="middle">New project</text>
+<!-- centre area -->
+<rect class="slot" x="24" y="80" width="1232" height="592" rx="8"/>
+<text class="ph" x="640" y="368" text-anchor="middle">Centre area: the screen content</text>
+<text class="muted" x="640" y="392" text-anchor="middle">Passed in by the screen (the wizard in F-08, or another screen). The frame sets its size, not its content.</text>
+<!-- footer -->
+<line class="div" x1="0" y1="752" x2="1280" y2="752"/>
+<rect class="bar" x="0" y="752" width="1280" height="48"/>
+<text class="muted" x="24" y="781">The work is not saved. It is lost when the browser is refreshed.</text>
+<text class="caption" x="1256" y="781" text-anchor="end">1280 × 800 reference</text>
+</svg>

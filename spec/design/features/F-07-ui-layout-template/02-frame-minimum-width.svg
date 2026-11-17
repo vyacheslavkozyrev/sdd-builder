@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="800" viewBox="0 0 1024 800">
+<style>
+text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#0f172a}
+.brand{font-size:15px;font-weight:700}
+.bt{fill:#ffffff;font-size:13px;font-weight:600}
+.muted{font-size:12px;fill:#64748b}
+.ph{font-size:13px;font-weight:600;fill:#334155}
+.caption{font-size:11px;fill:#64748b}
+.page{fill:#f5f7fa}
+.bar{fill:#ffffff}
+.primary{fill:#2563eb}
+.slot{fill:#f8fafc;stroke:#cbd5e1;stroke-width:1;stroke-dasharray:6 4}
+.div{stroke:#e2e8f0;stroke-width:1}
+.scroll{fill:#e2e8f0}
+.thumb{fill:#94a3b8}
+</style>
+<rect class="page" x="0" y="0" width="1024" height="800"/>
+<!-- header: same positions as the 1280 layout, button anchored to the right gutter -->
+<rect class="bar" x="0" y="0" width="1024" height="56"/>
+<line class="div" x1="0" y1="56" x2="1024" y2="56"/>
+<text class="brand" x="24" y="34">SDDBuilder</text>
+<rect class="primary" x="864" y="12" width="136" height="32" rx="6"/>
+<text class="bt" x="932" y="33" text-anchor="middle">New project</text>
+<!-- centre area: fills the width at the minimum -->
+<rect class="slot" x="24" y="80" width="976" height="564" rx="8"/>
+<text class="ph" x="512" y="368" text-anchor="middle">Centre area: the screen content</text>
+<text class="muted" x="512" y="392" text-anchor="middle">Same frame at the 1024 px minimum width</text>
+<!-- footer: note stays on one line -->
+<line class="div" x1="0" y1="728" x2="1024" y2="728"/>
+<rect class="bar" x="0" y="728" width="1024" height="48"/>
+<text class="muted" x="24" y="756">The work is not saved. It is lost when the browser is refreshed.</text>
+<!-- horizontal scrollbar: illustration only; it appears only in a window narrower than 1024 px -->
+<rect class="scroll" x="0" y="776" width="1024" height="24"/>
+<rect class="thumb" x="24" y="781" width="300" height="14" rx="7"/>
+<text class="caption" x="1000" y="792" text-anchor="end">Scrollbar appears only in a window narrower than 1024 px; the page scrolls horizontally, no reflow</text>
+</svg>

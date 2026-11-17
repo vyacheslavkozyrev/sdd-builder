@@ -122,7 +122,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 - [ ] AC-026 `[auto]`: each panel shows the file its item generates: the pipeline `.claude/commands/pipeline.md`, a flow `.claude/commands/<flow name>.md`.
 - [ ] AC-027 `[auto]`: an edit the parser accepts updates the pipeline value at once and the panel shows the new value; an edit the parser refuses keeps the previous value and shows the parser's message next to the field.
 - [ ] AC-028 `[auto]`: a body (pipeline or flow) is at most 1,000 characters, counted in code points: 1,000 is accepted, 1,001 is refused, and one emoji counts as one character.
-- [ ] AC-029 `[auto]`: a flow name is non-blank, unique among the flows and file-safe (lowercase letters, digits and hyphens, starting with a letter, as decision 18 states for ids); a blank, duplicate or unsafe name is refused with the reason, and the previous name stays (table of valid and refused names, including `Flow 2` as refused).
+- [ ] AC-029 `[auto]`: a flow's name is free text that is non-blank and unique among the flows' names; a blank or duplicate name is refused with the reason, and the previous name stays (table of valid and refused names). The flow's id, which names its generated file, is file-safe (lowercase letters, digits and hyphens, starting with a letter, as decision 18 states) and is set when the flow is created; it is not changed by the Name field (owner decision, 2026-11-17).
 - [ ] AC-030 `[auto]`: only one item is selected at a time; selecting another item moves the selection, and the panel shows that item (negative case: no two items selected).
 
 ### US-006: Deleting a flow

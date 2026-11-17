@@ -95,5 +95,5 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 1. **Analyzer model and daily budget.** Deferred by the owner. Decide before F-04 is built and before launch.
 2. **Required blocks in the default pipeline.** Proposed: the approvals and the diff-size gate stay required. To confirm in `building-blocks.md` §9.
 3. **Interactive phases.** Resolved 2026-11-14: the pipeline runs in the main session and asks; agents never ask (`building-blocks.md` §4, decision 13).
-4. **Agent body length.** 1,000 characters for every body, or more for agents (`ui.md` D2).
-5. **How scope is expressed without a field.** The argument text must say when an agent runs (per task, per feature); the generator and the analysis need a rule for it (`ui.md` D6).
+4. **Body length.** Decided 2026-11-16: 1,000 characters for every body, agents included (`ui.md` D2).
+5. **Loops without a scope field.** Proposed: the arguments of a flow and of an agent say "for each feature" or "for each task", and the command text is written from them. The analysis would lose its check that a task-scoped agent reads a plan (`ui.md` D6). To confirm.

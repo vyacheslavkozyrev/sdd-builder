@@ -114,7 +114,7 @@ Two areas on the step:
 
 - The pipeline's arguments include `feature-id` (required) in the default pipeline.
 - Every block has a stable id. A switched-off block or flow is not checked and not generated.
-- A block's **arguments** explain it in text, including its scope (for example "for each task in `plan.md`"). **OPEN** D6: how the generator and the analysis use this text, now that there is no scope field.
+- A block's **arguments** explain it in text, including the loop it runs in (for example "for each task in `plan.md`"). Proposed under D6.
 
 ---
 
@@ -160,11 +160,11 @@ Two areas on the step:
 
 | # | Question | Conflict or gap |
 |---|---|---|
-| D1 | What does the **Demo** button do, and is it in the MVP? | No feature defines it. |
-| D2 | Body limit 1,000 characters for every body. Is that right for an agent body, which is the longest text? | Recommendation: keep 1,000 for flow, pipeline and rule bodies; an agent body of 4,000 gives room for a detailed agent. Earlier decision F-06 AC-030 was 4,000 for agents. |
+| D1 | What does the **Demo** button do, and is it in the MVP? | Deferred: to be defined in the features list. |
+| D2 | Body limit 1,000 characters for every body, agent bodies included. | Decided 2026-11-16: 1,000 for every body. Supersedes the 4,000 agent cap of F-06 AC-030. |
 | D3 | Connections are drawn between blocks (no connection block in the toolbox). Confirm. | The approved F-06 design put Connection in the toolbox. |
 | D4 | Does the pipeline's own Start and End appear on the Pipeline tab? | The approved design shows flows and gates only. |
 | D5 | Is a **Check** the same thing as the approved Condition? Check types are `checks` and `diff size`. | The approved design allowed `approval` as a check type; here Approval is its own block. |
-| D6 | With no scope field, how do the generator and the analysis know an agent runs per task or per feature? | The build loop and the iteration-source rule depend on scope. Needs a model decision before the core is rebuilt. |
+| D6 | How does a command know to run per feature or per task, now that there is no scope field? | Proposed: no scope rule in the model. The flow's and the agent's arguments say "for each feature" or "for each task", and the command text is written from them (architecture decision 7). The analysis can no longer check that a task-scoped agent reads a plan. To confirm. |
 | D7 | Phone or tablet layout. | Decided out of scope: desktop only. Confirm. |
 | D8 | Is "green" = no blocker, or no blocker and no warning? | Current reading: no blocker. |

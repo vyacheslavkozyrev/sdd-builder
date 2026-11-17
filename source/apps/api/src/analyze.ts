@@ -50,7 +50,7 @@ async function runReview(config: pipeline.ProjectConfig, model: ReviewModel | nu
     reply = await model.review(request);
   } catch {
     // The error is neither kept nor logged: the review status and the log event say it failed, and its message is
-    // left out (privacy, T007).
+    // left out (F-06 AC-031, AC-032).
     return failedReview();
   }
   if (reply.stopReason === 'max_tokens') {

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | ⏳ Pending  |      | 0 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 1 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,9 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+None
+
+_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -25,6 +27,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Decision 35 recorded; §3 and decision 22 corrected; template README sort and duplicate wording | 0 blockers, 0 warnings | task check passed: core 545 of 545, web 3 of 3, api 6 of 6 |
 
 ---
 

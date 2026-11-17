@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 30 criteria, all `[auto]`; approved by the user. Decision 34 recorded in `architecture.md` §6 |
 | UX       | ➖ Not needed |      | No user interface: pure functions in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 3 of 8 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 4 of 8 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T004 | Flow links and rule tags: a flow's `connectedTo` must name a flow of the pipeline; rule tags on the pipeline, flows and agents must name a rule (`analyze/references.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (shared position type; a test title made exact) | task check passed: core 481, api 6, web 3 |
 | T003 | Block and route references: a block's `connectedTo` and a Check's true and false routes must name a block of their own flow, or stop (`analyze/references.ts`); T002's AC-004 test isolated so only the End rule fires | 0 blockers, 0 warnings; 1 suggestion fixed (id sets built once per call) | task check passed: core 466, api 6, web 3 |
 | T002 | Flow rules: one Start per flow (second Start refused), at least one End, empty flow gets both, pipeline with no flow refused (`analyze/start-end.ts`) | 0 blockers; 1 warning fixed (empty-flow test now checks which finding is the Start and which the End); 0 suggestions | task check passed: core 456, api 6, web 3 |
 | T001 | Finding type (`Severity`, `Finding`, `LocatedFinding`), `analyzeStructure` with the fixed sort (flow, block, rule, path) and the fixture `analyze-fixture.ts` | 0 blockers; 2 warnings fixed (AC-026 test could not fail, config now frozen; AC-027 test name overstated); 3 suggestions fixed | task check passed: core 449, api 6, web 3 |

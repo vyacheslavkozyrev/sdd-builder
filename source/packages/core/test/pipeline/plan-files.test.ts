@@ -126,8 +126,8 @@ describe('F-04 AC-001 planning lists every output file of a one-flow config', ()
       return;
     }
     const byPath = new Map(plan.files.map((file) => [file.path, file.text]));
-    expect(byPath.get('.claude/commands/pipeline.md')).toBe(fixtureTemplates.pipelineCommand.text);
-    expect(byPath.get('.claude/commands/build.md')).toBe(fixtureTemplates.command.text);
+    expect(byPath.get('.claude/commands/pipeline.md')).toBe('pipeline layout - `feature-id` (required): F-XX\n');
+    expect(byPath.get('.claude/commands/build.md')).toBe('flow layout build\n');
     expect(byPath.get('CLAUDE.md')).toBe(fixtureTemplates.base[0]?.text);
   });
 });

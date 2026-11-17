@@ -1,20 +1,25 @@
 // The file list of the generator (architecture.md §6, decisions 23 and 35). Planning fixes which files are
-// written, their paths and their order, from the config and the template shapes. It renders no placeholder:
-// each file carries its raw layout text, and the entries are filled in later. Pure: no file is read and no
-// config or template is changed.
+// written, their paths and their order, from the config and the template shapes. The command files are rendered
+// here, with the values of their flow or pipeline; the agent, rule and base files still carry their raw layout
+// text, and their entries are filled in later. Pure: no file is read and no config or template is changed.
 
 import type { Finding } from '../analyze/index.js';
-import type { ProjectConfig } from '../model.js';
+import type { Flow, Id, Pipeline, ProjectConfig } from '../model.js';
 import { GenerationError } from './errors.js';
 import { configProblems } from './problems.js';
-import type { Templates } from './templates.js';
+import { renderText } from './render.js';
+import type { Layout, Templates } from './templates.js';
+import { flowValues, pipelineValues } from './values-command.js';
 
-// One file the generator writes: its output path, its raw layout text before the placeholders are filled, and
-// the `##` headings a Markdown output must carry (the reply check reads them from the plan).
+// One file the generator writes: its output path, its layout text (rendered for a command file, raw until its
+// entry is filled in otherwise), the `##` headings a Markdown output must carry (the reply check reads them from
+// the plan), and the description and rule tags of the flow or Agent block it is built from (empty when none).
 export interface PlannedFile {
   readonly path: string;
   readonly text: string;
   readonly headings: readonly string[];
+  readonly description: string;
+  readonly ruleTags: readonly Id[];
 }
 
 // The outcome of planning: the files sorted by path, or the blockers that refuse the config.
@@ -32,35 +37,15 @@ export function planGeneration(config: ProjectConfig, templates: Templates): Pla
 
   const { flows } = config.pipeline;
   const files: PlannedFile[] = [
-    ...templates.base.map((file) => ({ path: file.path, text: file.text, headings: file.headings })),
-    {
-      path: '.claude/commands/pipeline.md',
-      text: templates.pipelineCommand.text,
-      headings: templates.pipelineCommand.headings,
-    },
-    ...flows.map((flow) => ({
-      path: `.claude/commands/${flow.id}.md`,
-      text: templates.command.text,
-      headings: templates.command.headings,
-    })),
+    ...templates.base.map((file) => entry(file.path, file, '', [])),
+    pipelineCommand(config.pipeline, templates.pipelineCommand),
+    ...flows.map((flow) => flowCommand(flow, templates.command)),
     ...flows.flatMap((flow) =>
       flow.blocks.flatMap((block) =>
-        block.kind === 'agent'
-          ? [
-              {
-                path: `.claude/agents/${block.name}.md`,
-                text: templates.agent.text,
-                headings: templates.agent.headings,
-              },
-            ]
-          : [],
+        block.kind === 'agent' ? [entry(`.claude/agents/${block.name}.md`, templates.agent, '', [])] : [],
       ),
     ),
-    ...config.rules.map((rule) => ({
-      path: `.claude/rules/${rule.id}.md`,
-      text: templates.rule.text,
-      headings: templates.rule.headings,
-    })),
+    ...config.rules.map((rule) => entry(`.claude/rules/${rule.id}.md`, templates.rule, '', [])),
   ];
 
   const seen = new Set<string>();
@@ -76,6 +61,31 @@ export function planGeneration(config: ProjectConfig, templates: Templates): Pla
 
   files.sort((a, b) => compareCodePoints(a.path, b.path));
   return { ok: true, files };
+}
+
+// A planned file from a layout, with the given description and rule tags.
+function entry(path: string, layout: Layout, description: string, ruleTags: readonly Id[]): PlannedFile {
+  return { path, text: layout.text, headings: layout.headings, description, ruleTags };
+}
+
+// The pipeline command file: its layout rendered with the pipeline's values. It has no description or rule tags
+// of its own; those belong to the flow or Agent block a file is built from.
+function pipelineCommand(pipeline: Pipeline, layout: Layout): PlannedFile {
+  const path = '.claude/commands/pipeline.md';
+  const text = renderText(path, layout.text, pipelineValues(pipeline));
+  return entry(path, { text, headings: layout.headings }, '', []);
+}
+
+// The command file of a flow: its layout rendered with the flow's values, its description and its rule tags.
+function flowCommand(flow: Flow, layout: Layout): PlannedFile {
+  const path = `.claude/commands/${flow.id}.md`;
+  return {
+    path,
+    text: renderText(path, layout.text, flowValues(flow)),
+    headings: layout.headings,
+    description: flow.description,
+    ruleTags: flow.ruleTags ?? [],
+  };
 }
 
 // A file-safe path is relative, uses `/` only, and has no empty segment and no `..` segment.

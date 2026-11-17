@@ -27,8 +27,8 @@ Look and feel: **Material UI** React components (recorded in `architecture.md` �
 ## 2. Wizard steps
 
 ### Step 1 — Project
-- **Project name**: single-line text field, required. Stored as typed; spaces only are kept. A blank name does not block Next; the analysis reports it.
-- **Idea**: multi-line text field, required. Limit **5,000 characters**, counted in code points (an emoji counts as one). A counter shows `N / 5,000`. Typing or pasting past the limit keeps the first 5,000 characters.
+- **Project name**: single-line text field, required. Limit **100 characters**, counted in code points (an emoji counts as one); typing or pasting past the limit keeps the first 100 characters. No counter is shown. Stored as typed; spaces only are kept. A blank name does not block Next; the analysis reports it.
+- **Idea**: multi-line text field, required. Limit **5,000 characters**, counted in code points (an emoji counts as one). A counter shows `N / 5,000`. Typing or pasting past the limit keeps the first 5,000 characters. The stored idea keeps its spaces and line breaks as typed; when the configuration is built, the idea is trimmed of leading and trailing whitespace (internal line breaks are kept), and spaces only become an empty idea.
 - Help text as on the approved screen 01.
 
 ### Step 2 — Technical details
@@ -133,7 +133,7 @@ Two areas on the step:
 
 | Field | Limit |
 |---|---|
-| Project name | single line, required |
+| Project name | 100 characters (code points), single line, required |
 | Idea | 5,000 characters (code points), required |
 | Architecture | 5,000 characters (code points), optional |
 | Rule block description | 1,000 characters |

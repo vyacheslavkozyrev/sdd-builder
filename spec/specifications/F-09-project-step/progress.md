@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 16 criteria: 15 `[auto]`, 1 `[device]`; name limit 100 code points and idea trimmed when the configuration is built (owner decisions); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks); name help line kept as drawn, AC-016 wording still to be settled before Verify |
-| Build    | 🔄 In Progress |      | 4 of 5 tasks committed |
+| Build    | ✅ Complete | 2026-11-17 | 5 of 5 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ None
 | T002 | Wizard values for the project step: name and idea held as typed, cleared by New project; F-08 state tests updated; App test fixtures shape-only | 0 blockers, 0 warnings, 1 suggestion fixed (state.ts header cites F-09 criteria) | task check passed: api 57, web 142, core 1017 |
 | T003 | Project step body: name and idea fields with limits on change, counter, help and limit notes, no storage call | 0 blockers, 1 warning fixed (runtime no-storage test added), 1 suggestion fixed (counter linked to the idea field) | task check passed: api 57, web 167, core 1017 |
 | T004 | Wizard and app wiring: step 1 shows the project step, steps 2 to 4 the placeholder; values and update flow from App; Next never blocked by blank content; privacy scan covers App | 0 blockers, 2 warnings fixed (guard against vacuous Next tests; AC-009 table over empty and spaces-only), 1 suggestion fixed (stale header comment) | task check passed: api 57, web 180, core 1017 |
+| T005 | `ui.md` §2 Step 1 and §6: name limit 100 code points (no counter), idea trimmed when the configuration is built | 0 blockers, 0 warnings, 0 suggestions (docs match `project.ts` and ProjectStep behaviour; no production code, no tests required) | task check passed: api 57, web 180, core 1017 |
 
 ---
 

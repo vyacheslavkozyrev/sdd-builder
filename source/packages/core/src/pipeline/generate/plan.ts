@@ -106,7 +106,7 @@ function flowCommand(flow: Flow, layout: Layout): PlannedFile {
 }
 
 // A file-safe path is relative, uses `/` only, and has no empty segment and no `..` segment.
-function isFileSafe(path: string): boolean {
+export function isFileSafe(path: string): boolean {
   if (path.startsWith('/') || path.includes('\\')) {
     return false;
   }

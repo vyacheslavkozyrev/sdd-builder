@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |      | No user interface: pure functions in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
 | Build    | ✅ Complete | 2026-11-16 | 8 of 8 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-16 | 30 of 30 `[auto]` criteria covered by passing tests; 0 `[device]` criteria, so no checklist; 0 gaps, 0 failures |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -46,7 +46,50 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Filled in by the Verify phase._
+Verify run on 2026-11-16, branch `main`, clean tree, all 8 tasks committed, Current Task None.
+
+**Task check:** `source/scripts/task-check.sh` exit 0. Core 545 passed (26 files), api 6 passed (3 files), web 3 passed (2 files). Total 554 passed, 0 failed. The pipeline folder (F-02 and F-03 tests) alone gives 525 passed in a verbose run.
+
+**Totals:** 30 criteria, 30 `[auto]`, 0 `[device]`. Gaps: none. Failures: none.
+
+"Passing runs" counts the passing test cases whose full name carries the criterion ID. A describe block titled with a range (for example `F-03 AC-001 to AC-005`) also counts toward each ID it names.
+
+| Criterion | Tag | Covering tests (file) | Passing runs | Result |
+|---|---|---|---|---|
+| AC-001 | auto | start-end.test.ts | 7 | pass |
+| AC-002 | auto | start-end.test.ts | 1 | pass |
+| AC-003 | auto | start-end.test.ts | 2 | pass |
+| AC-004 | auto | start-end.test.ts | 2 | pass |
+| AC-005 | auto | start-end.test.ts | 1 | pass |
+| AC-006 | auto | references.test.ts | 10 | pass |
+| AC-007 | auto | references.test.ts | 2 | pass |
+| AC-008 | auto | references-flows-tags.test.ts | 15 | pass |
+| AC-009 | auto | references.test.ts | 4 | pass |
+| AC-010 | auto | references.test.ts | 2 | pass |
+| AC-011 | auto | references-flows-tags.test.ts | 9 | pass |
+| AC-012 | auto | cycles.test.ts | 15 | pass |
+| AC-013 | auto | cycles.test.ts | 5 | pass |
+| AC-014 | auto | cycles.test.ts | 2 | pass |
+| AC-015 | auto | routes.test.ts | 14 | pass |
+| AC-016 | auto | routes.test.ts | 2 | pass |
+| AC-017 | auto | routes.test.ts | 3 | pass |
+| AC-018 | auto | routes.test.ts | 5 | pass |
+| AC-019 | auto | reach.test.ts | 19 | pass |
+| AC-020 | auto | reach.test.ts | 3 | pass |
+| AC-021 | auto | reach.test.ts | 1 | pass |
+| AC-022 | auto | reach.test.ts | 2 | pass |
+| AC-023 | auto | reach.test.ts | 3 | pass |
+| AC-024 | auto | analyze-default.test.ts | 3 | pass |
+| AC-025 | auto | analyze.test.ts, analyze-order.test.ts | 5 | pass |
+| AC-026 | auto | analyze.test.ts | 3 | pass |
+| AC-027 | auto | analyze.test.ts | 2 | pass |
+| AC-028 | auto | disabled.test.ts | 8 | pass |
+| AC-029 | auto | namespace.test.ts | 3 | pass |
+| AC-030 | auto | analyze.test.ts | 2 | pass |
+
+**Scope check (`features.md` F-03):** each scope item has a covering criterion. One start and one end per flow: AC-001 to AC-004. Connections join one flow or the pipeline's flows: AC-006 to AC-008. No cycles: AC-012, AC-013. Both outputs of every Check wired: AC-009, AC-010. Reachability: AC-019 to AC-023. Back routes only to earlier blocks: AC-015 to AC-017. Retry with no limit warns: AC-018. Unique file-safe names: F-02 AC-010 (file-safe name and duplicate agent names, `block-agent-check.test.ts`) and F-02 AC-022 (unique ids, `ids.test.ts`), refused at parse and not repeated here, as the stories say.
+
+**Manual checklist:** not needed, since no criterion is `[device]`. No `checklist.md` was written.
 
 ---
 

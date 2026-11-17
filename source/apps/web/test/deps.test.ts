@@ -5,17 +5,20 @@ import { describe, expect, it } from 'vitest';
 
 const webDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-// DOM and browser test libraries that architecture.md §5 keeps out of the MVP.
+// The DOM test libraries approved for component click tests (architecture.md §5, F-10 T004).
+const approvedDom = new Set(['jsdom', '@testing-library/react', '@testing-library/dom']);
+
+// Browser test libraries stay out of the MVP. DOM test libraries are out too, unless they
+// are one of the approved ones above.
 const forbidden = (name: string): boolean =>
-  name === 'jsdom' ||
   name === 'happy-dom' ||
   name === 'playwright' ||
   name.startsWith('playwright-') ||
   name === '@playwright/test' ||
-  name.startsWith('@testing-library/') ||
   name === '@vitest/browser' ||
   name.startsWith('@vitest/browser-') ||
-  name.startsWith('vitest-browser-');
+  name.startsWith('vitest-browser-') ||
+  ((name === 'jsdom' || name.startsWith('@testing-library/')) && !approvedDom.has(name));
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -30,7 +33,7 @@ function dependencyNames(manifest: Record<string, unknown>): string[] {
 }
 
 describe('F-01 web dependencies', () => {
-  it('F-01 AC-008 apps/web lists no DOM or browser test library', () => {
+  it('F-01 AC-008 apps/web lists no browser test library and no DOM library beyond the approved ones', () => {
     const manifestPath = join(webDir, 'package.json');
     const manifest: unknown = JSON.parse(readFileSync(manifestPath, 'utf8'));
     if (!isRecord(manifest)) {
@@ -44,17 +47,26 @@ describe('F-01 web dependencies', () => {
     const names = dependencyNames({
       dependencies: { react: '^19.0.0' },
       devDependencies: {
-        jsdom: '^26.0.0',
-        '@testing-library/react': '^16.0.0',
+        jsdom: '^30.1.3',
+        '@testing-library/react': '^16.3.3',
+        '@testing-library/user-event': '^14.0.0',
+        'happy-dom': '^1.0.0',
         '@vitest/browser': '^3.2.4',
         'vitest-browser-react': '^2.0.0',
       },
     });
     expect(names.filter(forbidden)).toEqual([
-      'jsdom',
-      '@testing-library/react',
+      '@testing-library/user-event',
+      'happy-dom',
       '@vitest/browser',
       'vitest-browser-react',
     ]);
+  });
+
+  it('F-01 AC-008 the approved DOM libraries are not flagged (positive case)', () => {
+    const names = dependencyNames({
+      devDependencies: { jsdom: '30.1.3', '@testing-library/react': '16.3.3', '@testing-library/dom': '10.4.2' },
+    });
+    expect(names.filter(forbidden)).toEqual([]);
   });
 });

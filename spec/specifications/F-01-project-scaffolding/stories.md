@@ -51,7 +51,7 @@ Every automated test names the feature and criterion it covers (`F-01 AC-003`).
 
 - [ ] AC-006 `[auto]`: Each of `packages/core`, `apps/api` and `apps/web` has a `test` script that runs `vitest run`, and the root `npm test` runs all three.
 - [ ] AC-007 `[auto]`: Each package contains at least one passing Vitest test, named with the feature and criterion (`F-01 AC-006 ...`), so that `npm test` runs a real test in every package and does not pass on zero tests.
-- [ ] AC-008 `[auto]`: `apps/web` has no DOM or browser test library in its dependencies (no jsdom, Testing Library or Playwright), as `architecture.md` §5 requires for the MVP.
+- [ ] AC-008 `[auto]`: `apps/web` has no browser test library in its dependencies (no Playwright, `@vitest/browser` or similar), and no DOM test library except the three approved pins in `architecture.md` §5 (`jsdom`, `@testing-library/react`, `@testing-library/dom`). Amended 2026-11-17 (F-10 T004).
 - [ ] AC-009 `[auto]`: A failing test in any package makes `npm test` exit non-zero (negative case: a failure is never reported as a pass).
 
 ### US-003: One task check script

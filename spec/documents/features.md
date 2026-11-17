@@ -11,7 +11,7 @@ Use: internal use on localhost only for now. Deployment is not needed.
 ## 1. Review
 
 1. **Items 1 to 8 are "UI only".** The UI needs the pipeline model, the checks, the generator and the analyzer behind it. F-02 to F-06 are added and confirmed as MVP.
-2. **Demo and presentation mode are one feature** (owner, 2026-11-16): F-23. Its phase is open (section 4).
+2. **Demo and presentation mode are one feature** (owner, 2026-11-16): F-23, post MVP.
 3. **Download and Generate.** The draft has "Generate and Download API" as one item, which fits the stateless design (a zip is returned by the request that makes it). No separate download API.
 4. **Abuse, cost and privacy controls** are post MVP (F-17), as the owner decided. Internal use on localhost does not need them.
 5. **Deployment** is not needed for internal use on localhost, so it is removed from the list.
@@ -53,8 +53,3 @@ Use: internal use on localhost only for now. Deployment is not needed.
 | F-21 | Projects list (needs storage; decided with F-18) | 15 | F-18 |
 | F-22 | Browser-local autosave | 16 | F-16 |
 | F-23 | Presentation mode and demo: one feature, the Pipeline tab as a client view with a plain-language key; the Demo button | 17, 18 | F-11, F-05 |
-
----
-
-## 4. Open points
-1. **Phase of F-23 (presentation mode and demo).** Post MVP, as the draft has it, or MVP, as `idea.md` and the Demo button in `ui.md` §1.1 have it?

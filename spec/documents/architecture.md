@@ -213,7 +213,7 @@ Builder file list (`source/apps/web/src/builder/`, as of F-06 T023):
 Three uses, in order of priority:
 
 1. **Editing:** the Pipeline tab and the flow tabs are the builder's views. Flows, gates, checks and connections between flows are edited on the Pipeline tab; a flow's blocks on its own tab, with their properties in the property panel.
-2. **Client view (MVP):** a full-screen presentation mode, showing the Pipeline tab with a plain-language key, for a client conversation. Connections may be hidden there (a view option). The shareable read-only link is post-MVP (F-19); its proposed design carries the configuration in the URL fragment, so the server still stores nothing.
+2. **Client view (post MVP, F-23):** a full-screen presentation mode, showing the Pipeline tab with a plain-language key, for a client conversation. Connections may be hidden there (a view option). The shareable read-only link is post-MVP (F-19); its proposed design carries the configuration in the URL fragment, so the server still stores nothing.
 3. **Repository:** a Mermaid flowchart of the same process in the generated `process.md`, so the process renders on the hosting site.
 
 Miro is not part of the flow. Image export is not planned for the MVP.

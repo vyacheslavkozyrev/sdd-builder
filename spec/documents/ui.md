@@ -12,7 +12,7 @@ Look and feel: **Material UI** React components (recorded in `architecture.md` Â
 
 **1.1 Header** (top, full width)
 - Left: logo.
-- Right: **New project** (opens the wizard at step 1). **Demo**: deferred to the features list (section 9).
+- Right: **New project** (opens the wizard at step 1). The Demo button is not in the MVP; presentation mode and demo are post-MVP (F-23 in `features.md`).
 
 **1.2 App footer** (bottom, full width)
 - Annotation: the work is not saved and is lost when the browser is refreshed. Shown on every screen.
@@ -161,7 +161,7 @@ Two areas on the step:
 
 | # | Item | Status |
 |---|---|---|
-| D1 | The **Demo** button | Deferred: to be defined in the features list. |
+| D1 | The **Demo** button | Decided 2026-11-16: not shown until the demo feature exists (post MVP, F-23). |
 | D2 | Body limit 1,000 characters for every body, agent bodies included | Decided 2026-11-16. |
 | D3 | Connection is a toolbox item on both tabs; ends can be repointed | Decided 2026-11-16. |
 | D4 | Start and End exist only on flow tabs; the pipeline's arguments are in its properties panel | Decided 2026-11-16. |

@@ -45,7 +45,7 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 
 ## Product direction
 
-- **MVP:** Claude Code target only, desktop browsers only. The Pipeline tab with the pipeline, with a presentation mode. Blocks (start, agent, approval, check, end), quality gates, branches, custom agents. The four-step wizard. Structural checks plus LLM review. Zip download. Anonymous and stateless: nothing is kept between visits.
+- **MVP:** Claude Code target only, desktop browsers only. The Pipeline tab with the pipeline. Blocks (start, agent, approval, check, end), quality gates, branches, custom agents. The four-step wizard. Structural checks plus LLM review. Zip download. Anonymous and stateless: nothing is kept between visits.
 - **Next (order to confirm):** GitHub Spec Kit and OpenSpec outputs; presets (other starting pipelines); a self-check of the generated project (every path a command names must exist).
 - **Post-MVP:** save, import and export of projects (F-08); a read-only share link for clients (F-19); browser-local autosave (F-20); skills and scripts as blocks.
 - **Later:** Cursor and Copilot targets, accounts, a gallery of shared configurations.
@@ -78,7 +78,7 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 4. **Custom blocks.** Users can write their own agents. They are always optional, so required blocks stay fixed.
 5. **Compatible outputs.** We support GitHub Spec Kit and OpenSpec layouts, so teams keep their tool and get our process and gates. Planned after the MVP (`architecture.md` §8).
 6. **Gates are in the MVP and configurable.** Fixed types: approval (a person decides), checks and diff size (an agent decides). Review is an Agent block, not a gate type. Users set thresholds and place gates between blocks and between flows. No user-written check commands in generated projects.
-7. **The builder is the process diagram.** The Pipeline tab is the main view. The presentation mode shows the map to a client. No Miro step and no image export in the MVP.
+7. **The builder is the process diagram.** The Pipeline tab is the main view. Presentation mode, which shows the map to a client, is post MVP (F-23). No Miro step and no image export in the MVP.
 8. **One nesting level.** Only the pipeline contains flows. An Agent block has no scope field: its scope is written in its arguments (2026-11-16).
 9. **Blocks are five kinds:** start, agent, approval, check, end; connections link them. Skills and scripts are not block kinds in the MVP.
 10. **Branching is in the MVP.** A condition has a pass and a fail output. A fail can route back to an earlier block in the same command, or stop. Round limits are optional and set by the user; the analyzer warns when a retry has none.

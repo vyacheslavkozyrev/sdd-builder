@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 16 criteria: 15 `[auto]`, 1 `[device]`; name limit 100 code points and idea trimmed when the configuration is built (owner decisions); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks); name help line kept as drawn, AC-016 wording still to be settled before Verify |
+| Build    | ⏳ Pending  |      | 0 of 5 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

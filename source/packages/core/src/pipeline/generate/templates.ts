@@ -22,3 +22,13 @@ export interface Templates {
   readonly agent: Layout;
   readonly rule: Layout;
 }
+
+// The text of each level-2 heading (a line that starts with `## `), in order. A `### ` line is not a level-2
+// heading. The text after the prefix is kept as written, trailing spaces included.
+export function headingsOf(text: string): string[] {
+  const headings: string[] = [];
+  for (const line of text.split(/\r?\n/)) {
+    if (line.startsWith('## ')) headings.push(line.slice(3));
+  }
+  return headings;
+}

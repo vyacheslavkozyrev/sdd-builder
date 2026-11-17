@@ -262,17 +262,17 @@ describe('F-04 AC-007 planned files are sorted by path in code-point order', () 
   });
 });
 
+// Points the Start block of the first flow at a block that does not exist: a blocker.
+function startToNowhere(config: ProjectConfig): void {
+  const start = config.pipeline.flows[0]?.blocks[0];
+  if (start?.kind === 'start' && start.connectedTo) {
+    start.connectedTo.to = 'nowhere';
+  }
+}
+
 describe('F-04 AC-017 a config with a blocker is refused with its problems', () => {
   it.each([
-    [
-      'a Start block that connects to a block that does not exist',
-      (config: ProjectConfig) => {
-        const start = config.pipeline.flows[0]?.blocks[0];
-        if (start?.kind === 'start' && start.connectedTo) {
-          start.connectedTo.to = 'nowhere';
-        }
-      },
-    ],
+    ['a Start block that connects to a block that does not exist', startToNowhere],
     [
       'an unknown rule tag on the pipeline and an unknown flow tag',
       (config: ProjectConfig) => {
@@ -288,6 +288,27 @@ describe('F-04 AC-017 a config with a blocker is refused with its problems', () 
     const blockers = analyzeStructure(config).filter((finding) => finding.severity === 'blocker');
     expect(blockers.length).toBeGreaterThan(0);
     const plan: Plan = planGeneration(config, fixtureTemplates);
+    expect(plan.ok).toBe(false);
+    if (plan.ok) {
+      return;
+    }
+    expect(plan.problems).toEqual(blockers);
+    expect('files' in plan).toBe(false);
+  });
+
+  it('F-04 AC-017 refuses a blocked config before any layout is rendered, so a layout with an unknown placeholder does not throw', () => {
+    const blocked = buildConfig(startToNowhere);
+    const blockers = analyzeStructure(blocked).filter((finding) => finding.severity === 'blocker');
+    expect(blockers.length).toBeGreaterThan(0);
+    const templates: Templates = {
+      ...fixtureTemplates,
+      command: { text: 'flow layout {{nope}}\n', headings: [] },
+    };
+
+    // Control: the same layout does throw when the config is valid, so the placeholder is a real fault.
+    expect(() => planGeneration(configWith([flowWith('build', ['build'])]), templates)).toThrow(GenerationError);
+
+    const plan: Plan = planGeneration(blocked, templates);
     expect(plan.ok).toBe(false);
     if (plan.ok) {
       return;

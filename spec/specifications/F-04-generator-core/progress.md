@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | ✅ Complete | 2026-11-16 | 10 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 10 of 12 tasks committed (T011 by the Verify amendment; T012 pending) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | Reply check part 1: missing, extra, unsafe paths, empty text, placeholders, non-string values; the reply is narrowed with no throw | 0 blockers, 1 warning fixed | task check passed: core 686 of 686, web 3 of 3, api 6 of 6 |
 | T009 | Reply check part 2: required headings as whole lines; self-reference names; findings sorted by path then message; every applicable check runs on a text | 0 blockers, 1 defect fixed (early return removed for text checks) | task check passed: core 714 of 714, web 3 of 3, api 6 of 6 |
 | T010 | Namespace exports; purity scan over generate/ with positive samples, templates imports refused; fixed-templates test | 0 blockers, 1 warning and 1 suggestion fixed | task check passed: core 736 of 736, web 3 of 3, api 6 of 6 |
+| T011 | Test: a refused config renders no layout (AC-017 no-render clause); test-only | 0 blockers, 1 suggestion fixed (test helper) | task check passed: core 737 of 737, web 3 of 3, api 6 of 6 |
 
 ---
 
@@ -55,15 +56,61 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-_Criteria coverage matrix and manual checklist outcome._
+Verify run 2026-11-17 on `main` (clean tree, all 10 tasks ticked, Current Task None). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 736 of 736 (37 files), web 3 of 3, api 6 of 6; total 745 of 745.
+
+All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklist.
+
+| Criterion | Test file | Status |
+| --- | --- | --- |
+| AC-001 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
+| AC-002 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
+| AC-003 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
+| AC-004 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
+| AC-005 | `source/packages/core/test/pipeline/plan-default.test.ts` | Pass |
+| AC-006 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass (unsafe paths tested on base files only; see note) |
+| AC-007 | `source/packages/core/test/pipeline/plan-files.test.ts`, `plan-determinism.test.ts` | Gap (wording, see G1) |
+| AC-008 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
+| AC-009 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
+| AC-010 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
+| AC-011 | `source/packages/core/test/pipeline/plan-command.test.ts`, `plan-entries.test.ts` | Pass |
+| AC-012 | `source/packages/core/test/pipeline/render.test.ts`, `plan-command.test.ts` | Pass |
+| AC-013 | `source/packages/core/test/pipeline/render.test.ts`, `plan-entries.test.ts` | Pass |
+| AC-014 | `source/packages/core/test/pipeline/render.test.ts`, `plan-entries.test.ts` | Pass |
+| AC-015 | `source/packages/core/test/pipeline/plan-command.test.ts` | Pass |
+| AC-016 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
+| AC-017 | `source/packages/core/test/pipeline/plan-files.test.ts` | Gap (no-render clause, see G2) |
+| AC-018 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
+| AC-019 | `source/packages/core/test/pipeline/generated-names.test.ts`, `plan-files.test.ts` | Pass |
+| AC-020 | `source/packages/core/test/pipeline/config-problems.test.ts` | Gap (planning clause, see G3) |
+| AC-021 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
+| AC-022 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
+| AC-023 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
+| AC-024 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
+| AC-025 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
+| AC-026 | `source/packages/core/test/pipeline/reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
+| AC-027 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
+| AC-028 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
+| AC-029 | `source/packages/core/test/pipeline/reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
+| AC-030 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
+| AC-031 | `source/packages/core/test/pipeline/namespace.test.ts` | Pass |
+| AC-032 | `source/packages/core/test/pipeline/purity.test.ts` | Pass |
+| AC-033 | `source/packages/core/test/pipeline/plan-fixed-templates.test.ts` | Pass |
+
+Gaps (criterion as written is not proven by a passing test):
+
+- **G1 AC-007**: the criterion says the order is the same "whatever the order of the flows or rules". The tests reverse the rules and the flows after the first one. The first flow is never moved, and reversing it refuses the config (see the T007 deferred finding). Needs the user's decision on the wording, or a test for the agreed wording.
+- **G2 AC-017**: the test checks the problems and that no `files` are returned. Nothing proves that no layout is rendered for a refused config (for example, a refused config with a template placeholder that has no value still returns the problems, not a throw).
+- **G3 AC-020**: the test checks only `configProblems` for a pipeline with no flows. Nothing calls `planGeneration` on that config to prove that it returns no files.
+
+Note (not counted as a gap): AC-006 says every planned path is file-safe. The check runs on every planned path in one loop (`plan.ts`), but the tests only pass unsafe paths through the base files. Rule, agent and command paths are not tested with unsafe ids.
 
 ---
 
 ## Amendments
 
 ```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
+### Amendment — 2026-11-17 (Verify)
+**Changed**: `plan.md` gains T011 and T012 (test-only). No story changed.
+**Reason**: Verify (test agent, verify mode) found two missing proofs: AC-017 does not prove that a refused config renders no layout (T011); AC-020 does not prove that planning a flow-less pipeline returns no files (T012). A third gap, AC-007's flow-order wording, is a specification question and is not part of this amendment; it waits for the user's decision.
+**Impact**: T011 and T012 run in Build, then Verify runs again. Phase Verify stays Pending until AC-007 is decided.
 ```

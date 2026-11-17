@@ -32,6 +32,10 @@ Paths are relative to the repository root. The generator lives in `source/packag
 
 - [x] T010 [Core] Namespace, purity and the generator's data: `source/packages/core/src/pipeline/index.ts` exports `configProblems`, `planGeneration`, `checkReply` and `GenerationError`; the root export list stays as it is; `source/packages/core/test/pipeline/namespace.test.ts` gains the check of the new names; `source/packages/core/test/pipeline/purity.test.ts` scans `source/packages/core/src/pipeline/generate/` for `fs`, `http`, `process`, `window` and model client imports; `source/packages/core/test/pipeline/plan-fixed-templates.test.ts` (the same fixture templates given as data give the same plan in two runs) — covers AC-031, AC-032, AC-033
 
+- [x] T011 [Core] Test: a refused config renders no layout (AC-017, no-render clause): `source/packages/core/test/pipeline/plan-files.test.ts` gains a case where the config has a blocker and the templates hold a layout with an unknown placeholder (`{{nope}}`); planning must return `{ ok: false, problems }` and must not throw, which proves no layout was rendered. Test-only; covers AC-017 (the no-render clause, added by the Verify amendment of 2026-11-17)
+
+- [ ] T012 [Core] Test: planning a flow-less pipeline returns no files (AC-020, planning clause): `source/packages/core/test/pipeline/config-problems.test.ts` or `plan-files.test.ts` gains a case that calls `planGeneration` on a config with no flows and asserts `{ ok: false }` with the F-03 "no flow" blocker and no `files`. Test-only; covers AC-020 (the planning clause, added by the Verify amendment of 2026-11-17)
+
 ## Rationale
 
 - **Decisions first (T001).** Four things the stories rely on (refusal of flow id `pipeline`, sort by path, duplicate handling, and F-04's ownership of `planGeneration` and `checkReply`) conflict with the docs today. `CLAUDE.md` and `general.md` require the decision in `architecture.md` before code depends on it, so the record comes before any code.

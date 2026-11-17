@@ -10,7 +10,13 @@ import type { StepNumber } from '../src/wizard/steps.js';
 
 const TITLES = ['Project', 'Technical details', 'Workflow', 'Analyze and generate'];
 const STEPS: readonly StepNumber[] = [1, 2, 3, 4];
-const EMPTY: WizardValues = { name: '', idea: '' };
+const EMPTY: WizardValues = {
+  name: '',
+  idea: '',
+  stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
+  architecture: '',
+  rules: [],
+};
 
 // The marker that shows the step body of each step: the project name field on
 // step 1 (F-09 AC-012), the F-08 placeholder line on steps 2 to 4.
@@ -21,9 +27,15 @@ const BODY_MARKER: Readonly<Record<StepNumber, string>> = {
   4: PLACEHOLDER_LINE,
 };
 
-function render(step: StepNumber, values: WizardValues = EMPTY): string {
+function render(step: StepNumber, values: Partial<WizardValues> = {}): string {
   return renderToStaticMarkup(
-    <Wizard step={step} values={values} onUpdate={() => undefined} onPrev={() => undefined} onNext={() => undefined} />,
+    <Wizard
+      step={step}
+      values={{ ...EMPTY, ...values }}
+      onUpdate={() => undefined}
+      onPrev={() => undefined}
+      onNext={() => undefined}
+    />,
   );
 }
 

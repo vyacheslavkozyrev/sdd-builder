@@ -12,6 +12,17 @@ import {
   type WizardState,
 } from '../src/wizard/state.js';
 
+// The wizard values with the project step set and the step 2 values empty.
+function project(name: string, idea: string) {
+  return {
+    name,
+    idea,
+    stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
+    architecture: '',
+    rules: [],
+  };
+}
+
 // App keeps the wizard state in useReducer. Hooks cannot run outside a render,
 // so the test replaces useReducer with a stand-in: it records the reducer and
 // the initial state App passes, returns the current state, and its dispatch
@@ -65,7 +76,7 @@ function frameOf(): ReactElement<{ onNewProject: () => void; children?: unknown 
 
 type WizardProps = {
   step: number;
-  values: { name: string; idea: string };
+  values: ReturnType<typeof project>;
   onUpdate: (patch: { name?: string; idea?: string }) => void;
   onPrev: () => void;
   onNext: () => void;
@@ -116,38 +127,38 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-09 AC-012 shows the placeholder line on step 2 (App wiring)', () => {
-    hooks.state = { step: 2, values: { name: '', idea: '' } };
+    hooks.state = { step: 2, values: project('', '') };
     expect(render()).toContain(PLACEHOLDER_LINE);
   });
 
   it('F-09 AC-013 passes the name and the idea from the state to the wizard', () => {
-    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
-    expect(wizardOf().props.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+    hooks.state = { step: 1, values: project('Tracker', 'A tracker') };
+    expect(wizardOf().props.values).toEqual(project('Tracker', 'A tracker'));
   });
 
   it('F-09 AC-013 the update handler merges the patch into the values through the reducer', () => {
-    hooks.state = { step: 1, values: { name: 'Tracker', idea: '' } };
+    hooks.state = { step: 1, values: project('Tracker', '') };
     wizardOf().props.onUpdate({ idea: 'A tracker' });
-    expect(hooks.state.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+    expect(hooks.state.values).toEqual(project('Tracker', 'A tracker'));
   });
 
   it('F-09 AC-013 the values stay after Next, Prev and Next again', () => {
-    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
+    hooks.state = { step: 1, values: project('Tracker', 'A tracker') };
     wizardOf().props.onNext();
     wizardOf().props.onPrev();
     wizardOf().props.onNext();
-    expect(hooks.state.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+    expect(hooks.state.values).toEqual(project('Tracker', 'A tracker'));
   });
 
   it('F-09 AC-014 New project clears the name and the idea (negative case: no earlier value remains)', () => {
-    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
+    hooks.state = { step: 1, values: project('Tracker', 'A tracker') };
     frameOf().props.onNewProject();
-    expect(hooks.state.values).toEqual({ name: '', idea: '' });
+    expect(hooks.state.values).toEqual(project('', ''));
     expect(render()).not.toContain('Tracker');
   });
 
   it('F-08 AC-012 passes the current step from the state to the wizard', () => {
-    hooks.state = { step: 3, values: { name: '', idea: '' } };
+    hooks.state = { step: 3, values: project('', '') };
     expect(wizardOf().props.step).toBe(3);
   });
 
@@ -158,7 +169,7 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-012 New project from step 4 returns the wizard to step 1', () => {
-    hooks.state = { step: 4, values: { name: '', idea: '' } };
+    hooks.state = { step: 4, values: project('', '') };
     frameOf().props.onNewProject();
     expect(wizardOf().props.step).toBe(1);
   });
@@ -171,7 +182,7 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-008 Prev moves the wizard back one step through the reducer', () => {
-    hooks.state = { step: 3, values: { name: '', idea: '' } };
+    hooks.state = { step: 3, values: project('', '') };
     wizardOf().props.onPrev();
     expect(wizardOf().props.step).toBe(2);
   });

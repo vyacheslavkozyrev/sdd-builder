@@ -10,7 +10,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 ## Tasks
 
-- [ ] T001 [Build] [Docs] Add `@mui/material` 9.5.0 and `@emotion/react` / `@emotion/styled` 11.14.1 to `source/apps/web` (exact pins, lockfile synced); record Emotion in `architecture.md` §5 — `source/apps/web/package.json`, `source/package-lock.json`, `spec/documents/architecture.md` — covers none (enabler for AC-013, AC-014)
+- [x] T001 [Build] [Docs] Add `@mui/material` 9.5.0, `@emotion/react` 11.14.0 and `@emotion/styled` 11.14.1 to `source/apps/web` (exact pins, lockfile synced); record Emotion in `architecture.md` §5 — `source/apps/web/package.json`, `source/package-lock.json`, `spec/documents/architecture.md` — covers none (enabler for AC-013, AC-014)
 - [ ] T002 [Web] Frame sizing as a pure style function: width 100%, minimum width 1024 px, minimum height full window, no hidden overflow — `source/apps/web/src/layout/frameStyle.ts`, `source/apps/web/test/frameStyle.test.ts` — covers AC-009, AC-010
 - [ ] T003 [Web] Header: text wordmark `SDDBuilder` on the left, `New project` button on the right calling `onNewProject`, no other control — `source/apps/web/src/layout/Header.tsx`, `source/apps/web/test/Header.test.tsx` — covers AC-001, AC-002, AC-003, AC-013
 - [ ] T004 [Web] Footer: the not-saved note, no button or link, built from Material UI — `source/apps/web/src/layout/Footer.tsx`, `source/apps/web/test/Footer.test.tsx` — covers AC-004, AC-005, AC-014

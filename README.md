@@ -27,7 +27,7 @@ spec/                 idea, architecture, features, building blocks, process, fe
 ## Documents
 
 - [Idea, decisions and open questions](spec/documents/idea.md)
-- [Building blocks: pipeline, flows, blocks, gates and checks](spec/documents/building-blocks.md)
+- [User interface](spec/documents/ui.md)
 - [Architecture](spec/documents/architecture.md)
 - [Features](spec/documents/features.md)
 - [Working process](spec/documents/process.md)

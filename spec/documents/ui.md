@@ -1,10 +1,10 @@
 # SDDBuilder — UI requirements
 
-Status: revised 2026-11-16 with the owner's decisions. Items marked **OPEN** are not decided and are listed in section 9. The block model and the default pipeline are in `building-blocks.md`; this document does not repeat them.
+Status: revised 2026-11-16 with the owner's decisions. Open items are listed in section 9. The block model is in `architecture.md` §6 (decisions 28 to 32); the default pipeline is in §11 and the structural rules in §12.
 
-Scope: the MVP web app for **desktop browsers only**; reference size 1280 × 800. No mobile or tablet layout. Nothing the user enters is stored by the server, and nothing is kept after a browser refresh.
+Scope: the MVP web app for **desktop browsers only**; reference size 1280 × 800. No mobile or tablet layout. Nothing the user enters is stored by the server, and nothing is kept after a browser refresh. The app is for internal use for now.
 
-Look and feel: **Material UI** React components (decision recorded in `architecture.md` §5).
+Look and feel: **Material UI** React components (recorded in `architecture.md` §5).
 
 ---
 
@@ -12,7 +12,7 @@ Look and feel: **Material UI** React components (decision recorded in `architect
 
 **1.1 Header** (top, full width)
 - Left: logo.
-- Right: **New project** (opens the wizard at step 1), **Demo** (**OPEN**, section 9, D1).
+- Right: **New project** (opens the wizard at step 1). **Demo**: deferred to the features list (section 9).
 
 **1.2 App footer** (bottom, full width)
 - Annotation: the work is not saved and is lost when the browser is refreshed. Shown on every screen.
@@ -52,7 +52,7 @@ Two areas on the step:
 1. **Privacy notice** with a checkbox, above Analyze. Unticked at start. Analyze is disabled until it is ticked; unticking disables Analyze again.
 2. **Analyze** sends the project configuration once. While it is pending, Analyze is disabled.
 3. **Findings** are listed in the order the server returns them. Each shows its severity (`blocker`, `warning`, `info`), its subject and its message, as plain text. A review that is skipped or failed is noted beside the findings; the structural findings are still shown. An error (400, 422, 429, 500, 502 or a network failure) is shown as text and the entered values are kept; a 422 lists every problem.
-4. The analysis is **green** when it has run on the current configuration and has **no blocker** (warnings do not stop it; **OPEN** D8 asks to confirm).
+4. The analysis is **green** when it has run on the current configuration and finds **no blocker and no warning**. An `info` finding does not stop it.
 
 **Project preview**
 - The file tree of the project: the files the project will get, in plan order. Files that come from rule blocks are marked. The tree is computed in the browser, without a request.
@@ -70,20 +70,21 @@ Two areas on the step:
 - A **+** button after the last tab adds a flow. Flows are added only this way.
 
 ### 3.2 Pipeline tab
-- **Toolbox** (left, fixed width): **Approval** and **Check**.
-- **Canvas** (centre, all remaining space): an interactive diagram in the style of Miro (pan, select, drag, link). Each flow is a box with its name and its block count.
-- A **connection** between two flows is an arrow. A connection is made by linking one flow to the next on the canvas.
-- A gate sits on an arrow between two flows:
-  - **Approval**: a person decides.
-  - **Check**: an agent decides. Its type is `checks` (the check named in its description) or `diff size` (a threshold in lines).
+- **Toolbox** (left, fixed width): **Connection**, **Approval**, **Check**.
+- **Canvas** (centre, all remaining space): an interactive diagram in the style of Miro (pan, select, drag). Each flow is a box with its name and its block count. Flows have no Start or End on this tab.
+- A **connection** is an arrow between two flows. Its ends can be repointed by dragging them to another flow.
+- **Approval** and **Check** sit on an arrow between two flows, dragged from the toolbox onto the arrow:
+  - **Approval** stops and waits for a person.
+  - **Check** is decided by an agent. It has two outputs, true and false, and its type is `checks` (the check named in its description) or `diff size` (a threshold in lines).
   - One gate per arrow.
-- **Placing a gate**: drag Approval or Check from the toolbox onto an arrow. A drop target appears on the arrow while dragging. The keyboard and touch path is the arrow's properties panel, with the buttons **Add approval** and **Add check**.
-- **Properties panel** (right, fixed width): the pipeline's properties when nothing is selected; the selected item's properties otherwise.
+- **Keyboard and touch path**: select the arrow and use **Add approval** or **Add check** in its properties panel.
+- **Properties panel** (right, fixed width): the pipeline's properties when nothing is selected (including its arguments, such as `feature-id`); the selected item's properties otherwise.
 
 ### 3.3 Flow tab
-- **Toolbox** (left, fixed width): **Start**, **Agent**, **Approval**, **Check**, **End**. Start is disabled when the flow has one, with the reason shown.
-- **Canvas** (centre): the flow's blocks as numbered boxes in order. The Start is first and the End is last. A check has two outputs, pass and fail, shown as labelled ports.
-- Blocks are linked by drawing a connection from one block's output to the next block's input. The keyboard and touch path is the selected block's panel, with the button **Link to next block**, which then asks for the target block.
+- **Toolbox** (left, fixed width): **Start**, **Agent**, **Approval**, **Check**, **Connection**, **End**. Start is disabled when the flow has one, with the reason shown.
+- **Canvas** (centre): the flow's blocks as numbered boxes in order. The Start is first and the End is last. A Check has two labelled outputs, true and false.
+- **Connection** links two blocks of the same flow. Its ends can be repointed by dragging them to another block.
+- **Keyboard and touch path**: select a block and use **Link to next block** in its panel, then pick the target block.
 - **Move up** and **Move down** for the selected block.
 - **Properties panel** (right, fixed width): the selected block's properties, or the flow's when none is selected.
 
@@ -94,7 +95,7 @@ Two areas on the step:
 
 ### 3.5 Structure marks
 - A structural problem is shown beside the item it names, with its severity colour (blocker red, warning amber, info grey) and its message.
-- A problem whose item is not drawn (for example a pipeline with no End) is listed under the Pipeline tab in a section "Not on a drawn item".
+- A problem whose item is not drawn is listed under the Pipeline tab in a section "Not on a drawn item".
 - Brief problems (name, idea, stack, rules) are not shown on the pipeline; they appear at Analyze.
 - Marks never block an edit.
 
@@ -104,24 +105,24 @@ Two areas on the step:
 
 | Block | Added on | Properties | Generated as |
 |---|---|---|---|
-| **Start** | Flow tab (one per flow) | none on a flow. The pipeline's Start carries the arguments (below). | — |
-| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and its scope, written as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1,000 characters**) | `.claude/agents/<name>.md` |
-| **Approval** | Pipeline tab (between flows); flow tab (between blocks) | description (what the person approves). Decided by a person. | A human-approval step in the command |
-| **Check** | Pipeline tab (between flows); flow tab (between blocks) | description (what passing means; required); type (`checks` or `diff size`); threshold (diff size only, a positive whole number); pass output and fail output, each going to the next block, back to an earlier block (with an optional round limit), or stopping | A numbered rule in the command |
-| **End** | Flow tab (one or more) | outcome (`done` or `stopped`); produced artifact (optional) | The last step of the flow's command |
+| **Start** | Flow tab only (one per flow) | none | — |
+| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and the loop it runs in, as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1,000 characters**) | `.claude/agents/<name>.md` |
+| **Approval** | Pipeline tab (on an arrow between flows); flow tab (between blocks) | description (what the person approves). Stops and waits for a person. | A human-approval step in the command |
+| **Check** | Pipeline tab (on an arrow between flows); flow tab (between blocks) | description (what passing means; required); type (`checks` or `diff size`); threshold (diff size only, a positive whole number); true output and false output, each going to the next block, back to an earlier block (with an optional round limit), or stopping | A numbered rule in the command |
+| **Connection** | Pipeline tab (between flows); flow tab (between blocks) | artifact label (required, non-blank) | The hand-over named in the command |
+| **End** | Flow tab only (one or more) | outcome (`done` or `stopped`); produced artifact (optional) | The last step of the flow's command |
 | **Flow** | Pipeline tab, with **+** | name; description; arguments; model; body (at most **1,000 characters**) | `.claude/commands/<flow>.md` |
-| **Pipeline** | Pipeline tab (properties panel) | name; description; arguments (name, required or optional, hint); model; tools; rule tags; body (at most **1,000 characters**) | `.claude/commands/pipeline.md` |
+| **Pipeline** | Pipeline tab (properties panel) | name; description; arguments (name, required or optional, hint; `feature-id` in the default pipeline); model; tools; rule tags; body (at most **1,000 characters**) | `.claude/commands/pipeline.md` |
 
-- The pipeline's arguments include `feature-id` (required) in the default pipeline.
 - Every block has a stable id. A switched-off block or flow is not checked and not generated.
-- A block's **arguments** explain it in text, including the loop it runs in (for example "for each task in `plan.md`"). Proposed under D6.
+- A block's **arguments** explain it in text, including the loop it runs in (for example "for each task in `plan.md`").
 
 ---
 
 ## 5. Interaction rules
 - **Selection**: one item at a time. Its properties show in the right panel.
 - **Adding**: a block is added after the selected block, or before the End when nothing is selected. The End stays last.
-- **Every drag has a button path.** Placing a gate uses the buttons **Add approval** and **Add check** on the arrow's panel; linking blocks uses **Link to next block** on the block's panel.
+- **Every drag has a button path.** Gates use **Add approval** and **Add check** on the arrow's panel; links use **Link to next block** on the block's panel.
 - **Refusals** are shown inline and keep the previous value.
 - **Delete** always asks for confirmation.
 - **Reversible**: switching off is undone by switching on.
@@ -149,22 +150,22 @@ Two areas on the step:
 ---
 
 ## 8. What this document does not define
-- The block model, the default pipeline and the structural rules: `building-blocks.md`.
-- The architecture, the technology and the decisions: `architecture.md`.
+- The block model, the default pipeline and the structural rules: `architecture.md` §6, §11 and §12.
+- The technology and the decisions: `architecture.md`.
 - Presets: F-09, after the MVP.
 - The text of the generated files: F-02 and F-03.
 
 ---
 
-## 9. Open decisions
+## 9. Decisions and deferred items
 
-| # | Question | Conflict or gap |
+| # | Item | Status |
 |---|---|---|
-| D1 | What does the **Demo** button do, and is it in the MVP? | Deferred: to be defined in the features list. |
-| D2 | Body limit 1,000 characters for every body, agent bodies included. | Decided 2026-11-16: 1,000 for every body. Supersedes the 4,000 agent cap of F-06 AC-030. |
-| D3 | Connections are drawn between blocks (no connection block in the toolbox). Confirm. | The approved F-06 design put Connection in the toolbox. |
-| D4 | Does the pipeline's own Start and End appear on the Pipeline tab? | The approved design shows flows and gates only. |
-| D5 | Is a **Check** the same thing as the approved Condition? Check types are `checks` and `diff size`. | The approved design allowed `approval` as a check type; here Approval is its own block. |
-| D6 | How does a command know to run per feature or per task, now that there is no scope field? | Decided 2026-11-16: no scope rule in the model. The flow's and the agent's arguments say "for each feature" or "for each task", and the command text is written from them (architecture decision 7). The analysis no longer checks that a task-scoped agent reads a plan. |
-| D7 | Phone or tablet layout. | Decided out of scope: desktop only. Confirm. |
-| D8 | Is "green" = no blocker, or no blocker and no warning? | Current reading: no blocker. |
+| D1 | The **Demo** button | Deferred: to be defined in the features list. |
+| D2 | Body limit 1,000 characters for every body, agent bodies included | Decided 2026-11-16. |
+| D3 | Connection is a toolbox item on both tabs; ends can be repointed | Decided 2026-11-16. |
+| D4 | Start and End exist only on flow tabs; the pipeline's arguments are in its properties panel | Decided 2026-11-16. |
+| D5 | Approval and Check are different blocks; Check has true and false outputs | Decided 2026-11-16. |
+| D6 | No scope field; the loop (per feature, per task) is written in the arguments | Decided 2026-11-16. |
+| D7 | Desktop only | Decided 2026-11-16. |
+| D8 | Green means no blocker and no warning | Decided 2026-11-16. |

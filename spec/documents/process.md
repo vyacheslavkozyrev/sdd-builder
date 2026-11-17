@@ -6,7 +6,7 @@ Phases of a feature: Specify → **UX** (SVG screens, reviewed by the `usability
 
 ## The default process: the pipeline as commands
 
-The default process of SDDBuilder is the pipeline in `.claude/commands/pipeline.md`, defined on the Map tab as flows (`building-blocks.md` §4). Only the pipeline contains flows; a flow contains blocks.
+The default process of SDDBuilder is the pipeline in `.claude/commands/pipeline.md`, defined on the Pipeline tab as flows (`architecture.md` §11). Only the pipeline contains flows; a flow contains blocks.
 
 - The pipeline takes a feature ID and runs the phases `specify`, `ux` and `plan` (each with a human approval), `build` (once per task in `plan.md`: `implement`, `review`, `test`, the diff-size guard, `commit`), `verify` and `complete`.
 - Each phase is a flow; the approvals and checks between the flows are gates.

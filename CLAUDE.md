@@ -7,7 +7,7 @@ Documents are **not** auto-loaded. Read only the part you need, with `grep -n '^
 - Idea, assessment and decisions: `spec/documents/idea.md`
 - Components, data flow, LLM analysis, technology: `spec/documents/architecture.md`
 - Feature list and dependencies: `spec/documents/features.md`
-- Building blocks: commands, blocks (start, agent, condition, connection, end), the map: `spec/documents/building-blocks.md`
+- Blocks, the default pipeline and the structural rules: `spec/documents/architecture.md` (§6, §11, §12); the user interface: `spec/documents/ui.md`
 - Screen wireframes (not the final UI): `spec/design/features/F-XX-<slug>/` (one folder per feature, with its `screens.md`)
 - Working process: `spec/documents/process.md`
 - Template placeholders: `source/templates/README.md`

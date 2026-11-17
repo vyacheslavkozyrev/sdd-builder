@@ -1,6 +1,6 @@
 # SDDBuilder — Idea
 
-Status: draft for review. Reflects the decisions up to 2026-11-16 (see §Decisions); the model of commands and blocks is in `building-blocks.md`, and the user interface is in `ui.md`.
+Status: draft for review. Reflects the decisions up to 2026-11-16 (see §Decisions); the block model is in `architecture.md` §6, and the user interface is in `ui.md`.
 
 Note on screens: the files in `spec/design/features/` are **wireframes**. They show layout, content and states. They are not the final UI, and colours, fonts and icons are placeholders.
 
@@ -82,7 +82,7 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 8. **One nesting level.** Only the pipeline contains flows. An Agent block has no scope field: its scope is written in its arguments (2026-11-16).
 9. **Blocks are five kinds:** start, agent, approval, check, end; connections link them. Skills and scripts are not block kinds in the MVP.
 10. **Branching is in the MVP.** A condition has a pass and a fail output. A fail can route back to an earlier block in the same command, or stop. Round limits are optional and set by the user; the analyzer warns when a retry has none.
-11. **The default pipeline** is the flow of `pipeline.md`, written as flows (`building-blocks.md` §4).
+11. **The default pipeline** is the flow of `pipeline.md`, written as flows (`architecture.md` §11).
 12. **Four-step wizard.** Project name and idea; technical details, with code rules as one file per rule block and no module list; workflow (the builder); analyze and generate. No Brief / Builder switch.
 13. **Autosave, save, import, export and the share link are post-MVP.** The MVP keeps nothing between visits; the wizard says so.
 
@@ -92,8 +92,5 @@ Consultants who sell such a process to clients also draw it by hand, often in a 
 
 ## Open questions
 
-1. **Analyzer model and daily budget.** Deferred by the owner. Decide before F-04 is built and before launch.
-2. **Required blocks in the default pipeline.** Proposed: the approvals and the diff-size gate stay required. To confirm in `building-blocks.md` §9.
-3. **Interactive phases.** Resolved 2026-11-14: the pipeline runs in the main session and asks; agents never ask (`building-blocks.md` §4, decision 13).
-4. **Body length.** Decided 2026-11-16: 1,000 characters for every body, agents included (`ui.md` D2).
-5. **Loops without a scope field.** Decided 2026-11-16: the arguments of a flow and of an agent say "for each feature" or "for each task", and the command text is written from them. The analysis does not check that a task-scoped agent reads a plan (`ui.md` D6).
+1. **Analyzer model and daily budget.** Deferred by the owner: not needed while the app is for internal use. Decide before launch.
+2. **Interactive phases.** Resolved 2026-11-14: the pipeline runs in the main session and asks; agents never ask (`architecture.md` §11).

@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 6 stories, 32 criteria, all `[auto]`; approved by the user. Owner decision 2026-11-17: brief fields (`name`, `idea`, `architecture`, `stack`) added to the pipeline model in F-06, and brief checks run in F-06 in their own function, not in `analyzeStructure`. Review: fixed limits (8192 tokens, 60 s), at most 10 kept entries, no retry, no daily ceiling (F-17) |
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: model, checks and analysis function only (the stories have no user-facing criterion) |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-17 | 7 tasks, all 32 criteria covered; approved by the user before any code is written |
+| Build    | ⏳ Pending  |      | 0 of 7 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

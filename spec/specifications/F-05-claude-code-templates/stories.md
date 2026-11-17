@@ -12,6 +12,7 @@ This feature is the text of the templates. The generator core (F-04) fills the p
 - Rule files written from rule blocks. Decision 20 makes rules a list in the project config, not blocks; the list is filled by the wizard (F-22).
 - Enabled sections (`#enabled:<id>` … `/enabled:<id>`). Decision 34 removes the enabled property, so no layout needs them.
 - The interactive Mermaid view on the Pipeline tab (the builder's diagram, `architecture.md` §10). F-05 writes the diagram into `process.md` only.
+- The project name, the idea and the stack in the base files. The pipeline config (`schemaVersion` 2) has none of them yet; F-09 (name and idea) and F-21 (stack) add them, and their layouts follow then.
 - Output for Cursor and Copilot (F-19, F-20), GitHub Spec Kit and OpenSpec (F-16, F-17).
 - Import and export of the pipeline as JSON (F-18).
 - Changes to the generator core (F-04) beyond a placeholder that a layout needs and the core does not fill yet; any such change is named in the plan.
@@ -53,9 +54,9 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 
 - [ ] AC-006 `[auto]`: Each child flow is written to `.claude/commands/<flow-id>.md`, with its name, its description and its rule tags.
 - [ ] AC-007 `[auto]`: A flow with no rule tags shows `none` for them.
-- [ ] AC-008 `[auto]`: The steps are the flow's Agent, Approval and Check blocks as numbered steps in block order. Start and End blocks are not steps.
+- [ ] AC-008 `[auto]`: The steps are the flow's blocks as numbered steps in block order: the Start block gives the arguments, the Agent, Approval and Check blocks give their work, and the End block gives the outcome (as F-04 renders them).
 - [ ] AC-009 `[auto]`: A check's back routes become numbered rules in that flow's command, as AC-003 states them for the pipeline command.
-- [ ] AC-010 `[auto]`: A flow with no steps other than its Start and End writes a command whose steps section says there are no steps, and does not fail.
+- [ ] AC-010 `[auto]`: A flow with only its Start and End blocks writes those two steps and no route rule, and does not fail.
 
 ### US-003: Each agent has a file with frontmatter and a body
 
@@ -99,9 +100,9 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-021 `[auto]`: `CLAUDE.md`, `spec/documents/process.md` and the three files of `spec/specifications/F-00-template/` are written from their layouts with the project name and the idea filled in.
+- [ ] AC-021 `[auto]`: `CLAUDE.md`, `spec/documents/process.md` and the three files of `spec/specifications/F-00-template/` are written from their layouts, each filled only from the values the pipeline config gives.
 - [ ] AC-022 `[auto]`: `CLAUDE.md` lists the command files, the agent files and the rule files of the configuration, each from the same list the generator builds for the output.
-- [ ] AC-023 `[auto]`: The stack's language is written in the base files. The stack's framework, platform, build tool and test framework are written only when the configuration gives them; a configuration without them generates with no error and no empty line in its place.
+- [ ] AC-023 `[auto]`: No base layout holds a placeholder for the project name, the idea or the stack. The pipeline config has none of them yet (F-09 and F-21 add them), so a configuration generates with no error and the base files hold no empty line in their place.
 - [ ] AC-024 `[auto]`: The spec template files keep the headings that the reply check of F-04 requires for their document type (for `stories.md`: Out of Scope, Stories and Requirement Coverage).
 - [ ] AC-025 `[auto]`: `process.md` lists the flows, their blocks and the gates in pipeline order, as text.
 
@@ -117,7 +118,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 
 - [ ] AC-026 `[auto]`: `process.md` holds one fenced block marked `mermaid` whose first line is `flowchart`.
 - [ ] AC-027 `[auto]`: The diagram has one node per child flow, in pipeline order, joined by edges in that order.
-- [ ] AC-028 `[auto]`: A check between two flows is drawn as a decision node with one edge for its pass output and one for its fail output; a fail output with a back route is drawn back to the block it names.
+- [ ] AC-028 `[auto]`: A gate between two flows (an Approval or a Check) is drawn as a decision node, labelled with its kind and description, between the two flows; its edge to the next flow is labelled `pass`. The model gives a pipeline gate no fail route, so no fail edge is drawn.
 - [ ] AC-029 `[auto]`: A flow name or a label that holds a double quote, a bracket or a pipe is escaped so the diagram parses; a test with such a name shows the escaped form.
 - [ ] AC-030 `[auto]`: The same configuration gives the same diagram text, byte for byte.
 

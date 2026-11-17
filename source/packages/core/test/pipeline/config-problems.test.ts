@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { analyzeStructure } from '../../src/pipeline/analyze/index.js';
 import { parseProjectConfig } from '../../src/pipeline/parse/project.js';
 import { defaultPipeline } from '../../src/pipeline/default.js';
+import { planGeneration } from '../../src/pipeline/generate/plan.js';
 import { configProblems } from '../../src/pipeline/generate/problems.js';
 import type { ProjectConfig } from '../../src/pipeline/model.js';
+import type { Templates } from '../../src/pipeline/generate/templates.js';
 import { buildConfig } from './analyze-fixture.js';
 
 function defaultConfig(): ProjectConfig {
@@ -67,16 +69,32 @@ describe('F-04 AC-018 warnings do not refuse a config', () => {
 });
 
 describe('F-04 AC-020 a pipeline with no flows is refused', () => {
-  it('F-04 AC-020 returns the no-flow blocker of F-03 and nothing else', () => {
-    const config = buildConfig((config) => {
+  const noFlowBlocker = {
+    severity: 'blocker',
+    path: 'pipeline.flows',
+    message: 'The pipeline has no flow. Add at least one flow.',
+  };
+
+  function flowlessConfig(): ProjectConfig {
+    return buildConfig((config) => {
       config.pipeline.flows = [];
     });
-    expect(configProblems(config)).toEqual([
-      {
-        severity: 'blocker',
-        path: 'pipeline.flows',
-        message: 'The pipeline has no flow. Add at least one flow.',
-      },
-    ]);
+  }
+
+  it('F-04 AC-020 returns the no-flow blocker of F-03 and nothing else', () => {
+    expect(configProblems(flowlessConfig())).toEqual([noFlowBlocker]);
+  });
+
+  it('F-04 AC-020 planning a pipeline with no flows returns the no-flow blocker and no files', () => {
+    const templates: Templates = {
+      base: [{ path: 'CLAUDE.md', text: '', headings: [] }],
+      pipelineCommand: { text: '', headings: [] },
+      command: { text: '', headings: [] },
+      agent: { text: '', headings: [] },
+      rule: { text: '', headings: [] },
+    };
+    const plan = planGeneration(flowlessConfig(), templates);
+    expect(plan).toEqual({ ok: false, problems: [noFlowBlocker] });
+    expect(plan).not.toHaveProperty('files');
   });
 });

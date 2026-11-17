@@ -34,7 +34,7 @@ Paths are relative to the repository root. The generator lives in `source/packag
 
 - [x] T011 [Core] Test: a refused config renders no layout (AC-017, no-render clause): `source/packages/core/test/pipeline/plan-files.test.ts` gains a case where the config has a blocker and the templates hold a layout with an unknown placeholder (`{{nope}}`); planning must return `{ ok: false, problems }` and must not throw, which proves no layout was rendered. Test-only; covers AC-017 (the no-render clause, added by the Verify amendment of 2026-11-17)
 
-- [ ] T012 [Core] Test: planning a flow-less pipeline returns no files (AC-020, planning clause): `source/packages/core/test/pipeline/config-problems.test.ts` or `plan-files.test.ts` gains a case that calls `planGeneration` on a config with no flows and asserts `{ ok: false }` with the F-03 "no flow" blocker and no `files`. Test-only; covers AC-020 (the planning clause, added by the Verify amendment of 2026-11-17)
+- [x] T012 [Core] Test: planning a flow-less pipeline returns no files (AC-020, planning clause): `source/packages/core/test/pipeline/config-problems.test.ts` or `plan-files.test.ts` gains a case that calls `planGeneration` on a config with no flows and asserts `{ ok: false }` with the F-03 "no flow" blocker and no `files`. Test-only; covers AC-020 (the planning clause, added by the Verify amendment of 2026-11-17)
 
 ## Rationale
 

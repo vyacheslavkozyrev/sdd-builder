@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-16 | 10 of 12 tasks committed (T011 by the Verify amendment; T012 pending) |
+| Build    | ✅ Complete | 2026-11-16 | 12 of 12 tasks committed (T011 and T012 by the Verify amendment) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T009 | Reply check part 2: required headings as whole lines; self-reference names; findings sorted by path then message; every applicable check runs on a text | 0 blockers, 1 defect fixed (early return removed for text checks) | task check passed: core 714 of 714, web 3 of 3, api 6 of 6 |
 | T010 | Namespace exports; purity scan over generate/ with positive samples, templates imports refused; fixed-templates test | 0 blockers, 1 warning and 1 suggestion fixed | task check passed: core 736 of 736, web 3 of 3, api 6 of 6 |
 | T011 | Test: a refused config renders no layout (AC-017 no-render clause); test-only | 0 blockers, 1 suggestion fixed (test helper) | task check passed: core 737 of 737, web 3 of 3, api 6 of 6 |
+| T012 | Test: planning a flow-less pipeline returns the no-flow blocker and no files (AC-020 planning clause); test-only | 0 blockers, 1 duplication fixed (test helper) | task check passed: core 738 of 738, web 3 of 3, api 6 of 6 |
 
 ---
 

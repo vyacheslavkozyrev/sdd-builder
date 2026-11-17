@@ -37,7 +37,7 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{ruleTags}}` | `claude-code/agent.md`: the rule-set tags of the Agent block, as a comma-separated list; `none` when the block has no tags |
 | `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules`, with its line breaks replaced by spaces so the heading stays one line |
 | `{{ruleText}}` | `claude-code/rule.md`: the text of the rule entry in `ProjectConfig.rules` |
-| `{{process.diagram}}` | no layout uses it since the flat base was removed (T017); not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
+| `{{processDiagram}}` | `base/process.md`: the Mermaid flowchart of the pipeline (`flowchart TD`, one node per flow, a decision node per gate), placed inside a fenced `mermaid` block; built by `generate/mermaid.ts` |
 | `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | no layout uses them since the flat base was removed (T017); not filled by the pipeline config (see the status above) |
 | `{{workflow.name}}`, `{{workflow.id}}`, `{{workflow.scope}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
 | `{{workflow.steps}}`, `{{workflow.rules}}` | the flat workflow layout, removed in F-07 (T017); the pipeline config does not fill them |
@@ -73,7 +73,7 @@ This is the layout of the Claude Code output for the pipeline. The first table i
 | Output file | Source |
 |---|---|
 | `CLAUDE.md` | `base/CLAUDE.md`, rendered |
-| `spec/documents/process.md` | `base/process.md`, rendered: the flows, blocks and gates as text (the Mermaid view is F-18) |
+| `spec/documents/process.md` | `base/process.md`, rendered: the flows, blocks and gates as text, and the Mermaid diagram of the process |
 | `spec/specifications/F-00-template/*` | `base/spec-template/`, each file rendered |
 | `.claude/commands/pipeline.md` | `claude-code/pipeline-command.md`: the arguments, the enabled flows and checks, and the back routes |
 | `.claude/commands/<flow-id>.md` | `claude-code/command.md`, one per enabled child flow |

@@ -14,9 +14,10 @@ describe('F-05 AC-021 the stories entry of the base manifest maps to the F-00 te
     expect(stories?.path).toBe('spec/specifications/F-00-template/stories.md');
   });
 
-  it('F-05 AC-021 lists CLAUDE.md first, then the three spec template entries in their output order', () => {
+  it('F-05 AC-021 lists CLAUDE.md first, then process.md, then the three spec template entries in their output order', () => {
     expect(loadTemplates(templatesRoot).base.map((entry) => entry.path)).toEqual([
       'CLAUDE.md',
+      'spec/documents/process.md',
       'spec/specifications/F-00-template/stories.md',
       'spec/specifications/F-00-template/plan.md',
       'spec/specifications/F-00-template/progress.md',

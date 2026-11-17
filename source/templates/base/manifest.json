@@ -1,5 +1,6 @@
 [
   { "file": "CLAUDE.md", "path": "CLAUDE.md" },
+  { "file": "process.md", "path": "spec/documents/process.md" },
   { "file": "spec-template/stories.md", "path": "spec/specifications/F-00-template/stories.md" },
   { "file": "spec-template/plan.md", "path": "spec/specifications/F-00-template/plan.md" },
   { "file": "spec-template/progress.md", "path": "spec/specifications/F-00-template/progress.md" }

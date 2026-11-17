@@ -1,7 +1,7 @@
 // The parser entry for the whole config (architecture.md §6 decisions 33 and 3). It takes any value,
 // never throws, and returns either the typed config or every problem, in document order.
 
-import type { ProjectConfig, Rule, Pipeline } from '../model.js';
+import type { ProjectConfig, Rule, Pipeline, Stack } from '../model.js';
 import {
   childPath,
   createProblems,
@@ -15,10 +15,12 @@ import {
 } from '../check/primitives.js';
 import { checkIds } from './ids.js';
 import { parsePipeline } from './pipeline.js';
+import { BRIEF_KEYS, longBriefText, stackValue } from './brief.js';
+import { plainText } from './block.js';
 
 export type ParseResult = { ok: true; config: ProjectConfig } | { ok: false; problems: Problem[] };
 
-const ROOT_KEYS = ['schemaVersion', 'rules', 'pipeline'];
+const ROOT_KEYS = ['schemaVersion', 'rules', 'pipeline', ...BRIEF_KEYS];
 const RULE_KEYS = ['id', 'title', 'text'];
 
 export function parseProjectConfig(input: unknown): ParseResult {
@@ -27,9 +29,20 @@ export function parseProjectConfig(input: unknown): ParseResult {
   if (root === undefined) {
     return { ok: false, problems: problems.list };
   }
-  const found: { rules: Rule[] | undefined; pipeline: Pipeline | undefined } = {
+  const found: {
+    rules: Rule[] | undefined;
+    pipeline: Pipeline | undefined;
+    name: string | undefined;
+    idea: string | undefined;
+    architecture: string | undefined;
+    stack: Stack | undefined;
+  } = {
     rules: undefined,
     pipeline: undefined,
+    name: undefined,
+    idea: undefined,
+    architecture: undefined,
+    stack: undefined,
   };
   visitKeys(root, ROOT_KEYS, '', problems, (key) => {
     const value = root[key];
@@ -39,6 +52,22 @@ export function parseProjectConfig(input: unknown): ParseResult {
       }
     } else if (key === 'rules') {
       found.rules = parseRules(value, 'rules', problems);
+    } else if (key === 'name') {
+      if (value !== undefined) {
+        found.name = plainText(value, 'name', problems);
+      }
+    } else if (key === 'idea') {
+      if (value !== undefined) {
+        found.idea = longBriefText(value, 'idea', problems);
+      }
+    } else if (key === 'architecture') {
+      if (value !== undefined) {
+        found.architecture = longBriefText(value, 'architecture', problems);
+      }
+    } else if (key === 'stack') {
+      if (value !== undefined) {
+        found.stack = stackValue(value, 'stack', problems);
+      }
     } else if (value === undefined) {
       problems.add('pipeline', 'is required');
     } else {
@@ -53,7 +82,20 @@ export function parseProjectConfig(input: unknown): ParseResult {
   if (problems.list.length > 0) {
     return { ok: false, problems: problems.list };
   }
-  return { ok: true, config: { schemaVersion: 2, rules: found.rules, pipeline: found.pipeline } };
+  const config: ProjectConfig = { schemaVersion: 2, rules: found.rules, pipeline: found.pipeline };
+  if (found.name !== undefined) {
+    config.name = found.name;
+  }
+  if (found.idea !== undefined) {
+    config.idea = found.idea;
+  }
+  if (found.architecture !== undefined) {
+    config.architecture = found.architecture;
+  }
+  if (found.stack !== undefined) {
+    config.stack = found.stack;
+  }
+  return { ok: true, config };
 }
 
 function parseRules(value: unknown, path: string, problems: Problems): Rule[] | undefined {

@@ -11,6 +11,19 @@ export interface ProjectConfig {
   schemaVersion: 2;
   rules: Rule[];
   pipeline: Pipeline;
+  // The brief (architecture.md §6 decision 37). Optional: a config without them has a blank brief.
+  name?: string;
+  idea?: string;
+  architecture?: string;
+  stack?: Stack;
+}
+
+export interface Stack {
+  language?: string;
+  framework?: string;
+  platform?: string;
+  buildTool?: string;
+  testFramework?: string;
 }
 
 export interface Rule {

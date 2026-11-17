@@ -83,7 +83,7 @@ Every automated test names the feature and criterion it covers (`F-09 AC-003`).
 - [ ] AC-013 `[auto]`: a name and an idea entered on step 1 are still present after Next, Prev and Next again, and after going to step 4 and back to step 1 (extends F-08 AC-010).
 - [ ] AC-014 `[auto]`: New project clears the name and the idea, and the project step shows them empty again (extends F-08 AC-012; negative case: no value from the earlier project remains).
 - [ ] AC-015 `[auto]`: the project step makes no call to `localStorage`, `sessionStorage`, `indexedDB` or `console` when the name or the idea changes (extends F-08 AC-011; decision 13).
-- [ ] AC-016 `[device]`: the help text on step 1 matches the approved screen 01 (`spec/design/features/F-05-project-brief-form/01-wizard-project.svg`), and the name field, idea field and counter appear in the layout of that screen at a window of 1280 × 800 with no vertical page scroll.
+- [ ] AC-016 `[device]`: the help text on step 1 is the help text of the approved screen 01 plus the name limit line `Up to 100 characters; text past the limit is cut.` (owner decision, 2026-11-17), and the name field, idea field and counter appear in the layout of `spec/design/features/F-09-project-step/01-project-values.svg` at a window of 1280 × 800 with no vertical page scroll.
 
 ---
 

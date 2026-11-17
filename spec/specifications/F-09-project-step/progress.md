@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks); name help line kept as drawn, AC-016 wording still to be settled before Verify |
 | Build    | ✅ Complete | 2026-11-17 | 5 of 5 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-17 | 15 `[auto]` criteria covered and passing; AC-016 `[device]` passed by the user (C-01); AC-016 amended to the kept help line plus the name limit |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -45,6 +45,33 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+**Run 2026-11-17** (`source/scripts/task-check.sh` on `main`, clean tree, 8 F-09 commits): typecheck passed for api, web and core. Tests: api 57 passed, web 180 passed (F-09 filter: 67), core 1017 passed. No failures.
+
+| Criterion | Tag | Covering tests | Result |
+| --------- | --- | -------------- | ------ |
+| AC-001 single-line name, Enter adds no line break | auto | web `ProjectStep.test.tsx` | pass |
+| AC-002 name stored as typed | auto | web `state.test.ts` | pass |
+| AC-003 name limit 100 code points | auto | web `project.test.ts`, `ProjectStep.test.tsx` | pass |
+| AC-004 blank name does not block Next | auto | web `Wizard.test.tsx` | pass |
+| AC-005 idea multi-line, Enter kept | auto | web `ProjectStep.test.tsx` | pass |
+| AC-006 counter `N / 5,000` | auto | web `project.test.ts`, `ProjectStep.test.tsx` | pass |
+| AC-007 typing past 5,000 dropped | auto | web `project.test.ts`, `ProjectStep.test.tsx` | pass |
+| AC-008 paste past 5,000, emoji not split | auto | web `project.test.ts`, `ProjectStep.test.tsx` | pass |
+| AC-009 blank idea does not block Next | auto | web `Wizard.test.tsx` | pass |
+| AC-010 idea spaces kept while typing | auto | web `state.test.ts` | pass |
+| AC-011 idea trimmed for the configuration | auto | web `project.test.ts` | pass |
+| AC-012 step 1 fields, placeholder on 2 to 4 | auto | web `Wizard.test.tsx`, `ProjectStep.test.tsx`, `App.test.tsx` | pass |
+| AC-013 values kept between steps | auto | web `state.test.ts`, `App.test.tsx`, `Wizard.test.tsx` | pass |
+| AC-014 New project clears values | auto | web `state.test.ts`, `App.test.tsx` | pass |
+| AC-015 no storage or console call | auto | web `ProjectStep.test.tsx`, `wizard-privacy.test.ts` | pass |
+| AC-016 help text and layout at 1280 × 800 | device | `checklist.md` C-01 | pass (user, 2026-11-17) |
+
+Gaps: none among `[auto]` criteria. Scope in `features.md` F-09 is covered by AC-001 to AC-009.
+
+Documentation: `features.md` F-09 now states the 100-character name limit and the idea trim rule (same change as `ui.md` §2 and §6, T005). AC-016 was amended to the approved help text plus the name limit line, as the owner chose to keep the help line as drawn.
+
+Manual checklist: 1 item (C-01, AC-016), pass by the user on 2026-11-17.
 
 ---
 

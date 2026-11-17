@@ -5,7 +5,7 @@ Requirements owned by this feature: the F-03 scope items in `features.md`; `arch
 
 ## Out of Scope
 
-- Shape and uniqueness refused by the parser (F-02): unknown keys, a Check without both outputs, unique ids across the pipeline, unique agent names, unique argument names, one nesting level, length and list caps. F-03 does not repeat them. The file-safe name of an agent (F-02 AC-021) and the uniqueness of agent names and argument names (F-02 AC-010, AC-022) are already refused there.
+- Shape and uniqueness refused by the parser (F-02): unknown keys, a Check without both outputs, unique ids across the pipeline, unique agent names, unique argument names, one nesting level, length and list caps. F-03 does not repeat them. The file-safe name of an agent and the uniqueness of agent names (F-02 AC-010) and of argument names (F-02 AC-022) are already refused there.
 - The iteration-source warning for agents. Architecture decision 29 (2026-11-16) supersedes it, and the analysis no longer checks scope.
 - The generator's refusal checks (`configProblems`, `planGeneration`) and their appearance in the analysis (F-04, F-06).
 - Brief and stack checks, the LLM review, and the `/analyze` endpoint (F-06, F-14).
@@ -146,7 +146,7 @@ This feature is an enabler: the stories are written for the developer who builds
 | Retry with no round limit is a warning | AC-018, AC-024 |
 | Every block and flow reachable from the pipeline's Start | AC-019, AC-020, AC-021, AC-022, AC-023 |
 | Rule tags name existing rules (decision 21) | AC-011 |
-| Unique file-safe agent names and unique argument names | F-02 AC-010, AC-021, AC-022 (refused at parse; not repeated) |
+| Unique file-safe agent names and unique argument names | F-02 AC-010, AC-022 (refused at parse; not repeated) |
 | No disabled blocks or flows (decision 34) | AC-028 |
 | Findings are pure, ordered and shaped (§5 decision 10) | AC-025, AC-026, AC-027 |
 | Namespace exposure | AC-029 |

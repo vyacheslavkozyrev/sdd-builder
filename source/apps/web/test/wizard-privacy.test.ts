@@ -3,7 +3,8 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-const wizardDir = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'wizard');
+const srcDir = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'src');
+const wizardDir = join(srcDir, 'wizard');
 
 // Decision 13: the values last only in browser memory. The wizard source
 // must not save them and must not write to the console.
@@ -15,6 +16,10 @@ function wizardSources(): { name: string; text: string }[] {
     .map((name) => ({ name, text: readFileSync(join(wizardDir, name), 'utf8') }));
 }
 
+function appSource(): { name: string; text: string } {
+  return { name: 'App.tsx', text: readFileSync(join(srcDir, 'App.tsx'), 'utf8') };
+}
+
 describe('F-08 wizard privacy', () => {
   it('F-08 AC-011 the wizard source has no storage or console call', () => {
     const sources = wizardSources();
@@ -23,6 +28,19 @@ describe('F-08 wizard privacy', () => {
       for (const word of forbidden) {
         expect(text.includes(word), `${name} must not use ${word}`).toBe(false);
       }
+    }
+  });
+});
+
+describe('F-09 project step privacy', () => {
+  it('F-09 AC-015 the project step is in the scanned wizard source', () => {
+    expect(wizardSources().map((source) => source.name)).toContain('ProjectStep.tsx');
+  });
+
+  it('F-09 AC-015 the app root that holds the values makes no storage or console call', () => {
+    const { name, text } = appSource();
+    for (const word of forbidden) {
+      expect(text.includes(word), `${name} must not use ${word}`).toBe(false);
     }
   });
 });

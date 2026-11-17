@@ -9,7 +9,7 @@ import {
 } from './project.js';
 
 // The project step body (F-09 AC-001, AC-003, AC-005 to AC-008, AC-012, AC-015).
-// It replaces the F-08 placeholder on step 1 (wiring is F-09 T004). The name is
+// The wizard shows it on step 1 in place of the F-08 placeholder (F-09 AC-012). The name is
 // a single-line field, the idea a multi-line field with its counter. Both are
 // limited on change, so a paste is limited too. The layout follows the approved
 // screens in spec/design/features/F-09-project-step/ (01 to 03). The step keeps

@@ -63,10 +63,18 @@ function frameOf(): ReactElement<{ onNewProject: () => void; children?: unknown 
   return root;
 }
 
+type WizardProps = {
+  step: number;
+  values: { name: string; idea: string };
+  onUpdate: (patch: { name?: string; idea?: string }) => void;
+  onPrev: () => void;
+  onNext: () => void;
+};
+
 /** The Wizard element inside the frame. */
-function wizardOf(): ReactElement<{ step: number; onPrev: () => void; onNext: () => void }> {
+function wizardOf(): ReactElement<WizardProps> {
   const child = frameOf().props.children;
-  if (!isValidElement<{ step: number; onPrev: () => void; onNext: () => void }>(child)) {
+  if (!isValidElement<WizardProps>(child)) {
     throw new Error('the frame does not hold a wizard element');
   }
   expect(child.type).toBe(Wizard);
@@ -103,7 +111,39 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-012 shows the first step body on the first screen', () => {
+    expect(render()).toContain('id="project-name"');
+    expect(render()).not.toContain(PLACEHOLDER_LINE);
+  });
+
+  it('F-09 AC-012 shows the placeholder line on step 2 (App wiring)', () => {
+    hooks.state = { step: 2, values: { name: '', idea: '' } };
     expect(render()).toContain(PLACEHOLDER_LINE);
+  });
+
+  it('F-09 AC-013 passes the name and the idea from the state to the wizard', () => {
+    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
+    expect(wizardOf().props.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+  });
+
+  it('F-09 AC-013 the update handler merges the patch into the values through the reducer', () => {
+    hooks.state = { step: 1, values: { name: 'Tracker', idea: '' } };
+    wizardOf().props.onUpdate({ idea: 'A tracker' });
+    expect(hooks.state.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+  });
+
+  it('F-09 AC-013 the values stay after Next, Prev and Next again', () => {
+    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
+    wizardOf().props.onNext();
+    wizardOf().props.onPrev();
+    wizardOf().props.onNext();
+    expect(hooks.state.values).toEqual({ name: 'Tracker', idea: 'A tracker' });
+  });
+
+  it('F-09 AC-014 New project clears the name and the idea (negative case: no earlier value remains)', () => {
+    hooks.state = { step: 1, values: { name: 'Tracker', idea: 'A tracker' } };
+    frameOf().props.onNewProject();
+    expect(hooks.state.values).toEqual({ name: '', idea: '' });
+    expect(render()).not.toContain('Tracker');
   });
 
   it('F-08 AC-012 passes the current step from the state to the wizard', () => {

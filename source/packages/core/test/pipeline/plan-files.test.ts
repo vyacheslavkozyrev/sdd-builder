@@ -246,6 +246,33 @@ describe('F-04 AC-007 planned files are sorted by path in code-point order', () 
     expect(plannedPaths(backward)).toEqual(expected);
   });
 
+  it('F-04 AC-007 refuses a reordering that leaves a flow unreached from the first flow, and plans no file', () => {
+    // alpha is connected to beta. Moving beta to the front makes it the entry, and it leads nowhere, so alpha is
+    // not reached: the reachability blocker (F-03 AC-022) is the one problem, and no file is planned.
+    const config = configWith([flowWith('alpha', ['build']), flowWith('beta', ['review'])]);
+    config.pipeline.flows.reverse();
+
+    const plan: Plan = planGeneration(config, fixtureTemplates);
+
+    expect(plan.ok).toBe(false);
+    if (plan.ok) {
+      return;
+    }
+    const reachability = plan.problems.filter((problem) =>
+      problem.message.includes('is not reached from the first flow'),
+    );
+    expect(reachability).toEqual([
+      {
+        severity: 'blocker',
+        path: 'pipeline.flows[1]',
+        message:
+          'The flow "alpha" is not reached from the first flow. Connect it with a flow Connection from a reached flow, or remove it.',
+      },
+    ]);
+    expect(plan.problems).toEqual(reachability);
+    expect('files' in plan).toBe(false);
+  });
+
   it.each([
     [
       'a base path with a character above U+FFFF after one below it',

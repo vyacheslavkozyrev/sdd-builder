@@ -36,6 +36,8 @@ Paths are relative to the repository root. The generator lives in `source/packag
 
 - [x] T012 [Core] Test: planning a flow-less pipeline returns no files (AC-020, planning clause): `source/packages/core/test/pipeline/config-problems.test.ts` or `plan-files.test.ts` gains a case that calls `planGeneration` on a config with no flows and asserts `{ ok: false }` with the F-03 "no flow" blocker and no `files`. Test-only; covers AC-020 (the planning clause, added by the Verify amendment of 2026-11-17)
 
+- [x] T013 [Core] Test: a reordering that leaves a flow unreached is refused, not planned (AC-007, refusal clause): `source/packages/core/test/pipeline/plan-determinism.test.ts` (or plan-files.test.ts) gains a case, named `F-04 AC-007`, that moves a flow so that a flow is no longer reached from the first flow and asserts `planGeneration` returns `{ ok: false }` with the reachability blocker (F-03 AC-022) and no `files`. Test-only. Covers AC-007 (the refusal clause, added by the Verify amendment of 2026-11-17)
+
 ## Rationale
 
 - **Decisions first (T001).** Four things the stories rely on (refusal of flow id `pipeline`, sort by path, duplicate handling, and F-04's ownership of `planGeneration` and `checkReply`) conflict with the docs today. `CLAUDE.md` and `general.md` require the decision in `architecture.md` before code depends on it, so the record comes before any code.

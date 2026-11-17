@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | ✅ Complete | 2026-11-16 | 12 of 12 tasks committed (T011 and T012 by the Verify amendment) |
+| Build    | ✅ Complete | 2026-11-16 | 13 of 13 tasks committed (T011 to T013 by the Verify amendments) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T010 | Namespace exports; purity scan over generate/ with positive samples, templates imports refused; fixed-templates test | 0 blockers, 1 warning and 1 suggestion fixed | task check passed: core 736 of 736, web 3 of 3, api 6 of 6 |
 | T011 | Test: a refused config renders no layout (AC-017 no-render clause); test-only | 0 blockers, 1 suggestion fixed (test helper) | task check passed: core 737 of 737, web 3 of 3, api 6 of 6 |
 | T012 | Test: planning a flow-less pipeline returns the no-flow blocker and no files (AC-020 planning clause); test-only | 0 blockers, 1 duplication fixed (test helper) | task check passed: core 738 of 738, web 3 of 3, api 6 of 6 |
+| T013 | Test: a reordering that leaves a flow unreached is refused and plans no file (AC-007 refusal clause); test-only | 0 blockers, 1 warning fixed (exact problem list) | task check passed: core 739 of 739, web 3 of 3, api 6 of 6 |
 
 ---
 
@@ -57,11 +58,11 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Verify run 2 on 2026-11-17 on `main` (clean tree, all 12 tasks ticked, Current Task None, HEAD 4a2e691). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 738 of 738 (37 files), web 3 of 3, api 6 of 6; total 747 of 747. Production code is unchanged since T010 (T011 and T012 touched only test files and the plan and progress documents).
+Verify run 3 (final) on 2026-11-17 on `main` (clean tree, all 12 tasks ticked, Current Task None, HEAD 41fcebb). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 738 of 738 (37 files), web 3 of 3, api 6 of 6; total 747 of 747. The AC-007 tests ran by name: 5 of 5 passed.
 
 All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklist.
 
-Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007). G2 (AC-017) and G3 (AC-020) are now proven by T011 and T012. No other criterion changed status from the first verify run.
+Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007), the refusal clause of the narrowed wording. The order clause is proven; no test named AC-007 proves that a reordering that leaves a flow unreached is refused. Verify stays Pending.
 
 | Criterion | Test file | Status |
 | --- | --- | --- |
@@ -71,7 +72,7 @@ Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007). G2 (AC-017) and G3
 | AC-004 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
 | AC-005 | `source/packages/core/test/pipeline/plan-default.test.ts` | Pass |
 | AC-006 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass (unsafe paths tested on base files only; see note) |
-| AC-007 | `source/packages/core/test/pipeline/plan-files.test.ts`, `plan-determinism.test.ts` | Gap (wording, see G1) |
+| AC-007 | `source/packages/core/test/pipeline/plan-files.test.ts`, `plan-determinism.test.ts` | Gap (refusal clause, see G1) |
 | AC-008 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
 | AC-009 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
 | AC-010 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
@@ -101,7 +102,7 @@ Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007). G2 (AC-017) and G3
 
 Gaps (criterion as written is not proven by a passing test):
 
-- **G1 AC-007**: the criterion says the order is the same "whatever the order of the flows or rules". The tests reverse the rules and the flows after the first one. The first flow is never moved, and reversing it refuses the config (see the T007 deferred finding). Needs the user's decision on the wording, or a test for the agreed wording.
+- **G1 AC-007** (narrowed wording of 2026-11-17): the order clause is proven. `plan-determinism.test.ts` reverses the rules and the flows after the first and gets the same paths; `plan-files.test.ts` reverses the rules and the flows, including the first. The refusal clause ("a reordering that leaves a flow unreached is refused, not planned") is not proven: no test named `F-04 AC-007` plans or refuses such a config. The code path exists (`planGeneration` refuses on `configProblems`, which includes the F-03 AC-022 unreached-flow blocker), so a test that names AC-007 and asserts `{ ok: false }` with a blocker for an unreached flow is needed.
 
 Notes (not counted as gaps):
 
@@ -118,4 +119,9 @@ Notes (not counted as gaps):
 **Changed**: `plan.md` gains T011 and T012 (test-only). No story changed.
 **Reason**: Verify (test agent, verify mode) found two missing proofs: AC-017 does not prove that a refused config renders no layout (T011); AC-020 does not prove that planning a flow-less pipeline returns no files (T012). A third gap, AC-007's flow-order wording, is a specification question and is not part of this amendment; it waits for the user's decision.
 **Impact**: T011 and T012 run in Build, then Verify runs again. Phase Verify stays Pending until AC-007 is decided.
+
+### Amendment — 2026-11-17 (Verify, final run)
+**Changed**: `plan.md` gains T013 (test-only). AC-007's wording was narrowed by the user's decision (the spec change is committed in 41fcebb).
+**Reason**: the final Verify run found that AC-007's refusal clause ("a reordering that leaves a flow unreached is refused, not planned") has no test named `F-04 AC-007`.
+**Impact**: T013 runs in Build, then Verify runs again.
 ```

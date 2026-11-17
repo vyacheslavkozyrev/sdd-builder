@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: build tooling only |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
 | Build    | ✅ Complete | 2026-11-16 | 6 of 6 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-16 | 13 of 13 criteria covered by passing `[auto]` tests; no `[device]` criteria |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -49,6 +49,32 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run 2026-11-16 on `main`, clean tree, all six tasks committed. `source/scripts/task-check.sh` exits 0 and prints `task check passed`.
+
+Totals: core 20 tests (4 files), api 6 (3 files), web 3 (2 files). 29 of 29 passed, 0 failed.
+
+| Criterion | Tag | Covering tests | Result |
+|---|---|---|---|
+| AC-001 | auto | core `workspace.test.ts`: resolves the workspace set to exactly the three packages | pass |
+| AC-002 | auto | core `workspace.test.ts`: each package tsconfig extends the base and resolves strict options (×3) | pass |
+| AC-003 | auto | core `workspace.test.ts`: NodeNext module and moduleResolution (×3); typecheck reports no errors (×3); typecheck script configured | pass |
+| AC-004 | auto | core `nodenext.test.ts`: diagnostic for a relative import without `.js`; accepts the `.js` form | pass |
+| AC-005 | auto | core `workspace.test.ts`: core lists no api/web dependency; core imports neither app | pass |
+| AC-006 | auto | core `scripts.test.ts`: each package `test` script is `vitest run` (×3); root test runs the workspaces | pass |
+| AC-007 | auto | `smoke.test.ts` in core, api and web (each named `F-01 AC-007`) | pass |
+| AC-008 | auto | web `deps.test.ts`: no jsdom, Testing Library or Playwright; negative case reads real dependency sections | pass |
+| AC-009 | auto | api `vitest-exit.test.ts`: failing fixture in a temp dir gives exit status 1 | pass |
+| AC-010 | auto | api `task-check.test.ts`: typecheck, then tests, pass line, exit 0 | pass |
+| AC-011 | auto | api `task-check.test.ts`: failing typecheck exits non-zero, tests not run | pass |
+| AC-012 | auto | api `task-check.test.ts`: failing test exits non-zero and prints its output | pass |
+| AC-013 | auto | api `task-check.test.ts`: missing root test script exits non-zero, names it, no pass line | pass |
+
+Gaps: none. Failures: none.
+
+Scope check (`spec/documents/features.md` F-01): npm workspaces (AC-001, AC-005), TypeScript strict with NodeNext (AC-002, AC-003, AC-004), Vitest in each package (AC-006, AC-007, AC-008, AC-009), task check script (AC-010 to AC-013). Fully covered.
+
+Manual checklist: none. F-01 has no `[device]` criteria; `checklist.md` records this.
 
 ---
 

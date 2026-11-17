@@ -38,7 +38,7 @@ Criteria with no screen are not visual and are proved by tests:
 2. **Prev and Next are round icon buttons beside the stepper, on one row with it, each with its word under it.** Prev, with a left arrow and the caption "Prev", is on the left; Next, with a right arrow and the caption "Next", is on the right (the user's request). Prev is a white round button with an indigo outline when enabled and a grey disabled button on step 1. Next is a filled indigo-violet round button. The buttons sit outside the card, so the stepper is no longer inside a container.
 3. **Next is hidden on step 4, not disabled.** The space on the right stays empty, so Prev does not move (AC-007).
 4. **The card fills the centre area.** It spans the full width and all the height between the header and the footer, so no space is left unused (the user's request). All step content sits on the white card; there is no inner coloured container (change of 2026-11-17).
-5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 still requires the title in the body; see the note before Approval.
+5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 was amended on the same day to match (see the note below).
 6. **Colour roles.** Indigo (#4f46e5) and violet (#7c3aed) are the brand and the current step and the primary buttons. Emerald to teal (#059669 to #0d9488) marks done steps; the white check on it reaches about 3.8:1. To-do labels are slate (#475569), not light grey, so they stay readable. The accent rule runs indigo, violet, pink. The page has a soft indigo-to-white background; the card has a soft indigo shadow. Grey is for to-do and disabled states only.
 7. **New project is the F-07 header control and is unchanged on every screen.** It starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07. Its colour is the F-07 blue; the header and footer are not restyled in this change.
 
@@ -80,8 +80,8 @@ Reviewed 2026-11-17 on the four SVGs after the usability changes. Six findings, 
 
 The user asked to remove the "STEP N OF 4" pill and the body title ("Project" and the other step names) from the card on all four screens. The stepper above still names each step, so the card keeps only the placeholder line. Both reviews were already run on the screens before this change; the change removes elements and moves the placeholder up, and it was checked for well-formedness only.
 
-**Story conflict to decide before Approval.** AC-013 in `stories.md` requires each step body to show the title of its step. The change removes that title from the body. Options: (a) amend AC-013 so the step's title is shown in the stepper and the body shows the placeholder line only (matches the screens); (b) restore the title in the body. Not changed here: the stories are approved and need the user's decision.
+**Story conflict, resolved 2026-11-17.** AC-013 required each step body to show the title of its step. The user chose to amend it: the stepper shows the title, and the body shows the placeholder line only. The amendment is recorded in `progress.md`.
 
 ## Approval
 
-_Pending: approval by the user._
+Approved by the user on 2026-11-17, with Prev kept as the button name and the placeholder line visible until F-09 to F-13 replace it.

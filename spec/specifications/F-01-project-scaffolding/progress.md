@@ -6,9 +6,9 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-16 | 13 criteria, all `[auto]`; approved by the user |
-| UX       | ⏳ Pending  |      | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| UX       | ➖ Not needed | 2026-11-16 | No user interface: build tooling only |
+| Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
+| Build    | ⏳ Pending  |      | 0 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

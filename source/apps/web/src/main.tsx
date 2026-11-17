@@ -1,9 +1,5 @@
 import { createRoot } from 'react-dom/client';
-
-// Hello-world placeholder until the wizard shell arrives (F-05).
-function App() {
-  return <h1>SDDBuilder</h1>;
-}
+import { App } from './App.js';
 
 const container = document.getElementById('root');
 if (container === null) {

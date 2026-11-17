@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 14 criteria: 12 `[auto]`, 2 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
-| Build    | 🔄 In Progress | 2026-11-17 | 5 of 6 tasks committed |
+| Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T003 | Header: wordmark left, New project right, no other control | 0 blockers, 1 warning fixed (New project filled on a white bar, as screen 01), 1 suggestion deferred | task check passed: api 57, web 17, core 1017 |
 | T004 | Footer: the not-saved note, no button or link, Material UI | 0 blockers, 1 warning fixed (border-box so the bar is 48 px), 1 suggestion fixed (FOOTER_NOTE no longer exported); 1 suggestion deferred | task check passed: api 57, web 22, core 1017 |
 | T005 | Frame: header, centre area with the children, footer, in that order, styled by frameStyle | 0 blockers, 1 warning fixed (style of the outer element tested against frameStyle), 1 suggestion fixed | task check passed: api 57, web 30, core 1017 |
+| T006 | Application root renders the frame with a centre placeholder; main.tsx mounts it | 0 blockers, 1 warning fixed (wordmark test also asserts the header), 1 suggestion fixed; 1 suggestion deferred (New project is a no-op until F-08) | task check passed: api 57, web 32, core 1017 |
 
 ---
 
@@ -41,6 +42,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - `source/apps/web/test/Header.test.tsx` (AC-001 order test): checks that the wordmark precedes the button in the markup, not the left and right regions. The left/right split is the flex spacer in `Header.tsx`; the server-rendered markup cannot prove the layout, so it needs a visual check against screen 01 at Verify.
 - `source/apps/web/src/layout/Footer.tsx` (48 px height, 12 px note): the `caption` variant is 12 px in the default theme (checked in `@mui/material` createTypography) and the height is set inline. Server-rendered markup carries no emotion CSS, so no test asserts them; check against screen 02 at Verify.
+- `source/apps/web/src/App.tsx` (`onNewProject={() => undefined}`): the New project button does nothing until the wizard is wired in F-08. This is the T006 placeholder scope (plan: no wizard), so it is kept; F-08 replaces it.
 
 ---
 

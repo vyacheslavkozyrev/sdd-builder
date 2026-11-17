@@ -15,7 +15,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 - [x] T003 [Web] Header: text wordmark `SDDBuilder` on the left, `New project` button on the right calling `onNewProject`, no other control — `source/apps/web/src/layout/Header.tsx`, `source/apps/web/test/Header.test.tsx` — covers AC-001, AC-002, AC-003, AC-013
 - [x] T004 [Web] Footer: the not-saved note, no button or link, built from Material UI — `source/apps/web/src/layout/Footer.tsx`, `source/apps/web/test/Footer.test.tsx` — covers AC-004, AC-005, AC-014
 - [x] T005 [Web] Frame: header, centre area with the children, footer, in that order, styled by `frameStyle` — `source/apps/web/src/layout/AppFrame.tsx`, `source/apps/web/test/AppFrame.test.tsx` — covers AC-006, AC-007
-- [ ] T006 [Web] Application root renders the frame with a centre placeholder; `main.tsx` mounts it and the hello-world placeholder is removed — `source/apps/web/src/App.tsx`, `source/apps/web/src/main.tsx`, `source/apps/web/test/App.test.tsx` — covers AC-008
+- [x] T006 [Web] Application root renders the frame with a centre placeholder; `main.tsx` mounts it and the hello-world placeholder is removed — `source/apps/web/src/App.tsx`, `source/apps/web/src/main.tsx`, `source/apps/web/test/App.test.tsx` — covers AC-008
 
 ## Rationale
 

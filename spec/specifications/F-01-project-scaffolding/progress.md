@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 13 criteria, all `[auto]`; approved by the user |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: build tooling only |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | ⏳ Pending  |      | 0 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 1 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,9 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+None
+
+_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -25,12 +27,15 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Workspace and compiler settings; placeholders and smoke tests in all three packages | 0 blockers; 2 warnings and 2 suggestions fixed; 1 suggestion deferred | task check passed: core 14, api 1, web 1 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- `source/packages/core/test/workspace.test.ts` (imports): the test imports `typescript`, which core does not declare; it resolves only through the root hoisted install. Not changed: adding it to core's `devDependencies` changes the lockfile and dependency set, a decision to confirm with the user.
 
 ---
 

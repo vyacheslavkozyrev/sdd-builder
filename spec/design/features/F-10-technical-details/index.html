@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Technical details step (F-10)</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #18181b; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    header p { margin: 0; color: #52525b; font-size: 14px; }
+    section { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #52525b; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #e4e4e7; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Technical details step (F-10)</h1>
+    <p>Step 2 of the wizard on the F-08 frame: the stack, the architecture text and the rule blocks, with their limits, the file name of each block, the duplicate-id flag and the removal confirmation. Wireframes only; read screens.md.</p>
+  </header>
+
+  <section>
+    <h2>01 Values entered</h2>
+    <p>Stack, architecture and two rule blocks filled in. Prev and Next are enabled.</p>
+    <img src="01-technical-values.svg" alt="Step 2 with the stack, the architecture text and two rule blocks filled in">
+  </section>
+  <section>
+    <h2>02 Blank step, list empty</h2>
+    <p>Empty fields, no rule block. Language is blank and Next stays enabled; Add rule block is enabled.</p>
+    <img src="02-technical-blank.svg" alt="Step 2 with empty fields and an empty rule list">
+  </section>
+  <section>
+    <h2>03 Duplicate ids</h2>
+    <p>Two rule blocks whose names give the same file. Both show the duplicate-id message and both are kept.</p>
+    <img src="03-rule-duplicate-ids.svg" alt="Step 2 with two rule blocks that give the same file name">
+  </section>
+  <section>
+    <h2>04 Remove asks first</h2>
+    <p>Remove on rule block 1 opens a confirmation. Cancel keeps the block; Remove block removes it only.</p>
+    <img src="04-rule-remove-confirm.svg" alt="Confirmation to remove rule block 1">
+  </section>
+  <section>
+    <h2>05 List at 60 blocks</h2>
+    <p>At the limit of 60 rule blocks Add rule block is disabled, and the reason is shown beside it.</p>
+    <img src="05-rule-limit.svg" alt="Step 2 with 60 rule blocks and Add rule block disabled">
+  </section>
+  <section>
+    <h2>06 Limits and a name with no id</h2>
+    <p>The name is at 100 characters and the description at its 1,000-character limit. A name with no letter or digit gives a message and no file name.</p>
+    <img src="06-limits-and-no-id.svg" alt="Step 2 with a name at its limit and a name with no id">
+  </section>
+</body>
+</html>

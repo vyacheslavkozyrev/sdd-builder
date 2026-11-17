@@ -7,6 +7,8 @@ export { defaultPipeline } from './default.js';
 export { analyzeStructure } from './analyze/index.js';
 export { analyzeBrief } from './analyze/brief.js';
 export type { Finding, Severity } from './analyze/index.js';
+export { checkReview } from './analyze/review.js';
+export type { ReviewEntry, ReviewResult } from './analyze/review.js';
 export { configProblems } from './generate/problems.js';
 export { planGeneration } from './generate/plan.js';
 export { checkReply } from './generate/reply-check.js';

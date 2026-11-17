@@ -5,9 +5,12 @@ import { App } from '../src/App.js';
 import { AppFrame } from '../src/layout/AppFrame.js';
 import { Wizard } from '../src/wizard/Wizard.js';
 import { PLACEHOLDER_LINE } from '../src/wizard/StepBody.js';
+import { ADD_LABEL } from '../src/wizard/RuleBlocks.js';
+import { LANGUAGE_ID } from '../src/wizard/TechnicalStep.js';
 import {
   initialWizardState,
   wizardReducer,
+  type RuleBlock,
   type WizardAction,
   type WizardState,
 } from '../src/wizard/state.js';
@@ -78,6 +81,9 @@ type WizardProps = {
   step: number;
   values: ReturnType<typeof project>;
   onUpdate: (patch: { name?: string; idea?: string }) => void;
+  onAddRule: () => void;
+  onRemoveRule: (index: number) => void;
+  onUpdateRule: (index: number, patch: Partial<RuleBlock>) => void;
   onPrev: () => void;
   onNext: () => void;
 };
@@ -126,8 +132,8 @@ describe('F-08 application wiring', () => {
     expect(render()).not.toContain(PLACEHOLDER_LINE);
   });
 
-  it('F-09 AC-012 shows the placeholder line on step 2 (App wiring)', () => {
-    hooks.state = { step: 2, values: project('', '') };
+  it('F-09 AC-012 shows the placeholder line on step 3 (App wiring)', () => {
+    hooks.state = { step: 3, values: project('', '') };
     expect(render()).toContain(PLACEHOLDER_LINE);
   });
 
@@ -185,5 +191,80 @@ describe('F-08 application wiring', () => {
     hooks.state = { step: 3, values: project('', '') };
     wizardOf().props.onPrev();
     expect(wizardOf().props.step).toBe(2);
+  });
+});
+
+// The wizard values with the step 2 values set: the stack, the architecture and the rule blocks.
+function withStep2(rules: RuleBlock[] = []) {
+  return {
+    name: 'Tracker',
+    idea: 'A tracker',
+    stack: { language: 'TypeScript', framework: 'React', platform: '', buildTool: '', testFramework: '' },
+    architecture: 'Layers',
+    rules,
+  };
+}
+
+describe('F-10 application wiring for the technical details step', () => {
+  it('F-10 AC-019 shows the technical details card on step 2 through the app', () => {
+    hooks.state = { step: 2, values: withStep2() };
+    expect(render()).toContain(`id="${LANGUAGE_ID}"`);
+    expect(render()).toContain(ADD_LABEL);
+    expect(render()).not.toContain(PLACEHOLDER_LINE);
+  });
+
+  it.each([
+    ['one forward and back', ['next', 'prev', 'next']],
+    ['to step 4 and back to step 2', ['next', 'next', 'next', 'prev', 'prev']],
+    ['to step 3 and back', ['next', 'next', 'prev']],
+  ] as const)('F-10 AC-008 the rule list starts empty through the app when the path is %s (table-driven)', (_label, path) => {
+    hooks.state = initialWizardState();
+    for (const move of path) {
+      wizardOf().props[move === 'next' ? 'onNext' : 'onPrev']();
+    }
+    expect(hooks.state.values.rules).toEqual([]);
+  });
+
+  it('F-10 AC-008 Add rule block through the app appends one empty block and nothing else', () => {
+    hooks.state = { step: 2, values: withStep2() };
+    wizardOf().props.onAddRule();
+    expect(hooks.state.values.rules).toEqual([{ name: '', description: '' }]);
+  });
+
+  it('F-10 AC-009 Remove and update of a rule block reach the reducer through the app', () => {
+    hooks.state = { step: 2, values: withStep2([{ name: 'a', description: '' }, { name: 'b', description: '' }]) };
+    wizardOf().props.onUpdateRule(1, { description: 'Text' });
+    expect(hooks.state.values.rules).toEqual([
+      { name: 'a', description: '' },
+      { name: 'b', description: 'Text' },
+    ]);
+    wizardOf().props.onRemoveRule(0);
+    expect(hooks.state.values.rules).toEqual([{ name: 'b', description: 'Text' }]);
+  });
+
+  it('F-10 AC-020 step 2 values stay after Next, Prev and Next again, and after step 4 and back', () => {
+    const rules = [{ name: 'Code Style', description: 'Use the formatter.' }];
+    hooks.state = { step: 2, values: withStep2(rules) };
+    const expected = withStep2(rules);
+    wizardOf().props.onNext();
+    wizardOf().props.onPrev();
+    wizardOf().props.onNext();
+    expect(hooks.state.values).toEqual(expected);
+    wizardOf().props.onNext();
+    wizardOf().props.onPrev();
+    wizardOf().props.onPrev();
+    expect(wizardOf().props.step).toBe(2);
+    expect(hooks.state.values).toEqual(expected);
+  });
+
+  it('F-10 AC-021 New project clears every step 2 value and the rule list (negative case: no earlier value remains)', () => {
+    hooks.state = { step: 4, values: withStep2([{ name: 'Code Style', description: 'Use the formatter.' }]) };
+    frameOf().props.onNewProject();
+    expect(hooks.state.values).toEqual(project('', ''));
+    hooks.state = { ...hooks.state, step: 2 };
+    const markup = render();
+    expect(markup).toContain('No rule blocks yet.');
+    expect(markup).not.toContain('Code Style');
+    expect(markup).not.toContain('Use the formatter.');
   });
 });

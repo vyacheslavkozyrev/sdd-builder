@@ -4,6 +4,15 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { ProjectStep, NAME_ID } from '../src/wizard/ProjectStep.js';
 import { StepBody, PLACEHOLDER_LINE } from '../src/wizard/StepBody.js';
 import { Wizard } from '../src/wizard/Wizard.js';
+import { ADD_LABEL } from '../src/wizard/RuleBlocks.js';
+import {
+  LANGUAGE_ID,
+  ARCHITECTURE_ID,
+  FRAMEWORK_ID,
+  PLATFORM_ID,
+  BUILD_TOOL_ID,
+  TEST_FRAMEWORK_ID,
+} from '../src/wizard/TechnicalStep.js';
 import { WizardStepper } from '../src/wizard/WizardStepper.js';
 import type { WizardValues } from '../src/wizard/state.js';
 import type { StepNumber } from '../src/wizard/steps.js';
@@ -19,24 +28,27 @@ const EMPTY: WizardValues = {
 };
 
 // The marker that shows the step body of each step: the project name field on
-// step 1 (F-09 AC-012), the F-08 placeholder line on steps 2 to 4.
+// step 1 (F-09 AC-012), the language field on step 2 (F-10 AC-019), the F-08
+// placeholder line on steps 3 and 4.
 const BODY_MARKER: Readonly<Record<StepNumber, string>> = {
   1: `id="${NAME_ID}"`,
-  2: PLACEHOLDER_LINE,
+  2: `id="${LANGUAGE_ID}"`,
   3: PLACEHOLDER_LINE,
   4: PLACEHOLDER_LINE,
 };
 
+// No-op handlers for the panel's props; these tests only read the markup or the element tree.
+const HANDLERS = {
+  onUpdate: () => undefined,
+  onAddRule: () => undefined,
+  onRemoveRule: () => undefined,
+  onUpdateRule: () => undefined,
+  onPrev: () => undefined,
+  onNext: () => undefined,
+};
+
 function render(step: StepNumber, values: Partial<WizardValues> = {}): string {
-  return renderToStaticMarkup(
-    <Wizard
-      step={step}
-      values={{ ...EMPTY, ...values }}
-      onUpdate={() => undefined}
-      onPrev={() => undefined}
-      onNext={() => undefined}
-    />,
-  );
+  return renderToStaticMarkup(<Wizard step={step} values={{ ...EMPTY, ...values }} {...HANDLERS} />);
 }
 
 /** The direct children of the element a component returns. */
@@ -47,7 +59,7 @@ function childrenOf(element: ReactElement): ReactNode[] {
 
 describe('F-08 wizard panel', () => {
   it('F-08 AC-004 renders the stepper row first and the step body after it', () => {
-    const root = Wizard({ step: 2, values: EMPTY, onUpdate: () => undefined, onPrev: () => undefined, onNext: () => undefined });
+    const root = Wizard({ step: 3, values: EMPTY, ...HANDLERS });
     expect(isValidElement(root)).toBe(true);
     if (!isValidElement(root)) return;
     const [first, second] = childrenOf(root);
@@ -72,7 +84,7 @@ describe('F-08 wizard panel', () => {
     expect(markup.indexOf('aria-label="Next"')).toBeLessThan(markup.indexOf(PLACEHOLDER_LINE));
   });
 
-  it.each([2, 3, 4] as const)('F-08 AC-013 on step %i shows the placeholder line', (step) => {
+  it.each([3, 4] as const)('F-08 AC-013 on step %i shows the placeholder line', (step) => {
     expect(render(step)).toContain(PLACEHOLDER_LINE);
   });
 
@@ -101,12 +113,13 @@ describe('F-08 wizard panel', () => {
 describe('F-09 wizard project step', () => {
   it('F-09 AC-012 step selection: step 1 shows the project step, steps 2 to 4 the placeholder (table-driven)', () => {
     const body = (step: StepNumber) => {
-      const root = Wizard({ step, values: EMPTY, onUpdate: () => undefined, onPrev: () => undefined, onNext: () => undefined });
+      const root = Wizard({ step, values: EMPTY, ...HANDLERS });
       const second = isValidElement(root) ? childrenOf(root)[1] : undefined;
       return isValidElement(second) ? second.type : undefined;
     };
     expect(body(1)).toBe(ProjectStep);
-    expect(body(2)).toBe(StepBody);
+    expect(body(2)).toBeDefined();
+    expect(body(2)).not.toBe(StepBody);
     expect(body(3)).toBe(StepBody);
     expect(body(4)).toBe(StepBody);
   });
@@ -142,5 +155,51 @@ describe('F-09 wizard project step', () => {
     const markup = render(1, { name: 'Tracker', idea: 'A tracker' });
     expect(markup).toContain('value="Tracker"');
     expect(markup).toContain('A tracker');
+  });
+});
+
+describe('F-10 wizard technical details step', () => {
+  it.each(STEPS)('F-10 AC-019 on step %i shows the step body for that step (table-driven over the four steps)', (step) => {
+    const markup = render(step);
+    if (step === 1) {
+      expect(markup).toContain(`id="${NAME_ID}"`);
+      expect(markup).not.toContain(ADD_LABEL);
+    }
+    if (step === 2) {
+      for (const id of [LANGUAGE_ID, FRAMEWORK_ID, PLATFORM_ID, BUILD_TOOL_ID, TEST_FRAMEWORK_ID, ARCHITECTURE_ID]) {
+        expect(markup).toContain(`id="${id}"`);
+      }
+      expect(markup).toContain(ADD_LABEL);
+      expect(markup).not.toContain(PLACEHOLDER_LINE);
+    }
+    if (step === 3 || step === 4) {
+      expect(markup).toContain(PLACEHOLDER_LINE);
+      expect(markup).not.toContain(ADD_LABEL);
+      expect(markup).not.toContain(`id="${LANGUAGE_ID}"`);
+    }
+  });
+
+  it('F-10 AC-019 on step 2 the stack and architecture come before the rule list in the markup', () => {
+    const markup = render(2);
+    const language = markup.indexOf(`id="${LANGUAGE_ID}"`);
+    const architecture = markup.indexOf(`id="${ARCHITECTURE_ID}"`);
+    const add = markup.indexOf(ADD_LABEL);
+    expect(language).toBeGreaterThanOrEqual(0);
+    expect(architecture).toBeGreaterThan(language);
+    expect(add).toBeGreaterThan(architecture);
+  });
+
+  it('F-10 AC-019 on step 2 the rule list shows the empty text and no rule block on a new project', () => {
+    const markup = render(2);
+    expect(markup).toContain('No rule blocks yet.');
+    expect(markup).not.toContain('Rule block 1');
+  });
+
+  it('F-10 AC-019 on step 2 the step body is the technical card, not the F-08 body or the project step', () => {
+    const root = Wizard({ step: 2, values: EMPTY, ...HANDLERS });
+    const second = isValidElement(root) ? childrenOf(root)[1] : undefined;
+    expect(isValidElement(second), 'the step body must be an element').toBe(true);
+    expect(isValidElement(second) && second.type).not.toBe(StepBody);
+    expect(isValidElement(second) && second.type).not.toBe(ProjectStep);
   });
 });

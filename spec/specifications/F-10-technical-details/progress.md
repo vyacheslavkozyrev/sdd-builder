@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 23 criteria: 22 `[auto]`, 1 `[device]`; stack fields free text, 100-character limit on single-line fields and rule names (owner decisions); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; no new library; AC-007 configuration half checked when F-13 adds the configuration function) |
-| Build    | 🔄 In Progress | 2026-11-17 | 4 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 5 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Wizard values for step 2: stack, architecture, rule list; add, remove and update reducer actions; no trim; restart clears. Tests of App and Wizard updated to the new shape (outside the listed files, needed by the typecheck) | 0 blockers, 1 warning fixed (AC-020 round trip through step 4 not tested), 1 suggestion fixed (JSX formatting in Wizard.test.tsx) | task check passed: api 57, web 215, core 1017 |
 | T003 | Technical details step, stack and architecture: five single-line stack fields (language required), architecture multi-line with its limit and no counter, blank-language note | 0 blockers, 1 warning fixed (misleading test name on blank language), 1 suggestion fixed (header AC range); 2 suggestions deferred | task check passed: api 57, web 245, core 1017 |
 | T004 | Technical details step, rule list: name (100 limit), file line or no-id message, duplicate message, description (1,000 limit), Remove with confirmation, Add disabled at 60 with its reason; DOM click tests for the removal flow added after the owner's decision (see Amendment 1) | Review rounds 1 and 2: 0 blockers; 1 warning (no click test of the removal flow) resolved by the DOM test library; suggestions fixed: dead NAME_HELP removed, accessible names for the name fields and Remove buttons (with a test) | task check passed: api 57, web 287, core 1017 |
+| T005 | Wiring: step 2 shows the technical card (stack and architecture left, rule list right, one card with a divider as drawn); steps 1, 3 and 4 unchanged; App dispatches add, remove and update; New project clears. Wizard.tsx and TechnicalStep.tsx (card moved out of the step, outside the listed files, so the approved one-card layout holds) | 0 blockers, 2 warnings fixed (weak assertions on the step 2 body), 3 suggestions fixed | task check passed: api 57, web 303, core 1017 |
 
 ---
 

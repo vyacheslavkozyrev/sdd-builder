@@ -44,3 +44,20 @@ describe('F-09 project step privacy', () => {
     }
   });
 });
+
+describe('F-10 technical details step privacy', () => {
+  it('F-10 AC-022 the technical step, rule list, rule text and wizard panel are in the scanned wizard source', () => {
+    const names = wizardSources().map((source) => source.name);
+    for (const file of ['TechnicalStep.tsx', 'RuleBlocks.tsx', 'technical.ts', 'state.ts', 'Wizard.tsx']) {
+      expect(names, `${file} must be scanned`).toContain(file);
+    }
+  });
+
+  it('F-10 AC-022 the wizard source and the app root contain no storage or console call (static scan that covers the step 2 values)', () => {
+    for (const { name, text } of [...wizardSources(), appSource()]) {
+      for (const word of forbidden) {
+        expect(text.includes(word), `${name} must not use ${word}`).toBe(false);
+      }
+    }
+  });
+});

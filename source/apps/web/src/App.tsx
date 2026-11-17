@@ -7,6 +7,7 @@ import { initialWizardState, wizardReducer } from './wizard/state.js';
 // Holds the wizard state in memory and renders the wizard inside the frame.
 // New project restarts the wizard; Prev and Next move it one step. The project
 // step's name and idea reach the reducer through the update action (F-09 AC-013, AC-014).
+// The step 2 values and the rule blocks reach it through the same kind of actions (F-10 AC-008, AC-020, AC-021).
 
 export function App() {
   const [state, dispatch] = useReducer(wizardReducer, undefined, initialWizardState);
@@ -16,6 +17,9 @@ export function App() {
         step={state.step}
         values={state.values}
         onUpdate={(patch) => dispatch({ type: 'update', patch })}
+        onAddRule={() => dispatch({ type: 'add-rule' })}
+        onRemoveRule={(index) => dispatch({ type: 'remove-rule', index })}
+        onUpdateRule={(index, patch) => dispatch({ type: 'update-rule', index, patch })}
         onPrev={() => dispatch({ type: 'prev' })}
         onNext={() => dispatch({ type: 'next' })}
       />

@@ -2,12 +2,12 @@ import { Box, TextField, Typography } from '@mui/material';
 import type { StackValues, WizardValues } from './state.js';
 import { limitArchitecture, limitSingleLine } from './technical.js';
 
-// The technical details step body, stack and architecture (F-10 AC-001 to AC-006,
-// AC-022). The left column of the step card: the five stack fields as single-line
-// fields, and the architecture as a multi-line field. Each is limited on change, so
-// a paste is limited too. The layout follows the approved screens in
-// spec/design/features/F-10-technical-details/ (01 and 02). The step keeps the
-// values in memory only: no storage and no logging (decision 13).
+// The stack and architecture column of the technical details step (F-10 AC-001 to
+// AC-006, AC-022). The left column of the step card, which Wizard draws with the rule
+// blocks beside it: the five stack fields as single-line fields, and the architecture
+// as a multi-line field. Each is limited on change, so a paste is limited too. The
+// layout follows the approved screens in spec/design/features/F-10-technical-details/
+// (01 and 02). The values stay in memory only: no storage and no logging (decision 13).
 
 export const LANGUAGE_ID = 'technical-language';
 export const FRAMEWORK_ID = 'technical-framework';
@@ -33,31 +33,6 @@ const STACK_FIELDS = [
   { key: 'buildTool', id: BUILD_TOOL_ID, label: 'Build tool' },
   { key: 'testFramework', id: TEST_FRAMEWORK_ID, label: 'Test framework' },
 ] as const satisfies readonly { key: keyof StackValues; id: string; label: string }[];
-
-const CARD_SX = {
-  position: 'relative',
-  flexGrow: 1,
-  minHeight: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-  px: 6,
-  pt: 6,
-  pb: 3,
-  bgcolor: '#ffffff',
-  borderRadius: '16px',
-  boxShadow: '0 6px 20px rgba(79, 70, 229, 0.12)',
-  overflow: 'hidden',
-} as const;
-
-const ACCENT_SX = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 6,
-  background: 'linear-gradient(90deg, #6366f1, #a855f7, #ec4899)',
-} as const;
 
 const SECTION_SX = { fontSize: 13, fontWeight: 700, color: '#0f172a' } as const;
 const LABEL_SX = { fontSize: 12, fontWeight: 600, color: '#334155' } as const;
@@ -86,67 +61,63 @@ export function TechnicalStep({ stack, architecture, onChange }: TechnicalStepPr
   };
 
   return (
-    <Box sx={CARD_SX}>
-      <Box aria-hidden="true" sx={ACCENT_SX} />
+    <Box sx={COLUMN_SX}>
+      <Typography sx={SECTION_SX}>{STACK_LABEL}</Typography>
 
-      <Box sx={COLUMN_SX}>
-        <Typography sx={SECTION_SX}>{STACK_LABEL}</Typography>
-
-        <Box sx={GRID_SX}>
-          <Box>
-            <Typography component="label" htmlFor={LANGUAGE_ID} sx={LABEL_SX}>
-              Language<Box component="span" sx={REQUIRED_SX}> *</Box>
+      <Box sx={GRID_SX}>
+        <Box>
+          <Typography component="label" htmlFor={LANGUAGE_ID} sx={LABEL_SX}>
+            Language<Box component="span" sx={REQUIRED_SX}> *</Box>
+          </Typography>
+          <TextField
+            id={LANGUAGE_ID}
+            value={stack.language}
+            onChange={(event) => setStack('language', event.target.value)}
+            placeholder={LANGUAGE_PLACEHOLDER}
+            required
+            fullWidth
+            size="small"
+          />
+        </Box>
+        {STACK_FIELDS.map((field) => (
+          <Box key={field.id}>
+            <Typography component="label" htmlFor={field.id} sx={LABEL_SX}>
+              {field.label}
             </Typography>
             <TextField
-              id={LANGUAGE_ID}
-              value={stack.language}
-              onChange={(event) => setStack('language', event.target.value)}
-              placeholder={LANGUAGE_PLACEHOLDER}
-              required
+              id={field.id}
+              value={stack[field.key]}
+              onChange={(event) => setStack(field.key, event.target.value)}
+              placeholder={OPTIONAL_PLACEHOLDER}
               fullWidth
               size="small"
             />
           </Box>
-          {STACK_FIELDS.map((field) => (
-            <Box key={field.id}>
-              <Typography component="label" htmlFor={field.id} sx={LABEL_SX}>
-                {field.label}
-              </Typography>
-              <TextField
-                id={field.id}
-                value={stack[field.key]}
-                onChange={(event) => setStack(field.key, event.target.value)}
-                placeholder={OPTIONAL_PLACEHOLDER}
-                fullWidth
-                size="small"
-              />
-            </Box>
-          ))}
-        </Box>
-
-        {languageBlank ? (
-          <Typography sx={WARN_SX}>{BLANK_LANGUAGE_NOTE}</Typography>
-        ) : (
-          <>
-            <Typography sx={HELP_SX}>{STACK_HELP_REQUIRED}</Typography>
-            <Typography sx={HELP_SX}>{STACK_HELP_LIMIT}</Typography>
-          </>
-        )}
-
-        <Typography component="label" htmlFor={ARCHITECTURE_ID} sx={LABEL_SX}>
-          {ARCHITECTURE_LABEL}
-        </Typography>
-        <TextField
-          id={ARCHITECTURE_ID}
-          value={architecture}
-          onChange={(event) => onChange({ architecture: limitArchitecture(event.target.value) })}
-          placeholder={ARCHITECTURE_PLACEHOLDER}
-          fullWidth
-          multiline
-          rows={5}
-        />
-        <Typography sx={HELP_SX}>{ARCHITECTURE_HELP}</Typography>
+        ))}
       </Box>
+
+      {languageBlank ? (
+        <Typography sx={WARN_SX}>{BLANK_LANGUAGE_NOTE}</Typography>
+      ) : (
+        <>
+          <Typography sx={HELP_SX}>{STACK_HELP_REQUIRED}</Typography>
+          <Typography sx={HELP_SX}>{STACK_HELP_LIMIT}</Typography>
+        </>
+      )}
+
+      <Typography component="label" htmlFor={ARCHITECTURE_ID} sx={LABEL_SX}>
+        {ARCHITECTURE_LABEL}
+      </Typography>
+      <TextField
+        id={ARCHITECTURE_ID}
+        value={architecture}
+        onChange={(event) => onChange({ architecture: limitArchitecture(event.target.value) })}
+        placeholder={ARCHITECTURE_PLACEHOLDER}
+        fullWidth
+        multiline
+        rows={5}
+      />
+      <Typography sx={HELP_SX}>{ARCHITECTURE_HELP}</Typography>
     </Box>
   );
 }

@@ -19,7 +19,7 @@ Look and feel: **Material UI** React components (recorded in `architecture.md` Â
 
 **1.3 Wizard frame** (after New project)
 - **Wizard steps panel** (top of the wizard, full width): the four steps in order, each with its title and state (done, current, to do). Beside the steps, **Prev** and **Next** buttons. The steps themselves are **not clickable**; navigation is by Prev and Next only.
-- **Prev** is disabled on step 1. **Next** is hidden on step 4 (step 4 has no next step).
+- **Prev** is disabled on step 1. **Next** is disabled on step 4 (step 4 has no next step).
 - Below the panel: the step body.
 
 ---

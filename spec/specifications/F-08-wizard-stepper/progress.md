@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 15 criteria: 14 `[auto]`, 1 `[device]`; step bodies are a placeholder per step (user decision); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks; no new library, arrows as inline SVG) |
-| Build    | ✅ Complete | 2026-11-17 | 5 of 5 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 5 of 6 tasks committed (T006 added by amendment) |
 | Verify   | 🔄 In Progress | 2026-11-17 | Automated criteria all covered and passing; AC-015 awaits the manual checklist (`checklist.md`) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -72,6 +72,11 @@ Document note (not a gap): `screens.md` still records an open "story conflict" o
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-17 (AC-007, after Verify)
+**Changed**: `stories.md` AC-007 and `ui.md` §1.3, `features.md` F-08, `architecture.md` decision 32, screens 04 and their notes: on step 4 Next is shown disabled, not hidden. The user reported the vanished Next button on the last step and asked for a disabled one.
+**Reason**: The user's report on the built app; the disabled Next keeps the row still and shows the step is the last.
+**Impact**: new task T006 at the end of `plan.md`; Verify is re-run after it and AC-015 is checked again.
 
 ### Amendment — 2026-11-17 (AC-013)
 **Changed**: `stories.md` AC-013: the step body shows the placeholder line only (no step title or counter); the step title is shown in the stepper (AC-001). Made by the user's decision during UX, before the screens were approved.

@@ -74,7 +74,7 @@ Each description is the starting point for the feature's specification. Decision
 
 **F-07 UI layout template.** The header (logo, New project), the app footer with the note that work is not saved, and the centre content area, in Material UI on a desktop layout of 1280 × 800. Every screen uses it.
 
-**F-08 Wizard stepper.** Four steps (Project, Technical details, Workflow, Analyze and generate) in a stepper that is not clickable and shows done, current and to-do states. Prev and Next buttons sit beside it: Prev is disabled on step 1, and Next is hidden on step 4. Values are kept in memory between steps.
+**F-08 Wizard stepper.** Four steps (Project, Technical details, Workflow, Analyze and generate) in a stepper that is not clickable and shows done, current and to-do states. Prev and Next buttons sit beside it: Prev is disabled on step 1, and Next is disabled on step 4. Values are kept in memory between steps.
 
 **F-09 Project step.** The project name is a single-line field, stored as typed and required, but a blank name does not block Next; the analysis reports it. The idea is a multi-line field of at most 5,000 characters, counted in code points, with a counter `N / 5,000`; pasting past the limit keeps the first 5,000 characters.
 

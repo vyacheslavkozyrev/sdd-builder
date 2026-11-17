@@ -71,6 +71,13 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 <text class="num" x="1060" y="104.5" text-anchor="middle">4</text>
 <text class="label-cur" x="1060" y="132" text-anchor="middle">Analyze and generate</text>
 
+<g>
+  <title>Next: not available on the last step</title>
+  <circle class="nav-dis" cx="1208" cy="100" r="20"/>
+  <path class="arrow-dis" d="M1205 92 L1213 100 L1205 108"/>
+</g>
+<text class="nav-label-dis" x="1208" y="132" text-anchor="middle">Next</text>
+
 <!-- centre area: the step card fills the space between header and footer -->
 <rect class="card" x="24" y="152" width="1232" height="584" rx="16" filter="url(#sh)"/>
 <rect x="24" y="152" width="1232" height="6" fill="url(#gAccent)" clip-path="url(#cardClip)"/>

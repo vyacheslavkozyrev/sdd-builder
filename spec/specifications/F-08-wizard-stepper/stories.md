@@ -1,7 +1,7 @@
 # User Stories — Wizard stepper (F-08)
 
 Feature entry: `spec/documents/features.md` → F-08
-Requirements owned by this feature: the F-08 scope items in `features.md` (four steps in a stepper that is not clickable, with done, current and to-do states; Prev and Next buttons beside it; Prev disabled on step 1; Next hidden on step 4; values kept in memory between steps); `ui.md` §1.1 (New project opens the wizard at step 1), §1.3 (wizard frame); `architecture.md` §5 (Material UI for the wizard, panels and buttons) and decision 32 (stepper not clickable, step 4 has no Next). Owner decisions of 2026-11-17: each step body shows its step title and a one-line placeholder; New project starts over at once (F-07 UX approval).
+Requirements owned by this feature: the F-08 scope items in `features.md` (four steps in a stepper that is not clickable, with done, current and to-do states; Prev and Next buttons beside it; Prev disabled on step 1; Next disabled on step 4; values kept in memory between steps); `ui.md` §1.1 (New project opens the wizard at step 1), §1.3 (wizard frame); `architecture.md` §5 (Material UI for the wizard, panels and buttons) and decision 32 (stepper not clickable, step 4 has no Next). Owner decisions of 2026-11-17: each step body shows its step title and a one-line placeholder; New project starts over at once (F-07 UX approval).
 
 ## Out of Scope
 
@@ -45,14 +45,14 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 **I want to** move back and forward with Prev and Next beside the stepper
 **So that** I can go through the four steps and correct an earlier one.
 
-**Requirements:** `features.md` F-08 (Prev and Next buttons; Prev disabled on step 1; Next hidden on step 4); `ui.md` §1.3
+**Requirements:** `features.md` F-08 (Prev and Next buttons; Prev disabled on step 1; Next disabled on step 4); `ui.md` §1.3
 
 #### Acceptance Criteria
 
 - [ ] AC-004 `[auto]`: the Prev and Next buttons are in the wizard panel beside the stepper, and the step body is rendered below that panel.
 - [ ] AC-005 `[auto]`: Prev is disabled on step 1 and enabled on steps 2, 3 and 4 (table-driven).
 - [ ] AC-006 `[auto]`: Next moves the wizard forward by exactly one step from each of steps 1, 2 and 3 (table-driven: 1 → 2, 2 → 3, 3 → 4).
-- [ ] AC-007 `[auto]`: Next is not rendered on step 4 (negative case: hidden, not only disabled; step 4 has no next step).
+- [ ] AC-007 `[auto]`: Next is shown disabled on step 4 and does not move the wizard past step 4 (negative case: it is not enabled; step 4 has no next step).
 - [ ] AC-008 `[auto]`: Prev moves the wizard back by exactly one step (negative case: Prev on step 2 goes to step 1, and it does not clear the values).
 - [ ] AC-009 `[auto]`: Next is never disabled by the content of the current step. In particular a blank project name does not block Next from step 1 (negative case for `ui.md` §2).
 
@@ -106,7 +106,7 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 | F-08 done, current and to-do states | AC-002 |
 | F-08 Prev and Next beside the stepper | AC-004, AC-014 |
 | F-08 Prev disabled on step 1 | AC-005 |
-| F-08 Next hidden on step 4 | AC-007 |
+| F-08 Next disabled on step 4 | AC-007 |
 | F-08 values kept in memory between steps | AC-010, AC-011 |
 | `ui.md` §1.1 New project opens the wizard at step 1 | AC-012 |
 | `ui.md` §1.3 wizard frame (panel, then body) | AC-004, AC-013, AC-015 |

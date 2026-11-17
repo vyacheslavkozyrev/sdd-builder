@@ -52,7 +52,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 
 - [ ] AC-001 `[auto]`: the tab row shows the Pipeline tab first, then one tab per flow in pipeline order, then a + button after the last tab.
 - [ ] AC-002 `[auto]`: the Pipeline tab has no remove control, and no control on the tab row removes it (negative case: the tab is still there after every flow is deleted).
-- [ ] AC-003 `[auto]`: + adds one flow with no blocks, named `Flow 2`, `Flow 3` and so on (the first number not used by another flow's name), with a new id unique in the pipeline; the new flow's tab is selected at once.
+- [ ] AC-003 `[auto]`: + adds one flow with no blocks, with the id `flow-2`, `flow-3` and so on (the first number not used by another flow's id), which is file-safe and unique in the pipeline (decision 18); the new flow's tab is selected at once.
 - [ ] AC-004 `[auto]`: + is the only control that adds a flow (negative case: no toolbox, arrow panel or box panel on the Pipeline tab adds a flow).
 - [ ] AC-005 `[auto]`: a flow tab shows the flow's name and a one-line placeholder that its blocks are built in F-12; the Pipeline tab shows the canvas.
 - [ ] AC-006 `[device]`: the tab row spans the full width of the available space; it is not centred and has no fixed width.
@@ -72,7 +72,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 - [ ] AC-009 `[auto]`: boxes are placed automatically, left to right in pipeline order; the same pipeline gives the same positions when laid out twice.
 - [ ] AC-010 `[auto]`: laying out the canvas does not change the pipeline value: the saved config has no position key before or after the layout (negative case for position data).
 - [ ] AC-011 `[device]`: the canvas pans, selects one item at a time and lets a box be dragged; a dragged box keeps its place until the next layout.
-- [ ] AC-012 `[device]`: dragging an arrow's end onto another flow's box repoints that end of the connection.
+- [ ] AC-012 `[device]`: dragging an arrow's end onto another flow's box repoints that end of the connection; dragging the Connection tool from the toolbox onto a flow and then onto another flow starts a new connection, and the artifact label (AC-013) is asked before it is added (owner decision, 2026-11-17).
 
 ### US-003: Connections between flows
 
@@ -122,7 +122,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 - [ ] AC-026 `[auto]`: each panel shows the file its item generates: the pipeline `.claude/commands/pipeline.md`, a flow `.claude/commands/<flow name>.md`.
 - [ ] AC-027 `[auto]`: an edit the parser accepts updates the pipeline value at once and the panel shows the new value; an edit the parser refuses keeps the previous value and shows the parser's message next to the field.
 - [ ] AC-028 `[auto]`: a body (pipeline or flow) is at most 1,000 characters, counted in code points: 1,000 is accepted, 1,001 is refused, and one emoji counts as one character.
-- [ ] AC-029 `[auto]`: a flow name is non-blank, unique among the flows and file-safe; a blank, duplicate or unsafe name is refused with the reason, and the previous name stays (table of valid and refused names).
+- [ ] AC-029 `[auto]`: a flow name is non-blank, unique among the flows and file-safe (lowercase letters, digits and hyphens, starting with a letter, as decision 18 states for ids); a blank, duplicate or unsafe name is refused with the reason, and the previous name stays (table of valid and refused names, including `Flow 2` as refused).
 - [ ] AC-030 `[auto]`: only one item is selected at a time; selecting another item moves the selection, and the panel shows that item (negative case: no two items selected).
 
 ### US-006: Deleting a flow

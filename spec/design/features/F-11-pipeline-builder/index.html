@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>F-11 pipeline builder screens</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #f4f4f5; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #0f172a; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    header p { margin: 0; color: #475569; font-size: 14px; }
+    section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #475569; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>F-11 Pipeline builder: the Pipeline tab, flow tabs, gates and marks (wireframes)</h1>
+    <p>Step 3 of the wizard. The Pipeline tab is the first tab; one tab per flow follows, and + adds a flow. Flows are boxes on the canvas, connections are arrows, and approvals and checks sit on the arrows. Wireframes only; read <code>screens.md</code> for the legend, the states, the coverage and the open points.</p>
+  </header>
+
+  <section>
+    <h2>01 The Pipeline tab with the default pipeline</h2>
+    <p>Six flows in order, five gates on the arrows, the toolbox and the pipeline's properties. The row runs past the canvas edge; the strip under it shows the rest.</p>
+    <img src="01-pipeline-default.svg" alt="The Pipeline tab with the six default flows, five gates and the pipeline properties">
+  </section>
+
+  <section>
+    <h2>02 A connection selected, with its gate</h2>
+    <p>The arrow build → verify with its check gate. A second gate is refused, and Remove gate and Delete connection are on the panel.</p>
+    <img src="02-arrow-with-gate.svg" alt="The connection build to verify selected, with its check gate and refused second gate">
+  </section>
+
+  <section>
+    <h2>03 Adding a check to an arrow</h2>
+    <p>The arrow verify → complete has no gate. A Check is dragged onto it, and the gate form refuses an empty description and a zero threshold.</p>
+    <img src="03-add-gate-on-arrow.svg" alt="A check dragged onto an arrow with no gate; the form refuses a blank description and a zero threshold">
+  </section>
+
+  <section>
+    <h2>04 A flow selected: properties and connecting</h2>
+    <p>The flow plan: a name that is already used is refused, the flow's properties, Connect to next flow with its picker, and a required artifact label. Delete is the only footer action.</p>
+    <img src="04-flow-panel-connect.svg" alt="The flow plan selected with a refused name and the connect picker open">
+  </section>
+
+  <section>
+    <h2>05 Deleting a flow</h2>
+    <p>The confirmation names the flow's connections and their gates. The whole screen is dimmed behind it.</p>
+    <img src="05-delete-flow-confirm.svg" alt="The confirmation for deleting the flow plan, naming its connections and gates">
+  </section>
+
+  <section>
+    <h2>06 Structure marks</h2>
+    <p>A blocker beside a flow with no End, a loop among connections, and the Not on a drawn item section. Marks never block an edit.</p>
+    <img src="06-structure-marks.svg" alt="Structure marks on the Pipeline tab, including the Not on a drawn item section">
+  </section>
+
+  <section>
+    <h2>07 After +: a new empty flow</h2>
+    <p>flow-2 is added, selected, empty and not connected. Its panel shows the name, the generated file and Delete; the mark says it has no Start and no End.</p>
+    <img src="07-add-flow.svg" alt="A new empty flow flow-2 selected at the end of the row">
+  </section>
+
+  <section>
+    <h2>08 A flow tab opened</h2>
+    <p>The verify tab. Its body is a placeholder until F-12 builds the blocks.</p>
+    <img src="08-flow-tab-placeholder.svg" alt="The verify flow tab with the placeholder for F-12">
+  </section>
+
+  <section>
+    <h2>09 Pipeline properties with refused values</h2>
+    <p>A repeated argument name and a body of 1,001 characters are refused; the previous values are kept.</p>
+    <img src="09-properties-refused.svg" alt="The pipeline properties with a repeated argument and a body that is too long">
+  </section>
+
+  <section>
+    <h2>10 Repointing an arrow by drag</h2>
+    <p>The target end of ux → plan is dragged onto build. The label and the gate stay with the arrow.</p>
+    <img src="10-repoint-arrow.svg" alt="The target end of an arrow dragged onto another flow box">
+  </section>
+
+  <section>
+    <h2>11 No flows left</h2>
+    <p>Every flow is deleted. The canvas is empty and the blocker says the pipeline has no flow; no edit is blocked.</p>
+    <img src="11-no-flows.svg" alt="The Pipeline tab with no flows and a blocker that the pipeline has no flow">
+  </section>
+</body>
+</html>

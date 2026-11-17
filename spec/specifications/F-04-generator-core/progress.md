@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
 | Build    | ✅ Complete | 2026-11-16 | 13 of 13 tasks committed (T011 to T013 by the Verify amendments) |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-17 | 33 of 33 criteria covered by passing [auto] tests; no [device] criteria |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -58,57 +58,55 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Verify run 3 (final) on 2026-11-17 on `main` (clean tree, all 12 tasks ticked, Current Task None, HEAD 41fcebb). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 738 of 738 (37 files), web 3 of 3, api 6 of 6; total 747 of 747. The AC-007 tests ran by name: 5 of 5 passed.
+Verify run 4 (final) on 2026-11-17 on `main` (clean tree, all 13 tasks ticked, Current Task None, HEAD 3abdd96). `source/scripts/task-check.sh` passed (exit 0): typecheck clean; core 739 of 739 (37 files), web 3 of 3 (2 files), api 6 of 6 (3 files); total 748 of 748. The AC-007 tests ran by name: 6 of 6 passed. Test files are under `source/packages/core/test/pipeline/` unless a path is given.
 
 All 33 criteria are `[auto]`; none is `[device]`, so there is no manual checklist.
 
-Result: 32 of 33 criteria proven. Remaining gap: G1 (AC-007), the refusal clause of the narrowed wording. The order clause is proven; no test named AC-007 proves that a reordering that leaves a flow unreached is refused. Verify stays Pending.
+Result: 33 of 33 criteria proven. No gap remains. Verify is complete.
+
+The AC-007 refusal clause (run 3's gap G1) is now proven by the `F-04 AC-007` case in `plan-files.test.ts` (line 249): reversing two flows so that `alpha` is no longer reached gives `{ ok: false }`, exactly one reachability blocker at `pipeline.flows[1]`, and no `files`. No other criterion changed status.
 
 | Criterion | Test file | Status |
 | --- | --- | --- |
-| AC-001 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
-| AC-002 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
-| AC-003 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
-| AC-004 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
-| AC-005 | `source/packages/core/test/pipeline/plan-default.test.ts` | Pass |
-| AC-006 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass (unsafe paths tested on base files only; see note) |
-| AC-007 | `source/packages/core/test/pipeline/plan-files.test.ts`, `plan-determinism.test.ts` | Gap (refusal clause, see G1) |
-| AC-008 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
-| AC-009 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
-| AC-010 | `source/packages/core/test/pipeline/plan-determinism.test.ts` | Pass |
-| AC-011 | `source/packages/core/test/pipeline/plan-command.test.ts`, `plan-entries.test.ts` | Pass |
-| AC-012 | `source/packages/core/test/pipeline/render.test.ts`, `plan-command.test.ts` | Pass |
-| AC-013 | `source/packages/core/test/pipeline/render.test.ts`, `plan-entries.test.ts` | Pass |
-| AC-014 | `source/packages/core/test/pipeline/render.test.ts`, `plan-entries.test.ts` | Pass |
-| AC-015 | `source/packages/core/test/pipeline/plan-command.test.ts` | Pass |
-| AC-016 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
-| AC-017 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass (no-render clause proven by T011) |
-| AC-018 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass |
-| AC-019 | `source/packages/core/test/pipeline/generated-names.test.ts`, `plan-files.test.ts` | Pass |
-| AC-020 | `source/packages/core/test/pipeline/config-problems.test.ts` | Pass (planning clause proven by T012) |
-| AC-021 | `source/packages/core/test/pipeline/plan-files.test.ts` | Pass |
-| AC-022 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
-| AC-023 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
-| AC-024 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
-| AC-025 | `source/packages/core/test/pipeline/reply-check.test.ts` | Pass |
-| AC-026 | `source/packages/core/test/pipeline/reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
-| AC-027 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
-| AC-028 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
-| AC-029 | `source/packages/core/test/pipeline/reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
-| AC-030 | `source/packages/core/test/pipeline/reply-check-text.test.ts` | Pass |
-| AC-031 | `source/packages/core/test/pipeline/namespace.test.ts` | Pass |
-| AC-032 | `source/packages/core/test/pipeline/purity.test.ts` | Pass |
-| AC-033 | `source/packages/core/test/pipeline/plan-fixed-templates.test.ts` | Pass |
-
-Gaps (criterion as written is not proven by a passing test):
-
-- **G1 AC-007** (narrowed wording of 2026-11-17): the order clause is proven. `plan-determinism.test.ts` reverses the rules and the flows after the first and gets the same paths; `plan-files.test.ts` reverses the rules and the flows, including the first. The refusal clause ("a reordering that leaves a flow unreached is refused, not planned") is not proven: no test named `F-04 AC-007` plans or refuses such a config. The code path exists (`planGeneration` refuses on `configProblems`, which includes the F-03 AC-022 unreached-flow blocker), so a test that names AC-007 and asserts `{ ok: false }` with a blocker for an unreached flow is needed.
+| AC-001 | `plan-files.test.ts` | Pass |
+| AC-002 | `plan-files.test.ts` | Pass |
+| AC-003 | `plan-files.test.ts` | Pass |
+| AC-004 | `plan-files.test.ts` | Pass |
+| AC-005 | `plan-default.test.ts` | Pass |
+| AC-006 | `plan-files.test.ts` | Pass (unsafe paths tested on base files only; see note) |
+| AC-007 | `plan-files.test.ts` (order and refusal), `plan-determinism.test.ts` (order) | Pass (refusal clause: F-04 AC-007 case in `plan-files.test.ts`, T013) |
+| AC-008 | `plan-determinism.test.ts` | Pass |
+| AC-009 | `plan-determinism.test.ts` | Pass |
+| AC-010 | `plan-determinism.test.ts` | Pass |
+| AC-011 | `plan-command.test.ts`, `plan-entries.test.ts` | Pass |
+| AC-012 | `plan-command.test.ts`, `render.test.ts` | Pass |
+| AC-013 | `plan-entries.test.ts`, `render.test.ts` | Pass |
+| AC-014 | `plan-entries.test.ts`, `render.test.ts` | Pass |
+| AC-015 | `plan-command.test.ts` | Pass |
+| AC-016 | `config-problems.test.ts` | Pass |
+| AC-017 | `plan-files.test.ts` | Pass (no-render clause proven by T011) |
+| AC-018 | `config-problems.test.ts` | Pass |
+| AC-019 | `generated-names.test.ts`, `plan-files.test.ts` | Pass |
+| AC-020 | `config-problems.test.ts` | Pass (planning clause proven by T012) |
+| AC-021 | `plan-files.test.ts` | Pass |
+| AC-022 | `reply-check.test.ts` | Pass |
+| AC-023 | `reply-check.test.ts` | Pass |
+| AC-024 | `reply-check.test.ts` | Pass |
+| AC-025 | `reply-check.test.ts` | Pass |
+| AC-026 | `reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
+| AC-027 | `reply-check-text.test.ts` | Pass |
+| AC-028 | `reply-check-text.test.ts` | Pass |
+| AC-029 | `reply-check.test.ts`, `reply-check-text.test.ts` | Pass |
+| AC-030 | `reply-check-text.test.ts` | Pass |
+| AC-031 | `namespace.test.ts` | Pass |
+| AC-032 | `purity.test.ts` | Pass |
+| AC-033 | `plan-fixed-templates.test.ts` | Pass |
 
 Notes (not counted as gaps):
 
 - AC-006 says every planned path is file-safe. The check runs on every planned path in one loop (`plan.ts`), but the tests only pass unsafe paths through the base files. Rule, agent and command paths are not tested with unsafe ids.
-- G2 proof (`plan-files.test.ts`, "F-04 AC-017 refuses a blocked config before any layout is rendered"): a blocked config whose command layout holds `{{nope}}` returns the blockers and no `files`, while the same layout on a valid config throws (control). The blocked config therefore renders no layout.
-- G3 proof (`config-problems.test.ts`, "F-04 AC-020 planning a pipeline with no flows returns the no-flow blocker and no files"): `planGeneration` on a flow-less pipeline returns exactly `{ ok: false, problems: [no-flow blocker] }` with no `files` property.
+- AC-017 no-render proof (`plan-files.test.ts`, "F-04 AC-017 refuses a blocked config before any layout is rendered"): a blocked config whose command layout holds `{{nope}}` returns the blockers and no `files`, while the same layout on a valid config throws (control).
+- AC-020 planning proof (`config-problems.test.ts`, "F-04 AC-020 planning a pipeline with no flows returns the no-flow blocker and no files"): `planGeneration` on a flow-less pipeline returns exactly `{ ok: false, problems: [no-flow blocker] }` with no `files` property.
 
 ---
 

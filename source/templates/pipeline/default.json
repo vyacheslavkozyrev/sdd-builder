@@ -182,6 +182,72 @@
           "kind": "end",
           "outcome": "done"
         }
+      ],
+      "connectedTo": {
+        "to": "verify",
+        "label": "commits",
+        "gate": {
+          "kind": "check",
+          "description": "all tasks committed and the check passes",
+          "type": "checks"
+        }
+      }
+    },
+    {
+      "id": "verify",
+      "name": "Verify",
+      "description": "Verifies the feature against every acceptance criterion, with its tests and its manual checklist.",
+      "arguments": "for each feature",
+      "blocks": [
+        {
+          "id": "verify-start",
+          "kind": "start",
+          "connectedTo": { "to": "verify-agent", "label": "feature-id" }
+        },
+        {
+          "id": "verify-agent",
+          "kind": "agent",
+          "name": "verify",
+          "description": "Verifies the feature in verify mode: every acceptance criterion is covered by a passing test or a checklist item, and the result is reported.",
+          "arguments": "feature-id",
+          "connectedTo": { "to": "verify-end", "label": "verification report" }
+        },
+        {
+          "id": "verify-end",
+          "kind": "end",
+          "outcome": "done"
+        }
+      ],
+      "connectedTo": {
+        "to": "complete",
+        "label": "criteria",
+        "gate": { "kind": "approval", "description": "Approval: the manual checklist results" }
+      }
+    },
+    {
+      "id": "complete",
+      "name": "Complete",
+      "description": "Marks the feature complete and commits its spec folder.",
+      "arguments": "for each feature",
+      "blocks": [
+        {
+          "id": "complete-start",
+          "kind": "start",
+          "connectedTo": { "to": "complete-agent", "label": "feature-id" }
+        },
+        {
+          "id": "complete-agent",
+          "kind": "agent",
+          "name": "complete",
+          "description": "Marks the feature complete in its progress file and commits its spec folder, with the feature ID at the start of the message.",
+          "arguments": "feature-id",
+          "connectedTo": { "to": "complete-end", "label": "commit" }
+        },
+        {
+          "id": "complete-end",
+          "kind": "end",
+          "outcome": "done"
+        }
       ]
     }
   ]

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 10 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 11 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T011 | Default pipeline data, part 3: flows `verify` and `complete`, the gates on the links from `build` and `verify`, and the tests of AC-030 to AC-032 (`default-data.test.ts`) | 2 blockers fixed (Start block added to `verify` and `complete`), 2 warnings fixed (a test for the Start block; a test for the §11 gates), 1 suggestion fixed. Open for the owner: a stop route on the build to verify gate is not in decision 33 (Deferred Findings) | task check passed: core 417, api 6, web 3 |
 | T010 | Default pipeline data, part 2: the flow `build` and `plan`'s link to it (`source/templates/pipeline/default.json`); no test until T011 | 0 blockers, 0 warnings. Gate build to verify moved to T011; open item: block link labels (Deferred Findings) | task check passed: core 411, api 6, web 3 |
 | T009 | Default pipeline data, part 1: header and the flows specify, ux and plan (`source/templates/pipeline/default.json`); no test until T011 | 0 blockers, 0 warnings. Flagged for the owner: model `inherit` and the block link labels (see Deferred Findings) | task check passed: core 411, api 6, web 3 |
 | T008 | Ids unique across the project: one id set for arguments, flows and blocks, a separate set for agent names; the check runs once the rest is valid | 0 blockers, 1 warning fixed (claim order follows the written key order), 2 test gaps fixed | task check passed: core 411, api 6, web 3 |
@@ -61,6 +62,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T009 (`source/templates/pipeline/default.json`, flow `specify` block `specify-start`): the Start block's link label is `feature-id`, an argument name, while decision 33 types a block link label as an artifact. §11 names no label for block links. Not changed: the label is the implementer's choice and is only a naming question for the owner.
 
 - T010 (`source/templates/pipeline/default.json`, flow `build`, block links `build-implement` → `change`, `build-review` → `review`, `build-test` → `test report`, `build-start` → `task-id`, `build-commit` → `commit`): the labels are not artifacts, as decision 33 types them, and §11 names none. Same question as T009. Not changed: owner to decide.
+
+- T011 (`source/templates/pipeline/default.json`, the `build` → `verify` gate): architecture §11 asks for a false output that stops, on the flow link. Decision 33's `Gate` has no route field and refuses unknown keys, and the decision says a gate's fail output stops the process, so the link carries no route and the stop is implicit. Not changed: a route on a gate would change decision 33; owner to confirm.
 
 ---
 

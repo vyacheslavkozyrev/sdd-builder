@@ -5,8 +5,9 @@ import {
   type WizardState,
 } from '../src/wizard/state.js';
 
-const sample = { projectName: 'Demo' };
-const other = { projectName: 'Other' };
+const sample = { name: 'Demo', idea: 'A small idea' };
+const other = { name: 'Other' };
+const empty = { name: '', idea: '' };
 
 function walk(state: WizardState, actions: readonly ('next' | 'prev')[]): WizardState {
   return actions.reduce<WizardState>((current, type) => wizardReducer(current, { type }), state);
@@ -42,7 +43,7 @@ describe('F-08 wizard state', () => {
   it('F-08 AC-010 update merges the given fields into the values and keeps the rest', () => {
     const once = withSample(initialWizardState());
     const merged = wizardReducer(once, { type: 'update', patch: other });
-    expect(merged.values).toEqual(other);
+    expect(merged.values).toEqual({ name: 'Other', idea: 'A small idea' });
     expect(merged.step).toBe(1);
     expect(once.values).toEqual(sample);
   });
@@ -57,7 +58,7 @@ describe('F-08 wizard state', () => {
   it('F-08 AC-012 restart clears every value to a new empty object, not the earlier one', () => {
     const onStep3 = walk(withSample(initialWizardState()), ['next', 'next']);
     const restarted = wizardReducer(onStep3, { type: 'restart' });
-    expect(restarted.values).toEqual({});
+    expect(restarted.values).toEqual(empty);
     expect(restarted.values).not.toBe(onStep3.values);
   });
 
@@ -67,5 +68,52 @@ describe('F-08 wizard state', () => {
 
   it('F-08 AC-012 each initial state has its own values object', () => {
     expect(initialWizardState().values).not.toBe(initialWizardState().values);
+  });
+});
+
+describe('F-09 wizard values for the project step', () => {
+  it('F-09 AC-002 the initial name and idea are empty strings', () => {
+    expect(initialWizardState().values).toEqual(empty);
+  });
+
+  it.each(['Demo', '  Demo  ', '   '])(
+    'F-09 AC-002 the name %j is stored as typed and comes back unchanged after Next and Prev',
+    (name) => {
+      const typed = wizardReducer(initialWizardState(), { type: 'update', patch: { name } });
+      expect(typed.values.name).toBe(name);
+      expect(walk(typed, ['next', 'prev']).values.name).toBe(name);
+    },
+  );
+
+  it.each(['  idea  ', 'idea ', '\n\tidea\n'])(
+    'F-09 AC-010 the idea %j keeps its spaces and line breaks in the stored value',
+    (idea) => {
+      const typed = wizardReducer(initialWizardState(), { type: 'update', patch: { idea } });
+      expect(typed.values.idea).toBe(idea);
+      expect(walk(typed, ['next', 'next', 'next', 'prev']).values.idea).toBe(idea);
+    },
+  );
+
+  it('F-09 AC-013 a name and an idea are still present after Next, Prev and Next again', () => {
+    const start = wizardReducer(initialWizardState(), { type: 'update', patch: sample });
+    const again = walk(start, ['next', 'prev', 'next']);
+    expect(again.step).toBe(2);
+    expect(again.values).toEqual(sample);
+  });
+
+  it('F-09 AC-013 a name and an idea are still present after going to step 4 and back to step 1', () => {
+    const start = wizardReducer(initialWizardState(), { type: 'update', patch: sample });
+    const back = walk(start, ['next', 'next', 'next', 'prev', 'prev', 'prev']);
+    expect(back.step).toBe(1);
+    expect(back.values).toEqual(sample);
+  });
+
+  it('F-09 AC-014 restart clears the name and the idea, with no value from the earlier project left', () => {
+    const onStep2 = walk(wizardReducer(initialWizardState(), { type: 'update', patch: sample }), ['next']);
+    const restarted = wizardReducer(onStep2, { type: 'restart' });
+    expect(restarted.step).toBe(1);
+    expect(restarted.values).toEqual(empty);
+    expect(restarted.values.name).toBe('');
+    expect(restarted.values.idea).toBe('');
   });
 });

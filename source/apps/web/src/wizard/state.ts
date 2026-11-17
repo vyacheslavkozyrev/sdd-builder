@@ -1,12 +1,16 @@
-// The wizard's state (F-08 AC-008, AC-010, AC-012). A reducer over the step
+// The wizard's state (F-08 AC-008, AC-010, AC-012; F-09 AC-002, AC-010 reducer,
+// AC-013 reducer, AC-014 reducer). A reducer over the step
 // model in steps.ts. The values live in memory only: no saving and no
 // logging (decision 13, AC-011). Refreshing the browser clears them.
 
 import { nextStep, prevStep, FIRST_STEP, type StepNumber } from './steps.js';
 
-// The values entered across the four steps. F-08 has no fields yet; F-09 and
-// F-10 extend this interface with their fields.
-export interface WizardValues {}
+// The values entered across the four steps. The project step (F-09) holds the
+// name and the idea as typed; F-10 extends this interface with its fields.
+export interface WizardValues {
+  name: string;
+  idea: string;
+}
 
 export interface WizardState {
   readonly step: StepNumber;
@@ -22,7 +26,7 @@ export type WizardAction =
 // A fresh state: step 1 and the initial values. A new object every call, so
 // no value from an earlier project can be shared.
 export function initialWizardState(): WizardState {
-  return { step: FIRST_STEP, values: {} };
+  return { step: FIRST_STEP, values: { name: '', idea: '' } };
 }
 
 // Next and Prev move one step and keep the values. Restart returns to step 1

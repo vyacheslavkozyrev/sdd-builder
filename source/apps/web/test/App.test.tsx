@@ -107,7 +107,7 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-012 passes the current step from the state to the wizard', () => {
-    hooks.state = { step: 3, values: {} };
+    hooks.state = { step: 3, values: { name: '', idea: '' } };
     expect(wizardOf().props.step).toBe(3);
   });
 
@@ -118,7 +118,7 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-012 New project from step 4 returns the wizard to step 1', () => {
-    hooks.state = { step: 4, values: {} };
+    hooks.state = { step: 4, values: { name: '', idea: '' } };
     frameOf().props.onNewProject();
     expect(wizardOf().props.step).toBe(1);
   });
@@ -131,7 +131,7 @@ describe('F-08 application wiring', () => {
   });
 
   it('F-08 AC-008 Prev moves the wizard back one step through the reducer', () => {
-    hooks.state = { step: 3, values: {} };
+    hooks.state = { step: 3, values: { name: '', idea: '' } };
     wizardOf().props.onPrev();
     expect(wizardOf().props.step).toBe(2);
   });

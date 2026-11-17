@@ -36,14 +36,38 @@ export function itemPath(parent: string, index: number): string {
   return `${parent}[${index}]`;
 }
 
-export function checkKeys(
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+export function objectValue(
+  value: unknown,
+  path: string,
+  problems: Problems,
+): Record<string, unknown> | undefined {
+  if (!isRecord(value)) {
+    problems.add(path, 'must be an object');
+    return undefined;
+  }
+  return value;
+}
+
+// Visits the keys of an object in document order: the order they were written in, which JSON.parse keeps.
+// An unknown key is refused with its path and is not visited. An allowed key that the object lacks has no place
+// in the document, so it is visited after the keys that are present, in the order of `allowed`.
+export function visitKeys(
   object: Readonly<Record<string, unknown>>,
   allowed: readonly string[],
   path: string,
   problems: Problems,
+  visit: (key: string) => void,
 ): void {
-  for (const key of Object.keys(object)) {
-    if (!allowed.includes(key)) {
+  const present = Object.keys(object);
+  const keys = [...present, ...allowed.filter((key) => !present.includes(key))];
+  for (const key of keys) {
+    if (allowed.includes(key)) {
+      visit(key);
+    } else {
       problems.add(childPath(path, key), 'unknown key');
     }
   }

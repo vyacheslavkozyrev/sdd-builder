@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   bodyText,
   booleanValue,
-  checkKeys,
   createProblems,
   enumValue,
   idValue,
@@ -11,6 +10,7 @@ import {
   positiveWholeNumber,
   textList,
   type Problems,
+  visitKeys,
 } from '../../src/pipeline/check/primitives.js';
 
 function run<T>(check: (value: unknown, path: string, problems: Problems) => T | undefined, value: unknown) {
@@ -172,7 +172,21 @@ describe('F-02 AC-004 unknown-key check (each level applies it to its own keys)'
     },
   ])('F-02 AC-004 checks $label', ({ object, paths }) => {
     const problems = createProblems();
-    checkKeys(object, ['id', 'name'], 'rules[0]', problems);
+    visitKeys(object, ['id', 'name'], 'rules[0]', problems, () => undefined);
     expect(problems.list.map((p) => p.path)).toEqual(paths);
+  });
+
+  it('F-02 AC-004 visits allowed keys in written order and refuses an unknown key where it sits', () => {
+    const problems = createProblems();
+    const visited: string[] = [];
+    visitKeys({ name: 'b', x: 1, id: 'a' }, ['id', 'name'], 'rules[0]', problems, (key) => visited.push(key));
+    expect(visited).toEqual(['name', 'id']);
+    expect(problems.list.map((p) => p.path)).toEqual(['rules[0].x']);
+  });
+
+  it('F-02 AC-004 visits an allowed key that is missing last, in the order of the allowed list', () => {
+    const visited: string[] = [];
+    visitKeys({ name: 'b' }, ['id', 'name', 'title'], 'rules[0]', createProblems(), (key) => visited.push(key));
+    expect(visited).toEqual(['name', 'id', 'title']);
   });
 });

@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
 | Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | ✅ Complete | 2026-11-17 | 12 of 12 `[auto]` criteria covered by passing tests; AC-011 and AC-012 passed by the user (checklist.md) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -49,6 +49,29 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run on 2026-11-17 on `main`, clean tree, all six tasks committed. `source/scripts/task-check.sh` passed: typecheck clean in api, web and core; tests api 57, web 32, core 1017 (1106 total), 0 failing.
+
+| Criterion | Tag | Covering tests (names contain the criterion) | Result |
+|---|---|---|---|
+| AC-001 | auto | `Header.test.tsx` AC-001 (wordmark before New project; filled button) | Covered. Test proves text and order only; left and right placement is confirmed on screen 01 in the checklist (AC-011 step 3) |
+| AC-002 | auto | `Header.test.tsx` AC-002 (×2: called once on click; not called before click) | Covered |
+| AC-003 | auto | `Header.test.tsx` AC-003 (×2: no Demo control; exactly one button) | Covered |
+| AC-004 | auto | `Footer.test.tsx` AC-004 | Covered |
+| AC-005 | auto | `Footer.test.tsx` AC-005 (×3: no button, no link or anchor, no control role) | Covered |
+| AC-006 | auto | `AppFrame.test.tsx` AC-006 (×2: header, centre, footer order) | Covered |
+| AC-007 | auto | `AppFrame.test.tsx` AC-007 (×3: children in centre; children outside header and footer; empty centre) | Covered |
+| AC-008 | auto | `App.test.tsx` AC-008 (×3: wordmark, footer note, frame as outer element) | Covered |
+| AC-009 | auto | `frameStyle.test.ts` AC-009 (×3); `AppFrame.test.tsx` AC-009 | Covered |
+| AC-010 | auto | `frameStyle.test.ts` AC-010 (×2: no hidden overflow; no narrow max width) | Covered |
+| AC-011 | device | Manual checklist | Pending: `checklist.md` |
+| AC-012 | device | Manual checklist | Pending: `checklist.md` |
+| AC-013 | auto | `Header.test.tsx` AC-013 (×2: MuiAppBar-root; MuiButton-root) | Covered |
+| AC-014 | auto | `Footer.test.tsx` AC-014 | Covered |
+
+Gaps among `[auto]` criteria: none. Scope in `features.md` (F-07: header with logo and New project, footer note, centre area, Material UI, desktop 1280 × 800, every screen uses the layout) is covered by AC-001 to AC-014 as in the Requirement Coverage table.
+
+Manual checklist: `spec/specifications/F-07-ui-layout-template/checklist.md` (AC-011 at 1280 × 800, AC-012 at 1024 px). Outcome: awaiting the user's results.
 
 ---
 

@@ -21,7 +21,10 @@ function flow(id = 'build'): Record<string, unknown> {
     name: 'Build',
     description: 'Builds one task',
     arguments: 'the task id',
-    blocks: [{ id: 'start', kind: 'start' }, { id: 'finish', kind: 'end', outcome: 'done' }],
+    blocks: [
+      { id: `${id}-start`, kind: 'start' },
+      { id: `${id}-finish`, kind: 'end', outcome: 'done' },
+    ],
   };
 }
 

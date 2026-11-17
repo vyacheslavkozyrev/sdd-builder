@@ -13,6 +13,7 @@ import {
   type Problems,
   visitKeys,
 } from '../check/primitives.js';
+import { checkIds } from './ids.js';
 import { parsePipeline } from './pipeline.js';
 
 export type ParseResult = { ok: true; config: ProjectConfig } | { ok: false; problems: Problem[] };
@@ -45,6 +46,11 @@ export function parseProjectConfig(input: unknown): ParseResult {
     }
   });
   if (problems.list.length > 0 || found.rules === undefined || found.pipeline === undefined) {
+    return { ok: false, problems: problems.list };
+  }
+  // The id pass runs only once the rest of the config is valid, and its problems join the same list.
+  checkIds(found.pipeline, root['pipeline'], problems);
+  if (problems.list.length > 0) {
     return { ok: false, problems: problems.list };
   }
   return { ok: true, config: { schemaVersion: 2, rules: found.rules, pipeline: found.pipeline } };

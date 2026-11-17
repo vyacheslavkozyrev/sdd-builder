@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 7 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 8 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T008 | Ids unique across the project: one id set for arguments, flows and blocks, a separate set for agent names; the check runs once the rest is valid | 0 blockers, 1 warning fixed (claim order follows the written key order), 2 test gaps fixed | task check passed: core 411, api 6, web 3 |
 | T007 | Pipeline and the complete config: `parse/pipeline.ts`; `arguments` required (user decision), empty list valid; placeholder removed, valid config returns typed. Size of about 530 changed lines accepted by the user (guard waived) | 0 blockers; `arguments` changed to required on the user's instruction, with a refusal test | task check passed: core 395, api 6, web 3 |
 | T006 | Flows and flow links with gates: flow keys, empty `blocks` and `arguments` accepted, `connectedTo` `{ to, label, gate? }`, gates `approval` and `check` (threshold required for `diff size`, refused for `checks`). Size of about 511 changed lines accepted by the user (guard waived for this task). Helpers `CHECK_TYPES`, `plainText` and `idList` exported from block.ts without behaviour change | 0 blockers, 2 warnings fixed (criteria names moved to AC-007 and AC-016; test for empty flow `arguments` added), 0 suggestions fixed, 1 suggestion deferred | task check passed: core 344, api 6, web 3 |
 | T001 | Model types and primitive checks (decision 33 types; value rules of AC-021, AC-024 to AC-026). Built as one commit of about 440 changed lines by the user's decision, size guard waived for this task | 0 blockers, 2 warnings fixed (body cap reads at most 2,000 units; sparse list holes refused), 1 suggestion fixed (shared-rule tests not claimed as criteria) | task check passed: core 85, api 6, web 3 |

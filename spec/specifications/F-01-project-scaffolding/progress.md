@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 13 criteria, all `[auto]`; approved by the user |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: build tooling only |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | 🔄 In Progress | 2026-11-16 | 1 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 2 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Workspace and compiler settings; placeholders and smoke tests in all three packages | 0 blockers; 2 warnings and 2 suggestions fixed; 1 suggestion deferred | task check passed: core 14, api 1, web 1 |
+| T002 | NodeNext import rule: in-memory compile, missing `.js` gives TS2834 | 1 warning (undeclared `typescript`) fixed by the user-approved devDependency `typescript` 5.9.3 in core; 1 suggestion deferred | task check passed: core 16, api 1, web 1 |
 
 ---
 
@@ -35,7 +36,9 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 _Review suggestions intentionally not applied, with the reason._
 
-- `source/packages/core/test/workspace.test.ts` (imports): the test imports `typescript`, which core does not declare; it resolves only through the root hoisted install. Not changed: adding it to core's `devDependencies` changes the lockfile and dependency set, a decision to confirm with the user.
+- `source/packages/core/test/workspace.test.ts` (imports, T001): resolved. The user approved `"typescript": "5.9.3"` in core's `devDependencies` (T002 build, with the lockfile sync).
+- `source/packages/core/test/nodenext.test.ts` (imports, T002): resolved by the same change (user approved).
+- `source/packages/core/test/nodenext.test.ts` (`parsedOptions`, SUGGESTION): re-reads and parses `tsconfig.json` on every call; a few milliseconds per case, not worth a cache. Not changed.
 
 ---
 

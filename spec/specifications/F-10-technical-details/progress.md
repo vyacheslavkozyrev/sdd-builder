@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 23 criteria: 22 `[auto]`, 1 `[device]`; stack fields free text, 100-character limit on single-line fields and rule names (owner decisions); approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; no new library; AC-007 configuration half checked when F-13 adds the configuration function) |
-| Build    | ⏳ Pending  |      | 0 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 1 of 6 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,9 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+None
+
+_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -25,6 +27,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Technical text rules as pure functions: limits, rule id, letter-or-digit test, duplicate flags, 60-block limit | 0 blockers, 0 warnings, 1 suggestion fixed (negative test for path-safe rule ids, AC-014) | task check passed: api 57, web 198, core 1017 |
 
 ---
 

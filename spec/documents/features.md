@@ -76,7 +76,7 @@ Each description is the starting point for the feature's specification. Decision
 
 **F-08 Wizard stepper.** Four steps (Project, Technical details, Workflow, Analyze and generate) in a stepper that is not clickable and shows done, current and to-do states. Prev and Next buttons sit beside it: Prev is disabled on step 1, and Next is disabled on step 4. Values are kept in memory between steps.
 
-**F-09 Project step.** The project name is a single-line field, stored as typed and required, but a blank name does not block Next; the analysis reports it. The idea is a multi-line field of at most 5,000 characters, counted in code points, with a counter `N / 5,000`; pasting past the limit keeps the first 5,000 characters.
+**F-09 Project step.** The project name is a single-line field, stored as typed and required, but a blank name does not block Next; the analysis reports it. The idea is a multi-line field of at most 5,000 characters, counted in code points, with a counter `N / 5,000`; pasting past the limit keeps the first 5,000 characters. The project name is limited to 100 characters, counted in code points, and the idea is trimmed at both ends when the configuration is built.
 
 **F-10 Technical details step.** Language (required), framework, platform, build tool and test framework, and an architecture text of at most 5,000 characters. Rule blocks have a name and a description of at most 1,000 characters; each shows its file name, and the list holds at most 60 blocks. Duplicate ids are flagged, and the list starts empty.
 

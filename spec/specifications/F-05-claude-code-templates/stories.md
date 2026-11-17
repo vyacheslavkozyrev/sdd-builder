@@ -117,7 +117,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 #### Acceptance Criteria
 
 - [ ] AC-026 `[auto]`: `process.md` holds one fenced block marked `mermaid` whose first line is `flowchart`.
-- [ ] AC-027 `[auto]`: The diagram has one node per child flow, in pipeline order, joined by edges in that order.
+- [ ] AC-027 `[auto]`: The diagram has one node per child flow, in pipeline order. Each flow's edge goes to the flow its connection names (`connectedTo.to`), labelled with the connection's label. A flow with no connection gets an unlabelled edge to the next flow in pipeline order; the last flow with no connection gets none.
 - [ ] AC-028 `[auto]`: A gate between two flows (an Approval or a Check) is drawn as a decision node, labelled with its kind and description, between the two flows; its edge to the next flow is labelled `pass`. The model gives a pipeline gate no fail route, so no fail edge is drawn.
 - [ ] AC-029 `[auto]`: A flow name or a label that holds a double quote, a bracket or a pipe is escaped so the diagram parses; a test with such a name shows the escaped form.
 - [ ] AC-030 `[auto]`: The same configuration gives the same diagram text, byte for byte.

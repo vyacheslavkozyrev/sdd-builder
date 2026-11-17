@@ -99,7 +99,7 @@ const cases: Case[] = [
     name: 'F-05 AC-015 a body set gives the Instructions section with the body',
     agent: agentWith({ body: 'Check the diff.' }),
     key: 'bodySection',
-    expected: '## Instructions\n\nCheck the diff.\n',
+    expected: '\n## Instructions\n\nCheck the diff.\n',
   },
   {
     name: 'F-05 AC-015 no body gives an empty section',
@@ -132,13 +132,13 @@ describe('agentValues', () => {
     const body = 'Fill {{x}} with the value of {{stack.language}}.';
     const values = agentValues(agentWith({ body }));
     const rendered = renderText('.claude/agents/reviewer.md', '{{bodySection}}', values);
-    expect(rendered).toBe(`## Instructions\n\n${body}\n`);
+    expect(rendered).toBe(`\n## Instructions\n\n${body}\n`);
   });
 
   it('F-05 AC-017 a body placeholder that names a known value is not filled a second time', () => {
     const body = 'The agent is {{name}}; see {{description}}.';
     const values = agentValues(agentWith({ name: 'reviewer', description: 'Reviews.', body }));
-    const rendered = renderText('.claude/agents/reviewer.md', '# {{name}}\n\n{{bodySection}}', values);
+    const rendered = renderText('.claude/agents/reviewer.md', '# {{name}}\n{{bodySection}}', values);
     expect(rendered).toBe(`# reviewer\n\n## Instructions\n\n${body}\n`);
   });
 });

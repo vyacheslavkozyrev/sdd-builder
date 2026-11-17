@@ -31,8 +31,11 @@ The values come from `ProjectConfig`, in `source/packages/core/src/pipeline/gene
 | `{{pipelineStepList}}` | `claude-code/pipeline-command.md`: the enabled flows and checks of the pipeline as numbered steps, in pipeline order; built by `command-layouts.ts` |
 | `{{name}}` | `claude-code/agent.md`: the agent's name, from its Agent block; the file is `.claude/agents/<name>.md` |
 | `{{description}}` | `claude-code/agent.md`: the description of the Agent block, carried into the Purpose section |
+| `{{frontmatterDescription}}` | `claude-code/agent.md`: the description of the Agent block as one YAML value for the frontmatter; written as it is when a plain YAML value reads it back unchanged, and as a double-quoted string otherwise (a colon, a comment mark, a line break, a leading or trailing space) |
+| `{{optionalFrontmatter}}` | `claude-code/agent.md`: the `model` and `tools` lines, each only when the Agent block sets it; empty otherwise |
+| `{{bodySection}}` | `claude-code/agent.md`: the `## Instructions` section with the block's body, starting with a blank line; empty when the block has no body |
 | `{{ruleTags}}` | `claude-code/agent.md`: the rule-set tags of the Agent block, as a comma-separated list; `none` when the block has no tags |
-| `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules` |
+| `{{ruleTitle}}` | `claude-code/rule.md`: the title of the rule entry in `ProjectConfig.rules`, with its line breaks replaced by spaces so the heading stays one line |
 | `{{ruleText}}` | `claude-code/rule.md`: the text of the rule entry in `ProjectConfig.rules` |
 | `{{process.diagram}}` | no layout uses it since the flat base was removed (T017); not filled by the pipeline config; the Mermaid view comes with F-18 (see the status above) |
 | `{{modules}}`, `{{codeRules}}`, `{{testRules}}` | no layout uses them since the flat base was removed (T017); not filled by the pipeline config (see the status above) |

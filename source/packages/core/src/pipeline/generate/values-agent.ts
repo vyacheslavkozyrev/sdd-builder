@@ -8,34 +8,50 @@ import type { PlaceholderValues } from './render.js';
 import { processDiagram } from './mermaid.js';
 import { commandList, pipelineSteps, stepList, tagList } from './values-command.js';
 
-// The values of an agent file: its name, description and rule tags, the optional frontmatter lines (model and tools)
-// and the body section. A line that the block does not set is left out entirely, not written empty.
+// The values of an agent file: its name, description and rule tags, the frontmatter description and the optional
+// frontmatter lines (model and tools), and the body section. A line that the block does not set is left out
+// entirely, not written empty.
 export function agentValues(agent: Agent): PlaceholderValues {
   return {
     name: agent.name,
     description: agent.description,
+    frontmatterDescription: yamlText(agent.description),
     ruleTags: tagList(agent.ruleTags),
     optionalFrontmatter: optionalFrontmatter(agent),
     bodySection: bodySection(agent),
   };
 }
 
-// The model and tools lines of the frontmatter, each ending in a newline; empty when the block sets neither.
+// A text as one YAML value on one line: written as it is when a plain scalar reads it back unchanged, and as a
+// double-quoted string otherwise (a colon, a comment mark, a line break, a leading or trailing space, or a word
+// that YAML reads as a boolean, null or a number).
+function yamlText(text: string): string {
+  const plain =
+    /^[A-Za-z0-9][\w ,.()'/-]*$/.test(text) &&
+    !text.endsWith(' ') &&
+    !/^(true|false|null|yes|no|on|off|[0-9.+-]+)$/i.test(text);
+  return plain ? text : JSON.stringify(text);
+}
+
+// The model and tools lines of the frontmatter, each ending in a newline; empty when the block sets neither. The
+// tools are one value, so the list is quoted as a whole when it needs it.
 function optionalFrontmatter(agent: Agent): string {
   const modelLine = agent.model !== undefined ? `model: ${agent.model}\n` : '';
-  const toolsLine = agent.tools !== undefined && agent.tools.length > 0 ? `tools: ${agent.tools.join(', ')}\n` : '';
+  const toolsLine =
+    agent.tools !== undefined && agent.tools.length > 0 ? `tools: ${yamlText(agent.tools.join(', '))}\n` : '';
   return `${modelLine}${toolsLine}`;
 }
 
-// The Instructions section with the block's body, ending in a newline; empty when the block has no body (a body of
-// only whitespace counts as no body).
+// The Instructions section with the block's body. It starts with a blank line and ends in a newline, so the layout
+// has no blank line of its own: a block with no body is empty here and the file ends at its Rule tags line. A body
+// of only whitespace counts as no body.
 function bodySection(agent: Agent): string {
-  return agent.body !== undefined && agent.body.trim() !== '' ? `## Instructions\n\n${agent.body}\n` : '';
+  return agent.body !== undefined && agent.body.trim() !== '' ? `\n## Instructions\n\n${agent.body}\n` : '';
 }
 
-// The values of a rule file: its title and text.
+// The values of a rule file: its title, on one line so the heading stays one line, and its text as given.
 export function ruleValues(rule: Rule): PlaceholderValues {
-  return { ruleTitle: rule.title, ruleText: rule.text };
+  return { ruleTitle: rule.title.replace(/\s*\n\s*/g, ' '), ruleText: rule.text };
 }
 
 // The values of the base files: the lists of the process, the command files, the agent files and the rule files,

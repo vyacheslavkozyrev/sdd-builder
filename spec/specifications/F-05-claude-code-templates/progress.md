@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 7 stories, 35 criteria, all `[auto]`; approved by the user. Mermaid diagram in `process.md` included (features.md scope); AC-008 keeps Start and End as steps, as F-04 renders them; AC-010, AC-021, AC-023 and AC-028 amended 2026-11-17: Start and End kept as steps; no project name, idea or stack in F-05 (F-09, F-21 add them); a pipeline gate has no fail route in the model |
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: templates and a pure generator in `source/packages/core` (the stories have no user-facing criterion) |
 | Plan     | ✅ Complete | 2026-11-17 | 13 tasks, all 35 criteria covered; approved by the user |
-| Build    | 🔄 In Progress | 2026-11-17 | 6 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 7 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ None
 | T004 | Agent values: optionalFrontmatter (model and tools lines) and bodySection (Instructions when a body is set) | 0 blockers, 0 warnings, 2 suggestions fixed | task check passed: core 784 of 784 (40 files), api 6 of 6, web 3 of 3 |
 | T005 | headingsOf (## lines); test loader of the layouts from source/templates (test code only); fixtures for its paths and errors | 0 blockers, 1 warning fixed (loader error paths tested), 0 suggestions fixed, 1 suggestion deferred | task check passed: core 799 of 799 (42 files), api 6 of 6, web 3 of 3 |
 | T006 | Pipeline and flow command layouts (pipeline-command.md, command.md); layout tests on the real command files | 0 blockers, 0 warnings, 5 suggestions fixed, 1 suggestion deferred | task check passed: core 816 of 816 (43 files), api 6 of 6, web 3 of 3 |
+| T007 | Agent and rule layouts; agent frontmatter values YAML-safe (frontmatterDescription); rule title on one line; blank line moved into bodySection | 1 blocker, 2 warnings and 2 suggestions fixed | task check passed: core 848 of 848 (44 files), api 6 of 6, web 3 of 3 |
 
 ---
 

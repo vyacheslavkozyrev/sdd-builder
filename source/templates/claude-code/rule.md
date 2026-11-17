@@ -1,0 +1,3 @@
+# {{ruleTitle}}
+
+{{ruleText}}

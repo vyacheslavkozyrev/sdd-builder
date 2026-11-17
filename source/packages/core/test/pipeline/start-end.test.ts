@@ -71,7 +71,12 @@ const cases: Case[] = [
     config: buildConfig((config) => {
       const flow = config.pipeline.flows[0];
       if (flow) {
+        // The Agent's connection would name the removed End; it is cleared so only the End rule speaks.
         flow.blocks = flow.blocks.filter((block) => block.kind !== 'end');
+        const agent = flow.blocks[1];
+        if (agent?.kind === 'agent') {
+          delete agent.connectedTo;
+        }
       }
     }),
     expected: [{ severity: 'blocker', path: 'pipeline.flows[0]', text: 'no End block' }],

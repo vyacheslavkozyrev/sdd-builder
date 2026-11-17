@@ -3,6 +3,7 @@
 
 import type { ProjectConfig } from '../model.js';
 import type { Finding, LocatedFinding } from './finding.js';
+import { checkBlockReferences } from './references.js';
 import { checkStartAndEnd } from './start-end.js';
 
 export type { Finding, LocatedFinding, Severity } from './finding.js';
@@ -10,7 +11,7 @@ export type { Finding, LocatedFinding, Severity } from './finding.js';
 // A rule module reads the config and returns the findings it finds, each with its position.
 export type Rule = (config: ProjectConfig) => LocatedFinding[];
 
-const RULES: readonly Rule[] = [checkStartAndEnd];
+const RULES: readonly Rule[] = [checkStartAndEnd, checkBlockReferences];
 
 // Runs the rules in the given order and returns every finding, sorted by flow, then block, then rule
 // order, then path. The positions are removed from the result.

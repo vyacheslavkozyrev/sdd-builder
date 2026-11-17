@@ -21,7 +21,7 @@ import { parseBlockLink, parseRoute } from './link.js';
 
 const BLOCK_KINDS = ['start', 'agent', 'approval', 'check', 'end'] as const;
 const END_OUTCOMES = ['done', 'stopped'] as const;
-const CHECK_TYPES = ['checks', 'diff size'] as const;
+export const CHECK_TYPES = ['checks', 'diff size'] as const;
 // `outcome` is not an agent key, so an agent that has it is refused as an unknown key (F-02 AC-005).
 const AGENT_KEYS = [
   'id',
@@ -353,7 +353,7 @@ function parseEnd(object: Readonly<Record<string, unknown>>, path: string, probl
 // Text that may be empty: `producedArtifact` is optional text, not non-blank text (stories AC-014; decision 33).
 // The same holds for an agent's `description`, `arguments` and `restrictions`: the schema marks none of them non-blank,
 // and an agent that takes no arguments has `arguments: ""`.
-function plainText(value: unknown, path: string, problems: Problems): string | undefined {
+export function plainText(value: unknown, path: string, problems: Problems): string | undefined {
   if (typeof value !== 'string') {
     problems.add(path, 'must be text');
     return undefined;
@@ -362,7 +362,7 @@ function plainText(value: unknown, path: string, problems: Problems): string | u
 }
 
 // A list of rule ids (`ruleTags`): the text-list rules (no blank, no duplicate), then the id rule on each entry (decision 18).
-function idList(value: unknown, path: string, problems: Problems): Id[] | undefined {
+export function idList(value: unknown, path: string, problems: Problems): Id[] | undefined {
   const entries = textList(value, path, problems);
   if (entries === undefined) {
     return undefined;

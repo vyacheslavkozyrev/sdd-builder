@@ -1,4 +1,4 @@
-# Implementation Plan — [Feature Name] ([F-XX])
+# Implementation Plan — Technical details step (F-10)
 
 Each task is **one implement → review → test → commit cycle** and produces exactly one commit. Rules for tasks:
 
@@ -10,18 +10,28 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 ## Tasks
 
-- [ ] T001 [Layer] [Short action] — `source/[path]`, `source/[test path]` — covers AC-001
-- [ ] T002 [Layer] [Short action] — `source/[path]` — covers AC-002
+- [ ] T001 [Web] Technical text rules as pure functions: the 100-code-point limit for single-line fields and rule names, the 5,000 limit for the architecture, the 1,000 limit for a rule description (reusing the code-point truncation of `project.ts`), the rule id from a name (lower case, each run outside `a–z` and `0–9` becomes one hyphen), the "has a letter or digit" test, the duplicate-id flags for a list of rules, and the 60-block limit with `canAddRule` — `source/apps/web/src/wizard/technical.ts`, `source/apps/web/test/technical.test.ts` — covers AC-004 (rule), AC-006 (rule), AC-012 (rule), AC-013 (rule), AC-014 (rule), AC-015 (rule), AC-017 (rule), AC-018 (rule)
+- [ ] T002 [Web] Wizard values for step 2: `WizardValues` gains `stack` (the five fields, empty strings initially), `architecture` (empty) and `rules` (empty list of `{ name, description }`); the reducer adds `add-rule` (refused at 60, appends one empty block), `remove-rule` (by index, keeps the order), and `update-rule` (merges a name or description); `update` merges the new fields as typed (no trim); Next and Prev keep all of them; restart clears them. Updates the F-08 and F-09 state tests that expect the old values shape — `source/apps/web/src/wizard/state.ts`, `source/apps/web/test/state.test.ts` — covers AC-007 (reducer: no trim on Next and Prev; see Rationale), AC-008 (reducer), AC-009 (reducer), AC-010 (reducer), AC-012 (reducer refuses a 61st block), AC-020 (reducer), AC-021 (reducer)
+- [ ] T003 [Web] Technical details step, stack and architecture: the five stack fields as single-line Material UI text fields (the language with its required mark, the other four optional), each limited to 100 code points on change, and the architecture as a multi-line field limited to 5,000 code points with its help line and no counter; no storage or console call in the step — `source/apps/web/src/wizard/TechnicalStep.tsx`, `source/apps/web/test/TechnicalStep.test.tsx` — covers AC-001, AC-002, AC-003, AC-004 (field), AC-005, AC-006 (field), AC-022 (no storage or console call in the stack and architecture fields)
+- [ ] T004 [Web] Technical details step, rule blocks: the rule list in its own scroll region, each block with its name (single line, 100 limit), its file line (`.claude/rules/<id>.md`, or the no-id message), its duplicate-id message, its description (multi-line, 1,000 limit) and a Remove button that opens a confirmation (Cancel keeps the block, Remove block removes it); the Add rule block button, disabled at 60 with its reason beside it; the empty list text on a new project — `source/apps/web/src/wizard/RuleBlocks.tsx`, `source/apps/web/test/RuleBlocks.test.tsx` — covers AC-008 (display: the list starts empty), AC-009 (Add control), AC-010 (Remove control), AC-011 (confirmation), AC-012 (disabled Add and its reason), AC-013 (name field), AC-014 (file line), AC-015 (message in place of the file name), AC-016 (file line follows the name as typed), AC-017 (duplicate message), AC-018 (description field), AC-022 (no storage or console call in the rule list)
+- [ ] T005 [Web] Wizard and app wiring: `Wizard` shows `TechnicalStep` with the rule list on step 2, keeps the F-09 project step on step 1 and the F-08 placeholder on steps 3 and 4; `App` passes the step 2 values and their handlers through the wizard; New project clears them; the privacy scan covers the new step files — `source/apps/web/src/wizard/Wizard.tsx`, `source/apps/web/src/App.tsx`, `source/apps/web/test/Wizard.test.tsx`, `source/apps/web/test/App.test.tsx`, `source/apps/web/test/wizard-privacy.test.ts` — covers AC-008 (wiring: the list is empty through the app), AC-019, AC-020 (wiring), AC-021 (wiring), AC-022 (privacy scan), AC-023 (layout: checked at Verify)
+- [ ] T006 [Docs] `ui.md` §2 Step 2 and §6: the 100-code-point limit on the stack fields and rule names, the no-id message in place of the file name (the block is kept, Next stays enabled), and the reason shown beside a disabled Add rule block at 60 — `spec/documents/ui.md` — covers AC-004 (documented), AC-015 (documented), AC-012 (documented)
 
 ## Rationale
 
-[Why the tasks are in this order; dependencies and architecture constraints that shaped it.]
+- **Order.** T001 is pure logic with no React, so its tests need nothing else; every later task reads its limits, the id rule and the duplicate flags from it. T002 extends the wizard state that the step reads and writes, with the shape T003 to T005 use. T003 and T004 are the two parts of the step body: the stack and architecture fields first (simpler, no dialog), then the rule list, which is the larger part and uses the confirmation. T005 wires the body into the wizard and the app, so it comes after the body. T006 is documentation, last, once the behaviour is in place.
+- **Superseded placeholder.** F-08 AC-013 says every step body shows the placeholder line. F-10 replaces it for step 2 only; steps 3 and 4 keep it, and step 1 keeps the F-09 body. T005 changes the wizard test for step 2 and keeps the placeholder test for steps 3 and 4. F-08's and F-09's own specs are not edited; this note is the record.
+- **Where the rules live.** The limits, the id rule and the duplicate flags are web view-model logic in `source/apps/web/src/wizard/technical.ts`, not in `core`. The configuration built from these values, including the rule list as `ProjectConfig.rules`, comes with F-13 and F-14, which reuse these functions. `core` stays free of UI concerns, and the dependency direction holds (`web` does not depend on `api`).
+- **Rule list keys.** Rule blocks are held as an ordered list in the wizard state and each field is controlled, so the list is rendered with its index as the key. Removing a block re-renders the blocks after it from state; no field keeps its own value.
+- **Libraries.** Only `@mui/material` is used: `TextField`, `Button`, and `Dialog` for the removal confirmation, as F-07 and F-08 already use it. No new dependency and no icon library. This matches `architecture.md` §5.
+- **Testing without a DOM.** As in F-07 to F-09, the web package has no DOM test library. Component tests render with `react-dom/server` and check markup; behaviour is checked by finding the `TextField`, `Button` or `Dialog` element in the React element tree and calling its handler with a fixed value. No test uses the wall clock, the network or browser storage.
+- **Counting.** Code points are counted with `Array.from`, as in `project.ts`, so an emoji is one and a surrogate pair is never split at a limit (F-10 AC-006 and AC-018 negative cases).
+- **AC-007 (no trim) and the configuration function.** AC-007 says the architecture text is not trimmed when moving between steps or when the configuration function is called. No configuration function exists before F-13, so T002 proves the first half (Next, Prev and restart keep the text as typed). The configuration half is checked when F-13 adds that function; until then Verify records AC-007 as covered for the reducer only. This is a known gap, not a change to the stories.
+- **Scope.** No Analyze, no configuration build and no storage (F-13, F-14; decision 13). The placeholder body stays on steps 3 and 4 (F-11 to F-13 replace it).
 
 ## Layer Tags
 
 | Tag | Scope |
 |-----|-------|
-| `[Build]` | Project setup, manifests, scripts |
+| `[Web]` | `source/apps/web`: the technical text rules, the wizard values, the step 2 body (stack, architecture, rule list), the wizard and app wiring |
 | `[Docs]` | Documentation changes required by the feature |
-
-Add layer tags matching the modules in `architecture.md` §3.

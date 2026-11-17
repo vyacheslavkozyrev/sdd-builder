@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
 | UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
 | Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | 🔄 In Progress | 2026-11-16 | 12 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-16 | 13 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T013 | Public namespace: `pipeline` exported from the root; `pipeline/index.ts` exposes the model, `parseProjectConfig` and `defaultPipeline` | 0 blockers; 3 warnings fixed (identity and exact-export checks, model and type checks); 1 suggestion fixed; 1 suggestion deferred (`ParseResult` not exported) | task check passed: core 438, api 6, web 3 |
 | T012 | Default pipeline as an import (`pipeline/default.ts`, JSON import at build time) and core purity (AST scan of `core/src`) | 0 blockers, 0 warnings; 1 suggestion deferred (scan list fixed by AC-035) | task check passed: core 432, api 6, web 3 |
 | T011 | Default pipeline data, part 3: flows `verify` and `complete`, the gates on the links from `build` and `verify`, and the tests of AC-030 to AC-032 (`default-data.test.ts`) | 2 blockers fixed (Start block added to `verify` and `complete`), 2 warnings fixed (a test for the Start block; a test for the §11 gates), 1 suggestion fixed. Open for the owner: a stop route on the build to verify gate is not in decision 33 (Deferred Findings) | task check passed: core 417, api 6, web 3 |
 | T010 | Default pipeline data, part 2: the flow `build` and `plan`'s link to it (`source/templates/pipeline/default.json`); no test until T011 | 0 blockers, 0 warnings. Gate build to verify moved to T011; open item: block link labels (Deferred Findings) | task check passed: core 411, api 6, web 3 |
@@ -67,6 +68,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T011 (`source/templates/pipeline/default.json`, the `build` → `verify` gate): architecture §11 asks for a false output that stops, on the flow link. Decision 33's `Gate` has no route field and refuses unknown keys, and the decision says a gate's fail output stops the process, so the link carries no route and the stop is implicit. Not changed: a route on a gate would change decision 33; owner to confirm.
 
 - T012 (`source/packages/core/test/pipeline/purity.test.ts`, `FORBIDDEN`): the scan covers exactly the six modules that AC-035 names. Other I/O modules, such as `fs/promises`, `node:fs/promises` and `node:process`, are not flagged, so a file could import them and pass. Not changed: the list is the criterion's, and widening it is a spec change the owner should decide. No core file imports them today.
+
+- T013 (`source/packages/core/src/pipeline/index.ts`): the namespace does not export the type `ParseResult` that `parseProjectConfig` returns, so an API caller cannot name the result type without `ReturnType`. The plan lists the exact names the namespace exposes (model types, `parseProjectConfig`, `defaultPipeline`), so the type is not added. Owner or the API task (F-03 onward) to decide whether it joins the namespace. Not changed.
 
 ---
 

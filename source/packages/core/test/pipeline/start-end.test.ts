@@ -45,6 +45,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1]',
         text: 'more than one Start block',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[1]', text: 'is not reached' },
     ],
   },
   {
@@ -59,6 +60,7 @@ const cases: Case[] = [
       }
     }),
     expected: [
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
       {
         severity: 'blocker',
         path: 'pipeline.flows[1].blocks[1]',

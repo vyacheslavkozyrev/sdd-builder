@@ -72,6 +72,8 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1].connectedTo',
         text: 'a block of another flow',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -89,6 +91,9 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[0].connectedTo',
         text: 'a block of another flow',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[1]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -105,6 +110,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1].connectedTo',
         text: 'which is no block',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
     ],
   },
   {
@@ -122,6 +128,8 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1].connectedTo',
         text: 'which is no block',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -136,6 +144,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1].connectedTo.true',
         text: 'a block of another flow',
       },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -168,6 +177,9 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].blocks[1].connectedTo.true',
         text: 'a block of another flow',
       },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -178,11 +190,14 @@ const cases: Case[] = [
     expected: [],
   },
   {
-    name: 'F-03 AC-010 a Check with both routes stopped gives no finding',
+    name: 'F-03 AC-010 a Check with both routes stopped gives no reference finding; the blocks after it are unreached',
     config: buildConfig((config) => {
       insertCheck(config, { stop: true }, { stop: true });
     }),
-    expected: [],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-009 a Check route to a block of its own flow gives no finding',

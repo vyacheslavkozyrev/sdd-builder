@@ -81,11 +81,11 @@ const cases: Case[] = [
     expected: [],
   },
   {
-    name: 'F-03 AC-008 a flow without a connection gives no finding',
+    name: 'F-03 AC-008 a flow without a connection gives no connection finding, only the reachability blocker',
     config: buildConfig((config) => {
       addReviewFlow(config);
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' }],
   },
   {
     name: 'F-03 AC-008 a flow connection that names no flow gives a blocker at its path',
@@ -118,6 +118,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].connectedTo',
         text: '"review-agent"',
       },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -135,6 +136,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[1].connectedTo',
         text: 'which is no flow of the pipeline',
       },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -204,6 +206,7 @@ const cases: Case[] = [
         path: 'pipeline.flows[0].ruleTags[0]',
         text: 'names no rule',
       },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {

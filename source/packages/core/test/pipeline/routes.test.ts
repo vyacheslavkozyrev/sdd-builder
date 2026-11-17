@@ -59,18 +59,18 @@ function insertCheck(config: ProjectConfig, index: number, routeTrue: Route, rou
 
 const cases: Case[] = [
   {
-    name: 'F-03 AC-015 a back route to an earlier block with a round limit has no finding',
+    name: 'F-03 AC-015 a back route to an earlier block with a round limit has no route finding; its stop route leaves the End unreached',
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-agent', roundLimit: 2 }, { stop: true });
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' }],
   },
   {
-    name: 'F-03 AC-015 a back route to the Start with a round limit has no finding',
+    name: 'F-03 AC-015 a back route to the Start with a round limit has no route finding; its stop route leaves the End unreached',
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-start', roundLimit: 1 }, { stop: true });
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' }],
   },
   {
     name: 'F-03 AC-016 a forward route to a later block has no finding',
@@ -91,35 +91,50 @@ const cases: Case[] = [
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-check' }, { stop: true });
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'the Check itself' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'the Check itself' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-017 a route to the Check itself with a round limit is still a blocker and no warning',
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-check', roundLimit: 2 }, { stop: true });
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'the Check itself' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'the Check itself' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-017 a false route to the Check itself is a blocker at the false path',
     config: buildConfig((config) => {
       insertCheck(config, 2, { stop: true }, { to: 'build-check' });
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'the Check itself' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'the Check itself' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-018 a back route with no round limit is a warning at its path',
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-agent' }, { stop: true });
     }),
-    expected: [{ severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'no round limit' }],
+    expected: [
+      { severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'no round limit' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-018 a back route to the Start with no round limit is a warning at its path',
     config: buildConfig((config) => {
       insertCheck(config, 2, { stop: true }, { to: 'build-start' });
     }),
-    expected: [{ severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'no round limit' }],
+    expected: [
+      { severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'no round limit' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-018 two back routes with no round limit give one warning each, at their own paths',
@@ -129,6 +144,7 @@ const cases: Case[] = [
     expected: [
       { severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'no round limit' },
       { severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'no round limit' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
     ],
   },
   {
@@ -136,7 +152,10 @@ const cases: Case[] = [
     config: buildConfig((config) => {
       insertCheck(config, 2, { to: 'build-agent', roundLimit: 2 }, { to: 'build-start' });
     }),
-    expected: [{ severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'no round limit' }],
+    expected: [
+      { severity: 'warning', path: 'pipeline.flows[0].blocks[2].connectedTo.false', text: 'no round limit' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-015 a route to a block of another flow is skipped here, so only the reference blocker remains',
@@ -146,6 +165,8 @@ const cases: Case[] = [
     }),
     expected: [
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'a block of another flow' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
     ],
   },
   {
@@ -155,6 +176,7 @@ const cases: Case[] = [
     }),
     expected: [
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo.true', text: 'which is no block' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
     ],
   },
   {
@@ -162,7 +184,7 @@ const cases: Case[] = [
     config: buildConfig((config) => {
       insertCheck(config, 2, { stop: true }, { stop: true });
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' }],
   },
 ];
 
@@ -181,7 +203,7 @@ describe('F-03 AC-015 to AC-018 back routes, self routes and round limits', () =
 describe('F-03 AC-018 a config whose only findings are warnings has no blocker', () => {
   it('F-03 AC-018 a back route with no round limit leaves the config with warnings and no blocker', () => {
     const config = buildConfig((item) => {
-      insertCheck(item, 2, { to: 'build-agent' }, { stop: true });
+      insertCheck(item, 2, { to: 'build-agent' }, { to: 'build-end' });
     });
     const findings = analyzeStructure(config);
     expect(findings.length).toBeGreaterThan(0);

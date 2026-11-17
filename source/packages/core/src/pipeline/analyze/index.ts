@@ -4,6 +4,7 @@
 import type { ProjectConfig } from '../model.js';
 import type { Finding, LocatedFinding } from './finding.js';
 import { checkLoops } from './cycles.js';
+import { checkReachability } from './reach.js';
 import { checkRoutes } from './routes.js';
 import { checkBlockReferences, checkFlowAndTagReferences } from './references.js';
 import { checkStartAndEnd } from './start-end.js';
@@ -19,6 +20,7 @@ const RULES: readonly Rule[] = [
   checkFlowAndTagReferences,
   checkLoops,
   checkRoutes,
+  checkReachability,
 ];
 
 // Runs the rules in the given order and returns every finding, sorted by flow, then block, then rule

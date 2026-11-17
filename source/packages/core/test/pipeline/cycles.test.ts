@@ -77,7 +77,10 @@ const cases: Case[] = [
     config: buildConfig((config) => {
       connect(config, 0, 'build-agent', 'build-start');
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'closes a loop' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'closes a loop' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-012 a loop of three blocks gives one blocker at the Connection that closes it',
@@ -86,14 +89,20 @@ const cases: Case[] = [
       connect(config, 0, 'build-agent', 'build-approval');
       connect(config, 0, 'build-approval', 'build-agent');
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo', text: 'closes a loop' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo', text: 'closes a loop' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-012 a block whose Connection names itself is a loop',
     config: buildConfig((config) => {
       connect(config, 0, 'build-agent', 'build-agent');
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'closes a loop' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'closes a loop' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+    ],
   },
   {
     name: 'F-03 AC-012 two loops in one flow give one blocker each, in document order',
@@ -105,6 +114,8 @@ const cases: Case[] = [
     expected: [
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'closes a loop' },
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[2].connectedTo', text: 'closes a loop' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' },
     ],
   },
   {
@@ -113,15 +124,19 @@ const cases: Case[] = [
       config.pipeline.flows.push(flowNamed('review'));
       connect(config, 1, 'review-agent', 'review-start');
     }),
-    expected: [{ severity: 'blocker', path: 'pipeline.flows[1].blocks[1].connectedTo', text: 'closes a loop' }],
+    expected: [
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
+      { severity: 'blocker', path: 'pipeline.flows[1].blocks[1].connectedTo', text: 'closes a loop' },
+    ],
   },
   {
-    name: 'F-03 AC-012 a Connection to a missing block is not followed, so only the reference blocker remains',
+    name: 'F-03 AC-012 a Connection to a missing block is not followed, so the reference blocker and the unreached End remain',
     config: buildConfig((config) => {
       connect(config, 0, 'build-agent', 'build-missing');
     }),
     expected: [
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'which is no block' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
     ],
   },
   {
@@ -133,6 +148,8 @@ const cases: Case[] = [
     }),
     expected: [
       { severity: 'blocker', path: 'pipeline.flows[0].blocks[1].connectedTo', text: 'a block of another flow' },
+      { severity: 'blocker', path: 'pipeline.flows[0].blocks[2]', text: 'is not reached' },
+      { severity: 'blocker', path: 'pipeline.flows[1]', text: 'is not reached from the first flow' },
       { severity: 'blocker', path: 'pipeline.flows[1].blocks[1].connectedTo', text: 'a block of another flow' },
     ],
   },
@@ -197,7 +214,7 @@ const cases: Case[] = [
       });
       connect(config, 0, 'build-agent', 'build-check');
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' }],
   },
   {
     name: 'F-03 AC-014 a Check route back to the Start is not a Connection, so it is no loop',
@@ -211,7 +228,7 @@ const cases: Case[] = [
       });
       connect(config, 0, 'build-agent', 'build-check');
     }),
-    expected: [],
+    expected: [{ severity: 'blocker', path: 'pipeline.flows[0].blocks[3]', text: 'is not reached' }],
   },
 ];
 

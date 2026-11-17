@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 7 stories, 35 criteria, all `[auto]`; approved by the user. Mermaid diagram in `process.md` included (features.md scope); AC-008 keeps Start and End as steps, as F-04 renders them; AC-010, AC-021, AC-023 and AC-028 amended 2026-11-17: Start and End kept as steps; no project name, idea or stack in F-05 (F-09, F-21 add them); a pipeline gate has no fail route in the model |
 | UX       | ➖ Not needed | 2026-11-17 | No user interface: templates and a pure generator in `source/packages/core` (the stories have no user-facing criterion) |
 | Plan     | ✅ Complete | 2026-11-17 | 13 tasks, all 35 criteria covered; approved by the user |
-| Build    | 🔄 In Progress | 2026-11-17 | 11 of 13 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 12 of 13 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ None
 | T009 | Spec template plan.md and progress.md (generic); manifest lists the three spec-template entries in order | 0 blockers, 0 warnings, 1 suggestion fixed, 1 suggestion deferred | task check passed: core 861 of 861 (46 files), api 6 of 6, web 3 of 3 |
 | T010 | Generated project's CLAUDE.md layout (process, commands, agents, rules lists); manifest lists it first | 0 blockers, 5 warnings and 2 suggestions fixed | task check passed: core 876 of 876 (47 files), api 6 of 6, web 3 of 3 |
 | T011 | Process text layout (process.md) with the Mermaid diagram fence; manifest lists it second; README placeholder rows | 0 blockers, 4 warnings and 1 suggestion fixed | task check passed: core 887 of 887 (48 files), api 6 of 6, web 3 of 3 |
+| T012 | Self-containment and determinism tests over the real layouts (tests only); AC-033 checks the layout files on disk | 0 blockers, 1 warning fixed, 1 suggestion deferred | task check passed: core 904 of 904 (49 files), api 6 of 6, web 3 of 3 |
 
 ---
 
@@ -55,6 +56,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T006 SUGGESTION `source/packages/core/test/pipeline/layouts-command.test.ts` AC-002 and `source/templates/claude-code/pipeline-command.md`: the gate steps read `Approval: Approval on the stories` and `Approval: Approval: the manual checklist results`, because the default gate descriptions in `source/templates/pipeline/default.json` already start with "Approval" and `pipelineSteps` in `values-command.ts` adds the prefix. Wording of the default data is a product decision and `default-data.test.ts:65` pins the text; the test pins the current output until that decision is made.
 
+- T012 SUGGESTION `source/packages/core/test/pipeline/layouts-default.test.ts` (`EXPECTED_PATHS`): the 21 paths are a fixed list checked against the default pipeline, not read from the README layout table. Reading a Markdown table back would couple the test to the README's wording; the list is kept, and it changes only with a change to the default pipeline or the base manifest.
 - T011 SUGGESTION `source/templates/README.md` rows for `{{processList}}`, `{{commandList}}` and `{{agentList}}`: still say "enabled" blocks and flows, a concept the generator no longer has. Predates T011 (the README is not changed by T011 beyond the diagram rows); T013 owns the README sweep.
 
 ---

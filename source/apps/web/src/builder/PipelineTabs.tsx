@@ -45,9 +45,16 @@ const ADD_SX = {
   color: '#334155',
   borderRadius: 0,
 } as const;
-const BODY_SX = { display: 'flex', flexDirection: 'column', gap: 1, pt: 2 } as const;
+const BODY_SX = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 1.5,
+  pt: 8,
+} as const;
 const NAME_SX = { fontSize: 14, fontWeight: 700, color: '#0f172a' } as const;
-const PLACEHOLDER_SX = { fontSize: 13, color: '#64748b' } as const;
+const PLACEHOLDER_SX = { fontSize: 17, fontWeight: 600, color: '#4338ca' } as const;
+const NOTE_SX = { fontSize: 12, color: '#64748b' } as const;
 
 // The one-line placeholder that a flow tab shows until F-12 builds its blocks (AC-005).
 export function flowPlaceholder(name: string): string {
@@ -101,13 +108,15 @@ export interface FlowTabBodyProps {
   readonly blockCount: number;
 }
 
-// The body of a flow tab: its name and block count, and the placeholder (screen 08).
+// The body of a flow tab: its name and block count, the placeholder and the pointer back to the canvas,
+// centred as on screen 08.
 export function FlowTabBody({ name, blockCount }: FlowTabBodyProps) {
   const blocks = blockCount === 1 ? '1 block' : `${blockCount} blocks`;
   return (
     <Box sx={BODY_SX}>
       <Typography sx={NAME_SX}>{`${name} · ${blocks}`}</Typography>
       <Typography sx={PLACEHOLDER_SX}>{flowPlaceholder(name)}</Typography>
+      <Typography sx={NOTE_SX}>The canvas is on the Pipeline tab.</Typography>
     </Box>
   );
 }

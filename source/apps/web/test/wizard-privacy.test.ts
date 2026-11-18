@@ -61,3 +61,32 @@ describe('F-10 technical details step privacy', () => {
     }
   });
 });
+
+// F-11 AC-040: the builder makes no network call, so the builder and the workflow step are also scanned for
+// the calls that would send data out.
+const networkCalls = ['fetch(', 'XMLHttpRequest', 'WebSocket', 'WebTransport', 'EventSource', 'sendBeacon'];
+// Other browser stores that would keep the pipeline after a refresh (AC-040 names storage in general).
+const otherStores = ['document.cookie', 'caches.', 'navigator.storage'];
+const builderDir = join(srcDir, 'builder');
+
+function builderSources(): { name: string; text: string }[] {
+  return readdirSync(builderDir)
+    .filter((name) => name.endsWith('.ts') || name.endsWith('.tsx'))
+    .map((name) => ({ name, text: readFileSync(join(builderDir, name), 'utf8') }));
+}
+
+describe('F-11 workflow step privacy', () => {
+  it('F-11 AC-040 the workflow step is in the scanned wizard source', () => {
+    expect(wizardSources().map((source) => source.name)).toContain('PipelineStep.tsx');
+  });
+
+  it('F-11 AC-040 the workflow step, the wizard and the builder make no storage, console or network call', () => {
+    const scanned = [...wizardSources(), ...builderSources(), appSource()];
+    expect(builderSources().length).toBeGreaterThan(0);
+    for (const { name, text } of scanned) {
+      for (const word of [...forbidden, ...networkCalls, ...otherStores]) {
+        expect(text.includes(word), `${name} must not use ${word}`).toBe(false);
+      }
+    }
+  });
+});

@@ -8,6 +8,7 @@ import { initialWizardState, wizardReducer } from './wizard/state.js';
 // New project restarts the wizard; Prev and Next move it one step. The project
 // step's name and idea reach the reducer through the update action (F-09 AC-013, AC-014).
 // The step 2 values and the rule blocks reach it through the same kind of actions (F-10 AC-008, AC-020, AC-021).
+// The pipeline of step 3 reaches it through the update action, and New project restores the default (F-11 AC-040 to AC-042).
 
 export function App() {
   const [state, dispatch] = useReducer(wizardReducer, undefined, initialWizardState);

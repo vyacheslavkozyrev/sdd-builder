@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { PipelineStep } from './PipelineStep.js';
 import { ProjectStep } from './ProjectStep.js';
 import { RuleBlocks } from './RuleBlocks.js';
 import { StepBody } from './StepBody.js';
@@ -7,11 +8,11 @@ import { WizardStepper } from './WizardStepper.js';
 import type { RuleBlock, WizardValues } from './state.js';
 import type { StepNumber } from './steps.js';
 
-// The wizard panel (F-08 AC-004, AC-015; F-09 AC-012; F-10 AC-019). The stepper row
+// The wizard panel (F-08 AC-004, AC-015; F-09 AC-012; F-10 AC-019; F-11 AC-041). The stepper row
 // comes first, with Prev and Next beside it; the step body is rendered below it and
 // fills the rest of the centre area. Step 1 shows the project step (F-09), step 2 the
 // technical details card (F-10: the stack and architecture beside the rule blocks),
-// and steps 3 and 4 still show the F-08 placeholder body.
+// step 3 the Pipeline tab (F-11), and step 4 still shows the F-08 placeholder body.
 
 export interface WizardProps {
   step: StepNumber;
@@ -75,6 +76,12 @@ export function Wizard({
           <Box aria-hidden="true" sx={DIVIDER_SX} />
           <RuleBlocks rules={values.rules} onAdd={onAddRule} onRemove={onRemoveRule} onUpdate={onUpdateRule} />
         </Box>
+      ) : step === 3 ? (
+        <PipelineStep
+          pipeline={values.pipeline}
+          ruleBlocks={values.rules}
+          onChange={(next) => onUpdate({ pipeline: next })}
+        />
       ) : (
         <StepBody />
       )}

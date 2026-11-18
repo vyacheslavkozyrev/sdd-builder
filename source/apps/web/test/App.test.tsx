@@ -14,6 +14,7 @@ import {
   type RuleBlock,
   type WizardAction,
   type WizardState,
+  type WizardValues,
 } from '../src/wizard/state.js';
 
 // The wizard values with the project step set and the step 2 values empty.
@@ -82,7 +83,7 @@ function frameOf(): ReactElement<{ onNewProject: () => void; children?: unknown 
 type WizardProps = {
   step: number;
   values: ReturnType<typeof project>;
-  onUpdate: (patch: { name?: string; idea?: string }) => void;
+  onUpdate: (patch: Partial<WizardValues>) => void;
   onAddRule: () => void;
   onRemoveRule: (index: number) => void;
   onUpdateRule: (index: number, patch: Partial<RuleBlock>) => void;
@@ -134,8 +135,8 @@ describe('F-08 application wiring', () => {
     expect(render()).not.toContain(PLACEHOLDER_LINE);
   });
 
-  it('F-09 AC-012 shows the placeholder line on step 3 (App wiring)', () => {
-    hooks.state = { step: 3, values: project('', '') };
+  it('F-09 AC-012 shows the placeholder line on step 4 (App wiring)', () => {
+    hooks.state = { step: 4, values: project('', '') };
     expect(render()).toContain(PLACEHOLDER_LINE);
   });
 
@@ -269,5 +270,26 @@ describe('F-10 application wiring for the technical details step', () => {
     expect(markup).toContain('No rule blocks yet.');
     expect(markup).not.toContain('Code Style');
     expect(markup).not.toContain('Use the formatter.');
+  });
+});
+
+describe('F-11 application wiring for the workflow step', () => {
+  it('F-11 AC-041 passes the default pipeline to the wizard on a new project', () => {
+    expect(wizardOf().props.values.pipeline).toEqual(defaultWizardPipeline());
+  });
+
+  it('F-11 AC-040 a pipeline change through the update action is held in the state and shown on step 3', () => {
+    hooks.state = { step: 3, values: project('', '') };
+    const next = { ...defaultWizardPipeline(), name: 'Changed process' };
+    wizardOf().props.onUpdate({ pipeline: next });
+    expect(hooks.state.values.pipeline).toEqual(next);
+    expect(wizardOf().props.values.pipeline).toEqual(next);
+  });
+
+  it('F-11 AC-042 New project restarts the pipeline at the default and discards every edit (negative case)', () => {
+    hooks.state = { step: 3, values: { ...project('', ''), pipeline: { ...defaultWizardPipeline(), name: 'Changed process' } } };
+    frameOf().props.onNewProject();
+    expect(wizardOf().props.step).toBe(1);
+    expect(hooks.state.values.pipeline).toEqual(defaultWizardPipeline());
   });
 });

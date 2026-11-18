@@ -8,6 +8,7 @@ import { PLACEHOLDER_LINE } from '../src/wizard/StepBody.js';
 import { ADD_LABEL } from '../src/wizard/RuleBlocks.js';
 import { LANGUAGE_ID } from '../src/wizard/TechnicalStep.js';
 import {
+  defaultWizardPipeline,
   initialWizardState,
   wizardReducer,
   type RuleBlock,
@@ -23,6 +24,7 @@ function project(name: string, idea: string) {
     stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
     architecture: '',
     rules: [],
+    pipeline: defaultWizardPipeline(),
   };
 }
 
@@ -202,6 +204,7 @@ function withStep2(rules: RuleBlock[] = []) {
     stack: { language: 'TypeScript', framework: 'React', platform: '', buildTool: '', testFramework: '' },
     architecture: 'Layers',
     rules,
+    pipeline: defaultWizardPipeline(),
   };
 }
 

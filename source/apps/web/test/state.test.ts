@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
+  defaultWizardPipeline,
   initialWizardState,
   wizardReducer,
   type WizardState,
@@ -13,6 +14,7 @@ const empty: WizardValues = {
   stack: emptyStack,
   architecture: '',
   rules: [],
+  pipeline: defaultWizardPipeline(),
 };
 
 const sample = { name: 'Demo', idea: 'A small idea' };
@@ -255,5 +257,79 @@ describe('F-10 wizard values for the technical details step', () => {
     const restarted = wizardReducer(state, { type: 'restart' });
     expect(restarted.values).toEqual(empty);
     expect(restarted.values.rules).toEqual([]);
+  });
+});
+
+describe('F-11 wizard values for the workflow step', () => {
+  const DEFAULT_FLOW_IDS = ['specify', 'ux', 'plan', 'build', 'verify', 'complete'];
+
+  it('F-11 AC-041 the initial pipeline is the default pipeline with its flows in the default order', () => {
+    const { pipeline } = initialWizardState().values;
+    expect(pipeline.flows.map((flow) => flow.id)).toEqual(DEFAULT_FLOW_IDS);
+    expect(pipeline).toEqual(defaultWizardPipeline());
+  });
+
+  it('F-11 AC-041 each initial state has its own pipeline, and an edit to one does not change the next', () => {
+    const first = initialWizardState().values.pipeline;
+    const second = initialWizardState().values.pipeline;
+    expect(first).not.toBe(second);
+    expect(first.flows).not.toBe(second.flows);
+    first.flows.pop();
+    expect(initialWizardState().values.pipeline.flows.map((flow) => flow.id)).toEqual(DEFAULT_FLOW_IDS);
+  });
+
+  it('F-11 AC-040 a pipeline set by update is held in the values and the earlier state is not changed', () => {
+    const start = initialWizardState();
+    const edited = { ...start.values.pipeline, description: 'Edited in memory' };
+    const updated = wizardReducer(start, { type: 'update', patch: { pipeline: edited } });
+    expect(updated.values.pipeline).toEqual(edited);
+    expect(updated.values.name).toBe('');
+    expect(start.values.pipeline.description).not.toBe('Edited in memory');
+  });
+
+  it('F-11 AC-040 an edit of the pipeline makes no storage, IndexedDB or network call (negative case)', () => {
+    const calls: string[] = [];
+    const record = (label: string) => (): void => {
+      calls.push(label);
+    };
+    const fakeStorage = (label: string) => ({
+      length: 0,
+      key: record(`${label}.key`),
+      getItem: record(`${label}.getItem`),
+      setItem: record(`${label}.setItem`),
+      removeItem: record(`${label}.removeItem`),
+      clear: record(`${label}.clear`),
+    });
+    vi.stubGlobal('localStorage', fakeStorage('localStorage'));
+    vi.stubGlobal('sessionStorage', fakeStorage('sessionStorage'));
+    vi.stubGlobal('indexedDB', { open: record('indexedDB.open') });
+    vi.stubGlobal('fetch', record('fetch'));
+    vi.stubGlobal('XMLHttpRequest', record('XMLHttpRequest'));
+    try {
+      const edited = { ...defaultWizardPipeline(), description: 'Edited in memory' };
+      const updated = wizardReducer(initialWizardState(), { type: 'update', patch: { pipeline: edited } });
+      wizardReducer(updated, { type: 'restart' });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+    expect(calls).toEqual([]);
+  });
+
+  it('F-11 AC-040 the pipeline kept by Next and Prev is the one that was set', () => {
+    const edited = { ...defaultWizardPipeline(), description: 'Edited in memory' };
+    const updated = wizardReducer(initialWizardState(), { type: 'update', patch: { pipeline: edited } });
+    expect(walk(updated, ['next', 'next', 'prev']).values.pipeline).toEqual(edited);
+  });
+
+  it('F-11 AC-042 restart resets the pipeline to the default and discards every edit', () => {
+    const edited = { ...defaultWizardPipeline(), description: 'Edited in memory', flows: [] };
+    const onStep3 = walk(wizardReducer(initialWizardState(), { type: 'update', patch: { pipeline: edited } }), [
+      'next',
+      'next',
+    ]);
+    const restarted = wizardReducer(onStep3, { type: 'restart' });
+    expect(restarted.step).toBe(1);
+    expect(restarted.values.pipeline).toEqual(defaultWizardPipeline());
+    expect(restarted.values.pipeline).not.toBe(onStep3.values.pipeline);
   });
 });

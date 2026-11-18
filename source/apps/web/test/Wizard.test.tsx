@@ -14,7 +14,7 @@ import {
   TEST_FRAMEWORK_ID,
 } from '../src/wizard/TechnicalStep.js';
 import { WizardStepper } from '../src/wizard/WizardStepper.js';
-import type { WizardValues } from '../src/wizard/state.js';
+import { defaultWizardPipeline, type WizardValues } from '../src/wizard/state.js';
 import type { StepNumber } from '../src/wizard/steps.js';
 
 const TITLES = ['Project', 'Technical details', 'Workflow', 'Analyze and generate'];
@@ -25,6 +25,7 @@ const EMPTY: WizardValues = {
   stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
   architecture: '',
   rules: [],
+  pipeline: defaultWizardPipeline(),
 };
 
 // The marker that shows the step body of each step: the project name field on

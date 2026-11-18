@@ -1,9 +1,10 @@
 // The wizard's state (F-08 AC-008, AC-010, AC-012; F-09 AC-002, AC-010 reducer,
 // AC-013 reducer, AC-014 reducer; F-10 AC-007 to AC-010, AC-012, AC-020, AC-021
-// reducer). A reducer over the step model in steps.ts. The values live in
-// memory only: no saving and no logging (decision 13, AC-011). Refreshing the
-// browser clears them.
+// reducer; F-11 AC-040 to AC-042). A reducer over the step model in steps.ts. The
+// values live in memory only: no saving and no logging (decision 13, AC-011).
+// Refreshing the browser clears them.
 
+import { pipeline } from '@sddbuilder/core';
 import { nextStep, prevStep, FIRST_STEP, type StepNumber } from './steps.js';
 import { canAddRule } from './technical.js';
 
@@ -25,13 +26,28 @@ export interface RuleBlock {
 
 // The values entered across the four steps. The project step (F-09) holds the
 // name and the idea as typed; the technical details step (F-10) holds the stack,
-// the architecture text and the ordered list of rule blocks.
+// the architecture text and the ordered list of rule blocks; the workflow step
+// (F-11) holds the pipeline as the builder edits it.
 export interface WizardValues {
   name: string;
   idea: string;
   stack: StackValues;
   architecture: string;
   rules: RuleBlock[];
+  pipeline: pipeline.Pipeline;
+}
+
+// The default pipeline, read through the parser so it is the value the API checks,
+// and copied so that no edit can change the imported default (F-11 AC-041, AC-042).
+// A config that fails to parse is a programmer error: the default ships with the code.
+export function defaultWizardPipeline(): pipeline.Pipeline {
+  const result = pipeline.parseProjectConfig({
+    schemaVersion: 2,
+    rules: [],
+    pipeline: pipeline.defaultPipeline,
+  });
+  if (!result.ok) throw new Error('the default pipeline does not parse');
+  return structuredClone(result.config.pipeline);
 }
 
 export interface WizardState {
@@ -59,12 +75,14 @@ export function initialWizardState(): WizardState {
       stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
       architecture: '',
       rules: [],
+      pipeline: defaultWizardPipeline(),
     },
   };
 }
 
 // Next and Prev move one step and keep the values. Restart returns to step 1
-// with the initial values. Update merges the given fields into the values.
+// with the initial values, the pipeline included (F-11 AC-042). Update merges the
+// given fields into the values, the pipeline included (F-11 AC-040).
 // Add rule appends one empty block, refused (state returned as it is) at the
 // limit of 60 blocks. Remove rule and update rule act on the block at index;
 // an index with no block is a programmer error and throws.

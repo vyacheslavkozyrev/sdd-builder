@@ -69,11 +69,14 @@ Two areas on the step:
 - The first tab is **Pipeline** (the whole process). It cannot be removed.
 - One tab per **flow** (a child flow of the pipeline), in pipeline order.
 - A **+** button after the last tab adds a flow. Flows are added only this way.
+- A new flow is named `flow-N`, with N the first number not used as another flow's id or name. Its **id** is file-safe, fixed at creation, and names its generated file. Its **name** is free text, non-blank and unique among the names; the Name field changes the name only.
 
 ### 3.2 Pipeline tab
 - **Toolbox** (left, fixed width): **Connection**, **Approval**, **Check**.
 - **Canvas** (centre, all remaining space): an interactive diagram in the style of Miro (pan, select, drag). Each flow is a box with its name and its block count. Flows have no Start or End on this tab.
-- A **connection** is an arrow between two flows. Its ends can be repointed by dragging them to another flow.
+- Boxes are laid out automatically, left to right in pipeline order. No box position is saved; a dragged box keeps its place only until the next layout.
+- A **connection** is an arrow between two flows. To add one, drag the **Connection** tool from the toolbox onto a flow, then onto the next flow, and give the artifact label. Button path: **Connect to next flow** in the source flow's panel.
+- A flow has at most one outgoing arrow; a second is refused with the reason. A flow cannot connect to itself. Ends can be repointed by dragging them to another flow.
 - **Approval** and **Check** sit on an arrow between two flows, dragged from the toolbox onto the arrow:
   - **Approval** stops and waits for a person.
   - **Check** is decided by an agent. It has two outputs, true and false, and its type is `checks` (the check named in its description) or `diff size` (a threshold in lines).
@@ -92,11 +95,12 @@ Two areas on the step:
 ### 3.4 Property panels and footer
 - Each panel shows the file the item generates and, where the item has them, its arguments.
 - Footer of a block or flow: **Delete**, which asks for confirmation and names the connections it removes. There is no switch-off: every block and flow is part of the process (architecture decision 34).
-- An edit that is refused keeps the previous value and says why, next to the field.
+- An edit that is refused keeps the saved value and shows the reason beneath the field.
+- A body (pipeline or flow) is at most **1000 characters**, counted in code points.
 
 ### 3.5 Structure marks
 - A structural problem is shown beside the item it names, with its severity colour (blocker red, warning amber, info grey) and its message.
-- A problem whose item is not drawn is listed under the Pipeline tab in a section "Not on a drawn item".
+- A problem whose item is not drawn (a block, or the pipeline as a whole) is listed under the Pipeline tab in a section "Not on a drawn item", with its message and path.
 - Brief problems (name, idea, stack, rules) are not shown on the pipeline; they appear at Analyze.
 - Marks never block an edit.
 

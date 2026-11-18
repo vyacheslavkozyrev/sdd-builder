@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 18 of 18 tasks committed |
+| Build    | ✅ Complete | 2026-11-17 | 19 of 19 tasks committed (18 plan tasks and T013a) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -43,6 +43,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T014 | Canvas with React Flow: boxes, arrows with labels and gates, pan and select, box drag, repoint by reconnect, Connection, Approval and Check drops, scroll strip, captions and empty state (`Canvas.tsx`, `drawing.ts`, `Toolbox.tsx`) | 1 blocker fixed (React Flow passes the fixed end; the reconnect mapping was reversed); 5 warnings fixed (scroll strip, captions, empty state, drop-on-empty test, alert text); 2 suggestions fixed; 3 deferred. Size: 1052 lines, committed as one on the owner's instruction. Device checks at Verify: AC-011, AC-012, AC-022, AC-024 | task check passed: api 57, web 563, core 1017 |
 | T016 | Button paths and confirmations: the arrow's Add approval, Add check, Remove gate, Source flow and Target flow pickers, Delete connection with its confirmation; the flow's Connect to next flow with its artifact label, and Delete flow with its confirmation naming the arrows and gates (`ButtonPaths.tsx`, `ConfirmDialog.tsx`, `GateForm.tsx`, `drawing.ts`) | 0 blockers; 1 warning fixed (a threshold typed under diff size and kept on checks was dropped, not refused: `gateRequestFor` passes it on, AC-018); 2 suggestions fixed (`GateForm` moved out of `Canvas.tsx` so the panel does not load the canvas; a test for a flow with no connections). Size: 749 lines staged; size guard waived by the owner; committed as one on the owner's instruction | task check passed: api 57, web 603, core 1017 |
 | T017 | Step 3 wiring: PipelineStep on step 3 (tabs, toolbox, canvas, panel, selection), reports every change through onUpdate, delete flow clears the selection, rulesFor passed to the canvas, privacy scan extended (`PipelineStep.tsx`, `Wizard.tsx`, `App.tsx`) | 0 blockers; 1 warning fixed (the privacy scan missed WebTransport, EventSource, cookies, caches, storage); 1 suggestion fixed; 2 deferred. Size: 410 changed lines, committed as one on the owner's instruction. Tests: api 57, web 616, core 1017 | task check passed: api 57, web 616, core 1017 |
+| T018 | `ui.md` §3 updated: flow ids and names, automatic layout with no saved positions, connect by drag and by button, one arrow per flow, refusals keep the saved value, 'Not on a drawn item', body limit 1000 (`spec/documents/ui.md`) | docs only; 0 blockers; ui.md §4 and §6 still say 1,000 (owner to align) | task check passed: api 57, web 616, core 1017 |
 
 ---
 

@@ -15,10 +15,21 @@ type Gate = pipeline.Gate;
 // The data type a toolbox tool carries when it is dragged onto the canvas.
 export const TOOL_MIME = 'application/x-sddbuilder-tool';
 
-// A box is 140 px wide and 56 px high. React Flow draws the arrows once the boxes have a size, so the size is given
-// here and the arrows do not wait for a measurement.
-export const BOX_WIDTH = 140;
-export const BOX_HEIGHT = 56;
+// A box is 100 px wide and 76 px high, as on screens 01 to 03; the 60 px gap between two boxes holds the arrow. React
+// Flow draws the arrows once the boxes have a size, so the size is given here and the arrows do not wait for a
+// measurement.
+export const BOX_WIDTH = 100;
+export const BOX_HEIGHT = 76;
+
+// The arrow as drawn on the approved screens: slate 1.5 px (`.line`), blue 2.5 px when selected (`.lineSel`).
+export interface ArrowLook {
+  readonly colour: string;
+  readonly width: number;
+}
+
+export function arrowLook(selected: boolean): ArrowLook {
+  return selected ? { colour: '#2563eb', width: 2.5 } : { colour: '#64748b', width: 1.5 };
+}
 
 // The tools a gate is dragged from the toolbox to an arrow (AC-022). The Connection tool is not a gate.
 export type GateTool = Exclude<ToolboxTool, 'Connection'>;

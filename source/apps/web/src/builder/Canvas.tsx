@@ -30,10 +30,12 @@ import '@xyflow/react/dist/style.css';
 import type { pipeline } from '@sddbuilder/core';
 import { connectFlows, type ConnectResult } from './connect.js';
 import { addGate } from './gates.js';
+import { BOX_PITCH } from './layout.js';
 import {
   BOX_HEIGHT,
   BOX_WIDTH,
   TOOL_MIME,
+  arrowLook,
   arrowViews,
   boxViews,
   captionFor,
@@ -104,16 +106,20 @@ const EMPTY_SX = {
 const EMPTY_HEAD_SX = { fontSize: 14, fontWeight: 700 } as const;
 // The marks of a box sit under it, in the box's own width, so they stay beside the box they name (AC-035).
 const BOX_MARKS_SX = { position: 'absolute', top: BOX_HEIGHT + 6, left: 0, width: BOX_WIDTH } as const;
-const ARROW_LABEL_WIDTH = 240;
+// The label of an arrow is as wide as one box pitch, so the labels of two arrows do not overlap, and it sits above the row.
+const ARROW_LABEL_WIDTH = BOX_PITCH - 8;
+const ARROW_LABEL_GAP = 6;
 
 const INITIAL_VIEW: Viewport = { x: 24, y: 80, zoom: 1 };
 const PENDING_NOTE = 'Connection: drop it on the next flow, or on empty canvas to cancel.';
 const STRIP_NOTE = 'Drag the canvas or use the strip to see the rest of the row.';
 const EMPTY_CAPTION = 'No flows in this pipeline.';
+const NO_PLACES: Record<string, XYPosition> = {};
 const CANVAS_LABEL = 'Pipeline canvas';
 
 // An arrow is a bezier path with its label drawn inside the arrow's own group, so a drop on the label reaches the arrow
-// (AC-022). The label is the artifact label, its gate and the arrow's marks (AC-008, AC-035).
+// (AC-022). The label is the artifact label, its gate and the arrow's marks (AC-008, AC-035). The boxes are drawn over
+// the edges, so the label sits above the row of boxes, where no box covers it (screens 01 to 03).
 function ArrowEdge({
   id,
   sourceX,
@@ -123,20 +129,21 @@ function ArrowEdge({
   sourcePosition,
   targetPosition,
   markerEnd,
+  style,
   label,
 }: EdgeProps) {
   const [path, labelX, labelY] = getBezierPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition });
   return (
     <>
-      <BaseEdge id={id} path={path} {...(markerEnd === undefined ? {} : { markerEnd })} />
+      <BaseEdge id={id} path={path} {...(style === undefined ? {} : { style })} {...(markerEnd === undefined ? {} : { markerEnd })} />
       <foreignObject
         x={labelX - ARROW_LABEL_WIDTH / 2}
-        y={labelY - 8}
+        y={labelY - BOX_HEIGHT / 2 - ARROW_LABEL_GAP}
         width={ARROW_LABEL_WIDTH}
         height={1}
         overflow="visible"
       >
-        <Box sx={{ textAlign: 'center' }}>{label}</Box>
+        <Box sx={{ textAlign: 'center', transform: 'translateY(-100%)' }}>{label}</Box>
       </foreignObject>
     </>
   );
@@ -172,7 +179,7 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
   const anyMark = [...marks.boxes, ...marks.arrows, marks.notDrawn].some((list) => list.length > 0);
   // Boxes the user dragged keep their place until the layout is recomputed (a change of the flows).
   const [moved, setMoved] = useState<{ key: string; places: Record<string, XYPosition> }>({ key, places: {} });
-  const places = moved.key === key ? moved.places : {};
+  const places = moved.key === key ? moved.places : NO_PLACES;
   const [pending, setPending] = useState<string | undefined>(undefined);
   const [drop, setDrop] = useState<DropState | undefined>(undefined);
   const [notice, setNotice] = useState<string | undefined>(undefined);
@@ -194,7 +201,9 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
     return () => observer.disconnect();
   }, []);
 
-  const nodes: Node[] = boxViews(config).map((box, index) => {
+  // The nodes and the edges are memoised, so the objects React Flow receives keep their identity between renders that
+  // change nothing (F-11 AC-008). Their inputs are listed in the dependency arrays.
+  const nodes = useMemo<Node[]>(() => boxViews(config).map((box, index) => {
     const findings = marks.boxes[index] ?? [];
     const blocked = findings.some((finding) => finding.severity === 'blocker');
     return {
@@ -221,19 +230,26 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
       selected: selection?.kind === 'flow' && selection.id === box.id,
       ...(blocked ? { style: { borderColor: '#dc2626', borderWidth: 2 } } : {}),
     };
-  });
+  }), [config, marks, places, selection]);
 
   // The arrow that leaves each flow carries that flow's arrow marks (`marks.arrows[i]`).
-  const arrowMarks = arrowMarksBySource(config, marks);
-  const edges: Edge[] = arrowViews(config).map((arrow) => ({
-    id: arrow.id,
-    source: arrow.source,
-    target: arrow.target,
-    type: 'arrow',
-    label: <ArrowLabel text={arrow.label} findings={arrowMarks.get(arrow.source) ?? []} />,
-    markerEnd: { type: MarkerType.ArrowClosed },
-    selected: selection?.kind === 'arrow' && selection.source === arrow.source,
-  }));
+  const edges = useMemo<Edge[]>(() => {
+    const arrowMarks = arrowMarksBySource(config, marks);
+    return arrowViews(config).map((arrow) => {
+      const selected = selection?.kind === 'arrow' && selection.source === arrow.source;
+      const look = arrowLook(selected);
+      return {
+        id: arrow.id,
+        source: arrow.source,
+        target: arrow.target,
+        type: 'arrow',
+        label: <ArrowLabel text={arrow.label} findings={arrowMarks.get(arrow.source) ?? []} />,
+        style: { stroke: look.colour, strokeWidth: look.width },
+        markerEnd: { type: MarkerType.ArrowClosed, color: look.colour },
+        selected,
+      };
+    });
+  }, [config, marks, selection]);
 
   const row = rowWidth(config);
   const overflows = row * view.zoom > visible;
@@ -252,12 +268,17 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
 
   const onNodesChange: OnNodesChange<Node> = (changes) => {
     const next = { ...places };
+    let moving = false;
     for (const change of changes) {
       if (change.type === 'position' && change.position !== undefined) {
         next[change.id] = change.position;
+        moving = true;
       }
     }
-    setMoved({ key, places: next });
+    // Only a move changes the state: dimension changes arrive on every measure and must not re-render the canvas.
+    if (moving) {
+      setMoved({ key, places: next });
+    }
   };
 
   // React Flow passes the end that stayed fixed (`fixedEnd`); reconnectFor takes the end that moved.

@@ -197,3 +197,17 @@ describe('F-11 AC-012 connection by drag from the toolbox', () => {
     expect(next.flows[0]?.connectedTo).toEqual({ to: 'build', label: 'verify.md' });
   });
 });
+
+// The connection points of each box: a source handle on its right side and a target handle on its left side. React
+// Flow draws an arrow only between two such handles, so each box must have both (F-11 AC-008). jsdom does not draw the
+// arrows; their drawing is checked in a browser at 1280 x 800 (the Verify screenshots).
+describe('F-11 AC-008 connection points of each box', () => {
+  it('F-11 AC-008 gives every box a source handle on its right side and a target handle on its left side', () => {
+    renderCanvas(PIPE);
+    for (const name of ['plan', 'build', 'verify']) {
+      const node = nodeOf(name);
+      expect(node.querySelectorAll('.react-flow__handle-right.source')).toHaveLength(1);
+      expect(node.querySelectorAll('.react-flow__handle-left.target')).toHaveLength(1);
+    }
+  });
+});

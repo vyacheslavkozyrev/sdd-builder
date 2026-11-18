@@ -3,7 +3,10 @@ import { describe, expect, it } from 'vitest';
 import type { pipeline } from '@sddbuilder/core';
 import {
   arrowLabel,
+  arrowLook,
   arrowViews,
+  BOX_HEIGHT,
+  BOX_WIDTH,
   blockText,
   boxViews,
   captionFor,
@@ -170,8 +173,8 @@ describe('F-11 AC-011 canvas caption and strip', () => {
 
   it('F-11 AC-011 gives the row width from the first box to the last box edge', () => {
     expect(rowWidth(config([]))).toBe(0);
-    expect(rowWidth(config([flow('plan')]))).toBe(140);
-    expect(rowWidth(pipe)).toBe(2 * BOX_PITCH + 140);
+    expect(rowWidth(config([flow('plan')]))).toBe(BOX_WIDTH);
+    expect(rowWidth(pipe)).toBe(2 * BOX_PITCH + BOX_WIDTH);
   });
 
   it('F-11 AC-011 places the strip thumb by the pan and sizes it by the visible part', () => {
@@ -226,5 +229,18 @@ describe('F-11 AC-022 gate drop', () => {
       type: 'diff size',
       threshold: '40',
     });
+  });
+});
+
+describe('F-11 AC-008 and AC-009 box size and arrow look as on screens 01 to 03', () => {
+  it('F-11 AC-009 draws a box 100 by 76 px with a 60 px gap to the next box', () => {
+    expect(BOX_WIDTH).toBe(100);
+    expect(BOX_HEIGHT).toBe(76);
+    expect(BOX_PITCH - BOX_WIDTH).toBe(60);
+  });
+
+  it('F-11 AC-008 draws an arrow slate and 1.5 px wide, and the selected arrow blue and 2.5 px wide', () => {
+    expect(arrowLook(false)).toEqual({ colour: '#64748b', width: 1.5 });
+    expect(arrowLook(true)).toEqual({ colour: '#2563eb', width: 2.5 });
   });
 });

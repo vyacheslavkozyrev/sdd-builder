@@ -66,6 +66,10 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment — 2026-11-17
+**Changed**: `plan.md` adds task T013a (pipeline arguments row editor), after T013. Owner decision.
+**Reason**: T013 shows the pipeline arguments read-only. AC-027 requires that an accepted edit updates the value, and screen 09 designs the row editor; no task covered it.
+**Impact**: T013a runs before T014. T014 to T018 are unchanged.
 ```
 ### Amendment — YYYY-MM-DD
 **Changed**: [documents updated]

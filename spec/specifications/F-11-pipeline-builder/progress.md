@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 12 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 13 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T010 | Selection and panel content: `panelFor` for the pipeline, a flow and an arrow; the toolbox list (Connection, Approval, Check); no switch-off (`source/apps/web/src/builder/panel.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (test fixture helper; AC-034 checks field keys); AC-026 corrected to the flow id | task check passed: api 57, web 472, core 1017 |
 | T011 | Wizard values for step 3: `pipeline` in the wizard state from the default pipeline (copied per state), reset by New project (`source/apps/web/src/wizard/state.ts`) | 0 blockers; 1 warning fixed (the no-network-call test did not stub the network); shape-only fixture updates in F-08, F-10 and App/Wizard tests | task check passed: api 57, web 478, core 1017 |
 | T012 | Pipeline tab shell: tab row (Pipeline first, a tab per flow, + after the last), the flow placeholder, no remove control (`source/apps/web/src/builder/PipelineTabs.tsx`) | 0 blockers; 2 warnings fixed (the + test did not exercise + ; a test name that did not match its test); 1 suggestion deferred (tab ARIA to T017) | task check passed: api 57, web 491, core 1017 |
+| T013 | Properties panel and toolbox UI: panel fields and edits, refusals revert to the saved value with the reason beneath, body counter, Delete-only footer, toolbox (`PropertiesPanel.tsx`, `Toolbox.tsx`) | 0 blockers; 2 warnings fixed (arrow heading 'Connection' as on the screens; AC-027 tests for Enter, a parser flow-name refusal and a multi-line body); 2 suggestions fixed. Size: 746 insertions, over the 400 guard; committed as one commit on the owner's instruction. Open: pipeline arguments are read-only, so AC-027 for arguments needs a task (plan amendment pending) | task check passed: api 57, web 518, core 1017 |
 
 ---
 
@@ -52,6 +53,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T007 SUGGESTION `source/apps/web/src/builder/connect.ts` (`connectFlows`, `repointConnection`) and `gates.ts` (`addGate`, `removeGate`): an unknown flow id is a refusal there, while `fields.ts` `applyFlowField` throws. Left as is: typescript.md gives an unknown id as a programmer error (throw), and the refusals in the T003 to T005 files are outside T007. Owner to decide whether to align the earlier files to the throw or the builder to refusals. Nothing in `src` calls the T007 functions yet, so the throw is not reachable from the panel today.
 - T012 SUGGESTION `source/apps/web/src/builder/PipelineTabs.tsx` `PipelineTabs`: the tabs have `role="tab"` with no `aria-controls` and no `tabpanel`, and there is no arrow-key focus movement between tabs. Left as is: the panel the tabs control (the canvas or the flow body) is wired in T017, and a link to a panel that does not exist yet would be a broken reference.
 - T007 NOTE (decision, not a finding) `source/apps/web/src/builder/fields.ts` `applyFlowField`: the flow name's uniqueness compares trimmed text and is case-sensitive. Trimmed, because the blank check trims and two names that look the same on the Map clash. Case-sensitive, because a flow's file comes from its id (`.claude/commands/<id>.md`), so a case difference is not a file clash. Covered by `fields.test.ts` "F-11 AC-029 compares names after trimming" and "compares names case-sensitively".
+- T013 SUGGESTION `source/packages/core/src/pipeline/check/primitives.ts` (body refusal text): the parser says "must be at most 1000 characters", while screen 09 and the counter say "1,000". Left as is: the text is the parser message, which AC-027 requires, and it is in core, outside T013. Owner may decide the format.
+- T013 SUGGESTION `source/apps/web/src/builder/PropertiesPanel.tsx` (gate text): the gate lines do not match screens 02 and 03 ("Gate on this arrow", the no-gate state). Left as is: the gate controls and the no-gate state belong to T016 with the Add and Remove buttons.
 
 ---
 

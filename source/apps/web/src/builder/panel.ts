@@ -105,7 +105,7 @@ export function panelFor(selection: Selection | undefined, config: Pipeline): Pa
   if (link.gate !== undefined) {
     fields.push({ key: 'gate', label: 'Gate', value: link.gate });
   }
-  return { heading: 'Arrow', fields, file: undefined, toolbox: TOOLBOX };
+  return { heading: 'Connection', fields, file: undefined, toolbox: TOOLBOX };
 }
 
 function findFlow(config: Pipeline, id: string): Flow {

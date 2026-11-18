@@ -19,7 +19,7 @@ export function limitToCodePoints(text: string, limit: number): string {
 }
 
 // Digits with a comma every three places, independent of the locale.
-function withThousands(n: number): string {
+export function withThousands(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 

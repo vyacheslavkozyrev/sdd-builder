@@ -79,7 +79,7 @@ describe('F-11 AC-025 properties panel fields', () => {
     const gate = { kind: 'approval' as const, description: 'Owner approves' };
     const cfg = withArrow({ to: 'plan', label: 'Spec', gate });
     const result = panelFor({ kind: 'arrow', source: 'specify' }, cfg);
-    expect(result.heading).toBe('Arrow');
+    expect(result.heading).toBe('Connection');
     expect(result.fields).toEqual([
       { key: 'label', label: 'Artifact label', value: 'Spec' },
       { key: 'source', label: 'Source', value: 'specify' },
@@ -128,7 +128,7 @@ describe('F-11 AC-030 one selection at a time', () => {
     const onFlow = panelFor({ kind: 'flow', id: 'plan' }, cfg);
     expect(onFlow.heading).toBe('Name plan');
     const onArrow = panelFor({ kind: 'arrow', source: 'specify' }, cfg);
-    expect(onArrow.heading).toBe('Arrow');
+    expect(onArrow.heading).toBe('Connection');
     expect(onArrow.fields.some((field) => field.key === 'arguments')).toBe(false);
     const onPipeline = panelFor({ kind: 'pipeline' }, cfg);
     expect(onPipeline.heading).toBe('Pipeline');

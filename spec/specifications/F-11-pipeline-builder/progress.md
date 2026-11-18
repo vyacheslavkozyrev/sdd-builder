@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 9 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 10 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T007 | Field edits through the parser: `applyPipelineField` and `applyFlowField`, the flow name's uniqueness, body limit through the parser (`source/apps/web/src/builder/fields.ts`) | 0 blockers; 2 warnings fixed (two assertions passed on a refusal; the name comparison rule had no test); 3 suggestions fixed (reason checks for tools and rule tags; comments on the throw and the comparison); 1 suggestion deferred | task check passed: api 57, web 423 (fields.test.ts 32), core 1017 |
 | T008 | Delete a flow: `deleteFlow` removes the flow, its outgoing and incoming arrows and gates, and returns them for the confirmation; the last flow may go; an unknown id refused (`source/apps/web/src/builder/delete.ts`) | 0 blockers; 1 warning fixed (a test that did not prove other flows unchanged); 1 suggestion fixed (self-arrow edge case) | task check passed: api 57, web 441, core 1017 |
 | T009 | Structure marks from `analyzeStructure`: placed on a box, an arrow or 'Not on a drawn item'; severity; the rule list mapped from step 2 with the F-10 rule-id function (`source/apps/web/src/builder/marks.ts`) | 0 blockers; 1 warning fixed (AC-038 test could not fail); 2 suggestions fixed (a rule tag on the pipeline; a helper for the placement) | task check passed: api 57, web 457, core 1017 |
+| T010 | Selection and panel content: `panelFor` for the pipeline, a flow and an arrow; the toolbox list (Connection, Approval, Check); no switch-off (`source/apps/web/src/builder/panel.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (test fixture helper; AC-034 checks field keys); AC-026 corrected to the flow id | task check passed: api 57, web 472, core 1017 |
 
 ---
 

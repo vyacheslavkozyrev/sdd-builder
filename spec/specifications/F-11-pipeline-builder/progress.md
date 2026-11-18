@@ -73,6 +73,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment — 2026-11-17 (T015 file name)
+**Changed**: `plan.md` T015 names its view `MarkViews.tsx` and its test `MarkViews.test.tsx`, not `Marks.tsx`. `marks.ts` (T009) stays the pure function.
+**Reason**: on the case-insensitive filesystem, `./Marks.js` resolves to `marks.ts`. Owner decision (option a).
+**Impact**: T015 only. T016 to T018 are unchanged.
+
 ### Amendment — 2026-11-17
 **Changed**: `plan.md` adds task T013a (pipeline arguments row editor), after T013. Owner decision.
 **Reason**: T013 shows the pipeline arguments read-only. AC-027 requires that an accepted edit updates the value, and screen 09 designs the row editor; no task covered it.

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
 import { pipeline } from '@sddbuilder/core';
-import { codePointCount, withThousands } from '../wizard/project.js';
+import { codePointCount } from '../wizard/project.js';
 import {
   applyFlowField,
   applyPipelineField,
@@ -270,7 +270,7 @@ function EditText({ id, label, value, multiline, counted, onCommit }: EditTextPr
         helperText={reason === undefined ? undefined : `${REFUSED_PREFIX}${reason}`}
       />
       {counted ? (
-        <Typography sx={COUNTER_SX}>{`${withThousands(codePointCount(draft))} / ${withThousands(BODY_LIMIT)} characters`}</Typography>
+        <Typography sx={COUNTER_SX}>{`${codePointCount(draft)} / ${BODY_LIMIT} characters`}</Typography>
       ) : null}
     </Box>
   );

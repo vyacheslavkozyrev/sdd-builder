@@ -260,23 +260,23 @@ describe('F-11 AC-027 accepted and refused edits', () => {
 });
 
 describe('F-11 AC-028 body counter and limit', () => {
-  it('F-11 AC-028 shows the body length in code points against 1,000', () => {
+  it('F-11 AC-028 shows the body length in code points against 1000', () => {
     render(<Harness initial={config([PLAN])} selection={{ kind: 'flow', id: 'plan' }} />);
-    expect(screen.getByText('15 / 1,000 characters')).toBeTruthy();
+    expect(screen.getByText('15 / 1000 characters')).toBeTruthy();
   });
 
   it('F-11 AC-028 counts one emoji as one character', () => {
     render(<Harness initial={config([flow('plan', 'plan', { body: '😀' })])} selection={{ kind: 'flow', id: 'plan' }} />);
-    expect(screen.getByText('1 / 1,000 characters')).toBeTruthy();
+    expect(screen.getByText('1 / 1000 characters')).toBeTruthy();
   });
 
-  it('F-11 AC-028 accepts a body of exactly 1,000 characters', () => {
+  it('F-11 AC-028 accepts a body of exactly 1000 characters', () => {
     const onChange = vi.fn();
     render(<Harness initial={config([PLAN])} selection={{ kind: 'flow', id: 'plan' }} onChange={onChange} />);
     fireEvent.change(field('Body'), { target: { value: 'a'.repeat(BODY_LIMIT) } });
     fireEvent.blur(field('Body'));
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('1,000 / 1,000 characters')).toBeTruthy();
+    expect(screen.getByText('1000 / 1000 characters')).toBeTruthy();
   });
 
   it('F-11 AC-028 refuses a body of 1,001 characters, shows the reason and keeps the saved body', () => {
@@ -287,12 +287,12 @@ describe('F-11 AC-028 body counter and limit', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(field('Body').value).toBe('Writes plan.md.');
     expect(screen.getByText('Refused: Body must be at most 1000 characters.')).toBeTruthy();
-    expect(screen.getByText('15 / 1,000 characters')).toBeTruthy();
+    expect(screen.getByText('15 / 1000 characters')).toBeTruthy();
   });
 
   it('F-11 AC-028 counts a pipeline body the same way', () => {
     render(<Harness initial={config([PLAN], { body: 'Runs the feature.' })} selection={undefined} />);
-    expect(screen.getByText('17 / 1,000 characters')).toBeTruthy();
+    expect(screen.getByText('17 / 1000 characters')).toBeTruthy();
   });
 });
 

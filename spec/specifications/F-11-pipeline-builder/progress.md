@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
 | Build    | 🔄 In Progress | 2026-11-17 | 21 of 21 tasks committed (T019 and T020 added at Verify) |
-| Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION: 37 of 37 `[auto]` covered, no gaps; manual checklist in `checklist.md` (AC-006, AC-011, AC-012, AC-022, AC-024) |
+| Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION (re-run after T019 and T020): 37 of 37 `[auto]` covered, no gaps; 1700 tests passed; manual checklist in `checklist.md` (AC-006, AC-008, AC-011, AC-012, AC-022, AC-024) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -94,62 +94,62 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Verify run, 2026-11-17, on `main`, clean tree, Current Task None, all plan tasks ticked.
+Verify re-run, 2026-11-17, after T019 and T020, on `main`, Current Task None, all 21 plan tasks ticked. The working tree holds only the untracked `checklist.md` (not staged, per the caller).
 
-**Test totals** (`source/scripts/task-check.sh`, passed, exit 0): typecheck clean; api 57 passed (6 files), web 616 passed (34 files), core 1017 passed (53 files). Total 1690 passed, 0 failed, 0 skipped. No `it.skip`, `test.todo` or `describe.skip` in the sources.
+**Test totals** (`source/scripts/task-check.sh`, passed, exit 0): typecheck clean; api 57 passed (6 files), web 626 passed (34 files), core 1017 passed (53 files). Total 1700 passed, 0 failed, 0 skipped. No `it.skip`, `test.todo`, `.only` or `describe.skip` in the sources.
 
-**Automated coverage**: 37 of 37 `[auto]` criteria have at least one passing test named `F-11 AC-###`. Gaps: none.
+**Automated coverage**: 37 of 37 `[auto]` criteria have at least one passing test named `F-11 AC-###` (291 test declarations carry an F-11 id). Gaps: none. AC-008 is `[auto]` and is covered for the arrow data (source, target, label, gate); that the arrows are drawn on screen is not provable in jsdom and is on the checklist.
 
-**Manual criteria** (`[device]`, in `checklist.md`): AC-006, AC-011, AC-012, AC-022, AC-024. AC-037 is tagged `[auto]` in `stories.md` and is covered by tests; it is also on the checklist at the caller's request.
+**Manual criteria** (`[device]`, in `checklist.md`): AC-006, AC-011, AC-012, AC-022, AC-024. Added at re-verify: AC-008 (visible arrows, `[auto]` tag kept). AC-037 is tagged `[auto]` in `stories.md` and is covered by tests; it is also on the checklist at the caller's request.
 
 | Criterion | Tag | Covering tests (test files) | Result |
 | --- | --- | --- | --- |
-| AC-001 | auto | builder-model, PipelineTabs | covered |
-| AC-002 | auto | PipelineTabs | covered |
-| AC-003 | auto | builder-model, PipelineTabs, PipelineStep | covered |
-| AC-004 | auto | PipelineTabs | covered |
-| AC-005 | auto | PipelineTabs, PipelineStep | covered |
+| AC-001 | auto | builder-model, PipelineTabs (5 tests) | covered |
+| AC-002 | auto | PipelineTabs (2) | covered |
+| AC-003 | auto | builder-model, PipelineStep, PipelineTabs (11) | covered |
+| AC-004 | auto | PipelineTabs (2) | covered |
+| AC-005 | auto | PipelineStep, PipelineTabs (4) | covered |
 | AC-006 | device | none (checklist) | manual |
-| AC-007 | auto | builder-model, drawing, Canvas | covered |
-| AC-008 | auto | builder-model, drawing | covered |
-| AC-009 | auto | drawing, layout, Canvas | covered |
-| AC-010 | auto | layout | covered |
-| AC-011 | device | drawing, Canvas (selection and layout key) | manual |
-| AC-012 | device | drawing, Canvas (reconnect and drag connect) | manual |
-| AC-013 | auto | connect | covered |
-| AC-014 | auto | connect, ButtonPaths | covered |
-| AC-015 | auto | connect, ButtonPaths | covered |
-| AC-016 | auto | connect, ButtonPaths | covered |
-| AC-017 | auto | gates, ButtonPaths | covered |
-| AC-018 | auto | gates, drawing, ButtonPaths | covered |
-| AC-019 | auto | gates, ButtonPaths | covered |
-| AC-020 | auto | gates | covered |
-| AC-021 | auto | gates, ButtonPaths | covered |
-| AC-022 | device | drawing, Canvas (drop tests) | manual |
-| AC-023 | auto | panel, PropertiesPanel | covered |
+| AC-007 | auto | builder-model, Canvas, drawing (5) | covered |
+| AC-008 | auto | builder-model, Canvas, drawing (9); visible drawing on screen (checklist) | covered; visible check manual |
+| AC-009 | auto | Canvas, drawing, layout (9) | covered |
+| AC-010 | auto | layout (1) | covered |
+| AC-011 | device | Canvas, drawing (10; selection and layout key) | manual |
+| AC-012 | device | Canvas, drawing (11; reconnect, connection-point drag, drag connect) | manual |
+| AC-013 | auto | Canvas, connect (4) | covered |
+| AC-014 | auto | ButtonPaths, connect (10) | covered |
+| AC-015 | auto | ButtonPaths, connect (14) | covered |
+| AC-016 | auto | ButtonPaths, connect (8) | covered |
+| AC-017 | auto | ButtonPaths, gates (7) | covered |
+| AC-018 | auto | ButtonPaths, drawing, gates (8) | covered |
+| AC-019 | auto | ButtonPaths, gates (3) | covered |
+| AC-020 | auto | gates (2) | covered |
+| AC-021 | auto | ButtonPaths, gates (8) | covered |
+| AC-022 | device | Canvas, drawing (7; drop tests) | manual |
+| AC-023 | auto | panel, PropertiesPanel (4) | covered |
 | AC-024 | device | none (checklist) | manual |
-| AC-025 | auto | panel, ArgumentRows, PropertiesPanel | covered |
-| AC-026 | auto | panel, PropertiesPanel | covered |
-| AC-027 | auto | fields, ArgumentRows, PropertiesPanel | covered |
-| AC-028 | auto | fields, PropertiesPanel | covered |
-| AC-029 | auto | fields | covered |
-| AC-030 | auto | panel | covered |
-| AC-031 | auto | delete, ButtonPaths, PipelineStep | covered |
-| AC-032 | auto | delete | covered |
-| AC-033 | auto | delete, Canvas, MarkViews | covered |
-| AC-034 | auto | panel, PropertiesPanel | covered |
-| AC-035 | auto | MarkViews, marks | covered |
-| AC-036 | auto | marks, MarkViews | covered |
-| AC-037 | auto | marks, MarkViews | covered |
-| AC-038 | auto | marks | covered |
-| AC-039 | auto | marks | covered |
-| AC-040 | auto | state, wizard-privacy, App, PipelineStep, Wizard | covered |
-| AC-041 | auto | state, App, PipelineStep, Wizard | covered |
-| AC-042 | auto | state, App | covered |
+| AC-025 | auto | ArgumentRows, panel, PropertiesPanel (13) | covered |
+| AC-026 | auto | panel, PropertiesPanel (6) | covered |
+| AC-027 | auto | ArgumentRows, fields, PropertiesPanel (32) | covered |
+| AC-028 | auto | fields, PropertiesPanel (10) | covered |
+| AC-029 | auto | fields (7) | covered |
+| AC-030 | auto | panel (2) | covered |
+| AC-031 | auto | ButtonPaths, delete, PipelineStep (14) | covered |
+| AC-032 | auto | delete (8) | covered |
+| AC-033 | auto | Canvas, delete, MarkViews (6) | covered |
+| AC-034 | auto | panel, PropertiesPanel (4) | covered |
+| AC-035 | auto | marks, MarkViews (11) | covered |
+| AC-036 | auto | marks, MarkViews (5) | covered |
+| AC-037 | auto | marks, MarkViews (7) | covered |
+| AC-038 | auto | marks (2) | covered |
+| AC-039 | auto | marks (4) | covered |
+| AC-040 | auto | App, PipelineStep, state, Wizard, wizard-privacy (8) | covered |
+| AC-041 | auto | App, PipelineStep, state, Wizard (6) | covered |
+| AC-042 | auto | App, state (2) | covered |
 
 **Scope**: every F-11 scope item in `features.md` maps to at least one criterion (the coverage table in `stories.md`).
 
-**Checklist status**: AWAITING CONFIRMATION. Five device criteria (AC-006, AC-011, AC-012, AC-022, AC-024) and one requested on-screen check (AC-037) wait for the user's results in `checklist.md`. Verify is not complete.
+**Checklist status**: AWAITING CONFIRMATION. Five device criteria (AC-006, AC-011, AC-012, AC-022, AC-024), the on-screen check of AC-008 (visible arrows, added at re-verify) and the requested on-screen check of AC-037 wait for the user's results in `checklist.md`. Verify is not complete.
 
 **Notes for the owner**: `stories.md` tags AC-037 `[auto]`, while the task request listed it as a device check. The checklist covers it as an extra. `ui.md` §4 and §6 still say 1,000 for the body limit (T018 note). Earlier review items (refusal wording, screen 01 hint) stay in Deferred Findings.
 

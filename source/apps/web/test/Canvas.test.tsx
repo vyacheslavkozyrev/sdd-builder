@@ -57,7 +57,9 @@ function toolDrag(tool: string) {
 function renderCanvas(pipe: Pipeline, selection: Selection | undefined = undefined) {
   const onSelect = vi.fn();
   const onChange = vi.fn();
-  const view = render(<Canvas pipeline={pipe} selection={selection} onSelect={onSelect} onChange={onChange} />);
+  const view = render(
+    <Canvas pipeline={pipe} rules={[]} selection={selection} onSelect={onSelect} onChange={onChange} />,
+  );
   return { ...view, onSelect, onChange };
 }
 
@@ -163,10 +165,11 @@ describe('F-11 AC-011 canvas text', () => {
     expect(screen.getByText('Flows in pipeline order. Selected: build.')).toBeTruthy();
   });
 
-  it('F-11 AC-024 shows the empty canvas with its message when there are no flows', () => {
+  it('F-11 AC-033 shows the empty canvas with its message when there are no flows', () => {
     renderCanvas(config([]));
     expect(screen.getByText('No flows in this pipeline.')).toBeTruthy();
-    expect(screen.getByText('No flows yet. Add one with + in the tab row.')).toBeTruthy();
+    expect(screen.getByText('No flows yet.')).toBeTruthy();
+    expect(screen.getByText('Add one with + in the tab row.')).toBeTruthy();
     expect(screen.queryByText(/Drag the canvas or use the strip/)).toBeNull();
   });
 });

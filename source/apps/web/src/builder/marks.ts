@@ -66,6 +66,11 @@ function placement(path: string, config: Pipeline): Placement {
   return { kind: 'box', index };
 }
 
+// The marks of each arrow, keyed by the id of the flow the arrow leaves (its source), for the canvas edges.
+export function arrowMarksBySource(config: Pipeline, marks: Marks): Map<string, readonly Finding[]> {
+  return new Map(config.flows.map((flow, index) => [flow.id, marks.arrows[index] ?? []]));
+}
+
 // Runs the analyzer on the pipeline with the given rule list and places every finding. The config is not changed.
 export function marksFor(config: Pipeline, rules: readonly Rule[]): Marks {
   const findings = pipeline.analyzeStructure({ schemaVersion: 2, rules: [...rules], pipeline: config });

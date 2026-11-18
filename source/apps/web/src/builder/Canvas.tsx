@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type DragEvent, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent } from 'react';
 import {
   Box,
   Button,
@@ -11,10 +11,14 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  BaseEdge,
   MarkerType,
   Position,
   ReactFlow,
+  getBezierPath,
   type Edge,
+  type EdgeProps,
+  type EdgeTypes,
   type HandleType,
   type Node,
   type OnNodesChange,
@@ -44,9 +48,19 @@ import {
   type GateFields,
   type GateTool,
 } from './drawing.js';
+import {
+  ArrowLabel,
+  EMPTY_MARKS_NOTE,
+  FlowMarks,
+  MARKS_NOTE,
+  MarksNote,
+  NotDrawnMarks,
+} from './MarkViews.js';
+import { arrowMarksBySource, marksFor } from './marks.js';
 import type { Selection } from './panel.js';
 
 type Pipeline = pipeline.Pipeline;
+type Rule = pipeline.Rule;
 
 // The Pipeline canvas (F-11 AC-007 to AC-009, AC-011, AC-012, AC-022, AC-024). It draws the view-model of drawing.ts
 // with React Flow, and wires its events to the pure functions: a repoint, a connection and a gate are each one call,
@@ -89,11 +103,46 @@ const EMPTY_SX = {
 } as const;
 const EMPTY_HEAD_SX = { fontSize: 14, fontWeight: 700 } as const;
 const CHECK_TYPES = ['checks', 'diff size'] as const;
+// The marks of a box sit under it, in the box's own width, so they stay beside the box they name (AC-035).
+const BOX_MARKS_SX = { position: 'absolute', top: BOX_HEIGHT + 6, left: 0, width: BOX_WIDTH } as const;
+const ARROW_LABEL_WIDTH = 240;
 
 const INITIAL_VIEW: Viewport = { x: 24, y: 80, zoom: 1 };
 const PENDING_NOTE = 'Connection: drop it on the next flow, or on empty canvas to cancel.';
 const STRIP_NOTE = 'Drag the canvas or use the strip to see the rest of the row.';
+const EMPTY_CAPTION = 'No flows in this pipeline.';
 const CANVAS_LABEL = 'Pipeline canvas';
+
+// An arrow is a bezier path with its label drawn inside the arrow's own group, so a drop on the label reaches the arrow
+// (AC-022). The label is the artifact label, its gate and the arrow's marks (AC-008, AC-035).
+function ArrowEdge({
+  id,
+  sourceX,
+  sourceY,
+  targetX,
+  targetY,
+  sourcePosition,
+  targetPosition,
+  markerEnd,
+  label,
+}: EdgeProps) {
+  const [path, labelX, labelY] = getBezierPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition });
+  return (
+    <>
+      <BaseEdge id={id} path={path} {...(markerEnd === undefined ? {} : { markerEnd })} />
+      <foreignObject
+        x={labelX - ARROW_LABEL_WIDTH / 2}
+        y={labelY - 8}
+        width={ARROW_LABEL_WIDTH}
+        height={1}
+        overflow="visible"
+      >
+        <Box sx={{ textAlign: 'center' }}>{label}</Box>
+      </foreignObject>
+    </>
+  );
+}
+const EDGE_TYPES: EdgeTypes = { arrow: ArrowEdge };
 
 // What a drop on the canvas asks for next: the artifact label of a new arrow, or the gate for an arrow.
 type DropState =
@@ -102,6 +151,8 @@ type DropState =
 
 export interface CanvasProps {
   readonly pipeline: Pipeline;
+  // The rule list of step 2: the analyzer needs it to tell a rule tag that names no rule (F-10).
+  readonly rules: readonly Rule[];
   readonly selection: Selection | undefined;
   readonly onSelect: (selection: Selection | undefined) => void;
   readonly onChange: (next: Pipeline) => void;
@@ -115,8 +166,11 @@ function closestId(target: EventTarget | null, selector: string): string | undef
   return target.closest(selector)?.getAttribute('data-id') ?? undefined;
 }
 
-export function Canvas({ pipeline: config, selection, onSelect, onChange }: CanvasProps) {
+export function Canvas({ pipeline: config, rules, selection, onSelect, onChange }: CanvasProps) {
   const key = layoutKey(config);
+  // The marks follow the pipeline on every change (AC-037); they are only shown, never checked against an edit.
+  const marks = useMemo(() => marksFor(config, rules), [config, rules]);
+  const anyMark = [...marks.boxes, ...marks.arrows, marks.notDrawn].some((list) => list.length > 0);
   // Boxes the user dragged keep their place until the layout is recomputed (a change of the flows).
   const [moved, setMoved] = useState<{ key: string; places: Record<string, XYPosition> }>({ key, places: {} });
   const places = moved.key === key ? moved.places : {};
@@ -141,30 +195,43 @@ export function Canvas({ pipeline: config, selection, onSelect, onChange }: Canv
     return () => observer.disconnect();
   }, []);
 
-  const nodes: Node[] = boxViews(config).map((box) => ({
-    id: box.id,
-    position: places[box.id] ?? { x: box.x, y: box.y },
-    data: {
-      label: (
-        <>
-          <strong>{box.name}</strong>
-          <br />
-          {box.blocks}
-        </>
-      ),
-    },
-    sourcePosition: Position.Right,
-    targetPosition: Position.Left,
-    width: BOX_WIDTH,
-    height: BOX_HEIGHT,
-    selected: selection?.kind === 'flow' && selection.id === box.id,
-  }));
+  const nodes: Node[] = boxViews(config).map((box, index) => {
+    const findings = marks.boxes[index] ?? [];
+    const blocked = findings.some((finding) => finding.severity === 'blocker');
+    return {
+      id: box.id,
+      position: places[box.id] ?? { x: box.x, y: box.y },
+      data: {
+        label: (
+          <>
+            <strong>{box.name}</strong>
+            <br />
+            {box.blocks}
+            {findings.length === 0 ? null : (
+              <Box sx={BOX_MARKS_SX}>
+                <FlowMarks findings={findings} />
+              </Box>
+            )}
+          </>
+        ),
+      },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      width: BOX_WIDTH,
+      height: BOX_HEIGHT,
+      selected: selection?.kind === 'flow' && selection.id === box.id,
+      ...(blocked ? { style: { borderColor: '#dc2626', borderWidth: 2 } } : {}),
+    };
+  });
 
+  // The arrow that leaves each flow carries that flow's arrow marks (`marks.arrows[i]`).
+  const arrowMarks = arrowMarksBySource(config, marks);
   const edges: Edge[] = arrowViews(config).map((arrow) => ({
     id: arrow.id,
     source: arrow.source,
     target: arrow.target,
-    label: arrow.label,
+    type: 'arrow',
+    label: <ArrowLabel text={arrow.label} findings={arrowMarks.get(arrow.source) ?? []} />,
     markerEnd: { type: MarkerType.ArrowClosed },
     selected: selection?.kind === 'arrow' && selection.source === arrow.source,
   }));
@@ -254,7 +321,9 @@ export function Canvas({ pipeline: config, selection, onSelect, onChange }: Canv
       <Typography component="h2" sx={HEAD_SX}>
         Pipeline
       </Typography>
-      {nodes.length === 0 ? null : <Typography sx={CAPTION_SX}>{captionFor(config, selection)}</Typography>}
+      <Typography sx={CAPTION_SX}>
+        {nodes.length === 0 ? EMPTY_CAPTION : captionFor(config, selection)}
+      </Typography>
       {pending === undefined ? null : <Typography sx={NOTE_SX}>{PENDING_NOTE}</Typography>}
       {notice === undefined ? null : (
         <Typography role="alert" sx={ALERT_SX}>
@@ -264,8 +333,9 @@ export function Canvas({ pipeline: config, selection, onSelect, onChange }: Canv
       <Box ref={rowRef} sx={{ flex: 1, minHeight: 0 }}>
         {nodes.length === 0 ? (
           <Box sx={EMPTY_SX}>
-            <Typography sx={EMPTY_HEAD_SX}>No flows in this pipeline.</Typography>
-            <Typography sx={NOTE_SX}>No flows yet. Add one with + in the tab row.</Typography>
+            <Typography sx={EMPTY_HEAD_SX}>No flows yet.</Typography>
+            <Typography sx={NOTE_SX}>Add one with + in the tab row.</Typography>
+            <MarksNote text={EMPTY_MARKS_NOTE} />
           </Box>
         ) : (
           <ReactFlow
@@ -287,6 +357,7 @@ export function Canvas({ pipeline: config, selection, onSelect, onChange }: Canv
             zoomOnDoubleClick={false}
             deleteKeyCode={null}
             defaultViewport={INITIAL_VIEW}
+            edgeTypes={EDGE_TYPES}
           />
         )}
       </Box>
@@ -307,6 +378,8 @@ export function Canvas({ pipeline: config, selection, onSelect, onChange }: Canv
           <Typography sx={CAPTION_SX}>{STRIP_NOTE}</Typography>
         </>
       ) : null}
+      <NotDrawnMarks findings={marks.notDrawn} />
+      {anyMark ? <MarksNote text={MARKS_NOTE} /> : null}
       {drop === undefined ? null : (
         <DropDialog
           state={drop}

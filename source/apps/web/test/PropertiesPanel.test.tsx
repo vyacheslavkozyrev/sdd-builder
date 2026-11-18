@@ -313,7 +313,7 @@ describe('F-11 AC-034 no switch-off on a flow', () => {
 
   it('F-11 AC-034 the pipeline has no Delete control and says it cannot be removed (negative case)', () => {
     render(<Harness initial={config([PLAN])} selection={undefined} />);
-    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
     expect(screen.getByText('The pipeline cannot be removed.')).toBeTruthy();
   });
 });

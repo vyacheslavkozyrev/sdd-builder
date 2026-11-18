@@ -10,9 +10,9 @@ import {
   type PipelineEdit,
 } from './fields.js';
 import { panelFor, type FieldKey, type FieldValue, type PanelField, type Selection } from './panel.js';
+import { ArgumentRows } from './ArgumentRows.js';
 
 type Pipeline = pipeline.Pipeline;
-type Argument = pipeline.Argument;
 type Gate = pipeline.Gate;
 type Model = pipeline.Model;
 
@@ -39,7 +39,6 @@ const HEADING_SX = { fontSize: 13, fontWeight: 700, color: '#0f172a' } as const;
 const FILE_SX = { fontSize: 11, color: '#64748b' } as const;
 const LABEL_SX = { fontSize: 12, fontWeight: 600, color: '#334155' } as const;
 const VALUE_SX = { fontSize: 13, color: '#0f172a', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } as const;
-const SMALL_SX = { fontSize: 11, color: '#64748b' } as const;
 const COUNTER_SX = { fontSize: 11, color: '#64748b', textAlign: 'right' } as const;
 const NOTE_SX = { fontSize: 11, color: '#64748b' } as const;
 
@@ -69,7 +68,7 @@ export function PropertiesPanel({ pipeline: config, selection, onChange, onDelet
       <Typography sx={HEADING_SX}>{headingFor(selection, content.heading)}</Typography>
       {content.file === undefined ? null : <Typography sx={FILE_SX}>{`Generates ${content.file}`}</Typography>}
       {content.fields.map((field) => (
-        <Box key={`${selectionKey}:${field.key}`}>{renderField(field, selection, apply)}</Box>
+        <Box key={`${selectionKey}:${field.key}`}>{renderField(field, selection, apply, config, onChange)}</Box>
       ))}
       {footerFor(selection, onDelete)}
     </Box>
@@ -106,7 +105,13 @@ function footerFor(selection: Selection | undefined, onDelete: (flowId: string) 
 
 type Apply = (key: FieldKey, raw: string) => string | undefined;
 
-function renderField(field: PanelField, selection: Selection | undefined, apply: Apply) {
+function renderField(
+  field: PanelField,
+  selection: Selection | undefined,
+  apply: Apply,
+  config: Pipeline,
+  onChange: (next: Pipeline) => void,
+) {
   const label = selection?.kind === 'flow' && field.key === 'name' ? `${field.label}${REQUIRED_SUFFIX}` : field.label;
   switch (field.key) {
     case 'label':
@@ -119,7 +124,7 @@ function renderField(field: PanelField, selection: Selection | undefined, apply:
       return <ModelSelect id={`field-${field.key}`} label={label} value={textOf(field.value)} onCommit={(raw) => apply('model', raw)} />;
     case 'arguments':
       if (typeof field.value !== 'string') {
-        return <ArgumentList label={label} args={argumentsOf(field.value)} />;
+        return <ArgumentRows label={label} pipeline={config} onChange={onChange} />;
       }
       return <EditText id={`field-${field.key}`} label={label} value={field.value} multiline={false} counted={false} onCommit={(raw) => apply('arguments', raw)} />;
     case 'body':
@@ -203,13 +208,6 @@ function textOf(value: FieldValue): string {
     return value.filter((item): item is string => typeof item === 'string').join(', ');
   }
   return '';
-}
-
-function argumentsOf(value: FieldValue): readonly Argument[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-  return value.filter((item): item is Argument => typeof item === 'object' && item !== null && 'hint' in item);
 }
 
 function isGate(value: FieldValue): value is Gate {
@@ -313,21 +311,6 @@ function ReadOnly({ label, children }: { readonly label: string; readonly childr
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
       <Typography sx={LABEL_SX}>{label}</Typography>
       <Typography sx={VALUE_SX}>{children}</Typography>
-    </Box>
-  );
-}
-
-// The arguments of the pipeline: name, then "required" when it is, then the hint.
-function ArgumentList({ label, args }: { readonly label: string; readonly args: readonly Argument[] }) {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-      <Typography sx={LABEL_SX}>{label}</Typography>
-      {args.map((arg) => (
-        <Box key={arg.id}>
-          <Typography sx={VALUE_SX}>{arg.required ? `${arg.id}${REQUIRED_SUFFIX}` : arg.id}</Typography>
-          {arg.hint === '' ? null : <Typography sx={SMALL_SX}>{arg.hint}</Typography>}
-        </Box>
-      ))}
     </Box>
   );
 }

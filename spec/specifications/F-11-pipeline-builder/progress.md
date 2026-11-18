@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 5 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 6 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T003 | `connectFlows`: non-blank artifact label (AC-013), target and source must be in the pipeline, a flow refused a second arrow (open point 2), a flow refused a connection to itself (`source/apps/web/src/builder/connect.ts`) | 0 blockers; 1 warning fixed (self-connection refused, architecture §12 no cycle); 2 suggestions fixed (test names) | task check passed: api 57, web 342, core 1017 |
 | T004 | Repoint a connection end (target, or the source moving the whole arrow); removeConnection; connectionConfirmation data (`source/apps/web/src/builder/connect.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (test names and import order) | task check passed: api 57, web 359, core 1017 |
 | T005 | Gates on arrows: `addGate` for an approval or a check, refusal texts from the parser, one gate per arrow (`source/apps/web/src/builder/gates.ts`) | 0 blockers; 2 warnings fixed (a total typed gate with no unreachable fallback; a test for a problem elsewhere in the pipeline); 2 suggestions fixed; 1 suggestion deferred | task check passed: api 57, web 382, core 1017 |
+| T006 | Remove a gate (only the gate key goes; the arrow stays); no routing field on a gate or an arrow (`source/apps/web/src/builder/gates.ts`) | 0 blockers; 2 warnings fixed (connection test asserted an exact key list; removal test had no blocks); 4 suggestions fixed | task check passed: api 57, web 391, core 1017 |
 
 ---
 
@@ -39,6 +40,8 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T001 WARNING (resolved, owner decision 2026-11-17, option 1) `source/apps/web/src/builder/model.ts` `addFlow`: the new flow's name is its id, which clashed when an existing flow already had that name. `nextFlowId` now skips any N whose `flow-N` is used as an id or a name (AC-003, AC-029); covered by `builder-model.test.ts` "F-11 AC-003 skips a number that another flow uses as its name" and "gives the new flow a name that no other flow has".
 - T005 SUGGESTION `source/apps/web/src/builder/gates.ts` `rawThreshold`: a threshold in exponent form (`1e3`) is refused with the parser's message, although it is a whole number. Left as is: the form reads plain digits only, the parser's message names the rule, and accepting exponent text would make the web conversion a second number parser. Decided in review of T005; covered by `gates.test.ts` "F-11 AC-018 refuses a diff size gate with an exponent threshold, with the reason, and adds no gate".
+
+- T006 NOTE (accepted, not a finding) `source/apps/web/src/builder/gates.ts` `removeGate`: refuses with `NO_GATE_REASON` when the arrow has no gate, rather than a no-op. Kept: the other arrow functions refuse the same way (`removeConnection`, `repointConnection` refuse with `NO_ARROW_REASON`), so the Analyze-style reasons stay uniform. Covered by `gates.test.ts` "F-11 AC-021 refuses to remove a gate from an arrow that has none, with the reason".
 
 ---
 

@@ -1,4 +1,4 @@
-// Gates on arrows (F-11 AC-017, AC-018, AC-019, model part). A pure function: it returns a new pipeline or a
+// Gates on arrows (F-11 AC-017 to AC-019 and AC-021, model part). A pure function: it returns a new pipeline or a
 // refusal with its reason, and never changes the pipeline it is given. A gate is the source flow's
 // `connectedTo.gate` (architecture.md §6, decision 33): an approval, or a check with a type and, for
 // `diff size` only, a threshold.
@@ -17,6 +17,8 @@ const CHECK_TYPES: readonly CheckType[] = ['checks', 'diff size'];
 
 export const GATE_EXISTS_REASON =
   'This arrow already has a gate. An arrow holds one gate: remove the existing gate first.';
+
+export const NO_GATE_REASON = 'This arrow has no gate to remove.';
 
 // The values as the form holds them: text for the description, the type and the threshold. A blank threshold
 // is no threshold.
@@ -133,4 +135,22 @@ function typedGate(request: GateRequest): Gate {
     type,
     ...(threshold === undefined ? {} : { threshold }),
   };
+}
+
+// Removes the gate of the arrow that starts at `sourceId`. The arrow, its target and its artifact label stay: only
+// the gate goes (AC-021). A refusal leaves the pipeline as it was.
+export function removeGate(config: Pipeline, sourceId: string): GateResult {
+  const index = config.flows.findIndex((flow) => flow.id === sourceId);
+  const link = config.flows[index]?.connectedTo;
+  if (link === undefined) {
+    return { ok: false, reason: NO_ARROW_REASON };
+  }
+  if (link.gate === undefined) {
+    return { ok: false, reason: NO_GATE_REASON };
+  }
+  const { gate: _removed, ...rest } = link;
+  const flows = config.flows.map((flow, i) =>
+    i === index ? { ...flow, connectedTo: rest } : flow,
+  );
+  return { ok: true, pipeline: { ...config, flows } };
 }

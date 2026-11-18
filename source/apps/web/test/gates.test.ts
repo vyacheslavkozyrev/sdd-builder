@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import type { pipeline } from '@sddbuilder/core';
 import { NO_ARROW_REASON } from '../src/builder/connect.js';
-import { GATE_EXISTS_REASON, addGate, type GateRequest } from '../src/builder/gates.js';
+import {
+  GATE_EXISTS_REASON,
+  NO_GATE_REASON,
+  addGate,
+  removeGate,
+  type GateRequest,
+} from '../src/builder/gates.js';
+import { connections } from '../src/builder/model.js';
 
 type Pipeline = pipeline.Pipeline;
 type Flow = pipeline.Flow;
+type Block = pipeline.Block;
 
 function flow(id: string, extra: Partial<Flow> = {}): Flow {
   return { id, name: `Name ${id}`, description: '', arguments: '', blocks: [], ...extra };
@@ -160,5 +168,101 @@ describe('F-11 AC-017 to AC-019 gate on a flow without an arrow', () => {
     const snapshot = JSON.stringify(before);
     addGate(before, 'specify', approval('Owner signs off'));
     expect(JSON.stringify(before)).toBe(snapshot);
+  });
+});
+
+describe('F-11 AC-020 check on an arrow has no true or false output', () => {
+  it('F-11 AC-020 a check gate holds only its kind, description, type and threshold, with no routing field', () => {
+    const withCheck = addGate(arrowed(), 'specify', check('diff size', '10'));
+    if (!withCheck.ok) {
+      throw new Error('setup must add the check');
+    }
+    const gate = withCheck.pipeline.flows[0]?.connectedTo?.gate;
+    expect(Object.keys(gate ?? {}).sort()).toEqual(['description', 'kind', 'threshold', 'type']);
+  });
+
+  it('F-11 AC-020 the arrow on the Map tab carries the check and no output choice', () => {
+    const withCheck = addGate(arrowed(), 'specify', check('checks'));
+    if (!withCheck.ok) {
+      throw new Error('setup must add the check');
+    }
+    expect(connections(withCheck.pipeline)).toEqual([
+      {
+        source: 'specify',
+        target: 'plan',
+        label: 'spec',
+        gate: { kind: 'check', description: 'Run the checks', type: 'checks' },
+      },
+    ]);
+  });
+});
+
+describe('F-11 AC-021 remove gate keeps the connection', () => {
+  it('F-11 AC-021 removes an approval and keeps the arrow with its target and label', () => {
+    const withApproval = addGate(arrowed(), 'specify', approval('Owner signs off'));
+    if (!withApproval.ok) {
+      throw new Error('setup must add the approval');
+    }
+    const result = removeGate(withApproval.pipeline, 'specify');
+    expect(result).toEqual({ ok: true, pipeline: arrowed() });
+    expect(result.ok && result.pipeline.flows[0]?.connectedTo).toEqual({ to: 'plan', label: 'spec' });
+  });
+
+  it('F-11 AC-021 removes a check and keeps the arrow', () => {
+    const withCheck = addGate(arrowed(), 'specify', check('diff size', '10'));
+    if (!withCheck.ok) {
+      throw new Error('setup must add the check');
+    }
+    const result = removeGate(withCheck.pipeline, 'specify');
+    expect(result.ok && result.pipeline.flows[0]?.connectedTo).toEqual({ to: 'plan', label: 'spec' });
+    expect(result.ok && connections(result.pipeline)).toEqual([
+      { source: 'specify', target: 'plan', label: 'spec', gate: undefined },
+    ]);
+  });
+
+  it('F-11 AC-021 removes only the gate: the flow blocks and the other flows stay as they were', () => {
+    const agent: Block = {
+      id: 'draft',
+      kind: 'agent',
+      name: 'draft',
+      description: 'Draft the spec',
+      arguments: '',
+    };
+    const before = config([
+      flow('specify', { blocks: [agent], connectedTo: { to: 'plan', label: 'spec' } }),
+      flow('plan', { description: 'Plan it' }),
+    ]);
+    const withGate = addGate(before, 'specify', approval('Owner signs off'));
+    if (!withGate.ok) {
+      throw new Error('setup must add the approval');
+    }
+    expect(removeGate(withGate.pipeline, 'specify')).toEqual({ ok: true, pipeline: before });
+  });
+
+  it('F-11 AC-021 refuses to remove a gate from an id that is not in the pipeline, with the reason', () => {
+    expect(removeGate(arrowed(), 'missing')).toEqual({ ok: false, reason: NO_ARROW_REASON });
+  });
+
+  it('F-11 AC-021 refuses to remove a gate from an arrow that has none, with the reason', () => {
+    const before = arrowed();
+    expect(removeGate(before, 'specify')).toEqual({ ok: false, reason: NO_GATE_REASON });
+    expect(before.flows[0]?.connectedTo).toEqual({ to: 'plan', label: 'spec' });
+  });
+
+  it('F-11 AC-021 refuses to remove a gate from a flow with no arrow, with the reason', () => {
+    expect(removeGate(config([flow('specify'), flow('plan')]), 'specify')).toEqual({
+      ok: false,
+      reason: NO_ARROW_REASON,
+    });
+  });
+
+  it('F-11 AC-021 does not change the pipeline it is given when it removes a gate', () => {
+    const withGate = addGate(arrowed(), 'specify', approval('Owner signs off'));
+    if (!withGate.ok) {
+      throw new Error('setup must add the approval');
+    }
+    const snapshot = JSON.stringify(withGate.pipeline);
+    removeGate(withGate.pipeline, 'specify');
+    expect(JSON.stringify(withGate.pipeline)).toBe(snapshot);
   });
 });

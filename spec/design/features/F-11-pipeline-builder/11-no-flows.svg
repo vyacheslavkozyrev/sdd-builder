@@ -6,7 +6,7 @@
 <linearGradient id="gAccent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366f1"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
 <filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#4f46e5" flood-opacity="0.12"/></filter>
 <clipPath id="cardClip"><rect x="24" y="152" width="1232" height="584" rx="16"/></clipPath>
-<clipPath id="canvasClip"><rect x="226" y="216" width="738" height="500"/></clipPath>
+<clipPath id="canvasClip"><rect x="40" y="216" width="924" height="500"/></clipPath>
 <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748b"/></marker>
 <marker id="arrS" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2563eb"/></marker>
 <marker id="arrR" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker>
@@ -74,10 +74,17 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 .thumb{fill:#94a3b8}
 .dim{fill:#0f172a;opacity:0.35}
 .dialog{fill:#ffffff;stroke:#0f172a;stroke-width:1.5}
+
+.link{fill:#2563eb;font-size:11px;font-weight:600}
+.chkBox{fill:#ffffff;stroke:#475569;stroke-width:1.5}
+.chkOn{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.tick{fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.handle{fill:#ffffff;stroke:#2563eb;stroke-width:1.5}
+.handleOn{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.dashArc{fill:none;stroke:#dc2626;stroke-width:1.5;stroke-dasharray:5 4;marker-end:url(#arrR)}
 </style>
 <rect width="1280" height="800" fill="url(#gBg)"/>
 <rect x="0" y="0" width="1280" height="56" rx="0" class="bar"/><line x1="0" y1="56" x2="1280" y2="56" class="div"/><text x="24" y="34" class="brand">SDDBuilder</text><rect x="1120" y="12" width="136" height="32" rx="6" class="btnP"/><text x="1188" y="33" class="bt-primary" text-anchor="middle">New project</text>
-
 <g><title>Prev: go to the previous step</title><circle class="nav-on" cx="72" cy="100" r="20"/><path class="arrow" d="M75 92 L67 100 L75 108"/></g>
 <text class="nav-label" x="72" y="132" text-anchor="middle">Prev</text>
 <line class="line-done" x1="242" y1="100" x2="478" y2="100"/>
@@ -96,7 +103,43 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 <text class="nav-label" x="1208" y="132" text-anchor="middle">Next</text>
 <rect class="card" x="24" y="152" width="1232" height="584" rx="16" filter="url(#sh)"/>
 <rect x="24" y="152" width="1232" height="6" fill="url(#gAccent)" clip-path="url(#cardClip)"/>
-<rect x="40" y="216" width="170" height="500" rx="8" class="panel"/><rect x="226" y="216" width="738" height="500" rx="8" class="panel"/><rect x="978" y="216" width="262" height="500" rx="8" class="panel"/><rect x="40" y="168" width="85.2" height="30" rx="6" class="tabOn"/><text x="53" y="188" class="onP">Pipeline</text><rect x="133.2" y="168" width="34" height="30" rx="6" class="btn"/><text x="144.2" y="189" class="plus">+</text><line x1="40" y1="206" x2="1240" y2="206" class="div"/><text x="52" y="244" class="h2">Toolbox</text><rect x="52" y="256" width="146" height="52" rx="6" class="box"/><text x="62" y="277" class="bold">Connection</text><text x="62" y="294" class="tiny">hands over an artifact</text><rect x="52" y="318" width="146" height="52" rx="6" class="box"/><text x="62" y="339" class="bold">Approval</text><text x="62" y="356" class="tiny">a person decides</text><rect x="52" y="380" width="146" height="52" rx="6" class="box"/><text x="62" y="401" class="bold">Check</text><text x="62" y="418" class="tiny">agent or line count</text><text x="52" y="452" class="small">Drag an Approval or a</text><text x="52" y="467" class="small">Check onto an arrow</text><text x="52" y="482" class="small">between two flows, or</text><text x="52" y="497" class="small">select the arrow and</text><text x="52" y="512" class="small">add it from its panel.</text><text x="52" y="540" class="small">+ adds a flow after the</text><text x="52" y="555" class="small">last tab. Start and End</text><text x="52" y="570" class="small">are not on this tab.</text><text x="52" y="596" class="small">Connection: select a</text><text x="52" y="611" class="small">flow, then Connect to</text><text x="52" y="626" class="small">next flow in its panel.</text><text x="242" y="244" class="h2">Pipeline</text><text x="242" y="262" class="small">No flows in this pipeline.</text><text x="595" y="360" class="h2" text-anchor="middle">No flows yet.</text><text x="595" y="382" class="small" text-anchor="middle">Add one with + in the tab row.</text><text x="242" y="556" class="h2">Not on a drawn item</text><rect x="242" y="568" width="700" height="44" rx="6" class="markRed"/><text x="252" y="585" class="errT">Blocker · pipeline: the pipeline has no flow</text><text x="252" y="602" class="tiny">path: flows</text><text x="242" y="640" class="small">The last flow was deleted. Deleting the last flow is allowed; no edit is blocked.</text><text x="242" y="658" class="tiny">The mark stays until a flow is added with +.</text><text x="990" y="244" class="h2">Pipeline properties</text><text x="990" y="262" class="tiny">Generates .claude/commands/pipeline.md</text><text x="990" y="282" class="muted">Name</text><rect x="990" y="288" width="238" height="26" rx="6" class="field"/><text x="1000" y="305">SDD process</text><text x="990" y="330" class="muted">Description</text><rect x="990" y="336" width="238" height="26" rx="6" class="field"/><text x="1000" y="353">The process we built</text><text x="990" y="378" class="muted">Arguments</text><rect x="990" y="384" width="238" height="26" rx="6" class="field"/><text x="1000" y="401">feature-id · required</text><text x="990" y="426" class="muted">Body</text><rect x="990" y="432" width="238" height="66" rx="6" class="box"/><text x="1000" y="450" class="small">Runs the feature from specify to</text><text x="1000" y="464" class="small">complete. Stops at each approval.</text><text x="990" y="512" class="tiny">96 / 1,000 characters</text><text x="990" y="700" class="tiny">The pipeline cannot be removed.</text>
+<rect x="40" y="216" width="924" height="500" rx="8" class="panel"/>
+<rect x="978" y="216" width="262" height="500" rx="8" class="panel"/>
+<rect x="40" y="168" width="85.2" height="30" rx="6" class="tabOn"/>
+<text x="53" y="188" class="onP">Pipeline</text>
+<rect x="133.2" y="168" width="34" height="30" rx="6" class="btn"/>
+<text x="144.2" y="189" class="plus">+</text>
+<line x1="40" y1="206" x2="1240" y2="206" class="div"/>
 <line x1="0" y1="752" x2="1280" y2="752" class="div"/><rect x="0" y="752" width="1280" height="48" rx="0" class="bar"/><text x="24" y="781" class="muted">The work is not saved. It is lost when the browser is refreshed.</text><text x="1256" y="781" class="caption" text-anchor="end">F-11 · screen 11 · step 3 of 4 · 1280 × 800</text>
-
+<text x="52" y="244" class="h2">Pipeline</text>
+<text x="52" y="262" class="small">Flows in pipeline order, left to right. Select an arrow to edit its artifacts and checks.</text>
+<g clip-path="url(#canvasClip)"></g>
+<text x="502" y="380" class="h2" text-anchor="middle">There are no flows.</text>
+<text x="502" y="402" class="small" text-anchor="middle">Add one with + in the tab row.</text>
+<text x="52" y="552" class="h2">Not on a drawn item</text>
+<rect x="52" y="564" width="560" height="40" rx="6" class="markRed"/>
+<text x="64" y="581" class="errT">Blocker · the pipeline has no flow</text>
+<text x="64" y="596" class="tiny">path: pipeline.flows</text>
+<text x="52" y="690" class="tiny">No edit is blocked by this mark.</text>
+<text x="990" y="244" class="h2">Pipeline properties</text>
+<text x="990" y="262" class="tiny">Generates .claude/commands/pipeline.md</text>
+<text x="990" y="282" class="muted">Name</text>
+<rect x="990" y="288" width="238" height="26" rx="6" class="field"/><text x="1000" y="305">SDD process</text>
+<text x="990" y="330" class="muted">Description</text>
+<rect x="990" y="336" width="238" height="26" rx="6" class="field"/><text x="1000" y="353">The process we built</text>
+<text x="990" y="378" class="muted">Arguments</text>
+<rect x="990" y="384" width="238" height="26" rx="6" class="field"/><text x="1000" y="401">feature-id · required</text>
+<text x="990" y="426" class="muted">Model</text>
+<rect x="990" y="432" width="238" height="26" rx="6" class="field"/><text x="1000" y="449">inherit</text>
+<text x="990" y="472" class="muted">Tools</text>
+<rect x="990" y="478" width="238" height="26" rx="6" class="field"/><text x="1000" y="495">Read, Write, Edit, Bash</text>
+<text x="990" y="518" class="muted">Rule tags</text>
+<rect x="990" y="526" width="64.2" height="22" rx="6" class="chip"/><text x="999" y="541" class="tiny">general</text>
+<rect x="1062.2" y="526" width="31.2" height="22" rx="6" class="chip"/><text x="1071.2" y="541" class="tiny">qa</text>
+<text x="990" y="564" class="muted">Body</text>
+<rect x="990" y="570" width="238" height="66" rx="6" class="box"/>
+<text x="1000" y="588" class="small">Runs the feature from specify to</text>
+<text x="1000" y="602" class="small">complete. Stops at each approval.</text>
+<text x="990" y="650" class="tiny">96 / 1,000 characters</text>
+<text x="990" y="700" class="tiny">The pipeline cannot be removed.</text>
 </svg>

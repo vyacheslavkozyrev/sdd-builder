@@ -18,74 +18,92 @@
 </head>
 <body>
   <header>
-    <h1>F-11 Pipeline builder: the Pipeline tab, flow tabs, gates and marks (wireframes)</h1>
-    <p>Step 3 of the wizard. The Pipeline tab is the first tab; one tab per flow follows, and + adds a flow. Flows are boxes on the canvas, connections are arrows, and approvals and checks sit on the arrows. Wireframes only; read <code>screens.md</code> for the legend, the states, the coverage and the open points.</p>
+    <h1>F-11 Pipeline builder: the Pipeline tab, connections with artifacts and checks, and marks (wireframes)</h1>
+    <p>Step 3 of the wizard. The Pipeline tab has no toolbox; flows are boxes on the canvas, connections are arrows with no label. A connection's panel lists its artifacts, its checks and its Human approval checkbox. Wireframes only; read <code>screens.md</code> for the legend, the states, the coverage and the open points.</p>
   </header>
 
   <section>
     <h2>01 The Pipeline tab with the default pipeline</h2>
-    <p>Six flows in order, five gates on the arrows, the toolbox and the pipeline's properties. The row runs past the canvas edge; the strip under it shows the rest.</p>
-    <img src="01-pipeline-default.svg" alt="The Pipeline tab with the six default flows, five gates and the pipeline properties">
+    <p>Six flows in order and five arrows with no label. No toolbox: the canvas takes its space. The pipeline's properties are on the right.</p>
+    <img src="01-pipeline-default.svg" alt="The Pipeline tab with six flows, five unlabelled arrows and the pipeline properties; no toolbox">
   </section>
 
   <section>
-    <h2>02 A connection selected, with its gate</h2>
-    <p>The arrow build → verify with its check gate. A second gate is refused, and Remove gate and Delete connection are on the panel.</p>
-    <img src="02-arrow-with-gate.svg" alt="The connection build to verify selected, with its check gate and refused second gate">
+    <h2>02 A connection selected: artifacts, checks and Human approval</h2>
+    <p>The connection build → verify. Two artifacts, each with Edit and Remove; one check with its own row; the Human approval checkbox, unticked; Delete connection in the footer.</p>
+    <img src="02-connection-selected.svg" alt="The connection build to verify selected: two artifacts, one check, Human approval unticked">
   </section>
 
   <section>
-    <h2>03 Adding a check to an arrow</h2>
-    <p>The arrow verify → complete has no gate. A Check is dragged onto it, and the gate form refuses an empty description and a zero threshold.</p>
-    <img src="03-add-gate-on-arrow.svg" alt="A check dragged onto an arrow with no gate; the form refuses a blank description and a zero threshold">
+    <h2>03 Adding a check</h2>
+    <p>The add check form: a blank description and a diff size threshold that is not set are refused, with the reason beneath each field. Nothing is added.</p>
+    <img src="03-add-check.svg" alt="The add check form with a blank description and an unset threshold, both refused">
   </section>
 
   <section>
-    <h2>04 A flow selected: properties and connecting</h2>
-    <p>The flow plan: a name that is already used is refused, the flow's properties, Connect to next flow with its picker, and a required artifact label. Delete is the only footer action.</p>
-    <img src="04-flow-panel-connect.svg" alt="The flow plan selected with a refused name and the connect picker open">
+    <h2>04 A flow selected: properties and the disabled connect</h2>
+    <p>The flow plan: a name already used is refused and the name stays plan. Connect to next flow is disabled with its reason, because plan already has its next flow.</p>
+    <img src="04-flow-panel-connect.svg" alt="The flow plan selected with a refused name and Connect to next flow disabled with its reason">
   </section>
 
   <section>
     <h2>05 Deleting a flow</h2>
-    <p>The confirmation names the flow's connections and their gates. The whole screen is dimmed behind it.</p>
-    <img src="05-delete-flow-confirm.svg" alt="The confirmation for deleting the flow plan, naming its connections and gates">
+    <p>The confirmation names the flow's connections with their artifacts, checks and approval flags. The whole screen is dimmed behind it.</p>
+    <img src="05-delete-flow-confirm.svg" alt="The confirmation for deleting the flow plan, naming its connections, artifacts, checks and approval flags">
   </section>
 
   <section>
     <h2>06 Structure marks</h2>
-    <p>A blocker beside a flow with no End, a loop among connections, and the Not on a drawn item section. Marks never block an edit.</p>
-    <img src="06-structure-marks.svg" alt="Structure marks on the Pipeline tab, including the Not on a drawn item section">
+    <p>A loop from build back to plan, a blocker beside plan (no End block), and the Not on a drawn item section. Marks never block an edit.</p>
+    <img src="06-structure-marks.svg" alt="Structure marks on the Pipeline tab, including a loop arc and the Not on a drawn item section">
   </section>
 
   <section>
     <h2>07 After +: a new empty flow</h2>
-    <p>flow-2 is added, selected, empty and not connected. Its panel shows the name, the generated file and Delete; the mark says it has no Start and no End.</p>
-    <img src="07-add-flow.svg" alt="A new empty flow flow-2 selected at the end of the row">
+    <p>flow-2 is added, selected, empty and not connected. Connect to next flow is open with the picker of the other flows. The row is scrolled to its end.</p>
+    <img src="07-add-flow.svg" alt="A new empty flow flow-2 selected at the end of the row, with the connect picker open">
   </section>
 
   <section>
     <h2>08 A flow tab opened</h2>
-    <p>The verify tab. Its body is a placeholder until F-12 builds the blocks.</p>
+    <p>The verify tab. Its body is a placeholder until F-12 builds the blocks. Unchanged from the approved set.</p>
     <img src="08-flow-tab-placeholder.svg" alt="The verify flow tab with the placeholder for F-12">
   </section>
 
   <section>
     <h2>09 Pipeline properties with refused values</h2>
-    <p>A repeated argument name and a body of 1,001 characters are refused; the previous values are kept.</p>
+    <p>A repeated argument name and a body of 1,001 characters are refused; the saved values stay, with the reason beneath each field.</p>
     <img src="09-properties-refused.svg" alt="The pipeline properties with a repeated argument and a body that is too long">
   </section>
 
   <section>
-    <h2>10 Repointing an arrow by drag</h2>
-    <p>The target end of ux → plan is dragged onto build. The label and the gate stay with the arrow.</p>
-    <img src="10-repoint-arrow.svg" alt="The target end of an arrow dragged onto another flow box">
+    <h2>10 Connection-point drag between flows</h2>
+    <p>A dashed line from the connection point of complete to the connection point of specify, with the drop target on specify. The drop closes a loop, which shows as a blocker.</p>
+    <img src="10-connection-point-drag.svg" alt="A dashed drag line from the right connection point of complete to the left connection point of specify">
   </section>
 
   <section>
     <h2>11 No flows left</h2>
     <p>Every flow is deleted. The canvas is empty and the blocker says the pipeline has no flow; no edit is blocked.</p>
     <img src="11-no-flows.svg" alt="The Pipeline tab with no flows and a blocker that the pipeline has no flow">
+  </section>
+
+  <section>
+    <h2>12 Artifact form (add)</h2>
+    <p>A new artifact: a blank label is refused and the artifact is not added; the template spans several lines.</p>
+    <img src="12-artifact-form.svg" alt="The add artifact form with a refused blank label and a multi-line template">
+  </section>
+
+  <section>
+    <h2>13 Artifact edit with a refused label</h2>
+    <p>The label is cleared and refused; the field keeps the saved label and the reason is beneath it. Remove is in the form's header; Cancel and Save are in the footer.</p>
+    <img src="13-artifact-edit-refused.svg" alt="The edit artifact form with a refused blank label, the saved label kept, and Remove, Cancel and Save">
+  </section>
+
+  <section>
+    <h2>14 Human approval ticked</h2>
+    <p>The connection verify → complete with Human approval ticked and no checks yet. The arrow itself shows no label.</p>
+    <img src="14-human-approval.svg" alt="The connection verify to complete with Human approval ticked and no checks">
   </section>
 </body>
 </html>

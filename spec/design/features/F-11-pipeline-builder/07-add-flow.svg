@@ -6,7 +6,7 @@
 <linearGradient id="gAccent" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6366f1"/><stop offset="0.5" stop-color="#a855f7"/><stop offset="1" stop-color="#ec4899"/></linearGradient>
 <filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#4f46e5" flood-opacity="0.12"/></filter>
 <clipPath id="cardClip"><rect x="24" y="152" width="1232" height="584" rx="16"/></clipPath>
-<clipPath id="canvasClip"><rect x="226" y="216" width="738" height="500"/></clipPath>
+<clipPath id="canvasClip"><rect x="40" y="216" width="924" height="500"/></clipPath>
 <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#64748b"/></marker>
 <marker id="arrS" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2563eb"/></marker>
 <marker id="arrR" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#dc2626"/></marker>
@@ -74,10 +74,17 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 .thumb{fill:#94a3b8}
 .dim{fill:#0f172a;opacity:0.35}
 .dialog{fill:#ffffff;stroke:#0f172a;stroke-width:1.5}
+
+.link{fill:#2563eb;font-size:11px;font-weight:600}
+.chkBox{fill:#ffffff;stroke:#475569;stroke-width:1.5}
+.chkOn{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.tick{fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.handle{fill:#ffffff;stroke:#2563eb;stroke-width:1.5}
+.handleOn{fill:#2563eb;stroke:#2563eb;stroke-width:1.5}
+.dashArc{fill:none;stroke:#dc2626;stroke-width:1.5;stroke-dasharray:5 4;marker-end:url(#arrR)}
 </style>
 <rect width="1280" height="800" fill="url(#gBg)"/>
 <rect x="0" y="0" width="1280" height="56" rx="0" class="bar"/><line x1="0" y1="56" x2="1280" y2="56" class="div"/><text x="24" y="34" class="brand">SDDBuilder</text><rect x="1120" y="12" width="136" height="32" rx="6" class="btnP"/><text x="1188" y="33" class="bt-primary" text-anchor="middle">New project</text>
-
 <g><title>Prev: go to the previous step</title><circle class="nav-on" cx="72" cy="100" r="20"/><path class="arrow" d="M75 92 L67 100 L75 108"/></g>
 <text class="nav-label" x="72" y="132" text-anchor="middle">Prev</text>
 <line class="line-done" x1="242" y1="100" x2="478" y2="100"/>
@@ -96,7 +103,50 @@ text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fi
 <text class="nav-label" x="1208" y="132" text-anchor="middle">Next</text>
 <rect class="card" x="24" y="152" width="1232" height="584" rx="16" filter="url(#sh)"/>
 <rect x="24" y="152" width="1232" height="6" fill="url(#gAccent)" clip-path="url(#cardClip)"/>
-<rect x="40" y="216" width="170" height="500" rx="8" class="panel"/><rect x="226" y="216" width="738" height="500" rx="8" class="panel"/><rect x="978" y="216" width="262" height="500" rx="8" class="panel"/><rect x="40" y="168" width="85.2" height="30" rx="6" class="tab"/><text x="53" y="188" class="tabT">Pipeline</text><rect x="133.2" y="168" width="77.80000000000001" height="30" rx="6" class="tab"/><text x="146.2" y="188" class="tabT">specify</text><rect x="219" y="168" width="60" height="30" rx="6" class="tab"/><text x="232" y="188" class="tabT">ux</text><rect x="287" y="168" width="60" height="30" rx="6" class="tab"/><text x="300" y="188" class="tabT">plan</text><rect x="355" y="168" width="63" height="30" rx="6" class="tab"/><text x="368" y="188" class="tabT">build</text><rect x="426" y="168" width="70.4" height="30" rx="6" class="tab"/><text x="439" y="188" class="tabT">verify</text><rect x="504.4" y="168" width="85.2" height="30" rx="6" class="tab"/><text x="517.4" y="188" class="tabT">complete</text><rect x="597.6" y="168" width="70.4" height="30" rx="6" class="tabOn"/><text x="610.6" y="188" class="onP">flow-2</text><rect x="676" y="168" width="34" height="30" rx="6" class="btn"/><text x="687" y="189" class="plus">+</text><line x1="40" y1="206" x2="1240" y2="206" class="div"/><text x="52" y="244" class="h2">Toolbox</text><rect x="52" y="256" width="146" height="52" rx="6" class="box"/><text x="62" y="277" class="bold">Connection</text><text x="62" y="294" class="tiny">hands over an artifact</text><rect x="52" y="318" width="146" height="52" rx="6" class="box"/><text x="62" y="339" class="bold">Approval</text><text x="62" y="356" class="tiny">a person decides</text><rect x="52" y="380" width="146" height="52" rx="6" class="box"/><text x="62" y="401" class="bold">Check</text><text x="62" y="418" class="tiny">agent or line count</text><text x="52" y="452" class="small">Drag an Approval or a</text><text x="52" y="467" class="small">Check onto an arrow</text><text x="52" y="482" class="small">between two flows, or</text><text x="52" y="497" class="small">select the arrow and</text><text x="52" y="512" class="small">add it from its panel.</text><text x="52" y="540" class="small">+ adds a flow after the</text><text x="52" y="555" class="small">last tab. Start and End</text><text x="52" y="570" class="small">are not on this tab.</text><text x="52" y="596" class="small">Connection: select a</text><text x="52" y="611" class="small">flow, then Connect to</text><text x="52" y="626" class="small">next flow in its panel.</text><text x="242" y="244" class="h2">Pipeline</text><text x="242" y="262" class="small">Scrolled to the end of the row. flow-2 is new.</text><g clip-path="url(#canvasClip)"><rect x="242" y="300" width="100" height="76" rx="8" class="node"/><text x="251" y="326" class="bold">verify</text><text x="251" y="346" class="tiny">3 blocks</text><rect x="402" y="300" width="100" height="76" rx="8" class="node"/><text x="411" y="326" class="bold">complete</text><text x="411" y="346" class="tiny">3 blocks</text><rect x="562" y="300" width="100" height="76" rx="8" class="nodeSel"/><text x="571" y="326" class="bold">flow-2</text><text x="571" y="346" class="tiny">0 blocks</text><line x1="342" y1="338" x2="402" y2="338" class="line"/><text x="372" y="322" class="tiny" text-anchor="middle">criteria</text><polygon points="372,327 383,338 372,349 361,338" class="gate"/><text x="372" y="400" class="tiny" text-anchor="middle">approval · human</text><text x="532" y="322" class="tiny" text-anchor="middle">not</text><text x="532" y="336" class="tiny" text-anchor="middle">connected</text></g><rect x="530" y="430" width="300" height="44" rx="6" class="markRed"/><text x="540" y="447" class="errT">Blocker · flow-2 has no Start and no End</text><text x="540" y="464" class="tiny">Add both in the flow tab.</text><rect x="242" y="690" width="700" height="8" rx="4" class="chip"/><rect x="510" y="690" width="432" height="8" rx="4" class="thumb"/><text x="242" y="712" class="tiny">Drag the canvas or use the strip to see the rest of the row.</text><text x="990" y="244" class="h2">Flow: flow-2</text><text x="990" y="262" class="tiny">Generates .claude/commands/flow-2.md</text><text x="990" y="282" class="muted">Name · required</text><rect x="990" y="288" width="238" height="26" rx="6" class="field"/><text x="1000" y="305">flow-2</text><text x="990" y="330" class="muted">Description</text><rect x="990" y="336" width="238" height="26" rx="6" class="field"/><text x="1000" y="353" class="muted">what the flow does</text><text x="990" y="378" class="muted">Arguments</text><rect x="990" y="384" width="238" height="26" rx="6" class="field"/><text x="1000" y="401" class="muted">none</text><text x="990" y="426" class="muted">Model</text><rect x="990" y="432" width="238" height="26" rx="6" class="field"/><text x="1000" y="448">inherit</text><text x="990" y="472" class="muted">Body</text><text x="1228" y="472" class="tiny" text-anchor="end">0 / 1,000 characters</text><rect x="990" y="478" width="238" height="40" rx="6" class="box"/><text x="1000" y="502" class="small">Empty. Add blocks in the flow tab.</text><text x="990" y="530" class="tiny">A new flow has no blocks. It is not</text><text x="990" y="543" class="tiny">connected until you connect it.</text><rect x="990" y="680" width="238" height="28" rx="6" class="btnDanger"/><text x="1109" y="698" class="onP" text-anchor="middle">Delete flow</text>
+<rect x="40" y="216" width="924" height="500" rx="8" class="panel"/>
+<rect x="978" y="216" width="262" height="500" rx="8" class="panel"/>
+<rect x="40" y="168" width="85.2" height="30" rx="6" class="tabOn"/>
+<text x="53" y="188" class="onP">Pipeline</text>
+<rect x="133.2" y="168" width="77.8" height="30" rx="6" class="tab"/>
+<text x="146.2" y="188" class="tabT">specify</text>
+<rect x="219" y="168" width="60" height="30" rx="6" class="tab"/>
+<text x="232" y="188" class="tabT">ux</text>
+<rect x="287" y="168" width="60" height="30" rx="6" class="tab"/>
+<text x="300" y="188" class="tabT">plan</text>
+<rect x="355" y="168" width="63" height="30" rx="6" class="tab"/>
+<text x="368" y="188" class="tabT">build</text>
+<rect x="426" y="168" width="70.4" height="30" rx="6" class="tab"/>
+<text x="439" y="188" class="tabT">verify</text>
+<rect x="504.4" y="168" width="85.2" height="30" rx="6" class="tab"/>
+<text x="517.4" y="188" class="tabT">complete</text>
+<rect x="597.6" y="168" width="66" height="30" rx="6" class="tab"/>
+<text x="610.6" y="188" class="tabT">flow-2</text>
+<rect x="671.6" y="168" width="34" height="30" rx="6" class="btn"/>
+<text x="682.6" y="189" class="plus">+</text>
+<line x1="40" y1="206" x2="1240" y2="206" class="div"/>
 <line x1="0" y1="752" x2="1280" y2="752" class="div"/><rect x="0" y="752" width="1280" height="48" rx="0" class="bar"/><text x="24" y="781" class="muted">The work is not saved. It is lost when the browser is refreshed.</text><text x="1256" y="781" class="caption" text-anchor="end">F-11 · screen 7 · step 3 of 4 · 1280 × 800</text>
-
+<text x="52" y="244" class="h2">Pipeline</text>
+<text x="52" y="262" class="small">Flows in pipeline order, left to right. Select an arrow to edit its artifacts and checks.</text>
+<g clip-path="url(#canvasClip)"><rect x="-108" y="300" width="100" height="76" rx="8" class="node"/><text x="-99" y="326" class="bold">specify</text><text x="-99" y="346" class="tiny">3 blocks</text><rect x="52" y="300" width="100" height="76" rx="8" class="node"/><text x="61" y="326" class="bold">ux</text><text x="61" y="346" class="tiny">3 blocks</text><rect x="212" y="300" width="100" height="76" rx="8" class="node"/><text x="221" y="326" class="bold">plan</text><text x="221" y="346" class="tiny">3 blocks</text><rect x="372" y="300" width="100" height="76" rx="8" class="node"/><text x="381" y="326" class="bold">build</text><text x="381" y="346" class="tiny">9 blocks</text><rect x="532" y="300" width="100" height="76" rx="8" class="node"/><text x="541" y="326" class="bold">verify</text><text x="541" y="346" class="tiny">3 blocks</text><rect x="692" y="300" width="100" height="76" rx="8" class="node"/><text x="701" y="326" class="bold">complete</text><text x="701" y="346" class="tiny">3 blocks</text><rect x="852" y="300" width="100" height="76" rx="8" class="nodeSel"/><text x="861" y="326" class="bold">flow-2</text><text x="861" y="346" class="tiny">0 blocks</text><line x1="152" y1="338" x2="212" y2="338" class="line"/><line x1="312" y1="338" x2="372" y2="338" class="line"/><line x1="472" y1="338" x2="532" y2="338" class="line"/><line x1="632" y1="338" x2="692" y2="338" class="line"/><rect x="652" y="384" width="300" height="40" rx="6" class="markRed"/><text x="664" y="401" class="errT">Blocker · flow-2 has no Start and no End</text><text x="664" y="415" class="tiny">Add both in the flow tab.</text><rect x="600" y="446" width="230" height="168" rx="8" class="field"/><text x="612" y="464" class="tiny">Connect flow-2 to:</text><text x="616" y="484" class="small">specify</text><text x="616" y="506" class="small">ux</text><text x="616" y="528" class="small">plan</text><text x="616" y="550" class="small">build</text><text x="616" y="572" class="small">verify</text><text x="616" y="594" class="small">complete</text></g>
+<rect x="52" y="684" width="900" height="8" rx="4" class="chip"/>
+<rect x="188" y="684" width="764" height="8" rx="4" class="thumb"/>
+<text x="52" y="704" class="tiny">Scrolled to the end of the row. Drag the strip to see specify.</text>
+<text x="990" y="244" class="h2">Flow: flow-2</text>
+<text x="990" y="262" class="tiny">Generates .claude/commands/flow-2.md</text>
+<text x="990" y="282" class="muted">Name</text>
+<rect x="990" y="288" width="238" height="26" rx="6" class="field"/><text x="1000" y="305">flow-2</text>
+<text x="990" y="330" class="muted">Description</text>
+<rect x="990" y="336" width="238" height="26" rx="6" class="field"/><text x="1000" y="353" class="muted">Optional</text>
+<text x="990" y="378" class="muted">Arguments</text>
+<rect x="990" y="384" width="238" height="26" rx="6" class="field"/><text x="1000" y="401">none</text>
+<text x="990" y="426" class="muted">Model</text>
+<rect x="990" y="432" width="238" height="26" rx="6" class="field"/><text x="1000" y="449">inherit</text>
+<text x="990" y="472" class="muted">Body</text>
+<rect x="990" y="478" width="238" height="64" rx="6" class="box"/>
+<text x="1000" y="496" class="muted">No body yet.</text>
+<text x="990" y="556" class="tiny">0 / 1,000 characters</text>
+<rect x="990" y="572" width="238" height="26" rx="6" class="btn"/><text x="1109.0" y="589.0" class="small" text-anchor="middle">Connect to next flow</text>
+<text x="990" y="612" class="tiny">Choose the flow to connect to.</text>
+<rect x="990" y="680" width="110" height="28" rx="6" class="btnDanger"/><text x="1045.0" y="698.0" class="bt-primary" text-anchor="middle">Delete flow</text>
+<text x="1110" y="698" class="tiny">Asks first</text>
 </svg>

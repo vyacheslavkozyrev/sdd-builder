@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 7 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 8 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -32,6 +32,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T005 | Gates on arrows: `addGate` for an approval or a check, refusal texts from the parser, one gate per arrow (`source/apps/web/src/builder/gates.ts`) | 0 blockers; 2 warnings fixed (a total typed gate with no unreachable fallback; a test for a problem elsewhere in the pipeline); 2 suggestions fixed; 1 suggestion deferred | task check passed: api 57, web 382, core 1017 |
 | T006 | Remove a gate (only the gate key goes; the arrow stays); no routing field on a gate or an arrow (`source/apps/web/src/builder/gates.ts`) | 0 blockers; 2 warnings fixed (connection test asserted an exact key list; removal test had no blocks); 4 suggestions fixed | task check passed: api 57, web 391, core 1017 |
 | T007 | Field edits through the parser: `applyPipelineField` and `applyFlowField`, the flow name's uniqueness, body limit through the parser (`source/apps/web/src/builder/fields.ts`) | 0 blockers; 2 warnings fixed (two assertions passed on a refusal; the name comparison rule had no test); 3 suggestions fixed (reason checks for tools and rule tags; comments on the throw and the comparison); 1 suggestion deferred | task check passed: api 57, web 423 (fields.test.ts 32), core 1017 |
+| T008 | Delete a flow: `deleteFlow` removes the flow, its outgoing and incoming arrows and gates, and returns them for the confirmation; the last flow may go; an unknown id refused (`source/apps/web/src/builder/delete.ts`) | 0 blockers; 1 warning fixed (a test that did not prove other flows unchanged); 1 suggestion fixed (self-arrow edge case) | task check passed: api 57, web 441, core 1017 |
 
 ---
 

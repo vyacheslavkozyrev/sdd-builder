@@ -190,3 +190,25 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 | Delete a flow from the Pipeline tab (owner decision) | AC-031, AC-032, AC-033, AC-034 |
 | Box layout automatic, no saved positions (owner decision) | AC-009, AC-010, AC-011 |
 | The default pipeline is the start (`ui.md` §3, decision 24) | AC-041, AC-042, AC-040 |
+
+---
+
+## Amendment 2026-11-17 (owner, after Verify): connections carry artifacts and checks; no toolbox
+
+The owner asks for these changes before implementation. They supersede the criteria named below; the superseded criteria stay in the text for the record and are not tested. The UX screens are redrawn from this amendment before the plan changes.
+
+- **Connections have no label.** The arrow shows no artifact label. Artifacts belong to the connection and are listed in its properties.
+- **Artifacts (replace AC-013 and the label parts of AC-014 to AC-016).** A connection holds any number of artifacts. Each artifact has a `label` (free text, one line, required, non-blank) and a `template` (free text, several lines, may be empty). Add artifact, edit, and remove are in the connection's properties. A refused value keeps the saved value and shows its reason beneath the field.
+- **Human approval is a checkbox (replaces AC-017 and the approval parts of AC-019 and AC-021).** The connection has a "Human approval" checkbox. Ticked, the process stops for a person at this connection; unticked, it does not. No description is needed.
+- **Checks are added from the properties (replaces AC-018, AC-019 and AC-021).** A connection can hold any number of checks. "Add check" in the connection's properties adds one. Each check has a description (required, non-blank), a type (`checks` or `diff size`) and, for `diff size` only, a positive whole-number threshold (AC-018's table still applies to a check). A check is removed from its own row. Checks have no true or false output (AC-020 still applies).
+- **No toolbox on the Pipeline tab (replaces AC-023 and the drop parts of AC-012 and AC-022).** The Connection, Approval and Check tools are removed from the Pipeline tab. A connection is still made by dragging from one flow's connection point to another's, or by the button "Connect to next flow" in the source flow's properties.
+- **Unchanged:** the one outgoing arrow per flow (AC-014 refusal), the no-self-connection rule, repointing an arrow end (AC-015 without its label), delete of a connection (AC-016 without its label and gate), the flow properties and delete (AC-025 for flows, AC-031 to AC-034), the structure marks (AC-035 to AC-039), the default pipeline (AC-040 to AC-042).
+
+New criteria for the amendment:
+
+- AC-043 `[auto]`: a connection holds any number of artifacts, each with a non-blank one-line label and a template that may be empty and may span lines; adding an artifact appends it; a blank label is refused with the reason and the artifact is not added.
+- AC-044 `[auto]`: an artifact can be edited and removed; a refused edit keeps the saved values and shows the reason beneath the field.
+- AC-045 `[auto]`: the connection's "Human approval" checkbox is on or off; switching it on and off changes only that flag; the arrow itself shows no label.
+- AC-046 `[auto]`: "Add check" adds one check to the connection; a connection holds any number of checks; each check is removed on its own row; an invalid check (blank description, a threshold on `checks`, a missing or non-positive threshold on `diff size`) is refused with the reason and not added.
+- AC-047 `[auto]`: the Pipeline tab has no toolbox; no Connection, Approval or Check tool is offered on the tab.
+- AC-048 `[device]`: the arrows show no label; the connection's properties show its artifacts, checks and approval checkbox (checked on screen at Verify).

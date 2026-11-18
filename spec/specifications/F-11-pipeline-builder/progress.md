@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 14 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 15 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-None
+_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -39,6 +39,7 @@ None
 | T012 | Pipeline tab shell: tab row (Pipeline first, a tab per flow, + after the last), the flow placeholder, no remove control (`source/apps/web/src/builder/PipelineTabs.tsx`) | 0 blockers; 2 warnings fixed (the + test did not exercise + ; a test name that did not match its test); 1 suggestion deferred (tab ARIA to T017) | task check passed: api 57, web 491, core 1017 |
 | T013 | Properties panel and toolbox UI: panel fields and edits, refusals revert to the saved value with the reason beneath, body counter, Delete-only footer, toolbox (`PropertiesPanel.tsx`, `Toolbox.tsx`) | 0 blockers; 2 warnings fixed (arrow heading 'Connection' as on the screens; AC-027 tests for Enter, a parser flow-name refusal and a multi-line body); 2 suggestions fixed. Size: 746 insertions, over the 400 guard; committed as one commit on the owner's instruction. Open: pipeline arguments are read-only, so AC-027 for arguments needs a task (plan amendment pending) | task check passed: api 57, web 518, core 1017 |
 | T013a | Pipeline arguments row editor: rows with Add, Edit and Remove, each edit through `applyPipelineField` 'arguments'; a refused edit keeps the saved row with the reason beneath it; a repeated id names the row that uses it (`source/apps/web/src/builder/ArgumentRows.tsx`) | 0 blockers; 2 warnings fixed (the AC-034 assertion narrowed to a delete name, so it no longer proved no switch-off; a flow's arguments as text had no test); 1 suggestion fixed (Cancel clears the refusal of a new row); 2 suggestions deferred. Size: 30 changed lines in the fix | task check passed: api 57, web 529, core 1017 |
+| T014 | Canvas with React Flow: boxes, arrows with labels and gates, pan and select, box drag, repoint by reconnect, Connection, Approval and Check drops, scroll strip, captions and empty state (`Canvas.tsx`, `drawing.ts`, `Toolbox.tsx`) | 1 blocker fixed (React Flow passes the fixed end; the reconnect mapping was reversed); 5 warnings fixed (scroll strip, captions, empty state, drop-on-empty test, alert text); 2 suggestions fixed; 3 deferred. Size: 1052 lines, committed as one on the owner's instruction. Device checks at Verify: AC-011, AC-012, AC-022, AC-024 | task check passed: api 57, web 563, core 1017 |
 
 ---
 
@@ -58,6 +59,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T013 SUGGESTION `source/apps/web/src/builder/PropertiesPanel.tsx` (gate text): the gate lines do not match screens 02 and 03 ("Gate on this arrow", the no-gate state). Left as is: the gate controls and the no-gate state belong to T016 with the Add and Remove buttons.
 - T013a SUGGESTION `source/apps/web/src/builder/ArgumentRows.tsx` (Add argument and Edit on another row): opening another row while a draft is open discards that draft with no warning. Left as is: screen 09 does not say what happens to an open draft, and a guard would change the screen behaviour; owner to decide.
 - T013a SUGGESTION `source/apps/web/src/builder/fields.ts` `checkCandidate` (refusal text): the parser names an argument by its 0-based index (`Arguments at [1].id`), while the panel numbers rows from 1. Left as is: the text is the parser message that the Analyze step shows too, and changing it would split the two; owner may decide the format with the T013 body-limit text.
+- T014 SUGGESTION `source/apps/web/src/builder/Canvas.tsx` (arrow label, screens 02 and 03): the arrow is one line of text (artifact, then gate), while the screens put the artifact above the arrow and the gate under its marker. React Flow measures an edge label as one SVG text, so a two-line label is a layout change. Left as is: AC-008 is met by the text, and the placement is checked on screen at Verify (AC-024 device).
+- T014 SUGGESTION `source/apps/web/src/builder/gates.ts` and `connect.ts` (refusal wording): the reasons are not the screen copy ("Refused: ..." prefix, "a check needs a description: what passing means"). The reasons are shared with the panel and were set in T003 to T005, so a wording pass is outside T014. Owner to decide one format for all refusals.
+- T014 SUGGESTION `source/apps/web/src/builder/Canvas.tsx` `onDrop`: a Connection tool dropped on an arrow cancels a pending source without a message. The spec names only empty canvas as the cancel. Left as is: the drop is a cancel either way, and the pending note says so.
 
 ---
 

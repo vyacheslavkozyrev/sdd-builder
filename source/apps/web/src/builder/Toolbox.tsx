@@ -1,10 +1,11 @@
 import { Box, Typography } from '@mui/material';
 import { TOOLBOX, type ToolboxTool } from './panel.js';
+import { TOOL_MIME } from './drawing.js';
 
 // The toolbox on the left of the Pipeline tab (F-11 AC-023). It lists the three tools of the Pipeline tab in
 // order, with no Start, no End and no switch-off (ui.md §3.2, decision 34). The tool list is `TOOLBOX`; the
-// hints follow the approved screens in spec/design/features/F-11-pipeline-builder/ (01). The tools are not
-// dragged yet: the canvas adds the drag (F-11 T014).
+// hints follow the approved screens in spec/design/features/F-11-pipeline-builder/ (01). Each tool is dragged onto
+// the canvas: the canvas reads the tool name from the drag (F-11 T014).
 
 const TOOLBOX_LABEL = 'Toolbox';
 
@@ -49,7 +50,16 @@ export function Toolbox() {
       <Typography sx={HEADING_SX}>{TOOLBOX_LABEL}</Typography>
       <Box component="ul" sx={LIST_SX}>
         {TOOLBOX.map((tool) => (
-          <Box component="li" key={tool} sx={TOOL_SX}>
+          <Box
+            component="li"
+            key={tool}
+            sx={TOOL_SX}
+            draggable
+            onDragStart={(event) => {
+              event.dataTransfer.setData(TOOL_MIME, tool);
+              event.dataTransfer.effectAllowed = 'copy';
+            }}
+          >
             <Typography sx={TOOL_NAME_SX}>{tool}</Typography>
             <Typography sx={TOOL_HINT_SX}>{TOOL_HINTS[tool]}</Typography>
           </Box>

@@ -57,6 +57,7 @@ import {
   NotDrawnMarks,
 } from './MarkViews.js';
 import { arrowMarksBySource, marksFor } from './marks.js';
+import { FORM_SX, GateForm } from './GateForm.js';
 import type { Selection } from './panel.js';
 
 type Pipeline = pipeline.Pipeline;
@@ -81,7 +82,6 @@ const HEAD_SX = { fontSize: 14, fontWeight: 700, px: 1.5, pt: 1.5 } as const;
 const CAPTION_SX = { fontSize: 11, color: '#64748b', px: 1.5, pt: 0.25 } as const;
 const NOTE_SX = { fontSize: 12, color: '#334155', px: 1.5, pt: 1 } as const;
 const ALERT_SX = { fontSize: 12, color: '#b91c1c', px: 1.5, pt: 1 } as const;
-const FORM_SX = { display: 'flex', flexDirection: 'column', gap: 2, pt: 1 } as const;
 const STRIP_SX = {
   position: 'relative',
   height: 8,
@@ -102,7 +102,6 @@ const EMPTY_SX = {
   textAlign: 'center',
 } as const;
 const EMPTY_HEAD_SX = { fontSize: 14, fontWeight: 700 } as const;
-const CHECK_TYPES = ['checks', 'diff size'] as const;
 // The marks of a box sit under it, in the box's own width, so they stay beside the box they name (AC-035).
 const BOX_MARKS_SX = { position: 'absolute', top: BOX_HEIGHT + 6, left: 0, width: BOX_WIDTH } as const;
 const ARROW_LABEL_WIDTH = 240;
@@ -441,7 +440,7 @@ function DropDialog({ state, config, onClose, onDone }: DropDialogProps) {
             />
           </Box>
         ) : (
-          <GateForm tool={state.tool} fields={fields} onChange={setFields} />
+          <GateForm tool={state.tool} fields={fields} onChange={setFields} autoFocus />
         )}
         {reason === undefined ? null : (
           <Typography role="alert" sx={ALERT_SX}>
@@ -456,49 +455,5 @@ function DropDialog({ state, config, onClose, onDone }: DropDialogProps) {
         </Button>
       </DialogActions>
     </Dialog>
-  );
-}
-
-interface GateFormProps {
-  readonly tool: GateTool;
-  readonly fields: GateFields;
-  readonly onChange: (fields: GateFields) => void;
-}
-
-// The gate's fields as screen 03 words them: the approval's hint, the check's placeholder, and the type and threshold
-// labels of the Connection panel.
-function GateForm({ tool, fields, onChange }: GateFormProps) {
-  return (
-    <Box sx={FORM_SX}>
-      <TextField
-        label="Description · required"
-        helperText={tool === 'Approval' ? 'Approval: say what the person approves.' : ''}
-        placeholder={tool === 'Check' ? 'what passing means' : ''}
-        value={fields.description}
-        onChange={(event) => onChange({ ...fields, description: event.target.value })}
-        autoFocus
-      />
-      {tool === 'Check' ? (
-        <TextField
-          select
-          label="Type"
-          value={fields.type}
-          onChange={(event) => onChange({ ...fields, type: event.target.value })}
-        >
-          {CHECK_TYPES.map((type) => (
-            <MenuItem key={type} value={type}>
-              {type}
-            </MenuItem>
-          ))}
-        </TextField>
-      ) : null}
-      {tool === 'Check' && fields.type === 'diff size' ? (
-        <TextField
-          label="Threshold (lines) · required"
-          value={fields.threshold}
-          onChange={(event) => onChange({ ...fields, threshold: event.target.value })}
-        />
-      ) : null}
-    </Box>
   );
 }

@@ -210,12 +210,12 @@ describe('F-11 AC-022 gate drop', () => {
     });
   });
 
-  it('F-11 AC-022 drops the threshold of a checks gate', () => {
+  it('F-11 AC-018 passes a threshold on to a checks gate, so the parser refuses it (negative case)', () => {
     expect(gateRequestFor('Check', { description: 'Tests pass', type: 'checks', threshold: '3' })).toEqual({
       kind: 'check',
       description: 'Tests pass',
       type: 'checks',
-      threshold: '',
+      threshold: '3',
     });
   });
 

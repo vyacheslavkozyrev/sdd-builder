@@ -17,6 +17,8 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
+T016 — reviewed: 0 blockers, 1 warning fixed, 2 suggestions fixed
+
 _None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
@@ -41,10 +43,18 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T013a | Pipeline arguments row editor: rows with Add, Edit and Remove, each edit through `applyPipelineField` 'arguments'; a refused edit keeps the saved row with the reason beneath it; a repeated id names the row that uses it (`source/apps/web/src/builder/ArgumentRows.tsx`) | 0 blockers; 2 warnings fixed (the AC-034 assertion narrowed to a delete name, so it no longer proved no switch-off; a flow's arguments as text had no test); 1 suggestion fixed (Cancel clears the refusal of a new row); 2 suggestions deferred. Size: 30 changed lines in the fix | task check passed: api 57, web 529, core 1017 |
 | T015 | Structure marks and the empty state: `MarkViews.tsx` (a mark beside its box or on its arrow, the "Not on a drawn item" section, the screen 06 and 11 notes), `arrowMarksBySource` in `marks.ts`, the empty state "No flows yet." (`Canvas.tsx`). Marks are the analyzer's findings; a blocker disables nothing | 0 blockers; 2 warnings fixed (arrow mark wiring in Canvas had no test: moved to `arrowMarksBySource` and tested; screen 06 and 11 notes were missing: added); 3 suggestions fixed (the warning test now asserts the analyzer's output; a fixture that was not mark-free; long test lines and a prop type). Size: 427 lines staged, plus the fixes; size guard waived by the owner | task check passed: api 57, web 579, core 1017 |
 | T014 | Canvas with React Flow: boxes, arrows with labels and gates, pan and select, box drag, repoint by reconnect, Connection, Approval and Check drops, scroll strip, captions and empty state (`Canvas.tsx`, `drawing.ts`, `Toolbox.tsx`) | 1 blocker fixed (React Flow passes the fixed end; the reconnect mapping was reversed); 5 warnings fixed (scroll strip, captions, empty state, drop-on-empty test, alert text); 2 suggestions fixed; 3 deferred. Size: 1052 lines, committed as one on the owner's instruction. Device checks at Verify: AC-011, AC-012, AC-022, AC-024 | task check passed: api 57, web 563, core 1017 |
+| T016 | Button paths and confirmations: the arrow's Add approval, Add check, Remove gate, Source flow and Target flow pickers, Delete connection with its confirmation; the flow's Connect to next flow with its artifact label, and Delete flow with its confirmation naming the arrows and gates (`ButtonPaths.tsx`, `ConfirmDialog.tsx`, `GateForm.tsx`, `drawing.ts`) | 0 blockers; 1 warning fixed (a threshold typed under diff size and kept on checks was dropped, not refused: `gateRequestFor` passes it on, AC-018); 2 suggestions fixed (`GateForm` moved out of `Canvas.tsx` so the panel does not load the canvas; a test for a flow with no connections). Size: 749 lines staged; size guard waived by the owner; committed as one on the owner's instruction | task check passed: api 57, web 603, core 1017 |
 
 ---
 
 ## Deferred Findings
+
+- T016 open item 1 (from the implementer): the gate form is shared by Add approval and Add check, so it shows the check's fields. Screen 03's approval hint ("Approval: say what the person approves.") is not shown. Owner decision needed on the form.
+- T016 open item 2 (from the implementer): refusal wording comes from gates.ts, connect.ts and repointConnection, and differs from the screens (screen 02 "Refused: this arrow already has a gate. Remove it first." vs. the code's "This arrow already has a gate. An arrow holds one gate: remove the existing gate first."). A wording task or a screen update is needed.
+- T016 open item 3 (from the implementer): screen 01 still shows the old button-only toolbox hint. The implemented hint follows the owner decision (drag, then the button path). Screen 01 should be redrawn.
+- T016 open item 4 (from the implementer): the AC-018 row "checks with a threshold is refused" cannot be reached in the DOM, because the threshold field is hidden for checks. It is covered by gates.test.ts.
+- T016 open item 5 (from the implementer): arrow-panel refusals use role="alert" under the buttons; picker and label refusals use the field's helper text. Consistent with the screens? Owner to check at Verify.
+- T016 open item 6 (from the implementer): the flow Delete confirmation is raised in the panel and calls onDelete(flowId) only on Confirm. The caller (T017 wiring) must remove the flow and clear the selection.
 
 _Review suggestions intentionally not applied, with the reason._
 
@@ -66,6 +76,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T015 SUGGESTION `source/apps/web/src/builder/Canvas.tsx` (`BOX_MARKS_SX`, the blocker border in `nodes`): a blocked flow box gets a red border, and the marks sit under the box in a 100 px column that may wrap into the 60 px gap. Left as is: screen 06 draws the mark beside the box and says nothing of a border; the owner decides the border at the device check at Verify (AC-035 layout).
 - T015 SUGGESTION `source/apps/web/src/builder/MarkViews.tsx` (mark wording and paths): screen 06 and 11 show example texts and paths (for example `flows.build.blocks.review.routes.false`) that differ from the analyzer's messages and paths. Left as is: AC-039 requires the analyzer's output, and the screens are wireframes; the text the marks show is the analyzer's.
 - T015 SUGGESTION `source/apps/web/src/builder/Toolbox.tsx` (screens 01, 06, 07, 11 hint lines: "+ adds a flow after the last tab. Start and End are not on this tab."): not in T015's plan line, and the toolbox belongs to T013. Left as is; owner to decide whether T013 or Verify adds them.
+- T016 OPEN (owner input needed) implementer's open items 1 to 6: NOT RECORDED. The reviewer was not given the list, and it is in neither the repository nor the review notes. The owner must supply them; they are to be entered here as items 1 to 6, each with its owner decision.
+- T016 NOTE (implementer deviation 2, wording) `source/apps/web/src/builder/connect.ts`, `gates.ts`, `ButtonPaths.tsx`: the refusal wording is left as built, as the owner decided. It is handled in the later wording task together with the T014 wording entry above.
+- T016 SUGGESTION `source/apps/web/src/builder/ButtonPaths.tsx` (`ArrowActions`, gate form): a threshold typed under `diff size` stays when the type is changed to `checks`; the refusal "Threshold is not allowed on a checks gate." then shows under the buttons, although the threshold field is hidden. Left as is: AC-018 asks for this refusal, and the owner decides whether a change of type should clear the threshold instead.
 
 ---
 

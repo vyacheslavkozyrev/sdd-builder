@@ -4,7 +4,7 @@ import { TOOL_MIME } from './drawing.js';
 
 // The toolbox on the left of the Pipeline tab (F-11 AC-023). It lists the three tools of the Pipeline tab in
 // order, with no Start, no End and no switch-off (ui.md §3.2, decision 34). The tool list is `TOOLBOX`; the
-// hints follow the approved screens in spec/design/features/F-11-pipeline-builder/ (01). Each tool is dragged onto
+// hints follow the approved screens in spec/design/features/F-11-pipeline-builder/ (01 and 10). Each tool is dragged onto
 // the canvas: the canvas reads the tool name from the drag (F-11 T014).
 
 const TOOLBOX_LABEL = 'Toolbox';
@@ -18,7 +18,7 @@ export const TOOL_HINTS: Readonly<Record<ToolboxTool, string>> = {
 const TOOLBOX_NOTES: readonly string[] = [
   'Drag an Approval or a Check onto an arrow between two flows, or select the arrow and add it from its panel.',
   '+ adds a flow after the last tab. Start and End are not on this tab.',
-  'Connection: select a flow, then Connect to next flow in its panel.',
+  'Connection: drag it onto a flow, then onto the next one, or select a flow and use Connect to next flow in its panel.',
 ];
 
 const TOOLBOX_SX = {

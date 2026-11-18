@@ -98,14 +98,16 @@ export function isGateTool(tool: ToolboxTool): tool is GateTool {
   return tool === 'Approval' || tool === 'Check';
 }
 
-// The values of the gate form as the user typed them. A threshold is kept only for `diff size`.
+// The values of the gate form as the user typed them.
 export interface GateFields {
   readonly description: string;
   readonly type: string;
   readonly threshold: string;
 }
 
-// The request for `addGate`: an approval, or a check with its type and, for `diff size` only, its threshold (AC-022).
+// The request for `addGate`: an approval, or a check with its type and threshold. The threshold is passed on for any
+// type, so a threshold typed under `diff size` and left when the type is `checks` is refused by the parser with its
+// reason, and no gate is added (AC-018).
 export function gateRequestFor(tool: GateTool, fields: GateFields): GateRequest {
   if (tool === 'Approval') {
     return { kind: 'approval', description: fields.description };
@@ -114,7 +116,7 @@ export function gateRequestFor(tool: GateTool, fields: GateFields): GateRequest 
     kind: 'check',
     description: fields.description,
     type: fields.type,
-    threshold: fields.type === 'diff size' ? fields.threshold : '',
+    threshold: fields.threshold,
   };
 }
 

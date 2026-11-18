@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, MenuItem, TextField, Typography } from '@mui/material';
+import { Box, MenuItem, TextField, Typography } from '@mui/material';
 import { pipeline } from '@sddbuilder/core';
 import { codePointCount } from '../wizard/project.js';
 import {
@@ -11,6 +11,7 @@ import {
 } from './fields.js';
 import { panelFor, type FieldKey, type FieldValue, type PanelField, type Selection } from './panel.js';
 import { ArgumentRows } from './ArgumentRows.js';
+import { ArrowActions, ArrowEndPicker, FlowActions } from './ButtonPaths.js';
 
 type Pipeline = pipeline.Pipeline;
 type Gate = pipeline.Gate;
@@ -20,13 +21,12 @@ type Model = pipeline.Model;
 // It renders `panelFor` for the selection. An edit goes to `applyPipelineField` or `applyFlowField`: an accepted
 // edit is passed to `onChange`; a refused one keeps the saved value in the field and shows the reason beneath it
 // (owner decision, 2026-11-17). Text is committed on blur or Enter, so a refusal does not undo typing. The panel
-// has no switch-off (decision 34) and only Delete on a flow. Its layout follows the approved screens in
-// spec/design/features/F-11-pipeline-builder/ (01, 04 and 09).
+// has no switch-off (decision 34). An arrow's pickers and buttons and a flow's Connect and Delete are in ButtonPaths.tsx.
+// Its layout follows the approved screens in spec/design/features/F-11-pipeline-builder/ (01, 02, 04 and 09).
 
 const PANEL_LABEL = 'Properties';
 const PIPELINE_HEADING = 'Pipeline properties';
 const PIPELINE_FOOTER_NOTE = 'The pipeline cannot be removed.';
-const DELETE_FLOW_LABEL = 'Delete flow';
 const NOT_SET_LABEL = 'not set';
 const REFUSED_PREFIX = 'Refused: ';
 const REQUIRED_SUFFIX = ' · required';
@@ -46,11 +46,13 @@ export interface PropertiesPanelProps {
   readonly pipeline: Pipeline;
   readonly selection: Selection | undefined;
   readonly onChange: (next: Pipeline) => void;
-  // Called with the flow's id. The confirmation is added later (F-11 AC-031); this panel deletes at once.
+  // Called with the flow's id once the user confirms Delete flow (F-11 AC-031); the caller removes the flow.
   readonly onDelete: (flowId: string) => void;
+  // Called when an arrow's source moves to another flow (the arrow follows it) or the arrow is deleted (nothing selected).
+  readonly onSelect: (selection: Selection | undefined) => void;
 }
 
-export function PropertiesPanel({ pipeline: config, selection, onChange, onDelete }: PropertiesPanelProps) {
+export function PropertiesPanel({ pipeline: config, selection, onChange, onDelete, onSelect }: PropertiesPanelProps) {
   const content = panelFor(selection, config);
   const selectionKey = keyOf(selection);
 
@@ -68,9 +70,9 @@ export function PropertiesPanel({ pipeline: config, selection, onChange, onDelet
       <Typography sx={HEADING_SX}>{headingFor(selection, content.heading)}</Typography>
       {content.file === undefined ? null : <Typography sx={FILE_SX}>{`Generates ${content.file}`}</Typography>}
       {content.fields.map((field) => (
-        <Box key={`${selectionKey}:${field.key}`}>{renderField(field, selection, apply, config, onChange)}</Box>
+        <Box key={`${selectionKey}:${field.key}`}>{renderField(field, selection, apply, config, onChange, onSelect)}</Box>
       ))}
-      {footerFor(selection, onDelete)}
+      {actionsFor(selection, config, onChange, onSelect, onDelete, selectionKey)}
     </Box>
   );
 }
@@ -89,18 +91,25 @@ function headingFor(selection: Selection | undefined, heading: string): string {
   return selection.kind === 'flow' ? `Flow: ${heading}` : heading;
 }
 
-function footerFor(selection: Selection | undefined, onDelete: (flowId: string) => void) {
+// The buttons under the fields: an arrow's gate and Delete connection, a flow's Connect and Delete flow. The pipeline
+// has none; it says it cannot be removed.
+function actionsFor(
+  selection: Selection | undefined,
+  config: Pipeline,
+  onChange: (next: Pipeline) => void,
+  onSelect: (selection: Selection | undefined) => void,
+  onDelete: (flowId: string) => void,
+  selectionKey: string,
+) {
   if (selection === undefined || selection.kind === 'pipeline') {
     return <Typography sx={NOTE_SX}>{PIPELINE_FOOTER_NOTE}</Typography>;
   }
   if (selection.kind === 'flow') {
     return (
-      <Button color="error" variant="outlined" onClick={() => onDelete(selection.id)} sx={{ alignSelf: 'flex-start' }}>
-        {DELETE_FLOW_LABEL}
-      </Button>
+      <FlowActions key={selectionKey} pipeline={config} flowId={selection.id} onChange={onChange} onDelete={onDelete} />
     );
   }
-  return null;
+  return <ArrowActions key={selectionKey} pipeline={config} source={selection.source} onChange={onChange} onSelect={onSelect} />;
 }
 
 type Apply = (key: FieldKey, raw: string) => string | undefined;
@@ -111,13 +120,27 @@ function renderField(
   apply: Apply,
   config: Pipeline,
   onChange: (next: Pipeline) => void,
+  onSelect: (selection: Selection | undefined) => void,
 ) {
   const label = selection?.kind === 'flow' && field.key === 'name' ? `${field.label}${REQUIRED_SUFFIX}` : field.label;
   switch (field.key) {
     case 'label':
+      return <ReadOnly label={label}>{textOf(field.value)}</ReadOnly>;
     case 'source':
     case 'target':
-      return <ReadOnly label={label}>{textOf(field.value)}</ReadOnly>;
+      if (selection?.kind !== 'arrow') {
+        return <ReadOnly label={label}>{textOf(field.value)}</ReadOnly>;
+      }
+      return (
+        <ArrowEndPicker
+          end={field.key}
+          arrow={selection.source}
+          value={textOf(field.value)}
+          pipeline={config}
+          onChange={onChange}
+          onSelect={onSelect}
+        />
+      );
     case 'gate':
       return isGate(field.value) ? <GateText label={label} gate={field.value} /> : null;
     case 'model':

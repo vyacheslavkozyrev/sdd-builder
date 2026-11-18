@@ -41,11 +41,13 @@ function Harness({
   selection,
   onChange,
   onDelete = vi.fn(),
+  onSelect = vi.fn(),
 }: {
   readonly initial: Pipeline;
   readonly selection: Selection | undefined;
   readonly onChange?: (next: Pipeline) => void;
   readonly onDelete?: (flowId: string) => void;
+  readonly onSelect?: (selection: Selection | undefined) => void;
 }) {
   const [value, setValue] = useState(initial);
   return (
@@ -57,6 +59,7 @@ function Harness({
         setValue(next);
       }}
       onDelete={onDelete}
+      onSelect={onSelect}
     />
   );
 }
@@ -138,7 +141,8 @@ describe('F-11 AC-025 panel content by selection', () => {
   it('F-11 AC-025 an arrow with no gate shows no gate field', () => {
     const plain = flow('build', 'build', { connectedTo: { to: 'verify', label: 'commits' } });
     render(<Harness initial={config([plain, flow('verify', 'verify')])} selection={{ kind: 'arrow', source: 'build' }} />);
-    expect(panel().textContent).not.toContain('Gate');
+    // The gate form has its own heading ("Gate on this arrow"); the read-only gate field is not shown.
+    expect(screen.queryByText('Gate')).toBeNull();
   });
 });
 
@@ -297,16 +301,21 @@ describe('F-11 AC-028 body counter and limit', () => {
 });
 
 describe('F-11 AC-034 no switch-off on a flow', () => {
-  it('F-11 AC-034 a flow footer has Delete flow only (negative case: no switch-off)', () => {
+  it('F-11 AC-034 a flow has Connect to next flow and Delete flow only (negative case: no switch-off)', () => {
     render(<Harness initial={config([PLAN])} selection={{ kind: 'flow', id: 'plan' }} />);
     expect(screen.getByRole('button', { name: 'Delete flow' })).toBeTruthy();
-    expect(screen.getAllByRole('button')).toHaveLength(1);
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Connect to next flow ▾',
+      'Delete flow',
+    ]);
     expect(screen.queryByText(/switch|disable|off/i)).toBeNull();
   });
 
-  it('F-11 AC-034 Delete flow asks the caller to delete that flow by its id', () => {
+  it('F-11 AC-034 Delete flow asks first, then the caller deletes that flow by its id', () => {
     const onDelete = vi.fn();
     render(<Harness initial={config([PLAN, BUILD])} selection={{ kind: 'flow', id: 'build' }} onDelete={onDelete} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+    expect(onDelete).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
     expect(onDelete).toHaveBeenCalledWith('build');
   });

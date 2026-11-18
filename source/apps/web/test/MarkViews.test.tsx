@@ -268,11 +268,13 @@ describe('F-11 AC-037 the marks follow the edits and never block one', () => {
         selection={{ kind: 'flow', id: 'plan' }}
         onChange={vi.fn()}
         onDelete={onDelete}
+        onSelect={vi.fn()}
       />,
     );
     const remove = screen.getByRole('button', { name: 'Delete flow' });
     expect((remove as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(remove);
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
     expect(onDelete).toHaveBeenCalledWith('plan');
   });
 });

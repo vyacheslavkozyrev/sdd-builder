@@ -40,6 +40,7 @@ function Harness({ initial, onChange }: { readonly initial: Pipeline; readonly o
         setValue(next);
       }}
       onDelete={vi.fn()}
+      onSelect={vi.fn()}
     />
   );
 }

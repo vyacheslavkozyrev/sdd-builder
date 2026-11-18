@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 13 of 18 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-17 | 14 of 18 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-T013a — implemented
+None
 
 ---
 
@@ -38,6 +38,7 @@ T013a — implemented
 | T011 | Wizard values for step 3: `pipeline` in the wizard state from the default pipeline (copied per state), reset by New project (`source/apps/web/src/wizard/state.ts`) | 0 blockers; 1 warning fixed (the no-network-call test did not stub the network); shape-only fixture updates in F-08, F-10 and App/Wizard tests | task check passed: api 57, web 478, core 1017 |
 | T012 | Pipeline tab shell: tab row (Pipeline first, a tab per flow, + after the last), the flow placeholder, no remove control (`source/apps/web/src/builder/PipelineTabs.tsx`) | 0 blockers; 2 warnings fixed (the + test did not exercise + ; a test name that did not match its test); 1 suggestion deferred (tab ARIA to T017) | task check passed: api 57, web 491, core 1017 |
 | T013 | Properties panel and toolbox UI: panel fields and edits, refusals revert to the saved value with the reason beneath, body counter, Delete-only footer, toolbox (`PropertiesPanel.tsx`, `Toolbox.tsx`) | 0 blockers; 2 warnings fixed (arrow heading 'Connection' as on the screens; AC-027 tests for Enter, a parser flow-name refusal and a multi-line body); 2 suggestions fixed. Size: 746 insertions, over the 400 guard; committed as one commit on the owner's instruction. Open: pipeline arguments are read-only, so AC-027 for arguments needs a task (plan amendment pending) | task check passed: api 57, web 518, core 1017 |
+| T013a | Pipeline arguments row editor: rows with Add, Edit and Remove, each edit through `applyPipelineField` 'arguments'; a refused edit keeps the saved row with the reason beneath it; a repeated id names the row that uses it (`source/apps/web/src/builder/ArgumentRows.tsx`) | 0 blockers; 2 warnings fixed (the AC-034 assertion narrowed to a delete name, so it no longer proved no switch-off; a flow's arguments as text had no test); 1 suggestion fixed (Cancel clears the refusal of a new row); 2 suggestions deferred. Size: 30 changed lines in the fix | task check passed: api 57, web 529, core 1017 |
 
 ---
 
@@ -55,6 +56,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T007 NOTE (decision, not a finding) `source/apps/web/src/builder/fields.ts` `applyFlowField`: the flow name's uniqueness compares trimmed text and is case-sensitive. Trimmed, because the blank check trims and two names that look the same on the Map clash. Case-sensitive, because a flow's file comes from its id (`.claude/commands/<id>.md`), so a case difference is not a file clash. Covered by `fields.test.ts` "F-11 AC-029 compares names after trimming" and "compares names case-sensitively".
 - T013 SUGGESTION `source/packages/core/src/pipeline/check/primitives.ts` (body refusal text): the parser says "must be at most 1000 characters", while screen 09 and the counter say "1,000". Left as is: the text is the parser message, which AC-027 requires, and it is in core, outside T013. Owner may decide the format.
 - T013 SUGGESTION `source/apps/web/src/builder/PropertiesPanel.tsx` (gate text): the gate lines do not match screens 02 and 03 ("Gate on this arrow", the no-gate state). Left as is: the gate controls and the no-gate state belong to T016 with the Add and Remove buttons.
+- T013a SUGGESTION `source/apps/web/src/builder/ArgumentRows.tsx` (Add argument and Edit on another row): opening another row while a draft is open discards that draft with no warning. Left as is: screen 09 does not say what happens to an open draft, and a guard would change the screen behaviour; owner to decide.
+- T013a SUGGESTION `source/apps/web/src/builder/fields.ts` `checkCandidate` (refusal text): the parser names an argument by its 0-based index (`Arguments at [1].id`), while the panel numbers rows from 1. Left as is: the text is the parser message that the Analyze step shows too, and changing it would split the two; owner may decide the format with the T013 body-limit text.
 
 ---
 

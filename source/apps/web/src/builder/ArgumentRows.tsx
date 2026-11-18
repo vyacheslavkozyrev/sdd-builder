@@ -94,6 +94,12 @@ export function ArgumentRows({ label, pipeline: config, onChange }: ArgumentRows
     }
   };
 
+  // Cancel closes the draft and clears any refusal it showed, so a refused new row leaves no hidden notice behind.
+  const cancel = (): void => {
+    setEditing(undefined);
+    setNotice(undefined);
+  };
+
   const patch = (change: Partial<Draft>): void => {
     if (editing !== undefined) {
       setEditing({ ...editing, draft: { ...editing.draft, ...change } });
@@ -106,7 +112,7 @@ export function ArgumentRows({ label, pipeline: config, onChange }: ArgumentRows
       {rows.map((row, index) => (
         <Box key={`${index}:${row.id}`} sx={ROW_SX}>
           {editing?.index === index ? (
-            <DraftForm draft={editing.draft} onPatch={patch} onSave={() => save(editing)} onCancel={() => setEditing(undefined)} />
+            <DraftForm draft={editing.draft} onPatch={patch} onSave={() => save(editing)} onCancel={cancel} />
           ) : (
             <Box sx={ROW_SX}>
               <Typography sx={VALUE_SX}>{row.required ? `${row.id}${REQUIRED_SUFFIX}` : row.id}</Typography>
@@ -126,7 +132,7 @@ export function ArgumentRows({ label, pipeline: config, onChange }: ArgumentRows
       ))}
       {editing?.index === rows.length ? (
         <Box sx={ROW_SX}>
-          <DraftForm draft={editing.draft} onPatch={patch} onSave={() => save(editing)} onCancel={() => setEditing(undefined)} />
+          <DraftForm draft={editing.draft} onPatch={patch} onSave={() => save(editing)} onCancel={cancel} />
           {notice?.index === rows.length ? <Typography sx={REFUSED_SX}>{`${REFUSED_PREFIX}${notice.text}`}</Typography> : null}
         </Box>
       ) : (

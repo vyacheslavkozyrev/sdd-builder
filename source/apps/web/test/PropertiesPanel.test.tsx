@@ -313,7 +313,25 @@ describe('F-11 AC-034 no switch-off on a flow', () => {
 
   it('F-11 AC-034 the pipeline has no Delete control and says it cannot be removed (negative case)', () => {
     render(<Harness initial={config([PLAN])} selection={undefined} />);
-    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+    // The only buttons are the argument row controls (AC-027); none of them switches the pipeline or a flow off.
+    for (const button of screen.getAllByRole('button')) {
+      expect(button.textContent).toMatch(/^(Edit|Remove|Add argument)$/);
+    }
+    expect(screen.queryByRole('switch')).toBeNull();
+    expect(screen.queryByRole('checkbox')).toBeNull();
     expect(screen.getByText('The pipeline cannot be removed.')).toBeTruthy();
+  });
+});
+
+describe("F-11 AC-027 a flow's arguments stay text", () => {
+  it("F-11 AC-027 a flow's arguments are one text field, not rows, and an edit is saved as text", () => {
+    const onChange = vi.fn();
+    render(<Harness initial={config([PLAN])} selection={{ kind: 'flow', id: 'plan' }} onChange={onChange} />);
+    expect(screen.queryByRole('button', { name: 'Add argument' })).toBeNull();
+    fireEvent.change(field('Arguments'), { target: { value: 'topic' } });
+    fireEvent.blur(field('Arguments'));
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({
+      flows: [expect.objectContaining({ id: 'plan', arguments: 'topic' })],
+    });
   });
 });

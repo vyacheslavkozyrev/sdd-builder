@@ -6,14 +6,28 @@
 // draws it, because jsdom does not draw the arrow itself. The arrows' labels are tested as pure logic (AC-008,
 // drawing.test.ts).
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import type { ReactFlowProps } from '@xyflow/react';
 import type { pipeline } from '@sddbuilder/core';
 import { Canvas } from '../src/builder/Canvas.js';
+import { ALREADY_CONNECTED_REASON, BLANK_LABEL_REASON, SELF_CONNECTION_REASON } from '../src/builder/connect.js';
 import { TOOL_MIME } from '../src/builder/drawing.js';
 import type { Selection } from '../src/builder/panel.js';
 
 type Pipeline = pipeline.Pipeline;
 type Flow = pipeline.Flow;
+
+// The props React Flow is given on its last render. A drag between two connection points cannot be drawn in jsdom, so a
+// test makes the connection React Flow reports through `onConnect`; the gesture itself is checked in a browser.
+const drawn = vi.hoisted(() => ({ props: undefined as ReactFlowProps | undefined }));
+vi.mock('@xyflow/react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@xyflow/react')>();
+  const ReactFlow = (props: ReactFlowProps) => {
+    drawn.props = props;
+    return <actual.ReactFlow {...props} />;
+  };
+  return { ...actual, ReactFlow };
+});
 
 beforeAll(() => {
   // React Flow measures its nodes with a ResizeObserver, which jsdom does not provide.
@@ -209,5 +223,79 @@ describe('F-11 AC-008 connection points of each box', () => {
       expect(node.querySelectorAll('.react-flow__handle-right.source')).toHaveLength(1);
       expect(node.querySelectorAll('.react-flow__handle-left.target')).toHaveLength(1);
     }
+  });
+});
+
+// A connection React Flow reports when a drag ends on another box's connection point (AC-012, AC-013).
+function connectDrag(source: string, target: string): void {
+  const onConnect = drawn.props?.onConnect;
+  if (onConnect === undefined) {
+    throw new Error('The canvas gives no onConnect.');
+  }
+  act(() => onConnect({ source, target, sourceHandle: null, targetHandle: null }));
+}
+
+describe('F-11 AC-012 connection points drawn by drag', () => {
+  it('F-11 AC-012 makes the right point of every box a start and the left point an end of a drag', () => {
+    renderCanvas(PIPE);
+    for (const name of ['plan', 'build', 'verify']) {
+      const node = nodeOf(name);
+      expect(node.querySelectorAll('.react-flow__handle-right.source.connectable')).toHaveLength(1);
+      expect(node.querySelectorAll('.react-flow__handle-left.target.connectable')).toHaveLength(1);
+    }
+  });
+
+  it('F-11 AC-012 starts a connection only by a drag: boxes are connectable and a click on a point starts none', () => {
+    renderCanvas(PIPE);
+    expect(drawn.props?.nodesConnectable).toBe(true);
+    expect(drawn.props?.connectOnClick).toBe(false);
+  });
+
+  it('F-11 AC-012 gives React Flow an onReconnect, so an arrow end can be dragged to repoint it', () => {
+    renderCanvas(PIPE);
+    expect(drawn.props?.onReconnect).toBeTypeOf('function');
+    expect(drawn.props?.onReconnectEnd).toBeTypeOf('function');
+  });
+
+  it('F-11 AC-012 asks the artifact label for a drag between two flows, and adds the arrow with it', () => {
+    const { onChange } = renderCanvas(config([flow('verify'), flow('build')]));
+    connectDrag('verify', 'build');
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByText('Connect verify to build')).toBeTruthy();
+    fireEvent.change(within(dialog).getByLabelText('Artifact label · required'), { target: { value: 'verify.md' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Connect' }));
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const next = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(next.flows[0]?.connectedTo).toEqual({ to: 'build', label: 'verify.md' });
+  });
+
+  it('F-11 AC-013 refuses a blank label for a drag, and adds no arrow', () => {
+    const { onChange } = renderCanvas(config([flow('verify'), flow('build')]));
+    connectDrag('verify', 'build');
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('Artifact label · required'), { target: { value: '   ' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Connect' }));
+    expect(within(dialog).getByRole('alert').textContent).toBe(BLANK_LABEL_REASON);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-012 refuses a drag from a flow that already has an arrow, and adds nothing', () => {
+    const { onChange } = renderCanvas(PIPE);
+    connectDrag('plan', 'verify');
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('Artifact label · required'), { target: { value: 'plan.md' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Connect' }));
+    expect(within(dialog).getByRole('alert').textContent).toBe(ALREADY_CONNECTED_REASON);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-012 refuses a drag from a flow to itself, and adds nothing', () => {
+    const { onChange } = renderCanvas(config([flow('verify'), flow('build')]));
+    connectDrag('verify', 'verify');
+    const dialog = screen.getByRole('dialog');
+    fireEvent.change(within(dialog).getByLabelText('Artifact label · required'), { target: { value: 'verify.md' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Connect' }));
+    expect(within(dialog).getByRole('alert').textContent).toBe(SELF_CONNECTION_REASON);
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

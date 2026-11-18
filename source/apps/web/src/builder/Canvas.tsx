@@ -150,6 +150,10 @@ function ArrowEdge({
 }
 const EDGE_TYPES: EdgeTypes = { arrow: ArrowEdge };
 
+// React Flow draws an arrow's ends as drag handles only when onReconnect is given. The repoint itself is made in
+// onReconnectEnd, so this callback does nothing (AC-012).
+const NO_RECONNECT = (): void => undefined;
+
 // What a drop on the canvas asks for next: the artifact label of a new arrow, or the gate for an arrow.
 type DropState =
   | { readonly kind: 'label'; readonly source: string; readonly target: string }
@@ -331,9 +335,15 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
       setPending(flow);
       return;
     }
+    askLabel(pending, flow);
+  };
+
+  // A new arrow between two flows, from the Connection tool or from a drag between their connection points: the
+  // artifact label is asked first, and connectFlows adds the arrow or refuses it in the dialog (AC-012, AC-013).
+  const askLabel = (source: string, target: string) => {
     setPending(undefined);
     setNotice(undefined);
-    setDrop({ kind: 'label', source: pending, target: flow });
+    setDrop({ kind: 'label', source, target });
   };
 
   return (
@@ -370,8 +380,11 @@ export function Canvas({ pipeline: config, rules, selection, onSelect, onChange 
             onNodeClick={(_event, node) => onSelect({ kind: 'flow', id: node.id })}
             onEdgeClick={(_event, edge) => onSelect({ kind: 'arrow', source: edge.source })}
             onPaneClick={() => onSelect(undefined)}
+            onReconnect={NO_RECONNECT}
             onReconnectEnd={onReconnectEnd}
-            nodesConnectable={false}
+            onConnect={(connection) => askLabel(connection.source, connection.target)}
+            nodesConnectable
+            connectOnClick={false}
             edgesReconnectable
             zoomOnScroll={false}
             zoomOnDoubleClick={false}

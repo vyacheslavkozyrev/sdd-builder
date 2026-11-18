@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
 | Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 20 of 21 tasks committed (T019 and T020 added at Verify) |
+| Build    | 🔄 In Progress | 2026-11-17 | 21 of 21 tasks committed (T019 and T020 added at Verify) |
 | Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION: 37 of 37 `[auto]` covered, no gaps; manual checklist in `checklist.md` (AC-006, AC-011, AC-012, AC-022, AC-024) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -45,6 +45,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T017 | Step 3 wiring: PipelineStep on step 3 (tabs, toolbox, canvas, panel, selection), reports every change through onUpdate, delete flow clears the selection, rulesFor passed to the canvas, privacy scan extended (`PipelineStep.tsx`, `Wizard.tsx`, `App.tsx`) | 0 blockers; 1 warning fixed (the privacy scan missed WebTransport, EventSource, cookies, caches, storage); 1 suggestion fixed; 2 deferred. Size: 410 changed lines, committed as one on the owner's instruction. Tests: api 57, web 616, core 1017 | task check passed: api 57, web 616, core 1017 |
 | T018 | `ui.md` §3 updated: flow ids and names, automatic layout with no saved positions, connect by drag and by button, one arrow per flow, refusals keep the saved value, 'Not on a drawn item', body limit 1000 (`spec/documents/ui.md`) | docs only; 0 blockers; ui.md §4 and §6 still say 1,000 (owner to align) | task check passed: api 57, web 616, core 1017 |
 | T019 | Visible connections: memoised nodes and edges (the cause: new arrays on each render stopped React Flow measuring the edges); arrow look for selected and unselected; box 100 x 76 (`Canvas.tsx`, `drawing.ts`) | 0 blockers; 2 warnings fixed (selected arrow look; box and arrow look tests); 1 suggestion fixed. Browser check at 1280 x 800: 5 arrows drawn with arrowheads, no console errors. Gates are text in the label, not diamonds (deferred to the owner) | task check passed: api 57, web 617, core 1017 |
+| T020 | Connection points: a drag from a flow's right point to another's left point asks the label, then connectFlows; arrow-end repoint wired with onReconnect (`Canvas.tsx`) | 1 blocker fixed (the arrow-end repoint never started: onReconnect was missing); 1 warning fixed (wiring tests); 0 suggestions. Owner decision open: a loop (A to B to A) is accepted and flagged as a blocker by the analysis. Device checks at Verify | task check passed: api 57, web 626, core 1017 |
 
 ---
 
@@ -83,6 +84,11 @@ _Review suggestions intentionally not applied, with the reason._
 - T017 SUGGESTION `source/apps/web/src/wizard/PipelineStep.tsx` (`tab`, `selection`): the open tab and the selection reset when the user leaves step 3 and comes back, because the step unmounts. Left as is: no criterion asks to keep them; the owner may decide.
 - T017 NOTE (open item 6 closed) `source/apps/web/src/wizard/PipelineStep.tsx` `removeFlow`: the flow's Delete removes the flow, clears the selection and moves the tab to Pipeline (AC-031). Covered by `PipelineStep.test.tsx` "F-11 AC-031 a confirmed Delete flow removes the flow, clears the selection and moves the tab to Pipeline".
 - T019 SUGGESTION `source/apps/web/src/builder/Canvas.tsx` (`ArrowEdge`, screens 01 to 03): the artifact label sits above the row of boxes, and the gate is drawn as text in the label, not as the diamond on the arrow that screen 01 draws. Left as is: the one-line label is the T014 decision (see the T014 entry above); a diamond and a label beside the arrow are a layout change for the owner and UX to decide.
+
+- T020 OWNER DECISION `source/apps/web/src/builder/connect.ts` (`connectFlows`), the loop case: a connection that closes a cycle (A to B, then B to A, or a longer loop) is not refused on the canvas. It is added, and the analysis reports it as a structural blocker (`source/packages/core/src/pipeline/analyze/cycles.ts`, `architecture.md` §12, F-06 amendment 6). Kept as the architecture defines it: cycles are blockers, not refusals. The owner confirms or asks for a canvas refusal instead.
+- T020 BLOCKER (resolved) `source/apps/web/src/builder/Canvas.tsx` (`onReconnect`, arrow-end repoint): React Flow draws an arrow's end handles only when `onReconnect` is given, so the repoint drag never started (the prop was missing before T020). Fixed with `NO_RECONNECT`; covered by `Canvas.test.tsx` "F-11 AC-012 gives React Flow an onReconnect, so an arrow end can be dragged to repoint it". The drag itself is checked on screen at Verify (AC-012 `[device]`).
+- T020 WARNING (resolved) `source/apps/web/test/Canvas.test.tsx` (wiring): no test pinned `nodesConnectable`, `connectOnClick` or `onReconnect`. Added "F-11 AC-012 starts a connection only by a drag" and the onReconnect test; both fail when the prop is reverted.
+- T020 SUGGESTION `spec/specifications/F-11-pipeline-builder/plan.md` (T020 line): the file list names `source/apps/web/src/builder/drawing.ts`, which this task does not change. Left as is: no code impact; correct the list at the next plan amendment.
 
 ---
 

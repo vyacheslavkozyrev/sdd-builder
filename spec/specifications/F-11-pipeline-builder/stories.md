@@ -269,3 +269,10 @@ New criteria for the amendment:
 - **A flow's required attributes are its name and its body.** Description and arguments are optional.
 - **A flow must be connected**: it has an incoming or an outgoing link to another flow. The only exception is a pipeline with one flow.
 - **Structure marks (AC-035 to AC-037)**: the blocker for a flow with no link is shown on the flow's box when the pipeline has more than one flow. The "no End block" example of screen 06 is no longer a use case and the screen is removed.
+
+---
+
+## Decision 2026-11-18f (owner): how a blocker is shown
+
+- **A flow with a blocker is highlighted in red** (its box border).
+- **The blocker's message is shown as a notification at the top centre of the builder** (above the canvas, in the content area), with its severity colour; it is not a callout under the box. This replaces the placement of AC-035 (beside the item) for blockers; warnings keep their placement beside the item.

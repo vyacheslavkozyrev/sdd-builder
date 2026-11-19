@@ -135,7 +135,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <rect x="1008" y="828" width="224" height="80" rx="8" class="box"/>
 <text x="1020" y="848" class="small">Runs the feature from specify to</text>
 <text x="1020" y="864" class="small">complete. Stops at each approval.</text>
-<text x="1008" y="928" class="small">96 / 1,000 characters</text>
+<text x="1008" y="928" class="small">96 / 1000 characters</text>
 <text x="1008" y="964" class="muted">The pipeline cannot be removed.</text>
 </g>
 

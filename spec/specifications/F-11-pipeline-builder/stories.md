@@ -234,3 +234,16 @@ New criteria for the amendment:
 - **A flow has checks (multiple).** "Add check" in the flow's properties adds one check, as in AC-046; each check is removed on its own row.
 - **A flow has a "Human approval" checkbox.** Owner assumption, to be confirmed on the screens: the approval moves with the checks and sits on the flow, as AC-045 says for the connection.
 - **Model (decision needed to implement).** The stored model changes: a flow holds `artifacts`, `checks` and `approval`; a connection holds only its target. This supersedes `architecture.md` §6 decision 33 for the connection's label and gate. Recorded for approval before any code.
+
+---
+
+## Decision 2026-11-18 (owner, second): a flow is one JSON object; there is no connection object
+
+- **A flow holds:** its id, name, description, arguments, model, body, blocks, its outcome `artifacts` (each with `label` and `template`), its `checks`, its `approval` (on or off) and its `next` (the id of the next flow, or none).
+- **There is no connection object.** The arrow is drawn from a flow's `next`. "Connect to next flow" sets `next`; the connection points set `next`; repointing changes `next`.
+- **Human approval stops the process at the end of its flow.**
+- **Delete removes the whole flow object**: its artifacts, checks, approval and its `next`. Flows pointing to it lose that `next`.
+- **Keep** the scroll in the flow panel; **keep** "No checks yet." for checks.
+- **Template help text:** open (the owner asked for the wording).
+- **Not approved yet:** the screens wait for a visual style change; they are not committed.
+- **Model:** this replaces `architecture.md` §6 decision 33 (connections as `connectedTo` with a label and gate). Needs an architecture decision before code.

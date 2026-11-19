@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 15 criteria: 14 `[auto]`, 1 `[device]`; step bodies are a placeholder per step (user decision); approved by the user |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
-| Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks; no new library, arrows as inline SVG) |
-| Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed (T006 added by amendment) |
-| Verify   | ✅ Complete | 2026-11-17 | 14 `[auto]` criteria covered by passing tests; AC-015 passed by the user (checklist.md) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

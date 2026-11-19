@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-16 | 10 stories, 35 criteria, all `[auto]`; approved by the user. Schema recorded as `architecture.md` §6 decision 33 |
-| UX       | ➖ Not needed | 2026-11-16 | No user interface: a model, a parser and a JSON file |
-| Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | ✅ Complete | 2026-11-16 | 13 of 13 tasks committed |
-| Verify   | ✅ Complete | 2026-11-16 | 35 of 35 criteria covered by passing `[auto]` tests; no `[device]` criteria, so no manual checklist |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

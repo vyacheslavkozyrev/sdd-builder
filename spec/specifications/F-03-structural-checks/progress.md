@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-16 | 6 stories, 30 criteria, all `[auto]`; approved by the user. Decision 34 recorded in `architecture.md` §6 |
-| UX       | ➖ Not needed |      | No user interface: pure functions in `source/packages/core` |
-| Plan     | ✅ Complete | 2026-11-16 | Approved by the user before any code is written |
-| Build    | ✅ Complete | 2026-11-16 | 8 of 8 tasks committed |
-| Verify   | ✅ Complete | 2026-11-16 | 30 of 30 `[auto]` criteria covered by passing tests; 0 `[device]` criteria, so no checklist; 0 gaps, 0 failures |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

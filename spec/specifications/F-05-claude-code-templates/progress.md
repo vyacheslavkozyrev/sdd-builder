@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 7 stories, 35 criteria, all `[auto]`; approved by the user. Mermaid diagram in `process.md` included (features.md scope); AC-008 keeps Start and End as steps, as F-04 renders them; AC-010, AC-021, AC-023 and AC-028 amended 2026-11-17: Start and End kept as steps; no project name, idea or stack in F-05 (F-09, F-21 add them); a pipeline gate has no fail route in the model |
-| UX       | ➖ Not needed | 2026-11-17 | No user interface: templates and a pure generator in `source/packages/core` (the stories have no user-facing criterion) |
-| Plan     | ✅ Complete | 2026-11-17 | 13 tasks, all 35 criteria covered; approved by the user |
-| Build    | ✅ Complete | 2026-11-17 | 13 of 13 tasks committed |
-| Verify   | ✅ Complete | 2026-11-17 | 35 of 35 criteria covered by passing tests; no `[device]` criteria, so the checklist has no entries (`checklist.md`) |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

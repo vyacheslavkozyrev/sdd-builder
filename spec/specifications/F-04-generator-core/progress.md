@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-16 | 6 stories, 33 criteria, all `[auto]`; approved by the user. Scope: core generator only (planning, reply check, refusals); the templates text, the model call and the analyzer rewiring are later features |
-| UX       | ➖ Not needed | 2026-11-16 | No user interface: a pure generator in `source/packages/core` |
-| Plan     | ✅ Complete | 2026-11-16 | Approved by the user |
-| Build    | ✅ Complete | 2026-11-16 | 13 of 13 tasks committed (T011 to T013 by the Verify amendments) |
-| Verify   | ✅ Complete | 2026-11-17 | 33 of 33 criteria covered by passing [auto] tests; no [device] criteria |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

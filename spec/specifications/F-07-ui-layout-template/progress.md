@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 14 criteria: 12 `[auto]`, 2 `[device]`; approved by the user |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user as they are: open points kept (New project starts over at once; scrollbar strip kept as an illustration) | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
-| Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; Emotion 11.14.0 (react) and 11.14.1 (styled) approved as Material UI peers) |
-| Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed |
-| Verify   | ✅ Complete | 2026-11-17 | 12 of 12 `[auto]` criteria covered by passing tests; AC-011 and AC-012 passed by the user (checklist.md) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 16 criteria: 15 `[auto]`, 1 `[device]`; name limit 100 code points and idea trimmed when the configuration is built (owner decisions); approved by the user |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Open: name help line vs AC-016, limit note styling (kept as drawn) |
-| Plan     | ✅ Complete | 2026-11-17 | Approved by the user (5 tasks); name help line kept as drawn, AC-016 wording still to be settled before Verify |
-| Build    | ✅ Complete | 2026-11-17 | 5 of 5 tasks committed |
-| Verify   | ✅ Complete | 2026-11-17 | 15 `[auto]` criteria covered and passing; AC-016 `[device]` passed by the user (C-01); AC-016 amended to the kept help line plus the name limit |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

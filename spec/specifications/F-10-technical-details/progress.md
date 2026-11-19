@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 23 criteria: 22 `[auto]`, 1 `[device]`; stack fields free text, 100-character limit on single-line fields and rule names (owner decisions); approved by the user |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
-| Plan     | ✅ Complete | 2026-11-17 | Approved by the user (6 tasks; no new library; AC-007 configuration half checked when F-13 adds the configuration function) |
-| Build    | ✅ Complete | 2026-11-17 | 6 of 6 tasks committed |
-| Verify   | ✅ Complete | 2026-11-17 | 23 criteria: 22 `[auto]` covered by passing tests; AC-007 reducer half covered, configuration half open until F-13; AC-023 `[device]` passed by the user (C-01, checklist.md) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

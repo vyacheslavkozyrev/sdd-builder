@@ -5,11 +5,11 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
+| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
-| Plan     | ✅ Complete | 2026-11-18 | Regenerated for the 2026-11-18 model; approved by the user. Open points 1 to 6 in plan.md stay open until decided before Build. Prerequisites: F-02 and F-03 amendments (not started) |
-| Build    | ⏳ Pending | 2026-11-18 | 0 of 18 tasks committed in the regenerated plan (the earlier 21 tasks are on the old model); blocked by F-02 and F-03 amendments and open points 1 to 6 |
-| Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION (re-run after T019 and T020): 37 of 37 `[auto]` covered, no gaps; 1700 tests passed; manual checklist in `checklist.md` (AC-006, AC-008, AC-011, AC-012, AC-022, AC-024) |
+| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

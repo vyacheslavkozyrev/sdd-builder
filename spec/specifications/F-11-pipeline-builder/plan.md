@@ -41,6 +41,8 @@ F-11's Build cannot start until the F-02 and F-03 amendments are complete, becau
 
 ## Superseded criteria (no task of their own)
 
+- AC-049 and AC-050 are new (open points 1 and 3); tasks T004 (loops) and T012 (rule tags) cover them.
+
 - AC-013 (connection label) → AC-043 (artifact label, T007).
 - AC-014 (button path "Connect to next flow") → removed by decision 2026-11-18d; the second-arrow refusal is kept in T004.
 - AC-017 (approval gate on an arrow) → AC-045 (T009).
@@ -57,7 +59,11 @@ F-11's Build cannot start until the F-02 and F-03 amendments are complete, becau
 - **Libraries.** `@xyflow/react` 12.12.1 and `@mui/material` 9.5.0 are already approved in `architecture.md` §5. The Material Kit look is a style choice (MIT, credit in `ui.md` §3.0 and `architecture.md` §5): no new package.
 - **Device checks.** AC-006, AC-011, AC-012, AC-024 and AC-048 are checked on screen at Verify (T014, T015).
 
-## Open points for the approval (do not build before these are decided)
+## Open points (decided by the owner on 2026-11-18; closed)
+
+All six are closed: 1 loop criterion added as AC-049; 2 flow arguments are rows (F-02 amendment: flow arguments become a list of rows, like the pipeline's); 3 rule tags match the previous step's list, AC-050; 4 the new flow's tab opens (AC-003 unchanged); 5 input height 34 px; 6 the flow tab has no placeholder (AC-005 reworded).
+
+The former open points are kept here for the record:
 
 1. **Loops.** Decision 38 forbids loops and screen 08 shows the refusal, but no acceptance criterion says so. Add a criterion to the stories (e.g. AC-049 `[auto]`: a drag or a link that would close a loop is refused with the reason and nothing changes).
 2. **Flow arguments.** Screen 03 shows flow arguments as rows (with + and minus, like the pipeline), while the model's flow `arguments` is one text value. Choose: rows (model change in F-02) or one text value (screen change).

@@ -54,7 +54,7 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 - [ ] AC-002 `[auto]`: the Pipeline tab has no remove control, and no control on the tab row removes it (negative case: the tab is still there after every flow is deleted).
 - [ ] AC-003 `[auto]`: + adds one flow with no blocks, with the id `flow-2`, `flow-3` and so on (the first number not used by another flow's id or name, so that the new name, which starts as the id, does not clash; owner decision, 2026-11-17), which is file-safe and unique in the pipeline (decision 18); the new flow's tab is selected at once.
 - [ ] AC-004 `[auto]`: + is the only control that adds a flow (negative case: no toolbox, arrow panel or box panel on the Pipeline tab adds a flow).
-- [ ] AC-005 `[auto]`: a flow tab shows the flow's name and a one-line placeholder that its blocks are built in F-12; the Pipeline tab shows the canvas.
+- [ ] AC-005 `[auto]`: a flow tab shows the flow's name and an empty body, with no placeholder text; the Pipeline tab shows the canvas (owner decision, 2026-11-18: no placeholder).
 - [ ] AC-006 `[device]`: the tab row spans the full width of the available space; it is not centred and has no fixed width.
 
 ### US-002: Flows as boxes and connections as arrows
@@ -212,6 +212,8 @@ New criteria for the amendment:
 - AC-046 `[auto]`: "Add check" adds one check to the connection; a connection holds any number of checks; each check is removed on its own row; an invalid check (blank description, a threshold on `checks`, a missing or non-positive threshold on `diff size`) is refused with the reason and not added.
 - AC-047 `[auto]`: the Pipeline tab has no toolbox; no Connection, Approval or Check tool is offered on the tab.
 - AC-048 `[device]`: the arrows show no label; the connection's properties show its artifacts, checks and approval checkbox (checked on screen at Verify).
+- AC-049 `[auto]`: a drag from one flow's connection point, or a link set by any other means, that would close a loop is refused with the reason, and nothing changes (owner decision, 2026-11-18: loops are forbidden).
+- AC-050 `[auto]`: a rule tag can only be one of the rules of the previous step (the Technical details list); the rule-tag dropdown offers only those rules, and a rule tag that is not in that list is refused with the reason and not added (owner decision, 2026-11-18).
 
 ---
 

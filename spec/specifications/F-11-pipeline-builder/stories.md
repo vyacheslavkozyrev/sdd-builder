@@ -212,3 +212,15 @@ New criteria for the amendment:
 - AC-046 `[auto]`: "Add check" adds one check to the connection; a connection holds any number of checks; each check is removed on its own row; an invalid check (blank description, a threshold on `checks`, a missing or non-positive threshold on `diff size`) is refused with the reason and not added.
 - AC-047 `[auto]`: the Pipeline tab has no toolbox; no Connection, Approval or Check tool is offered on the tab.
 - AC-048 `[device]`: the arrows show no label; the connection's properties show its artifacts, checks and approval checkbox (checked on screen at Verify).
+
+---
+
+## Decisions 2026-11-18 (owner, on the redrawn screens)
+
+- **Arrows show no label.** The artifact label is not on the arrow (AC-048).
+- **Artifacts, checks and the approval flag belong to the source flow's connection.** They are edited in that connection's properties; the arrow itself carries nothing.
+- **Linear flow.** A flow with an outgoing arrow never offers a second one. "Connect to next flow" is not offered on such a flow, so the refusal of AC-014 is not reachable from the UI.
+- **No loops.** A drag or a "Connect to next flow" that would close a loop is refused, with the reason, and nothing is added. The structural rule (architecture §12) still flags any loop that reaches the file, as a safety net.
+- **Repoint by drag only.** The arrow's end is moved by dragging it (AC-015 as drawn); no picker in the panel.
+- **Empty artifacts.** A new connection's artifact list is empty; no empty-state line is drawn.
+- **Model.** Open: the stored model keeps one label and one gate per connection (`architecture.md` §6 decision 33). Multiple artifacts and multiple checks need a change to the stored model. Not decided.

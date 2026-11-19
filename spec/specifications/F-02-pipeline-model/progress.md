@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 12 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 13 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T010 | Flow object: keys, scalar fields, lists and tags (`pipeline/parse/flow.ts`) | 0 blockers; 3 warnings and 1 suggestion fixed (tests only) | task check passed: api 6, web 4, core 421 |
 | T011 | Pipeline object and its flow list (`pipeline/parse/pipeline.ts`) | 0 blockers open; 1 blocker fixed (empty or all-invalid flow list gave a pipeline; now undefined), 1 warning fixed (AC-086 test asserts undefined), 1 suggestion fixed | task check passed: api 6, web 4, core 456 |
 | T012 | Ids unique across the project (`pipeline/check/ids.ts`) | 0 blockers; 1 warning and 2 suggestions fixed (repeat tests; grouping by id; path constants) | task check passed: api 6, web 4, core 480 |
+| T013 | Block references and routes inside a flow (`pipeline/check/block-links.ts`) | 0 blockers, 0 warnings; 4 suggestions fixed (owner set, start-route and later-condition tests, line widths). Open: self-loop on an agent `next` (see Deferred Findings) | task check passed: api 6, web 4, core 509 |
 
 ---
 
@@ -75,6 +76,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T006 (`spec/specifications/F-02-pipeline-model/stories.md` AC-058): the criterion says an unknown key on a route is refused "with the path of the route". The code, following T005 and AC-008, reports it at the key's path (for example `...true.gate`). Kept by the owner's decision on 2026-11-19. Owner to amend the wording of AC-058 to match. Not changed: the criterion text is the owner's.
 
 - T011 (`source/packages/core/src/pipeline/parse/pipeline.ts` `readLongText`, and the key-check loops and `optional` helper in `readPipeline`): the same helpers are copied from `flow.ts`, and a shared helper would edit committed T010 code. Not changed: take it with the next task that touches the keyed readers (T019 or later).
+
+- T013 (`source/packages/core/src/pipeline/check/block-links.ts`, `checkStartOrAgentNext`): an agent whose `next` names itself, or an earlier agent, is accepted with no round limit. AC-054 read literally accepts it, but `pipeline-schema.md` §3 says a route back to an earlier Agent comes only from a Condition and carries a `roundLimit`, and decision 38 forbids loops. Kept as the criterion reads; owner to decide whether AC-054 and the schema agree, and if a self-loop or back `next` is refused, the change is one check in `block-links.ts` plus tests. Not changed: a spec conflict for the owner.
 
 ---
 

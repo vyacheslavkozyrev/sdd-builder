@@ -1,5 +1,0 @@
-# Pipeline command
-
-## Steps
-
-## Finish

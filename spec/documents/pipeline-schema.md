@@ -129,6 +129,9 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
         "arguments": { "type": "array", "items": { "$ref": "#/$defs/argument" } },
         "model": { "$ref": "#/$defs/model" },
         "tools": { "type": "array", "items": { "type": "string", "maxLength": 100 } },
+        "reads": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" }, "description": "Artifact labels the agent reads; no duplicates." },
+        "writes": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" }, "description": "Artifact labels the agent writes; no duplicates." },
+        "ruleTags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" }, "description": "Rules of the project (rules) that apply to the agent." },
         "body": { "$ref": "#/$defs/body" },
         "next": { "$ref": "#/$defs/id", "description": "The next block: an Agent, a Condition or the End." }
       }
@@ -231,7 +234,6 @@ Note: the example has one Agent for brevity; the `review` condition is the end c
 - The flow-level `checks` list (checks are conditions inside the flow).
 - The Approval and Check block kinds, and the gate kinds `approval` and `check`. Approval is the flow's flag.
 - Flow arguments as one text value: arguments are rows.
-- The agent-level `reads` and `writes` (not in the brief; not in the schema).
 
 ## 6. Owner decisions (2026-11-19) and open points
 
@@ -242,7 +244,8 @@ Decided:
 - Human approval stays a flow property (checkbox on the Pipeline tab).
 - Toolbox: a floating panel with icon buttons, top-right of the canvas.
 - Length limits confirmed: templates 5000, descriptions 1000, argument hints 100.
-- Rule tags on flows and the pipeline are kept (optional).
+- Rule tags on flows and the pipeline are kept (optional), and agents have rule tags too.
+- Agents have `reads` and `writes` (lists of artifact labels, no duplicates).
 - End's `producedArtifact` is the label of one of the flow's artifacts; "none" is not allowed.
 - Each flow has at most one incoming `next`.
 - Deleting a block removes its arrows; no rewiring.

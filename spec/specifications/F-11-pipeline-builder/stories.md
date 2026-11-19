@@ -299,3 +299,15 @@ This section lists the owner's decisions of 2026-11-17 and 2026-11-18 in one pla
 16. **Screens.** The screens are numbered 01 to 10, as in `screens.md`. The earlier 04, 06, 12 and 14 are removed.
 
 Open for the owner, from the screens (`screens.md`, open points): the tab after + on AC-003, and the input height in the flow panel. Item 13 is decided.
+
+---
+
+## Decision 2026-11-18g (owner): loops, connection delete, flow delete, failed checks, counter, reachability
+
+- **Loops are forbidden.** A link that would close a loop is refused on the canvas, with the reason (screen 08).
+- **Delete connection removes only the link.** It sets the source flow's `next` to none. The target flow is not deleted, and its own fields stay.
+- **Delete flow is done from the flow's properties panel**: select the flow, then Delete flow, with the confirmation.
+- **Blockers are shown as decided on 2026-11-18f**: the flow box is red, and the message is a notification at the top centre of the builder. No canvas callouts.
+- **The body limit is written 1000** everywhere on the screens (01 and 07 included).
+- **A failed check stops the flow and asks the user**, as the commit size check does in the generated process. A check is free text for the user; the generated command asks the person when it fails.
+- **Reachability**: the first flow is the one no other flow's `next` points to. Confirmed.

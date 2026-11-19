@@ -220,6 +220,8 @@ Parser rules that follow from the schema (shape only; references are checked by 
 
 39. **A flow's required attributes and its connection (2026-11-18, F-11, owner decision).** A flow requires a name and a body; its description and arguments are optional. A flow must be connected to another flow (an incoming or an outgoing `next`), except in a pipeline with a single flow. This extends the reachability rule of §12 (a flow with no link in a pipeline of more than one flow is a blocker). Not yet implemented: the parser, analyzer and default pipeline change in a plan of their own.
 
+40. **A failed check stops the flow and asks the user (2026-11-18, F-11, owner decision).** A check is free text. When a check fails in the generated process, the flow stops and the command asks the person what to do, as the commit size check does. The check has no true or false output in the model; loops are forbidden (decision 38); a link is removed by Delete connection, which leaves the target flow in place.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

@@ -130,7 +130,7 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
         "model": { "$ref": "#/$defs/model" },
         "tools": { "type": "array", "items": { "type": "string", "maxLength": 100 } },
         "body": { "$ref": "#/$defs/body" },
-        "next": { "$ref": "#/$defs/id", "description": "The next block: a Condition or the End." }
+        "next": { "$ref": "#/$defs/id", "description": "The next block: an Agent, a Condition or the End." }
       }
     },
     "blockCondition": {

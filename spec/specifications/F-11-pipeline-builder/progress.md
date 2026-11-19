@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
-| Plan     | ⏳ Pending  | 2026-11-18 | Regenerated for the 2026-11-18 model and screens (redo requested by the owner); awaiting approval. Prerequisites: F-02 and F-03 amendments |
-| Build    | ⏳ Pending | 2026-11-18 | 21 tasks of the earlier plan are committed on the old model; the regenerated plan is not approved yet |
+| Plan     | ✅ Complete | 2026-11-18 | Regenerated for the 2026-11-18 model; approved by the user. Open points 1 to 6 in plan.md stay open until decided before Build. Prerequisites: F-02 and F-03 amendments (not started) |
+| Build    | ⏳ Pending | 2026-11-18 | 0 of 18 tasks committed in the regenerated plan (the earlier 21 tasks are on the old model); blocked by F-02 and F-03 amendments and open points 1 to 6 |
 | Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION (re-run after T019 and T020): 37 of 37 `[auto]` covered, no gaps; 1700 tests passed; manual checklist in `checklist.md` (AC-006, AC-008, AC-011, AC-012, AC-022, AC-024) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

@@ -254,3 +254,10 @@ New criteria for the amendment:
 
 - **A check is free text only.** It has no type (`checks` or `diff size`) and no threshold. The check's text says what must pass, and a check is removed on its own row. This supersedes the type and threshold rules of AC-018 and the check's fields in AC-046 (the blank-description refusal remains: a check's text is required, non-blank).
 - **Human approval** remains the flow's checkbox, as in the 2026-11-18 decision.
+
+---
+
+## Decision 2026-11-18d (owner): the next flow is set only by drag
+
+- **No next-flow field on the flow panel.** The flow's next flow is set only by dragging a connection point of one flow onto another flow (AC-012, connection points). The "Connect to next flow" button path of AC-014 is removed; the Connection tool drag is removed too (the decision of 2026-11-18 already removed the toolbox).
+- **Read-only text of the next flow** may stay only where the flow is shown as a link (for example the "Next flow" line on a flow that already has one), not as an editable field. Screen 03 drops it.

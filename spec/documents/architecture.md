@@ -222,6 +222,8 @@ Parser rules that follow from the schema (shape only; references are checked by 
 
 40. **A failed check stops the flow and asks the user (2026-11-18, F-11, owner decision).** A check is free text. When a check fails in the generated process, the flow stops and the command asks the person what to do, as the commit size check does. The check has no true or false output in the model; loops are forbidden (decision 38); a link is removed by Delete connection, which leaves the target flow in place.
 
+41. **Analysis must succeed before generation; generation writes the content with the model (2026-11-19, owner decision).** A skipped or failed review is an error, not a pass: Generate stays disabled until Analyze runs and the review completes. Generation (`/generate`) does not only lay out the folder structure: the model writes the content of each generated file (agents, rules, commands, `CLAUDE.md`, `process.md`) from the pipeline's descriptions, as decision 7 states; the file list and paths come from core, and the reply is checked (decision 11). The preview shows the file list; the contents are written when the user generates. While generation runs, the Generate button shows a pending state.
+
 ## 7. Out of scope for the MVP
 
 Accounts, saved projects on the server, save, import and export of projects (F-08), read-only share links (F-19), browser-local autosave (F-20), Cursor and Copilot targets, hosted previews of generated projects, LLM-written project content (only LLM review in the MVP), sharing custom blocks between users.

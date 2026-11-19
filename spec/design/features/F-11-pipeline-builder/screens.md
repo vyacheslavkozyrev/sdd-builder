@@ -24,7 +24,7 @@ Look adapted from **Material Kit React** by Devias IO (MIT licence, github.com/d
 
 - Primary `#635BFF` (hover `#4E36F5`, tint `#ECF0FF`): the primary button (Next), the selected tab, the selected flow and arrow. Secondary button (New project, owner decision of 2026-11-18): white fill, 1 px `#CDD7E1` border, text `#32383E`, 8 px radius.
 - Page `#F0F4F8`; cards white with border `#DDE7EE` and a 12 px radius; controls (buttons, fields, tabs, chips, flow boxes) an 8 px radius.
-- Text `#32383E` (primary) and `#636B74` (secondary and small). Danger `#DE3024`; refused text `#DE3024` on `#FEF3F2`. Success `#15B79F` (done steps), `#107569` for their labels. Warning `#FB9C0C`, text `#DE7101`, tint `#FFFAEA`.
+- Text `#32383E` (primary) and `#636B74` (secondary and small). Danger `#BB241A` (redOrange 700, owner decision; was `#DE3024`); refused text `#BB241A` on `#FEF3F2`. Success `#15B79F` (done steps), `#107569` for their labels. Warning `#FB9C0C`, text `#DE7101`, tint `#FFFAEA`.
 - Font: Inter, weights 400 and 500; headings 500. The SVGs name Inter first in their font stack.
 
 ## Legend
@@ -102,3 +102,9 @@ These are not changed here, because the screens are approved. The owner decides 
 - The refusal of a loop has no acceptance criterion yet. AC-035 still says a loop is drawn and shown as a blocker after the drop; it needs rewording to match decision 7.
 - Screen 06 and AC-005 name F-12 in the placeholder. The wording is for the owner (earlier open point).
 - The 10 px hint text, the colour contrast of the done-step and warning text, and the border tone of fields and buttons were open points of the earlier reviews. They are not carried here; they are in git history (this folder up to commit `9f02b98`).
+
+## Owner decisions applied (2026-11-19)
+
+- Field labels (Name, Description, Model, Tools, Body, Label, Template, Outcome, Produced artifact, Source and Target read only, True and False goes to, What it checks, Body required): 12 px, weight 500, #32383E.
+- Plus and minus buttons: 28 × 28 px, radius 6, primary outline 1 px, primary glyph (the tab-row plus too). Were 24 px grey (plus 34 × 32 in the tab row).
+- Danger colour #BB241A; refused text and edges use the same colour. Inline errors stay 11 px.

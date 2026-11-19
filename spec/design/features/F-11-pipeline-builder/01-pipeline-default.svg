@@ -10,7 +10,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .onP{fill:#FFFFFF;font-weight:500;font-size:13px}
 .btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
 .btnDark{font-size:14px;font-weight:500;fill:#32383E}
-.navT{font-size:13px;font-weight:500}
+.navT{font-size:14px;font-weight:500}
 .h2{font-size:14px;font-weight:500}
 .bold{font-size:12px;font-weight:500}
 .muted{font-size:12px;fill:#636B74}
@@ -41,6 +41,10 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .node{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
 .line{stroke:#636B74;stroke-width:1.5;fill:none;marker-end:url(#arr)}
 .thumb{fill:#9FA6AD}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.minusP{fill:#635BFF}
+.plusT{font-size:18px;font-weight:500;fill:#635BFF}
+.field-label{font-size:12px;font-weight:500;fill:#32383E}
 </style>
 <rect width="1280" height="1060" fill="#F0F4F8"/>
 
@@ -85,8 +89,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="683" y="44" class="tabT">verify</text>
 <rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/>
 <text x="761.4" y="44" class="tabT">complete</text>
-<rect x="841.6" y="24" width="34" height="32" rx="8" class="btn"/>
-<text x="852.6" y="45" class="plus">+</text>
+<rect x="844.6" y="26" width="28" height="28" rx="6" class="btnOut"/><text x="858.6" y="46" class="plusT" text-anchor="middle">+</text>
 
 <!-- Pipeline canvas card -->
 <rect x="284" y="80" width="680" height="912" rx="12" class="card" filter="url(#sh)"/>
@@ -110,29 +113,29 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="1008" y="118" class="h2">Pipeline properties</text>
 <text x="1008" y="136" class="small">Generates .claude/commands/pipeline.md</text>
 <g>
-<text x="1008" y="176" class="muted">Name</text>
+<text x="1008" y="176" class="field-label">Name</text>
 <rect x="1008" y="188" width="224" height="40" rx="8" class="field"/><text x="1020" y="213">SDD process</text>
-<text x="1008" y="264" class="muted">Description</text>
+<text x="1008" y="264" class="field-label">Description</text>
 <rect x="1008" y="276" width="224" height="40" rx="8" class="field"/><text x="1020" y="301">The process we built</text>
 <text x="1008" y="352" class="bold">Arguments</text>
-<rect x="1208" y="340" width="24" height="24" rx="8" class="btn"/><text x="1220" y="357" class="plus" text-anchor="middle">+</text>
+<rect x="1206" y="338" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="358" class="plusT" text-anchor="middle">+</text>
 <rect x="1008" y="372" width="192" height="40" rx="8" class="field"/><text x="1020" y="397">feature-id · required</text>
-<rect x="1208" y="380" width="24" height="24" rx="8" class="btn"/><text x="1220" y="397" class="plus" text-anchor="middle">&#8722;</text>
+<rect x="1206" y="378" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="391" width="12" height="2" class="minusP"/>
 <rect x="1008" y="420" width="192" height="40" rx="8" class="field"/><text x="1020" y="445">topic</text>
-<rect x="1208" y="428" width="24" height="24" rx="8" class="btn"/><text x="1220" y="445" class="plus" text-anchor="middle">&#8722;</text>
-<text x="1008" y="496" class="muted">Model</text>
+<rect x="1206" y="426" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="439" width="12" height="2" class="minusP"/>
+<text x="1008" y="496" class="field-label">Model</text>
 <rect x="1008" y="508" width="224" height="40" rx="8" class="field"/><text x="1020" y="533">inherit</text>
-<text x="1008" y="584" class="muted">Tools</text>
+<text x="1008" y="584" class="field-label">Tools</text>
 <rect x="1008" y="596" width="224" height="40" rx="8" class="field"/><text x="1020" y="621">Read, Write, Edit, Bash</text>
 <text x="1008" y="672" class="bold">Rule tags</text>
-<rect x="1208" y="660" width="24" height="24" rx="8" class="btn"/><text x="1220" y="677" class="plus" text-anchor="middle">+</text>
+<rect x="1206" y="658" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="678" class="plusT" text-anchor="middle">+</text>
 <rect x="1008" y="692" width="192" height="40" rx="8" class="field"/><text x="1020" y="717">general</text>
 <text x="1184" y="717" class="plus" text-anchor="middle">&#9662;</text>
-<rect x="1208" y="700" width="24" height="24" rx="8" class="btn"/><text x="1220" y="717" class="plus" text-anchor="middle">&#8722;</text>
+<rect x="1206" y="698" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="711" width="12" height="2" class="minusP"/>
 <rect x="1008" y="740" width="192" height="40" rx="8" class="field"/><text x="1020" y="765">qa</text>
 <text x="1184" y="765" class="plus" text-anchor="middle">&#9662;</text>
-<rect x="1208" y="748" width="24" height="24" rx="8" class="btn"/><text x="1220" y="765" class="plus" text-anchor="middle">&#8722;</text>
-<text x="1008" y="816" class="muted">Body</text>
+<rect x="1206" y="746" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="759" width="12" height="2" class="minusP"/>
+<text x="1008" y="816" class="field-label">Body</text>
 <rect x="1008" y="828" width="224" height="80" rx="8" class="box"/>
 <text x="1020" y="848" class="small">Runs the feature from specify to</text>
 <text x="1020" y="864" class="small">complete. Stops at each approval.</text>

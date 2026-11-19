@@ -47,10 +47,10 @@ The placeholder line on steps 1, 3 and 4 is not drawn here: step 1 is F-09 and s
 3. **Language is required, but Next is never blocked.** Screen 02 shows Next enabled with a blank language and the note that the analysis reports it (owner decision and the F-09 pattern).
 4. **The limit notes are words, not a red error.** The 100-character name, the 1,000-character description and the 5,000-character architecture state their limit in their help text, and say text past the limit is cut. There is no counter on any of these fields: `ui.md` §2 gives a counter for the idea only.
 5. **A rule name that gives no id is kept.** Screen 06 shows the message in the place of the file name, in an amber note box; the block is kept and Next stays enabled.
-6. **Remove asks first.** Screen 04 is the confirmation. `ui.md` §5 says "Delete always asks for confirmation"; the dialog follows it. Its Remove button uses the danger colour `#DE3024`, as F-11 04. The rule block's `−` button opens this confirmation.
+6. **Remove asks first.** Screen 04 is the confirmation. `ui.md` §5 says "Delete always asks for confirmation"; the dialog follows it. Its Remove button uses the danger colour `#BB241A`, as F-11 04. The rule block's `−` button opens this confirmation.
 7. **Add disabled at 60 is explained.** Screen 05 keeps the `+` visible, disabled, and states the reason in a note box beside it, so the limit is not a dead end. Add and remove follow the F-11 pattern: `+` on the section title, `−` on each block's title row (owner decision).
 8. **The file line is the derived id.** `ui.md` §2 gives the id rule: the name in lower case, with each run of characters outside `a–z` and `0–9` replaced by one hyphen. Screen 01 shows `code-style` for `Code Style`; screen 06 shows the derived name of the 100-character sample, wrapped over two lines (the break now falls after `per-`, so the second line starts `file-`).
-9. **Palette only.** Primary `#635BFF` for the current step, Next and the Add outline; done `#15B79F` with its label `#107569`; text `#32383E` and `#636B74`; required mark `#DE3024`; the amber notes are `#B84D05` on `#FFFAEA` (the duplicate, no-id and limit messages, and the blank-language note); the disabled Add and Prev use `#F0F4F8` with a `#DDE7EE` border. Font Inter.
+9. **Palette only.** Primary `#635BFF` for the current step, Next and the Add outline; done `#15B79F` with its label `#107569`; text `#32383E` and `#636B74`; required mark `#BB241A`; the amber notes are `#B84D05` on `#FFFAEA` (the duplicate, no-id and limit messages, and the blank-language note); the disabled Add and Prev use `#F0F4F8` with a `#DDE7EE` border. Font Inter.
 
 ## Restyle review (left-panel frame)
 
@@ -67,3 +67,9 @@ The drawings were replaced with the F-09 frame; the earlier usability and visual
 2. **Rule block height.** Each plain block is 224 px, so two blocks fill the list region and a third shows partly. Blocks with a message are taller (260 px on screen 03). A layout with more blocks on one screen would need smaller blocks; the screens show the scroll instead.
 3. **Name and description clipping (screen 06).** The 100-character name and the long description are clipped at the field's edge, as a real text input shows them. Owner check: is a clipped name and description acceptable, or should the inputs wrap?
 4. **Blank-language note (screen 02).** The note pushes the architecture block 40 px down on that screen only. Owner check: is that shift acceptable, or should the note sit inside the stack block?
+
+## Owner decisions applied (2026-11-19)
+
+- Danger colour is #BB241A (redOrange 700); it replaces #DE3024 here, as in F-11, F-12 and F-13.
+- The plus and minus buttons are 28 × 28 px with a primary outline (1 px) and a primary glyph. The minus buttons on screens 01 to 06 changed from grey to this style.
+- Field labels were already 12 px, weight 500, #32383E: no change.

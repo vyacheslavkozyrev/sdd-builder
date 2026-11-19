@@ -49,7 +49,7 @@ Folders are listed first in code-point order, as the generator sorts the files (
 1. **Two columns on the step.** Analyze (the privacy notice, the checkbox, Analyze and the findings) is on the left; the project preview (tree, expand, Generate and download) is on the right. Both sit in one card, so the step fits 800 px without scrolling. The order follows the flow: privacy, then analysis, then generation. The right column stays at the same place in every state.
 2. **Disabled controls keep a visible reason beside them** (AC of `ui.md` §2 and the F-11 rule). Analyze gives "Tick the box to analyse"; Generate gives "Run Analyze first", "Fix the blocker to generate" or "The review did not run. Analyze again later.". The reason is grey text, so it does not look like an error.
 3. **Green means "run and no blocker or warning"** (`ui.md` §2, D8). A failed analysis is an error (owner decision, architecture decision 41): Generate stays disabled even when the structural checks are clean, and the note asks the user to Analyze again (screen 05). The line "Result: no blocker and no warning" appears only on a complete analysis.
-4. **Severity has a text pill and a colour.** Blocker: red text (#DE3024) on #FEF3F2. Warning: amber text (#B84D05) on #FFFAEA. Info: grey text (#636B74) on #F0F4F8. The word carries the meaning, so colour is not the only cue.
+4. **Severity has a text pill and a colour.** Blocker: red text (#BB241A) on #FEF3F2. Warning: amber text (#B84D05) on #FFFAEA. Info: grey text (#636B74) on #F0F4F8. The word carries the meaning, so colour is not the only cue.
 5. **The privacy notice is a grey box, not amber.** Amber is kept for warnings and for the review note on screen 05, so the notice does not look like a finding.
 6. **Errors are text in a red box and keep the values.** The checkbox stays ticked and Analyze stays enabled, so the user can try again without re-entering anything (`ui.md` §2).
 7. **The tree panel scrolls in the column and in the dialog.** The column shows about 20 rows and a thumb on its right edge; the dialog shows about 21 rows. Rows cut at the bottom edge are the scroll cue.
@@ -79,3 +79,9 @@ Folders are listed first in code-point order, as the generator sorts the files (
 | Grid: card at x 284–1256, y 24–728; columns at x 308–848 and x 872–1232; buttons 8 px radius; 24 px between sections | Pass |
 | States: each screen has one state in the table; Generate is enabled only on 04 and 06 | Pass |
 | Revision 2026-11-19: screen 05 wording, the preview note on every screen, and screen 08 (pending). Render checked for 05 and 08; the overlapping checkbox on 08 was fixed by drawing the privacy box first | Pass |
+
+## Owner decisions applied (2026-11-19)
+
+- Inline error text (screens 05 and 07) is 11 px, #BB241A, in the error box; it was 13 px.
+- Danger colour #BB241A (redOrange 700) for the Blocker text.
+- Screen 06 (project files) stays a list dialog, 600 px wide, one Close button; its size is unchanged.

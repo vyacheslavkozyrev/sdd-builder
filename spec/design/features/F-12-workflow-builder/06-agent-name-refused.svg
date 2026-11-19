@@ -12,7 +12,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .onP{fill:#FFFFFF;font-weight:500;font-size:13px}
 .btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
 .btnDark{font-size:14px;font-weight:500;fill:#32383E}
-.navT{font-size:13px;font-weight:500}
+.navT{font-size:14px;font-weight:500}
 .h2{font-size:14px;font-weight:500}
 .bold{font-size:12px;font-weight:500}
 .muted{font-size:12px;fill:#636B74}
@@ -38,13 +38,13 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .line-done{stroke:#15B79F;stroke-width:2}
 .field{fill:#FFFFFF;stroke:#CDD7E1}
 .ro{fill:#F0F4F8;stroke:#CDD7E1}
-.err{fill:#FFFFFF;stroke:#DE3024;stroke-width:1.5}
-.errT{font-size:11px;fill:#DE3024}
-.errF{fill:#DE3024}
+.err{fill:#FEF3F2;stroke:#BB241A;stroke-width:1.5}
+.errT{font-size:11px;fill:#BB241A}
+.errF{fill:#BB241A}
 .box{fill:#FBFCFE;stroke:#CDD7E1}
 .note{fill:#FFFAEA}
-.noteT{font-size:11px;fill:#B84D05}
-.btnDanger{fill:#DE3024}
+.noteT{font-size:12px;font-weight:500;fill:#B84D05}
+.btnDanger{fill:#BB241A}
 .bt-primary{fill:#FFFFFF;font-weight:500}
 .tbBox{fill:#FFFFFF;stroke:#DDE7EE}
 .tbIcon{fill:none;stroke:#635BFF;stroke-width:1.5}
@@ -66,6 +66,10 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .ringS{fill:none;stroke:#635BFF;stroke-width:2.5}
 .dim{fill:#32383E;fill-opacity:0.45}
 .dlg{fill:#FFFFFF;stroke:#DDE7EE}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.minusP{fill:#635BFF}
+.plusT{font-size:18px;font-weight:500;fill:#635BFF}
+.field-label{font-size:12px;font-weight:500;fill:#32383E}
 </style>
 <rect width="1280" height="1000" fill="#F0F4F8"/>
 
@@ -98,7 +102,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <rect x="599" y="24" width="63" height="32" rx="8" class="tab"/><text x="612" y="44" class="tabT">build</text>
 <rect x="670" y="24" width="70.4" height="32" rx="8" class="tab"/><text x="683" y="44" class="tabT">verify</text>
 <rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="761.4" y="44" class="tabT">complete</text>
-<rect x="841.6" y="24" width="34" height="32" rx="8" class="btn"/><text x="852.6" y="45" class="plus">+</text>
+<rect x="844.6" y="26" width="28" height="28" rx="6" class="btnOut"/><text x="858.6" y="46" class="plusT" text-anchor="middle">+</text>
 <rect x="284" y="80" width="680" height="852" rx="12" class="card" filter="url(#sh)"/><rect x="732" y="96" width="208" height="44" rx="10" class="tbBox" filter="url(#shT)"/>
 <g><title>Add an Agent block</title><rect x="748" y="112" width="16" height="12" rx="3" class="tbIcon"/></g>
 <g><title>Add a Condition on an arrow</title><polygon points="796,110 804,118 796,126 788,118" class="tbIconG"/></g>
@@ -134,6 +138,6 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <rect x="908" y="394" width="12" height="12" rx="1" class="tbFillK"/>
 <text x="914" y="370" text-anchor="middle" class="small">End</text>
 </g>
-<text x="308" y="908" class="small">Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.</text><rect x="984" y="80" width="272" height="852" rx="12" class="card" filter="url(#sh)"/><text x="1008" y="118" class="h2">Agent: reviewer</text><text x="1008" y="136" class="small">Agent block in the plan flow</text><text x="1008" y="176" class="muted">Name</text><rect x="1008" y="188" width="224" height="40" rx="8" class="err"/><text x="1020" y="213" class="errF">reviewer</text><text x="1008" y="246" class="errT">planner is taken by another agent.</text><text x="1008" y="264" class="muted">Description</text><rect x="1008" y="276" width="224" height="40" rx="8" class="field"/><text x="1020" y="301">Checks the plan against the brief.</text><text x="1008" y="352" class="bold">Arguments</text><rect x="1208" y="340" width="24" height="24" rx="8" class="btn"/><text x="1220" y="357" class="plus" text-anchor="middle">+</text><rect x="1008" y="372" width="192" height="40" rx="8" class="field"/><text x="1020" y="397">feature-id · required</text><rect x="1208" y="380" width="24" height="24" rx="8" class="btn"/><text x="1220" y="397" class="plus" text-anchor="middle">&#8722;</text><rect x="1008" y="420" width="192" height="40" rx="8" class="field"/><text x="1020" y="445">topic</text><rect x="1208" y="428" width="24" height="24" rx="8" class="btn"/><text x="1220" y="445" class="plus" text-anchor="middle">&#8722;</text><text x="1008" y="496" class="muted">Model</text><rect x="1008" y="508" width="224" height="40" rx="8" class="field"/><text x="1020" y="533">inherit</text><text x="1218" y="533" class="plus" text-anchor="middle">&#9662;</text><text x="1008" y="584" class="bold">Tools</text><rect x="1208" y="572" width="24" height="24" rx="8" class="btn"/><text x="1220" y="589" class="plus" text-anchor="middle">+</text><rect x="1008" y="604" width="192" height="40" rx="8" class="field"/><text x="1020" y="629">Read</text><rect x="1208" y="612" width="24" height="24" rx="8" class="btn"/><text x="1220" y="629" class="plus" text-anchor="middle">&#8722;</text><rect x="1008" y="652" width="192" height="40" rx="8" class="field"/><text x="1020" y="677">Write</text><rect x="1208" y="660" width="24" height="24" rx="8" class="btn"/><text x="1220" y="677" class="plus" text-anchor="middle">&#8722;</text><text x="1008" y="728" class="muted">Body</text><rect x="1008" y="740" width="224" height="80" rx="8" class="box"/><text x="1020" y="760" class="small">Reads the brief and writes plan.md</text><text x="1020" y="776" class="small">with one section for each story.</text><text x="1008" y="840" class="small">96 / 1000 characters</text><rect x="1008" y="868" width="130" height="40" rx="8" class="btnDanger"/><text x="1073" y="893" class="bt-primary" text-anchor="middle">Delete block</text><text x="1146" y="893" class="small">Asks first</text><text x="284" y="965" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>
+<text x="308" y="908" class="small">Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.</text><rect x="984" y="80" width="272" height="852" rx="12" class="card" filter="url(#sh)"/><text x="1008" y="118" class="h2">Agent: reviewer</text><text x="1008" y="136" class="small">Agent block in the plan flow</text><text x="1008" y="176" class="field-label">Name</text><rect x="1008" y="188" width="224" height="40" rx="8" class="err"/><text x="1020" y="213" class="errF">reviewer</text><text x="1008" y="246" class="errT">planner is taken by another agent.</text><text x="1008" y="264" class="field-label">Description</text><rect x="1008" y="276" width="224" height="40" rx="8" class="field"/><text x="1020" y="301">Checks the plan against the brief.</text><text x="1008" y="352" class="bold">Arguments</text><rect x="1206" y="338" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="358" class="plusT" text-anchor="middle">+</text><rect x="1008" y="372" width="192" height="40" rx="8" class="field"/><text x="1020" y="397">feature-id · required</text><rect x="1206" y="378" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="391" width="12" height="2" class="minusP"/><rect x="1008" y="420" width="192" height="40" rx="8" class="field"/><text x="1020" y="445">topic</text><rect x="1206" y="426" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="439" width="12" height="2" class="minusP"/><text x="1008" y="496" class="field-label">Model</text><rect x="1008" y="508" width="224" height="40" rx="8" class="field"/><text x="1020" y="533">inherit</text><text x="1218" y="533" class="plus" text-anchor="middle">&#9662;</text><text x="1008" y="584" class="bold">Tools</text><rect x="1206" y="570" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="590" class="plusT" text-anchor="middle">+</text><rect x="1008" y="604" width="192" height="40" rx="8" class="field"/><text x="1020" y="629">Read</text><rect x="1206" y="610" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="623" width="12" height="2" class="minusP"/><rect x="1008" y="652" width="192" height="40" rx="8" class="field"/><text x="1020" y="677">Write</text><rect x="1206" y="658" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="671" width="12" height="2" class="minusP"/><text x="1008" y="728" class="field-label">Body</text><rect x="1008" y="740" width="224" height="80" rx="8" class="box"/><text x="1020" y="760" class="small">Reads the brief and writes plan.md</text><text x="1020" y="776" class="small">with one section for each story.</text><text x="1008" y="840" class="small">96 / 1000 characters</text><rect x="1008" y="868" width="130" height="40" rx="8" class="btnDanger"/><text x="1073" y="893" class="bt-primary" text-anchor="middle">Delete block</text><text x="1146" y="893" class="small">Asks first</text><text x="284" y="965" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>
 <text x="1256" y="965" class="caption" text-anchor="end">F-12 &#183; screen 6 &#183; step 3 of 4 &#183; 1280 &#215; 1000</text>
 </svg>

@@ -24,7 +24,7 @@ Inside the card, the content sits at x 308–1232 (24 px padding on every side o
 - Help line 20 px below the field (or box) bottom, 24 px between help lines.
 - Next section label 40 px below the previous section's last help line; the name note on screen 03 replaces the name help line at the same position.
 - The warning box on screen 03 sits 8 px below the idea box, with 34 px height and a 20 px gap to the help lines below it.
-- Name label baseline y 64; name field y 76–116; name help y 136; idea label y 176; idea box y 188–388; counter baseline y 374 at x 1216 (end-aligned, inside the box); idea help lines y 408, 432, 456.
+- Name label baseline y 64; name field y 76–116; name help y 136; idea label y 176; idea box y 188–388; counter baseline y 408 at x 1232 (end-aligned to the field edge, below the box, owner decision); idea help lines y 408, 432, 456 (the counter shares the first help line row).
 
 Footer note and caption sit inside the grey area, 24 px below the card: note at x 284, caption right-aligned at x 1256, baseline y 766, as F-08.
 
@@ -53,7 +53,7 @@ Criteria with no screen are not visual. They are proved by tests:
 6. **Nothing is stored between visits.** The help line stays as drawn on the approved F-05 screen 01 (owner decision, 2026-11-15). The footer line is the F-07 note.
 7. **Limit states are words, not a red error.** Reaching a limit is not a validation error, so the fields keep the neutral border and the amber note says what happens.
 8. **Prev is disabled on step 1 on every screen.** Screens 02 and 03 drew Prev enabled before the restyle. That contradicted F-08 AC-005 (Prev disabled on step 1) and the approved F-08 frame, so the restyle corrects it. The notes say Next still works; Prev has no effect on step 1 either way.
-9. **Status colours from the owner palette (2026-11-18).** The required asterisk is redOrange 600 #DE3024. The limit and blank notes are california 700 #B84D05 text; the idea note box is california 50 #FFFAEA with its #FCD34D outline, kept as drawn. The grey notes are unchanged. The screens draw no error text or error fill, so redOrange 50 #FEF3F2 is not used. The notes also say what happens in words, so they are not the only signal.
+9. **Status colours from the owner palette (2026-11-18).** The required asterisk is redOrange 700 #BB241A (owner decision 2026-11-19; was #DE3024). The limit and blank notes are california 700 #B84D05 text; the idea note box is california 50 #FFFAEA with its #FCD34D outline, kept as drawn. The grey notes are unchanged. The screens draw no error text or error fill, so redOrange 50 #FEF3F2 is not used. The notes also say what happens in words, so they are not the only signal.
 
 ## Usability review
 
@@ -86,7 +86,7 @@ Restyle checks (2026-11-18), on the left-panel frame:
 | Grid: 24 px gutters, 24 px card padding, 8 px multiples in control heights and positions; the card matches F-08 at x 284–1256, y 24–728 | Pass |
 | Frame: no header bar; the left panel, stepper, Prev and Next match F-08 screen 01 | Pass |
 
-Not changed, and not findings: the amber note on screen 02 is a plain line while the idea note on screen 03 is in a box. That is a style choice for the owner (open point 2).
+Not findings: the amber note on screen 02 is now in an amber note box, like the idea note on screen 03 (owner decision 2026-11-19).
 
 **Open points for the user**
 
@@ -95,4 +95,10 @@ Approved by the user on 2026-11-17 with the screens as drawn (header-bar frame).
 1. **Name help line versus AC-016.** AC-016 says the step 1 help text matches the approved F-05 screen 01. Screen 01 adds "Up to 100 characters; text past the limit is cut." to the name help line. Options:
    - a. Keep the limit in the help line and amend AC-016 to "the approved help text plus the 100-character limit" (recommended: the limit is visible before the user reaches it).
    - b. Restore the approved help line ("A short name. It appears as the project name in the generated CLAUDE.md.") and show the limit only on screen 03.
-2. **Limit notes on screen 03.** The name note is an amber line and the idea note is an amber box. The blank note on screen 02 is an amber line. Options: (a) keep as drawn; (b) amber line for every note; (c) box for every note.
+2. **Limit notes on screen 03.** Decided by the owner (2026-11-19): every amber note is in the amber note box (screens 02 and 03).
+
+## Owner decisions applied (2026-11-19)
+
+- Field labels 12 px, weight 500, #32383E. The idea counter sits below the idea box, right-aligned (screens 01 to 03).
+- Screen 02: the blank note is in the amber note box. Screen 03 keeps its box and its layout moved down by 24 px.
+- The danger colour is #BB241A (redOrange 700) in place of #DE3024. Inline error text is 11 px (none on these screens).

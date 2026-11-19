@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="800" fill="#F0F4F8"/>
 <text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Buttons</text>
-<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Height 40 px, radius 8 px, label 14 px weight 500. Icon-only buttons 24 px. Each specimen shows its state.</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Height 40 px, radius 8 px, label 14 px weight 500. Icon-only buttons 28 px. Each specimen shows its state.</text>
 <text x="1248" y="784" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 03 · 1280 × 800</text>
 <rect x="32" y="84" width="1216" height="176" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
 <text x="56" y="116" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Primary, secondary, danger, disabled</text>
@@ -13,9 +13,9 @@
 <text x="350.0" y="183.0" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >New project</text>
 <text x="244" y="222" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >White · 1 px #CDD7E1 border · ink label</text>
 <text x="532" y="146" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Danger</text>
-<rect x="532" y="158" width="130" height="40" rx="8" fill="#DE3024" />
+<rect x="532" y="158" width="130" height="40" rx="8" fill="#BB241A" />
 <text x="597.0" y="183.0" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle" >Delete flow</text>
-<text x="532" y="222" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >#DE3024 fill · white label</text>
+<text x="532" y="222" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >#BB241A fill · white label</text>
 <text x="820" y="146" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Disabled</text>
 <rect x="820" y="158" width="120" height="40" rx="8" fill="#F0F4F8" stroke="#DDE7EE" stroke-width="1" />
 <text x="880.0" y="183.0" font-size="14" font-weight="500" fill="#9FA6AD" text-anchor="middle" >Analyze</text>
@@ -37,22 +37,18 @@
 <text x="56" y="448" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Dialog pair: 120 × 40 each, 16 px apart, centred under the text</text>
 <rect x="440" y="468" width="120" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
 <text x="500.0" y="493.0" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >Cancel</text>
-<rect x="576" y="468" width="120" height="40" rx="8" fill="#DE3024" />
+<rect x="576" y="468" width="120" height="40" rx="8" fill="#BB241A" />
 <text x="636.0" y="493.0" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle" >Remove</text>
 <text x="440" y="528" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Cancel: secondary</text>
-<text x="576" y="528" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Danger: #DE3024</text>
+<text x="576" y="528" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Danger: #BB241A</text>
 <rect x="32" y="552" width="1216" height="216" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
-<text x="56" y="584" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Icon-only: minus and plus, 24 × 24 px, radius 8 px (chosen)</text>
-<rect x="56" y="612" width="24" height="24" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
-<text x="68" y="629" font-size="16" font-weight="500" fill="#32383E" text-anchor="middle" >−</text>
+<text x="56" y="584" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Icon-only: plus and minus, 28 × 28 px, radius 6 px, primary outline (owner decision)</text>
 <text x="56" y="652" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Minus (remove row)</text>
-<rect x="200" y="612" width="24" height="24" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
-<text x="212" y="629" font-size="16" font-weight="500" fill="#32383E" text-anchor="middle" >+</text>
 <text x="200" y="652" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Plus (add row)</text>
-<text x="296" y="628" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Glyph 16 px, weight 500, ink. The title-row plus uses the same button.</text>
-<text x="56" y="690" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Not chosen (F-10 01): 28 × 28 px, radius 6, primary outline with an 18 px plus. Kept for comparison.</text>
-<rect x="56" y="700" width="28" height="28" rx="6" fill="#FFFFFF" stroke="#635BFF" stroke-width="1.5" />
-<text x="70" y="720" font-size="18" font-weight="500" fill="#635BFF" text-anchor="middle" >+</text>
-<rect x="96" y="700" width="28" height="28" rx="6" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
-<line x1="102" y1="714" x2="118" y2="714" stroke="#32383E" stroke-width="2"/>
-<text x="134" y="719" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >28 px minus, F-10 01 (not chosen)</text></svg>
+<rect x="56" y="610" width="28" height="28" rx="6" fill="#FFFFFF" stroke="#635BFF" stroke-width="1" />
+<rect x="64" y="623" width="12" height="2" fill="#635BFF" />
+<rect x="200" y="610" width="28" height="28" rx="6" fill="#FFFFFF" stroke="#635BFF" stroke-width="1" />
+<text x="214" y="630" font-size="18" font-weight="500" fill="#635BFF" text-anchor="middle">+</text>
+<text x="296" y="628" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Plus: 18 px glyph, weight 500, primary. Minus: 12 × 2 px bar, primary. The title-row plus uses the same button.</text>
+<text x="56" y="690" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Replaces the 24 px grey buttons of F-11 and F-12 (owner decision). Same look as F-10 01.</text>
+</svg>

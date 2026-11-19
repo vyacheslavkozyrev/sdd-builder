@@ -13,7 +13,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .onP{fill:#FFFFFF;font-weight:500;font-size:13px}
 .btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
 .btnDark{font-size:14px;font-weight:500;fill:#32383E}
-.navT{font-size:13px;font-weight:500}
+.navT{font-size:14px;font-weight:500}
 .h2{font-size:14px;font-weight:500}
 .bold{font-size:12px;font-weight:500}
 .muted{font-size:12px;fill:#636B74}
@@ -46,7 +46,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .thumb{fill:#9FA6AD}
 .lineSel{stroke:#635BFF;stroke-width:2.5;fill:none;marker-end:url(#arrS)}
 .handle{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
-.btnDanger{fill:#DE3024}
+.btnDanger{fill:#BB241A}
 .btnT{font-size:11px;fill:#32383E}
 .bt-primary{fill:#FFFFFF;font-weight:500}
 .tiny{font-size:10px;fill:#636B74}
@@ -57,11 +57,14 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .dialog{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1}
 .dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
 .btnTxt{font-size:13px;font-weight:500;fill:#32383E}
-.markRed{fill:#FEF3F2;stroke:#DE3024}
-.errT{font-size:11px;fill:#DE3024}
+.markRed{fill:#FEF3F2;stroke:#BB241A}
+.errT{font-size:11px;fill:#BB241A}
 .chkBox{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
 .thumb{fill:#9FA6AD}
-.nodeMark{fill:#FEF3F2;stroke:#DE3024;stroke-width:2.5}
+.nodeMark{fill:#FEF3F2;stroke:#BB241A;stroke-width:2.5}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.minusP{fill:#635BFF}
+.plusT{font-size:18px;font-weight:500;fill:#635BFF}
 </style>
 <rect width="1280" height="936" fill="#F0F4F8"/>
 
@@ -91,4 +94,4 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <g><title>Prev: go to the previous step</title><rect class="btn" x="24" y="864" width="100" height="40" rx="8"/><text class="navT" x="74" y="888" text-anchor="middle">Prev</text></g>
 <g><title>Next: go to the next step</title><rect class="btnP" x="136" y="864" width="100" height="40" rx="8"/><text class="btnText" x="186" y="888" text-anchor="middle">Next</text></g>
 
-<rect x="284" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="297" y="44" class="tabT">Pipeline</text><rect x="377.2" y="24" width="77.8" height="32" rx="8" class="tab"/><text x="390.2" y="44" class="tabT">specify</text><rect x="463" y="24" width="60" height="32" rx="8" class="tab"/><text x="476" y="44" class="tabT">ux</text><rect x="531" y="24" width="60" height="32" rx="8" class="tab"/><text x="544" y="44" class="tabT">plan</text><rect x="599" y="24" width="63" height="32" rx="8" class="tab"/><text x="612" y="44" class="tabT">build</text><rect x="670" y="24" width="70.4" height="32" rx="8" class="tabOn"/><text x="683" y="44" class="onP">verify</text><rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="761.4" y="44" class="tabT">complete</text><rect x="841.6" y="24" width="34" height="32" rx="8" class="btn"/><text x="852.6" y="45" class="plus">+</text><rect x="284" y="80" width="972" height="788" rx="12" class="card" filter="url(#sh)"/><text x="770" y="112" class="h2" text-anchor="middle">verify · 3 blocks</text><text x="284" y="901" class="muted">The work is not saved. It is lost when the browser is refreshed.</text><text x="1256" y="901" class="caption" text-anchor="end">F-11 · screen 6 · step 3 of 4 · 1280 × 936</text></svg>
+<rect x="284" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="297" y="44" class="tabT">Pipeline</text><rect x="377.2" y="24" width="77.8" height="32" rx="8" class="tab"/><text x="390.2" y="44" class="tabT">specify</text><rect x="463" y="24" width="60" height="32" rx="8" class="tab"/><text x="476" y="44" class="tabT">ux</text><rect x="531" y="24" width="60" height="32" rx="8" class="tab"/><text x="544" y="44" class="tabT">plan</text><rect x="599" y="24" width="63" height="32" rx="8" class="tab"/><text x="612" y="44" class="tabT">build</text><rect x="670" y="24" width="70.4" height="32" rx="8" class="tabOn"/><text x="683" y="44" class="onP">verify</text><rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="761.4" y="44" class="tabT">complete</text><rect x="844.6" y="26" width="28" height="28" rx="6" class="btnOut"/><text x="858.6" y="46" class="plusT" text-anchor="middle">+</text><rect x="284" y="80" width="972" height="788" rx="12" class="card" filter="url(#sh)"/><text x="770" y="112" class="h2" text-anchor="middle">verify · 3 blocks</text><text x="284" y="901" class="muted">The work is not saved. It is lost when the browser is refreshed.</text><text x="1256" y="901" class="caption" text-anchor="end">F-11 · screen 6 · step 3 of 4 · 1280 × 936</text></svg>

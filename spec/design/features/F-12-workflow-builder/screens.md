@@ -24,13 +24,13 @@ Each SVG is 1280 wide and 1000 high; the caption gives the height.
 - **Left panel** x 0–260, full height, white: wordmark at x 24, **New project** x 24–236 at y 72–112, the vertical stepper at x 40 (steps 1 and 2 done, step 3 current), **Prev** x 24–124 and **Next** x 136–236 at y H−72.
 - **Tab row** y 24–56 from x 284: Pipeline, specify, ux, plan (selected), build, verify, complete, then **+**.
 - **Canvas card** x 284–964, white, 12 px radius, from y 80 to H−68. The **toolbox** floats at the top-right of the card, x 732–940, y 96–140 (white, soft shadow, five 32 px icon buttons: Agent, Condition, Link, Start, End). The heading "plan" and the count "2 Agents, 2 Conditions" sit at the top-left, x 308. The flow is drawn on one row, centred on the card (its centre line is y 500): Start, pre-check, planner, reviewer, end check, End. A dashed arrow over the top is the return; a solid arrow under the row is the pre-check's false branch. The hint at the foot of the card (y H−92) says how to read the arrows.
-- **Properties card** x 984–1256, white, same top and bottom. The title at y 118, the subtitle at y 136. Fields are 40 px high, 224 wide (rows of arguments and tools 192 wide, with the minus at x 1208); labels at 12 px muted.
+- **Properties card** x 984–1256, white, same top and bottom. The title at y 118, the subtitle at y 136. Fields are 40 px high, 224 wide (rows of arguments and tools 192 wide, with the 28 px minus at x 1204); labels at 12 px, weight 500, #32383E.
 - **Footer note** baseline H−35: "The work is not saved. It is lost when the browser is refreshed." at x 284; the caption "F-12 · screen N · step 3 of 4 · 1280 × H" right-aligned at x 1256.
 - **Dialog** centred on the whole screen (x 440–840, y 392–560), with the whole screen dimmed behind it, the left panel and the tab row included.
 
 ## Visual style
 
-The F-07 frame and F-11 look: Material Kit React (Devias IO, MIT licence; credit in `spec/documents/ui.md` §3.0 and `spec/documents/architecture.md` §5). Only the Material Kit colours are used: primary `#635BFF` (Next, the selected tab, the outline of an Agent box and of the Start circle, the return arrow); the selected block's outline `#635BFF` on tint `#ECF0FF`; page `#F0F4F8`; cards white with `#DDE7EE` borders; controls with `#CDD7E1` borders, 8 px radius; secondary buttons white with a border; text `#32383E` and `#636B74`; the Start outline `#635BFF` and the End outline `#32383E`, both circles on a white fill; a read-only field on `#F0F4F8`. True labels `#107569` (done green, text); false labels `#B84D05` (amber text, the same ink as the notes). Errors `#DE3024` (the refused field's border and text, and the Delete button fill). Amber notes `#B84D05` text on `#FFFAEA`. Font Inter, weights 400 and 500, on the 8 px grid.
+The F-07 frame and F-11 look: Material Kit React (Devias IO, MIT licence; credit in `spec/documents/ui.md` §3.0 and `spec/documents/architecture.md` §5). Only the Material Kit colours are used: primary `#635BFF` (Next, the selected tab, the outline of an Agent box and of the Start circle, the return arrow); the selected block's outline `#635BFF` on tint `#ECF0FF`; page `#F0F4F8`; cards white with `#DDE7EE` borders; controls with `#CDD7E1` borders, 8 px radius; secondary buttons white with a border; text `#32383E` and `#636B74`; the Start outline `#635BFF` and the End outline `#32383E`, both circles on a white fill; a read-only field on `#F0F4F8`. True labels `#107569` (done green, text); false labels `#B84D05` (amber text, the same ink as the notes). Errors `#BB241A` (the refused field's border and text, and the Delete button fill). Amber notes `#B84D05` text on `#FFFAEA`. Font Inter, weights 400 and 500, on the 8 px grid.
 
 ## Legend
 
@@ -67,7 +67,7 @@ The F-07 frame and F-11 look: Material Kit React (Devias IO, MIT licence; credit
 - Screen 05: the dialog is centred on the whole screen (x 440–840). The earlier draft centred it on the content area (x 570–970); the change follows the rule of the frame.
 - Screen 06: the reason line sits 18 px under the name field, which leaves little space above the Description label. It is kept on the same grid as the other screens; `visual` may move it.
 - Screen 01 shows Delete on End, enabled, as in the earlier draft (question 7).
-- The Delete button is the Material Kit error colour `#DE3024`; F-11 used `#DE3024`. One colour is used for both now.
+- The Delete button is the danger colour `#BB241A` (redOrange 700, owner decision; was `#DE3024`). One colour is used for the Delete buttons, the refused field and its text.
 - The pipeline's arguments list (F-11) and the block arguments (F-12) are both drawn as rows (question 1).
 
 ## Schema questions
@@ -91,3 +91,10 @@ Each question is needed to finalise `spec/documents/pipeline-schema.md`. The scr
 9. **A false pre-check.** Screen 03 draws a false branch that ends the flow with the outcome stopped. Is that the rule, or may the false branch of a pre-check go to an Agent or be otherwise handled?
 10. **The round limit.** Screen 04 draws a number of rounds (3) on the return arrow. What are the range and the default, and is the limit required on every false branch that returns?
 11. **Deleting a block with arrows.** Screen 05 says the arrows are removed with the block. Or should the arrows be rewired (the block's predecessor to its successor)?
+
+## Owner decisions applied (2026-11-19)
+
+- Field labels: 12 px, weight 500, #32383E (were 12 px muted grey).
+- Plus and minus buttons: 28 × 28 px, radius 6, primary outline 1 px, primary glyph.
+- Amber notes (draft questions 5, 9 and 10): 12 px, weight 500, #B84D05 on #FFFAEA; re-wrapped to the 224 px box (the notes on screens 01, 03 and 04 are taller).
+- Danger colour #BB241A.

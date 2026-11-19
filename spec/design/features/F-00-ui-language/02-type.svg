@@ -21,8 +21,8 @@
 <text x="48" y="336" font-size="13" font-weight="500" fill="#635BFF" text-anchor="start" >Technical details</text>
 <text x="760" y="336" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Current step label · 13 px · 500 · #635BFF · F-10 01</text>
 <rect x="32" y="356" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
-<text x="48" y="384" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Name</text>
-<text x="760" y="384" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Field label (chosen) · 12 px · 400 · #636B74 · F-11 01</text>
+<text x="48" y="384" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Name</text>
+<text x="760" y="384" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Field label · 12 px · 500 · #32383E · F-09 01, F-10 01, F-11 01 (owner decision)</text>
 <rect x="32" y="404" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
 <text x="48" y="432" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Describe what the product does and who uses it.</text>
 <text x="760" y="432" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Help line · 12 px · 400 · #636B74 · F-09 03, F-10 01</text>
@@ -39,10 +39,10 @@
 <text x="48" y="624" font-size="12" font-weight="500" fill="#B84D05" text-anchor="start" >5,000 / 5,000</text>
 <text x="760" y="624" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Counter at its limit · 12 px · 500 · #B84D05 · F-09 03</text>
 <rect x="32" y="644" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
-<text x="48" y="672" font-size="11" font-weight="400" fill="#DE3024" text-anchor="start" >feature-id is used by row 1. Not saved.</text>
-<text x="760" y="672" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Error text · 11 px · 400 · #DE3024 · F-11 07</text>
+<text x="48" y="672" font-size="11" font-weight="400" fill="#BB241A" text-anchor="start" >feature-id is used by row 1. Not saved.</text>
+<text x="760" y="672" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Error text · 11 px · 400 · #BB241A · F-11 07</text>
 <rect x="32" y="692" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
-<text x="48" y="720" font-size="12" font-weight="500" fill="#DE3024" text-anchor="start" >Blocker</text>
+<text x="48" y="720" font-size="12" font-weight="500" fill="#BB241A" text-anchor="start" >Blocker</text>
 <text x="760" y="720" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Status pill · 12 px · 500 · F-13 03 (pill 76 × 20)</text>
 <rect x="32" y="740" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
 <text x="48" y="768" font-size="10" font-weight="500" fill="#635BFF" text-anchor="start" >rule</text>
@@ -51,4 +51,4 @@
 <text x="48" y="816" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">general.md</text>
 <text x="760" y="816" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >File tree · 12 px monospace · #32383E · F-13 03</text>
 <text x="32" y="872" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Font: Inter (Google Fonts, weights 400 and 500). Fallback: system-ui, Segoe UI, sans-serif.</text>
-<text x="32" y="890" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Chosen values where screens differ: field label 12 px 400 grey, help 12 px, counter 11 px. See screens.md, differences.</text></svg>
+<text x="32" y="890" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Owner decisions: field label 12 px 500 #32383E, inline error 11 px, amber note 12 px 500. See screens.md, decisions.</text></svg>

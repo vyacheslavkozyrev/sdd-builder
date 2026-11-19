@@ -18,7 +18,7 @@
 <text x="316" y="146" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >planner</text>
 <text x="316" y="166" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Writes the plan</text>
 <text x="304" y="208" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Agent: normal</text>
-<rect x="480" y="118" width="140" height="72" rx="8" fill="#FEF3F2" stroke="#DE3024" stroke-width="2.5" />
+<rect x="480" y="118" width="140" height="72" rx="8" fill="#FEF3F2" stroke="#BB241A" stroke-width="2.5" />
 <text x="492" y="146" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >specify</text>
 <text x="492" y="166" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Blocked</text>
 <text x="480" y="208" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Blocked: red edge</text>

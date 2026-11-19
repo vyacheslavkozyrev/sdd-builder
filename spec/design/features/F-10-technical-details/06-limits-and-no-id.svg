@@ -20,7 +20,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .num-todo{font-size:12px;font-weight:500;fill:#636B74}
 .check{font-size:13px;font-weight:500;fill:#FFFFFF}
 .field-label{font-size:12px;font-weight:500;fill:#32383E}
-.req{fill:#DE3024}
+.req{fill:#BB241A}
 .field-help{font-size:12px;fill:#636B74}
 .field-text{font-size:13px;fill:#32383E}
 .field-ph{font-size:13px;fill:#636B74}
@@ -28,8 +28,8 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .btn{fill:#FFFFFF;stroke:#CDD7E1}
 .btnP{fill:#635BFF}
 .btnOff{fill:#F0F4F8;stroke:#DDE7EE}
-.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
-.btnDanger{fill:#DE3024}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.btnDanger{fill:#BB241A}
 .ring{fill:none;stroke:#DDE3FF;stroke-width:4}
 .node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
 .node-cur{fill:#635BFF}
@@ -39,16 +39,18 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .input{fill:#FFFFFF;stroke:#CDD7E1}
 .blk{fill:#FFFFFF;stroke:#CDD7E1}
 .empty{fill:#FBFCFE;stroke:#CDD7E1;stroke-dasharray:4 3}
-.note{fill:#FFFAEA}
+.note{fill:#FFFAEA;stroke:#FCD34D;stroke-width:1}
+.fieldErr{fill:#FEF3F2;stroke:#BB241A;stroke-width:1.5}
+.errT{font-size:11px;fill:#BB241A}
 .div{stroke:#DDE7EE;stroke-width:1}
 .scrollT{fill:#F0F4F8}
 .scrollK{fill:#9FA6AD}
 .plusT{font-size:18px;font-weight:500;fill:#635BFF}
 .plusOff{font-size:18px;font-weight:500;fill:#9FA6AD}
-.minus{fill:#32383E}
 .dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
 .dlgMuted{font-size:13px;fill:#636B74}
-.btnRed{fill:#DE3024}
+.btnRed{fill:#BB241A}
+.minusP{fill:#635BFF}
 </style>
 <rect width="1280" height="800" fill="#F0F4F8"/>
 
@@ -110,7 +112,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="1218" y="68" class="plusT" text-anchor="middle">+</text>
 <rect x="788" y="96" width="444" height="240" rx="8" class="blk"/>
 <text x="804" y="126" class="field-label">Rule block 1</text>
-<g><title>Remove rule block 1</title><rect x="1188" y="108" width="28" height="28" rx="6" class="btn"/><rect x="1196" y="121" width="12" height="2" class="minus"/></g>
+<g><title>Remove rule block 1</title><rect x="1188" y="108" width="28" height="28" rx="6" class="btnOut"/><rect x="1196" y="121" width="12" height="2" class="minusP"/></g>
 <text x="804" y="152" class="field-label">Name<tspan class="req"> *</tspan></text>
 <text x="856" y="152" class="field-help">Up to 100 characters; text past the limit is cut.</text>
 <rect x="804" y="164" width="412" height="40" rx="8" class="input"/>
@@ -125,12 +127,11 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="816" y="305" class="field-text" clip-path="url(#descClip1)">Use named exports. Keep one component per file. Test each new function.</text>
 <rect x="788" y="348" width="444" height="240" rx="8" class="blk"/>
 <text x="804" y="378" class="field-label">Rule block 2</text>
-<g><title>Remove rule block 2</title><rect x="1188" y="360" width="28" height="28" rx="6" class="btn"/><rect x="1196" y="373" width="12" height="2" class="minus"/></g>
+<g><title>Remove rule block 2</title><rect x="1188" y="360" width="28" height="28" rx="6" class="btnOut"/><rect x="1196" y="373" width="12" height="2" class="minusP"/></g>
 <text x="804" y="404" class="field-label">Name<tspan class="req"> *</tspan></text>
-<rect x="804" y="416" width="412" height="40" rx="8" class="input"/>
+<rect x="804" y="416" width="412" height="40" rx="8" class="fieldErr"/>
 <text x="816" y="441" class="field-text">!!!</text>
-<rect x="804" y="464" width="412" height="34" rx="8" class="note"/>
-<text x="816" y="485" class="warnT">Name needs a letter or digit. No file name is written.</text>
+<text x="804" y="474" class="errT">Name needs a letter or digit. No file name is written.</text>
 <text x="804" y="520" class="field-label">Description</text>
 <text x="884" y="520" class="field-help">Up to 1,000 characters; text past the limit is cut.</text>
 <rect x="804" y="532" width="412" height="40" rx="8" class="input"/><text x="284" y="766" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>

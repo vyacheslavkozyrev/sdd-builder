@@ -15,7 +15,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .num{font-size:12px;font-weight:500;fill:#FFFFFF}
 .num-todo{font-size:12px;font-weight:500;fill:#636B74}
 .field-label{font-size:12px;font-weight:500;fill:#32383E}
-.req{fill:#DE3024}
+.req{fill:#BB241A}
 .field-help{font-size:12px;fill:#636B74}
 .field-text{font-size:13px;fill:#32383E}
 .field-ph{font-size:13px;fill:#636B74}
@@ -43,9 +43,9 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="130" y="97" class="btnDark" text-anchor="middle">New project</text>
 
 <!-- Vertical stepper: step 1 is the current step; steps 2 to 4 are to do -->
-<line x1="40" y1="184" x2="40" y2="208" class="line-todo"/>
-<line x1="40" y1="248" x2="40" y2="272" class="line-todo"/>
-<line x1="40" y1="312" x2="40" y2="336" class="line-todo"/>
+<line x1="40" y1="176" x2="40" y2="216" class="line-todo"/>
+<line x1="40" y1="240" x2="40" y2="280" class="line-todo"/>
+<line x1="40" y1="304" x2="40" y2="344" class="line-todo"/>
 <circle class="ring" cx="40" cy="164" r="18"/>
 <circle class="node-cur" cx="40" cy="164" r="12"><title>Project: current step</title></circle>
 <text class="num" x="40" y="168.5" text-anchor="middle">1</text>
@@ -77,11 +77,11 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text class="field-text" x="324" y="212">A tracker for hourly work. Freelancers log time against clients,</text>
 <text class="field-text" x="324" y="232">see weekly totals, and export a monthly summary for invoicing.</text>
 <text class="field-ph" x="324" y="252">… the text continues up to 5,000 characters …</text>
-<text class="warnT" x="1216" y="374" text-anchor="end">5,000 / 5,000</text>
-<rect class="warnBox" x="308" y="396" width="924" height="34" rx="6"/>
-<text class="warnT" x="324" y="418">The idea is at the limit of 5,000 characters. Text past it is cut, also when pasted.</text>
-<text class="field-help" x="308" y="450">Describe what the product does and who uses it. Leave out how it is built.</text>
-<text class="field-help" x="308" y="474">Nothing is stored between visits. Reloading clears the wizard.</text>
+<text class="warnT" x="1232" y="408" text-anchor="end">5,000 / 5,000</text>
+<rect class="warnBox" x="308" y="420" width="924" height="34" rx="6"/>
+<text class="warnT" x="324" y="442">The idea is at the limit of 5,000 characters. Text past it is cut, also when pasted.</text>
+<text class="field-help" x="308" y="478">Describe what the product does and who uses it. Leave out how it is built.</text>
+<text class="field-help" x="308" y="502">Nothing is stored between visits. Reloading clears the wizard.</text>
 
 <!-- Footer note and caption: inside the grey area, 24 px below the card -->
 <text x="284" y="766" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>

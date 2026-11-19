@@ -20,7 +20,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .num-todo{font-size:12px;font-weight:500;fill:#636B74}
 .check{font-size:13px;font-weight:500;fill:#FFFFFF}
 .field-label{font-size:12px;font-weight:500;fill:#32383E}
-.req{fill:#DE3024}
+.req{fill:#BB241A}
 .field-help{font-size:12px;fill:#636B74}
 .field-text{font-size:13px;fill:#32383E}
 .field-ph{font-size:13px;fill:#636B74}
@@ -28,8 +28,8 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .btn{fill:#FFFFFF;stroke:#CDD7E1}
 .btnP{fill:#635BFF}
 .btnOff{fill:#F0F4F8;stroke:#DDE7EE}
-.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
-.btnDanger{fill:#DE3024}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.btnDanger{fill:#BB241A}
 .ring{fill:none;stroke:#DDE3FF;stroke-width:4}
 .node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
 .node-cur{fill:#635BFF}
@@ -45,10 +45,10 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .scrollK{fill:#9FA6AD}
 .plusT{font-size:18px;font-weight:500;fill:#635BFF}
 .plusOff{font-size:18px;font-weight:500;fill:#9FA6AD}
-.minus{fill:#32383E}
 .dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
 .dlgMuted{font-size:13px;fill:#636B74}
-.btnRed{fill:#DE3024}
+.btnRed{fill:#BB241A}
+.minusP{fill:#635BFF}
 </style>
 <rect width="1280" height="800" fill="#F0F4F8"/>
 
@@ -110,7 +110,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="1218" y="68" class="plusT" text-anchor="middle">+</text>
 <rect x="788" y="96" width="444" height="224" rx="8" class="blk"/>
 <text x="804" y="126" class="field-label">Rule block 1</text>
-<g><title>Remove rule block 1</title><rect x="1188" y="108" width="28" height="28" rx="6" class="btn"/><rect x="1196" y="121" width="12" height="2" class="minus"/></g>
+<g><title>Remove rule block 1</title><rect x="1188" y="108" width="28" height="28" rx="6" class="btnOut"/><rect x="1196" y="121" width="12" height="2" class="minusP"/></g>
 <text x="804" y="152" class="field-label">Name<tspan class="req"> *</tspan></text>
 <rect x="804" y="164" width="412" height="40" rx="8" class="input"/>
 <text x="816" y="189" class="field-text">Code Style</text>
@@ -120,7 +120,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <text x="816" y="289" class="field-text">Use named exports. Keep one component per file.</text>
 <rect x="788" y="332" width="444" height="224" rx="8" class="blk"/>
 <text x="804" y="362" class="field-label">Rule block 2</text>
-<g><title>Remove rule block 2</title><rect x="1188" y="344" width="28" height="28" rx="6" class="btn"/><rect x="1196" y="357" width="12" height="2" class="minus"/></g>
+<g><title>Remove rule block 2</title><rect x="1188" y="344" width="28" height="28" rx="6" class="btnOut"/><rect x="1196" y="357" width="12" height="2" class="minusP"/></g>
 <text x="804" y="388" class="field-label">Name<tspan class="req"> *</tspan></text>
 <rect x="804" y="400" width="412" height="40" rx="8" class="input"/>
 <text x="816" y="425" class="field-text">Testing</text>

@@ -20,7 +20,7 @@
 <text x="464" y="254" font-size="13" font-weight="400" fill="#636B74" text-anchor="start" >Are you sure you want to delete this flow?</text>
 <rect x="512" y="282" width="120" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
 <text x="572.0" y="307.0" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >Cancel</text>
-<rect x="648" y="282" width="120" height="40" rx="8" fill="#DE3024" />
+<rect x="648" y="282" width="120" height="40" rx="8" fill="#BB241A" />
 <text x="708.0" y="307.0" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle" >Delete flow</text>
 <text x="640" y="328" font-size="11" font-weight="400" fill="#32383E" text-anchor="start" ></text>
 <rect x="32" y="572" width="1216" height="200" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
@@ -29,5 +29,5 @@
 <text x="56" y="652" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Title 24 px 500 #32383E, baseline 46 px below the dialog top (H5).</text>
 <text x="56" y="674" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >One muted line 13 px 400 #636B74, 30 px below the title baseline.</text>
 <text x="56" y="696" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Button pair 120 × 40, radius 8, 16 px apart, centred under the text.</text>
-<text x="56" y="718" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Cancel: white with #CDD7E1 edge. Danger: #DE3024 fill, white 14 px 500 label.</text>
+<text x="56" y="718" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Cancel: white with #CDD7E1 edge. Danger: #BB241A fill, white 14 px 500 label.</text>
 <text x="56" y="740" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Scrim: #32383E at 35% over the whole screen. The dimmed screen stays visible.</text></svg>

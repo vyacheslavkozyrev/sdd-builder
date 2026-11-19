@@ -17,9 +17,9 @@ const validFlow = {
   blocks: validBlocks,
 };
 
-function readF(value: unknown, path = FLOW) {
+function readF(value: unknown, path = FLOW, index = 0) {
   const problems = createProblemCollector();
-  const flow = readFlow(value, path, problems);
+  const flow = readFlow(value, path, problems, index);
   return { flow, problems: problems.list() };
 }
 
@@ -33,6 +33,7 @@ describe('F-02 AC-020 a flow requires id, name, body, arguments, artifacts, appr
   it('accepts a flow with every required key', () => {
     expect(readF(validFlow)).toEqual({
       flow: {
+        index: 0,
         id: 'plan',
         name: 'Plan',
         body: 'Plans the work.',
@@ -40,8 +41,8 @@ describe('F-02 AC-020 a flow requires id, name, body, arguments, artifacts, appr
         artifacts: [],
         approval: false,
         blocks: [
-          { id: 'start', kind: 'start', next: 'end' },
-          { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+          { index: 0, id: 'start', kind: 'start', next: 'end' },
+          { index: 1, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
         ],
       },
       problems: [],
@@ -85,7 +86,12 @@ describe('F-02 AC-021 a flow may omit description, model, ruleTags and next', ()
       next: 'build',
     });
     expect(problems).toEqual([]);
-    expect(flow).toMatchObject({ description: 'The plan.', model: 'sonnet', ruleTags: ['style'], next: 'build' });
+    expect(flow).toMatchObject({
+      description: 'The plan.',
+      model: 'sonnet',
+      ruleTags: [{ ruleId: 'style', index: 0 }],
+      next: 'build',
+    });
   });
 });
 
@@ -155,7 +161,12 @@ describe('F-02 AC-024 AC-071 AC-072 a flow ruleTags list follows the rule-tag ru
           'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
       },
     ]);
-    expect(flow).toMatchObject({ ruleTags: ['style', 'tests'] });
+    expect(flow).toMatchObject({
+      ruleTags: [
+        { ruleId: 'style', index: 0 },
+        { ruleId: 'tests', index: 2 },
+      ],
+    });
   });
 
   it('drops a tag listed twice at the path of the second entry, and keeps the flow', () => {
@@ -163,7 +174,12 @@ describe('F-02 AC-024 AC-071 AC-072 a flow ruleTags list follows the rule-tag ru
     expect(problems).toEqual([
       { path: `${FLOW}.ruleTags.1`, message: 'repeats style; each entry must be listed once' },
     ]);
-    expect(flow).toMatchObject({ ruleTags: ['style', 'tests'] });
+    expect(flow).toMatchObject({
+      ruleTags: [
+        { ruleId: 'style', index: 0 },
+        { ruleId: 'tests', index: 2 },
+      ],
+    });
   });
 });
 

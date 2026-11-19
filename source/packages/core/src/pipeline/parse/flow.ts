@@ -31,7 +31,12 @@ const FLOW_KEYS: readonly string[] = [...REQUIRED_KEYS, ...OPTIONAL_KEYS];
 
 const readLongText: Reader<string> = (value, path, problems) => readText(value, path, { max: 1000 }, problems);
 
-export function readFlow(value: unknown, path: string, problems: ProblemCollector): Flow | undefined {
+export function readFlow(
+  value: unknown,
+  path: string,
+  problems: ProblemCollector,
+  index: number,
+): Flow | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -82,6 +87,7 @@ export function readFlow(value: unknown, path: string, problems: ProblemCollecto
     return undefined;
   }
   return {
+    index,
     id,
     name,
     arguments: args,

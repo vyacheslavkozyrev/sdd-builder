@@ -13,7 +13,7 @@ function read(value: unknown, path = LIST) {
 
 describe('F-02 AC-015 an argument row requires id, required and hint', () => {
   it('accepts a row with exactly id, required and hint', () => {
-    expect(read([validRow])).toEqual({ rows: [validRow], problems: [] });
+    expect(read([validRow])).toEqual({ rows: [{ ...validRow, index: 0 }], problems: [] });
   });
 
   it.each(['id', 'required', 'hint'])('refuses a row missing %s with a problem at the row path', (key) => {
@@ -52,7 +52,10 @@ describe('F-02 AC-015 an argument row requires id, required and hint', () => {
 
   it('keeps the valid rows and reports each invalid row', () => {
     const result = read([validRow, { id: 'x' }, { ...validRow, id: 'other-id' }]);
-    expect(result.rows).toEqual([validRow, { id: 'other-id', required: true, hint: 'F-XX' }]);
+    expect(result.rows).toEqual([
+      { ...validRow, index: 0 },
+      { index: 2, id: 'other-id', required: true, hint: 'F-XX' },
+    ]);
     expect(result.problems).toEqual([
       { path: `${LIST}.1`, message: 'is missing the key required' },
       { path: `${LIST}.1`, message: 'is missing the key hint' },

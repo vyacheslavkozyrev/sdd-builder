@@ -17,7 +17,12 @@ import type { Argument } from '../model.js';
 
 const ARGUMENT_KEYS: readonly string[] = ['id', 'required', 'hint'];
 
-function readArgument(value: unknown, path: string, problems: ProblemCollector): Argument | undefined {
+function readArgument(
+  value: unknown,
+  path: string,
+  problems: ProblemCollector,
+  index: number,
+): Argument | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -40,7 +45,7 @@ function readArgument(value: unknown, path: string, problems: ProblemCollector):
   const required = readBoolean(record.required, childPath(path, 'required'), problems);
   const hint = readText(record.hint, childPath(path, 'hint'), { max: 100 }, problems);
   if (id === undefined || required === undefined || hint === undefined) return undefined;
-  return { id, required, hint };
+  return { index, id, required, hint };
 }
 
 // Returns the rows that parse, in document order. Returns undefined when the value is not a list.
@@ -55,7 +60,7 @@ export function readArguments(
 
   const rows: Argument[] = [];
   items.forEach((item, index) => {
-    const row = readArgument(item, childPath(path, String(index)), problems);
+    const row = readArgument(item, childPath(path, String(index)), problems, index);
     if (row !== undefined) rows.push(row);
   });
   return rows;

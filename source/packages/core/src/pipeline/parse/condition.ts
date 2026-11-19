@@ -21,6 +21,7 @@ export function readCondition(
   value: unknown,
   path: string,
   problems: ProblemCollector,
+  index: number,
 ): ConditionBlock | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
@@ -56,5 +57,5 @@ export function readCondition(
   if (id === undefined || description === undefined || onTrue === undefined || onFalse === undefined) {
     return undefined;
   }
-  return { id, kind: 'condition', description, true: onTrue, false: onFalse };
+  return { index, id, kind: 'condition', description, true: onTrue, false: onFalse };
 }

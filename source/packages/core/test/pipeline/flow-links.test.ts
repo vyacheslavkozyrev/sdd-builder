@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { checkFlowLinks, checkFlowNames } from '../../src/pipeline/check/flow-links.js';
+import { createProblemCollector } from '../../src/pipeline/check/primitives.js';
+import { readPipeline } from '../../src/pipeline/parse/pipeline.js';
 import type { Flow, ProjectConfig } from '../../src/pipeline/model.js';
+
+// The flows of a fixture are numbered by position, as a parsed document numbers them (model `index`).
+function numbered<T extends { readonly index: number }>(items: readonly T[]): T[] {
+  return items.map((item, index) => ({ ...item, index }));
+}
 
 function flow(id: string, next?: string, name: string = id): Flow {
   return {
+    index: 0,
     id,
     name,
     arguments: [],
@@ -16,7 +24,7 @@ function flow(id: string, next?: string, name: string = id): Flow {
 }
 
 function config(...flows: Flow[]): Pick<ProjectConfig, 'pipeline'> {
-  return { pipeline: { name: 'Pipeline', description: 'Desc', arguments: [], flows } };
+  return { pipeline: { name: 'Pipeline', description: 'Desc', arguments: [], flows: numbered(flows) } };
 }
 
 describe('F-02 AC-028 two flows with the same name are refused at the second name', () => {
@@ -149,5 +157,55 @@ describe('F-02 AC-035 a flow in a pipeline of more than one flow is linked', () 
   it('refuses every unlinked flow of the pipeline, in order', () => {
     const problems = checkFlowLinks(config(flow('a'), flow('b'), flow('c')));
     expect(problems.map((problem) => problem.path)).toEqual(['pipeline.flows.0', 'pipeline.flows.1', 'pipeline.flows.2']);
+  });
+});
+
+describe('F-02 AC-019 AC-028 AC-031 a flow check after a refused flow is reported at the document index', () => {
+  const validBlocks = [
+    { id: 'start', kind: 'start', next: 'end' },
+    { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Plan' },
+  ];
+
+  it('reports a repeated name and a next that names no flow at the document index of the flow', () => {
+    const problems = createProblemCollector();
+    const pipeline = readPipeline(
+      {
+        name: 'Pipeline',
+        description: 'Desc',
+        arguments: [],
+        flows: [
+          {},
+          {
+            id: 'a',
+            name: 'Plan',
+            body: 'Body',
+            arguments: [],
+            artifacts: [],
+            approval: false,
+            blocks: validBlocks,
+            next: 'missing',
+          },
+          { id: 'b', name: 'Plan', body: 'Body', arguments: [], artifacts: [], approval: false, blocks: validBlocks },
+        ],
+      },
+      'pipeline',
+      problems,
+    );
+    expect(problems.list().every((problem) => problem.path.startsWith('pipeline.flows.0'))).toBe(true);
+    if (pipeline === undefined) throw new Error('the pipeline was refused');
+
+    expect(checkFlowNames({ pipeline })).toEqual([
+      {
+        path: 'pipeline.flows.2.name',
+        message: 'must be unique among the flows, got Plan, which another flow already has',
+      },
+    ]);
+    expect(checkFlowLinks({ pipeline })).toEqual([
+      { path: 'pipeline.flows.1.next', message: 'must name a flow of this pipeline, got missing' },
+      {
+        path: 'pipeline.flows.2',
+        message: 'must be linked to another flow: a next here, or a next of another flow that names it',
+      },
+    ]);
   });
 });

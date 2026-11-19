@@ -23,7 +23,12 @@ function readOutcome(value: unknown, path: string, problems: ProblemCollector): 
   return undefined;
 }
 
-export function readEnd(value: unknown, path: string, problems: ProblemCollector): EndBlock | undefined {
+export function readEnd(
+  value: unknown,
+  path: string,
+  problems: ProblemCollector,
+  index: number,
+): EndBlock | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -55,5 +60,5 @@ export function readEnd(value: unknown, path: string, problems: ProblemCollector
     problems,
   );
   if (id === undefined || outcome === undefined || producedArtifact === undefined) return undefined;
-  return { id, kind: 'end', outcome, producedArtifact };
+  return { index, id, kind: 'end', outcome, producedArtifact };
 }

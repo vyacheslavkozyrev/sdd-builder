@@ -15,7 +15,7 @@ import type { Rule } from '../model.js';
 
 const RULE_KEYS: readonly string[] = ['id', 'title', 'text'];
 
-function readRule(value: unknown, path: string, problems: ProblemCollector): Rule | undefined {
+function readRule(value: unknown, path: string, problems: ProblemCollector, index: number): Rule | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -38,7 +38,7 @@ function readRule(value: unknown, path: string, problems: ProblemCollector): Rul
   const title = readText(record.title, childPath(path, 'title'), { max: 100 }, problems);
   const text = readText(record.text, childPath(path, 'text'), { max: 1000 }, problems);
   if (id === undefined || title === undefined || text === undefined) return undefined;
-  return { id, title, text };
+  return { index, id, title, text };
 }
 
 // Returns the rules that parse, in document order. Returns undefined when the value is not a list.
@@ -48,7 +48,7 @@ export function readRules(value: unknown, path: string, problems: ProblemCollect
 
   const rules: Rule[] = [];
   items.forEach((item, index) => {
-    const rule = readRule(item, childPath(path, String(index)), problems);
+    const rule = readRule(item, childPath(path, String(index)), problems, index);
     if (rule !== undefined) rules.push(rule);
   });
   return rules;

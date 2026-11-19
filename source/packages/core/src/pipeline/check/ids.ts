@@ -1,5 +1,5 @@
 import { childPath, ROOT_PATH } from './primitives.js';
-import type { Block, Problem, ProjectConfig } from '../model.js';
+import type { Argument, Block, Problem, ProjectConfig } from '../model.js';
 
 // Ids unique across the project (pipeline-schema.md §5; decision 18; AC-018, AC-026, AC-043, AC-048, AC-068).
 // The ids of rules, flows, blocks and argument rows share one pool: a repeated id is refused at the path of
@@ -28,11 +28,11 @@ const PIPELINE_PATH = childPath(ROOT_PATH, 'pipeline');
 const PIPELINE_ARGUMENTS_PATH = childPath(PIPELINE_PATH, 'arguments');
 const FLOWS_PATH = childPath(PIPELINE_PATH, 'flows');
 
-function argumentOccurrences(list: readonly { readonly id: string }[], listPath: string): Occurrence[] {
-  return list.map((row, index) => ({
+function argumentOccurrences(list: readonly Argument[], listPath: string): Occurrence[] {
+  return list.map((row) => ({
     id: row.id,
     kind: 'argument',
-    path: childPath(childPath(listPath, String(index)), 'id'),
+    path: childPath(childPath(listPath, String(row.index)), 'id'),
   }));
 }
 
@@ -44,19 +44,19 @@ function blockOccurrences(block: Block, path: string): Occurrence[] {
 
 function collectOccurrences(config: Pick<ProjectConfig, 'rules' | 'pipeline'>): Occurrence[] {
   const { rules, pipeline } = config;
-  const occurrences: Occurrence[] = rules.map((rule, index) => ({
+  const occurrences: Occurrence[] = rules.map((rule) => ({
     id: rule.id,
     kind: 'rule',
-    path: childPath(childPath(RULES_PATH, String(index)), 'id'),
+    path: childPath(childPath(RULES_PATH, String(rule.index)), 'id'),
   }));
 
   occurrences.push(...argumentOccurrences(pipeline.arguments, PIPELINE_ARGUMENTS_PATH));
-  pipeline.flows.forEach((flow, flowIndex) => {
-    const flowPath = childPath(FLOWS_PATH, String(flowIndex));
+  pipeline.flows.forEach((flow) => {
+    const flowPath = childPath(FLOWS_PATH, String(flow.index));
     occurrences.push({ id: flow.id, kind: 'flow', path: childPath(flowPath, 'id') });
     occurrences.push(...argumentOccurrences(flow.arguments, childPath(flowPath, 'arguments')));
-    flow.blocks.forEach((block, blockIndex) => {
-      occurrences.push(...blockOccurrences(block, childPath(childPath(flowPath, 'blocks'), String(blockIndex))));
+    flow.blocks.forEach((block) => {
+      occurrences.push(...blockOccurrences(block, childPath(childPath(flowPath, 'blocks'), String(block.index))));
     });
   });
   return occurrences;
@@ -64,11 +64,11 @@ function collectOccurrences(config: Pick<ProjectConfig, 'rules' | 'pipeline'>): 
 
 function collectAgentNames(config: Pick<ProjectConfig, 'pipeline'>): AgentName[] {
   const names: AgentName[] = [];
-  config.pipeline.flows.forEach((flow, flowIndex) => {
-    const blocksPath = childPath(childPath(FLOWS_PATH, String(flowIndex)), 'blocks');
-    flow.blocks.forEach((block, blockIndex) => {
+  config.pipeline.flows.forEach((flow) => {
+    const blocksPath = childPath(childPath(FLOWS_PATH, String(flow.index)), 'blocks');
+    flow.blocks.forEach((block) => {
       if (block.kind !== 'agent') return;
-      names.push({ name: block.name, path: childPath(childPath(blocksPath, String(blockIndex)), 'name') });
+      names.push({ name: block.name, path: childPath(childPath(blocksPath, String(block.index)), 'name') });
     });
   });
   return names;

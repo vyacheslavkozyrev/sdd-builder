@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { checkBlockLinks } from '../../src/pipeline/check/block-links.js';
+import { createProblemCollector } from '../../src/pipeline/check/primitives.js';
+import { readPipeline } from '../../src/pipeline/parse/pipeline.js';
 import type { Block, Flow, ProjectConfig, Route } from '../../src/pipeline/model.js';
 
-const start = (id: string, next: string): Block => ({ id, kind: 'start', next });
+// The items of a fixture are numbered by position, as a parsed document numbers them (model `index`).
+function numbered<T extends { readonly index: number }>(items: readonly T[]): T[] {
+  return items.map((item, index) => ({ ...item, index }));
+}
+
+const start = (id: string, next: string): Block => ({ index: 0, id, kind: 'start', next });
 const agent = (id: string, next: string): Block => ({
+  index: 0,
   id,
   kind: 'agent',
   name: id,
@@ -12,20 +20,30 @@ const agent = (id: string, next: string): Block => ({
   next,
 });
 const condition = (id: string, onTrue: Route, onFalse: Route): Block => ({
+  index: 0,
   id,
   kind: 'condition',
   description: 'Check',
   true: onTrue,
   false: onFalse,
 });
-const end = (id: string): Block => ({ id, kind: 'end', outcome: 'done', producedArtifact: 'Plan' });
+const end = (id: string): Block => ({ index: 0, id, kind: 'end', outcome: 'done', producedArtifact: 'Plan' });
 
 function flow(id: string, blocks: Block[]): Flow {
-  return { id, name: id, arguments: [], body: 'Body', artifacts: [], approval: false, blocks };
+  return {
+    index: 0,
+    id,
+    name: id,
+    arguments: [],
+    body: 'Body',
+    artifacts: [],
+    approval: false,
+    blocks: numbered(blocks),
+  };
 }
 
 function config(...flows: Flow[]): Pick<ProjectConfig, 'pipeline'> {
-  return { pipeline: { name: 'Pipeline', description: 'Desc', arguments: [], flows } };
+  return { pipeline: { name: 'Pipeline', description: 'Desc', arguments: [], flows: numbered(flows) } };
 }
 
 const STOP: Route = { stop: true };
@@ -346,6 +364,67 @@ describe('F-02 AC-045 to AC-062 the problems come back in document order', () =>
       'pipeline.flows.0.blocks.0.next',
       'pipeline.flows.0.blocks.1.next',
       'pipeline.flows.0.blocks.2.true.to',
+    ]);
+  });
+});
+
+describe('F-02 AC-019 AC-045 AC-059 a block link after a refused block is reported at the document index', () => {
+  const pipelineOf = (...flows: unknown[]) => {
+    const problems = createProblemCollector();
+    const pipeline = readPipeline(
+      { name: 'Pipeline', description: 'Desc', arguments: [], flows },
+      'pipeline',
+      problems,
+    );
+    expect(problems.list().every((problem) => problem.path.startsWith('pipeline.flows.0.blocks.0'))).toBe(true);
+    if (pipeline === undefined) throw new Error('the pipeline was refused');
+    return { pipeline };
+  };
+
+  it('refuses a start or agent next that names a start block, at the document index of the agent', () => {
+    const value = {
+      id: 'plan',
+      name: 'Plan',
+      body: 'Body',
+      arguments: [],
+      artifacts: [],
+      approval: false,
+      blocks: [
+        { id: 'bad' },
+        { id: 's', kind: 'start', next: 'a' },
+        { id: 'a', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 's' },
+        { id: 'e', kind: 'end', outcome: 'done', producedArtifact: 'Plan' },
+      ],
+    };
+    expect(checkBlockLinks(pipelineOf(value))).toEqual([
+      {
+        path: 'pipeline.flows.0.blocks.2.next',
+        message: 'must name an agent, a condition or the end of this flow, got the start block s',
+      },
+    ]);
+  });
+
+  it('refuses a return route without a roundLimit at the document index of the condition', () => {
+    const value = {
+      id: 'plan',
+      name: 'Plan',
+      body: 'Body',
+      arguments: [],
+      artifacts: [],
+      approval: false,
+      blocks: [
+        { id: 'bad' },
+        { id: 's', kind: 'start', next: 'a' },
+        { id: 'a', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 'c' },
+        { id: 'c', kind: 'condition', description: 'Ok?', true: { to: 'a' }, false: { stop: true } },
+        { id: 'e', kind: 'end', outcome: 'done', producedArtifact: 'Plan' },
+      ],
+    };
+    expect(checkBlockLinks(pipelineOf(value))).toEqual([
+      {
+        path: 'pipeline.flows.0.blocks.3.true.to',
+        message: 'must name a later block of this flow: a return to the earlier agent a needs a roundLimit',
+      },
     ]);
   });
 });

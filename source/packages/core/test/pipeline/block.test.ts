@@ -37,14 +37,14 @@ describe('F-02 AC-040 a flow has at least two blocks', () => {
 
   it('refuses a list with one block at the path of blocks', () => {
     expect(readB([validStart])).toEqual({
-      blocks: [validStart],
+      blocks: [{ ...validStart, index: 0 }],
       problems: [{ path: BLOCKS, message: 'must hold at least 2 blocks, got 1' }],
     });
   });
 
   it('accepts a list with two blocks', () => {
     expect(readB([validStart, validEnd])).toEqual({
-      blocks: [validStart, validEnd],
+      blocks: [{ ...validStart, index: 0 }, { ...validEnd, index: 1 }],
       problems: [],
     });
   });
@@ -52,7 +52,7 @@ describe('F-02 AC-040 a flow has at least two blocks', () => {
   it('counts the listed items, so an invalid block does not cause a count refusal', () => {
     const invalid = { id: 'bad', kind: 'end' };
     expect(readB([validStart, invalid])).toEqual({
-      blocks: [validStart],
+      blocks: [{ ...validStart, index: 0 }],
       problems: [
         { path: `${BLOCKS}.1`, message: 'is missing the key outcome' },
         { path: `${BLOCKS}.1`, message: 'is missing the key producedArtifact' },
@@ -95,7 +95,7 @@ describe('F-02 AC-041 a block kind is start, agent, condition or end', () => {
     (kind) => {
       const block = { ...validStart, kind };
       expect(readB([block, validEnd])).toEqual({
-        blocks: [validEnd],
+        blocks: [{ ...validEnd, index: 1 }],
         problems: [
           {
             path: `${BLOCKS}.0.kind`,
@@ -119,7 +119,7 @@ describe('F-02 AC-042 a block needs a kind and keeps only the keys of its kind',
     const block: Record<string, unknown> = { ...validStart };
     delete block.kind;
     expect(readB([block, validEnd])).toEqual({
-      blocks: [validEnd],
+      blocks: [{ ...validEnd, index: 1 }],
       problems: [{ path: `${BLOCKS}.0`, message: 'is missing the key kind' }],
     });
   });
@@ -127,7 +127,7 @@ describe('F-02 AC-042 a block needs a kind and keeps only the keys of its kind',
   it('refuses a true route on an agent as an unknown key at its own path', () => {
     const block = { ...validAgent, true: { to: 'done' } };
     expect(readB([block, validEnd])).toEqual({
-      blocks: [validEnd],
+      blocks: [{ ...validEnd, index: 1 }],
       problems: [{ path: `${BLOCKS}.0.true`, message: 'has an unknown key true' }],
     });
   });
@@ -135,7 +135,7 @@ describe('F-02 AC-042 a block needs a kind and keeps only the keys of its kind',
   it('refuses a roundLimit on a start as an unknown key at its own path', () => {
     const block = { ...validStart, roundLimit: 2 };
     expect(readB([block, validEnd])).toEqual({
-      blocks: [validEnd],
+      blocks: [{ ...validEnd, index: 1 }],
       problems: [{ path: `${BLOCKS}.0.roundLimit`, message: 'has an unknown key roundLimit' }],
     });
   });
@@ -143,7 +143,7 @@ describe('F-02 AC-042 a block needs a kind and keeps only the keys of its kind',
   it('refuses an agent key on an end as an unknown key at its own path', () => {
     const block = { ...validEnd, name: 'review' };
     expect(readB([validStart, block])).toEqual({
-      blocks: [validStart],
+      blocks: [{ ...validStart, index: 0 }],
       problems: [{ path: `${BLOCKS}.1.name`, message: 'has an unknown key name' }],
     });
   });
@@ -166,7 +166,7 @@ describe('F-02 blocks: the list keeps the blocks that parse, in order', () => {
   it('leaves out an invalid block and keeps the others in document order', () => {
     const invalid = { id: 'bad', kind: 'end' };
     const result = readB([validStart, invalid, validEnd]);
-    expect(result.blocks).toEqual([validStart, validEnd]);
+    expect(result.blocks).toEqual([{ ...validStart, index: 0 }, { ...validEnd, index: 2 }]);
     expect(result.problems).toEqual([
       { path: `${BLOCKS}.1`, message: 'is missing the key outcome' },
       { path: `${BLOCKS}.1`, message: 'is missing the key producedArtifact' },

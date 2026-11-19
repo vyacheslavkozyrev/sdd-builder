@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 14 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 15 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T012 | Ids unique across the project (`pipeline/check/ids.ts`) | 0 blockers; 1 warning and 2 suggestions fixed (repeat tests; grouping by id; path constants) | task check passed: api 6, web 4, core 480 |
 | T013 | Block references and routes inside a flow (`pipeline/check/block-links.ts`) | 0 blockers, 0 warnings; 4 suggestions fixed (owner set, start-route and later-condition tests, line widths). Open: self-loop on an agent `next` (see Deferred Findings) | task check passed: api 6, web 4, core 509 |
 | T014 | Flow names and next links between flows (`pipeline/check/flow-links.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (array build; loop entered from outside test) | task check passed: api 6, web 4, core 530 |
+| T015 | Rule tags name rules of the project (`pipeline/check/rule-tags.ts`); with the Amendment of 2026-11-19 | 0 blockers open; one test removed (could not fail); index amendment applied; 547 core tests | task check passed: api 6, web 4, core 547 |
 
 ---
 
@@ -79,6 +80,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T011 (`source/packages/core/src/pipeline/parse/pipeline.ts` `readLongText`, and the key-check loops and `optional` helper in `readPipeline`): the same helpers are copied from `flow.ts`, and a shared helper would edit committed T010 code. Not changed: take it with the next task that touches the keyed readers (T019 or later).
 
 - T013 (`source/packages/core/src/pipeline/check/block-links.ts`, `checkStartOrAgentNext`): an agent whose `next` names itself, or an earlier agent, is accepted with no round limit. AC-054 read literally accepts it, but `pipeline-schema.md` §3 says a route back to an earlier Agent comes only from a Condition and carries a `roundLimit`, and decision 38 forbids loops. Kept as the criterion reads; owner to decide whether AC-054 and the schema agree, and if a self-loop or back `next` is refused, the change is one check in `block-links.ts` plus tests. Not changed: a spec conflict for the owner.
+
+- T015 list-index blocker, resolved by the Amendment of 2026-11-19 (every kept list item carries its document index; see Amendments).
 
 ---
 
@@ -138,9 +141,8 @@ Naming notes (not gaps): the flow.test.ts titles for AC-007, AC-015, AC-017 and 
 
 ## Amendments
 
-```
-### Amendment — YYYY-MM-DD
-**Changed**: [documents updated]
-**Reason**: [why]
-**Impact**: [tasks or phases that must re-run]
-```
+### Amendment — 2026-11-19 (list-item document index)
+**Changed**: `spec/specifications/F-02-pipeline-model/progress.md`; `source/packages/core/src/pipeline/model.ts` (Rule, Argument, Flow, the four block kinds gain `index: number`; `ruleTags` becomes `RuleTag { ruleId, index }`); parse readers `lists.ts`, `rules.ts`, `argument.ts`, `block.ts`, `start.ts`, `end.ts`, `condition.ts`, `agent.ts`, `flow.ts`, `pipeline.ts`; checks `ids.ts`, `block-links.ts`, `flow-links.ts`, `rule-tags.ts`; tests in ids, block-links, rule-tags, flow-links and the parser suites.
+**Reason**: the readers drop refused items and compacted the list, so every path after a refused item pointed at the wrong item (for example `ruleTags ["Bad Id", "missing"]` reported the unknown rule at `ruleTags.0`). Owner decision 2026-11-19: option 1, each kept item carries its document index. Tools, reads, writes and artifacts stay plain: no cross-check reads them, and their readers already report at document positions.
+**Impact**: T001–T014 code is changed in this commit; their tests are updated for the index and stay green. Architecture is unchanged (a model field, not an architecture rule). pipeline-schema.md is unchanged (it describes the file format). The task-check is green (core 547, api 6, web 4).
+

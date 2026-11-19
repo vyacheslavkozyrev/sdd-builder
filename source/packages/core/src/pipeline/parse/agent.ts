@@ -27,7 +27,12 @@ const AGENT_KEYS: readonly string[] = [...REQUIRED_KEYS, ...OPTIONAL_KEYS];
 
 const readBody: Reader<string> = (value, path, problems) => readText(value, path, { max: 1000 }, problems);
 
-export function readAgent(value: unknown, path: string, problems: ProblemCollector): AgentBlock | undefined {
+export function readAgent(
+  value: unknown,
+  path: string,
+  problems: ProblemCollector,
+  index: number,
+): AgentBlock | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -85,6 +90,7 @@ export function readAgent(value: unknown, path: string, problems: ProblemCollect
     return undefined;
   }
   return {
+    index,
     id,
     kind: 'agent',
     name,

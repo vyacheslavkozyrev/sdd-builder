@@ -21,7 +21,7 @@ import { readStart } from './start.js';
 
 const MIN_BLOCKS = 2;
 
-function readBlock(value: unknown, path: string, problems: ProblemCollector): Block | undefined {
+function readBlock(value: unknown, path: string, problems: ProblemCollector, index: number): Block | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -32,13 +32,13 @@ function readBlock(value: unknown, path: string, problems: ProblemCollector): Bl
   const kind = record.kind;
   switch (kind) {
     case 'start':
-      return readStart(record, path, problems);
+      return readStart(record, path, problems, index);
     case 'agent':
-      return readAgent(record, path, problems);
+      return readAgent(record, path, problems, index);
     case 'condition':
-      return readCondition(record, path, problems);
+      return readCondition(record, path, problems, index);
     case 'end':
-      return readEnd(record, path, problems);
+      return readEnd(record, path, problems, index);
     default:
       problems.add(
         childPath(path, 'kind'),
@@ -58,7 +58,7 @@ export function readBlocks(value: unknown, path: string, problems: ProblemCollec
 
   const blocks: Block[] = [];
   items.forEach((item, index) => {
-    const block = readBlock(item, childPath(path, String(index)), problems);
+    const block = readBlock(item, childPath(path, String(index)), problems, index);
     if (block !== undefined) blocks.push(block);
   });
   return blocks;

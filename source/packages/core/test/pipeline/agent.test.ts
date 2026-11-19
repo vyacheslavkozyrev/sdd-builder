@@ -14,9 +14,9 @@ const validAgent = {
 };
 const validRow = { id: 'feature-id', required: true, hint: 'F-XX' };
 
-function readA(value: unknown, path = AGENT) {
+function readA(value: unknown, path = AGENT, index = 1) {
   const problems = createProblemCollector();
-  const block = readAgent(value, path, problems);
+  const block = readAgent(value, path, problems, index);
   return { block, problems: problems.list() };
 }
 
@@ -43,6 +43,7 @@ describe('F-02 AC-047 an agent requires id, kind, name, description, arguments a
   it('accepts an agent with exactly the required keys', () => {
     expect(readA(validAgent)).toEqual({
       block: {
+        index: 1,
         id: 'review',
         kind: 'agent',
         name: 'review',
@@ -122,7 +123,7 @@ describe('F-02 AC-050 an agent tools list holds text items of at most 100 code p
 
   it('refuses a non-text item at the path of the item and keeps the others', () => {
     expect(readA({ ...validAgent, tools: ['Read', 1] })).toEqual({
-      block: { ...validAgent, tools: ['Read'] },
+      block: { ...validAgent, index: 1, tools: ['Read'] },
       problems: [{ path: `${AGENT}.tools.1`, message: expect.any(String) }],
     });
   });
@@ -154,7 +155,7 @@ describe('F-02 AC-051 agent reads and writes are non-blank labels with no repeat
 
   it('refuses a label listed twice at the path of the second item', () => {
     expect(readA({ ...validAgent, writes: ['plan.md', 'plan.md'] })).toEqual({
-      block: { ...validAgent, writes: ['plan.md'] },
+      block: { ...validAgent, index: 1, writes: ['plan.md'] },
       problems: [{ path: `${AGENT}.writes.1`, message: expect.stringContaining('repeats plan.md') }],
     });
   });
@@ -201,12 +202,12 @@ describe('F-02 AC-055 agent arguments are argument rows and an empty list is acc
   });
 
   it('accepts a valid argument row', () => {
-    expect(acceptedWith({ arguments: [validRow] }).arguments).toEqual([validRow]);
+    expect(acceptedWith({ arguments: [validRow] }).arguments).toEqual([{ ...validRow, index: 0 }]);
   });
 
   it('refuses an invalid row at the path of the row', () => {
     expect(readA({ ...validAgent, arguments: [{ ...validRow, required: 'true' }] })).toEqual({
-      block: { ...validAgent, arguments: [] },
+      block: { ...validAgent, index: 1, arguments: [] },
       problems: [{ path: `${AGENT}.arguments.0.required`, message: expect.any(String) }],
     });
   });
@@ -218,7 +219,7 @@ describe('F-02 AC-055 agent arguments are argument rows and an empty list is acc
 
 describe('F-02 AC-071 a rule tag of an agent is an id', () => {
   it('accepts a rule tag that is an id', () => {
-    expect(acceptedWith({ ruleTags: ['style-rule'] }).ruleTags).toEqual(['style-rule']);
+    expect(acceptedWith({ ruleTags: ['style-rule'] }).ruleTags).toEqual([{ ruleId: 'style-rule', index: 0 }]);
   });
 
   it('refuses "Style Rule" at the path of the tag', () => {
@@ -229,7 +230,7 @@ describe('F-02 AC-071 a rule tag of an agent is an id', () => {
 describe('F-02 AC-072 a rule tag listed twice is refused on the agent', () => {
   it('refuses a repeated tag at the path of the second entry', () => {
     expect(readA({ ...validAgent, ruleTags: ['style', 'style'] })).toEqual({
-      block: { ...validAgent, ruleTags: ['style'] },
+      block: { ...validAgent, index: 1, ruleTags: [{ ruleId: 'style', index: 0 }] },
       problems: [{ path: `${AGENT}.ruleTags.1`, message: expect.stringContaining('repeats style') }],
     });
   });

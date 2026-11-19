@@ -39,7 +39,7 @@ function readFlows(value: unknown, path: string, problems: ProblemCollector): Fl
 
   const flows: Flow[] = [];
   items.forEach((item, index) => {
-    const flow = readFlow(item, childPath(path, String(index)), problems);
+    const flow = readFlow(item, childPath(path, String(index)), problems, index);
     if (flow !== undefined) flows.push(flow);
   });
   // Every flow was invalid: each problem is already reported at its flow, and no flow is left to keep.

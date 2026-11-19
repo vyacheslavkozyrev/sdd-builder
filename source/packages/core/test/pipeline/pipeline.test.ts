@@ -44,13 +44,17 @@ describe('F-02 AC-011 a pipeline requires name, description, arguments and flows
         arguments: [],
         flows: [
           {
+            index: 0,
             id: 'plan',
             name: 'Plan',
             body: 'Plans the work.',
             arguments: [],
             artifacts: [],
             approval: false,
-            blocks: validFlow.blocks,
+            blocks: [
+              { index: 0, id: 'start', kind: 'start', next: 'end' },
+              { index: 1, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+            ],
           },
         ],
       },

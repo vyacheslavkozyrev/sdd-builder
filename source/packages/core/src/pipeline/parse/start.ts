@@ -14,7 +14,12 @@ import type { StartBlock } from '../model.js';
 
 const START_KEYS: readonly string[] = ['id', 'kind', 'next'];
 
-export function readStart(value: unknown, path: string, problems: ProblemCollector): StartBlock | undefined {
+export function readStart(
+  value: unknown,
+  path: string,
+  problems: ProblemCollector,
+  index: number,
+): StartBlock | undefined {
   const record = readObject(value, path, problems);
   if (record === undefined) return undefined;
 
@@ -40,5 +45,5 @@ export function readStart(value: unknown, path: string, problems: ProblemCollect
     return undefined;
   }
   if (id === undefined || next === undefined) return undefined;
-  return { id, kind: 'start', next };
+  return { index, id, kind: 'start', next };
 }

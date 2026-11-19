@@ -13,9 +13,9 @@ const validCondition = {
   false: { stop: true },
 };
 
-function readC(value: unknown, path = COND) {
+function readC(value: unknown, path = COND, index = 2) {
   const problems = createProblemCollector();
-  const block = readCondition(value, path, problems);
+  const block = readCondition(value, path, problems, index);
   return { block, problems: problems.list() };
 }
 
@@ -23,6 +23,7 @@ describe('F-02 AC-056 a condition requires id, kind, description, true and false
   it('accepts a condition with exactly id, kind, description, true and false', () => {
     expect(readC(validCondition)).toEqual({
       block: {
+        index: 2,
         id: 'pre',
         kind: 'condition',
         description: 'The brief is complete.',

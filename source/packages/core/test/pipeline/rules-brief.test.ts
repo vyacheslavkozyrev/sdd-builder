@@ -78,7 +78,10 @@ describe('F-02 AC-066 invalid rules are dropped and the others are kept', () => 
     const problems = createProblemCollector();
     const second = { id: 'second', title: 'Second', text: 'Keep it plain.' };
     const rules = readRules([{ id: 'a' }, validRule, { ...validRule, id: 'B' }, second], 'rules', problems);
-    expect(rules).toEqual([validRule, second]);
+    expect(rules).toEqual([
+      { ...validRule, index: 1 },
+      { ...second, index: 3 },
+    ]);
     expect(problems.list().map((problem) => problem.path)).toEqual(['rules.0', 'rules.0', 'rules.2.id']);
   });
 

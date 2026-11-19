@@ -8,22 +8,22 @@ const END = 'pipeline.flows.0.blocks.5';
 const validStart = { id: 'start', kind: 'start', next: 'frame' };
 const validEnd = { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Brief' };
 
-function readS(value: unknown, path = START) {
+function readS(value: unknown, path = START, index = 0) {
   const problems = createProblemCollector();
-  const block = readStart(value, path, problems);
+  const block = readStart(value, path, problems, index);
   return { block, problems: problems.list() };
 }
 
-function readE(value: unknown, path = END) {
+function readE(value: unknown, path = END, index = 5) {
   const problems = createProblemCollector();
-  const block = readEnd(value, path, problems);
+  const block = readEnd(value, path, problems, index);
   return { block, problems: problems.list() };
 }
 
 describe('F-02 AC-044 a start block requires id, kind and next', () => {
   it('accepts a start with exactly id, kind and next', () => {
     expect(readS(validStart)).toEqual({
-      block: { id: 'start', kind: 'start', next: 'frame' },
+      block: { index: 0, id: 'start', kind: 'start', next: 'frame' },
       problems: [],
     });
   });
@@ -76,7 +76,7 @@ describe('F-02 AC-044 a start block requires id, kind and next', () => {
 describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifact', () => {
   it('accepts an end with exactly id, kind, outcome and producedArtifact', () => {
     expect(readE(validEnd)).toEqual({
-      block: { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Brief' },
+      block: { index: 5, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Brief' },
       problems: [],
     });
   });

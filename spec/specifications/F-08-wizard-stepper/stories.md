@@ -42,14 +42,14 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 ### US-002: Prev and Next move through the steps
 
 **As a** builder user
-**I want to** move back and forward with Prev and Next beside the stepper
+**I want to** move back and forward with Prev and Next at the foot of the left panel, below the stepper
 **So that** I can go through the four steps and correct an earlier one.
 
 **Requirements:** `features.md` F-08 (Prev and Next buttons; Prev disabled on step 1; Next disabled on step 4); `ui.md` §1.3
 
 #### Acceptance Criteria
 
-- [ ] AC-004 `[auto]`: the Prev and Next buttons are in the wizard panel beside the stepper, and the step body is rendered below that panel.
+- [ ] AC-004 `[auto]`: the Prev and Next buttons are at the foot of the left panel, below the vertical stepper, and the step body is rendered in the content area beside that panel (owner decision, 2026-11-18: the left-panel layout).
 - [ ] AC-005 `[auto]`: Prev is disabled on step 1 and enabled on steps 2, 3 and 4 (table-driven).
 - [ ] AC-006 `[auto]`: Next moves the wizard forward by exactly one step from each of steps 1, 2 and 3 (table-driven: 1 → 2, 2 → 3, 3 → 4).
 - [ ] AC-007 `[auto]`: Next is shown disabled on step 4 and does not move the wizard past step 4 (negative case: it is not enabled; step 4 has no next step).
@@ -93,7 +93,7 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 
 - [ ] AC-013 `[auto]`: each step body shows the line `The content of this step is added in a later feature.` and no step title or step counter (the stepper names the step, AC-001), and shows no input field (negative case: F-08 adds no field).
 - [ ] AC-014 `[auto]`: the stepper is a Material UI stepper (class `MuiStepper-root`), and the Prev and Next controls are Material UI buttons (class `MuiButton-root`).
-- [ ] AC-015 `[device]`: at a window of 1280 × 800 the stepper, Prev and Next are on one row with Prev and Next beside the stepper, and the step body is visible below them with no vertical page scroll.
+- [ ] AC-015 `[device]`: at a window of 1280 × 800 the left panel shows the logo, New project (secondary button), the vertical stepper and Prev and Next at its foot; the step body is visible in the content area beside the panel, with no vertical page scroll.
 
 ---
 
@@ -104,12 +104,12 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 | F-08 four steps in a stepper | AC-001, AC-002 |
 | F-08 stepper not clickable | AC-003 |
 | F-08 done, current and to-do states | AC-002 |
-| F-08 Prev and Next beside the stepper | AC-004, AC-014 |
+| F-08 Prev and Next at the foot of the left panel | AC-004, AC-014 |
 | F-08 Prev disabled on step 1 | AC-005 |
 | F-08 Next disabled on step 4 | AC-007 |
 | F-08 values kept in memory between steps | AC-010, AC-011 |
 | `ui.md` §1.1 New project opens the wizard at step 1 | AC-012 |
-| `ui.md` §1.3 wizard frame (panel, then body) | AC-004, AC-013, AC-015 |
+| `ui.md` §1.3 wizard frame (left panel, then content area) | AC-004, AC-013, AC-015 |
 | `ui.md` §2 blank name does not block Next | AC-009 |
 | `architecture.md` §5 Material UI | AC-014 |
 | `architecture.md` decision 13 memory only | AC-011 |

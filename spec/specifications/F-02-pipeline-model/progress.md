@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 3 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 4 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -28,6 +28,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T001 | Model types, problem collector and value rules (`pipeline/model.ts`, `pipeline/check/primitives.ts`) | 0 blockers; 3 warnings fixed (test labels; dead export removed); 1 suggestion fixed (singular message) | task check passed: core 64, api 6, web 4 |
 | T002 | Parser entry, root object and key rules (`pipeline/parse/project.ts`, `pipeline/parse/index.ts`) | 0 blockers; 2 warnings fixed (unknown keys and the missing-key order tested); 2 suggestions fixed (value named in the schemaVersion message; undefined input) | task check passed: api 6, web 4, core 87 |
 | T003 | Rules and brief fields (`pipeline/parse/rules.ts`, `pipeline/parse/brief.ts`) | 0 blockers; 4 warnings fixed (conditional assertions split; dropping and no-throw tested; emoji limits for idea and architecture) | task check passed: api 6, web 4, core 131 |
+| T004 | Argument rows (`pipeline/parse/argument.ts`) | 0 blockers; 0 warnings; 2 test-gap suggestions fixed; 1 suggestion deferred (shared key-loop helper) | task check passed: api 6, web 4, core 167 |
 
 ---
 
@@ -58,6 +59,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 (`source/packages/core/test/pipeline/purity.test.ts`, `FORBIDDEN`): the scan covers exactly the six modules that AC-035 names. Other I/O modules, such as `fs/promises`, `node:fs/promises` and `node:process`, are not flagged, so a file could import them and pass. Not changed: the list is the criterion's, and widening it is a spec change the owner should decide. No core file imports them today.
 
 - T013 (`source/packages/core/src/pipeline/index.ts`): the namespace does not export the type `ParseResult` that `parseProjectConfig` returns, so an API caller cannot name the result type without `ReturnType`. The plan lists the exact names the namespace exposes (model types, `parseProjectConfig`, `defaultPipeline`), so the type is not added. Owner or the API task (F-03 onward) to decide whether it joins the namespace. Not changed.
+
+- T004 (`source/packages/core/src/pipeline/parse/argument.ts`, `readArgument`; `source/packages/core/src/pipeline/parse/rules.ts`, `readRule`): the unknown-key and missing-key loops are duplicated between the argument and rule readers, and a shared helper would serve the flow, block and agent readers too. Not changed: the shared helper would edit committed T003 code, which is outside T004's scope; take it with the next task that adds a keyed row reader.
 
 ---
 

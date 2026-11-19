@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 15 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 16 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T013 | Block references and routes inside a flow (`pipeline/check/block-links.ts`) | 0 blockers, 0 warnings; 4 suggestions fixed (owner set, start-route and later-condition tests, line widths). Open: self-loop on an agent `next` (see Deferred Findings) | task check passed: api 6, web 4, core 509 |
 | T014 | Flow names and next links between flows (`pipeline/check/flow-links.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (array build; loop entered from outside test) | task check passed: api 6, web 4, core 530 |
 | T015 | Rule tags name rules of the project (`pipeline/check/rule-tags.ts`); with the Amendment of 2026-11-19 | 0 blockers open; one test removed (could not fail); index amendment applied; 547 core tests | task check passed: api 6, web 4, core 547 |
+| T016 | End names an artifact of its flow (`pipeline/check/end-artifact.ts`) | 0 blockers, 0 open warnings; 1 warning fixed (document-index tests); 1 suggestion deferred (empty value message) | task check passed: api 6, web 4, core 559 |
 
 ---
 
@@ -82,6 +83,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T013 (`source/packages/core/src/pipeline/check/block-links.ts`, `checkStartOrAgentNext`): an agent whose `next` names itself, or an earlier agent, is accepted with no round limit. AC-054 read literally accepts it, but `pipeline-schema.md` §3 says a route back to an earlier Agent comes only from a Condition and carries a `roundLimit`, and decision 38 forbids loops. Kept as the criterion reads; owner to decide whether AC-054 and the schema agree, and if a self-loop or back `next` is refused, the change is one check in `block-links.ts` plus tests. Not changed: a spec conflict for the owner.
 
 - T015 list-index blocker, resolved by the Amendment of 2026-11-19 (every kept list item carries its document index; see Amendments).
+
+- T016 (`source/packages/core/src/pipeline/check/end-artifact.ts`, message for an empty `producedArtifact`): the message reads `got ` with nothing after it. The parser already refuses the empty string (AC-063 path), so the check only sees it in direct calls. Not changed: the sibling checks print values unquoted, and quoting here alone would split the message style.
 
 ---
 

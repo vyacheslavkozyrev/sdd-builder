@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 11 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 12 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T009 | Artifacts of a flow (`pipeline/parse/artifact.ts`) | 0 blockers; 1 warning fixed (all Unicode line terminators refused in a label); 1 suggestion fixed (cross-flow label test) | task check passed: api 6, web 4, core 366 |
 | T010 | Flow object: keys, scalar fields, lists and tags (`pipeline/parse/flow.ts`) | 0 blockers; 3 warnings and 1 suggestion fixed (tests only) | task check passed: api 6, web 4, core 421 |
 | T011 | Pipeline object and its flow list (`pipeline/parse/pipeline.ts`) | 0 blockers open; 1 blocker fixed (empty or all-invalid flow list gave a pipeline; now undefined), 1 warning fixed (AC-086 test asserts undefined), 1 suggestion fixed | task check passed: api 6, web 4, core 456 |
+| T012 | Ids unique across the project (`pipeline/check/ids.ts`) | 0 blockers; 1 warning and 2 suggestions fixed (repeat tests; grouping by id; path constants) | task check passed: api 6, web 4, core 480 |
 
 ---
 

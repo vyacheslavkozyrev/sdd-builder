@@ -1,6 +1,6 @@
 # SDDBuilder — UI requirements
 
-Status: revised 2026-11-16 with the owner's decisions. Open items are listed in section 9. The block model is in `architecture.md` §6 (decisions 28 to 32); the default pipeline is in §11 and the structural rules in §12.
+Status: revised 2026-11-18 with the owner's F-11 decisions (listed in section 9 and consolidated in `spec/specifications/F-11-pipeline-builder/stories.md`). The flow model is `architecture.md` §6 decisions 38 and 39; the block model of decisions 28 to 32 is superseded where section 9 says so. The default pipeline is in §11 and the structural rules in §12.
 
 Scope: the MVP web app for **desktop browsers only**; reference size 1280 × 800. No mobile or tablet layout. Nothing the user enters is stored by the server, and nothing is kept after a browser refresh. The app is for internal use for now.
 
@@ -64,73 +64,76 @@ Two areas on the step:
 
 ## 3. Step 3 — Workflow builder
 
+The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, numbered 01 to 10). The rules are in `spec/specifications/F-11-pipeline-builder/stories.md`, in its section "UX and model decisions 2026-11-18 (consolidated)". The flow model is `architecture.md` §6 decisions 38 and 39.
+
+### 3.0 Layout and look
+- The step uses the wizard frame of section 1.3, drawn as on screen 01: a white left panel (260 px) with the wordmark, **New project**, the vertical stepper and **Prev** and **Next** at its foot; the content area beside it is grey (`#F0F4F8`) with white cards. This replaces the header bar of section 1.1 on this step, and the footer note of section 1.2 sits inside the grey area, 24 px below the cards, with its caption.
+- Inter font. Primary `#635BFF`. An 8 px grid. Controls have an 8 px radius; cards a 12 px radius.
+- The look is adapted from **Material Kit React** by Devias IO (MIT licence, github.com/devias-io/material-kit-react). No code is copied and no package is added (`architecture.md` §5).
+- The properties panels scroll. Their footer buttons (Delete flow, Save, Add check and similar) stay in place.
+
 ### 3.1 Tab row
-- Full width of the available space (not centred, not a fixed width).
-- The first tab is **Pipeline** (the whole process). It cannot be removed.
-- One tab per **flow** (a child flow of the pipeline), in pipeline order.
-- A **+** button after the last tab adds a flow. Flows are added only this way.
-- A new flow is named `flow-N`, with N the first number not used as another flow's id or name. Its **id** is file-safe, fixed at creation, and names its generated file. Its **name** is free text, non-blank and unique among the names; the Name field changes the name only.
+- Full width of the available space. The first tab is **Pipeline** (the whole process); it cannot be removed.
+- One tab per **flow**, in pipeline order. A **+** button after the last tab is the only way to add a flow.
+- A new flow gets an **id** `flow-N`, N the first number not used as another flow's id or name. Its **name** starts as its id. The id is file-safe, is fixed at creation, and names the generated file `.claude/commands/<id>.md`. The id `pipeline` is refused (`architecture.md` §12). The name is free text, non-blank, and unique among the flow names; the Name field changes the name only.
 
 ### 3.2 Pipeline tab
-- **Toolbox** (left, fixed width): **Connection**, **Approval**, **Check**.
-- **Canvas** (centre, all remaining space): an interactive diagram in the style of Miro (pan, select, drag). Each flow is a box with its name and its block count. Flows have no Start or End on this tab.
-- Boxes are laid out automatically, left to right in pipeline order. No box position is saved; a dragged box keeps its place only until the next layout.
-- A **connection** is an arrow between two flows. To add one, drag the **Connection** tool from the toolbox onto a flow, then onto the next flow, and give the artifact label. Button path: **Connect to next flow** in the source flow's panel.
-- A flow has at most one outgoing arrow; a second is refused with the reason. A flow cannot connect to itself. Ends can be repointed by dragging them to another flow.
-- **Approval** and **Check** sit on an arrow between two flows, dragged from the toolbox onto the arrow:
-  - **Approval** stops and waits for a person.
-  - **Check** is decided by an agent. It has two outputs, true and false, and its type is `checks` (the check named in its description) or `diff size` (a threshold in lines).
-  - One gate per arrow.
-- **Keyboard and touch path**: select the arrow and use **Add approval** or **Add check** in its properties panel.
-- **Properties panel** (right, fixed width): the pipeline's properties when nothing is selected (including its arguments, such as `feature-id`); the selected item's properties otherwise.
+- **No toolbox.** The canvas takes all the space left of the properties card. The Connection, Approval and Check tools are removed; gates are not dropped on arrows.
+- **Canvas:** each flow is a box with its name and its block count. The flows are laid out in one row, left to right, in pipeline order. Boxes are laid out automatically and no position is saved.
+- **Arrows are the flow's `next`.** To set one, drag from the **right** connection point of the source flow to the **left** connection point of the target flow. This is the only way to set a `next`: there is no button, no next-flow field and no toolbox item (owner decision, 2026-11-18).
+- **Linear.** A flow has at most one outgoing arrow. A drag that would give a second one is refused with its reason, and nothing is added. A link that would close a loop, including a flow to itself, is refused with its reason, and no loop is drawn.
+- **Repoint** an arrow's end by dragging it onto another flow. The same refusals apply.
+- **Arrows show no label and no mark.** Selecting an arrow opens the **connection panel**, which shows only the source and target, read-only, with the note that artifacts, checks and approval are in the source flow's panel. Its footer has **Delete connection**, which asks first.
+- **Properties panel** (right, fixed width): the pipeline's properties when nothing is selected; the flow's properties when a flow is selected; the connection's panel when an arrow is selected.
+- **Flow panel:** the file it generates; **Name** (required, non-blank, unique); **Description** (optional); **Arguments** (optional; rows with a text field and a minus button, with **+** in the title row); **Model**; **Body** (required, at most 1000 characters); then
+  - **Outcome artifacts:** each has a **label** (one line, required, non-blank) and a **template** (several lines, may be empty). The help text beneath the template reads: "The template is the starting structure of this artifact: the headings or fields its file must have. The agent fills them in. May be empty." Add, edit and remove.
+  - **Checks:** each is free text (required, non-blank), with no type and no threshold. Removed on its own row. With no checks the list reads "No checks yet."
+  - **Human approval:** a checkbox. Ticked, the process stops for a person at the end of this flow.
+  - **Footer:** **Delete flow**.
+- **Pipeline panel:** name; description; arguments (`feature-id` in the default pipeline; rows as above); model; tools; rule tags (rows with a dropdown listing the rules of Technical details, a minus button, and **+** in the title row); body (at most 1000 characters). The pipeline cannot be removed.
+- **Delete flow** removes the whole flow object: its artifacts, checks, approval and its `next`. A flow that pointed to it loses that `next`. The confirmation asks only "Are you sure you want to delete this flow?".
+- An edit that is refused keeps the saved value and shows the reason beneath the field. An add form shows what was typed.
 
-### 3.3 Flow tab
-- **Toolbox** (left, fixed width): **Start**, **Agent**, **Approval**, **Check**, **Connection**, **End**. Start is disabled when the flow has one, with the reason shown.
-- **Canvas** (centre): the flow's blocks as numbered boxes in order. The Start is first and the End is last. A Check has two labelled outputs, true and false.
-- **Connection** links two blocks of the same flow. Its ends can be repointed by dragging them to another block.
-- **Keyboard and touch path**: select a block and use **Link to next block** in its panel, then pick the target block.
-- **Move up** and **Move down** for the selected block.
-- **Properties panel** (right, fixed width): the selected block's properties, or the flow's when none is selected.
+### 3.3 Flow tab (F-12)
+- The flow tab holds the flow's **blocks only**. Approval, checks and artifacts are on the flow's panel, not here (`architecture.md` §6 decision 38).
+- Toolbox: **Start**, **Agent**, **End**. Start is disabled when the flow has one, with the reason shown. The Connection tool is not on this tab.
+- Blocks run in order. The Start is first and the End last. The tab is built in F-12; until then it shows the placeholder of screen 06.
+- **Move up** and **Move down** for the selected block. Delete asks first.
 
-### 3.4 Property panels and footer
-- Each panel shows the file the item generates and, where the item has them, its arguments.
-- Footer of a block or flow: **Delete**, which asks for confirmation and names the connections it removes. There is no switch-off: every block and flow is part of the process (architecture decision 34).
-- An edit that is refused keeps the saved value and shows the reason beneath the field.
-- A body (pipeline or flow) is at most **1000 characters**, counted in code points.
-
-### 3.5 Structure marks
-- A structural problem is shown beside the item it names, with its severity colour (blocker red, warning amber, info grey) and its message.
-- A problem whose item is not drawn (a block, or the pipeline as a whole) is listed under the Pipeline tab in a section "Not on a drawn item", with its message and path.
-- Brief problems (name, idea, stack, rules) are not shown on the pipeline; they appear at Analyze.
+### 3.4 Structure marks
+- A **blocker on a flow** (for example a flow with no link, `architecture.md` §12) is shown as a red border and light red background on the flow's box. Its message is shown as a notification at the **top centre** of the builder.
+- A **warning** is shown beside the item it names, with its message (amber).
+- A problem whose item is not drawn (a block inside a flow, or the pipeline as a whole) is listed under the canvas in a section **Not on a drawn item**, with its message and path.
+- Brief problems (name, idea, stack, rules) are not shown on the Pipeline tab; they appear at Analyze.
 - Marks never block an edit.
 
----
+## 4. Blocks and flow properties in the UI
 
-## 4. Blocks in the UI
-
-| Block | Added on | Properties | Generated as |
+| Item | Added on | Properties | Generated as |
 |---|---|---|---|
 | **Start** | Flow tab only (one per flow) | none | — |
-| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and the loop it runs in, as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1,000 characters**) | `.claude/agents/<name>.md` |
-| **Approval** | Pipeline tab (on an arrow between flows); flow tab (between blocks) | description (what the person approves). Stops and waits for a person. | A human-approval step in the command |
-| **Check** | Pipeline tab (on an arrow between flows); flow tab (between blocks) | description (what passing means; required); type (`checks` or `diff size`); threshold (diff size only, a positive whole number); true output and false output, each going to the next block, back to an earlier block (with an optional round limit), or stopping | A numbered rule in the command |
-| **Connection** | Pipeline tab (between flows); flow tab (between blocks) | artifact label (required, non-blank) | The hand-over named in the command |
-| **End** | Flow tab only (one or more) | outcome (`done` or `stopped`); produced artifact (optional) | The last step of the flow's command |
-| **Flow** | Pipeline tab, with **+** | name; description; arguments; model; body (at most **1,000 characters**) | `.claude/commands/<flow>.md` |
-| **Pipeline** | Pipeline tab (properties panel) | name; description; arguments (name, required or optional, hint; `feature-id` in the default pipeline); model; tools; rule tags; body (at most **1,000 characters**) | `.claude/commands/pipeline.md` |
+| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and the loop it runs in, as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1000 characters**) | `.claude/agents/<name>.md` |
+| **End** | Flow tab only (one or more) | outcome (`done` or `stopped`); produced artifact (optional; how it relates to the flow's outcome artifacts is for F-12 to settle) | The last step of the flow's command |
+| **Flow** | Pipeline tab, with **+** | id (file-safe, fixed); name (required, non-blank, unique); description (optional); arguments (optional); model; body (required, at most **1000 characters**); outcome artifacts; checks; Human approval; next (set by dragging, see §3.2) | `.claude/commands/<id>.md` |
+| **Outcome artifact** | Flow panel | label (one line, required, non-blank); template (several lines, may be empty) | The hand-over named in the flow's command |
+| **Check** | Flow panel | free text, required and non-blank; no type and no threshold | A numbered rule in the flow's command |
+| **Human approval** | Flow panel (a checkbox) | on or off. On: the process stops for a person at the end of the flow | A human-approval step at the end of the flow's command |
+| **Connection** | Pipeline tab (an arrow between two flows) | none editable: the source and target are shown read-only. It is the flow's `next` | The order of the flows (how the generator writes it is set in the parser plan) |
+| **Pipeline** | Pipeline tab (properties panel) | name; description; arguments (name, required or optional, hint; `feature-id` in the default pipeline); model; tools; rule tags; body (at most **1000 characters**) | `.claude/commands/pipeline.md` |
 
-- Every block has a stable id. A switched-off block or flow is not checked and not generated.
+- Every block and every flow is checked and generated. There is no switch-off (`architecture.md` decision 34).
 - A block's **arguments** explain it in text, including the loop it runs in (for example "for each task in `plan.md`").
+- Approval and Check are no longer blocks. They are properties of the flow (owner decision, 2026-11-18; `architecture.md` decision 38).
 
 ---
 
 ## 5. Interaction rules
-- **Selection**: one item at a time. Its properties show in the right panel.
-- **Adding**: a block is added after the selected block, or before the End when nothing is selected. The End stays last.
-- **Every drag has a button path.** Gates use **Add approval** and **Add check** on the arrow's panel; links use **Link to next block** on the block's panel.
-- **Refusals** are shown inline and keep the previous value.
+- **Selection:** one item at a time. Its properties show in the right panel.
+- **Adding a flow:** only with **+** on the tab row. **Adding a block:** a block is added after the selected block, or before the End when nothing is selected. The End stays last.
+- **Setting a next flow:** only by dragging a connection point onto another flow. There is no button path (owner decision, 2026-11-18; this replaces the button path of the earlier rules).
+- **Refusals** are shown inline and keep the previous value. A link refused for a second outgoing arrow, a loop or a self-link is refused with its reason on the canvas, and nothing is added.
 - **Delete** always asks for confirmation.
-- **Reversible**: switching off is undone by switching on.
+- **Structure marks never block an edit** (§3.4).
 
 ---
 
@@ -144,10 +147,15 @@ Two areas on the step:
 | Architecture | 5,000 characters (code points), optional |
 | Rule block name | 100 characters (code points), single line |
 | Rule block description | 1,000 characters |
-| Agent body | 1,000 characters |
-| Flow body | 1,000 characters |
-| Pipeline body | 1,000 characters |
+| Agent body | 1000 characters (code points) |
+| Flow body | 1000 characters (code points), required |
+| Pipeline body | 1000 characters (code points) |
+| Flow name | non-blank, unique among the flow names |
+| Check text | non-blank, required; no length limit is set in the decisions |
+| Artifact label | one line, non-blank, required |
 | Rule blocks | 60 |
+
+The body limit is written **1000** everywhere (owner decision, 2026-11-18). The parser counts code points.
 
 ---
 
@@ -169,10 +177,22 @@ Two areas on the step:
 | # | Item | Status |
 |---|---|---|
 | D1 | The **Demo** button | Decided 2026-11-16: not shown until the demo feature exists (post MVP, F-23). |
-| D2 | Body limit 1,000 characters for every body, agent bodies included | Decided 2026-11-16. |
-| D3 | Connection is a toolbox item on both tabs; ends can be repointed | Decided 2026-11-16. |
-| D4 | Start and End exist only on flow tabs; the pipeline's arguments are in its properties panel | Decided 2026-11-16. |
-| D5 | Approval and Check are different blocks; Check has true and false outputs | Decided 2026-11-16. |
-| D6 | No scope field; the loop (per feature, per task) is written in the arguments | Decided 2026-11-16. |
-| D7 | Desktop only | Decided 2026-11-16. |
-| D8 | Green means no blocker and no warning | Decided 2026-11-16. |
+| D2 | Body limit 1000 characters for every body, agent bodies included | Decided 2026-11-16; written **1000** everywhere from 2026-11-18. |
+| D3 | Connection is a toolbox item on both tabs; ends can be repointed | Superseded 2026-11-18: no toolbox item. An arrow is set and repointed by dragging only (D13). |
+| D4 | Start and End exist only on flow tabs; the pipeline's arguments are in its properties panel | Decided 2026-11-16; stands. |
+| D5 | Approval and Check are different blocks; Check has true and false outputs | Superseded 2026-11-18: Approval is a checkbox on the flow and Check is free text on the flow; no true or false output (`architecture.md` decision 38). |
+| D6 | No scope field; the loop (per feature, per task) is written in the arguments | Decided 2026-11-16; stands. |
+| D7 | Desktop only | Decided 2026-11-16; stands. |
+| D8 | Green means no blocker and no warning | Decided 2026-11-16; stands. |
+| D9 | A flow is one JSON object (id, name, description, arguments, model, body, blocks, artifacts, checks, approval, next); there is no connection object | Decided 2026-11-18 (`architecture.md` decision 38). |
+| D10 | The pipeline is linear (at most one `next` per flow); a link that closes a loop is refused with its reason | Decided 2026-11-18 (`architecture.md` decision 38). |
+| D11 | A flow requires a name and a body; a flow must be connected unless the pipeline has one flow | Decided 2026-11-18 (`architecture.md` decision 39). |
+| D12 | Arrows show no label; artifacts, checks and approval are in the flow's panel; the connection panel is read-only | Decided 2026-11-18. |
+| D13 | `next` is set only by dragging the right connection point of a flow onto the left one of another flow; no button, no field, no toolbox | Decided 2026-11-18. |
+| D14 | The Pipeline tab has no toolbox; gates are not dropped on arrows | Decided 2026-11-18. |
+| D15 | Delete flow removes the whole flow; the flows that pointed to it lose that `next`; the confirmation asks "Are you sure you want to delete this flow?" | Decided 2026-11-18. |
+| D16 | A flow with a blocker is red (border and light red background); the message is a notification at the top centre of the builder; "Not on a drawn item" stays a list under the canvas | Decided 2026-11-18. |
+| D17 | Layout after the Material Kit look (MIT, attribution in §3.0 and `architecture.md` §5); arguments and rule tags as rows with a minus button and **+** in the title row | Decided 2026-11-18. |
+| D18 | Checks: "No checks yet." when a flow has none; a new flow is `flow-N` with its name starting as its id | Decided 2026-11-18. |
+| D19 | Screens: 10 screens, numbered 01 to 10 (`spec/design/features/F-11-pipeline-builder/screens.md`) | Decided 2026-11-18. |
+| D20 | The `Connect to next flow` button, the next-flow field, the Connection tool and the picker of the earlier screens | Removed 2026-11-18 (D13). |

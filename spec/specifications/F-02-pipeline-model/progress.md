@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 17 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 18 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -42,6 +42,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T015 | Rule tags name rules of the project (`pipeline/check/rule-tags.ts`); with the Amendment of 2026-11-19 | 0 blockers open; one test removed (could not fail); index amendment applied; 547 core tests | task check passed: api 6, web 4, core 547 |
 | T016 | End names an artifact of its flow (`pipeline/check/end-artifact.ts`) | 0 blockers, 0 open warnings; 1 warning fixed (document-index tests); 1 suggestion deferred (empty value message) | task check passed: api 6, web 4, core 559 |
 | T017 | Default pipeline as data, imported, with its tests (`templates/pipeline/default.json`, `pipeline/default.ts`) | 0 open warnings; build check moved before the commit (owner option 2, Amendment 2026-11-19) | task check passed: api 6, web 4, core 577 |
+| T018 | Public namespace and the purity scan (`pipeline/index.ts`, core `index.ts`, `purity.test.ts`) | 0 blockers; 5 warnings and 2 suggestions fixed (globalThis, require, element access, scan fixtures, AC-089 test) | task check passed: api 6, web 4, core 586 |
 
 ---
 

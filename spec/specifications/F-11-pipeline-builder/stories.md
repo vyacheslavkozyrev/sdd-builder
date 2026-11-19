@@ -224,3 +224,13 @@ New criteria for the amendment:
 - **Repoint by drag only.** The arrow's end is moved by dragging it (AC-015 as drawn); no picker in the panel.
 - **Empty artifacts.** A new connection's artifact list is empty; no empty-state line is drawn.
 - **Model.** Open: the stored model keeps one label and one gate per connection (`architecture.md` §6 decision 33). Multiple artifacts and multiple checks need a change to the stored model. Not decided.
+
+---
+
+## Decision 2026-11-18 (owner): artifacts, checks and approval belong to the flow
+
+- **A connection only points one flow to another.** It carries no artifacts, no checks and no approval. Its properties show the source and target only (already drawn); it has no fields to edit.
+- **A flow has outcome artifacts (multiple).** Each artifact has a `label` (one line, required, non-blank) and a `template` (several lines, may be empty). The flow's properties list them: add, edit and remove. This replaces the artifacts of the connection in AC-043 and AC-044.
+- **A flow has checks (multiple).** "Add check" in the flow's properties adds one check, as in AC-046; each check is removed on its own row.
+- **A flow has a "Human approval" checkbox.** Owner assumption, to be confirmed on the screens: the approval moves with the checks and sits on the flow, as AC-045 says for the connection.
+- **Model (decision needed to implement).** The stored model changes: a flow holds `artifacts`, `checks` and `approval`; a connection holds only its target. This supersedes `architecture.md` §6 decision 33 for the connection's label and gate. Recorded for approval before any code.

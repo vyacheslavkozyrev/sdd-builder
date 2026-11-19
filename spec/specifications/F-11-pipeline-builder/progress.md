@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-17 | 8 stories, 42 criteria: 37 `[auto]`, 5 `[device]`; approved by the user |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; two owner decisions applied (new connections by drag from the Connection tool; a refused value reverts to the saved value) |
-| Plan     | ✅ Complete | 2026-11-17 | Approved by the user before any code is written (18 tasks; two open points decided: flow name free text with a fixed file-safe id; a second arrow from a flow refused) |
-| Build    | 🔄 In Progress | 2026-11-17 | 21 of 21 tasks committed (T019 and T020 added at Verify) |
+| Plan     | ⏳ Pending  | 2026-11-18 | Regenerated for the 2026-11-18 model and screens (redo requested by the owner); awaiting approval. Prerequisites: F-02 and F-03 amendments |
+| Build    | ⏳ Pending | 2026-11-18 | 21 tasks of the earlier plan are committed on the old model; the regenerated plan is not approved yet |
 | Verify   | ⏳ Pending  | 2026-11-17 | AWAITING CONFIRMATION (re-run after T019 and T020): 37 of 37 `[auto]` covered, no gaps; 1700 tests passed; manual checklist in `checklist.md` (AC-006, AC-008, AC-011, AC-012, AC-022, AC-024) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

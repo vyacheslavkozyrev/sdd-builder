@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1236" viewBox="0 0 1280 1236">
+<defs>
+<filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter>
+<clipPath id="canvasClip"><rect x="284" y="80" width="680" height="912" rx="12"/></clipPath>
+<marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker>
+<marker id="arrS" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker>
+</defs>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");
+text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#32383E}
+.brand{font-size:18px;font-weight:500}
+.onP{fill:#FFFFFF;font-weight:500;font-size:13px}
+.btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
+.navT{font-size:13px;font-weight:500}
+.h2{font-size:14px;font-weight:500}
+.bold{font-size:12px;font-weight:500}
+.muted{font-size:12px;fill:#636B74}
+.small{font-size:11px;fill:#636B74}
+.caption{font-size:11px;fill:#636B74}
+.tabT{fill:#32383E;font-size:12px}
+.plus{font-size:16px;font-weight:500;fill:#32383E}
+.label-done{font-size:12px;font-weight:500;fill:#0E9382}
+.label-cur{font-size:13px;font-weight:500;fill:#635BFF}
+.label-todo{font-size:12px;font-weight:500;fill:#636B74}
+.num{font-size:12px;font-weight:500;fill:#FFFFFF}
+.num-todo{font-size:12px;font-weight:500;fill:#636B74}
+.check{font-size:13px;font-weight:500;fill:#FFFFFF}
+.div{stroke:#DDE7EE;stroke-width:1}
+.card{fill:#FFFFFF;stroke:#DDE7EE}
+.btnP{fill:#635BFF}
+.btn{fill:#FFFFFF;stroke:#CDD7E1}
+.tab{fill:#FFFFFF;stroke:#DDE7EE}
+.tabOn{fill:#635BFF}
+.ring{fill:none;stroke:#DDE3FF;stroke-width:4}
+.node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
+.node-cur{fill:#635BFF}
+.line-todo{stroke:#CDD7E1;stroke-width:2}
+.line-done{stroke:#15B79F;stroke-width:2}
+.field{fill:#FFFFFF;stroke:#CDD7E1}
+.chip{fill:#F0F4F8;stroke:#CDD7E1}
+.box{fill:#FBFCFE;stroke:#CDD7E1}
+.node{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
+.line{stroke:#636B74;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+.thumb{fill:#9FA6AD}
+.lineSel{stroke:#635BFF;stroke-width:2.5;fill:none;marker-end:url(#arrS)}
+.handle{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
+.btnDanger{fill:#F04438}
+.btnT{font-size:11px;fill:#32383E}
+.bt-primary{fill:#FFFFFF;font-weight:500}
+.tiny{font-size:10px;fill:#636B74}
+.chkOn{fill:#635BFF;stroke:#635BFF;stroke-width:1.5}
+.tick{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nodeSel{fill:#ECF0FF;stroke:#635BFF;stroke-width:2.5}
+.dim{fill:#32383E;opacity:0.35}
+.dialog{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1}
+.dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
+.btnTxt{font-size:13px;font-weight:500;fill:#32383E}
+.markRed{fill:#FEF3F2;stroke:#F04438}
+.errT{font-size:11px;fill:#DE3024}
+.chkBox{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
+.thumb{fill:#9FA6AD}
+.nodeMark{fill:#FEF3F2;stroke:#F04438;stroke-width:2.5}
+.fieldErr{fill:#FEF3F2;stroke:#F04438;stroke-width:1.5}
+.link{fill:#635BFF;font-size:11px;font-weight:500}
+.chkOn{fill:#635BFF;stroke:#635BFF;stroke-width:1.5}
+.tick{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btnDanger{fill:#F04438}
+</style>
+<rect width="1280" height="1236" fill="#F0F4F8"/>
+
+<!-- Left panel -->
+<rect x="0" y="0" width="260" height="1236" fill="#FFFFFF"/>
+<rect x="259" y="0" width="1" height="1236" fill="#DDE7EE"/>
+<rect x="24" y="24" width="24" height="24" rx="6" fill="#635BFF"/>
+<text x="58" y="42" class="brand">SDDBuilder</text>
+<rect x="24" y="72" width="212" height="40" rx="8" class="btnP"/>
+<text x="130" y="97" class="btnText" text-anchor="middle">New project</text>
+
+<!-- Vertical stepper -->
+<line x1="40" y1="176" x2="40" y2="216" class="line-done"/>
+<line x1="40" y1="240" x2="40" y2="280" class="line-done"/>
+<line x1="40" y1="304" x2="40" y2="344" class="line-todo"/>
+<circle cx="40" cy="164" r="12" fill="#15B79F"/><text class="check" x="40" y="168.5" text-anchor="middle">✓</text>
+<text class="label-done" x="64" y="168">Project</text>
+<circle cx="40" cy="228" r="12" fill="#15B79F"/><text class="check" x="40" y="232.5" text-anchor="middle">✓</text>
+<text class="label-done" x="64" y="232">Technical details</text>
+<circle class="ring" cx="40" cy="292" r="18"/><circle class="node-cur" cx="40" cy="292" r="12"/>
+<text class="num" x="40" y="296.5" text-anchor="middle">3</text>
+<text class="label-cur" x="64" y="296">Workflow</text>
+<circle class="node-todo" cx="40" cy="356" r="12"/><text class="num-todo" x="40" y="360.5" text-anchor="middle">4</text>
+<text class="label-todo" x="64" y="360">Analyze and generate</text>
+
+<!-- Prev / Next -->
+<g><title>Prev: go to the previous step</title><rect class="btn" x="24" y="1164" width="100" height="40" rx="8"/><text class="navT" x="74" y="1188" text-anchor="middle">Prev</text></g>
+<g><title>Next: go to the next step</title><rect class="btnP" x="136" y="1164" width="100" height="40" rx="8"/><text class="btnText" x="186" y="1188" text-anchor="middle">Next</text></g>
+
+<rect x="284" y="24" width="85.2" height="32" rx="8" class="tabOn"/><text x="297" y="44" class="onP">Pipeline</text><rect x="377.2" y="24" width="77.8" height="32" rx="8" class="tab"/><text x="390.2" y="44" class="tabT">specify</text><rect x="463" y="24" width="60" height="32" rx="8" class="tab"/><text x="476" y="44" class="tabT">ux</text><rect x="531" y="24" width="60" height="32" rx="8" class="tab"/><text x="544" y="44" class="tabT">plan</text><rect x="599" y="24" width="63" height="32" rx="8" class="tab"/><text x="612" y="44" class="tabT">build</text><rect x="670" y="24" width="70.4" height="32" rx="8" class="tab"/><text x="683" y="44" class="tabT">verify</text><rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="761.4" y="44" class="tabT">complete</text><rect x="841.6" y="24" width="34" height="32" rx="8" class="btn"/><text x="852.6" y="45" class="plus">+</text><rect x="284" y="80" width="680" height="1088" rx="12" class="card" filter="url(#sh)"/><text x="308" y="112" class="h2">Pipeline</text><text x="308" y="130" class="small">Flows in pipeline order, left to right. Select a flow to edit its artifacts, checks and Human approval.</text><g clip-path="url(#canvasClip)"><rect x="308" y="380" width="80" height="76" rx="8" class="node"/><text x="318" y="406" class="bold">specify</text><text x="318" y="426" class="small">3 blocks</text><rect x="418" y="380" width="80" height="76" rx="8" class="node"/><text x="428" y="406" class="bold">ux</text><text x="428" y="426" class="small">3 blocks</text><rect x="528" y="380" width="80" height="76" rx="8" class="nodeSel"/><text x="538" y="406" class="bold">plan</text><text x="538" y="426" class="small">3 blocks</text><rect x="638" y="380" width="80" height="76" rx="8" class="node"/><text x="648" y="406" class="bold">build</text><text x="648" y="426" class="small">9 blocks</text><rect x="748" y="380" width="80" height="76" rx="8" class="node"/><text x="758" y="406" class="bold">verify</text><text x="758" y="426" class="small">3 blocks</text><rect x="858" y="380" width="80" height="76" rx="8" class="node"/><text x="868" y="406" class="bold">complete</text><text x="868" y="426" class="small">3 blocks</text><line x1="388" y1="418" x2="418" y2="418" class="line"/><line x1="498" y1="418" x2="528" y2="418" class="line"/><line x1="608" y1="418" x2="638" y2="418" class="line"/><line x1="718" y1="418" x2="748" y2="418" class="line"/><line x1="828" y1="418" x2="858" y2="418" class="line"/></g><rect x="984" y="80" width="272" height="1088" rx="12" class="card" filter="url(#sh)"/><text x="1008" y="118" class="h2">Flow: plan</text><text x="1008" y="136" class="small">Generates .claude/commands/plan.md</text><text x="1008" y="176" class="muted">Name</text><rect x="1008" y="188" width="224" height="40" rx="8" class="field"/><text x="1020" y="213">plan</text><text x="1008" y="264" class="muted">Description</text><rect x="1008" y="276" width="224" height="40" rx="8" class="field"/><text x="1020" y="301">Turns the spec into a plan</text><text x="1008" y="352" class="bold">Arguments</text><rect x="1208" y="340" width="24" height="24" rx="8" class="btn"/><text x="1220" y="357" class="plus" text-anchor="middle">+</text><text x="1008" y="400" class="muted">Model</text><rect x="1008" y="412" width="224" height="40" rx="8" class="field"/><text x="1020" y="437">inherit</text><text x="1218" y="437" class="plus" text-anchor="middle">&#9662;</text><text x="1008" y="488" class="muted">Body</text><rect x="1008" y="500" width="224" height="80" rx="8" class="box"/><text x="1020" y="520" class="small">Writes plan.md from the approved spec.</text><text x="1020" y="536" class="small">Lists the tasks in order.</text><text x="1008" y="600" class="small">58 / 1000 characters</text><text x="1008" y="640" class="bold">Outcome artifacts</text><rect x="1208" y="628" width="24" height="24" rx="8" class="btn"/><text x="1220" y="645" class="plus" text-anchor="middle">+</text><text x="1008" y="672" class="muted">Label</text><rect x="1008" y="684" width="192" height="40" rx="8" class="fieldErr"/><text x="1020" y="709">plan.md</text><rect x="1208" y="692" width="24" height="24" rx="8" class="btn"/><text x="1220" y="709" class="plus" text-anchor="middle">&#8722;</text><text x="1008" y="740" class="errT">Refused: the label is required.</text><text x="1008" y="776" class="muted">Template</text><rect x="1008" y="788" width="224" height="80" rx="8" class="field"/><text x="1020" y="808">Task list, in order</text><text x="1008" y="888" class="small">The template is the starting</text><text x="1008" y="904" class="small">structure of this artifact: the</text><text x="1008" y="920" class="small">headings or fields its file must</text><text x="1008" y="936" class="small">have. The agent fills them in.</text><text x="1008" y="952" class="small">May be empty.</text><text x="1008" y="988" class="bold">Checks (0)</text><rect x="1208" y="976" width="24" height="24" rx="8" class="btn"/><text x="1220" y="993" class="plus" text-anchor="middle">+</text><text x="1008" y="1020" class="small">No checks yet.</text><rect x="1008" y="1048" width="16" height="16" rx="3" class="chkOn"/><path class="tick" d="M1011.5 1056 L1014.5 1059 L1020 1053"/><text x="1032" y="1060" class="small">Human approval: the process stops</text><text x="1032" y="1076" class="small">here for a person.</text><rect x="1008" y="1104" width="130" height="40" rx="8" class="btnDanger"/><text x="1073" y="1129" class="bt-primary" text-anchor="middle">Delete flow</text><text x="1146" y="1129" class="small">Asks first</text><text x="284" y="1201" class="muted">The work is not saved. It is lost when the browser is refreshed.</text><text x="1256" y="1201" class="caption" text-anchor="end">F-11 · screen 10 · step 3 of 4 · 1280 × 1236</text></svg>

@@ -261,3 +261,11 @@ New criteria for the amendment:
 
 - **No next-flow field on the flow panel.** The flow's next flow is set only by dragging a connection point of one flow onto another flow (AC-012, connection points). The "Connect to next flow" button path of AC-014 is removed; the Connection tool drag is removed too (the decision of 2026-11-18 already removed the toolbox).
 - **Read-only text of the next flow** may stay only where the flow is shown as a link (for example the "Next flow" line on a flow that already has one), not as an editable field. Screen 03 drops it.
+
+---
+
+## Decision 2026-11-18e (owner): required attributes of a flow; a flow must be connected
+
+- **A flow's required attributes are its name and its body.** Description and arguments are optional.
+- **A flow must be connected**: it has an incoming or an outgoing link to another flow. The only exception is a pipeline with one flow.
+- **Structure marks (AC-035 to AC-037)**: the blocker for a flow with no link is shown on the flow's box when the pipeline has more than one flow. The "no End block" example of screen 06 is no longer a use case and the screen is removed.

@@ -18,7 +18,7 @@ Content area: x 260–1280 (grey #F0F4F8). The white card sits at x 284–1256 (
 
 Footer note and caption sit inside the grey area, 24 px below the card: note at x 284, caption right-aligned at x 1256, baseline y 766, as F-07.
 
-Done and to-do states use the F-07 colours with one addition: the done node is a success green #1F9D6B with a white check mark (a stroke path, not a glyph); the done label is #1F7A55 (about 5.4:1 on white). This colour is new to the F-07 palette; see Decision 6.
+Done and to-do states use the F-07 colours with one addition from the Material Kit palette (kepple, the green of the F-11 reference): the done node is kepple 500 #15B79F with a white check mark (a stroke path, not a glyph); the done label is kepple 600 #0E9382 (3.8:1 on white, below the 4.5:1 for 12 px text; see the owner decision of 2026-11-18). This colour is new to the F-07 palette; see Decision 6.
 
 ## Screens
 
@@ -44,8 +44,8 @@ Criteria with no screen are not visual and are proved by tests:
 3. **Next is shown disabled on step 4.** It keeps its place so the foot of the panel does not move; it is grey and cannot be pressed (AC-007).
 4. **The content area is a slot for the step body.** The card fills the grey area beside the panel, from the top to the footer note. All step content sits on the white card; there is no inner coloured container (change of 2026-11-17).
 5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 was amended on 2026-11-17 to match (see the note below).
-6. **Colour roles.** Violet (#635BFF, the F-07 primary) is the brand, the current step, and the primary button. Success green (#1F9D6B node, #1F7A55 label) marks done steps; it is the one colour added to the F-07 palette for this feature, and the check mark on it is a graphic, not text. To-do labels are #636B74 (F-07 secondary text). Grey (#F0F4F8 fill, #9FA6AD text, #DDE7EE outline) is for to-do nodes, disabled buttons and the disabled Next. Owner to confirm the green (see Open points).
-7. **New project is the F-07 control and is unchanged on every screen.** It is the primary button at the top of the left panel and starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07 (open point 1 of F-07).
+6. **Colour roles.** Violet (#635BFF, the F-07 primary) is the brand, the current step, and the primary button. Success green (kepple 500 #15B79F node, kepple 600 #0E9382 label, both from the Material Kit palette) marks done steps; it is the one colour added to the F-07 palette for this feature, and the check mark on it is a graphic, not text (white on #15B79F is 2.5:1, a graphic below the 3:1 guide; see Open points). To-do labels are #636B74 (F-07 secondary text). Grey (#F0F4F8 fill, #9FA6AD text, #DDE7EE outline) is for to-do nodes, disabled buttons and the disabled Next. Owner to confirm the green (see Open points).
+7. **New project is the F-07 control and is unchanged on every screen, except its style.** It is the secondary button at the top of the left panel (white fill, 1 px #CDD7E1 border, #32383E text, 8 px radius; owner decision of 2026-11-18) and starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07 (open point 1 of F-07).
 
 ## Restyle checks (2026-11-18)
 
@@ -69,20 +69,20 @@ Reviewed 2026-11-17 against `stories.md` and the owner decisions of that date (o
 
 **Open points for the user (from 2026-11-17, still open)**
 
-1. **Button name: "Back" or "Prev".** The request says Back; the stories (AC-004 to AC-008), `features.md` F-08 and `ui.md` §1.3 name the button Prev. The screens keep Prev. Options: (a) keep Prev (current); (b) rename to Back and change the names in `features.md`, `ui.md` and `stories.md`, then the labels in the SVGs.
+1. **Button name: "Back" or "Prev".** Resolved 2026-11-18 by the owner: the buttons are named Prev and Next (no Back). Every screen uses these labels.
 2. **Placeholder line visible to users.** AC-013 requires the line "The content of this step is added in a later feature." It shows to end users if the build ships before F-09 to F-13 replace it. Options: (a) keep it until each step has content (current plan); (b) add a build-only switch that hides it in production (needs an AC-013 change).
-3. **Two filled primary buttons per screen.** New project is a violet filled button at the top of the panel; Next is a violet filled button at the foot of the panel. Both are primary in the same panel. Options: (a) keep both (current); (b) make New project an outline button, which changes the approved F-07 frame.
+3. **Two filled primary buttons per screen.** Resolved 2026-11-18 by the owner: New project is a secondary button; Next is the only primary button in the panel. The screens show this.
 
 ## Visual review
 
-Reviewed 2026-11-17 on the previous horizontal layout. Six findings, all changed in the SVGs; no blocker. Findings V-01 to V-06 are superseded by the restyle of 2026-11-18, which uses the F-07 colours and grid; V-01 (to-do label contrast) and V-04 (check mark contrast) still hold in the new colours: the to-do label is #636B74 on white, and the check is white on #1F9D6B.
+Reviewed 2026-11-17 on the previous horizontal layout. Six findings, all changed in the SVGs; no blocker. Findings V-01 to V-06 are superseded by the restyle of 2026-11-18, which uses the F-07 colours and grid; V-01 (to-do label contrast) and V-04 (check mark contrast) still hold in the new colours: the to-do label is #636B74 on white, and the check is white on #15B79F.
 
 | # | Finding | Severity | Screen | What changed |
 |---|---|---|---|---|
 | V-01 | To-do step labels were light grey (#94a3b8) on the pale background, about 2.5:1 for 12 px text | major | 01, 02, 03 | Superseded 2026-11-18: to-do labels are #636B74 on white |
 | V-02 | The stepper row sat 20 px left of the card centre | minor | 01, 02, 03, 04 | Superseded 2026-11-18: the stepper is vertical in the panel |
 | V-03 | The disabled Prev caption (#94a3b8) was about 2.5:1 | minor | 01 | Superseded 2026-11-18: the disabled Prev text is #9FA6AD on #F0F4F8, shown as a disabled button. Owner may ask for a darker value (see Open points) |
-| V-04 | The white check on the emerald done node was about 2.5:1 | minor | 02, 03, 04 | Superseded 2026-11-18: the check is a graphic on #1F9D6B |
+| V-04 | The white check on the emerald done node was about 2.5:1 | minor | 02, 03, 04 | Superseded 2026-11-18: the check is a graphic on #15B79F |
 | V-05 | The accent rule's square ends stood out past the card's rounded corners | minor | 01, 02, 03, 04 | Superseded 2026-11-18: the accent rule is removed; the card follows the F-07 frame |
 | V-06 | The style and defs blocks differed between the screens | minor | 01, 02, 03, 04 | Kept: the same style block and defs on all four screens |
 

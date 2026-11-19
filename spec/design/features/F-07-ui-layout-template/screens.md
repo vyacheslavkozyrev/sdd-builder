@@ -8,7 +8,7 @@ Restyle of 2026-11-18: the header bar is replaced by the left panel of F-11 scre
 
 ## Layout grid
 
-Left panel: x 0–260 (white, 1 px border #DDE7EE at x 259). Inside it, 24 px gutters: wordmark row at y 24–48 (logo square 24 × 24 at x 24, wordmark at x 58); New project at x 24–236, y 72–112; stepper from y 146 (step 1 ring) to y 368; Prev at x 24–124 and Next at x 136–236, both 40 px high.
+Left panel: x 0–260 (white, 1 px border #DDE7EE at x 259). Inside it, 24 px gutters: wordmark row at y 24–48 (logo square 24 × 24 at x 24, wordmark at x 58); New project at x 24–236, y 72–112 (secondary button: white fill, 1 px #CDD7E1 border, #32383E text, 8 px radius; owner decision of 2026-11-18); stepper from y 146 (step 1 ring) to y 368; Prev at x 24–124 and Next at x 136–236, both 40 px high.
 
 Content area: x 260–1280 (grey #F0F4F8). The white card sits at x 284–1256 (24 px from the panel edge and from the right window edge), y 24–728 at 1280 × 800. The footer note and caption sit inside the grey area, 24 px below the card: note at x 284, caption right-aligned at x 1256, baseline y 766.
 

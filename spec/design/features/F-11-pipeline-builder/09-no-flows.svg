@@ -12,6 +12,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .brand{font-size:18px;font-weight:500}
 .onP{fill:#FFFFFF;font-weight:500;font-size:13px}
 .btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
+.btnDark{font-size:14px;font-weight:500;fill:#32383E}
 .navT{font-size:13px;font-weight:500}
 .h2{font-size:14px;font-weight:500}
 .bold{font-size:12px;font-weight:500}
@@ -69,8 +70,8 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 <rect x="259" y="0" width="1" height="1000" fill="#DDE7EE"/>
 <rect x="24" y="24" width="24" height="24" rx="6" fill="#635BFF"/>
 <text x="58" y="42" class="brand">SDDBuilder</text>
-<rect x="24" y="72" width="212" height="40" rx="8" class="btnP"/>
-<text x="130" y="97" class="btnText" text-anchor="middle">New project</text>
+<rect x="24" y="72" width="212" height="40" rx="8" class="btn"/>
+<text x="130" y="97" class="btnDark" text-anchor="middle">New project</text>
 
 <!-- Vertical stepper -->
 <line x1="40" y1="176" x2="40" y2="216" class="line-done"/>

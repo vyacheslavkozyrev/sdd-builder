@@ -1,28 +1,33 @@
 # UX screens — Wizard stepper (F-08)
 
-Scope: the wizard stepper (four steps, not clickable, with done, current and to-do states), the round Prev and Next buttons beside it, and the step body that fills the centre area, shown for each of the four steps. Desktop only. Wireframes in SVG: layout and content; colours and wording are placeholders. The header and footer are the F-07 frame, drawn unchanged.
+Scope: the wizard stepper (four steps, not clickable, with done, current and to-do states) in the left panel, vertical, under New project; the Prev and Next buttons at the foot of the left panel; and the step body (a placeholder card) in the grey content area, shown for each of the four steps. Desktop only. Wireframes in SVG: layout and content; colours and wording are placeholders. The left panel, the content area and the footer note are the F-07 frame (`spec/design/features/F-07-ui-layout-template/`), and the screens follow its approved left-panel restyle.
 
-Stories: `spec/specifications/F-08-wizard-stepper/stories.md` (15 criteria: 14 `[auto]`, 1 `[device]`).
+Stories: `spec/specifications/F-08-wizard-stepper/stories.md` (15 criteria: 14 `[auto]`, 1 `[device]`). AC-004 and AC-015 still fix the horizontal layout; see "Stories conflict" below.
+
+Restyle of 2026-11-18: the stepper row above the card is replaced by the vertical stepper in the left panel, and Prev and Next move to the foot of the panel. The screens use the F-07 frame: Inter, Material Kit colours (primary #635BFF, page #F0F4F8, text #32383E, secondary text #636B74, borders #DDE7EE and #CDD7E1), a white card with a soft shadow and 12 px radius, 8 px radius for controls, the 8 px grid.
 
 ## Layout grid
 
-- **Header** 0–56, as F-07 (wordmark at x 24; New project at x 1120–1256 at 1280 wide).
-- **Stepper row** on the page background, outside any card, y 80–140. It is centred on y 100:
-  - Prev: round button, centre (72, 100), radius 20 (x 52–92). Left of the stepper.
-  - Next: round button, centre (1208, 100), radius 20 (x 1188–1228). Right of the stepper. Disabled (grey) on step 4.
-  - Four step nodes on y 100, centres at x 220, 500, 780 and 1060, radius 12. The row is centred on x 640, so the gap from Prev to the first node and from the last node to Next is the same (110 px each side). The current step has a ring of radius 18 around it. Labels sit centred under each node on y 132.
-  - Connecting lines on y 100 run from 22 px right of one node to 22 px left of the next (x 242–478, 522–758, 802–1038).
-- **Step card** x 24–1256, y 152–736. It fills the centre area in full width, from 16 px below the stepper row to 16 px above the footer. Inside: a coloured accent rule across the top (y 152–158, clipped to the card's rounded corners). All content sits directly on the white card: the placeholder sparkle (centre 640, 410) and the placeholder line (y 490). No step pill, no title and no inner container; the stepper above names the step (change of 2026-11-17).
-- **Footer** 752–800, as F-07 (note at x 24).
+Left panel: x 0–260 (white, 1 px border #DDE7EE at x 259), as F-07. Inside it, 24 px gutters:
+
+- Wordmark row at y 24–48, New project at x 24–236, y 72–112 (as F-07).
+- **Vertical stepper** at x 40 (node centres), from step 1 at y 164 to step 4 at y 356, a 64 px pitch. Nodes have radius 12; the current step has a ring of radius 18. Labels start at x 64 on the node's centre line (baseline cy + 4). Connecting lines of 2 px run between the nodes, from 20 px below one node's centre to 20 px above the next (y 184–208, 248–272, 312–336), so they clear the current step's ring.
+- **Prev** at x 24–124, y 728–768, and **Next** at x 136–236, y 728–768, both 100 × 40 with 8 px radius and their words inside. They sit at the foot of the panel, 32 px above the bottom edge.
+
+Content area: x 260–1280 (grey #F0F4F8). The white card sits at x 284–1256 (24 px from the panel edge and from the right window edge), y 24–728 at 1280 × 800. The step body is a placeholder inside the card: a sparkle mark in a light circle (centre 770, 340, radius 44) and the placeholder line (baseline y 410). No title, no step pill and no inner container: the stepper in the left panel names the step (change of 2026-11-17).
+
+Footer note and caption sit inside the grey area, 24 px below the card: note at x 284, caption right-aligned at x 1256, baseline y 766, as F-07.
+
+Done and to-do states use the F-07 colours with one addition: the done node is a success green #1F9D6B with a white check mark (a stroke path, not a glyph); the done label is #1F7A55 (about 5.4:1 on white). This colour is new to the F-07 palette; see Decision 6.
 
 ## Screens
 
 | # | File | What it shows | Criteria it proves | States shown |
 |---|---|---|---|---|
-| 01 | `01-step-project.svg` | Step 1 of 4: Project current; the other three steps to do; Prev disabled (grey) on the left; Next shown on the right; card with the placeholder line | AC-001, AC-002 (step 1), AC-003, AC-004 (Prev and Next beside the stepper, body below), AC-005 (Prev disabled on step 1), AC-013, AC-014, AC-015 (device), AC-012 (New project in the header) | Step 1: Prev disabled, Next enabled, no done step |
+| 01 | `01-step-project.svg` | Step 1 of 4: Project current; steps 2 to 4 to do; Prev disabled, Next enabled at the foot of the panel; card with the placeholder line | AC-001, AC-002 (step 1), AC-004 (Prev and Next in the panel, body in the content area), AC-005 (Prev disabled on step 1), AC-013, AC-015 (device), AC-012 (New project above the stepper) | Step 1: Prev disabled, Next enabled, no done step |
 | 02 | `02-step-technical-details.svg` | Step 2 of 4: Project done (check mark); Technical details current; Workflow and Analyze and generate to do; Prev and Next enabled | AC-002 (step 2), AC-005 (Prev enabled on step 2), AC-006 (Next from step 2), AC-008 (Prev goes back), AC-013 | Step 2: one done step, Prev enabled, Next enabled |
 | 03 | `03-step-workflow.svg` | Step 3 of 4: Project and Technical details done; Workflow current; Analyze and generate to do; Prev and Next enabled | AC-002 (step 3), AC-006 (Next from step 3), AC-013 | Step 3: two done steps, Prev enabled, Next enabled |
-| 04 | `04-step-analyze-generate.svg` | Step 4 of 4: Project, Technical details and Workflow done; Analyze and generate current; Prev enabled; Next shown disabled (grey, as Prev on step 1) | AC-002 (step 4), AC-005 (Prev enabled on step 4), AC-007 (Next not rendered on step 4), AC-013 | Step 4: three done steps, Prev enabled, Next disabled |
+| 04 | `04-step-analyze-generate.svg` | Step 4 of 4: Project, Technical details and Workflow done; Analyze and generate current; Prev enabled; Next shown disabled (grey, as Prev on step 1) | AC-002 (step 4), AC-005 (Prev enabled on step 4), AC-007 (Next disabled on step 4), AC-013 | Step 4: three done steps, Prev enabled, Next disabled |
 
 Criteria with no screen are not visual and are proved by tests:
 
@@ -34,47 +39,67 @@ Criteria with no screen are not visual and are proved by tests:
 
 ## Decisions these screens take
 
-1. **The stepper shows state without controls.** A step is a node and a label, with no button or link. Done steps show a check mark on a green gradient node and a green label; the current step has an indigo node with a soft ring and a bold label; to-do steps are white nodes with a grey outline and a light grey label. Shape and text carry the state, not colour alone. Navigation is by Prev and Next only (AC-003, `ui.md` §1.3).
-2. **Prev and Next are round icon buttons beside the stepper, on one row with it, each with its word under it.** Prev, with a left arrow and the caption "Prev", is on the left; Next, with a right arrow and the caption "Next", is on the right (the user's request). Prev is a white round button with an indigo outline when enabled and a grey disabled button on step 1. Next is a filled indigo-violet round button. The buttons sit outside the card, so the stepper is no longer inside a container.
-3. **Next is shown disabled on step 4.** It keeps its place so the row does not move; it is grey and cannot be pressed (AC-007).
-4. **The card fills the centre area.** It spans the full width and all the height between the header and the footer, so no space is left unused (the user's request). All step content sits on the white card; there is no inner coloured container (change of 2026-11-17).
-5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 was amended on the same day to match (see the note below).
-6. **Colour roles.** Indigo (#4f46e5) and violet (#7c3aed) are the brand and the current step and the primary buttons. Emerald to teal (#059669 to #0d9488) marks done steps; the white check on it reaches about 3.8:1. To-do labels are slate (#475569), not light grey, so they stay readable. The accent rule runs indigo, violet, pink. The page has a soft indigo-to-white background; the card has a soft indigo shadow. Grey is for to-do and disabled states only.
-7. **New project is the F-07 header control and is unchanged on every screen.** It starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07. Its colour is the F-07 blue; the header and footer are not restyled in this change.
+1. **The stepper shows state without controls.** A step is a node and a label, with no button or link. Done steps show a check mark on a green node and a green label; the current step has a violet node with a soft ring and a violet label; to-do steps are white nodes with a grey outline and a grey label. Shape and text carry the state, not colour alone. Navigation is by Prev and Next only (AC-003, `ui.md` §1.3).
+2. **The stepper is vertical in the left panel, under New project.** It is the same panel as F-07 and holds no other control. Prev and Next are at the foot of the panel, each with its word inside the button (the restyle of 2026-11-18 replaces the round icon buttons beside a horizontal stepper).
+3. **Next is shown disabled on step 4.** It keeps its place so the foot of the panel does not move; it is grey and cannot be pressed (AC-007).
+4. **The content area is a slot for the step body.** The card fills the grey area beside the panel, from the top to the footer note. All step content sits on the white card; there is no inner coloured container (change of 2026-11-17).
+5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 was amended on 2026-11-17 to match (see the note below).
+6. **Colour roles.** Violet (#635BFF, the F-07 primary) is the brand, the current step, and the primary button. Success green (#1F9D6B node, #1F7A55 label) marks done steps; it is the one colour added to the F-07 palette for this feature, and the check mark on it is a graphic, not text. To-do labels are #636B74 (F-07 secondary text). Grey (#F0F4F8 fill, #9FA6AD text, #DDE7EE outline) is for to-do nodes, disabled buttons and the disabled Next. Owner to confirm the green (see Open points).
+7. **New project is the F-07 control and is unchanged on every screen.** It is the primary button at the top of the left panel and starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07 (open point 1 of F-07).
+
+## Restyle checks (2026-11-18)
+
+| Check | Result |
+|---|---|
+| XML: all four SVGs pass `xmllint --noout` | Pass |
+| Render: all four rendered in headless Chrome at 1280 × 800 | Pass; every text line sits inside its box. The stepper labels end before x 200 (the panel's text limit is 236); Prev, Next and the New project label sit inside their buttons |
+| Text fit: wordmark, New project, step labels up to "Analyze and generate", the placeholder line, the footer note and the caption | Fit |
+| Grid: 24 px gutters, 8 px multiples in control heights and positions; the card matches F-07 at x 284–1256, y 24–728 | Pass |
+| States: step 1 has no done step and Prev disabled; step 4 has Next disabled; each step has exactly one current step | Pass |
 
 ## Usability review
 
-Reviewed 2026-11-17 against `stories.md` and the owner decisions above. Three findings, all changed in the SVGs; no blocker. Every criterion still appears in this file, and all four SVGs are well-formed.
+Reviewed 2026-11-17 against `stories.md` and the owner decisions of that date (on the previous horizontal layout). Three findings, all changed in the SVGs; no blocker. The restyle of 2026-11-18 keeps the captions and hover texts from these findings: each button carries its word, and each step node carries a title with its step and state.
 
 | # | Finding | Severity | Screen | What changed |
 |---|---|---|---|---|
-| U-01 | Prev and Next had no words; the arrow was the only label, against the rule that labels say the action | major | 01, 02, 03, 04 | A caption "Prev" sits under the Prev circle and "Next" under the Next circle, on the label line (y 132). The Prev caption is grey on step 1, like the disabled button. Layout and positions of the row are unchanged |
-| U-02 | The disabled Prev on step 1 gave a developer note as its hover text ("disabled on step 1") and no user-facing reason | minor | 01 | Hover text reads "Prev is not available on step 1"; the enabled Prev and Next hover texts say what they do ("go to the previous step", "go to the next step") |
+| U-01 | Prev and Next had no words; the arrow was the only label, against the rule that labels say the action | major | 01, 02, 03, 04 | Superseded 2026-11-18: Prev and Next are buttons with their words inside |
+| U-02 | The disabled Prev on step 1 gave a developer note as its hover text ("disabled on step 1") and no user-facing reason | minor | 01 | Hover text reads "Prev is not available on step 1"; enabled Prev and Next say what they do |
 | U-03 | The stepper states (done, current, to do) were carried by colour, the check mark and the ring only; a screen reader or a hover gets no state | minor | 01, 02, 03, 04 | Each step node has a text title with its step and state, e.g. "Technical details: current step", "Project: done", "Workflow: to do" |
 
-**Open points for the user**
+**Open points for the user (from 2026-11-17, still open)**
 
-1. **Button name: "Back" or "Prev".** The request says Back; the stories (AC-004 to AC-008), `features.md` F-08 and `ui.md` §1.3 name the button Prev. The icons and the new captions carry the direction either way. The usability review prefers the plain word Back (wording rule). Options: (a) keep Prev in the stories and the captions (current); (b) rename to Back and change the names in `features.md`, `ui.md` and `stories.md`, then the captions in the SVGs.
+1. **Button name: "Back" or "Prev".** The request says Back; the stories (AC-004 to AC-008), `features.md` F-08 and `ui.md` §1.3 name the button Prev. The screens keep Prev. Options: (a) keep Prev (current); (b) rename to Back and change the names in `features.md`, `ui.md` and `stories.md`, then the labels in the SVGs.
 2. **Placeholder line visible to users.** AC-013 requires the line "The content of this step is added in a later feature." It shows to end users if the build ships before F-09 to F-13 replace it. Options: (a) keep it until each step has content (current plan); (b) add a build-only switch that hides it in production (needs an AC-013 change).
-3. **Two filled primary buttons per screen.** New project is a blue filled button in the F-07 header; Next is an indigo-violet filled button in the stepper row. Both look primary, and the owner decision 7 keeps the F-07 blue. Options: (a) keep both as they are (current, owner decision 7); (b) make New project an outline button in the header, which changes the approved F-07 frame.
+3. **Two filled primary buttons per screen.** New project is a violet filled button at the top of the panel; Next is a violet filled button at the foot of the panel. Both are primary in the same panel. Options: (a) keep both (current); (b) make New project an outline button, which changes the approved F-07 frame.
 
 ## Visual review
 
-Reviewed 2026-11-17 on the four SVGs after the usability changes. Six findings, all changed in the SVGs; no blocker. The four files share one style block and one defs block, and all four are well-formed. Screens 01 and 03 were rendered in headless Chrome after the change; screens 02 and 04 differ only by the same coordinate and style edits and were checked from the source.
+Reviewed 2026-11-17 on the previous horizontal layout. Six findings, all changed in the SVGs; no blocker. Findings V-01 to V-06 are superseded by the restyle of 2026-11-18, which uses the F-07 colours and grid; V-01 (to-do label contrast) and V-04 (check mark contrast) still hold in the new colours: the to-do label is #636B74 on white, and the check is white on #1F9D6B.
 
 | # | Finding | Severity | Screen | What changed |
 |---|---|---|---|---|
-| V-01 | To-do step labels were light grey (#94a3b8) on the pale background, about 2.5:1 for 12 px text | major | 01, 02, 03 | To-do labels are slate #475569. Node and number colours are unchanged |
-| V-02 | The stepper row sat 20 px left of the card centre: 90 px from Prev to the first node, 130 px from the last node to Next | minor | 01, 02, 03, 04 | Nodes, their labels, their check or number marks and the connecting lines moved 20 px right (centres 220, 500, 780, 1060). Gaps are 110 px on both sides |
-| V-03 | The disabled Prev caption (#94a3b8) was about 2.5:1 | minor | 01 | Caption is #64748b. The disabled circle and arrow stay grey, so the state still shows |
-| V-04 | The white check on the emerald done node was about 2.5:1 | minor | 02, 03, 04 | Done gradient darkened to #059669 to #0d9488 (about 3.8:1), still emerald to teal. Decision 6 updated |
-| V-05 | The accent rule's square ends stood out past the card's 16 px rounded corners | minor | 01, 02, 03, 04 | Accent rule clipped to the card shape (`clipPath` `cardClip`) |
-| V-06 | The style and defs blocks differed between the four screens, so the same classes were defined differently | minor | 01, 02, 03, 04 | Same style block and defs on all four screens; classes unused on a screen are kept so the set is identical |
+| V-01 | To-do step labels were light grey (#94a3b8) on the pale background, about 2.5:1 for 12 px text | major | 01, 02, 03 | Superseded 2026-11-18: to-do labels are #636B74 on white |
+| V-02 | The stepper row sat 20 px left of the card centre | minor | 01, 02, 03, 04 | Superseded 2026-11-18: the stepper is vertical in the panel |
+| V-03 | The disabled Prev caption (#94a3b8) was about 2.5:1 | minor | 01 | Superseded 2026-11-18: the disabled Prev text is #9FA6AD on #F0F4F8, shown as a disabled button. Owner may ask for a darker value (see Open points) |
+| V-04 | The white check on the emerald done node was about 2.5:1 | minor | 02, 03, 04 | Superseded 2026-11-18: the check is a graphic on #1F9D6B |
+| V-05 | The accent rule's square ends stood out past the card's rounded corners | minor | 01, 02, 03, 04 | Superseded 2026-11-18: the accent rule is removed; the card follows the F-07 frame |
+| V-06 | The style and defs blocks differed between the screens | minor | 01, 02, 03, 04 | Kept: the same style block and defs on all four screens |
 
-**Open points for the user**
+**Open points for the user (from 2026-11-17, still open)**
 
-1. **Two primary hues in the top-right and the stepper row.** New project is the F-07 blue (#2563eb) and Next is the indigo-violet brand gradient. Both are filled primary buttons in different hues. Options: (a) keep both (current, owner decision 7); (b) make Next the F-07 blue, which gives one primary hue in the stepper row and matches the header; (c) restyle New project to the indigo brand, which changes the approved F-07 frame. This is the same question as usability open point 3; the visual choice is the hue.
-2. **Button captions "Prev" and "Back".** Covered by usability open point 1. The captions are drawn as "Prev" and would change with that decision.
+1. **Two primary hues.** Superseded: both primary buttons are now the F-07 violet in the same panel; see usability open point 3.
+2. **Button captions "Prev" and "Back".** Covered by usability open point 1.
+
+## Stories conflict (2026-11-18 restyle)
+
+The stories were written for a stepper in a row above the step body. The stories do not use the word "header", but these criteria fix the horizontal layout and now conflict with the left-panel layout (the wording is not changed here; the owner decides):
+
+- **AC-004** `[auto]`: "the Prev and Next buttons are in the wizard panel beside the stepper, and the step body is rendered below that panel." Conflicts: Prev and Next are at the foot of the left panel, and the step body is beside the panel in the content area, not below it.
+- **AC-015** `[device]`: "at a window of 1280 × 800 the stepper, Prev and Next are on one row with Prev and Next beside the stepper, and the step body is visible below them with no vertical page scroll." Conflicts: the stepper is vertical, Prev and Next are stacked at the foot of the panel, and the body is not below them. The "no vertical page scroll" part still holds (the frame fits 1280 × 800).
+- **`stories.md` requirement row "ui.md §1.3 wizard frame (panel, then body)"** (line 112): the order of panel and body changes from above-and-below to beside.
+
+Criteria that still hold in the new layout, as worded: AC-001 (four steps in order with their titles; it names no position), AC-002, AC-003, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012 (Prev disabled and Next shown after New project, as on screen 01), AC-013 (the body and the placeholder line, no position) and AC-014 (Material UI markup; no position). US-001 names no position either. The header-row wording in the request is not in the stories, so no story text needs to change for it.
 
 ## Change of 2026-11-17 (step pill and body title removed)
 
@@ -84,4 +109,4 @@ The user asked to remove the "STEP N OF 4" pill and the body title ("Project" an
 
 ## Approval
 
-Approved by the user on 2026-11-17, with Prev kept as the button name and the placeholder line visible until F-09 to F-13 replace it.
+Approved by the user on 2026-11-17 for the horizontal layout, with Prev kept as the button name and the placeholder line visible until F-09 to F-13 replace it. The restyle of 2026-11-18 to the left-panel frame is not yet approved. Open points 1 to 3 and the stories conflict above are open.

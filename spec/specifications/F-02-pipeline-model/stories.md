@@ -297,6 +297,7 @@ This feature is an enabler: the stories are written for the developer who builds
 
 - [ ] AC-084 `[auto]`: No file under `source/packages/core/src/pipeline/` imports or references `fs`, `node:fs`, `path` file access, `http`, `https`, `net`, `fetch`, `process`, `window` or `import.meta.env`. A test scans the source files and fails on any match.
 - [ ] AC-085 `[auto]`: Parsing the same value twice gives the same typed result and the same list of problems, and the parser does not change the value it is given.
+- [ ] AC-089 `[auto]`: The public namespace of core exports the pipeline module as `pipeline` and exposes `parseProjectConfig`, `defaultPipeline` and the model types. It exports no other name from the pipeline module.
 
 ---
 
@@ -325,5 +326,6 @@ This feature is an enabler: the stories are written for the developer who builds
 | Brief fields optional, with their limits (decisions 28, 37) | AC-074, AC-075, AC-076 |
 | Default pipeline restated as data, six flows, linked, parses with no problems (decision 17; §11) | AC-077, AC-078, AC-079, AC-080, AC-081, AC-082, AC-083 |
 | Core stays pure; the default pipeline is imported, not read (`architecture.md` §1; decision 17) | AC-084, AC-085 |
+| Public namespace `pipeline` of core: the parser, the default pipeline and the model types (decision 22) | AC-089 |
 
-Criteria: 88, all `[auto]`; `[device]`: 0.
+Criteria: 89, all `[auto]`; `[device]`: 0.

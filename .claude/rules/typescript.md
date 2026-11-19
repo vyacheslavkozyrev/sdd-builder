@@ -6,7 +6,7 @@
 - Use `import type` for type-only imports (`verbatimModuleSyntax`).
 
 ## Types
-- Domain shapes live in `source/packages/core/src/model.ts`. Other packages import them; they do not redeclare them.
+- Domain shapes live in `source/packages/core/src/pipeline/model.ts` (the pipeline model). Other packages import them; they do not redeclare them.
 - Prefer discriminated unions over optional flags for states.
 - No `any`. Use `unknown` at boundaries and narrow it (API input, saved JSON).
 - Validate `ProjectConfig` at the API and at JSON load, against the model; never trust a typed value that came from outside.

@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
-| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
-| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
+| Build    | ⏳ Pending |  | 0 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

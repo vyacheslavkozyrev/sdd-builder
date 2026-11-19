@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analyze and generate step: privacy notice, findings, project preview (F-13)</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #F0F4F8; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: #32383E; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; font-weight: 500; margin: 0 0 6px; }
+    header p { margin: 0; color: #636B74; font-size: 14px; }
+    section { background: #FFFFFF; border: 1px solid #DDE7EE; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; font-weight: 500; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #636B74; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #DDE7EE; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Analyze and generate step: privacy notice, findings, project preview (F-13)</h1>
+    <p>Step 4 of the wizard on the approved frame (F-07 and F-08). Eight screens: the step before analysis, the analysis results, the failed analysis, the expanded file list, an error and the pending generation. Wireframes only; read screens.md.</p>
+  </header>
+
+  <section>
+    <h2>1 of 8 Before analysis</h2>
+    <p>The checkbox is unticked. Analyze is disabled with its reason. Generate and download is disabled with the reason Run Analyze first.</p>
+    <img src="01-privacy-analyze-disabled.svg" alt="Step 4 before analysis: privacy notice with an unticked checkbox, Analyze disabled with the reason Tick the box to analyse, file tree preview, Generate and download disabled with the reason Run Analyze first">
+  </section>
+  <section>
+    <h2>2 of 8 Box ticked</h2>
+    <p>The checkbox is ticked and Analyze is enabled. No findings yet.</p>
+    <img src="02-privacy-ticked.svg" alt="Step 4 with the privacy checkbox ticked: Analyze enabled, no findings yet, Generate and download disabled">
+  </section>
+  <section>
+    <h2>3 of 8 Analysis with a blocker, a warning and an info</h2>
+    <p>Three findings with severity, subject and message. Generate and download is disabled with the reason Fix the blocker to generate.</p>
+    <img src="03-analysis-blocker-warning-info.svg" alt="Analysis result: a blocker, a warning and an info finding, each with severity pill, subject and message; Generate and download disabled">
+  </section>
+  <section>
+    <h2>4 of 8 Analysis with info findings only</h2>
+    <p>No blocker and no warning: Generate and download is enabled.</p>
+    <img src="04-analysis-info-only.svg" alt="Analysis result with two info findings and the result line no blocker and no warning; Generate and download enabled">
+  </section>
+  <section>
+    <h2>5 of 8 Analysis failed</h2>
+    <p>The analysis did not finish, which is an error: the note asks the user to Analyze again, the structural finding is still shown, and Generate and download stays disabled.</p>
+    <img src="05-analysis-failed.svg" alt="Analysis that did not finish: the note says the analysis did not finish and to Analyze again, one structural info finding is kept, and Generate and download is disabled with the reason Analysis failed">
+  </section>
+  <section>
+    <h2>6 of 8 Project files expanded</h2>
+    <p>The full file tree in a scrollable panel, opened from Show full tree. Rule files are marked.</p>
+    <img src="06-project-files-expanded.svg" alt="Dialog Project files over the step: the full file tree in a scrollable panel with rule files marked, and a Close button">
+  </section>
+  <section>
+    <h2>7 of 8 Error from the service</h2>
+    <p>The service answered 429. The error is shown as text; the checkbox stays ticked and Analyze is enabled to try again.</p>
+    <img src="07-analysis-error-429.svg" alt="Error text Analysis could not run (429): too many requests. Try again later. The privacy checkbox is still ticked">
+  </section>
+  <section>
+    <h2>8 of 8 Generate pending</h2>
+    <p>Generate and download is pending: the button reads Writing the files with the model, with a progress line. The other controls are disabled; the file list stays visible.</p>
+    <img src="08-generate-pending.svg" alt="Generate pending: the button reads Writing the files with the model, a progress line runs under it, Analyze, the checkbox and Show full tree are disabled, the file list is still shown">
+  </section>
+</body>
+</html>

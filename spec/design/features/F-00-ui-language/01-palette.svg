@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1180" viewBox="0 0 1280 1180"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="1180" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Palette</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Colours used in the approved screens: swatch, hex and role. Values copied from the source screens.</text>
+<text x="1248" y="1164" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 01 · 1280 × 1180</text>
+<rect x="32" y="84" width="224" height="64" rx="8" fill="#635BFF" />
+<text x="32" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Primary</text>
+<text x="32" y="186" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#635BFF</text>
+<text x="32" y="202" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Filled buttons, selected tab, current step</text>
+<rect x="280" y="84" width="224" height="64" rx="8" fill="#ECF0FF" stroke="#DDE7EE" stroke-width="1" />
+<text x="280" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Primary tint</text>
+<text x="280" y="186" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#ECF0FF</text>
+<text x="280" y="202" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Selected node, rule tag fill</text>
+<rect x="528" y="84" width="224" height="64" rx="8" fill="#DDE3FF" stroke="#DDE7EE" stroke-width="1" />
+<text x="528" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Current-step ring</text>
+<text x="528" y="186" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#DDE3FF</text>
+<text x="528" y="202" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Ring around the current step node</text>
+<rect x="776" y="84" width="224" height="64" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="776" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >White</text>
+<text x="776" y="186" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#FFFFFF</text>
+<text x="776" y="202" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Cards, inputs, secondary buttons</text>
+<rect x="1024" y="84" width="224" height="64" rx="8" fill="#F0F4F8" stroke="#DDE7EE" stroke-width="1" />
+<text x="1024" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Page / grey</text>
+<text x="1024" y="186" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#F0F4F8</text>
+<text x="1024" y="202" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Page background, disabled fill, grey note</text>
+<rect x="32" y="220" width="224" height="64" rx="8" fill="#32383E" />
+<text x="32" y="304" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Text (ink)</text>
+<text x="32" y="322" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#32383E</text>
+<text x="32" y="338" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Titles, body, field values</text>
+<rect x="280" y="220" width="224" height="64" rx="8" fill="#636B74" />
+<text x="280" y="304" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Text secondary</text>
+<text x="280" y="322" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#636B74</text>
+<text x="280" y="338" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Help, captions, counters, footer note</text>
+<rect x="528" y="220" width="224" height="64" rx="8" fill="#9FA6AD" />
+<text x="528" y="304" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Disabled text</text>
+<text x="528" y="322" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#9FA6AD</text>
+<text x="528" y="338" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Disabled labels, progress track</text>
+<rect x="776" y="220" width="224" height="64" rx="8" fill="#CDD7E1" />
+<text x="776" y="304" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Border</text>
+<text x="776" y="322" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#CDD7E1</text>
+<text x="776" y="338" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Inputs, secondary buttons, unchecked box</text>
+<rect x="1024" y="220" width="224" height="64" rx="8" fill="#DDE7EE" />
+<text x="1024" y="304" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Divider</text>
+<text x="1024" y="322" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#DDE7EE</text>
+<text x="1024" y="338" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Card edge, tab edge, dividers</text>
+<rect x="32" y="356" width="224" height="64" rx="8" fill="#15B79F" />
+<text x="32" y="440" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Done</text>
+<text x="32" y="458" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#15B79F</text>
+<text x="32" y="474" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Done step node and connector</text>
+<rect x="280" y="356" width="224" height="64" rx="8" fill="#107569" />
+<text x="280" y="440" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Done label</text>
+<text x="280" y="458" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#107569</text>
+<text x="280" y="474" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Done step label, true branch label</text>
+<rect x="528" y="356" width="224" height="64" rx="8" fill="#FBFCFE" stroke="#DDE7EE" stroke-width="1" />
+<text x="528" y="440" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Box</text>
+<text x="528" y="458" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#FBFCFE</text>
+<text x="528" y="474" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Body and empty-state boxes</text>
+<rect x="776" y="356" width="224" height="64" rx="8" fill="#B84D05" />
+<text x="776" y="440" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Amber text</text>
+<text x="776" y="458" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#B84D05</text>
+<text x="776" y="474" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Warning text, false branch, Warning pill</text>
+<rect x="1024" y="356" width="224" height="64" rx="8" fill="#FFFAEA" stroke="#DDE7EE" stroke-width="1" />
+<text x="1024" y="440" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Amber fill</text>
+<text x="1024" y="458" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#FFFAEA</text>
+<text x="1024" y="474" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Warning note and Warning pill fill</text>
+<rect x="32" y="492" width="224" height="64" rx="8" fill="#DE3024" />
+<text x="32" y="576" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Error text</text>
+<text x="32" y="594" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#DE3024</text>
+<text x="32" y="610" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Error text, required mark, Blocker pill</text>
+<rect x="280" y="492" width="224" height="64" rx="8" fill="#FEF3F2" stroke="#DDE7EE" stroke-width="1" />
+<text x="280" y="576" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Error fill</text>
+<text x="280" y="594" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#FEF3F2</text>
+<text x="280" y="610" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Refused field, refused note, Blocker pill</text>
+<rect x="528" y="492" width="224" height="64" rx="8" fill="#DE3024" />
+<text x="528" y="576" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Danger button</text>
+<text x="528" y="594" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#DE3024</text>
+<text x="528" y="610" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Delete buttons, refused border</text>
+<rect x="776" y="492" width="224" height="64" rx="8" fill="#FCD34D" />
+<text x="776" y="576" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Amber border</text>
+<text x="776" y="594" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#FCD34D</text>
+<text x="776" y="610" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Amber note box edge</text>
+<rect x="1024" y="492" width="224" height="64" rx="8" fill="#F0F4F8" stroke="#DDE7EE" stroke-width="1" />
+<rect x="1024" y="492" width="224" height="64" rx="8" fill="#32383E" fill-opacity="0.35" />
+<text x="1024" y="576" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Scrim (35%)</text>
+<text x="1024" y="594" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >#32383E at 35%</text>
+<text x="1024" y="610" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Dimmed page behind dialogs</text>
+<text x="32" y="636" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Contrast of the pairs used (WCAG ratio; text needs 4.5:1, large text and graphics 3:1)</text>
+<text x="32" y="668" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Pair (text on background)</text>
+<text x="380" y="668" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Ratio</text>
+<text x="520" y="668" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Result</text>
+<text x="640" y="668" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Where it is used</text>
+<line x1="32" y1="676" x2="1248" y2="676" stroke="#DDE7EE" stroke-width="1"/>
+<text x="32" y="696" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >White on primary #635BFF</text>
+<text x="380" y="696" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.70</text>
+<text x="520" y="696" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="696" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Primary buttons (14 px, 500)</text>
+<text x="32" y="720" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >White on danger #DE3024</text>
+<text x="380" y="720" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >3.76</text>
+<text x="520" y="720" font-size="12" font-weight="500" fill="#DE3024" text-anchor="start" >Fail</text>
+<text x="640" y="720" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Delete buttons (14 px or 13 px, 500); see screens.md</text>
+<text x="32" y="744" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >White on #DE3024 (not chosen)</text>
+<text x="380" y="744" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.61</text>
+<text x="520" y="744" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="744" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Alternative danger colour</text>
+<text x="32" y="768" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Primary #635BFF on white</text>
+<text x="380" y="768" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.70</text>
+<text x="520" y="768" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="768" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Current step label, tab text</text>
+<text x="32" y="792" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Done label #107569 on white</text>
+<text x="380" y="792" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >5.57</text>
+<text x="520" y="792" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="792" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Done step label</text>
+<text x="32" y="816" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Secondary #636B74 on white</text>
+<text x="380" y="816" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >5.40</text>
+<text x="520" y="816" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="816" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Help, captions, counters</text>
+<text x="32" y="840" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Secondary #636B74 on page</text>
+<text x="380" y="840" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.89</text>
+<text x="520" y="840" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="840" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Footer note on grey area</text>
+<text x="32" y="864" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Error #DE3024 on white</text>
+<text x="380" y="864" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.61</text>
+<text x="520" y="864" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="864" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Error text, required mark</text>
+<text x="32" y="888" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Error #DE3024 on error fill</text>
+<text x="380" y="888" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.24</text>
+<text x="520" y="888" font-size="12" font-weight="500" fill="#DE3024" text-anchor="start" >Fail</text>
+<text x="640" y="888" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Error text on refused field (11 px)</text>
+<text x="32" y="912" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Amber #B84D05 on amber fill</text>
+<text x="380" y="912" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >4.90</text>
+<text x="520" y="912" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Pass</text>
+<text x="640" y="912" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Warning note, Warning pill</text>
+<text x="32" y="936" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Done #15B79F on white (white check)</text>
+<text x="380" y="936" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >2.53</text>
+<text x="520" y="936" font-size="12" font-weight="500" fill="#DE3024" text-anchor="start" >Fail</text>
+<text x="640" y="936" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Check mark in the done node (graphic, 3:1)</text>
+<text x="32" y="960" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Disabled #9FA6AD on page</text>
+<text x="380" y="960" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >2.23</text>
+<text x="520" y="960" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Exempt</text>
+<text x="640" y="960" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Disabled controls (no requirement)</text>
+<text x="32" y="1008" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Palette source: Material Kit React by Devias IO, github.com/devias-io/material-kit-react, MIT licence (credit). Values as drawn in the approved screens.</text>
+<text x="32" y="1026" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Shadows: cards use a 1 px drop shadow, #32383E at 12%, offset 1, blur 2. The floating toolbox uses offset 2, blur 4, 16%.</text></svg>

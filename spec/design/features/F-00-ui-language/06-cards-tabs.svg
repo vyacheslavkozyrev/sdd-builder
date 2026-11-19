@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="800" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Cards, tabs, grid</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >White cards: 12 px radius, 1 px #DDE7EE edge, soft shadow, 24 px padding. Tabs 32 px high, 8 px radius.</text>
+<text x="1248" y="784" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 06 · 1280 × 800</text>
+<rect x="32" y="84" width="560" height="300" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Card and padding (24 px)</text>
+<rect x="56" y="128" width="512" height="220" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<rect x="80" y="152" width="464" height="172" rx="0" fill="none" stroke="#635BFF" stroke-width="1" stroke-dasharray="4 3" />
+<text x="88" y="176" font-size="11" font-weight="400" fill="#635BFF" text-anchor="start" >Content box: 24 px inside the card edge</text>
+<text x="56" y="370" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Radius 12 px · border #DDE7EE · shadow 1 px, 12%</text>
+<rect x="624" y="84" width="624" height="300" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="648" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Tab row (32 px high)</text>
+<rect x="648" y="136" width="85.2" height="32" rx="8" fill="#635BFF" />
+<text x="660" y="156" font-size="13" font-weight="500" fill="#FFFFFF" text-anchor="start" >Pipeline</text>
+<rect x="741.2" y="136" width="77.8" height="32" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="754.2" y="156" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >specify</text>
+<rect x="827" y="136" width="60" height="32" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="840" y="156" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >ux</text>
+<rect x="895" y="136" width="60" height="32" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="908" y="156" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >plan</text>
+<rect x="963" y="136" width="34" height="32" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="980" y="157" font-size="16" font-weight="500" fill="#32383E" text-anchor="middle" >+</text>
+<text x="648" y="196" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Selected: #635BFF fill, white 13 px 500.  Unselected: white, #DDE7EE edge, 12 px ink.</text>
+<text x="648" y="214" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Plus at the end of the row: 34 × 32, same look as the buttons.</text>
+<text x="648" y="244" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Tab row sits above the card, 24 px from the top of the content area.</text>
+<text x="648" y="262" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Tab text is the screen name in lower case, as in F-11.</text>
+<rect x="32" y="408" width="1216" height="340" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="436" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Grid: labels 8 px above fields (label baseline 12 px above the field top), 24 px between sections</text>
+<text x="56" y="480" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Language</text>
+<rect x="56" y="492" width="208" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="517" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >TypeScript</text>
+<rect x="288" y="492" width="208" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="300" y="517" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >React</text>
+<text x="288" y="480" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Framework</text>
+<text x="56" y="572" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Platform</text>
+<rect x="56" y="584" width="208" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="609" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Web browser</text>
+<text x="288" y="572" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Build tool</text>
+<rect x="288" y="584" width="208" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="300" y="609" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Vite</text>
+<text x="56" y="660" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Help: two fields per row, 208 px each, 16 px apart.</text>
+<line x1="520" y1="448" x2="520" y2="716" stroke="#DDE7EE" stroke-width="1"/>
+<rect x="544" y="468" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="556" y="493" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Stack</text>
+<rect x="544" y="532" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="556" y="557" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Rule blocks</text>
+<line x1="780" y1="508" x2="780" y2="532" stroke="#635BFF" stroke-width="1" stroke-dasharray="3 2"/>
+<text x="790" y="524" font-size="11" font-weight="500" fill="#635BFF" text-anchor="start" >24 px</text>
+<text x="544" y="620" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Between sections: 24 px. Full-width fields: 924 px in a 972 px card.</text>
+<text x="544" y="638" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Side panel fields: 224 px in a 272 px panel (F-11).</text></svg>

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+<defs>
+<filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter>
+</defs>
+<style>
+text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#32383E}
+.brand{font-size:18px;font-weight:500}
+.btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
+.btnDark{font-size:14px;font-weight:500;fill:#32383E}
+.navOff{font-size:14px;font-weight:500;fill:#9FA6AD}
+.h1{font-size:16px;font-weight:500}
+.h2{font-size:14px;font-weight:500}
+.b12{font-size:12px;font-weight:500}
+.muted{font-size:12px;fill:#636B74}
+.caption{font-size:11px;fill:#636B74}
+.label-cur{font-size:13px;font-weight:500;fill:#635BFF}
+.label-done{font-size:12px;font-weight:500;fill:#107569}
+.label-todo{font-size:12px;font-weight:500;fill:#636B74}
+.num{font-size:12px;font-weight:500;fill:#FFFFFF}
+.num-todo{font-size:12px;font-weight:500;fill:#636B74}
+.disText{font-size:14px;font-weight:500;fill:#9FA6AD}
+.pill{font-size:12px;font-weight:500}
+.tree{font-family:"ui-monospace",Menlo,Consolas,monospace;font-size:12px;fill:#32383E}
+.dir{fill:#636B74}
+.tagT{font-size:10px;font-weight:500;fill:#635BFF}
+.card{fill:#FFFFFF;stroke:#DDE7EE}
+.btnP{fill:#635BFF}
+.btn{fill:#FFFFFF;stroke:#CDD7E1}
+.btnOff{fill:#F0F4F8;stroke:#DDE7EE}
+.ring{fill:none;stroke:#DDE3FF;stroke-width:4}
+.node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
+.node-cur{fill:#635BFF}
+.node-done{fill:#15B79F}
+.check{fill:none;stroke:#FFFFFF;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.line-todo{stroke:#CDD7E1;stroke-width:2}
+.line-done{stroke:#15B79F;stroke-width:2}
+.row{fill:#FFFFFF;stroke:#DDE7EE}
+.panel{fill:#FFFFFF;stroke:#DDE7EE}
+.thumb{fill:#CDD7E1}
+</style>
+<rect width="1280" height="800" fill="#F0F4F8"/>
+<!-- Left panel: wordmark, New project, vertical stepper, Prev and Next at the foot (approved frame, step 4 current) -->
+<rect x="0" y="0" width="260" height="800" fill="#FFFFFF"/>
+<rect x="259" y="0" width="1" height="800" fill="#DDE7EE"/>
+<rect x="24" y="24" width="24" height="24" rx="6" fill="#635BFF"/>
+<text x="58" y="42" class="brand">SDDBuilder</text>
+<rect x="24" y="72" width="212" height="40" rx="8" class="btn"/>
+<text x="130" y="97" class="btnDark" text-anchor="middle">New project</text>
+<line x1="40" y1="184" x2="40" y2="208" class="line-done"/>
+<line x1="40" y1="248" x2="40" y2="272" class="line-done"/>
+<line x1="40" y1="312" x2="40" y2="336" class="line-done"/>
+<circle class="node-done" cx="40" cy="164" r="12"><title>Project: done</title></circle>
+<path class="check" d="M35 164.5 L38.5 168 L45 161"/>
+<text class="label-done" x="64" y="168">Project</text>
+<circle class="node-done" cx="40" cy="228" r="12"><title>Technical details: done</title></circle>
+<path class="check" d="M35 228.5 L38.5 232 L45 225"/>
+<text class="label-done" x="64" y="232">Technical details</text>
+<circle class="node-done" cx="40" cy="292" r="12"><title>Workflow: done</title></circle>
+<path class="check" d="M35 292.5 L38.5 296 L45 289"/>
+<text class="label-done" x="64" y="296">Workflow</text>
+<circle class="ring" cx="40" cy="356" r="18"/>
+<circle class="node-cur" cx="40" cy="356" r="12"><title>Analyze and generate: current step</title></circle>
+<text class="num" x="40" y="360.5" text-anchor="middle">4</text>
+<text class="label-cur" x="64" y="360">Analyze and generate</text>
+<g><title>Prev: go to the previous step</title><rect class="btn" x="24" y="728" width="100" height="40" rx="8"/><text class="btnDark" x="74" y="752" text-anchor="middle">Prev</text></g>
+<g><title>Next is not available on the last step</title><rect class="btnOff" x="136" y="728" width="100" height="40" rx="8"/><text class="navOff" x="186" y="752" text-anchor="middle">Next</text></g>
+
+<!-- Content card: x 284-1256, y 24-728, 12 px radius -->
+<rect x="284" y="24" width="972" height="704" rx="12" class="card" filter="url(#sh)"/>
+<text x="308" y="66" class="h2">Analyze</text><text x="308" y="86" class="muted">Checks the brief and the pipeline. Run it again after each change.</text><rect x="308" y="100" width="540" height="92" rx="8" fill="#F0F4F8" stroke="#DDE7EE"/><text x="324" y="122" class="b12">Privacy notice</text><text x="324" y="142">Analyze sends the brief and the pipeline to the model for review.</text><text x="324" y="160">The server does not store or log the brief.</text><g><title>Privacy notice checkbox: ticked</title><rect x="308" y="208" width="16" height="16" rx="4" fill="#635BFF" stroke="#635BFF" stroke-width="1.5"/><path class="check" d="M312.5 216.5 L315 219 L319.5 213.5"/></g><text x="336" y="221">I have read the notice. Send the brief for review.</text><g><title>Analyze: runs the review</title><rect class="btnP" x="308" y="240" width="120" height="40" rx="8"/><text class="btnText" x="368" y="265" text-anchor="middle">Analyze</text></g><text x="308" y="320" class="b12">Findings</text><g><title>Info: Flow · complete</title><rect class="row" x="308" y="332" width="540" height="56" rx="8"/><rect x="320" y="342" width="76" height="20" rx="10" fill="#F0F4F8"/><text class="pill" x="358" y="356" text-anchor="middle" style="fill:#636B74">Info</text><text x="408" y="356" class="b12">Flow · complete</text><text x="320" y="376">No check is set on this flow.</text></g><g><title>Info: Agent · commit</title><rect class="row" x="308" y="396" width="540" height="56" rx="8"/><rect x="320" y="406" width="76" height="20" rx="10" fill="#F0F4F8"/><text class="pill" x="358" y="420" text-anchor="middle" style="fill:#636B74">Info</text><text x="408" y="420" class="b12">Agent · commit</text><text x="320" y="440">No model is set. The agent uses the default model.</text></g><text x="308" y="480" style="fill:#107569">Result: no blocker and no warning. You can generate the project.</text><text x="872" y="66" class="h2">Project preview</text><text x="872" y="86" class="muted">23 files, in the order the project writes them.</text><clipPath id="clipCol"><rect x="872" y="104" width="360" height="424" rx="8"/></clipPath><rect class="panel" x="872" y="104" width="360" height="424" rx="8"/><g clip-path="url(#clipCol)"><text x="888" y="124" class="tree dir">.claude/</text><text x="904" y="144" class="tree dir">agents/</text><text x="920" y="164" class="tree">commit.md</text><text x="920" y="184" class="tree">complete.md</text><text x="920" y="204" class="tree">implement.md</text><text x="920" y="224" class="tree">plan.md</text><text x="920" y="244" class="tree">review.md</text><text x="920" y="264" class="tree">specify.md</text><text x="920" y="284" class="tree">test.md</text><text x="920" y="304" class="tree">ux.md</text><text x="920" y="324" class="tree">verify.md</text><text x="904" y="344" class="tree dir">commands/</text><text x="920" y="364" class="tree">build.md</text><text x="920" y="384" class="tree">complete.md</text><text x="920" y="404" class="tree">pipeline.md</text><text x="920" y="424" class="tree">plan.md</text><text x="920" y="444" class="tree">specify.md</text><text x="920" y="464" class="tree">ux.md</text><text x="920" y="484" class="tree">verify.md</text><text x="904" y="504" class="tree dir">rules/</text><text x="920" y="524" class="tree">general.md</text><rect x="1168" y="513" width="44" height="16" rx="8" fill="#ECF0FF"/><text class="tagT" x="1190" y="524.5" text-anchor="middle">rule</text><text x="920" y="544" class="tree">typescript.md</text><rect x="1168" y="533" width="44" height="16" rx="8" fill="#ECF0FF"/><text class="tagT" x="1190" y="544.5" text-anchor="middle">rule</text><text x="888" y="564" class="tree">CLAUDE.md</text><text x="888" y="584" class="tree dir">spec/</text><text x="904" y="604" class="tree dir">documents/</text><text x="920" y="624" class="tree">process.md</text><text x="904" y="644" class="tree dir">specifications/</text><text x="920" y="664" class="tree dir">F-00-template/</text><text x="936" y="684" class="tree">plan.md</text><text x="936" y="704" class="tree">progress.md</text><text x="936" y="724" class="tree">stories.md</text></g><rect class="thumb" x="1224" y="112" width="4" height="263" rx="2"/><g><title>Show full tree: opens the full file list</title><rect class="btn" x="872" y="544" width="360" height="36" rx="8"/><text class="btnDark" x="1052" y="566.5" text-anchor="middle">Show full tree</text></g><g><title>Generate and download: enabled</title><rect class="btnP" x="872" y="604" width="360" height="40" rx="8"/><text class="btnText" x="1052" y="629" text-anchor="middle">Generate and download</text></g><text x="872" y="684" class="muted">Contents are written by the model when you generate.</text>
+<!-- Footer note and caption: inside the grey area, 24 px below the card -->
+<text x="284" y="766" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>
+<text x="1256" y="766" class="caption" text-anchor="end">F-13 · screen 6 · step 4 of 4 · 1280 × 800</text>
+<rect x="0" y="0" width="1280" height="800" fill="#32383E" fill-opacity="0.4"/><rect x="470" y="110" width="600" height="580" rx="12" fill="#FFFFFF" filter="url(#sh)"/><text x="494" y="150" class="h1">Project files</text><text x="494" y="172" class="muted">23 files, in the order the project writes them. Rule files are marked.</text><clipPath id="clipDlg"><rect x="494" y="190" width="552" height="440" rx="8"/></clipPath><rect class="panel" x="494" y="190" width="552" height="440" rx="8"/><g clip-path="url(#clipDlg)"><text x="510" y="210" class="tree dir">.claude/</text><text x="526" y="230" class="tree dir">agents/</text><text x="542" y="250" class="tree">commit.md</text><text x="542" y="270" class="tree">complete.md</text><text x="542" y="290" class="tree">implement.md</text><text x="542" y="310" class="tree">plan.md</text><text x="542" y="330" class="tree">review.md</text><text x="542" y="350" class="tree">specify.md</text><text x="542" y="370" class="tree">test.md</text><text x="542" y="390" class="tree">ux.md</text><text x="542" y="410" class="tree">verify.md</text><text x="526" y="430" class="tree dir">commands/</text><text x="542" y="450" class="tree">build.md</text><text x="542" y="470" class="tree">complete.md</text><text x="542" y="490" class="tree">pipeline.md</text><text x="542" y="510" class="tree">plan.md</text><text x="542" y="530" class="tree">specify.md</text><text x="542" y="550" class="tree">ux.md</text><text x="542" y="570" class="tree">verify.md</text><text x="526" y="590" class="tree dir">rules/</text><text x="542" y="610" class="tree">general.md</text><rect x="982" y="599" width="44" height="16" rx="8" fill="#ECF0FF"/><text class="tagT" x="1004" y="610.5" text-anchor="middle">rule</text><text x="542" y="630" class="tree">typescript.md</text><rect x="982" y="619" width="44" height="16" rx="8" fill="#ECF0FF"/><text class="tagT" x="1004" y="630.5" text-anchor="middle">rule</text><text x="510" y="650" class="tree">CLAUDE.md</text><text x="510" y="670" class="tree dir">spec/</text><text x="526" y="690" class="tree dir">documents/</text><text x="542" y="710" class="tree">process.md</text><text x="526" y="730" class="tree dir">specifications/</text><text x="542" y="750" class="tree dir">F-00-template/</text><text x="558" y="770" class="tree">plan.md</text><text x="558" y="790" class="tree">progress.md</text><text x="558" y="810" class="tree">stories.md</text></g><rect class="thumb" x="1038" y="198" width="4" height="287" rx="2"/><g><title>Close the list</title><rect class="btn" x="954" y="640" width="92" height="40" rx="8"/><text class="btnDark" x="1000" y="665" text-anchor="middle">Close</text></g></svg>

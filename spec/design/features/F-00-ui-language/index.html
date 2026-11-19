@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI language reference (F-00)</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #F0F4F8; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: #32383E; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 24px; font-weight: 500; margin: 0 0 6px; }
+    header p { margin: 0; color: #636B74; font-size: 13px; }
+    section { background: #FFFFFF; border: 1px solid #DDE7EE; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 14px; font-weight: 500; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #636B74; font-size: 12px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #DDE7EE; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>UI language reference (F-00)</h1>
+    <p>The single reference for every UI element used in SDDBuilder: palette, type, buttons, inputs, rows, cards, frame, canvas, notices, dialogs, lists. Values are copied from the approved screens. Read screens.md for the sources and the differences.</p>
+  </header>
+
+  <section>
+    <h2>01 Palette</h2>
+    <p>Colours with hex and role, the contrast of the pairs used, and the palette source (credit).</p>
+    <img src="01-palette.svg" alt="Swatches of the palette with hex and role, and a contrast table">
+  </section>
+  <section>
+    <h2>02 Type scale</h2>
+    <p>Inter, weights 400 and 500. Each size with its colour and the screen it comes from.</p>
+    <img src="02-type.svg" alt="Type scale rows with size, weight and colour">
+  </section>
+  <section>
+    <h2>03 Buttons</h2>
+    <p>Primary, secondary, danger, disabled, Prev and Next, the dialog pair, icon-only minus and plus, and the Asks first note.</p>
+    <img src="03-buttons.svg" alt="Button states, sizes and icon-only buttons">
+  </section>
+  <section>
+    <h2>04 Inputs</h2>
+    <p>Single-line field, text area with counter, dropdown, checkbox, refused field, read-only field, labels, help line and required mark.</p>
+    <img src="04-inputs.svg" alt="Input fields in their states">
+  </section>
+  <section>
+    <h2>05 Rows</h2>
+    <p>Argument and rule rows, the title row with plus, the block title row with minus, the rule tag, the artifact block and the check row.</p>
+    <img src="05-rows.svg" alt="Row controls and title rows">
+  </section>
+  <section>
+    <h2>06 Cards and tabs</h2>
+    <p>White card with its padding, the tab row, and the grid: labels, field widths and 24 px between sections.</p>
+    <img src="06-cards-tabs.svg" alt="Card padding, tab row and grid">
+  </section>
+  <section>
+    <h2>07 Stepper and frame</h2>
+    <p>Left panel (260 px) with the stepper states, New project, Prev and Next; the content card and the footer note and caption.</p>
+    <img src="07-stepper-frame.svg" alt="Left panel with done, current and to-do steps, and the content card">
+  </section>
+  <section>
+    <h2>08 Flow canvas</h2>
+    <p>Start and End circles, the Agent box in its states, the Condition diamond with true and false, return and plain arrows, and the floating toolbox.</p>
+    <img src="08-canvas.svg" alt="Canvas elements: blocks, conditions, arrows and toolbox">
+  </section>
+  <section>
+    <h2>09 Notices and states</h2>
+    <p>Error notice, amber and grey notes, status pills (Blocker, Warning, Info), empty state and pending state.</p>
+    <img src="09-notices.svg" alt="Notices, status pills, empty state and pending state">
+  </section>
+  <section>
+    <h2>10 Dialogs</h2>
+    <p>The compact confirmation: 400 px wide, title, one muted line, the Cancel and Danger pair, dimmed screen behind.</p>
+    <img src="10-dialogs.svg" alt="Compact confirmation dialog over a dimmed screen">
+  </section>
+  <section>
+    <h2>11 Lists and files</h2>
+    <p>Findings list item (severity pill, subject, message) and the file tree with the rule tag.</p>
+    <img src="11-lists-files.svg" alt="Findings list item and file tree">
+  </section>
+</body>
+</html>

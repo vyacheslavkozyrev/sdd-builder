@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="800" fill="#F0F4F8"/>
+<text x="1248" y="784" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 07 · 1280 × 800</text>
+<rect x="0" y="0" width="260" height="800" rx="0" fill="#FFFFFF" />
+<rect x="259" y="0" width="1" height="800" rx="0" fill="#DDE7EE" />
+<rect x="24" y="24" width="24" height="24" rx="6" fill="#635BFF" />
+<text x="58" y="42" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >SDDBuilder</text>
+<rect x="24" y="72" width="212" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="130" y="97" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >New project</text>
+<line x1="40" y1="176" x2="40" y2="216" stroke="#15B79F" stroke-width="2"/>
+<circle cx="40" cy="164" r="12" fill="#15B79F"/>
+<text x="40" y="168.5" font-size="13" font-weight="500" fill="#FFFFFF" text-anchor="middle" >✓</text>
+<text x="64" y="168" font-size="12" font-weight="500" fill="#107569" text-anchor="start" >Project</text>
+<circle cx="40" cy="228" r="18" fill="none" stroke="#DDE3FF" stroke-width="4"/>
+<circle cx="40" cy="228" r="12" fill="#635BFF"/>
+<text x="40" y="232.5" font-size="12" font-weight="500" fill="#FFFFFF" text-anchor="middle" >2</text>
+<text x="64" y="232" font-size="13" font-weight="500" fill="#635BFF" text-anchor="start" >Technical details</text>
+<line x1="40" y1="304" x2="40" y2="344" stroke="#CDD7E1" stroke-width="2"/>
+<circle cx="40" cy="292" r="12" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1.5"/>
+<text x="40" y="296.5" font-size="12" font-weight="500" fill="#636B74" text-anchor="middle" >3</text>
+<text x="64" y="296" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Workflow</text>
+<circle cx="40" cy="356" r="12" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1.5"/>
+<text x="40" y="360.5" font-size="12" font-weight="500" fill="#636B74" text-anchor="middle" >4</text>
+<text x="64" y="360" font-size="12" font-weight="500" fill="#636B74" text-anchor="start" >Analyze and generate</text>
+<rect x="24" y="728" width="100" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="74" y="753" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >Prev</text>
+<rect x="136" y="728" width="100" height="40" rx="8" fill="#635BFF" />
+<text x="186" y="753" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle" >Next</text>
+<rect x="284" y="24" width="972" height="704" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="308" y="62" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Stepper and frame: left panel 260 px, content card at x 284</text>
+<text x="308" y="82" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Left panel: logo, New project, vertical stepper, Prev and Next at the foot. Sheet shows step 2 current.</text>
+<circle cx="332" cy="124" r="12" fill="#15B79F"/>
+<text x="360" y="128" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Done</text>
+<text x="440" y="128" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Node #15B79F, white check ✓ 13 px 500. Label 12 px 500 #107569. Connector #15B79F 2 px.</text>
+<circle cx="332" cy="164" r="12" fill="#635BFF"/>
+<text x="360" y="168" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Current</text>
+<text x="440" y="168" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Ring #DDE3FF 4 px (r 18), node #635BFF (r 12), number white 12 px 500. Label 13 px 500 #635BFF.</text>
+<circle cx="332" cy="204" r="12" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1.5"/>
+<text x="360" y="208" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >To do</text>
+<text x="440" y="208" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Node white with #CDD7E1 1.5 px edge, number 12 px 500 #636B74. Label 12 px 500 #636B74. Connector #CDD7E1 2 px.</text>
+<text x="308" y="270" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Connectors run edge to edge, from the lower edge of one node to the upper edge of the next (40 px gap at 64 px spacing).</text>
+<text x="308" y="310" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Prev: enabled white 100 × 40 (#CDD7E1 edge). Disabled on step 1: #F0F4F8, #DDE7EE edge, #9FA6AD label.</text>
+<text x="308" y="330" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Next: #635BFF fill, white 14 px 500 label. On the last step Next is disabled (#F0F4F8, F-13 03).</text>
+<text x="308" y="370" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Content area: grey page #F0F4F8 around one white card, 12 px radius, from x 284 to 1256 and y 24 to 728.</text>
+<text x="308" y="390" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Content starts 24 px inside the card (x 308, y 48 for the first row).</text>
+<text x="308" y="410" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Footer note: 12 px #636B74, at y 766 (below the card), x 284. Caption: 11 px #636B74, right edge at x 1256.</text>
+<text x="308" y="430" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >The card-to-footer distance is 24 px (box top); the approved screens put the baseline at 766.</text>
+<text x="284" y="766" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >The work is not saved. It is lost when the browser is refreshed.</text>
+<line x1="308" y1="470" x2="1232" y2="470" stroke="#DDE7EE" stroke-width="1"/>
+<text x="308" y="500" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Caption placement: a caption sits 24 px below the card it describes.</text></svg>

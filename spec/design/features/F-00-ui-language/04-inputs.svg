@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="960" viewBox="0 0 1280 960"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="960" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Inputs</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Fields 40 px high, radius 8 px, 1 px #CDD7E1 border. Label 12 px above the field, help 12 px below.</text>
+<text x="1248" y="944" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 04 · 1280 × 960</text>
+<rect x="32" y="84" width="600" height="260" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Single-line text field</text>
+<text x="56" y="144" font-size="12" font-weight="400" fill="#636B74">Project name<tspan fill="#DE3024"> *</tspan></text>
+<rect x="56" y="156" width="552" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="181" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Hourly time tracker for freelancers</text>
+<text x="56" y="214" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Help: up to 100 characters; text past the limit is cut.</text>
+<text x="56" y="246" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Read-only field (grey fill, derived: no approved screen)</text>
+<rect x="56" y="256" width="552" height="40" rx="8" fill="#F0F4F8" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="281" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Generated from the brief</text>
+<text x="56" y="316" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Required mark: red * after the label (#DE3024)</text>
+<rect x="656" y="84" width="592" height="260" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="680" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Multi-line text area with counter</text>
+<text x="680" y="144" font-size="12" font-weight="400" fill="#636B74">Idea<tspan fill="#DE3024"> *</tspan></text>
+<rect x="680" y="156" width="544" height="120" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="692" y="180" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >A tracker for hourly work. Freelancers log time</text>
+<text x="692" y="200" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >against clients and see weekly totals.</text>
+<text x="680" y="296" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >96 / 1000 characters</text>
+<text x="1224" y="296" font-size="12" font-weight="500" fill="#B84D05" text-anchor="end" >5,000 / 5,000</text>
+<rect x="32" y="368" width="600" height="232" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="396" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Dropdown (chevron ▾ at the right, 16 px)</text>
+<text x="56" y="428" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Model</text>
+<rect x="56" y="440" width="224" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="465" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >inherit</text>
+<text x="256" y="465" font-size="16" font-weight="500" fill="#32383E" text-anchor="middle" >▾</text>
+<text x="56" y="512" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Checkbox (16 × 16, radius 3, 1.5 px border)</text>
+<rect x="56" y="528" width="16" height="16" rx="3" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1.5" />
+<text x="84" y="540" font-size="11" font-weight="400" fill="#32383E" text-anchor="start" >Unchecked: human approval off</text>
+<rect x="56" y="556" width="16" height="16" rx="3" fill="#635BFF" stroke="#635BFF" stroke-width="1.5" />
+<path d="M59.5 564 L62 566.5 L66.5 561" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="84" y="568" font-size="11" font-weight="400" fill="#32383E" text-anchor="start" >Checked: #635BFF fill, white tick</text>
+<text x="56" y="592" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Label of a checkbox: 11 px (chosen, see screens.md)</text>
+<rect x="656" y="368" width="592" height="232" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="680" y="396" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Refused field: red border, light red fill, reason beneath</text>
+<text x="680" y="428" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Name</text>
+<rect x="680" y="440" width="320" height="40" rx="8" fill="#FEF3F2" stroke="#DE3024" stroke-width="1.5" />
+<text x="692" y="465" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >feature-id</text>
+<text x="680" y="496" font-size="11" font-weight="400" fill="#DE3024" text-anchor="start" >feature-id is used by row 1. Not saved.</text>
+<text x="680" y="524" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Border #DE3024 1.5 px · fill #FEF3F2 · reason 11 px #DE3024</text>
+<rect x="32" y="620" width="1216" height="300" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="648" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >States of a field</text>
+<text x="56" y="680" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Empty (placeholder #636B74)</text>
+<rect x="56" y="690" width="340" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="68" y="715" font-size="13" font-weight="400" fill="#636B74" text-anchor="start" >Describe the project</text>
+<text x="452" y="680" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Filled</text>
+<rect x="452" y="690" width="340" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="464" y="715" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Hourly time tracker</text>
+<text x="848" y="680" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Focus: not in the sources (no screen)</text>
+<text x="848" y="720" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Not drawn: no focus screen in the approved set.</text>
+<text x="56" y="804" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Refused</text>
+<rect x="56" y="814" width="340" height="40" rx="8" fill="#FEF3F2" stroke="#DE3024" stroke-width="1.5" />
+<text x="68" y="839" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >feature-id</text>
+<text x="452" y="804" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Read-only</text>
+<rect x="452" y="814" width="340" height="40" rx="8" fill="#F0F4F8" stroke="#CDD7E1" stroke-width="1" />
+<text x="464" y="839" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Generated from the brief</text>
+<text x="848" y="804" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Limit reached (counter 12 px amber)</text>
+<rect x="848" y="814" width="340" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="860" y="839" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Idea text, 5,000 characters</text>
+<text x="1188" y="870" font-size="12" font-weight="500" fill="#B84D05" text-anchor="end" >5,000 / 5,000</text></svg>

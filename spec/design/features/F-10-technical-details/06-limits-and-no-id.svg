@@ -29,7 +29,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .btnP{fill:#635BFF}
 .btnOff{fill:#F0F4F8;stroke:#DDE7EE}
 .btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
-.btnDanger{fill:#F04438}
+.btnDanger{fill:#DE3024}
 .ring{fill:none;stroke:#DDE3FF;stroke-width:4}
 .node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
 .node-cur{fill:#635BFF}

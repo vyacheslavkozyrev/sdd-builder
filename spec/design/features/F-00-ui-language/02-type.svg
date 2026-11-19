@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="920" viewBox="0 0 1280 920"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="920" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Type scale</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Inter, weights 400 and 500 only. Sample at the size shown; the right column gives the spec and the screen it comes from.</text>
+<text x="1248" y="904" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 02 · 1280 × 920</text>
+<rect x="32" y="68" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="96" font-size="24" font-weight="500" fill="#32383E" text-anchor="start" >Remove rule block 1?</text>
+<text x="760" y="96" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >H5 dialog title · 24 px · 500 · #32383E · F-10 04</text>
+<rect x="32" y="116" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="144" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >SDDBuilder</text>
+<text x="760" y="144" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Brand in the left panel · 18 px · 500 · F-07 01</text>
+<rect x="32" y="164" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="192" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Rule blocks</text>
+<text x="760" y="192" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Panel title (H2) · 14 px · 500 · F-10 01</text>
+<rect x="32" y="212" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="240" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >New project</text>
+<text x="760" y="240" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Button label · 14 px · 500 · F-07 01</text>
+<rect x="32" y="260" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="288" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >The idea is at the limit of 5,000 characters.</text>
+<text x="760" y="288" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Body · 13 px · 400 · #32383E · F-09 03</text>
+<rect x="32" y="308" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="336" font-size="13" font-weight="500" fill="#635BFF" text-anchor="start" >Technical details</text>
+<text x="760" y="336" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Current step label · 13 px · 500 · #635BFF · F-10 01</text>
+<rect x="32" y="356" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="384" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Name</text>
+<text x="760" y="384" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Field label (chosen) · 12 px · 400 · #636B74 · F-11 01</text>
+<rect x="32" y="404" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="432" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Describe what the product does and who uses it.</text>
+<text x="760" y="432" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Help line · 12 px · 400 · #636B74 · F-09 03, F-10 01</text>
+<rect x="32" y="452" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="480" font-size="12" font-weight="500" fill="#107569" text-anchor="start" >Done</text>
+<text x="760" y="480" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Done step label · 12 px · 500 · #107569 · F-10 01</text>
+<rect x="32" y="500" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="528" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Footer: The work is not saved. It is lost when the browser is refreshed.</text>
+<text x="760" y="528" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Footer note · 12 px · 400 · #636B74 · F-07 01</text>
+<rect x="32" y="548" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="576" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >96 / 1000 characters</text>
+<text x="760" y="576" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Counter and caption · 11 px · 400 · #636B74 · F-11 01</text>
+<rect x="32" y="596" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="624" font-size="12" font-weight="500" fill="#B84D05" text-anchor="start" >5,000 / 5,000</text>
+<text x="760" y="624" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Counter at its limit · 12 px · 500 · #B84D05 · F-09 03</text>
+<rect x="32" y="644" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="672" font-size="11" font-weight="400" fill="#DE3024" text-anchor="start" >feature-id is used by row 1. Not saved.</text>
+<text x="760" y="672" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Error text · 11 px · 400 · #DE3024 · F-11 07</text>
+<rect x="32" y="692" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="720" font-size="12" font-weight="500" fill="#DE3024" text-anchor="start" >Blocker</text>
+<text x="760" y="720" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Status pill · 12 px · 500 · F-13 03 (pill 76 × 20)</text>
+<rect x="32" y="740" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="768" font-size="10" font-weight="500" fill="#635BFF" text-anchor="start" >rule</text>
+<text x="760" y="768" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Rule tag · 10 px · 500 · #635BFF · F-13 03</text>
+<rect x="32" y="788" width="1216" height="44" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="48" y="816" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">general.md</text>
+<text x="760" y="816" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >File tree · 12 px monospace · #32383E · F-13 03</text>
+<text x="32" y="872" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Font: Inter (Google Fonts, weights 400 and 500). Fallback: system-ui, Segoe UI, sans-serif.</text>
+<text x="32" y="890" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Chosen values where screens differ: field label 12 px 400 grey, help 12 px, counter 11 px. See screens.md, differences.</text></svg>

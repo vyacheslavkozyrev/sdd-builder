@@ -67,7 +67,7 @@ The F-07 frame and F-11 look: Material Kit React (Devias IO, MIT licence; credit
 - Screen 05: the dialog is centred on the whole screen (x 440–840). The earlier draft centred it on the content area (x 570–970); the change follows the rule of the frame.
 - Screen 06: the reason line sits 18 px under the name field, which leaves little space above the Description label. It is kept on the same grid as the other screens; `visual` may move it.
 - Screen 01 shows Delete on End, enabled, as in the earlier draft (question 7).
-- The Delete button is the Material Kit error colour `#DE3024`; F-11 used `#F04438`. One colour is used for both now.
+- The Delete button is the Material Kit error colour `#DE3024`; F-11 used `#DE3024`. One colour is used for both now.
 - The pipeline's arguments list (F-11) and the block arguments (F-12) are both drawn as rows (question 1).
 
 ## Schema questions

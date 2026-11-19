@@ -20,8 +20,8 @@
 </head>
 <body>
   <header>
-    <h1>F-11 Pipeline builder: the Pipeline tab, connections with artifacts and checks, and marks (wireframes)</h1>
-    <p>Step 3 of the wizard. The Pipeline tab has no toolbox; flows are boxes on the canvas, connections are arrows with no label. A connection's panel shows only its source and target. A flow's panel holds its outcome artifacts, its checks and its Human approval checkbox. Every screen uses the frame of screen 01: the wizard steps in a left panel, the tabs and cards in the content area, and the footer note inside it. Wireframes only; read <code>screens.md</code> for the legend, the states, the coverage and the open points.</p>
+    <h1>F-11 Pipeline builder: the Pipeline tab, connections with artifacts, and marks (wireframes)</h1>
+    <p>Step 3 of the wizard. The Pipeline tab has no toolbox; flows are boxes on the canvas, connections are arrows with no label. A connection's panel shows only its source and target. A flow's panel holds its outcome artifacts and its Human approval checkbox; checks are Conditions in the flow tab (F-12), not in this panel. Every screen uses the frame of screen 01: the wizard steps in a left panel, the tabs and cards in the content area, and the footer note inside it. Wireframes only; read <code>screens.md</code> for the legend, the states, the coverage and the open points.</p>
   </header>
 
   <section>
@@ -37,15 +37,15 @@
   </section>
 
   <section>
-    <h2>03 Adding a check to a flow</h2>
-    <p>Flow build, scrolled to its checks: the saved check, then the new check form. A blank description and a diff size threshold that is not set are refused, with the reason beneath each field. Nothing is added.</p>
-    <img src="03-flow-properties.svg" alt="The flow build panel scrolled to checks: the add check form with a blank description and an unset threshold, both refused">
+    <h2>03 A flow selected: its panel</h2>
+    <p>The verify flow: name, description, arguments, model, body, outcome artifacts and the Human approval checkbox, ticked. There is no checks section (decision 17 of 2026-11-19).</p>
+    <img src="03-flow-properties.svg" alt="The verify flow panel with Human approval ticked and no checks section">
   </section>
 
   <section>
     <h2>04 Deleting a flow</h2>
-    <p>The confirmation says the flow's artifacts, checks and approval flag go with it, and that its two arrows are removed. The whole screen is dimmed behind it.</p>
-    <img src="04-delete-flow-confirm.svg" alt="The confirmation for deleting the flow plan, naming its artifacts, checks and approval flag and the two arrows removed">
+    <p>The confirmation says the flow's artifacts and approval flag go with it, and that its two arrows are removed. The whole screen is dimmed behind it.</p>
+    <img src="04-delete-flow-confirm.svg" alt="The confirmation for deleting the flow plan, naming its artifacts and approval flag and the two arrows removed">
   </section>
 
   <section>

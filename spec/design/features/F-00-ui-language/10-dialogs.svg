@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="800" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Dialogs</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Compact confirmation: 400 px wide, 24 px padding, 1 px #CDD7E1 border, radius 12, dimmed page behind.</text>
+<text x="1248" y="784" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 10 · 1280 × 800</text>
+<rect x="32" y="84" width="1216" height="0" rx="0" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<rect x="32" y="84" width="1216" height="460" rx="12" fill="#F0F4F8" />
+<rect x="72" y="116" width="300" height="360" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="92" y="150" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Flow: plan</text>
+<rect x="92" y="170" width="260" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="104" y="195" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >plan</text>
+<rect x="92" y="240" width="260" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="104" y="265" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Turns the spec into a plan</text>
+<rect x="932" y="116" width="300" height="360" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="952" y="150" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Technical details</text>
+<rect x="952" y="170" width="260" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="964" y="195" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >TypeScript</text>
+<rect x="32" y="84" width="1216" height="460" rx="12" fill="#32383E" fill-opacity="0.35" />
+<rect x="440" y="178" width="400" height="168" rx="12" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" filter="url(#sh)" />
+<text x="464" y="224" font-size="24" font-weight="500" fill="#32383E" text-anchor="start" >Delete flow plan?</text>
+<text x="464" y="254" font-size="13" font-weight="400" fill="#636B74" text-anchor="start" >Are you sure you want to delete this flow?</text>
+<rect x="512" y="282" width="120" height="40" rx="8" fill="#FFFFFF" stroke="#CDD7E1" stroke-width="1" />
+<text x="572.0" y="307.0" font-size="14" font-weight="500" fill="#32383E" text-anchor="middle" >Cancel</text>
+<rect x="648" y="282" width="120" height="40" rx="8" fill="#DE3024" />
+<text x="708.0" y="307.0" font-size="14" font-weight="500" fill="#FFFFFF" text-anchor="middle" >Delete flow</text>
+<text x="640" y="328" font-size="11" font-weight="400" fill="#32383E" text-anchor="start" ></text>
+<rect x="32" y="572" width="1216" height="200" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="600" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Compact confirmation: anatomy</text>
+<text x="56" y="630" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Width 400 px. Padding 24 px on all sides. Border 1 px #CDD7E1. Radius 12 px. Card shadow.</text>
+<text x="56" y="652" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Title 24 px 500 #32383E, baseline 46 px below the dialog top (H5).</text>
+<text x="56" y="674" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >One muted line 13 px 400 #636B74, 30 px below the title baseline.</text>
+<text x="56" y="696" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Button pair 120 × 40, radius 8, 16 px apart, centred under the text.</text>
+<text x="56" y="718" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Cancel: white with #CDD7E1 edge. Danger: #DE3024 fill, white 14 px 500 label.</text>
+<text x="56" y="740" font-size="12" font-weight="400" fill="#32383E" text-anchor="start" >Scrim: #32383E at 35% over the whole screen. The dimmed screen stays visible.</text></svg>

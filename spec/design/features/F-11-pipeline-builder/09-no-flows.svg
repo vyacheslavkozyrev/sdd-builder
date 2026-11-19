@@ -46,7 +46,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .thumb{fill:#9FA6AD}
 .lineSel{stroke:#635BFF;stroke-width:2.5;fill:none;marker-end:url(#arrS)}
 .handle{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
-.btnDanger{fill:#F04438}
+.btnDanger{fill:#DE3024}
 .btnT{font-size:11px;fill:#32383E}
 .bt-primary{fill:#FFFFFF;font-weight:500}
 .tiny{font-size:10px;fill:#636B74}
@@ -57,11 +57,11 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .dialog{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1}
 .dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
 .btnTxt{font-size:13px;font-weight:500;fill:#32383E}
-.markRed{fill:#FEF3F2;stroke:#F04438}
+.markRed{fill:#FEF3F2;stroke:#DE3024}
 .errT{font-size:11px;fill:#DE3024}
 .chkBox{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
 .thumb{fill:#9FA6AD}
-.nodeMark{fill:#FEF3F2;stroke:#F04438;stroke-width:2.5}
+.nodeMark{fill:#FEF3F2;stroke:#DE3024;stroke-width:2.5}
 </style>
 <rect width="1280" height="1000" fill="#F0F4F8"/>
 

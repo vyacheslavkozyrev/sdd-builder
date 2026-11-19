@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640"><defs><filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter><filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker><marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker></defs><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");text{font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif}</style><rect width="1280" height="640" fill="#F0F4F8"/>
+<text x="32" y="40" font-size="18" font-weight="500" fill="#32383E" text-anchor="start" >Lists and files</text>
+<text x="32" y="60" font-size="12" font-weight="400" fill="#636B74" text-anchor="start" >Findings list item (severity pill, subject, message) and the file tree in the project preview.</text>
+<text x="1248" y="624" font-size="11" font-weight="400" fill="#636B74" text-anchor="end" >F-00 · sheet 11 · 1280 × 640</text>
+<rect x="32" y="84" width="600" height="420" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="56" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >Findings list item</text>
+<rect x="56" y="132" width="540" height="56" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<rect x="68" y="142" width="76" height="20" rx="10" fill="#FEF3F2" />
+<text x="106" y="156" font-size="12" font-weight="500" fill="#DE3024" text-anchor="middle" >Blocker</text>
+<text x="156" y="156" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Brief · Idea</text>
+<text x="68" y="176" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >The idea is blank. Describe the project in step 1.</text>
+<rect x="56" y="204" width="540" height="56" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<rect x="68" y="214" width="76" height="20" rx="10" fill="#FFFAEA" />
+<text x="106" y="228" font-size="12" font-weight="500" fill="#B84D05" text-anchor="middle" >Warning</text>
+<text x="156" y="228" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Technical details · Rules</text>
+<text x="68" y="248" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >The rules list is empty. Add a rule block if you need one.</text>
+<rect x="56" y="276" width="540" height="56" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<rect x="68" y="286" width="76" height="20" rx="10" fill="#F0F4F8" />
+<text x="106" y="300" font-size="12" font-weight="500" fill="#636B74" text-anchor="middle" >Info</text>
+<text x="156" y="300" font-size="12" font-weight="500" fill="#32383E" text-anchor="start" >Flow · verify</text>
+<text x="68" y="320" font-size="13" font-weight="400" fill="#32383E" text-anchor="start" >Human approval is on and the flow has no check.</text>
+<text x="56" y="360" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Anatomy: pill 76 × 20 at the left (padding 12), subject 12 px 500 at 100 px,</text>
+<text x="56" y="378" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >message 13 px 400 on the second line. Row 540 × 56, radius 8, 1 px #DDE7EE edge.</text>
+<text x="56" y="396" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Severity: Blocker, Warning and Info (see 09-notices for the pill colours).</text>
+<text x="56" y="430" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Result line under the list: 12 px grey, e.g. "1 blocker, 1 warning and 1 info."</text>
+<rect x="656" y="84" width="592" height="420" rx="12" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" filter="url(#sh)" />
+<text x="680" y="112" font-size="14" font-weight="500" fill="#32383E" text-anchor="start" >File tree (project preview)</text>
+<rect x="680" y="128" width="544" height="360" rx="8" fill="#FFFFFF" stroke="#DDE7EE" stroke-width="1" />
+<text x="696" y="152" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">.claude/</text>
+<text x="712" y="172" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">agents/</text>
+<text x="728" y="192" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">commit.md</text>
+<text x="728" y="212" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">plan.md</text>
+<text x="712" y="232" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">commands/</text>
+<text x="728" y="252" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">pipeline.md</text>
+<text x="712" y="272" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">rules/</text>
+<text x="728" y="292" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">general.md</text>
+<rect x="1120" y="281" width="44" height="16" rx="8" fill="#ECF0FF" />
+<text x="1142" y="293" font-size="10" font-weight="500" fill="#635BFF" text-anchor="middle" >rule</text>
+<text x="728" y="312" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">typescript.md</text>
+<rect x="1120" y="301" width="44" height="16" rx="8" fill="#ECF0FF" />
+<text x="1142" y="313" font-size="10" font-weight="500" fill="#635BFF" text-anchor="middle" >rule</text>
+<text x="696" y="332" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">CLAUDE.md</text>
+<text x="696" y="352" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">spec/</text>
+<text x="712" y="372" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#636B74">documents/</text>
+<text x="728" y="392" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="12" fill="#32383E">process.md</text>
+<text x="656" y="528" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Folders: monospace 12 px, grey #636B74, with a trailing slash.</text>
+<text x="656" y="546" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Files: monospace 12 px, ink. Indent 16 px per level.</text>
+<text x="656" y="564" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Rule tag: 44 × 16, radius 8, #ECF0FF fill, "rule" 10 px 500 #635BFF.</text>
+<text x="656" y="582" font-size="11" font-weight="400" fill="#636B74" text-anchor="start" >Scrollbar: 4 px wide, #CDD7E1 thumb, at the right edge of the list.</text></svg>

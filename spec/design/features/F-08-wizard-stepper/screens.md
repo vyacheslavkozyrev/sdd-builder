@@ -18,7 +18,7 @@ Content area: x 260–1280 (grey #F0F4F8). The white card sits at x 284–1256 (
 
 Footer note and caption sit inside the grey area, 24 px below the card: note at x 284, caption right-aligned at x 1256, baseline y 766, as F-07.
 
-Done and to-do states use the F-07 colours with one addition from the Material Kit palette (kepple, the green of the F-11 reference): the done node is kepple 500 #15B79F with a white check mark (a stroke path, not a glyph); the done label is kepple 600 #0E9382 (3.8:1 on white, below the 4.5:1 for 12 px text; see the owner decision of 2026-11-18). This colour is new to the F-07 palette; see Decision 6.
+Done and to-do states use the F-07 colours with one addition from the Material Kit palette (kepple, the green of the F-11 reference): the done node is kepple 500 #15B79F with a white check mark (a stroke path, not a glyph); the done label is kepple 600 #107569 (3.8:1 on white, below the 4.5:1 for 12 px text; see the owner decision of 2026-11-18). This colour is new to the F-07 palette; see Decision 6.
 
 ## Screens
 
@@ -44,7 +44,7 @@ Criteria with no screen are not visual and are proved by tests:
 3. **Next is shown disabled on step 4.** It keeps its place so the foot of the panel does not move; it is grey and cannot be pressed (AC-007).
 4. **The content area is a slot for the step body.** The card fills the grey area beside the panel, from the top to the footer note. All step content sits on the white card; there is no inner coloured container (change of 2026-11-17).
 5. **Step bodies are placeholders.** Each body shows a decorative sparkle mark and the line "The content of this step is added in a later feature." It has no title and no step pill (change of 2026-11-17: the stepper names the step). The body holds no field, so F-08 adds no input. The real content comes in F-09, F-10, F-11, F-12 and F-13. AC-013 was amended on 2026-11-17 to match (see the note below).
-6. **Colour roles.** Violet (#635BFF, the F-07 primary) is the brand, the current step, and the primary button. Success green (kepple 500 #15B79F node, kepple 600 #0E9382 label, both from the Material Kit palette) marks done steps; it is the one colour added to the F-07 palette for this feature, and the check mark on it is a graphic, not text (white on #15B79F is 2.5:1, a graphic below the 3:1 guide; see Open points). To-do labels are #636B74 (F-07 secondary text). Grey (#F0F4F8 fill, #9FA6AD text, #DDE7EE outline) is for to-do nodes, disabled buttons and the disabled Next. Owner to confirm the green (see Open points).
+6. **Colour roles.** Violet (#635BFF, the F-07 primary) is the brand, the current step, and the primary button. Success green (kepple 500 #15B79F node, kepple 600 #107569 label, both from the Material Kit palette) marks done steps; it is the one colour added to the F-07 palette for this feature, and the check mark on it is a graphic, not text (white on #15B79F is 2.5:1, a graphic below the 3:1 guide; see Open points). To-do labels are #636B74 (F-07 secondary text). Grey (#F0F4F8 fill, #9FA6AD text, #DDE7EE outline) is for to-do nodes, disabled buttons and the disabled Next. Owner to confirm the green (see Open points).
 7. **New project is the F-07 control and is unchanged on every screen, except its style.** It is the secondary button at the top of the left panel (white fill, 1 px #CDD7E1 border, #32383E text, 8 px radius; owner decision of 2026-11-18) and starts the wizard again at step 1 (AC-012). No confirmation is drawn, as approved in F-07 (open point 1 of F-07).
 
 ## Restyle checks (2026-11-18)

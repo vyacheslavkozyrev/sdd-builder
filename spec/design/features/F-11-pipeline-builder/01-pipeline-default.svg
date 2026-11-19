@@ -18,7 +18,7 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 .caption{font-size:11px;fill:#636B74}
 .tabT{fill:#32383E;font-size:12px}
 .plus{font-size:16px;font-weight:500;fill:#32383E}
-.label-done{font-size:12px;font-weight:500;fill:#0E9382}
+.label-done{font-size:12px;font-weight:500;fill:#107569}
 .label-cur{font-size:13px;font-weight:500;fill:#635BFF}
 .label-todo{font-size:12px;font-weight:500;fill:#636B74}
 .num{font-size:12px;font-weight:500;fill:#FFFFFF}

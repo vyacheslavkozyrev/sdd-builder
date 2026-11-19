@@ -24,7 +24,7 @@ Look adapted from **Material Kit React** by Devias IO (MIT licence, github.com/d
 
 - Primary `#635BFF` (hover `#4E36F5`, tint `#ECF0FF`): the primary button (Next), the selected tab, the selected flow and arrow. Secondary button (New project, owner decision of 2026-11-18): white fill, 1 px `#CDD7E1` border, text `#32383E`, 8 px radius.
 - Page `#F0F4F8`; cards white with border `#DDE7EE` and a 12 px radius; controls (buttons, fields, tabs, chips, flow boxes) an 8 px radius.
-- Text `#32383E` (primary) and `#636B74` (secondary and small). Danger `#F04438`; refused text `#DE3024` on `#FEF3F2`. Success `#15B79F` (done steps), `#0E9382` for their labels. Warning `#FB9C0C`, text `#DE7101`, tint `#FFFAEA`.
+- Text `#32383E` (primary) and `#636B74` (secondary and small). Danger `#F04438`; refused text `#DE3024` on `#FEF3F2`. Success `#15B79F` (done steps), `#107569` for their labels. Warning `#FB9C0C`, text `#DE7101`, tint `#FFFAEA`.
 - Font: Inter, weights 400 and 500; headings 500. The SVGs name Inter first in their font stack.
 
 ## Legend

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>F-12 workflow builder screens</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; padding: 32px 16px; background: #F0F4F8; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; color: #32383E; }
+    header, section { max-width: 1280px; margin: 0 auto 24px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    header p { margin: 0; color: #555E68; font-size: 14px; }
+    section { background: #FFFFFF; border: 1px solid #DDE7EE; border-radius: 12px; padding: 16px; }
+    h2 { font-size: 16px; margin: 0 0 4px; }
+    section p { margin: 0 0 12px; color: #555E68; font-size: 13px; }
+    img { display: block; width: 100%; height: auto; border: 1px solid #DDE7EE; border-radius: 8px; }
+    ul.decided { max-width: 1280px; margin: 0 auto 24px; background: #FFFFFF; border: 1px solid #DDE7EE; border-radius: 12px; padding: 16px 16px 16px 32px; font-size: 13px; color: #555E68; }
+    ul.decided li { margin: 0 0 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>F-12 Workflow builder: the flow canvas, its blocks and conditions, their properties, returns, custom agents and delete (wireframes)</h1>
+    <p>Step 3 of the wizard, the flow tab, drawn as a canvas like the Pipeline tab. Start and End are circles, Agents are boxes joined by arrows, and a Condition is a diamond on an arrow with a true and a false branch. A false branch can return to an earlier Agent with a round limit. A toolbox with icon buttons floats over the canvas. Every screen uses the frame of F-07. Wireframes only; read <code>screens.md</code> for the legend, the coverage and the schema questions.</p>
+  </header>
+
+  <ul class="decided">
+    <li><strong>Decided by the owner (2026-11-19):</strong> Start and End are kept; checks are Conditions on arrows (a pre-check before the first Agent, a check before End); there are no flow-level checks; a false branch can return to any earlier Agent, with its round limit kept; the toolbox floats with icon buttons; there are no Move buttons (the arrows order the blocks); the true branch goes to the next block.</li>
+    <li><strong>Still open:</strong> questions 1, 2, 3, 5, 6, 8 and parts of 7, and the new questions 9 (a false pre-check), 10 (the round limit) and 11 (deleting a block with arrows). Question 4 (links) is decided: blocks are linked by arrows.</li>
+  </ul>
+
+  <section>
+    <h2>01 The canvas of plan, End selected</h2>
+    <p>Start, the pre-check, planner, reviewer, the end check and End, with the return from the end check to planner (dashed, up to 3 rounds) and the pre-check's false branch to End (stopped). End is selected: its outcome and produced artifact are on the right.</p>
+    <img src="01-flow-canvas.svg" alt="The plan canvas: Start, a pre-check diamond, planner, reviewer, an end check diamond with a dashed return to planner up to 3 rounds, and End; the toolbox floats top-left and the End properties are on the right">
+  </section>
+
+  <section>
+    <h2>02 An Agent selected</h2>
+    <p>The planner box selected: name, description, arguments as rows with + and minus, model, tools as rows, and the body with its counter. There are no move buttons; Delete is at the foot.</p>
+    <img src="02-agent-selected.svg" alt="The planner Agent selected on the canvas, with its properties: name, description, arguments, model, tools, body with counter and Delete block">
+  </section>
+
+  <section>
+    <h2>03 A Condition selected: the pre-check</h2>
+    <p>The pre-check on the arrow between Start and planner: what it checks, the true branch (read-only, the next block), and the false branch, which ends the flow as stopped. No return, so no round limit.</p>
+    <img src="03-condition-precheck-selected.svg" alt="The pre-check Condition selected: what it checks reads the previous step is complete, true goes to planner, false goes to End stopped, and Delete block">
+  </section>
+
+  <section>
+    <h2>04 A Condition selected: the end check with a return</h2>
+    <p>The end check between reviewer and End: what it checks, true to End, false returns to planner with a round limit of 3 rounds, which is also written on the return arrow.</p>
+    <img src="04-condition-return-selected.svg" alt="The end check Condition selected: what it checks reads the reviewer approves, true goes to End, false returns to planner, round limit 3 rounds">
+  </section>
+
+  <section>
+    <h2>05 Deleting a block</h2>
+    <p>The confirmation for the planner block: "Delete the planner block?", the sentence that its arrows go too, Cancel and Delete. The whole screen is dimmed behind it, the left panel included.</p>
+    <img src="05-delete-block-confirm.svg" alt="The confirmation Delete the planner block with the text Are you sure you want to delete this block and Its arrows are removed too, with Cancel and Delete buttons">
+  </section>
+
+  <section>
+    <h2>06 A custom agent with a refused name</h2>
+    <p>The reviewer block is renamed to planner, which another agent of the pipeline already uses. The name field shows the error style, the reason sits beneath it, and the saved name reviewer is kept on the field and on the canvas box.</p>
+    <img src="06-agent-name-refused.svg" alt="The reviewer Agent with its name refused: the field in the error style, the reason planner is taken by another agent beneath it, and the saved name kept">
+  </section>
+</body>
+</html>

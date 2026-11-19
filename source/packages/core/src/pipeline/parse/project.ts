@@ -1,18 +1,19 @@
 import {
   childPath,
   describeValue,
-  readList,
   readObject,
-  readText,
   ROOT_PATH,
   type ProblemCollector,
   type Reader,
 } from '../check/primitives.js';
+import { readArchitecture, readIdea, readName, readStack } from './brief.js';
+import { readRules } from './rules.js';
 
 // The root object of a project config (pipeline-schema.md §2). Every root key is known here:
 // an unknown key is refused (AC-007), a required key must be present (AC-004), and each key
-// is checked by its JSON type and limit. The bodies of `rules`, `stack` and `pipeline` are
-// read by their own parsers in later tasks; here they are checked for their type only.
+// is checked by its JSON type and limit. `name`, `idea`, `architecture`, `stack` and `rules`
+// are read by their own parsers. The body of `pipeline` is read by its own parser in a later task;
+// here it is checked for its type only.
 
 const readSchemaVersion: Reader<unknown> = (value, path, problems) => {
   if (value === 2) return value;
@@ -22,11 +23,11 @@ const readSchemaVersion: Reader<unknown> = (value, path, problems) => {
 
 const ROOT_READERS: ReadonlyMap<string, Reader<unknown>> = new Map<string, Reader<unknown>>([
   ['schemaVersion', readSchemaVersion],
-  ['name', (value, path, problems) => readText(value, path, { max: 100 }, problems)],
-  ['idea', (value, path, problems) => readText(value, path, { max: 5000 }, problems)],
-  ['architecture', (value, path, problems) => readText(value, path, { max: 5000 }, problems)],
-  ['stack', readObject],
-  ['rules', readList],
+  ['name', readName],
+  ['idea', readIdea],
+  ['architecture', readArchitecture],
+  ['stack', readStack],
+  ['rules', readRules],
   ['pipeline', readObject],
 ]);
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 2 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 3 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | ---- | ------- | ------ | ----- |
 | T001 | Model types, problem collector and value rules (`pipeline/model.ts`, `pipeline/check/primitives.ts`) | 0 blockers; 3 warnings fixed (test labels; dead export removed); 1 suggestion fixed (singular message) | task check passed: core 64, api 6, web 4 |
 | T002 | Parser entry, root object and key rules (`pipeline/parse/project.ts`, `pipeline/parse/index.ts`) | 0 blockers; 2 warnings fixed (unknown keys and the missing-key order tested); 2 suggestions fixed (value named in the schemaVersion message; undefined input) | task check passed: api 6, web 4, core 87 |
+| T003 | Rules and brief fields (`pipeline/parse/rules.ts`, `pipeline/parse/brief.ts`) | 0 blockers; 4 warnings fixed (conditional assertions split; dropping and no-throw tested; emoji limits for idea and architecture) | task check passed: api 6, web 4, core 131 |
 
 ---
 

@@ -12,7 +12,7 @@ Source of the criteria: `stories.md` (AC-001 to AC-088, all `[auto]`). Contract:
 
 ## Tasks
 
-- [ ] T001 [Core] Model types, the problem collector and the value rules — `source/packages/core/src/pipeline/model.ts`, `source/packages/core/src/pipeline/check/primitives.ts`, `source/packages/core/test/pipeline/primitives.test.ts` — covers AC-009, AC-010, AC-016, AC-029, AC-030, AC-088
+- [x] T001 [Core] Model types, the problem collector and the value rules — `source/packages/core/src/pipeline/model.ts`, `source/packages/core/src/pipeline/check/primitives.ts`, `source/packages/core/test/pipeline/primitives.test.ts` — covers AC-009, AC-010, AC-016, AC-029, AC-030, AC-088
 - [ ] T002 [Core] Parser entry, root object and key rules — `source/packages/core/src/pipeline/parse/index.ts`, `source/packages/core/src/pipeline/parse/project.ts`, `source/packages/core/test/pipeline/project.test.ts` — covers AC-002, AC-003, AC-004, AC-005, AC-007, AC-010
 - [ ] T003 [Core] Rules and brief fields — `source/packages/core/src/pipeline/parse/rules.ts`, `source/packages/core/src/pipeline/parse/brief.ts`, `source/packages/core/src/pipeline/parse/project.ts`, `source/packages/core/test/pipeline/rules-brief.test.ts` — covers AC-066, AC-067, AC-069, AC-074, AC-075, AC-076, AC-088
 - [ ] T004 [Core] Argument rows — `source/packages/core/src/pipeline/parse/argument.ts`, `source/packages/core/test/pipeline/argument.test.ts` — covers AC-015, AC-016, AC-017, AC-019

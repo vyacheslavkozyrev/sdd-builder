@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | ⏳ Pending |  | 0 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 1 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,9 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-None
-
-_While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
 ---
 
@@ -27,6 +25,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
+| T001 | Model types, problem collector and value rules (`pipeline/model.ts`, `pipeline/check/primitives.ts`) | 0 blockers; 3 warnings fixed (test labels; dead export removed); 1 suggestion fixed (singular message) | task check passed: core 64, api 6, web 4 |
 | T013 | Public namespace: `pipeline` exported from the root; `pipeline/index.ts` exposes the model, `parseProjectConfig` and `defaultPipeline` | 0 blockers; 3 warnings fixed (identity and exact-export checks, model and type checks); 1 suggestion fixed; 1 suggestion deferred (`ParseResult` not exported) | task check passed: core 438, api 6, web 3 |
 | T012 | Default pipeline as an import (`pipeline/default.ts`, JSON import at build time) and core purity (AST scan of `core/src`) | 0 blockers, 0 warnings; 1 suggestion deferred (scan list fixed by AC-035) | task check passed: core 432, api 6, web 3 |
 | T011 | Default pipeline data, part 3: flows `verify` and `complete`, the gates on the links from `build` and `verify`, and the tests of AC-030 to AC-032 (`default-data.test.ts`) | 2 blockers fixed (Start block added to `verify` and `complete`), 2 warnings fixed (a test for the Start block; a test for the §11 gates), 1 suggestion fixed. Open for the owner: a stop route on the build to verify gate is not in decision 33 (Deferred Findings) | task check passed: core 417, api 6, web 3 |

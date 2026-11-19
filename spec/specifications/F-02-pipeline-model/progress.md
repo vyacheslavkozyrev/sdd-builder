@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 16 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 17 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T014 | Flow names and next links between flows (`pipeline/check/flow-links.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (array build; loop entered from outside test) | task check passed: api 6, web 4, core 530 |
 | T015 | Rule tags name rules of the project (`pipeline/check/rule-tags.ts`); with the Amendment of 2026-11-19 | 0 blockers open; one test removed (could not fail); index amendment applied; 547 core tests | task check passed: api 6, web 4, core 547 |
 | T016 | End names an artifact of its flow (`pipeline/check/end-artifact.ts`) | 0 blockers, 0 open warnings; 1 warning fixed (document-index tests); 1 suggestion deferred (empty value message) | task check passed: api 6, web 4, core 559 |
+| T017 | Default pipeline as data, imported, with its tests (`templates/pipeline/default.json`, `pipeline/default.ts`) | 0 open warnings; build check moved before the commit (owner option 2, Amendment 2026-11-19) | task check passed: api 6, web 4, core 577 |
 
 ---
 
@@ -87,6 +88,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T016 (`source/packages/core/src/pipeline/check/end-artifact.ts`, message for an empty `producedArtifact`): the message reads `got ` with nothing after it. The parser already refuses the empty string (AC-063 path), so the check only sees it in direct calls. Not changed: the sibling checks print values unquoted, and quoting here alone would split the message style.
 
 ---
+
+- WARNING, unresolved, owner decision (T017, `source/templates/pipeline/default.json`, flow `build`, `build-commit` → `build-check`): the check follows the commit agent, so a false route (`{stop: true}`) stops the flow only after the task is committed and cannot stop the commit. The order is kept because AC-080 requires the check "after its last agent and before its end"; with `commit` as an agent, a check before the commit would not be after the last agent. Decision 40 compares the check with the commit size check, which runs before the commit. Owner to choose: keep the order and accept that a failed check stops after the commit, or amend AC-080 and decision 40 so the check gates the commit (for example, by making the commit a step outside the agents). — resolved 2026-11-19: option 2, the build check now precedes the commit (see Amendments).
+
+- SUGGESTION (T017, `source/packages/core/src/pipeline/parse/index.ts`, `parseProjectConfig`): the entry point runs the structural readers only; a config with a clashing block id passes it with no problems. The cross-project checks (ids, links, end artifacts, rule tags) are not wired in until T019. Until then the default's cross-project checks are tested directly in `default-pipeline.test.ts` (AC-077). Resolved by T019; no change here.
 
 ## Test Results
 
@@ -149,3 +154,8 @@ Naming notes (not gaps): the flow.test.ts titles for AC-007, AC-015, AC-017 and 
 **Reason**: the readers drop refused items and compacted the list, so every path after a refused item pointed at the wrong item (for example `ruleTags ["Bad Id", "missing"]` reported the unknown rule at `ruleTags.0`). Owner decision 2026-11-19: option 1, each kept item carries its document index. Tools, reads, writes and artifacts stay plain: no cross-check reads them, and their readers already report at document positions.
 **Impact**: T001–T014 code is changed in this commit; their tests are updated for the index and stay green. Architecture is unchanged (a model field, not an architecture rule). pipeline-schema.md is unchanged (it describes the file format). The task-check is green (core 547, api 6, web 4).
 
+
+### Amendment — 2026-11-19 (build check before the commit)
+**Changed**: `spec/specifications/F-02-pipeline-model/stories.md` (AC-080: the condition sits after the last work agent and before the commit agent and its end; its true route goes to the commit agent, not the end); `spec/documents/architecture.md` (decision 40 gains the placement; §11 item 4 and the build row of the flow table); `source/templates/pipeline/default.json` (build order is implement, review, test, condition, commit, end; the condition's true route is `build-commit`, the commit agent's next is `build-end`); `source/packages/core/test/pipeline/default-pipeline.test.ts` (AC-080 tests for the new order, the true route and the commit agent's next).
+**Reason**: the build check ran after the commit, so the commit happened before the check could stop it. Owner decision 2026-11-19: option 2, the build check gates the commit. This also resolves the WARNING under Deferred Findings for `build-commit` → `build-check`.
+**Impact**: T017 only. The T017 change is the one staged with this amendment; no task before T017 changes. The Current Task line is unchanged. Architecture is changed as stated above; pipeline-schema.md is unchanged.

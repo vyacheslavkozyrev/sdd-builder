@@ -220,7 +220,7 @@ Parser rules that follow from the schema (shape only; references are checked by 
 
 39. **A flow's required attributes and its connection (2026-11-18, F-11, owner decision).** A flow requires a name and a body; its description and arguments are optional. A flow must be connected to another flow (an incoming or an outgoing `next`), except in a pipeline with a single flow. This extends the reachability rule of §12 (a flow with no link in a pipeline of more than one flow is a blocker). Not yet implemented: the parser, analyzer and default pipeline change in a plan of their own.
 
-40. **A failed check stops the flow and asks the user (2026-11-18, F-11, owner decision).** A check is free text. When a check fails in the generated process, the flow stops and the command asks the person what to do, as the commit size check does. The check has no true or false output in the model; loops are forbidden (decision 38); a link is removed by Delete connection, which leaves the target flow in place.
+40. **A failed check stops the flow and asks the user (2026-11-18, F-11, owner decision).** A check is free text. When a check fails in the generated process, the flow stops and the command asks the person what to do, as the commit size check does. The check has no true or false output in the model; loops are forbidden (decision 38); a link is removed by Delete connection, which leaves the target flow in place. Placement of the build check (2026-11-19, owner decision, option 2): in the default `build` flow the build condition sits after the last work agent (`test`) and before the commit agent, so the commit happens only after the check passes. Its true route goes to the commit agent and its false route stops the flow (`{stop: true}`). This amends the earlier placement, which put the check after the commit; `source/templates/pipeline/default.json` and AC-080 of F-02 follow it.
 
 41. **Analysis must succeed before generation; generation writes the content with the model (2026-11-19, owner decision).** A skipped or failed review is an error, not a pass: Generate stays disabled until Analyze runs and the review completes. Generation (`/generate`) does not only lay out the folder structure: the model writes the content of each generated file (agents, rules, commands, `CLAUDE.md`, `process.md`) from the pipeline's descriptions, as decision 7 states; the file list and paths come from core, and the reply is checked (decision 11). The preview shows the file list; the contents are written when the user generates. While generation runs, the Generate button shows a pending state.
 
@@ -293,7 +293,7 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 1. **specify** (flow, for each feature). Agent `specify`: drafts `stories.md`. Its questions are asked by the main session before it starts.
 2. **ux** (flow, for each feature). Agent `ux`: draws the screens under `spec/design/features/`, from the stories. Its screens are approved before the plan is written.
 3. **plan** (flow, for each feature). Agent `plan`: drafts `plan.md` from the stories and the approved screens.
-4. **build** (flow, for each task in `plan.md`). Agent `implement` → Agent `review` → Agent `test` → Agent `commit`. One commit per task.
+4. **build** (flow, for each task in `plan.md`). Agent `implement` → Agent `review` → Agent `test` → the build check (a condition) → Agent `commit`. One commit per task, made only after the build check passes (owner decision 2026-11-19, option 2).
 5. **verify** (flow, for each feature). Agent `verify`: verify mode, every criterion covered.
 6. **complete** (flow, for each feature). Agent `complete`: marks the feature complete and commits its spec folder.
 
@@ -304,7 +304,7 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 | specify | on: the user approves the stories | — |
 | ux | on: the user approves the screens | — |
 | plan | on: the user approves the plan | — |
-| build | off | the review reports no blocker or warning; the test check passes; the staged change is at most 400 lines; all tasks are committed and the check passes |
+| build | off | the review reports no blocker or warning; the test check passes; the staged change is at most 400 lines; the build check passes before the task is committed |
 | verify | on: the user approves the manual checklist results | — |
 | complete | off | — |
 

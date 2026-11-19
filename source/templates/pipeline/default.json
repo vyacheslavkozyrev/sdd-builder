@@ -1,0 +1,102 @@
+{
+  "name": "SDD process",
+  "description": "The default spec-driven process: specify, design the screens, plan, build each task, verify, complete.",
+  "arguments": [
+    { "id": "feature-id", "required": true, "hint": "F-XX" }
+  ],
+  "flows": [
+    {
+      "id": "specify",
+      "name": "Specify",
+      "description": "Drafts the user stories and acceptance criteria of the feature.",
+      "arguments": [],
+      "body": "Writes stories.md from the brief and the answers to its questions.",
+      "artifacts": [{ "label": "stories.md", "template": "User stories and acceptance criteria" }],
+      "approval": true,
+      "next": "ux",
+      "blocks": [
+        { "id": "specify-start", "kind": "start", "next": "specify-agent" },
+        { "id": "specify-agent", "kind": "agent", "name": "specify", "description": "Drafts stories.md.", "arguments": [], "next": "specify-end" },
+        { "id": "specify-end", "kind": "end", "outcome": "done", "producedArtifact": "stories.md" }
+      ]
+    },
+    {
+      "id": "ux",
+      "name": "UX",
+      "description": "Draws the screens of the feature for approval.",
+      "arguments": [],
+      "body": "Draws the screens under spec/design from the stories.",
+      "artifacts": [{ "label": "screens.md", "template": "Screens, their states and decisions" }],
+      "approval": true,
+      "next": "plan",
+      "blocks": [
+        { "id": "ux-start", "kind": "start", "next": "ux-agent" },
+        { "id": "ux-agent", "kind": "agent", "name": "ux", "description": "Draws the screens as SVG.", "arguments": [], "next": "ux-end" },
+        { "id": "ux-end", "kind": "end", "outcome": "done", "producedArtifact": "screens.md" }
+      ]
+    },
+    {
+      "id": "plan",
+      "name": "Plan",
+      "description": "Turns the approved stories and screens into a task plan.",
+      "arguments": [],
+      "body": "Writes plan.md from the approved stories and screens.",
+      "artifacts": [{ "label": "plan.md", "template": "Task list, in order" }],
+      "approval": true,
+      "next": "build",
+      "blocks": [
+        { "id": "plan-start", "kind": "start", "next": "plan-agent" },
+        { "id": "plan-agent", "kind": "agent", "name": "plan", "description": "Drafts plan.md.", "arguments": [], "next": "plan-end" },
+        { "id": "plan-end", "kind": "end", "outcome": "done", "producedArtifact": "plan.md" }
+      ]
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "description": "Builds each task of the plan, one commit per task.",
+      "arguments": [],
+      "body": "Runs for each task in plan.md: implement, review, test and commit.",
+      "artifacts": [{ "label": "task commit", "template": "One commit per task" }],
+      "approval": false,
+      "next": "verify",
+      "blocks": [
+        { "id": "build-start", "kind": "start", "next": "build-implement" },
+        { "id": "build-implement", "kind": "agent", "name": "implement", "description": "Builds the task.", "arguments": [], "next": "build-review" },
+        { "id": "build-review", "kind": "agent", "name": "review", "description": "Reviews the staged change.", "arguments": [], "next": "build-test" },
+        { "id": "build-test", "kind": "agent", "name": "test", "description": "Runs the tests in verify mode.", "arguments": [], "next": "build-check" },
+        { "id": "build-check", "kind": "condition", "description": "the build shows 0 errors, 0 warnings, 0 lint errors and all tests pass", "true": { "to": "build-commit" }, "false": { "stop": true } },
+        { "id": "build-commit", "kind": "agent", "name": "commit", "description": "Commits the task.", "arguments": [], "next": "build-end" },
+        { "id": "build-end", "kind": "end", "outcome": "done", "producedArtifact": "task commit" }
+      ]
+    },
+    {
+      "id": "verify",
+      "name": "Verify",
+      "description": "Verifies that every criterion of the feature is covered.",
+      "arguments": [],
+      "body": "Runs the feature's checks in verify mode and records the results in progress.md.",
+      "artifacts": [{ "label": "progress.md", "template": "Verification results for every criterion" }],
+      "approval": true,
+      "next": "complete",
+      "blocks": [
+        { "id": "verify-start", "kind": "start", "next": "verify-agent" },
+        { "id": "verify-agent", "kind": "agent", "name": "verify", "description": "Verifies every criterion.", "arguments": [], "next": "verify-end" },
+        { "id": "verify-end", "kind": "end", "outcome": "done", "producedArtifact": "progress.md" }
+      ]
+    },
+    {
+      "id": "complete",
+      "name": "Complete",
+      "description": "Marks the feature complete and commits its spec folder.",
+      "arguments": [],
+      "body": "Marks the feature complete in progress.md and commits its spec folder.",
+      "artifacts": [{ "label": "completed spec folder", "template": "The feature marked complete" }],
+      "approval": false,
+      "blocks": [
+        { "id": "complete-start", "kind": "start", "next": "complete-agent" },
+        { "id": "complete-agent", "kind": "agent", "name": "complete", "description": "Marks the feature complete.", "arguments": [], "next": "complete-end" },
+        { "id": "complete-end", "kind": "end", "outcome": "done", "producedArtifact": "completed spec folder" }
+      ]
+    }
+  ]
+}

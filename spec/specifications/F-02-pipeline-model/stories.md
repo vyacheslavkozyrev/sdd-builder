@@ -280,7 +280,7 @@ This feature is an enabler: the stories are written for the developer who builds
 - [ ] AC-077 `[auto]`: The default pipeline, placed in a `ProjectConfig` with `schemaVersion` 2 and an empty `rules` list, parses with an empty list of problems.
 - [ ] AC-078 `[auto]`: The default pipeline has six flows with the ids `specify`, `ux`, `plan`, `build`, `verify` and `complete`, in this order. `specify` is the first flow (no flow's `next` names it); each flow's `next` names the following flow; `complete` has no `next`.
 - [ ] AC-079 `[auto]`: Each default flow has exactly one Start, exactly one End and at least one Agent. The agents of the default pipeline have unique names.
-- [ ] AC-080 `[auto]`: The `build` flow has exactly one condition, placed after its last agent and before its end, with the description `the build shows 0 errors, 0 warnings, 0 lint errors and all tests pass`. Its `true` route goes to the end, and its `false` route stops the flow (`{stop: true}`).
+- [ ] AC-080 `[auto]`: The `build` flow has exactly one condition, placed after its last work agent and before the commit agent and its end, with the description `the build shows 0 errors, 0 warnings, 0 lint errors and all tests pass`. Its `true` route goes to the commit agent, and its `false` route stops the flow (`{stop: true}`).
 - [ ] AC-081 `[auto]`: `approval` is `true` for `specify`, `ux`, `plan` and `verify`, and `false` for `build` and `complete`.
 - [ ] AC-082 `[auto]`: Each default flow's End names, in `producedArtifact`, the label of one of that flow's artifacts, and every artifact of the default flows has a non-blank label.
 - [ ] AC-083 `[auto]`: The default pipeline has `name`, `description` and `arguments`, and its arguments include `feature-id`, which is required.

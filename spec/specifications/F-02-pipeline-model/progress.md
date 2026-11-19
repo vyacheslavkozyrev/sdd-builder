@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 9 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 10 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T007 | Agent block and the text and tag lists (`pipeline/parse/agent.ts`, `pipeline/parse/lists.ts`) | 0 blockers; 0 warnings open; 3 warnings and 3 suggestions fixed (emoji limits, repeats, list-field types) | task check passed: api 6, web 4, core 310 |
 | T008 | Block dispatch on kind and the block count (`pipeline/parse/block.ts`) | 0 blockers; 2 warnings fixed (invalid items not counted; non-object items); 1 suggestion not applied | task check passed: api 6, web 4, core 333 |
 | T009 | Artifacts of a flow (`pipeline/parse/artifact.ts`) | 0 blockers; 1 warning fixed (all Unicode line terminators refused in a label); 1 suggestion fixed (cross-flow label test) | task check passed: api 6, web 4, core 366 |
+| T010 | Flow object: keys, scalar fields, lists and tags (`pipeline/parse/flow.ts`) | 0 blockers; 3 warnings and 1 suggestion fixed (tests only) | task check passed: api 6, web 4, core 421 |
 
 ---
 

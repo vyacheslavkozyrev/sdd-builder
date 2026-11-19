@@ -44,7 +44,7 @@ export function childPath(parent: string, key: string): string {
   return parent === ROOT_PATH ? key : `${parent}.${key}`;
 }
 
-function describeValue(value: unknown): string {
+export function describeValue(value: unknown): string {
   if (value === null) return 'null';
   if (value === undefined) return 'nothing';
   if (Array.isArray(value)) return 'a list';

@@ -247,3 +247,10 @@ New criteria for the amendment:
 - **Template help text:** open (the owner asked for the wording).
 - **Not approved yet:** the screens wait for a visual style change; they are not committed.
 - **Model:** this replaces `architecture.md` §6 decision 33 (connections as `connectedTo` with a label and gate). Needs an architecture decision before code.
+
+---
+
+## Decision 2026-11-18c (owner): a check is free text
+
+- **A check is free text only.** It has no type (`checks` or `diff size`) and no threshold. The check's text says what must pass, and a check is removed on its own row. This supersedes the type and threshold rules of AC-018 and the check's fields in AC-046 (the blank-description refusal remains: a check's text is required, non-blank).
+- **Human approval** remains the flow's checkbox, as in the 2026-11-18 decision.

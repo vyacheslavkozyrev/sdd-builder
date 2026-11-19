@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 4 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 5 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T002 | Parser entry, root object and key rules (`pipeline/parse/project.ts`, `pipeline/parse/index.ts`) | 0 blockers; 2 warnings fixed (unknown keys and the missing-key order tested); 2 suggestions fixed (value named in the schemaVersion message; undefined input) | task check passed: api 6, web 4, core 87 |
 | T003 | Rules and brief fields (`pipeline/parse/rules.ts`, `pipeline/parse/brief.ts`) | 0 blockers; 4 warnings fixed (conditional assertions split; dropping and no-throw tested; emoji limits for idea and architecture) | task check passed: api 6, web 4, core 131 |
 | T004 | Argument rows (`pipeline/parse/argument.ts`) | 0 blockers; 0 warnings; 2 test-gap suggestions fixed; 1 suggestion deferred (shared key-loop helper) | task check passed: api 6, web 4, core 167 |
+| T005 | Start and End blocks (`pipeline/parse/start.ts`, `pipeline/parse/end.ts`) | 0 blockers; 1 warning fixed (missing negative and edge tests); 1 suggestion deferred (shared key loop) | task check passed: api 6, web 4, core 212 |
 
 ---
 
@@ -61,6 +62,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T013 (`source/packages/core/src/pipeline/index.ts`): the namespace does not export the type `ParseResult` that `parseProjectConfig` returns, so an API caller cannot name the result type without `ReturnType`. The plan lists the exact names the namespace exposes (model types, `parseProjectConfig`, `defaultPipeline`), so the type is not added. Owner or the API task (F-03 onward) to decide whether it joins the namespace. Not changed.
 
 - T004 (`source/packages/core/src/pipeline/parse/argument.ts`, `readArgument`; `source/packages/core/src/pipeline/parse/rules.ts`, `readRule`): the unknown-key and missing-key loops are duplicated between the argument and rule readers, and a shared helper would serve the flow, block and agent readers too. Not changed: the shared helper would edit committed T003 code, which is outside T004's scope; take it with the next task that adds a keyed row reader.
+
+- T005 (`source/packages/core/src/pipeline/parse/start.ts` `readStart` and `source/packages/core/src/pipeline/parse/end.ts` `readEnd`): the unknown-key and missing-key loops repeat the T004 pattern a third time. A shared helper would need the unknown-key path to be the key's path (AC-044, AC-063), which differs from the row readers' block-path report, so unifying them changes T004 behaviour. Not changed: owner or the next task that touches the row readers to decide.
 
 ---
 

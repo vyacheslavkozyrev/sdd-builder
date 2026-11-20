@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 9 of 13 tasks committed |
+| Build    | 🔄 In Progress |  | 10 of 13 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | Values of the pipeline command, agents and rules (`values-pipeline.ts`, `values-agent.ts`, `values-rule.ts`, shared `values-text.ts`); inline values are flattened to one line | 0 blockers, 1 warning fixed (line breaks in inline values, which break YAML frontmatter); 2 suggestions fixed (empty reads and writes tested; long line wrapped) | task check passed: api 6 of 6, web 4 of 4, core 878 of 878 |
 | T008 | The plan (`generate/plan.ts`): `planGeneration` lists the files, renders each layout with its values, carries description and rule tags from flows and Agent blocks only; base layouts render with no values | 0 blockers, 2 warnings fixed (AC-013 plan-level test; interpretations recorded in the plan); 1 suggestion fixed (code-point comparator in the test) | task check passed: api 6 of 6, web 4 of 4, core 889 of 889 |
 | T009 | The refusal gate of the plan: `planGeneration` returns `{ ok: false, problems }` with no files and no layout rendered when `configProblems` has a blocker; the T008 fixtures are now valid chained configs | 0 blockers, 1 warning fixed (fixture index values matched no parser output); 1 suggestion fixed (single call); gate and sort proven by mutation | task check passed: api 6 of 6, web 4 of 4, core 893 of 893 |
+| T010 | Reply check part 1 (`generate/reply-check.ts`): `checkReply` returns findings for a missing planned path, an unsafe path, a path not in the plan, a non-string value, an empty text and a `{{...}}` placeholder; it never throws on a bad reply; the reply is a `ReadonlyMap<string, unknown>` | 0 blockers, 0 warnings; 2 suggestions fixed (typed test maps; negative placeholder test) | task check passed: api 6 of 6, web 4 of 4, core 911 of 911 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 

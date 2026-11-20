@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 18 of 20 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 19 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -43,6 +43,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T016 | End names an artifact of its flow (`pipeline/check/end-artifact.ts`) | 0 blockers, 0 open warnings; 1 warning fixed (document-index tests); 1 suggestion deferred (empty value message) | task check passed: api 6, web 4, core 559 |
 | T017 | Default pipeline as data, imported, with its tests (`templates/pipeline/default.json`, `pipeline/default.ts`) | 0 open warnings; build check moved before the commit (owner option 2, Amendment 2026-11-19) | task check passed: api 6, web 4, core 577 |
 | T018 | Public namespace and the purity scan (`pipeline/index.ts`, core `index.ts`, `purity.test.ts`) | 0 blockers; 5 warnings and 2 suggestions fixed (globalThis, require, element access, scan fixtures, AC-089 test) | task check passed: api 6, web 4, core 586 |
+| T019 | Every problem returned, typed result and table tests (`pipeline/parse/index.ts`, `config.test.ts`, `problems-of.ts`) | 0 blockers open; 1 blocker fixed (false neighbour problems: cross-checks skip a list that lost an item), 3 warnings fixed (exact lists, typed brief test). Staged change over the 400-line guard; committed as one change by owner decision. Plan amendment for the gating is pending the owner | task check passed: api 6, web 4, core 632 |
 
 ---
 
@@ -93,6 +94,14 @@ _Review suggestions intentionally not applied, with the reason._
 - WARNING, unresolved, owner decision (T017, `source/templates/pipeline/default.json`, flow `build`, `build-commit` → `build-check`): the check follows the commit agent, so a false route (`{stop: true}`) stops the flow only after the task is committed and cannot stop the commit. The order is kept because AC-080 requires the check "after its last agent and before its end"; with `commit` as an agent, a check before the commit would not be after the last agent. Decision 40 compares the check with the commit size check, which runs before the commit. Owner to choose: keep the order and accept that a failed check stops after the commit, or amend AC-080 and decision 40 so the check gates the commit (for example, by making the commit a step outside the agents). — resolved 2026-11-19: option 2, the build check now precedes the commit (see Amendments).
 
 - SUGGESTION (T017, `source/packages/core/src/pipeline/parse/index.ts`, `parseProjectConfig`): the entry point runs the structural readers only; a config with a clashing block id passes it with no problems. The cross-project checks (ids, links, end artifacts, rule tags) are not wired in until T019. Until then the default's cross-project checks are tested directly in `default-pipeline.test.ts` (AC-077). Resolved by T019; no change here.
+
+- T019 (`source/packages/core/src/pipeline/parse/index.ts`, `findShortened`): a cross-check is skipped while a list it reads is shortened by the shape pass (rule tags while a rule is refused; flow links while a flow is refused; block links while a flow or block is refused; End artifacts while an artifact is refused). Reason: a reference to a refused item would otherwise be reported as missing. The problem is reported once the refused item is fixed (tested in config.test.ts, F-02 AC-005). The plan rationale ("the cross-checks run on whatever part of the structure parsed") needs an owner amendment to match. Not changed in the plan.
+
+- T019 (`source/packages/core/src/pipeline/parse/index.ts`, `parseProjectConfig`): an id that clashes with a refused item is not reported until that item is fixed. Missed, never spurious. Not changed: the refused item carries its own problem.
+
+- T019 (`source/packages/core/src/pipeline/parse/pipeline.ts`): a refused scalar of the pipeline (`name`, `description`, `body`) drops the whole pipeline, so no cross-check runs. This follows the rule the plan sets (cross-checks run only when rules and pipeline parse). Not changed.
+
+- T019 (`source/packages/core/test/pipeline/pipeline.test.ts`, `flow.test.ts`): earlier suites use `toContainEqual` for problem lists. Outside T019's scope; tighten to exact lists in a later task.
 
 ## Test Results
 

@@ -7,7 +7,7 @@ import { checkEndArtifacts } from '../../src/pipeline/check/end-artifact.js';
 import { checkFlowLinks, checkFlowNames } from '../../src/pipeline/check/flow-links.js';
 import { checkIdsUnique } from '../../src/pipeline/check/ids.js';
 import { checkRuleTags } from '../../src/pipeline/check/rule-tags.js';
-import { parseProjectConfig } from '../../src/pipeline/parse/index.js';
+import { problemsOf } from './problems-of.js';
 import { readPipeline } from '../../src/pipeline/parse/pipeline.js';
 
 // The default pipeline is read through the parser, so the structure tests work on typed values.
@@ -45,7 +45,7 @@ const FLOW_ORDER = ['specify', 'ux', 'plan', 'build', 'verify', 'complete'];
 describe('F-02 AC-077 the default pipeline parses with no problems in a schemaVersion 2 config', () => {
   it('parses the default pipeline placed in a config with an empty rules list', () => {
     const config = { schemaVersion: 2, rules: [], pipeline: defaultPipeline };
-    expect(parseProjectConfig(config)).toEqual([]);
+    expect(problemsOf(config)).toEqual([]);
   });
 
   it('reads the default pipeline through the pipeline reader with no problems', () => {

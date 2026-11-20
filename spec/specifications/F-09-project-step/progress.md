@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 17 criteria, 16 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Name help line resolved 2026-11-20 (screen 01 as drawn; AC-016 `[auto]`, AC-017 `[device]`). Limit note styling kept as drawn |
-| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
-| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 4 tasks, all `[Web]`, on the current F-08 wizard (F-02 to F-13 code removed in `58ef413`) |
+| Build    | ⏳ Pending |  | 0 of 4 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

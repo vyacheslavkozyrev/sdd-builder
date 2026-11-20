@@ -7,9 +7,9 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
-| Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 12 of 13 tasks committed |
-| Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
+| Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); amended 2026-11-19 to 16 tasks (T013 to T015 added, docs task now T016); 40 criteria, all covered |
+| Build    | 🔄 In Progress |  | 12 of 16 tasks committed |
+| Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-040 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -48,11 +48,11 @@ _The earlier task log of this feature (before the 2026-11-19 reset to the flow m
 
 _Review suggestions intentionally not applied, with the reason._
 
-- `source/templates/README.md` still says "enabled" in the command, agent and rule rows (lines 59–61 and 75–77). Decision 34 removed the enabled property, so the wording is stale. To be fixed with the template placeholder work (F-05) or in T013 of this feature, whichever comes first.
-
 - `spec/documents/architecture.md` §1 (lines 117–132), §9 (lines 246–254) and the note at line 300 still describe checks as flow properties (`checks`) and gates between flows, which `pipeline-schema.md` §5 removed (checks are conditions inside a flow). Pre-existing and outside T001's scope (§3 steps 2 and 4 only); to be aligned in a docs pass before the parser plan.
 
-- Open decision for the user: no `ProjectConfig` field carries `projectName`, `idea` or `stack` as a template value source (`Pipeline` has `name` only), while `source/templates/README.md` lines 17–20 still promise these values for base layouts. The T003 templates input and the base layouts (F-05) need a decision: give the base layouts a value source (for example `Pipeline.name`, or a new config field), or drop the rows. Not decided here; it is a model and template decision.
+- Resolved 2026-11-19 by the owner: base layouts take their lists from the config (`baseValues`, AC-037 and AC-038, T014). `projectName`, `idea` and `stack` stay out of the templates: no `ProjectConfig` field is their value source, and the rows are dropped. `processDiagram` is F-05's (Mermaid, decision 36(a)).
+
+- `source/packages/core/src/pipeline/generate/values-flow.ts` (`flowSteps`, `conditionRule`) and `values-text.ts` (`describeArgument`): an Agent `description`, a Condition `description` and an argument `hint` are `readText` values and may hold a line break (only blank is refused), but they are written raw. A multi-line text breaks the "one numbered line per Agent block", "one numbered rule per Condition" and "one line per argument" lines that `source/templates/README.md` and architecture §3 promise. Fix in code (`inlineText` on those three values) with a test: task T013 of the amended plan (AC-040).
 
 - `source/packages/core/test/pipeline/generate-refuse.test.ts` (AC-021): `analyzeStructure` has no warning-producing rule yet, so a config that really yields a warning cannot be tested end to end. The warning case is tested on the pure filter `blockersOf` instead. Revisit when a warning rule is added to `analyzeStructure`.
 
@@ -72,4 +72,8 @@ Not run yet for this feature's new build (reset 2026-11-19).
 
 ## Amendments
 
-None.
+### Amendment — 2026-11-19 (Build, after T012; the owner's answers)
+
+**Changed**: `stories.md` gains US-007 (AC-037, AC-038: base values from the config), US-008 (AC-039: the pipeline command's model, tools and body, decision 26) and US-009 (AC-040: a line break in a block description does not split a numbered line). Coverage table updated; 40 criteria, all `[auto]`. `plan.md` gains T013 (inline fix, test), T014 (base values), T015 (pipeline values); the docs task moves to T016 and runs last. The T013 docs work of the review round stays in the working tree, unstaged, and is re-done in T016.
+**Reason**: the review of the docs task (formerly T013) found that the line breaks in numbered lines were not handled, and the owner decided three things: take the inline fix; F-04 supplies the base values; F-04 takes the pipeline command's model, tools and body.
+**Impact**: 16 tasks in Build; Verify covers AC-001 to AC-040. `processDiagram` stays F-05's.

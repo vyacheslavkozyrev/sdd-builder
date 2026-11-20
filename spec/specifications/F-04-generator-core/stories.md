@@ -129,6 +129,43 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 - AC-035 `[auto]`: the generator modules of `core` import no `fs`, `http`, `process`, `window` or model client, and read no template file; the templates come in as data (checked by a purity test over the source of the generator folder).
 - AC-036 `[auto]`: planning with the same fixture templates given as data returns the same plan in two test runs, with no file on disk changed between them.
 
+### US-007: Base layouts take their lists from the config (amendment 2026-11-19)
+
+**As a** developer
+**I want to** have the base layouts (`CLAUDE.md`, `process.md`, the spec templates) filled with the lists of the process, the commands, the agents and the rules
+**So that** the generated project's instructions name the flows, commands, agents and rules that the config actually holds
+
+**Requirements:** `architecture.md` §3 step 3 (base files: project instructions, `process.md`, placeholder values); decision 36(b) (whole-line values built in code); owner decision 2026-11-19 (F-04 supplies the base values)
+
+#### Acceptance Criteria
+
+- AC-037 `[auto]`: `baseValues(config)` returns `processList`, `commandList`, `agentList` and `ruleList` as text built in code: `processList` has one line per flow in pipeline order, `commandList` one line per command file (the pipeline command and each flow), `agentList` one line per Agent block with its agent file, and `ruleList` one line per rule with its file. Each list is empty when it has no item.
+- AC-038 `[auto]`: planning renders each base layout with the values of `baseValues`; a base layout that uses a placeholder that `baseValues` does not provide still throws (AC-013 holds). `processDiagram` is not supplied: the Mermaid view belongs to F-05 (decision 36(a)).
+
+### US-008: The pipeline command carries model, tools and body (amendment 2026-11-19)
+
+**As a** developer
+**I want to** have the pipeline's model, tools and body written into the pipeline command, as an agent's are
+**So that** the pipeline command runs with the same settings the config gives the pipeline (decision 26)
+
+**Requirements:** decision 26 (the pipeline takes model, tools and body; the generator writes them into the pipeline command); owner decision 2026-11-19 (added to F-04)
+
+#### Acceptance Criteria
+
+- AC-039 `[auto]`: `pipelineValues` gives `pipelineModel` and `pipelineTools` as frontmatter lines (`\nmodel: x`, `\ntools: a, b`), empty when the pipeline has no model or an empty tools list, and `pipelineBody` as `\n\n` followed by the body, empty when there is none; a layout that places them at the end of its lines leaves no blank line when they are empty.
+
+### US-009: A line break in a block description does not split a numbered line (amendment 2026-11-19)
+
+**As a** developer
+**I want to** have every numbered step, rule and argument line of a flow command stay one line
+**So that** the numbered lists of the command are not broken by a description that contains a line break
+
+**Requirements:** `source/templates/README.md` (line-break convention); `architecture.md` §3 step 4 (one numbered line per step, rule and argument)
+
+#### Acceptance Criteria
+
+- AC-040 `[auto]`: an Agent `description`, a Condition `description` and an argument `hint` that contain a line break are written on one line in the flow command's step, rule and argument lines (line breaks become spaces, the text is trimmed); the same is true for the agent's `description` in its agent value.
+
 ---
 
 ## Requirement Coverage
@@ -142,3 +179,6 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 | Configurations that cannot be generated are refused with their problems | AC-019, AC-020, AC-021, AC-022, AC-023, AC-024 |
 | The model's reply is checked before use (§3 step 6) | AC-025, AC-026, AC-027, AC-028, AC-029, AC-030, AC-031, AC-032, AC-033 |
 | Pure core, one namespace, no model call in core | AC-034, AC-035, AC-036 |
+| Base layouts take the lists of the process, commands, agents and rules (owner decision 2026-11-19) | AC-037, AC-038 |
+| The pipeline command carries model, tools and body (decision 26; owner decision 2026-11-19) | AC-039 |
+| A line break in a block description does not split a numbered line (`source/templates/README.md`) | AC-040 |

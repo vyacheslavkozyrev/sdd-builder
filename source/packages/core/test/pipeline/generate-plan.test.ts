@@ -22,22 +22,43 @@ const RULES: readonly Rule[] = [
   { index: 1, id: 'beta', title: 'Beta', text: 'Second rule.' },
 ];
 
-// A flow of the valid fixture with its own id and its own agent name, so that flows do not share a path.
-function flowOf(id: string, index: number): Flow {
+// A flow of the valid fixture with its own id, its own agent name and block ids prefixed by the flow id, so that
+// flows do not share a path or a block id (the analysis requires unique block ids across the pipeline).
+function flowOf(id: string): Flow {
   const flow = validConfig().pipeline.flows[0];
   if (flow === undefined) throw new Error('the fixture has no flow');
   return {
     ...flow,
     id,
-    index,
-    blocks: flow.blocks.map((block) => (block.kind === 'agent' ? { ...block, name: `${id}-agent` } : block)),
+    blocks: flow.blocks.map((block) => {
+      const blockId = `${id}-${block.id}`;
+      if (block.kind === 'agent') return { ...block, id: blockId, name: `${id}-agent`, next: `${id}-${block.next}` };
+      if (block.kind === 'start') return { ...block, id: blockId, next: `${id}-${block.next}` };
+      return { ...block, id: blockId };
+    }),
   };
 }
 
-// Three flows (build, test, lint) and two rules, in the given order.
+// The flows in the given order, each with its `index` set to its position (the parser assigns it the same way) and
+// linked to the flow after it, so that every flow is reached from the first (AC-007 order).
+function linked(flows: readonly Flow[]): Flow[] {
+  return flows.map((flow, i) => {
+    const following = flows[i + 1];
+    return following === undefined ? { ...flow, index: i } : { ...flow, index: i, next: following.id };
+  });
+}
+
+// The given flows, linked, and the given rules.
 function configWith(flows: readonly Flow[], rules: readonly Rule[]): ProjectConfig {
   const base = validConfig();
-  return { ...base, rules, pipeline: { ...base.pipeline, flows } };
+  return { ...base, rules, pipeline: { ...base.pipeline, flows: linked(flows) } };
+}
+
+// The files of a plan for a config with no blocker. A config with a blocker fails the test (refusals are in T009's test).
+function planOf(config: ProjectConfig, templates: GenerationTemplates): GeneratedPlan {
+  const result = planGeneration(config, templates);
+  if (!result.ok) throw new Error(`the config has ${result.problems.length} blocker(s)`);
+  return { files: result.files };
 }
 
 function pathsOf(plan: GeneratedPlan): string[] {
@@ -73,7 +94,7 @@ describe('F-04 AC-005 the default pipeline plans its files', () => {
     const config = parsed.config;
     expect(analyzeStructure(config)).toEqual([]);
 
-    const plan = planGeneration(config, TEMPLATES);
+    const plan = planOf(config, TEMPLATES);
     const paths = pathsOf(plan);
     const flows = config.pipeline.flows;
     const agents = flows.flatMap((flow) => flow.blocks.flatMap((block) => (block.kind === 'agent' ? [block] : [])));
@@ -88,17 +109,17 @@ describe('F-04 AC-005 the default pipeline plans its files', () => {
 
 describe('F-04 AC-007 the order of rules and flows after the first gives the same paths', () => {
   it('gives the same paths when the rules are reversed and the flows after the first are reordered', () => {
-    const build = flowOf('build', 0);
-    const test = flowOf('test', 1);
-    const lint = flowOf('lint', 2);
-    const original = planGeneration(configWith([build, test, lint], RULES), TEMPLATES);
-    const reordered = planGeneration(configWith([build, lint, test], [...RULES].reverse()), TEMPLATES);
+    const build = flowOf('build');
+    const test = flowOf('test');
+    const lint = flowOf('lint');
+    const original = planOf(configWith([build, test, lint], RULES), TEMPLATES);
+    const reordered = planOf(configWith([build, lint, test], [...RULES].reverse()), TEMPLATES);
 
     expect(pathsOf(reordered)).toEqual(pathsOf(original));
   });
 
   it('lists the planned files sorted by path in code-point order', () => {
-    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    const plan = planOf(configWith([flowOf('build'), flowOf('test')], RULES), TEMPLATES);
     const paths = pathsOf(plan);
 
     expect(paths).toEqual([...paths].sort(byCodePoint));
@@ -108,8 +129,8 @@ describe('F-04 AC-007 the order of rules and flows after the first gives the sam
 
 describe('F-04 AC-008 planning the same config twice gives equal plans', () => {
   it('gives equal plans for the same config and templates', () => {
-    const config = configWith([flowOf('build', 0), flowOf('test', 1)], RULES);
-    expect(planGeneration(config, TEMPLATES)).toEqual(planGeneration(config, TEMPLATES));
+    const config = configWith([flowOf('build'), flowOf('test')], RULES);
+    expect(planOf(config, TEMPLATES)).toEqual(planOf(config, TEMPLATES));
   });
 });
 
@@ -121,13 +142,13 @@ describe('F-04 AC-009 the plan holds no date, time, UUID or random value', () =>
     const now = vi.spyOn(Date, 'now').mockImplementation(() => {
       throw new Error('Date.now was called');
     });
-    planGeneration(configWith([flowOf('build', 0)], RULES), TEMPLATES);
+    planOf(configWith([flowOf('build')], RULES), TEMPLATES);
     expect(random).not.toHaveBeenCalled();
     expect(now).not.toHaveBeenCalled();
   });
 
   it('holds no date, time or UUID in any path, layout, description or tag', () => {
-    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    const plan = planOf(configWith([flowOf('build'), flowOf('test')], RULES), TEMPLATES);
     const patterns = [
       /\b\d{4}-\d{2}-\d{2}\b/,
       /\b\d{2}:\d{2}(:\d{2})?\b/,
@@ -142,12 +163,12 @@ describe('F-04 AC-009 the plan holds no date, time, UUID or random value', () =>
 
 describe('F-04 AC-010 planning does not change the config or the templates', () => {
   it('leaves the config and the templates equal to their values before the call', () => {
-    const config = configWith([flowOf('build', 0), flowOf('test', 1)], RULES);
+    const config = configWith([flowOf('build'), flowOf('test')], RULES);
     const templates: GenerationTemplates = { ...TEMPLATES, base: [...TEMPLATES.base] };
     const configBefore = structuredClone(config);
     const templatesBefore = structuredClone(templates);
 
-    planGeneration(config, templates);
+    planOf(config, templates);
 
     expect(config).toEqual(configBefore);
     expect(templates).toEqual(templatesBefore);
@@ -157,7 +178,7 @@ describe('F-04 AC-010 planning does not change the config or the templates', () 
 describe('F-04 AC-011 each planned file has its rendered layout, description and rule tags', () => {
   it('carries the description and rule tags of its flow or Agent block, and empty ones otherwise', () => {
     const build: Flow = {
-      ...flowOf('build', 0),
+      ...flowOf('build'),
       description: 'Builds the project.',
       ruleTags: [{ ruleId: 'alpha', index: 0 }],
     };
@@ -166,7 +187,7 @@ describe('F-04 AC-011 each planned file has its rendered layout, description and
         ? { ...block, description: 'Builds the code.', ruleTags: [{ ruleId: 'beta', index: 1 }] }
         : block,
     );
-    const plan = planGeneration(configWith([{ ...build, blocks: agentBuild }, flowOf('test', 1)], RULES), TEMPLATES);
+    const plan = planOf(configWith([{ ...build, blocks: agentBuild }, flowOf('test')], RULES), TEMPLATES);
 
     const command = fileAt(plan, '.claude/commands/build.md');
     expect(command.description).toBe('Builds the project.');
@@ -189,7 +210,7 @@ describe('F-04 AC-011 each planned file has its rendered layout, description and
   });
 
   it('gives every layout with its placeholders rendered', () => {
-    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    const plan = planOf(configWith([flowOf('build'), flowOf('test')], RULES), TEMPLATES);
     for (const file of plan.files) expect(file.layout).not.toMatch(/\{\{/);
     expect(fileAt(plan, '.claude/rules/beta.md').layout).toBe('Rule beta\n\nSecond rule.');
   });
@@ -202,10 +223,10 @@ describe('F-04 AC-013 a placeholder with no value makes planning throw', () => {
       ...TEMPLATES,
       base: [{ path: 'CLAUDE.md', layout: 'Project {{projectName}}.' }],
     };
-    const config = configWith([flowOf('build', 0)], RULES);
+    const config = configWith([flowOf('build')], RULES);
 
-    expect(() => planGeneration(config, templates)).toThrow(GenerationError);
-    expect(() => planGeneration(config, templates)).toThrow(
+    expect(() => planOf(config, templates)).toThrow(GenerationError);
+    expect(() => planOf(config, templates)).toThrow(
       /the layout of CLAUDE\.md uses the placeholder \{\{projectName\}\}, which has no value/,
     );
   });
@@ -213,7 +234,7 @@ describe('F-04 AC-013 a placeholder with no value makes planning throw', () => {
 
 describe('F-04 AC-036 the same fixture templates give the same plan in two runs', () => {
   it('returns the expected plan twice from the same data', () => {
-    const config = configWith([flowOf('build', 0)], []);
+    const config = configWith([flowOf('build')], []);
     const expected: GeneratedPlan = {
       files: [
         {
@@ -238,7 +259,7 @@ describe('F-04 AC-036 the same fixture templates give the same plan in two runs'
       ],
     };
 
-    expect(planGeneration(config, TEMPLATES)).toEqual(expected);
-    expect(planGeneration(config, TEMPLATES)).toEqual(expected);
+    expect(planOf(config, TEMPLATES)).toEqual(expected);
+    expect(planOf(config, TEMPLATES)).toEqual(expected);
   });
 });

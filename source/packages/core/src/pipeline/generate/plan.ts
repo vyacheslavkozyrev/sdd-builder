@@ -1,6 +1,8 @@
+import type { Finding } from '../analyze/index.js';
 import type { ProjectConfig, RuleTag } from '../model.js';
 import { listFiles, type ListedFile } from './file-list.js';
 import { renderLayout } from './render.js';
+import { configProblems } from './refuse.js';
 import type { GenerationTemplates } from './templates.js';
 import { agentValues } from './values-agent.js';
 import { flowValues } from './values-flow.js';
@@ -11,6 +13,8 @@ import { ruleValues } from './values-rule.js';
 // rendered with its values, the description of its flow or Agent block (empty when it has none) and the rule tags of
 // that flow or Agent block (empty when it has none). The files come in the order of the file list. The plan is a pure
 // function of the config and the templates: no date, time or random value is added, and neither input is changed.
+// A config with a blocker (AC-019 to AC-023) is refused before anything is planned: no file is listed and no layout is
+// rendered, and the result carries the blockers of the analysis in its order (AC-020).
 
 export interface PlannedFile {
   readonly path: string;
@@ -23,8 +27,14 @@ export interface GeneratedPlan {
   readonly files: readonly PlannedFile[];
 }
 
-export function planGeneration(config: ProjectConfig, templates: GenerationTemplates): GeneratedPlan {
-  return { files: listFiles(config, templates).map((file) => planFile(file, config, templates)) };
+export type PlanResult =
+  | ({ readonly ok: true } & GeneratedPlan)
+  | { readonly ok: false; readonly problems: readonly Finding[] };
+
+export function planGeneration(config: ProjectConfig, templates: GenerationTemplates): PlanResult {
+  const problems = configProblems(config);
+  if (problems.length > 0) return { ok: false, problems };
+  return { ok: true, files: listFiles(config, templates).map((file) => planFile(file, config, templates)) };
 }
 
 function planFile(file: ListedFile, config: ProjectConfig, templates: GenerationTemplates): PlannedFile {

@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import defaultPipelineJson from '../../../../templates/pipeline/default.json' with { type: 'json' };
 import type { ProjectConfig } from '../../src/pipeline/model.js';
-import { parseProjectConfig } from '../../src/pipeline/parse/index.js';
 import { planGeneration, type PlannedFile } from '../../src/pipeline/generate/plan.js';
 import type { BaseTemplate, GenerationTemplates } from '../../src/pipeline/generate/templates.js';
-import { readLayout } from './layouts-loader.js';
+import { defaultPipelineConfig, readLayout } from './layouts-loader.js';
 
 const MANIFEST_PATH = 'base/manifest.json';
 
@@ -65,18 +63,43 @@ function templates(): GenerationTemplates {
   };
 }
 
-// The default pipeline config, read from its JSON file and passed through the parser as a user document would be.
-function defaultConfig(): ProjectConfig {
-  const parsed = parseProjectConfig({ schemaVersion: 2, rules: [], pipeline: defaultPipelineJson });
-  if (!parsed.ok) throw new Error('the default pipeline must parse');
-  return parsed.config;
-}
-
 // The planned files of the default pipeline, built from the real templates. A refused plan fails the test at once.
 function defaultPlan(): PlannedFile[] {
-  const plan = planGeneration(defaultConfig(), templates());
+  const plan = planGeneration(defaultPipelineConfig(), templates());
   if (!plan.ok) throw new Error('the default pipeline must plan');
   return [...plan.files];
+}
+
+const README_PATH = 'README.md';
+const CLAUDE_CODE_HEADING = '## Claude Code layout';
+// A row: its layout file, then its output path, then an optional note such as `one per flow`.
+const ROW = /^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`[^|]*\|$/;
+
+// The output paths of the Claude Code layout table in `source/templates/README.md`, read in test code only. A row with
+// a placeholder (`<flow id>`, `<agent name>`, `<rule id>`) stands for one path per flow, Agent block or rule of the config.
+function readmePaths(config: ProjectConfig): string[] {
+  const lines = readLayout(README_PATH).split('\n');
+  const start = lines.indexOf(CLAUDE_CODE_HEADING);
+  if (start === -1) throw new Error('the README has no Claude Code layout heading');
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((line) => line.startsWith('## '));
+  const section = end === -1 ? rest : rest.slice(0, end);
+
+  const flowIds = config.pipeline.flows.map((flow) => flow.id);
+  const agentNames = config.pipeline.flows.flatMap((flow) =>
+    flow.blocks.flatMap((block) => (block.kind === 'agent' ? [block.name] : [])),
+  );
+  const ruleIds = config.rules.map((rule) => rule.id);
+
+  return section.flatMap((line) => {
+    const match = ROW.exec(line);
+    if (match === null) return [];
+    const path = match[2] ?? '';
+    if (path.includes('<flow id>')) return flowIds.map((id) => path.replace('<flow id>', id));
+    if (path.includes('<agent name>')) return agentNames.map((name) => path.replace('<agent name>', name));
+    if (path.includes('<rule id>')) return ruleIds.map((id) => path.replace('<rule id>', id));
+    return [path];
+  });
 }
 
 describe('F-05 default pipeline output', () => {
@@ -109,5 +132,21 @@ describe('F-05 default pipeline output', () => {
         expect(file.layout, `${file.path} text`).not.toContain(marker);
       }
     }
+  });
+
+  it('F-05 AC-040 the default pipeline renders through every layout with no error, and every planned file has text', () => {
+    expect(() => defaultPlan()).not.toThrow();
+
+    for (const file of defaultPlan()) {
+      expect(file.layout.length, `${file.path} text`).toBeGreaterThan(0);
+    }
+  });
+
+  it('F-05 AC-040 the planned paths of the default pipeline are exactly the rows of the README Claude Code layout table', () => {
+    const documented = readmePaths(defaultPipelineConfig());
+    const planned = defaultPlan().map((file) => file.path);
+
+    expect(documented.length, 'the README table has rows').toBeGreaterThan(0);
+    expect([...planned].sort()).toEqual([...documented].sort());
   });
 });

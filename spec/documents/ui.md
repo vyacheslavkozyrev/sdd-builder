@@ -10,17 +10,22 @@ Look and feel: **Material UI** React components (recorded in `architecture.md` �
 
 ## 1. App layout
 
-**1.1 Header** (top, full width)
-- Left: logo.
-- Right: **New project** (opens the wizard at step 1). The Demo button is not in the MVP; presentation mode and demo are post-MVP (F-23 in `features.md`).
+The layout is the same on every screen (F-07, approved 2026-11-20): a white **left panel** of 260 px beside a grey **content area**. It is drawn in `spec/design/features/F-07-ui-layout-template/` and the wizard screens in `spec/design/features/F-08-wizard-stepper/`. There is no header bar and no full-width footer.
 
-**1.2 App footer** (bottom, full width)
-- Annotation: the work is not saved and is lost when the browser is refreshed. Shown on every screen.
+**1.1 Left panel** (full height, x 0–260, white, with a 1 px border on its right edge)
+- Top: the logo mark (a 24 × 24 px rounded square in the primary colour) and the wordmark **SDDBuilder**, in one row.
+- **New project** (secondary button, the width of the panel) opens the wizard at step 1 and starts over at once. The Demo button is not in the MVP; presentation mode and demo are post-MVP (F-23 in `features.md`).
+- **Wizard stepper** (F-08), under New project: the four steps in order, vertical, each with its title. The steps are **not clickable**; navigation is by Prev and Next only. A step is **done** (a green check mark and a green title), **current** (a violet number with a soft ring and a violet title) or **to do** (an outlined grey number and a grey title).
+- At the foot of the panel: **Prev** and **Next**, side by side, each with its word inside. **Prev** is disabled on step 1. **Next** is shown on every step and disabled on step 4 (step 4 has no next step); a disabled button keeps its place.
+
+**1.2 Content area and footer note** (x 260–1280, grey)
+- The screen content sits on a white card, 24 px from the panel edge and from the window's right edge, with a soft shadow.
+- Below the card, 24 px under it, the footer note: "The work is not saved. It is lost when the browser is refreshed." It is shown on every screen. It is a note, not a control, and holds no button or link.
 
 **1.3 Wizard frame** (after New project)
-- **Wizard steps panel** (top of the wizard, full width): the four steps in order, each with its title and state (done, current, to do). Beside the steps, **Prev** and **Next** buttons. The steps themselves are **not clickable**; navigation is by Prev and Next only.
-- **Prev** is disabled on step 1. **Next** is disabled on step 4 (step 4 has no next step).
-- Below the panel: the step body.
+- The stepper, Prev and Next are in the left panel (§1.1). The step body is the white card of §1.2.
+- Each step body shows a sparkle mark in a light circle and the line "The content of this step is added in a later feature." It shows no step title and no step counter (the stepper names the step), and no input field, until F-09 to F-13 replace it.
+- **Prev** is disabled on step 1. **Next** is disabled on step 4 (step 4 has no next step). Next is never disabled by the content of a step (a blank project name does not block Next).
 
 ---
 
@@ -160,7 +165,7 @@ The body limit is written **1000** everywhere (owner decision, 2026-11-18). The 
 ---
 
 ## 7. Desktop only
-- Reference layout 1280 × 800. The app is not laid out for phones or tablets in the MVP.
+- Reference layout 1280 × 800. Down to 1024 px wide the left panel keeps its 260 px and the content card takes the rest (F-07 screen 02). Narrower than 1024 px the page scrolls horizontally; it does not reflow into a phone column, and the left panel does not collapse. The app is not laid out for phones or tablets in the MVP.
 
 ---
 

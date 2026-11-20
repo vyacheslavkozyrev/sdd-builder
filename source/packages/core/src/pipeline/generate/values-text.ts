@@ -1,4 +1,4 @@
-import type { Argument } from '../model.js';
+import type { Argument, RuleTag } from '../model.js';
 
 // The text helpers shared by the value builders (F-04, T006 and T007). A value of whole lines starts with its own line
 // break and is '' when it has no lines (plan, "Decision used by the plan"), so a layout can write it at the end of a
@@ -23,4 +23,10 @@ export function describeArgument(arg: Argument): string {
 
 export function describeArguments(args: readonly Argument[]): string {
   return args.map(describeArgument).join(', ');
+}
+
+// The rule tags of a flow or an Agent block as one comma-separated list in their order; `none` when there are none
+// (F-05, AC-007 and AC-022).
+export function ruleTagsText(tags: readonly RuleTag[] | undefined): string {
+  return tags === undefined || tags.length === 0 ? 'none' : tags.map((tag) => tag.ruleId).join(', ');
 }

@@ -570,3 +570,20 @@ describe('F-05 AC-014 the End step names the produced artifact, or writes no art
     expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow.');
   });
 });
+
+describe('F-05 AC-007 the flow rule tags are one comma-separated list in their order', () => {
+  it('F-05 AC-007 writes the tags of the flow in their order', () => {
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'tests', index: 0 }, { ruleId: 'style', index: 1 }] };
+    expect(flowValues(flow)['flowRuleTags']).toBe('tests, style');
+  });
+
+  it('F-05 AC-007 writes one tag without a separator', () => {
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'style', index: 0 }] };
+    expect(flowValues(flow)['flowRuleTags']).toBe('style');
+  });
+
+  it('F-05 AC-007 writes none when the flow has no tags or an empty list', () => {
+    expect(flowValues(fixtureFlow())['flowRuleTags']).toBe('none');
+    expect(flowValues({ ...fixtureFlow(), ruleTags: [] })['flowRuleTags']).toBe('none');
+  });
+});

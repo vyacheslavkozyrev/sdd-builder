@@ -220,6 +220,25 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
   });
 });
 
+describe('F-05 AC-022 the agent rule tags are one comma-separated list in their order', () => {
+  it('F-05 AC-022 writes the tags of the block in their order', () => {
+    const tags = [
+      { ruleId: 'tests', index: 0 },
+      { ruleId: 'style', index: 1 },
+    ];
+    expect(agentValues(agent({ ruleTags: tags }))['agentRuleTags']).toBe('tests, style');
+  });
+
+  it('F-05 AC-022 writes one tag without a separator', () => {
+    expect(agentValues(agent({ ruleTags: [{ ruleId: 'style', index: 0 }] }))['agentRuleTags']).toBe('style');
+  });
+
+  it('F-05 AC-022 writes none when the block has no tags or an empty list', () => {
+    expect(agentValues(agent())['agentRuleTags']).toBe('none');
+    expect(agentValues(agent({ ruleTags: [] }))['agentRuleTags']).toBe('none');
+  });
+});
+
 describe('F-04 AC-004 the rule values give the id, the title and the text', () => {
   it('gives the id and the title for inline placeholders and the text as a paragraph', () => {
     const values = ruleValues(RULE);

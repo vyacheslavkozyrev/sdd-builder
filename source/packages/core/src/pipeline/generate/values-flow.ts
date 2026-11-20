@@ -1,6 +1,6 @@
 import type { AgentBlock, Argument, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
-import { describeArgument, describeArguments, inlineText, linesOf } from './values-text.js';
+import { describeArgument, describeArguments, inlineText, linesOf, ruleTagsText } from './values-text.js';
 import { walkFlow } from './walk.js';
 
 // The values of a flow's command layout (F-04, AC-012, AC-015, AC-016, AC-018). Each value is a text built in code
@@ -10,7 +10,8 @@ import { walkFlow } from './walk.js';
 // check and its true and false routes as sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition,
 // with the same routes as sub-lines; `flowArtifacts` is each artifact as a heading with its label and its template
 // text, `No artifacts` when the flow has none (F-05, AC-009); the End step names the produced artifact when there is
-// one (F-05, AC-014). `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a
+// one (F-05, AC-014). `flowRuleTags` is the flow's rule tags as one comma-separated list, `none` when there are none
+// (F-05, AC-007). `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a
 // pure function of the flow: the same flow always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
@@ -33,6 +34,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowArguments: argumentsText(flow.arguments),
     flowBody: bodyText(flow.body),
     flowArtifacts: artifactsText(flow.artifacts),
+    flowRuleTags: ruleTagsText(flow.ruleTags),
     flowSteps: linesOf(steps.map((block, index) => stepText(block, index + 1, places, flow))),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
     flowApproval: flow.approval

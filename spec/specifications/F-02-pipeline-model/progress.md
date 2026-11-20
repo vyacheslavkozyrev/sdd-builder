@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
 | Build    | ✅ Complete | 2026-11-19 | 20 of 20 tasks committed |
-| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Verify   | ✅ Complete | 2026-11-19 | 89 criteria, all [auto] with passing tests; no manual checklist; re-run after the 2026-11-19 amendment (AC-054, AC-058) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

@@ -29,7 +29,7 @@ Layouts use `{{name}}` placeholders. Each value is a text built in code (decisio
 
 ## Tasks
 
-- [ ] T001 [Docs] Align the generation model with the flow model: `spec/documents/architecture.md` §3 steps 2 and 4 (remove "required blocks and the flow approvals and checks are always present" and the "gates" wording; state that the walk follows `next` and conditions, and that approval is a flag of the flow); `spec/documents/features.md` F-04 scope line only if its wording names gates or checks as flow properties. Covers no criterion; no code.
+- [x] T001 [Docs] Align the generation model with the flow model: `spec/documents/architecture.md` §3 steps 2 and 4 (remove "required blocks and the flow approvals and checks are always present" and the "gates" wording; state that the walk follows `next` and conditions, and that approval is a flag of the flow); `spec/documents/features.md` F-04 scope line only if its wording names gates or checks as flow properties. Covers no criterion; no code.
 
 - [ ] T002 [Core] Errors and one-pass rendering: `source/packages/core/src/pipeline/generate/error.ts` (class `GenerationError`, a programmer error that names a path); `source/packages/core/src/pipeline/generate/render.ts` (`renderLayout(layout, values, path)`: replaces every `{{name}}` in one pass; an unknown name throws `GenerationError` naming the name and the path; a value is copied as written and is not rendered again). Test: `source/packages/core/test/pipeline/generate-render.test.ts`. Covers AC-012 (substitution), AC-013, AC-014.
 

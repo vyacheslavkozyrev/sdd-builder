@@ -50,9 +50,9 @@ Findings never change the configuration. The user decides what to apply.
 
 - **Input:** `ProjectConfig` plus the default pipeline (the default pipeline, §11).
 - **Step 1, check:** the structural rules. A configuration that fails them is refused with every problem listed (F-02, `InvalidConfigError`).
-- **Step 2, select:** all flows and blocks, in pipeline order and in each flow's block order. Required blocks and the flow approvals and checks are always present.
-- **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (text listing the flows, blocks and gates; the Mermaid view is F-05), placeholder values.
-- **Step 4, render per flow:** the pipeline command file `pipeline.md` (its arguments, its flows in order, and each flow's approval and checks), and one command file per child flow, with its Agent calls and its conditions as numbered rules, with their round limits (or "no limit set").
+- **Step 2, select:** all flows and blocks, in pipeline order. Each flow's blocks are walked from its Start along `next` links and the `true` (then `false`) routes of conditions; each block is listed once. A flow's approval is a flag of the flow.
+- **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (text listing the flows, their blocks and their approvals; the Mermaid view is F-05), placeholder values.
+- **Step 4, render per flow:** the pipeline command file `pipeline.md` (its arguments, its flows in order, and each flow's approval), and one command file per flow, with its Agent calls in order and its conditions as numbered rules, with their true and false routes and the round limit of each return (a return always carries one).
 - **Step 5, write per file (LLM):** the LLM writes the content of each command and agent file, from its description and its template, and the rule files they carry. `core` fixes the file path and the place of each file in the output.
 - **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text, and every path mentioned in a generated file must exist in the output (F-10). The checks a reply must pass are set in F-04 (see below); the retry for a reply that fails them is made by `source/apps/api` (F-07).
 

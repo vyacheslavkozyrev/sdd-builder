@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 37 criteria, all [auto]; re-specified for the flow model (decisions 38, 39) and approved by the user. Builder marks and analyzer share the rules (owner, 2026-11-19) |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
-| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
-| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 10 tasks (T001 to T010); AC-019 decided as a blocker (see Amendments) |
+| Build    | ⏳ Pending |  | 0 of 10 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -101,6 +101,13 @@ Verify run on 2026-11-16, branch `main`, clean tree, all 8 tasks committed, Curr
 **Reason**: [why]
 **Impact**: [tasks or phases that must re-run]
 ```
+
+### Decisions taken during Specify and Plan (2026-11-19, re-specification)
+
+- **Rules run in the builder and the analyzer (owner, 2026-11-19):** each rule has one implementation, used by the F-11 marks and the analyzer (`features.md` F-03).
+- **Return without a round limit is a blocker (owner, 2026-11-19):** AC-019 changed from a warning to a blocker, as F-02 AC-061 already refuses it. `architecture.md` §12 and `features.md` F-03 drop the retry warning (T010).
+- **Reuse of F-02 cross-checks (plan, 2026-11-19, approved):** the analysis calls the F-02 functions in `check/`; the stories' Out of Scope wording was corrected to match. The parser's behaviour is unchanged except a guard against a partial model (T006).
+- **Earlier build records:** the Task Log and Test Results below are from the 2026-11-16 build, whose code was removed in `58ef413`. The 2026-11-19 build reuses the IDs T001 to T010 for new tasks; its rows are kept separately under Task Log for this build.
 
 ### Decisions taken during Specify (2026-11-16)
 

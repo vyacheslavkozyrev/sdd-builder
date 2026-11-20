@@ -5,7 +5,7 @@ Requirements owned by this feature: the F-03 scope items in `features.md` (as am
 
 ## Out of Scope
 
-- Shape, value types, unknown keys, id uniqueness across the project, file-safe ids, route shape, the round limit range (1 to 5), the end's `outcome` and `producedArtifact`, the `enabled` and `disabled` keys, the blank-or-missing refusals of the parser, and the parse-time refusals of backward `next` links, loops, flow connectivity and back routes without a `roundLimit`. These stay in the parser (F-02). F-03 implements the same structural rules on the model so that the builder marks can use them without a parse; the parser keeps its own refusals and is not changed by this feature.
+- Shape, value types, unknown keys, id uniqueness across the project, file-safe ids, route shape, the round limit range (1 to 5), the end's `outcome` and `producedArtifact`, the `enabled` and `disabled` keys, the blank-or-missing refusals of the parser, and the parse-time refusals of backward `next` links, loops, flow connectivity and back routes without a `roundLimit`. These stay in the parser (F-02). The structural rules that F-02's cross-checks already implement (ids, rule tags, flow links, block links and end artifacts) are reused by F-03, not written again, so the parser and the analysis share one implementation for the builder marks and the analyzer; the parser's behaviour does not change in this feature (its one change is a guard against a partial model, planned in T006).
 - The iteration-source warning for agents. Architecture decision 29 supersedes it, and the analysis does not check scope.
 - The generator's refusal checks (`configProblems`, `planGeneration`) and their appearance in the analysis (F-04, F-06).
 - Brief and stack checks, the LLM review, and the `/analyze` endpoint (F-06, F-14).
@@ -21,7 +21,7 @@ The pipeline holds flows and no blocks of its own (decision 30). So:
 - A block's kinds are `start`, `agent`, `condition` and `end`. A Check of §12 is a `condition` block.
 - A Connection is the `next` of a `start` or `agent` block, or the `next` of a flow. An `end` has no `next`.
 - A route is the `true` or the `false` output of a `condition`: `{to}`, `{to, roundLimit}` or `{stop: true}`. A route is not a Connection and is not part of a loop check.
-- A retry is a route to an earlier agent of the same flow. With a `roundLimit` it is the retry of decision 40; without one it is a warning, as §12 says. The parser refuses a back route without a `roundLimit` (F-02); the warning applies to a model that did not pass the parser, such as the builder's in-progress state.
+- A retry is a route to an earlier agent of the same flow. With a `roundLimit` it is the retry of decision 40. Without one it is a blocker, not the warning of §12: the parser already refuses it (F-02 AC-061, owner decision of 2026-11-19), and the analysis gives the same answer (owner decision of 2026-11-19, recorded in the F-03 plan).
 - Path notation: `pipeline.flows.<n>` for a flow, `pipeline.flows.<n>.blocks.<m>` for a block, `…blocks.<m>.true` and `…false` for a condition's routes, and `…next` for a `next`. Paths use the index of the item in its list.
 
 ---
@@ -98,7 +98,7 @@ This feature is an enabler: the stories are written for the developer who builds
 - AC-016 `[auto]`: a route whose `to` names a block of another flow, or no block, gives a blocker at the route's `to` path.
 - AC-017 `[auto]`: a route whose `to` names the condition itself, or an earlier block of its flow that is not an agent (a start, a condition or an end), gives a blocker at the route's `to` path, with or without a `roundLimit`.
 - AC-018 `[auto]`: a route with a `roundLimit` whose `to` names a later block gives a blocker at the route's `to` path, because a round limit is only for a retry to an earlier agent.
-- AC-019 `[auto]`: a route `{to}` to an earlier agent of its flow with no `roundLimit` gives a warning at the route's path (a retry with no round limit).
+- AC-019 `[auto]`: a route `{to}` to an earlier agent of its flow with no `roundLimit` gives a blocker at the route's `to` path, with the message that a return needs a `roundLimit` (as F-02 AC-061 refuses it).
 - AC-020 `[auto]`: a route `{to, roundLimit}` to an earlier agent of the same flow has no finding; a route `{to}` to a later block of the same flow has no finding; `{stop: true}` has no finding.
 
 ### US-005: Every block and flow is reachable
@@ -168,7 +168,7 @@ This feature is an enabler: the stories are written for the developer who builds
 | Both outputs of every Check wired | AC-015 |
 | Route targets name a block of the same flow | AC-016 |
 | Back routes only to earlier agents of the same flow | AC-017, AC-018, AC-020 |
-| Retry with no round limit is a warning | AC-019 |
+| A return to an earlier agent needs a round limit (blocker, F-02 AC-061) | AC-019 |
 | A retry with a round limit is not a loop (decision 40) | AC-013 |
 | Every block reachable from its flow's Start | AC-021, AC-022 |
 | Every flow reachable from the pipeline's first flow | AC-023, AC-024 |

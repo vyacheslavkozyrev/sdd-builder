@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 37 criteria, all [auto]; re-specified for the flow model (decisions 38, 39) and approved by the user. Builder marks and analyzer share the rules (owner, 2026-11-19) |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 10 tasks (T001 to T010); AC-019 decided as a blocker (see Amendments) |
-| Build    | ⏳ Pending |  | 0 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 1 of 10 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -24,6 +24,14 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 ---
 
 ## Task Log
+
+### 2026-11-19 build
+
+| Task | Summary | Review | Tests |
+| ---- | ------- | ------ | ----- |
+| T001 | Finding type, rule modules in a fixed list, `analyzeStructure` entry in fixed order and the fixture (`analyze/finding.ts`, `analyze/index.ts`, `analyze-fixture.ts`) | 0 blockers; 1 warning fixed (config deep-frozen so a mutation fails); 2 suggestions fixed (line length); 1 suggestion deferred (rule-id strings belong to the rule tasks) | task check passed: core 642, api 6, web 4 |
+
+### 2026-11-16 build (code removed in `58ef413`)
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
@@ -41,6 +49,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T001 `source/packages/core/src/pipeline/analyze/finding.ts` (plan line T001 names "the rule-id strings"): no rule id is defined yet, since no rule module exists before T002. Each rule task defines its own id string where it is used; a constant list now would be dead code.
 
 ---
 

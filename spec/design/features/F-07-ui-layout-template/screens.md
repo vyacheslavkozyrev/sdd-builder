@@ -25,7 +25,7 @@ Criteria with no screen are not visual and are proved by tests: AC-009 and AC-01
 
 ## Decisions these screens take
 
-1. **The left panel is the same on every screen.** It holds the wordmark, New project (the only action in the panel besides Prev and Next), and the stepper. There is no Demo button (AC-003).
+1. **The left panel is the same on every screen.** It holds the wordmark and New project in F-07. The stepper and Prev and Next are F-08 and are drawn here only to show their place. There is no Demo button (AC-003).
 2. **Prev and Next belong to the wizard.** They are drawn here at step 1 (Prev disabled) only to show where they sit at the foot of the panel; their behaviour is F-08 (`ui.md` §1.3).
 3. **The footer is a note, not a control.** It holds no buttons or links (AC-005).
 4. **The content area is a slot.** The frame sets its size; the screen supplies the content (the wizard in F-08, or another screen).
@@ -49,4 +49,6 @@ Criteria with no screen are not visual and are proved by tests: AC-009 and AC-01
 
 ## Approval
 
-The restyle of 2026-11-18 is a visual change from the header layout approved on 2026-11-17. It is not yet approved. Open points 1 to 3 are open.
+The restyle of 2026-11-18 (left panel) was approved by the user on 2026-11-20, together with the amended stories. The header layout approved on 2026-11-17 is superseded.
+
+Resolved on 2026-11-20 by the user: point 1 kept (New project starts over at once); point 2 kept (scrollbar strip stays as an illustration); point 3 resolved by the amended stories (the wordmark and New project are in the left panel). In F-07 the panel holds only the wordmark and New project; the stepper and Prev and Next shown in the screens are added by F-08.

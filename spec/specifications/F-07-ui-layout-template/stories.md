@@ -1,14 +1,14 @@
 # User Stories — UI layout template (F-07)
 
 Feature entry: `spec/documents/features.md` → F-07
-Requirements owned by this feature: the F-07 scope items in `features.md` (header with logo and New project, app footer with the not-saved note, centre content area, Material UI, desktop layout at the 1280 × 800 reference, every screen uses the layout); `ui.md` §1.1, §1.2, §1.3 (frame only), §7; `architecture.md` §5 (Material UI) and decision 31 (desktop only). Owner decisions of 2026-11-17: the logo is a text wordmark; New project calls a handler supplied by the caller; the layout is fluid with a 1024 px minimum width.
+Requirements owned by this feature: the F-07 scope items in `features.md` (left panel with the wordmark and New project, app footer with the not-saved note, centre content area, Material UI, desktop layout at the 1280 × 800 reference, every screen uses the layout); `ui.md` §1.1, §1.2, §1.3 (frame only), §7; `architecture.md` §5 (Material UI) and decision 31 (desktop only). Owner decisions of 2026-11-17: the logo is a text wordmark; New project calls a handler supplied by the caller; the layout is fluid with a 1024 px minimum width. Owner decisions of 2026-11-20: the restyled screens of 2026-11-18 (wordmark and New project in a left panel) are approved; the F-07 panel holds the wordmark and New project only.
 
 ## Out of Scope
 
-- The wizard, its steps panel, Prev and Next, and the step bodies (F-08). F-07 renders the centre area from its children only.
+- The wizard, its stepper, Prev and Next, and the step bodies (F-08). F-08 adds the stepper and Prev and Next to the left panel. F-07 renders the centre area from its children only.
 - What New project does beyond calling the handler it is given. The handler is wired to the wizard in F-08.
 - The Demo button (not in the MVP; F-23).
-- A logo image file. The header shows the text wordmark `SDDBuilder`; a real logo is a later change.
+- A logo image file. The left panel shows the text wordmark `SDDBuilder`; a real logo is a later change.
 - Any save, download or persistence control in the footer. The footer is a note only.
 - Phone and tablet layouts (decision 31).
 - Theme switching, dark mode and custom colours. Material UI defaults apply.
@@ -25,19 +25,19 @@ Acceptance criteria are tagged by how they are verified:
 
 Every automated test names the feature and criterion it covers (`F-07 AC-003`).
 
-### US-001: Header with logo and New project
+### US-001: Left panel with logo and New project
 
 **As a** builder user
-**I want to** see the SDDBuilder logo at the top left and a New project button at the top right
+**I want to** see the SDDBuilder wordmark and a New project button in the left panel
 **So that** I can recognise the app and start a new project from any screen.
 
 **Requirements:** `ui.md` §1.1
 
 #### Acceptance Criteria
 
-- [ ] AC-001 `[auto]`: the header renders the text `SDDBuilder` in its left region and the button `New project` in its right region.
+- [ ] AC-001 `[auto]`: the left panel renders the text `SDDBuilder` above the button `New project`.
 - [ ] AC-002 `[auto]`: clicking `New project` calls the `onNewProject` handler passed to the layout exactly once, and calls no other handler.
-- [ ] AC-003 `[auto]`: the header contains no Demo button and no other button besides `New project` (negative case: Demo is not in the MVP).
+- [ ] AC-003 `[auto]`: the left panel contains no Demo button and no other button besides `New project` (negative case: Demo is not in the MVP; Prev and Next are added by F-08).
 
 ### US-002: Footer note that the work is not saved
 
@@ -56,15 +56,15 @@ Every automated test names the feature and criterion it covers (`F-07 AC-003`).
 
 **As a** developer
 **I want to** render every screen inside one layout frame
-**So that** the header, the centre area and the footer look and behave the same on every screen.
+**So that** the left panel, the centre area and the footer look and behave the same on every screen.
 
 **Requirements:** `ui.md` §1 (frame), `features.md` F-07 ("every screen uses it")
 
 #### Acceptance Criteria
 
-- [ ] AC-006 `[auto]`: the layout renders the header, then the centre area, then the footer, in that order in the markup.
-- [ ] AC-007 `[auto]`: the children passed to the layout appear inside the centre area; with no children the centre area is empty and the header and footer still render.
-- [ ] AC-008 `[auto]`: the application root renders the layout frame, so the header and footer appear on the first screen.
+- [ ] AC-006 `[auto]`: the layout renders the left panel, then the centre area, then the footer, in that order in the markup.
+- [ ] AC-007 `[auto]`: the children passed to the layout appear inside the centre area; with no children the centre area is empty and the left panel and footer still render.
+- [ ] AC-008 `[auto]`: the application root renders the layout frame, so the left panel and footer appear on the first screen.
 
 ### US-004: Desktop sizing
 
@@ -78,20 +78,20 @@ Every automated test names the feature and criterion it covers (`F-07 AC-003`).
 
 - [ ] AC-009 `[auto]`: the frame style sets the width to 100% of the window, a minimum width of 1024 px and a minimum height of the full window height.
 - [ ] AC-010 `[auto]`: the frame style does not hide overflow and does not set a narrow maximum width (negative case: below 1024 px the page scrolls; it does not clip or reflow to a phone column).
-- [ ] AC-011 `[device]`: at a window of 1280 × 800 the header, the centre area and the footer are all visible without scrolling the page vertically, and the footer sits at the bottom of the window.
-- [ ] AC-012 `[device]`: at a window of 1024 px wide the header, centre area and footer stay in one column with no overlap; narrower than 1024 px the page scrolls horizontally.
+- [ ] AC-011 `[device]`: at a window of 1280 × 800 the left panel, the centre area and the footer are all visible without scrolling the page vertically, and the footer sits at the bottom of the window.
+- [ ] AC-012 `[device]`: at a window of 1024 px wide the left panel, centre area and footer stay in place with no overlap; narrower than 1024 px the page scrolls horizontally.
 
 ### US-005: Material UI components
 
 **As a** developer
-**I want to** build the header, the footer and the frame from Material UI components
+**I want to** build the left panel, the footer and the frame from Material UI components
 **So that** the app uses the look and feel chosen for the MVP (`architecture.md` §5).
 
 **Requirements:** `architecture.md` §5 (component library); `ui.md` intro
 
 #### Acceptance Criteria
 
-- [ ] AC-013 `[auto]`: the rendered header contains a Material UI app bar (class `MuiAppBar-root`) and the New project control is a Material UI button (class `MuiButton-root`).
+- [ ] AC-013 `[auto]`: the rendered left panel is a Material UI element (class prefixed `Mui`) and the New project control is a Material UI button (class `MuiButton-root`).
 - [ ] AC-014 `[auto]`: the rendered footer contains a Material UI element (class prefixed `Mui`).
 
 ---
@@ -100,13 +100,13 @@ Every automated test names the feature and criterion it covers (`F-07 AC-003`).
 
 | Requirement | Covered by |
 |---|---|
-| F-07 header: logo | AC-001 |
-| F-07 header: New project | AC-001, AC-002, AC-003 |
+| F-07 left panel: wordmark | AC-001 |
+| F-07 left panel: New project | AC-001, AC-002, AC-003 |
 | F-07 app footer with the not-saved note | AC-004, AC-005 |
 | F-07 centre content area | AC-006, AC-007 |
 | F-07 every screen uses the layout | AC-006, AC-008 |
 | F-07 Material UI | AC-013, AC-014 |
 | F-07 desktop layout 1280 × 800 | AC-009, AC-010, AC-011, AC-012 |
-| `ui.md` §1.1 header | AC-001, AC-002, AC-003 |
+| `ui.md` §1.1 header (left panel) | AC-001, AC-002, AC-003 |
 | `ui.md` §1.2 footer | AC-004, AC-005 |
 | `ui.md` §7 desktop only | AC-009, AC-010, AC-012 |

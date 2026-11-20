@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 10 tasks (T001 to T010); AC-019 decided as a blocker (see Amendments) |
 | Build    | ✅ Complete | 2026-11-19 | 10 of 10 tasks committed |
-| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Verify   | ✅ Complete | 2026-11-19 | 37 of 37 criteria have a passing test; no manual criteria; no gaps. Weak test tags and one wording question listed under Test Results |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -69,6 +69,70 @@ _Review suggestions intentionally not applied, with the reason._
 ---
 
 ## Test Results
+
+### 2026-11-19 verify
+
+Verify run on 2026-11-19, branch `main`, clean tree, all 10 tasks (T001 to T010) committed, Current Task None.
+
+**Task check:** `source/scripts/task-check.sh` exit 0. Core 783 passed (33 files), api 6 passed (3 files), web 4 passed (2 files). Total 793 passed, 0 failed. A verbose core run gives the same 783 passed, of which 146 lines carry an `F-03 AC-` name.
+
+**Totals:** 37 criteria, 37 `[auto]`, 0 `[device]`. Gaps: none. Failures: none.
+
+"Passing tests" counts the passing test cases whose full name (including its describe titles) carries the criterion ID. Every named test is in `source/packages/core/test/pipeline/`.
+
+| Criterion | Tag | Covering tests (file) | Passing tests | Result |
+|---|---|---|---|---|
+| AC-001 | auto | analyze-start-end.test.ts | 1 | pass |
+| AC-002 | auto | analyze-start-end.test.ts | 2 | pass |
+| AC-003 | auto | analyze-start-end.test.ts | 2 | pass |
+| AC-004 | auto | analyze-start-end.test.ts | 2 | pass |
+| AC-005 | auto | analyze-start-end.test.ts | 1 | pass |
+| AC-006 | auto | analyze-start-end.test.ts | 2 | pass |
+| AC-007 | auto | analyze-links.test.ts | 14 | pass |
+| AC-008 | auto | analyze-links.test.ts | 1 | pass |
+| AC-009 | auto | analyze-links.test.ts | 1 | pass |
+| AC-010 | auto | analyze-links.test.ts | 3 | pass |
+| AC-011 | auto | analyze-links.test.ts | 5 | pass |
+| AC-012 | auto | analyze-links.test.ts | 11 | pass |
+| AC-013 | auto | analyze-routes.test.ts | 2 | pass |
+| AC-014 | auto | analyze-links.test.ts | 8 | pass |
+| AC-015 | auto | analyze-routes.test.ts | 4 | pass |
+| AC-016 | auto | analyze-links.test.ts, analyze-routes.test.ts | 21 | pass |
+| AC-017 | auto | analyze-routes.test.ts | 8 | pass |
+| AC-018 | auto | analyze-routes.test.ts | 2 | pass |
+| AC-019 | auto | analyze-routes.test.ts | 2 | pass |
+| AC-020 | auto | analyze-routes.test.ts | 4 | pass |
+| AC-021 | auto | analyze-reach.test.ts | 15 | pass |
+| AC-022 | auto | analyze-reach.test.ts | 3 | pass |
+| AC-023 | auto | analyze-reach.test.ts | 11 | pass |
+| AC-024 | auto | analyze-reach.test.ts | 5 | pass |
+| AC-025 | auto | analyze-names.test.ts | 23 | pass |
+| AC-026 | auto | analyze-text.test.ts, analyze-names.test.ts | 14 | pass |
+| AC-027 | auto | analyze-text.test.ts, analyze-names.test.ts | 8 | pass |
+| AC-028 | auto | analyze-text.test.ts | 6 | pass |
+| AC-029 | auto | analyze-text.test.ts | 2 | pass |
+| AC-030 | auto | analyze-names.test.ts | 9 | pass |
+| AC-031 | auto | analyze-default.test.ts | 1 | pass |
+| AC-032 | auto | analyze-order.test.ts, analyze.test.ts | 4 | pass |
+| AC-033 | auto | analyze.test.ts | 2 | pass |
+| AC-034 | auto | analyze.test.ts | 1 | pass |
+| AC-035 | auto | analyze-routes.test.ts | 3 | pass |
+| AC-036 | auto | analyze-default.test.ts | 1 | pass |
+| AC-037 | auto | namespace.test.ts | 1 | pass |
+
+**Tests that do not prove the criterion they carry** (no gap, since each criterion has a passing test that does prove it; the tags should be corrected by the owner or in a later change):
+
+- `analyze-names.test.ts`, the tests tagged `F-03 AC-026` at the argument clashes ("a pipeline argument that clashes with a rule id", "a flow argument that clashes with a flow id", "an argument row of an agent that clashes with a block id") check where F-02's reused id findings are placed. They do not test the file-safe or `pipeline` rule of AC-026; that is proven in `analyze-text.test.ts`. The test "F-03 AC-025 a repeated rule id is placed at pipeline level" is tagged AC-025, which is about repeated flow ids.
+- `analyze-links.test.ts`, "F-03 AC-014 a start next that names the end of its own flow" and "an agent next that names the start of its own flow" test the F-02 kind rule, which AC-014 does not name (AC-014 covers a block of another flow, or no block). AC-014 is proven by the other-flow and no-block cases.
+- `analyze-links.test.ts`, "F-03 AC-007 every finding of this rule is a blocker with a message" checks the severity and message property of AC-034, not AC-007.
+- `analyze-reach.test.ts`, "F-03 AC-023 a second flow with the id of a reached flow is not reported again" is a negative case of duplicate ids; it belongs to AC-025.
+- Wording question on AC-035: the criterion says each gap in its list "gives its finding". The test "F-03 AC-035 a flow with no next, no description and no arguments ... gives no finding" expects no finding, which matches AC-010 and AC-028 for a one-flow pipeline. The owner should confirm that AC-035 means "gives the finding its own criterion names", and clarify the wording in `stories.md` if so.
+
+**Scope check (`features.md` F-03, as amended):** each scope item has a covering criterion. One start and one end per flow: AC-001 to AC-006. Connections join blocks of one flow: AC-014, AC-016. Connections join flows of the pipeline, one target and one incoming: AC-007 to AC-009. A flow is connected: AC-010. No loops among flows or blocks: AC-011, AC-012. A retry with a round limit is not a loop: AC-013. Both outputs of every check wired: AC-015. Back routes only to earlier agents: AC-017 to AC-020. Reachability of blocks and flows: AC-021 to AC-024. Unique file-safe names: AC-025 to AC-027. A flow requires a name and a body: AC-028. The retry warning is no longer in the scope; AC-019 is the blocker that replaces it.
+
+**Manual checklist:** not needed, since no criterion is `[device]`. No `checklist.md` was written.
+
+### History: verify run on 2026-11-16
 
 Verify run on 2026-11-16, branch `main`, clean tree, all 8 tasks committed, Current Task None.
 

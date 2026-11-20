@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-20 | 14 criteria: 12 `[auto]`, 2 `[device]`; re-specified after the 2026-11-19 reset; approved by the user |
 | UX       | ✅ Complete | 2026-11-20 | Restyled left-panel screens (2026-11-18) approved by the user 2026-11-20; open points 1 and 2 kept; AC-001 and the stories amended to the left panel and re-approved the same day (supersedes the header approval of 2026-11-17) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the removal of the previous build (`58ef413`): 5 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 4 of 5 tasks committed |
-| Verify   | ⏳ Pending |  | awaiting the build |
+| Build    | ✅ Complete | 2026-11-20 | 5 of 5 tasks committed |
+| Verify   | 🔄 In Progress | 2026-11-20 | verify run pending |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -31,6 +31,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Left panel: wordmark above New project (MUI button calling onNewProject once); markup tests in LeftPanel.test.tsx, the jsdom click test in LeftPanel.click.test.tsx | 0 blockers, 0 warnings, 2 suggestions fixed (test clarity); 1 suggestion deferred (logo square) | task check passed: api 45, web 19, core 1208 |
 | T003 | Footer: the not-saved note in Material UI, no button or link; 24 px gap above the note owned by the footer | 0 blockers, 2 warnings fixed (top padding so the footer owns the 24 px gap; AC-005 control check case-insensitive) | task check passed: api 45, web 26, core 1208 |
 | T004 | Frame: left panel, centre area with the children (white card, 12 px radius, 1 px #DDE7EE border, soft shadow), footer, in that order, styled by frameStyle | 0 blockers, 2 warnings fixed (card radius, border and shadow added to match the approved screen; AC-007 negative test made non-duplicate) | task check passed: api 45, web 35, core 1208 |
+| T005 | Application root: App renders the frame with an empty centre and a no-op onNewProject (wizard in F-08); main.tsx mounts App, hello-world placeholder removed | 0 blockers, 0 warnings, 0 suggestions | task check passed: api 45, web 40, core 1208 |
 
 ---
 

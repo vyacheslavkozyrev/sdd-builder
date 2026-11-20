@@ -126,7 +126,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 - [ ] AC-030 `[auto]`: `process.md` holds one fenced block marked `mermaid` whose first line is `flowchart`.
 - [ ] AC-031 `[auto]`: The diagram has one node per flow, in the order of the `next` links from the first flow, with node ids `F1`, `F2` and so on, and each node is labelled with the flow's name.
 - [ ] AC-032 `[auto]`: Each flow with a `next` link has one unlabelled edge to the flow it names; the last flow, which has no `next`, gets no edge.
-- [ ] AC-033 `[auto]`: A flow with approval on has its node label end with the word `approval`; a flow with approval off has no such word in its label.
+- [ ] AC-033 `[auto]`: A flow with approval on has its node label end with the word `approval`; a flow with approval off gets no `approval` suffix, so its label is its name as typed (a name that holds the word is written as it is).
 - [ ] AC-034 `[auto]`: A quote, bracket, brace, pipe or hash in a flow name is escaped to an entity code so the diagram parses, and a line break in a name is written as a space; a test with such a name shows the escaped form.
 - [ ] AC-035 `[auto]`: The same configuration gives the same diagram text, byte for byte, on two calls.
 

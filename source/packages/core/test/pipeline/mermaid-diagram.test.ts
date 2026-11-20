@@ -201,6 +201,11 @@ describe('F-05 AC-033 an approval flow ends its label with approval, and an appr
     expect(diagram).not.toContain('approval');
   });
 
+  it('gives an approval-off flow whose name holds the word its name as typed, with no suffix', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('review', 'Approval review', { approval: false })]));
+    expect(diagram.split('\n')[1]).toBe('F1["Approval review"]');
+  });
+
   it('marks each node by its own approval flag', () => {
     const lines = processDiagram(
       pipelineWith([

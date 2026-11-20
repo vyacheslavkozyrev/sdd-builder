@@ -191,7 +191,7 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
 - **Next links:** `next` (flow) names another flow of the pipeline, never the flow itself. A flow has at most one outgoing `next` and at most one incoming `next`. The flow `next` links form no loop (decision 38).
 - **Connected flows:** a flow has an incoming or an outgoing `next`, unless the pipeline has one flow; the first flow is the one no other `next` points to (decision 39; reachability).
 - **Blocks of a flow:** exactly one Start and one End; every block is reachable from Start; every block except End has a route out; a route names a block of the same flow.
-- **Returns:** a route back to an earlier Agent is only allowed from a Condition and carries a `roundLimit` of 1 to 5.
+- **Returns:** a route back to an earlier Agent is only allowed from a Condition and carries a `roundLimit` of 1 to 5. An Agent's or a Start's `next` names a later block of its flow: a `next` that names the block itself or an earlier block is refused (owner, 2026-11-19).
 - **End:** `producedArtifact` is the label of one of the flow's artifacts.
 - **Deleting a block** removes its arrows; the blocks that pointed to it lose that route or `next`.
 - **Checks are conditions:** a Condition's `description` is required and non-blank.

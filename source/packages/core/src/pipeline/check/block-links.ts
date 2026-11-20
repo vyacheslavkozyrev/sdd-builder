@@ -3,11 +3,13 @@ import type { Block, ConditionBlock, Flow, Problem, ProjectConfig, Route } from 
 
 // Block references inside a flow (pipeline-schema.md §3; AC-045, AC-046, AC-054, AC-059 to AC-062).
 // A start's `next` names an agent or a condition of the same flow; an agent's `next` names an agent,
-// a condition or the end of the same flow. A route `to` names a block of the same flow: a plain route
-// (`{to}`) names a later block of the flow, and a route with a `roundLimit` names an earlier agent of
-// the flow (a return). A reference to a block of another flow, or to an id that is no block, is refused
-// at the path of the reference. Returns the problems in document order; an empty list means every
-// reference is valid. Routes that did not parse are not seen here.
+// a condition or the end of the same flow. Both name a later block: a loop (the block itself or an
+// earlier one) is refused, and a return is only a condition's false route with a roundLimit (AC-054, AC-060).
+// A route `to` names a block of the same flow: a plain route (`{to}`) names a later block of the flow,
+// and a route with a `roundLimit` names an earlier agent of the flow (a return). A reference to a block
+// of another flow, or to an id that is no block, is refused at the path of the reference. Returns the
+// problems in document order; an empty list means every reference is valid. Routes that did not parse
+// are not seen here.
 
 const PIPELINE_PATH = childPath(ROOT_PATH, 'pipeline');
 const FLOWS_PATH = childPath(PIPELINE_PATH, 'flows');
@@ -45,6 +47,13 @@ function checkStartOrAgentNext(
     problems.push({
       path,
       message: `must name ${list} of this flow, got the ${target.kind} block ${block.next}`,
+    });
+    return;
+  }
+  if (target.index <= block.index) {
+    problems.push({
+      path,
+      message: 'must name a later block of this flow; a return needs a condition with roundLimit',
     });
   }
 }

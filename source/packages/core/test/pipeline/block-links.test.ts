@@ -146,6 +146,43 @@ describe('F-02 AC-054 an agent next names an agent, a condition or the end of th
   });
 });
 
+describe('F-02 AC-054 a next names a later block of the same flow, so a loop is refused at next', () => {
+  const LOOP = 'must name a later block of this flow; a return needs a condition with roundLimit';
+
+  it('refuses an agent whose next names the agent itself, at the path of next', () => {
+    const blocks = [start('s', 'a'), agent('a', 'a'), end('e')];
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
+      { path: 'pipeline.flows.0.blocks.1.next', message: LOOP },
+    ]);
+  });
+
+  it('refuses an agent whose next names an earlier agent of the flow, at the path of next', () => {
+    const blocks = [start('s', 'a'), agent('a', 'b'), agent('b', 'a'), end('e')];
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
+      { path: 'pipeline.flows.0.blocks.2.next', message: LOOP },
+    ]);
+  });
+
+  it('refuses an agent whose next names an earlier condition of the flow, at the path of next', () => {
+    const blocks = [start('s', 'a'), agent('a', 'c'), condition('c', { to: 'b' }, STOP), agent('b', 'c'), end('e')];
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
+      { path: 'pipeline.flows.0.blocks.3.next', message: LOOP },
+    ]);
+  });
+
+  it('accepts an agent whose next names a later agent of the flow', () => {
+    const blocks = [start('s', 'a'), agent('a', 'b'), agent('b', 'e'), end('e')];
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([]);
+  });
+
+  it('refuses a start whose next names an earlier block of the flow, at the path of next', () => {
+    const blocks = [agent('a', 'e'), start('s', 'a'), end('e')];
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
+      { path: 'pipeline.flows.0.blocks.1.next', message: LOOP },
+    ]);
+  });
+});
+
 describe('F-02 AC-059 a plain route names a later block of the same flow', () => {
   it('accepts a route to a later agent, a later condition and the end', () => {
     const blocks = [

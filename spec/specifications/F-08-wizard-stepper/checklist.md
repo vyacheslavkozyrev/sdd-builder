@@ -26,6 +26,6 @@ Window: 1280 × 800.
 10. Click Prev three times to return to step 1. Expected: Prev is grey and disabled, Next is enabled, and the layout is the same as in step 2.
 11. Optional visual check (compare with screen 01): the first step marker sits about 164 px below the top of the page, the Prev and Next buttons sit about 32 px above the bottom of the page, and the card has a 24 px margin from the panel edge and from the right window edge.
 
-Result: [ ] Pass  [ ] Fail
+Result: [x] Pass  [ ] Fail (confirmed by the user on 2026-11-20)
 
 Notes: ______________________________________________

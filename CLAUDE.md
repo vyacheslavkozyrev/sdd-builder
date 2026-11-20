@@ -59,3 +59,4 @@ Read per task (not auto-loaded):
 - Any TypeScript code: `.claude/rules/typescript.md`
 - Any code: `.claude/rules/general.md`
 - Writing tests and acceptance criteria: `.claude/rules/qa.md`
+- Any styling, colour or layout in `source/apps/web`: `.claude/rules/web-styling.md`

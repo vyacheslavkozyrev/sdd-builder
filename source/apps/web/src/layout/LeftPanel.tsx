@@ -1,4 +1,5 @@
-import { Button, Paper, Typography } from '@mui/material';
+import { Button, Paper, Typography, useTheme } from '@mui/material';
+import { getLeftPanelStyles } from './layoutStyles.js';
 
 // The left panel of the shared frame (F-07 AC-001, AC-002, AC-003, AC-013). It holds
 // the text wordmark above the New project button and nothing else: the stepper and
@@ -10,23 +11,10 @@ export interface LeftPanelProps {
 }
 
 export function LeftPanel({ onNewProject }: LeftPanelProps) {
+  const styles = getLeftPanelStyles(useTheme());
   return (
-    <Paper
-      elevation={0}
-      square
-      sx={{
-        width: 260,
-        minHeight: '100%',
-        boxSizing: 'border-box',
-        p: 3,
-        borderRight: '1px solid #DDE7EE',
-        bgcolor: '#FFFFFF',
-      }}
-    >
-      <Typography
-        component="p"
-        sx={{ fontSize: 18, fontWeight: 600, lineHeight: '24px', color: '#32383E', mb: 3 }}
-      >
+    <Paper elevation={0} square sx={styles.root}>
+      <Typography component="p" sx={styles.wordmark}>
         SDDBuilder
       </Typography>
       <Button
@@ -36,14 +24,7 @@ export function LeftPanel({ onNewProject }: LeftPanelProps) {
         onClick={() => {
           onNewProject();
         }}
-        sx={{
-          height: 40,
-          borderRadius: '8px',
-          borderColor: '#CDD7E1',
-          color: '#32383E',
-          bgcolor: '#FFFFFF',
-          textTransform: 'none',
-        }}
+        sx={styles.newProjectButton}
       >
         New project
       </Button>

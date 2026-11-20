@@ -63,7 +63,7 @@ Run 2026-11-20 (verify mode, branch `main`, clean tree before the run, all 5 tas
 | AC-008 | auto | `App.test.tsx` (root renders frame, panel and footer; empty centre) | Covered, pass |
 | AC-009 | auto | `frameStyle.test.ts` (width 100%, min width 1024 px, min height 100vh) | Covered, pass |
 | AC-010 | auto | `frameStyle.test.ts` (exact key set: no overflow hiding, no max width) | Covered, pass |
-| AC-011 | device | Checklist (1280 × 800) | Awaiting user result |
+| AC-011 | device | Checklist (1280 × 800) | Passed by the user 2026-11-20 (no scroll at 1280 × 800 after the body-margin fix in `App.tsx`, the footer gaps at 12 px) |
 | AC-012 | device | Checklist (1024 px, narrower scrolls) | Awaiting user result |
 | AC-013 | auto | `LeftPanel.test.tsx` (Mui panel; MuiButton-root) | Covered, pass |
 | AC-014 | auto | `Footer.test.tsx` (Mui footer and Mui typography) | Covered, pass |

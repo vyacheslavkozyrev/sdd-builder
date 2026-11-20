@@ -19,7 +19,7 @@ Steps:
 
 Result (pass / fail; for screens.md points 1 to 3, write what was seen):
 
-Pass / fail: **Fail** (the user reports on 2026-11-20 that the layout is still reproducible: the right half of the card is grey, and the form is not centred in the content area). Fix needed before a re-run of this check.
+Pass / fail: **Pass** (the user, 2026-11-20, after the divider and column fixes: "ok, all AC pass").
 Notes:
 
 ---
@@ -28,4 +28,4 @@ Notes:
 
 | Item | Criterion | Result |
 |---|---|---|
-| C-01 | AC-025 (`[device]`) | Fail (2026-11-20) |
+| C-01 | AC-025 (`[device]`) | Pass (2026-11-20) |

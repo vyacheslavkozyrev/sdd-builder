@@ -9,7 +9,9 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-20 | re-planned after the reset: 7 tasks (T001 to T007); Approved by the user |
 | Build    | ✅ Complete | 2026-11-20 | 7 of 7 tasks committed |
-| Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Verify   | ✅ Complete | 2026-11-20 | 24 of 25 criteria automated and passing; AC-025 `[device]` passed by the user on the 1280 × 800 checklist; AC-007 config half accepted as deferred to F-13 (user, 2026-11-20) |
+
+Feature status: ✅ Complete (2026-11-20). All phases complete.
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

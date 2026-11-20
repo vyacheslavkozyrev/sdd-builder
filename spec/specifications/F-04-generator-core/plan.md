@@ -29,7 +29,7 @@ Placement of block values (T006): a value of whole lines or a paragraph (`flowAr
 - Warnings never refuse a configuration (AC-021).
 - The file list is sorted by path in code-point order (decision 35). The text of `pipeline.md` follows the flow order, so a reordering of flows changes that text but not the list of paths.
 - Only a flow and an Agent block carry a description and rule tags (AC-011). The pipeline command, the base files and the rule files plan an empty description and an empty list of rule tags, because they are neither a flow nor an Agent block.
-- Base layouts take no values in F-04 (T008), so a base layout holds no placeholder, and one that does makes planning throw a `GenerationError` naming the placeholder and the path (AC-013). Which values the base layouts get is the open decision in `progress.md` (Deferred Findings); F-05 depends on it.
+- Base layouts take the lists that `baseValues` builds from the config (`processList`, `commandList`, `agentList`, `ruleList`; AC-037, AC-038, T014). A base layout that names a value none of them supplies (`processDiagram` is F-05's) makes planning throw a `GenerationError` naming the placeholder and the path (AC-013).
 
 ## Tasks
 
@@ -63,7 +63,7 @@ Placement of block values (T006): a value of whole lines or a paragraph (`flowAr
 
 - [x] T015 [Core] The pipeline command's model, tools and body (amendment 2026-11-19, decision 26): `source/packages/core/src/pipeline/generate/values-pipeline.ts` gains `pipelineModel`, `pipelineTools` and `pipelineBody` in the same form as the agent values (`values-agent.ts`): frontmatter lines, empty when absent; the body with its leading `\n\n`, empty when none. Test: `generate-values.test.ts` gains the cases, including an empty tools list and a layout that leaves no blank line. Covers AC-039.
 
-- [ ] T016 [Docs] Record F-04 as built: `spec/documents/architecture.md` §3 (the functions as built and their names: `pipeline.planGeneration`, `pipeline.checkReply`, `pipeline.configProblems`; the templates as data and the one-pass rendering; base layouts take `baseValues`); `source/templates/README.md` (the value names of the flow, pipeline, agent, rule and base values, the line-break convention, and the fact that `processDiagram` is F-05's). Covers no criterion; no code. Runs last, after T013 to T015, so the names it records are the final ones.
+- [x] T016 [Docs] Record F-04 as built: `spec/documents/architecture.md` §3 (the functions as built and their names: `pipeline.planGeneration`, `pipeline.checkReply`, `pipeline.configProblems`; the templates as data and the one-pass rendering; base layouts take `baseValues`); `source/templates/README.md` (the value names of the flow, pipeline, agent, rule and base values, the line-break convention, and the fact that `processDiagram` is F-05's). Covers no criterion; no code. Runs last, after T013 to T015, so the names it records are the final ones.
 
 ## Rationale
 

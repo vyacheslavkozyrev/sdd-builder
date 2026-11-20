@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); amended 2026-11-19 to 16 tasks (T013 to T015 added, docs task now T016); 40 criteria, all covered |
-| Build    | 🔄 In Progress |  | 15 of 16 tasks committed |
+| Build    | ✅ Complete | 2026-11-19 | 16 of 16 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-040 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -42,6 +42,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | Line breaks in numbered lines (AC-040): the Agent step line, the Condition rule line, its stop question and the argument lines take their text through `inlineText` | 0 blockers, 0 warnings; 1 suggestion deferred (flow description that is only a line break, in `values-pipeline.ts`) | task check passed: api 6 of 6, web 4 of 4, core 934 of 934 |
 | T014 | Base values (`generate/values-base.ts`): `processList`, `commandList`, `agentList`, `ruleList` built in code; `plan.ts` renders base layouts with them; `processDiagram` is not supplied and still throws | 0 blockers; 2 warnings fixed (a self-comparing determinism test; no line-break case for agent lists); 2 suggestions fixed (typed agent collection; long lines wrapped) | task check passed: api 6 of 6, web 4 of 4, core 949 of 949 |
 | T015 | The pipeline command's model, tools and body (`values-pipeline.ts`): frontmatter lines and body in the agent form, empty when absent; tool names are inlined (agent tools too, in `values-agent.ts`) | 0 blockers; 2 warnings fixed (a tool name with a line break in the pipeline and in the agent form); 0 suggestions | task check passed: api 6 of 6, web 4 of 4, core 955 of 955 |
+| T016 | Record F-04 as built: `architecture.md` §3 (the three functions, `baseValues`, the value builders); `source/templates/README.md` (value names, the line-break convention, F-05's `processDiagram`) | 0 blockers; 1 warning and 1 suggestion fixed (stale Interpretations wording in plan.md; the README's manifest reference); 2 suggestions deferred | task check passed: api 6 of 6, web 4 of 4, core 955 of 955 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 
@@ -55,7 +56,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - Resolved 2026-11-19 by the owner: base layouts take their lists from the config (`baseValues`, AC-037 and AC-038, T014). `projectName`, `idea` and `stack` stay out of the templates: no `ProjectConfig` field is their value source, and the rows are dropped. `processDiagram` is F-05's (Mermaid, decision 36(a)).
 
-- `source/packages/core/src/pipeline/generate/values-flow.ts` (`flowSteps`, `conditionRule`) and `values-text.ts` (`describeArgument`): an Agent `description`, a Condition `description` and an argument `hint` are `readText` values and may hold a line break (only blank is refused), but they are written raw. A multi-line text breaks the "one numbered line per Agent block", "one numbered rule per Condition" and "one line per argument" lines that `source/templates/README.md` and architecture §3 promise. Fix in code (`inlineText` on those three values) with a test: task T013 of the amended plan (AC-040).
+- `source/packages/core/src/pipeline/generate/values-flow.ts` (`flowSteps`, `conditionRule`) and `values-text.ts` (`describeArgument`): an Agent `description`, a Condition `description` and an argument `hint` are `readText` values and may hold a line break (only blank is refused), but they are written raw. A multi-line text breaks the "one numbered line per Agent block", "one numbered rule per Condition" and "one line per argument" lines that `source/templates/README.md` and architecture §3 promise. Resolved by task T013 of the amended plan (`inlineText` on those values, AC-040).
 
 - `source/packages/core/test/pipeline/generate-refuse.test.ts` (AC-021): `analyzeStructure` has no warning-producing rule yet, so a config that really yields a warning cannot be tested end to end. The warning case is tested on the pure filter `blockersOf` instead. Revisit when a warning rule is added to `analyzeStructure`.
 
@@ -66,6 +67,10 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/packages/core/src/pipeline/generate/file-list.ts:62` (`compareCodePoints` is now exported for `reply-check.ts`): the file is not on T011's file list in `plan.md`. The export is the smallest way to share one comparator, so the code stays. Amend the T011 line in `plan.md` to list `file-list.ts`, or move the comparator to its own module in a later task.
 
 - `source/packages/core/src/pipeline/generate/values-pipeline.ts` (`flowLine`, T013 review): the pipeline's flow description is optional and not `nonBlank` (`parse/flow.ts`), so a description of only a line break is truthy, is inlined to '' and gives "1. Flow `id`:  The process ..." (a dangling colon and a double space). The line does not split. Outside T013's file list, so not changed here; fix with a `flow.description` check on the inlined text in a later task.
+
+- `spec/documents/architecture.md` line 218 (decision 36(b), T016 review): the decision names `optionalFrontmatter` and the stack-free base `bodySection`, which the F-04 code does not have (the agent lines are `agentModel` and `agentTools`, the base lists come from `baseValues`). Suggestion, deferred: a recorded decision is amended by the owner (a new dated sentence or decision), not rewritten by the docs task. The owner decides the wording.
+
+- `source/templates/pipeline/default.json` line 28 (T016 review, outside T016's files): the Agent body "Draws the screens under spec/design from the stories." is generated text that names `spec/design`, the folder of SDDBuilder's own design documents. Whether a generated project has that folder is the owner's call (default pipeline, F-05); no SDDBuilder file name is otherwise present in the generated text.
 
 ---
 

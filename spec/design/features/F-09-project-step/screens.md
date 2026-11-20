@@ -32,7 +32,7 @@ Footer note and caption sit inside the grey area, 24 px below the card: note at 
 
 | # | File | What it shows | Criteria it proves | States shown |
 |---|---|---|---|---|
-| 01 | `01-project-values.svg` | Step 1 with a name and an idea entered: the single-line name field with its help line, the multi-line idea field, the counter `127 / 5,000` and the help lines; Prev disabled; Next | AC-001, AC-002, AC-005, AC-006, AC-012, AC-016 | Values entered; Prev disabled; Next enabled |
+| 01 | `01-project-values.svg` | Step 1 with a name and an idea entered: the single-line name field with its help line, the multi-line idea field, the counter `127 / 5,000` and the help lines; Prev disabled; Next | AC-001, AC-002, AC-005, AC-006, AC-012, AC-016, AC-017 | Values entered; Prev disabled; Next enabled |
 | 02 | `02-project-blank.svg` | Step 1 with both fields empty: placeholder text, counter `0 / 5,000`, and a note that Next stays available and the analysis on step 4 reports the blank fields; Prev disabled; Next | AC-004, AC-005, AC-006, AC-009 | Blank name and idea; Prev disabled; Next enabled |
 | 03 | `03-project-limit.svg` | Step 1 with the name at 100 characters and the idea at 5,000: the note that the name limit is reached, the counter `5,000 / 5,000` and the note that text past the limit is cut, also when pasted; Prev disabled; Next | AC-003, AC-005, AC-006, AC-007, AC-008 | Name at its limit; idea at its limit; Prev disabled; Next enabled |
 

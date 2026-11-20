@@ -47,7 +47,36 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
-Not yet run. The checklist is `spec/specifications/F-07-ui-layout-template/checklist.md` (AC-011 at 1280 × 800, AC-012 at 1024 px).
+Run 2026-11-20 (verify mode, branch `main`, clean tree before the run, all 5 tasks committed, Current Task None).
+
+`source/scripts/task-check.sh`: exit 0. Typecheck passed in all workspaces. Tests: api 45 passed (6 files), web 40 passed (8 files), core 1208 passed (57 files). 0 failed.
+
+| Criterion | Tag | Covering tests (`F-07 AC-###`) | Result |
+| --------- | --- | ------------------------------ | ------ |
+| AC-001 | auto | `LeftPanel.test.tsx` (wordmark, New project, wordmark above button) | Covered, pass |
+| AC-002 | auto | `LeftPanel.click.test.tsx` (handler called once on click; not on render) | Covered, pass |
+| AC-003 | auto | `LeftPanel.test.tsx` (exactly one button; no Demo, Prev, Next, link, input or select) | Covered, pass |
+| AC-004 | auto | `Footer.test.tsx` (not saved; lost on refresh) | Covered, pass |
+| AC-005 | auto | `Footer.test.tsx` (no button, no link, no save/download control) | Covered, pass |
+| AC-006 | auto | `AppFrame.test.tsx` (panel, centre, footer order) | Covered, pass |
+| AC-007 | auto | `AppFrame.test.tsx` (children in centre; empty centre still renders panel and footer) | Covered, pass |
+| AC-008 | auto | `App.test.tsx` (root renders frame, panel and footer; empty centre) | Covered, pass |
+| AC-009 | auto | `frameStyle.test.ts` (width 100%, min width 1024 px, min height 100vh) | Covered, pass |
+| AC-010 | auto | `frameStyle.test.ts` (exact key set: no overflow hiding, no max width) | Covered, pass |
+| AC-011 | device | Checklist (1280 × 800) | Awaiting user result |
+| AC-012 | device | Checklist (1024 px, narrower scrolls) | Awaiting user result |
+| AC-013 | auto | `LeftPanel.test.tsx` (Mui panel; MuiButton-root) | Covered, pass |
+| AC-014 | auto | `Footer.test.tsx` (Mui footer and Mui typography) | Covered, pass |
+
+Gaps: none for the automated criteria (12 of 12 have at least one passing test naming them).
+
+Scope (`features.md` F-07): left panel with wordmark and New project (AC-001 to AC-003), footer note (AC-004, AC-005), centre area (AC-006, AC-007), every screen uses the frame (AC-006, AC-008), Material UI (AC-013, AC-014), desktop 1280 × 800 and 1024 px minimum (AC-009 to AC-012). Covered.
+
+Note for the owner: `features.md` line 32 and line 75 still say "header (logo, New project)" and "logo"; the approved design is a left panel with a text wordmark. The scope is covered by the criteria, but the feature list wording is stale.
+
+Manual checklist: `spec/specifications/F-07-ui-layout-template/checklist.md` (AC-011 at 1280 × 800, AC-012 at 1024 px). Status: awaiting the user's results (both boxes unticked).
+
+Risk for the device run (not a test gap): no CSS reset exists in `source/apps/web` (no `CssBaseline`, no `margin: 0` on body). The browser default body margin of 8 px applies, so a frame with `minHeight: 100vh` may scroll vertically by about 16 px at 1280 × 800, and at 1024 px the frame's `minWidth: 1024px` may scroll horizontally by about 16 px. This is from reading the code, not from a browser run. If the user reports a fail on AC-011 or AC-012, this is the first cause to check.
 
 ---
 

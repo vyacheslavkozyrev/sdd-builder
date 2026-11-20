@@ -1,5 +1,6 @@
-import type { Argument, Block, ConditionBlock, Flow, Route } from '../model.js';
+import type { Block, ConditionBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
+import { describeArgument, describeArguments, inlineText, linesOf } from './values-text.js';
 import { walkFlow } from './walk.js';
 
 // The values of a flow's command layout (F-04, AC-012, AC-015, AC-016, AC-018). Each value is a text built in code
@@ -23,8 +24,8 @@ export function flowValues(flow: Flow): Record<string, string> {
 
   return {
     flowId: flow.id,
-    flowName: flow.name,
-    flowDescription: flow.description ?? '',
+    flowName: inlineText(flow.name),
+    flowDescription: inlineText(flow.description ?? ''),
     flowArguments: linesOf(flow.arguments.map((arg) => `- ${describeArgument(arg)}`)),
     flowSteps: linesOf(
       agents.map((block, index) => {
@@ -37,11 +38,6 @@ export function flowValues(flow: Flow): Record<string, string> {
       ? "\n\nThe process stops here for the person's approval at the end of this flow."
       : '',
   };
-}
-
-// The lines of a value, each line one entry, with the line break before the first one; '' when there are none.
-function linesOf(lines: readonly string[]): string {
-  return lines.length === 0 ? '' : `\n${lines.join('\n')}`;
 }
 
 // The place of each block a route can name, as the text names it: an Agent is its step number and agent file, a
@@ -107,13 +103,4 @@ function routeText(
     );
   }
   return `return to ${place}, with at most ${route.roundLimit} rounds`;
-}
-
-function describeArgument(arg: Argument): string {
-  const kind = arg.required ? 'required' : 'optional';
-  return arg.hint === '' ? `\`${arg.id}\` (${kind})` : `\`${arg.id}\` (${kind}, ${arg.hint})`;
-}
-
-function describeArguments(args: readonly Argument[]): string {
-  return args.map(describeArgument).join(', ');
 }

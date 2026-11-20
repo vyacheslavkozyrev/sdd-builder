@@ -52,6 +52,12 @@ describe('F-04 AC-012 the flow id and the other flow values fill the placeholder
     expect(flowValues(described)['flowDescription']).toBe('Builds the project.');
   });
 
+  it('keeps the flow name and description on one line when the text holds line breaks', () => {
+    const flow = { ...fixtureFlow(), name: 'Build\nnow', description: 'Builds\r\n  the project.' };
+    expect(flowValues(flow)['flowName']).toBe('Build now');
+    expect(flowValues(flow)['flowDescription']).toBe('Builds the project.');
+  });
+
   it('gives one line per flow argument with its required mark and hint, empty when there are none', () => {
     const flow = fixtureFlow();
     expect(flowValues(flow)['flowArguments']).toBe('');

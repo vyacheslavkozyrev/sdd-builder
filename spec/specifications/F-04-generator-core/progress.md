@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 6 of 13 tasks committed |
+| Build    | 🔄 In Progress |  | 7 of 13 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T004 | Refusals from the analysis: `configProblems` is the blocker filter (`blockersOf`) over `analyzeStructure`, in analysis order; no warning returned; flow id `pipeline`, zero flows and the default pipeline checked against the analysis | 0 blockers, 2 warnings fixed (test mock replaced by a pure filter; tautological order test made real); 1 suggestion fixed (rule asserted) | task check passed: api 6 of 6, web 4 of 4, core 830 of 830 |
 | T005 | The walk of a flow (`generate/walk.ts`): from the first Start along `next` and routes, `true` before `false`, each block listed once; a missing Start or a link to a missing block throws `GenerationError` | 0 blockers, 2 warnings fixed (order test compared a walk with itself; `{stop}` test did not prove the other branch); 1 suggestion fixed (helper renamed) | task check passed: api 6 of 6, web 4 of 4, core 840 of 840 |
 | T006 | Values of a flow command (`generate/values-flow.ts`): `flowId`, `flowName`, `flowDescription`, `flowArguments`, `flowSteps` (Agent blocks only, numbered), `flowConditions` (numbered rules with true and false routes, round limits, `{stop}` text), `flowApproval`; block values carry their own leading line break and are empty when absent | 0 blockers, 2 warnings fixed (blank line when approval is off; argument lines untested); 1 suggestion deferred (unreachable map branch) | task check passed: api 6 of 6, web 4 of 4, core 858 of 858 |
+| T007 | Values of the pipeline command, agents and rules (`values-pipeline.ts`, `values-agent.ts`, `values-rule.ts`, shared `values-text.ts`); inline values are flattened to one line | 0 blockers, 1 warning fixed (line breaks in inline values, which break YAML frontmatter); 2 suggestions fixed (empty reads and writes tested; long line wrapped) | task check passed: api 6 of 6, web 4 of 4, core 878 of 878 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 

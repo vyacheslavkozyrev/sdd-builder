@@ -1,6 +1,6 @@
 import type { AgentBlock, Argument, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
-import { describeArgument, describeArguments, inlineText, linesOf, ruleTagsText } from './values-text.js';
+import { bodyText, describeArgument, describeArguments, inlineText, linesOf, ruleTagsText } from './values-text.js';
 import { walkFlow } from './walk.js';
 
 // The values of a flow's command layout (F-04, AC-012, AC-015, AC-016, AC-018). Each value is a text built in code
@@ -72,14 +72,6 @@ function endStep(block: EndBlock, number: number): string {
 // Each argument of the flow on its own line; `No arguments` when there are none (AC-008).
 function argumentsText(args: readonly Argument[]): string {
   return args.length === 0 ? '\nNo arguments' : linesOf(args.map((arg) => `- ${describeArgument(arg)}`));
-}
-
-// The body of the flow as a paragraph with its line breaks kept (AC-006). The blank lines before the first text and
-// the whitespace after the last text are dropped, so the paragraph starts with its own line break and the body of a
-// blank flow leaves no gap.
-function bodyText(body: string): string {
-  const text = body.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
-  return text === '' ? '' : `\n\n${text}`;
 }
 
 // Each artifact of the flow, in order; `No artifacts` when there are none (AC-009). The layout writes the `## Artifacts`

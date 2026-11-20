@@ -25,6 +25,14 @@ export function describeArguments(args: readonly Argument[]): string {
   return args.map(describeArgument).join(', ');
 }
 
+// The body of a flow or an Agent block as a paragraph with its line breaks kept (F-05, AC-006 and AC-020). The blank
+// lines before the first text and the whitespace after the last text are dropped, so the paragraph starts with its own
+// line break; '' when the body is blank, so a whitespace-only body counts as no body.
+export function bodyText(body: string): string {
+  const text = body.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
+  return text === '' ? '' : `\n\n${text}`;
+}
+
 // The rule tags of a flow or an Agent block as one comma-separated list in their order; `none` when there are none
 // (F-05, AC-007 and AC-022).
 export function ruleTagsText(tags: readonly RuleTag[] | undefined): string {

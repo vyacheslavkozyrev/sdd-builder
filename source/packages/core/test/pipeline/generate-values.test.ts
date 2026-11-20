@@ -161,7 +161,7 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
   it('gives the name and the description of the Agent block', () => {
     const values = agentValues(agent());
     expect(values['agentName']).toBe('draft-agent');
-    expect(values['agentDescription']).toBe('Drafts the text.');
+    expect(values['agentDescription']).toBe('"Drafts the text."');
   });
 
   it('gives the model and tools frontmatter lines only when the block sets them', () => {
@@ -194,13 +194,8 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
 
   it('keeps the description on one line so a frontmatter layout cannot gain a line', () => {
     const values = agentValues(agent({ description: '\nDrafts\nthe text.\nmodel: opus\n' }));
-    expect(values['agentDescription']).toBe('Drafts the text. model: opus');
+    expect(values['agentDescription']).toBe('"Drafts the text. model: opus"');
     expect(values['agentDescription']).not.toContain('\n');
-  });
-
-  it('gives the body as a paragraph after a blank line, empty when the block has no body', () => {
-    expect(agentValues(agent())['agentBody']).toBe('');
-    expect(agentValues(agent({ body: 'Keep it short.' }))['agentBody']).toBe('\n\nKeep it short.');
   });
 
   it('gives one line per argument with its required mark and hint, empty when there are none', () => {
@@ -213,10 +208,134 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
     const layout = '---\nname: {{agentName}}\ndescription: {{agentDescription}}{{agentModel}}{{agentTools}}\n---';
     expect(
       renderLayout(layout, agentValues(agent({ model: 'haiku', tools: ['Read'] })), '.claude/agents/draft-agent.md'),
-    ).toBe('---\nname: draft-agent\ndescription: Drafts the text.\nmodel: haiku\ntools: Read\n---');
+    ).toBe('---\nname: draft-agent\ndescription: "Drafts the text."\nmodel: haiku\ntools: Read\n---');
     expect(renderLayout(layout, agentValues(agent()), '.claude/agents/draft-agent.md')).toBe(
-      '---\nname: draft-agent\ndescription: Drafts the text.\n---',
+      '---\nname: draft-agent\ndescription: "Drafts the text."\n---',
     );
+  });
+});
+
+describe('F-05 AC-017 the agent description is a quoted YAML string', () => {
+  it('F-05 AC-017 quotes the description as it is', () => {
+    expect(agentValues(agent())['agentDescription']).toBe('"Drafts the text."');
+  });
+
+  it('F-05 AC-017 escapes the quotes and the backslashes inside the description', () => {
+    expect(agentValues(agent({ description: 'Says "hi" in C:\\tmp' }))['agentDescription']).toBe(
+      '"Says \\"hi\\" in C:\\\\tmp"',
+    );
+  });
+
+  it('F-05 AC-017 keeps a colon and a hash inside the quoted description', () => {
+    expect(agentValues(agent({ description: 'Note: part #2' }))['agentDescription']).toBe('"Note: part #2"');
+  });
+
+  it('F-05 AC-017 decodes back to the description, so the quoted form holds the text and nothing else', () => {
+    const texts = ['Says "hi" in C:\\tmp', 'Tab\there and \u0001 bell', 'Line\u2028separator', 'plain text'];
+    for (const text of texts) {
+      const quoted = agentValues(agent({ description: text }))['agentDescription'] ?? '';
+      expect(JSON.parse(quoted)).toBe(text);
+    }
+  });
+
+  it('F-05 AC-017 has a Purpose value with the description as plain text, with no quotes', () => {
+    const values = agentValues(agent());
+    expect(values['agentPurpose']).toBe('Drafts the text.');
+    expect(values['agentPurpose']).not.toContain('"');
+    expect(values['agentDescription']).toBe('"Drafts the text."');
+  });
+
+  it('F-05 AC-017 keeps the quotes and backslashes of the description as they are in the Purpose value', () => {
+    expect(agentValues(agent({ description: 'Says "hi" in C:\\tmp' }))['agentPurpose']).toBe('Says "hi" in C:\\tmp');
+  });
+
+  it('F-05 AC-017 writes the quoted description as a frontmatter line that holds one YAML string', () => {
+    const layout = '---\nname: {{agentName}}\ndescription: {{agentDescription}}\n---';
+    expect(
+      renderLayout(
+        layout,
+        agentValues(agent({ description: 'Writes "docs" for a\nline break' })),
+        '.claude/agents/draft-agent.md',
+      ),
+    ).toBe('---\nname: draft-agent\ndescription: "Writes \\"docs\\" for a line break"\n---');
+  });
+});
+
+describe('F-05 AC-019 the tools line is one comma-separated list, quoted when YAML would break', () => {
+  it('F-05 AC-019 writes plain tool names in the block order, with no quotes', () => {
+    expect(agentValues(agent({ tools: ['Read', 'Grep', 'Glob'] }))['agentTools']).toBe('\ntools: Read, Grep, Glob');
+  });
+
+  it('F-05 AC-019 keeps a tool name with parentheses, a star or a colon plain when YAML reads it as text', () => {
+    expect(agentValues(agent({ tools: ['Bash(git *)', 'WebFetch(domain:example.com)'] }))['agentTools']).toBe(
+      '\ntools: Bash(git *), WebFetch(domain:example.com)',
+    );
+  });
+
+  it('F-05 AC-019 quotes the whole list when a tool name starts with an indicator character', () => {
+    expect(agentValues(agent({ tools: ['Read', '*Edit'] }))['agentTools']).toBe('\ntools: "Read, *Edit"');
+  });
+
+  it('F-05 AC-019 quotes the whole list when a tool name holds a colon followed by a space', () => {
+    expect(agentValues(agent({ tools: ['Bash: git'] }))['agentTools']).toBe('\ntools: "Bash: git"');
+  });
+
+  it('F-05 AC-019 quotes the whole list when a tool name holds a space before a hash', () => {
+    expect(agentValues(agent({ tools: ['Read #1'] }))['agentTools']).toBe('\ntools: "Read #1"');
+  });
+
+  it('F-05 AC-019 quotes the whole list and escapes a quote or a backslash in a tool name', () => {
+    expect(agentValues(agent({ tools: ['Read', '"x" Edit'] }))['agentTools']).toBe('\ntools: "Read, \\"x\\" Edit"');
+    expect(agentValues(agent({ tools: ['Read', '!C:\\x'] }))['agentTools']).toBe('\ntools: "Read, !C:\\\\x"');
+  });
+
+  it('F-05 AC-019 quotes a tool name that YAML reads as another type, such as a single null', () => {
+    expect(agentValues(agent({ tools: ['null'] }))['agentTools']).toBe('\ntools: "null"');
+    expect(agentValues(agent({ tools: ['Read'] }))['agentTools']).toBe('\ntools: Read');
+  });
+
+  it('F-05 AC-019 quotes the whole list when a tool name starts with a digit, a sign or a dot', () => {
+    expect(agentValues(agent({ tools: ['Read', '1Edit'] }))['agentTools']).toBe('\ntools: "Read, 1Edit"');
+    expect(agentValues(agent({ tools: ['.inf'] }))['agentTools']).toBe('\ntools: ".inf"');
+  });
+
+  it('F-05 AC-019 quotes the whole list when a tool name holds a control character', () => {
+    expect(agentValues(agent({ tools: ['Read\u0001'] }))['agentTools']).toBe('\ntools: "Read\\u0001"');
+  });
+
+  it('F-05 AC-019 the quoted list decodes back to the names joined in their order', () => {
+    const names = ['Read', '"x" Edit', 'Bash: git', '!C:\\x'];
+    const tools = agentValues(agent({ tools: names }))['agentTools'] ?? '';
+    expect(JSON.parse(tools.replace(/^\ntools: /, ''))).toBe(names.join(', '));
+  });
+
+  it('F-05 AC-019 writes no tools line when the block has no tools or an empty list', () => {
+    expect(agentValues(agent())['agentTools']).toBe('');
+    expect(agentValues(agent({ tools: [] }))['agentTools']).toBe('');
+  });
+});
+
+describe('F-05 AC-020 the agent body has an Instructions heading and is empty when blank', () => {
+  it('F-05 AC-020 writes the body under an Instructions heading', () => {
+    expect(agentValues(agent({ body: 'Keep it short.' }))['agentBody']).toBe(
+      '\n\n## Instructions\n\nKeep it short.',
+    );
+  });
+
+  it('F-05 AC-020 keeps the line breaks of the body and drops the blank lines around it', () => {
+    expect(agentValues(agent({ body: '\n\nFirst line.\n\nSecond line.\n\n' }))['agentBody']).toBe(
+      '\n\n## Instructions\n\nFirst line.\n\nSecond line.',
+    );
+  });
+
+  it('F-05 AC-020 has no Instructions section when the block has no body', () => {
+    expect(agentValues(agent())['agentBody']).toBe('');
+  });
+
+  it('F-05 AC-020 has no Instructions section when the body is empty, blank or only whitespace', () => {
+    expect(agentValues(agent({ body: '' }))['agentBody']).toBe('');
+    expect(agentValues(agent({ body: '   ' }))['agentBody']).toBe('');
+    expect(agentValues(agent({ body: ' \n\t\n  \n' }))['agentBody']).toBe('');
   });
 });
 

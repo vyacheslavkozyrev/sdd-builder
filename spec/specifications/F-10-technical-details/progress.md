@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 25 criteria, 24 `[auto]`, 1 `[device]` (AC-025); approved by the user; rule ids that the schema refuses show a message (owner decision 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-20 | re-planned after the reset: 7 tasks (T001 to T007); Approved by the user |
-| Build    | 🔄 In Progress |  | 0 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 1 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T004 | Technical details step, rule list: name (100 limit), file line or no-id message, duplicate message, description (1,000 limit), Remove with confirmation, Add disabled at 60 with its reason; DOM click tests for the removal flow added after the owner's decision (see Amendment 1) | Review rounds 1 and 2: 0 blockers; 1 warning (no click test of the removal flow) resolved by the DOM test library; suggestions fixed: dead NAME_HELP removed, accessible names for the name fields and Remove buttons (with a test) | task check passed: api 57, web 287, core 1017 |
 | T005 | Wiring: step 2 shows the technical card (stack and architecture left, rule list right, one card with a divider as drawn); steps 1, 3 and 4 unchanged; App dispatches add, remove and update; New project clears. Wizard.tsx and TechnicalStep.tsx (card moved out of the step, outside the listed files, so the approved one-card layout holds) | 0 blockers, 2 warnings fixed (weak assertions on the step 2 body), 3 suggestions fixed | task check passed: api 57, web 303, core 1017 |
 | T006 | `ui.md` §2 Step 2 and §6: the 100-character limit on stack fields and rule names, the no-id message in place of the file name, the reason beside a disabled Add at 60 | 0 blockers, 0 warnings, 0 suggestions | task check passed: api 57, web 303, core 1017 |
+| T001 (2026-11-20) | Technical text rules as pure functions: limits, rule id, id problem messages in order (no letter or digit, start with a letter, longer than 60), duplicate flags among valid ids, `canAddRule` | 0 blockers, 0 warnings, 1 suggestion fixed (test name for the AC-015 to AC-017 order), 1 suggestion deferred (`ruleFileLine`, used by T004) | task check passed: api 45, web 346, core 1208 |
 ---
 
 ## Deferred Findings
@@ -41,6 +42,7 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T003 `source/apps/web/test/TechnicalStep.test.tsx` `fieldsOf`: calls the component as a plain function to read the element tree. Fragile if the step ever uses a hook. Not changed: the workspace has no React test renderer and the plan adds no library.
 - T003 `source/apps/web/src/wizard/TechnicalStep.tsx` `STACK_HELP_LIMIT`: says "characters", the limit is code points. Not changed: the wording is copied from the approved screen 01 and 02 text.
+- T001 `source/apps/web/src/wizard/technical.ts` `ruleFileLine`: exported with its test before any caller exists. Not removed: T004 renders the file line with it, and the path format stays in one place (AC-014). Owner may move it into T004 if preferred.
 - T004 `source/apps/web/src/wizard/RuleBlocks.tsx`, name field: the help line "Up to 100 characters; text past the limit is cut." is not rendered on a block. Screen 06 shows it at the limit; screen 01 does not. The unused constant was removed in review. Owner to decide before Verify whether the line shows on every block (the same as open point 3 of the UX screens).
 
 ---

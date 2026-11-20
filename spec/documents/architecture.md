@@ -157,7 +157,7 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 32. **Wizard navigation and step 4 (2026-11-16).** The wizard's stepper is not clickable. Prev and Next are buttons beside it, and step 4 shows Next disabled (decision amended 2026-11-17, F-08). Step 4 has an analyze block (the privacy notice with its checkbox, Analyze, and the findings) and a project preview (the file tree). One button, **Generate and download**, is enabled only when the analysis has no blocker. This replaces the separate Generate and Download steps of F-22 AC-010 and AC-011.
 
-33. **Connections are `connectedTo` properties, and the pipeline is a JSON file (2026-11-16, F-02).** *Superseded for the connection by decision 38 (2026-11-18): a connection is the flow's `next`, with no label and no gate. The rest stands until the parser plan. The final schema is `spec/documents/pipeline-schema.md` (2026-11-19); decisions 38 to 41 govern the flow model.* Decided by the owner. A Connection is not a block kind. A flow or a block may carry a `connectedTo` property that names where it continues. A flow's blocks are the five kinds of decision 14 without Connection: start, agent, approval, check, end. The pipeline is one JSON object: `source/templates/pipeline/default.json` is that object, and it becomes the `pipeline` of `ProjectConfig` (decision 16). Its schema, as TypeScript types (`Id` and the id rule are decision 18; `Model` is `"haiku" | "sonnet" | "opus" | "inherit"`):
+33. **Connections are `connectedTo` properties, and the pipeline is a JSON file (2026-11-16, F-02).** *Superseded by the final schema, `spec/documents/pipeline-schema.md` (2026-11-19), which the F-02 parser implements. Under it: a link is `next`, on a block or a flow, with no label and no gate; the block kinds are start, agent, condition and end (Approval and Check are removed, approval is a flag of the flow, and a flow has no checks of its own; a check is a condition block); the TypeScript types below are the 2026-11-16 draft. Decisions 38 to 41 govern the flow model.* Decided by the owner. The pipeline is one JSON object: `source/templates/pipeline/default.json` is that object, and it becomes the `pipeline` of `ProjectConfig` (decision 16). Its 2026-11-16 draft schema, as TypeScript types (`Id` and the id rule are decision 18; `Model` is `"haiku" | "sonnet" | "opus" | "inherit"`):
 
 ```ts
 interface ProjectConfig { schemaVersion: 2; rules: Rule[]; pipeline: Pipeline }
@@ -297,9 +297,9 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 5. **verify** (flow, for each feature). Agent `verify`: verify mode, every criterion covered.
 6. **complete** (flow, for each feature). Agent `complete`: marks the feature complete and commits its spec folder.
 
-**Note on the flow model (2026-11-18, decision 38).** In the flow model the six flows are linked by `next` (specify → ux → plan → build → verify → complete). The approvals and checks are properties of the flow, not blocks or gates between flows:
+**Note on the flow model (2026-11-18, decision 38).** In the flow model the six flows are linked by `next` (specify → ux → plan → build → verify → complete). The approval is a property of the flow (a checkbox). The checks are conditions inside the flow's blocks (`pipeline-schema.md` §1 and §5), not flow properties, and not gates between flows. The table lists what must pass in each flow:
 
-| Flow | Approval (checkbox, at the end of the flow) | Checks (free text, on the flow) |
+| Flow | Approval (checkbox, at the end of the flow) | Checks (what must pass; each one a condition in the flow) |
 |---|---|---|
 | specify | on: the user approves the stories | — |
 | ux | on: the user approves the screens | — |
@@ -308,7 +308,7 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 | verify | on: the user approves the manual checklist results | — |
 | complete | off | — |
 
-The 400-line limit becomes text in a check. The routes that sent a failed check back to an earlier block (to `implement`, `specify`, `ux`, `plan` or `verify`) have no place in the flow model; how a failed check returns control is not decided. The data file `source/templates/pipeline/default.json` follows the final schema in `spec/documents/pipeline-schema.md` (2026-11-19), and decisions 38 to 41 govern this flow model.
+The 400-line limit becomes text in a check. The routes that sent a failed check back to an earlier block (to `implement`, `specify`, `ux`, `plan` or `verify`) have no place in the flow model. Open point: `pipeline-schema.md` §1 gives a condition's false route as a retry to an earlier Agent, with a round limit, or a stop, while decision 40 says a failed check stops the flow and asks the user. The two are not reconciled here; the owner decides which one the default pipeline uses. The data file `source/templates/pipeline/default.json` follows the final schema in `spec/documents/pipeline-schema.md` (2026-11-19), and decisions 38 to 41 govern this flow model.
 
 The pipeline's arguments include `feature-id` (required), set in the pipeline's properties panel. The pipeline has no release flow. A release flow can be added by the user. Presets (F-09) are other starting pipelines; the default is the first.
 

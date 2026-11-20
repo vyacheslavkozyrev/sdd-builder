@@ -31,9 +31,11 @@ Source of the criteria: `stories.md` (AC-001 to AC-088, all `[auto]`). Contract:
 - [x] T017 [Core] Default pipeline as data, imported, with its tests — `source/templates/pipeline/default.json`, `source/packages/core/src/pipeline/default.ts`, `source/packages/core/test/pipeline/default-pipeline.test.ts` — covers AC-077, AC-078, AC-079, AC-080, AC-081, AC-082, AC-083
 - [x] T018 [Core] Public namespace and the purity scan — `source/packages/core/src/pipeline/index.ts`, `source/packages/core/src/index.ts`, `source/packages/core/test/pipeline/purity.test.ts` — covers AC-084, AC-089
 - [x] T019 [Core] Every problem returned, the typed result and the table tests — `source/packages/core/src/pipeline/parse/index.ts`, `source/packages/core/test/pipeline/config.test.ts` — covers AC-001, AC-005, AC-006, AC-007, AC-008, AC-009, AC-085
-- [ ] T020 [Docs] Amend the flow-model notes of the architecture to the final schema — `spec/documents/architecture.md` (§6 decision 33 and the §11 flow note) — covers no criterion
+- [x] T020 [Docs] Amend the flow-model notes of the architecture to the final schema — `spec/documents/architecture.md` (§6 decision 33 and the §11 flow note) — covers no criterion
 
 ## Rationale
+
+**Amendment 2026-11-19 (approved by the user)**: the cross-checks run on the whole parse, except that a check is skipped when a list it reads lost an item to a refusal (rule tags read `rules`; flow links read `flows`; block links read `flows` and their blocks; End artifacts read artifacts). Ids and flow names still run, since they cannot produce a false problem. This stops a refused item from causing spurious problems on its neighbours. Paths are the document indexes kept by every item.
 
 **Order.** The order follows the dependencies of the schema, so each task builds on tasks before it:
 

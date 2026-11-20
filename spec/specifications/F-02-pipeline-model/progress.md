@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 17 stories, 88 criteria, all [auto]; re-specified from the final schema and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 20 tasks (T001 to T020) |
-| Build    | 🔄 In Progress | 2026-11-19 | 19 of 20 tasks committed |
+| Build    | ✅ Complete | 2026-11-19 | 20 of 20 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-_None. While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
+T020 — implemented
 
 ---
 
@@ -44,6 +44,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T017 | Default pipeline as data, imported, with its tests (`templates/pipeline/default.json`, `pipeline/default.ts`) | 0 open warnings; build check moved before the commit (owner option 2, Amendment 2026-11-19) | task check passed: api 6, web 4, core 577 |
 | T018 | Public namespace and the purity scan (`pipeline/index.ts`, core `index.ts`, `purity.test.ts`) | 0 blockers; 5 warnings and 2 suggestions fixed (globalThis, require, element access, scan fixtures, AC-089 test) | task check passed: api 6, web 4, core 586 |
 | T019 | Every problem returned, typed result and table tests (`pipeline/parse/index.ts`, `config.test.ts`, `problems-of.ts`) | 0 blockers open; 1 blocker fixed (false neighbour problems: cross-checks skip a list that lost an item), 3 warnings fixed (exact lists, typed brief test). Staged change over the 400-line guard; committed as one change by owner decision. Plan amendment for the gating is pending the owner | task check passed: api 6, web 4, core 632 |
+| T020 | Docs: architecture §6 decision 33 and §11 flow note point to the final schema (`spec/documents/architecture.md`) | 0 blockers; docs only. Open for the owner: Condition false route (retry vs stop) conflict between schema §1 and decision 40 | task check passed: api 6, web 4, core 632 |
 
 ---
 
@@ -169,3 +170,8 @@ Naming notes (not gaps): the flow.test.ts titles for AC-007, AC-015, AC-017 and 
 **Changed**: `spec/specifications/F-02-pipeline-model/stories.md` (AC-080: the condition sits after the last work agent and before the commit agent and its end; its true route goes to the commit agent, not the end); `spec/documents/architecture.md` (decision 40 gains the placement; §11 item 4 and the build row of the flow table); `source/templates/pipeline/default.json` (build order is implement, review, test, condition, commit, end; the condition's true route is `build-commit`, the commit agent's next is `build-end`); `source/packages/core/test/pipeline/default-pipeline.test.ts` (AC-080 tests for the new order, the true route and the commit agent's next).
 **Reason**: the build check ran after the commit, so the commit happened before the check could stop it. Owner decision 2026-11-19: option 2, the build check gates the commit. This also resolves the WARNING under Deferred Findings for `build-commit` → `build-check`.
 **Impact**: T017 only. The T017 change is the one staged with this amendment; no task before T017 changes. The Current Task line is unchanged. Architecture is changed as stated above; pipeline-schema.md is unchanged.
+
+### Amendment — 2026-11-19 (cross-check gating; approved by the user)
+**Changed**: `plan.md` Rationale (the cross-checks run except when a list they read lost an item to a refusal).
+**Reason**: a refused item made its neighbours produce false problems (a refused flow named by `next`, a refused agent named by a start `next`, a refused rule named by a tag, a refused artifact named by an end).
+**Impact**: T019 only; the change is in `source/packages/core/src/pipeline/parse/index.ts`, committed in c22d318.

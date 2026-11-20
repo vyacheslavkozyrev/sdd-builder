@@ -92,10 +92,10 @@ Not findings: the amber note on screen 02 is now in an amber note box, like the 
 
 Approved by the user on 2026-11-17 with the screens as drawn (header-bar frame). Points 1 and 2 were not answered at approval: they are kept as drawn and remain open for the owner before Verify. The left-panel restyle of 2026-11-18 is pending the owner's approval.
 
-1. **Name help line versus AC-016.** AC-016 says the step 1 help text matches the approved F-05 screen 01. Screen 01 adds "Up to 100 characters; text past the limit is cut." to the name help line. Options:
+1. (Resolved 2026-11-20: option a, screen 01 as drawn; AC-016 amended to three idea help lines.) **Name help line versus AC-016.** AC-016 says the step 1 help text matches the approved F-05 screen 01. Screen 01 adds "Up to 100 characters; text past the limit is cut." to the name help line. Options:
    - a. Keep the limit in the help line and amend AC-016 to "the approved help text plus the 100-character limit" (recommended: the limit is visible before the user reaches it).
    - b. Restore the approved help line ("A short name. It appears as the project name in the generated CLAUDE.md.") and show the limit only on screen 03.
-2. **Limit notes on screen 03.** Decided by the owner (2026-11-19): every amber note is in the amber note box (screens 02 and 03).
+2. **Limit notes on screen 03.** Decided by the owner (2026-11-19): every amber note is in the amber note box (screens 02 and 03). Amended by the owner (2026-11-20): the name limit note stays plain amber text as drawn on screen 03; the idea limit note and the blank note on screen 02 keep their box.
 
 ## Owner decisions applied (2026-11-19)
 

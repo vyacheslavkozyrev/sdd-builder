@@ -1,7 +1,7 @@
 # User Stories — Project step (F-09)
 
 Feature entry: `spec/documents/features.md` → F-09
-Requirements owned by this feature: the F-09 scope items in `features.md` (project name and idea, 5,000-character idea with a counter); `ui.md` §2 Step 1 — Project and §6 Limits; owner decisions of 2026-11-17: the project name is limited to 100 characters (code points, the same way the idea is counted), and the idea is trimmed at both ends when the configuration is built. `ui.md` §2 and §6 are updated in the build (name limit, idea trim rule).
+Requirements owned by this feature: the F-09 scope items in `features.md` (project name and idea, 5,000-character idea with a counter); `ui.md` §2 Step 1 — Project and §6 Limits; the brief fields of `spec/documents/pipeline-schema.md` §2 (`name` at most 100 code points, `idea` at most 5,000); owner decisions of 2026-11-17: the project name is limited to 100 characters (code points, the same way the idea is counted), and the idea is trimmed at both ends when the configuration is built. `ui.md` §2 and §6 are updated in the build (name limit, idea trim rule). Re-specified 2026-11-20 after the reset of 2026-11-19; the help text is the approved screen 01 as drawn (owner answer, 2026-11-20).
 
 ## Out of Scope
 
@@ -37,7 +37,7 @@ Every automated test names the feature and criterion it covers (`F-09 AC-003`).
 
 - [ ] AC-001 `[auto]`: the project name is a single-line text input (not a multi-line field), and pressing Enter in it does not add a line break (negative case).
 - [ ] AC-002 `[auto]`: the name is stored as typed: leading spaces, trailing spaces and spaces-only text are kept in the wizard values (table-driven: `Demo`, `  Demo  `, `   ` each come back unchanged).
-- [ ] AC-003 `[auto]`: typing or pasting past 100 code points keeps the first 100 code points (table-driven: 99 → 99, 100 → 100, 101 → 100; an emoji counts as one code point; a paste that crosses the limit keeps the characters up to 100 and drops the rest).
+- [ ] AC-003 `[auto]`: typing or pasting past 100 code points keeps the first 100 code points (table-driven: 99 → 99, 100 → 100, 101 → 100; an emoji counts as one code point; a paste that crosses the limit keeps the characters up to 100 and drops the rest). No counter is shown on the name field (negative case: the name field renders no `N / 100` text).
 - [ ] AC-004 `[auto]`: an empty or spaces-only name does not disable Next on step 1 (negative case for the required name: the analysis reports it, not the wizard).
 
 ### US-002: Enter the idea with a counter
@@ -83,7 +83,8 @@ Every automated test names the feature and criterion it covers (`F-09 AC-003`).
 - [ ] AC-013 `[auto]`: a name and an idea entered on step 1 are still present after Next, Prev and Next again, and after going to step 4 and back to step 1 (extends F-08 AC-010).
 - [ ] AC-014 `[auto]`: New project clears the name and the idea, and the project step shows them empty again (extends F-08 AC-012; negative case: no value from the earlier project remains).
 - [ ] AC-015 `[auto]`: the project step makes no call to `localStorage`, `sessionStorage`, `indexedDB` or `console` when the name or the idea changes (extends F-08 AC-011; decision 13).
-- [ ] AC-016 `[device]`: the help text on step 1 is the help text of the approved screen 01 plus the name limit line `Up to 100 characters; text past the limit is cut.` (owner decision, 2026-11-17), and the name field, idea field and counter appear in the layout of `spec/design/features/F-09-project-step/01-project-values.svg` at a window of 1280 × 800 with no vertical page scroll.
+- [ ] AC-016 `[auto]`: the name help line on step 1 is exactly `Up to 100 characters; text past the limit is cut. It appears as the project name in the generated CLAUDE.md.`, and the idea help lines are exactly `Describe what the product does and who uses it. Leave out how it is built.` and `Up to 5,000 characters. Text past the limit is cut.` (the text of screen 01 as drawn; owner answer, 2026-11-20). A test compares the rendered strings with these constants.
+- [ ] AC-017 `[device]`: the name field, idea field and counter appear in the layout of `spec/design/features/F-09-project-step/01-project-values.svg` at a window of 1280 × 800 with no vertical page scroll, and the name and idea limit notes of screen 03 show when the limit is reached.
 
 ---
 
@@ -105,3 +106,5 @@ Every automated test names the feature and criterion it covers (`F-09 AC-003`).
 | F-08 AC-012 New project clears the values (extended) | AC-014 |
 | `architecture.md` decision 13 memory only | AC-015 |
 | `ui.md` §2 step 1 help text as approved screen 01 | AC-016 |
+| `ui.md` §2 step 1 layout and limit notes (screens 01 to 03) | AC-017 |
+| `ui.md` §2 name has no counter | AC-003 |

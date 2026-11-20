@@ -4,9 +4,12 @@ import { getCommonStyles } from '../styles/common.js';
 // Style getter for the technical details step (.claude/rules/web-styling.md). It takes the theme and
 // returns the style objects TechnicalStep passes to `sx`. Colours come from the theme's palette only.
 // Positions follow the approved F-10 screen 01 (1280 x 800, the card's content box at x 308 to 1232):
-// the left column is x 308 to 740, 432 px wide. The shared label, field and help shapes are in common.ts.
+// the left column is x 308 to 740, 432 px wide, and the rule list is x 788 to 1232.
+// The shared label, field and help shapes are in common.ts.
 
 export interface TechnicalStepStyles {
+  readonly root: SxProps<Theme>;
+  readonly divider: SxProps<Theme>;
   readonly column: SxProps<Theme>;
   readonly sectionTitle: SxProps<Theme>;
   readonly stackGrid: SxProps<Theme>;
@@ -28,22 +31,32 @@ export const ARCHITECTURE_ROWS = 5;
 const ARCHITECTURE_PADDING = '10px';
 
 export function getTechnicalStepStyles(theme: Theme): TechnicalStepStyles {
-  const { palette } = theme;
   const common = getCommonStyles(theme);
   return {
+    // The two columns sit side by side in the card: the stack on the left, the rule list on the right.
+    root: {
+      boxSizing: 'border-box',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'row',
+      p: 3,
+    },
+    // The divider is 1 px at x 772; it is 32 px from the stack column and 15 px from the rule list.
+    divider: {
+      width: 1,
+      flexShrink: 0,
+      alignSelf: 'stretch',
+      bgcolor: theme.palette.divider,
+      ml: '32px',
+      mr: '15px',
+    },
     column: {
       boxSizing: 'border-box',
       width: 432,
       flexShrink: 0,
     },
-    sectionTitle: {
-      m: 0,
-      fontSize: 14,
-      fontWeight: 600,
-      lineHeight: '20px',
-      color: palette.text.primary,
-      mb: '12px',
-    },
+    sectionTitle: { ...common.sectionTitle, mb: '12px' },
     // Two 208 px columns with a 16 px gap; a row of fields is 64 px high (label, 8 px, field) and rows sit 8 px apart.
     stackGrid: {
       display: 'grid',

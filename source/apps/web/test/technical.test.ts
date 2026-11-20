@@ -3,7 +3,7 @@ import { codePointCount, limitToCodePoints, NAME_LIMIT } from '../src/wizard/pro
 import {
   ARCHITECTURE_LIMIT,
   canAddRule,
-  duplicateRuleFlags,
+  duplicateRuleNumbers,
   RULE_DESCRIPTION_LIMIT,
   RULE_ID_MAX_LENGTH,
   RULE_LIMIT,
@@ -169,21 +169,24 @@ describe('F-10 AC-017 id longer than 60 characters', () => {
 });
 
 describe('F-10 AC-019 duplicate ids among valid ids', () => {
-  const cases: ReadonlyArray<readonly [ReadonlyArray<string>, ReadonlyArray<boolean>]> = [
-    [['Code Style', 'code style'], [true, true]],
-    [['Code Style', 'Code-Style'], [true, true]],
-    [['Code Style', 'Rule'], [false, false]],
-    [['2 tests', 'Code Style', 'code style'], [false, true, true]],
-    [['!!!', '!!!'], [false, false]],
-    [['2 tests', '2 tests'], [false, false]],
+  const cases: ReadonlyArray<readonly [ReadonlyArray<string>, ReadonlyArray<number | undefined>]> = [
+    [[], []],
+    [['Code Style', 'Rule'], [undefined, undefined]],
+    [['Code Style', 'code style'], [2, 1]],
+    [['Code Style', 'Code-Style'], [2, 1]],
+    [['2 tests', 'Code Style', 'code style'], [undefined, 3, 2]],
+    [['Code Style', 'code style', 'CODE STYLE'], [2, 1, 1]],
+    [['!!!', '!!!'], [undefined, undefined]],
+    [['2 tests', '2 tests'], [undefined, undefined]],
+    [['!!!', '!!!', 'Testing'], [undefined, undefined, undefined]],
   ];
-  it.each(cases)('F-10 AC-019 flags %j as %j', (names, flags) => {
-    expect(duplicateRuleFlags(names)).toEqual(flags);
+  it.each(cases)('F-10 AC-019 gives %j the numbers %j', (names, numbers) => {
+    expect(duplicateRuleNumbers(names)).toEqual(numbers);
   });
 
-  it('F-10 AC-019 clears the flag on the other block once one of two is removed (negative case)', () => {
-    expect(duplicateRuleFlags(['Code Style', 'code style'])).toEqual([true, true]);
-    expect(duplicateRuleFlags(['code style'])).toEqual([false]);
+  it('F-10 AC-019 clears the number on the other block once one of two is removed (negative case)', () => {
+    expect(duplicateRuleNumbers(['Code Style', 'code style'])).toEqual([2, 1]);
+    expect(duplicateRuleNumbers(['code style'])).toEqual([undefined]);
   });
 });
 

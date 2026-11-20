@@ -48,15 +48,16 @@ export function ruleIdProblemMessage(problem: RuleIdProblem): string | undefined
   }
 }
 
-// For each name, true when another name gives the same valid id. Names whose id
-// is refused are never flagged as duplicates (AC-019).
-export function duplicateRuleFlags(names: readonly string[]): boolean[] {
+// For each name, the 1-based number of the first other name that gives the same valid id, or undefined
+// when the id is unique or refused. Names whose id is refused are never duplicates (AC-019). The list
+// shows this number in the duplicate message of the block.
+export function duplicateRuleNumbers(names: readonly string[]): ReadonlyArray<number | undefined> {
   const ids = names.map((name) => (ruleIdProblem(name) === 'none' ? ruleId(name) : undefined));
-  const counts = new Map<string, number>();
-  for (const id of ids) {
-    if (id !== undefined) counts.set(id, (counts.get(id) ?? 0) + 1);
-  }
-  return ids.map((id) => id !== undefined && (counts.get(id) ?? 0) > 1);
+  return ids.map((id, index) => {
+    if (id === undefined) return undefined;
+    const first = ids.findIndex((other, position) => position !== index && other === id);
+    return first === -1 ? undefined : first + 1;
+  });
 }
 
 // A new rule block can be added while the list has fewer than 60 blocks (AC-012).

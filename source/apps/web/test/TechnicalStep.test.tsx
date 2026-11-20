@@ -3,6 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { theme } from '../src/theme.js';
+import type { RuleActions } from '../src/wizard/RuleList.js';
 import { ARCHITECTURE_HELP_LINE, STACK_HELP_LINES, TechnicalStep } from '../src/wizard/TechnicalStep.js';
 import type { ProjectValuesPatch, StackValues, WizardState, WizardValues } from '../src/wizard/state.js';
 import { wizardReducer } from '../src/wizard/state.js';
@@ -16,10 +17,12 @@ function withStack(stack: Partial<StackValues>): WizardValues {
   return { ...BLANK, stack: { ...BLANK_STACK, ...stack } };
 }
 
+const NO_RULE_ACTIONS: RuleActions = { onAdd: () => {}, onRemove: () => {}, onUpdate: () => {} };
+
 function renderStep(values: WizardValues, onChange: (patch: ProjectValuesPatch) => void = () => {}) {
   return render(
     <ThemeProvider theme={theme}>
-      <TechnicalStep values={values} onChange={onChange} />
+      <TechnicalStep values={values} onChange={onChange} ruleActions={NO_RULE_ACTIONS} />
     </ThemeProvider>,
   );
 }

@@ -30,6 +30,10 @@ export interface CommonStyles {
   readonly warningBox: StyleObject;
   // The text of an amber note: 12 px, medium weight, the dark amber text colour.
   readonly warningText: StyleObject;
+  // The title of a section of a step (Stack, Rule blocks): 14 px, semibold, primary text.
+  readonly sectionTitle: StyleObject;
+  // The 28 px plus and minus buttons: a primary outline and a primary glyph on white (F-10 and F-11).
+  readonly plusMinusButton: StyleObject;
 }
 
 export function getCommonStyles(theme: Theme): CommonStyles {
@@ -102,6 +106,26 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       fontWeight: 500,
       lineHeight: '20px',
       color: theme.palette.warning.dark,
+    },
+    sectionTitle: {
+      m: 0,
+      fontSize: 14,
+      fontWeight: 600,
+      lineHeight: '20px',
+      color: theme.palette.text.primary,
+    },
+    plusMinusButton: {
+      width: 28,
+      height: 28,
+      minWidth: 0,
+      p: 0,
+      fontSize: 16,
+      lineHeight: 1,
+      borderRadius: '8px',
+      borderColor: theme.palette.primary.main,
+      color: theme.palette.primary.main,
+      bgcolor: theme.palette.background.paper,
+      textTransform: 'none',
     },
   };
 }

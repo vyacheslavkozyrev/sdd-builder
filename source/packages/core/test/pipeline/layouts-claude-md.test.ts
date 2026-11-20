@@ -89,7 +89,8 @@ function sorted(items: readonly string[]): string[] {
 
 describe('F-05 layouts: the base manifest and CLAUDE.md', () => {
   it('F-05 AC-026 lists CLAUDE.md in the base manifest with its layout base/CLAUDE.md', () => {
-    expect(readManifest()).toEqual([{ path: 'CLAUDE.md', layout: 'base/CLAUDE.md' }]);
+    const entries = readManifest().filter((entry) => entry.path === CLAUDE_MD);
+    expect(entries).toEqual([{ path: 'CLAUDE.md', layout: 'base/CLAUDE.md' }]);
   });
 
   it('F-05 AC-026 renders CLAUDE.md from its layout and the values of a fixture, with no placeholder left', () => {

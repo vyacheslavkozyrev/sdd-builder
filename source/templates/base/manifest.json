@@ -1,3 +1,4 @@
 [
-  { "path": "CLAUDE.md", "layout": "base/CLAUDE.md" }
+  { "path": "CLAUDE.md", "layout": "base/CLAUDE.md" },
+  { "path": "spec/documents/process.md", "layout": "base/process.md" }
 ]

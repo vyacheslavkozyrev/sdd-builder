@@ -5,7 +5,7 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Specify  | ✅ Complete | 2026-11-20 | Re-specified from the final schema (`pipeline-schema.md`, 2026-11-19) and decision 37; 5 stories, 26 criteria, all [auto]. The brief model is F-02's (owner choice: the parse stories are dropped from F-06, F-02 AC-074 to AC-076 cover them); decision 37 (a) names F-06 as the adder of the brief fields and is stale on that point |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | Build    | ⏳ Pending |  | 0 tasks committed (reset) |

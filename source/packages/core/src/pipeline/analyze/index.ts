@@ -1,5 +1,6 @@
 import type { ProjectConfig } from '../model.js';
 import type { Finding, PositionedFinding, Position } from './finding.js';
+import { startAndEndRule } from './start-end.js';
 
 export type { Finding, Severity } from './finding.js';
 
@@ -7,7 +8,7 @@ export type { Finding, Severity } from './finding.js';
 export type RuleModule = (config: ProjectConfig) => PositionedFinding[];
 
 // The rule modules, in the order they run. Each rule task adds its module here.
-const RULE_MODULES: readonly RuleModule[] = [];
+const RULE_MODULES: readonly RuleModule[] = [startAndEndRule];
 
 function comparePositions(a: Position, b: Position): number {
   return a.flow - b.flow || a.block - b.block || a.slot - b.slot;

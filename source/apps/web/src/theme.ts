@@ -18,5 +18,9 @@ export const theme = createTheme({
     text: { primary: '#32383E', secondary: '#636B74', disabled: '#9FA6AD' },
     divider: '#DDE7EE',
     grey: { 300: '#CDD7E1' },
+    // The required asterisk of a field (F-09 screens 01 to 03): redOrange 700. The screens draw no error fill.
+    error: { main: '#BB241A', dark: '#BB241A' },
+    // The limit notes and counter at the limit (F-09 screen 03): california 700 text, #FFFAEA fill, #FCD34D outline.
+    warning: { main: '#FCD34D', light: '#FFFAEA', dark: '#B84D05' },
   },
 });

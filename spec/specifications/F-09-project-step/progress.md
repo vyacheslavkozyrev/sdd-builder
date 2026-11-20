@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 17 criteria, 16 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Name help line resolved 2026-11-20 (screen 01 as drawn; AC-016 `[auto]`, AC-017 `[device]`). Limit note styling kept as drawn |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 4 tasks, all `[Web]`, on the current F-08 wizard (F-02 to F-13 code removed in `58ef413`) |
-| Build    | 🔄 In Progress | | 2 of 4 tasks committed |
+| Build    | 🔄 In Progress | | 3 of 4 tasks committed |
 | Verify   | ⏳ Pending |  | runs after all tasks are committed |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _Restarted after the 2026-11-19 reset. The rows of the earlier build (T001 to T0
 | ---- | ------- | ------ | ----- |
 | T001 | Project text rules as pure functions: name 100 and idea 5,000 code-point limits, truncation that never splits a surrogate pair, counter text `N / 5,000`, `ideaForConfig` trim | 0 blockers, 1 warning fixed (AC-011 no-mutation test could not fail; removed), 2 suggestions fixed (lone-surrogate check made real; AC-003 table-driven) | task check passed: api 45, web 223, core 1208 |
 | T002 | Wizard values for the project step: `name` and `idea` held as typed in the reducer, a `setValues` action merges them, Next and Prev keep them, restart clears them | 0 blockers, 0 warnings, 1 suggestion fixed (empty-patch edge test added) | task check passed: api 45, web 239, core 1208 |
+| T003 | Project step body: name `TextField` (required, help line, no counter), idea multi-line field with `N / 5,000` counter and help lines, limit notes, `getProjectStepStyles` getter, palette `error` and `warning` added to `theme.ts` | 0 blockers, 3 warnings fixed (AC-001 negative case could not fail; AC-015 spies missed `getItem`, `removeItem`, `clear`, `indexedDB` and `info`/`debug`; AC-017 sizes not tied to the rendered textarea rows), 2 suggestions fixed (dead `label` style key removed; `IDEA_ROWS` defined once and imported). Size 566 lines approved by the owner for one commit | task check passed: api 45, web 274, core 1208 |
 
 ---
 
@@ -37,6 +38,7 @@ _Restarted after the 2026-11-19 reset. The rows of the earlier build (T001 to T0
 _Review suggestions intentionally not applied, with the reason._
 
 - T001 `source/apps/web/test/project.test.ts` AC-011: the "stored value is not changed" clause cannot be shown by a test of a pure function on an immutable string. Not applied: the guarantee belongs to the wizard value the step holds, so it is tested at the state or step level (T002, T003).
+- T003 open owner decision (not a finding): the name limit note (AC-017, screen 03) is drawn as plain amber text, while the idea limit note is in an amber box. Whether the name note also gets the box is left to the owner; the drawn layout is kept as it is.
 
 ---
 

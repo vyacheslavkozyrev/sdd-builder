@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 2 of 13 tasks committed |
+| Build    | 🔄 In Progress |  | 3 of 13 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -29,6 +29,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Generation model aligned with the flow model in `architecture.md` §3 (steps 2, 3 and 4): walk from Start, approval as a flag, retry routes always carry a round limit | 0 blockers, 1 warning fixed (§3 step 3 gates wording); 1 suggestion deferred | task check passed: api 6 of 6, web 4 of 4, core 783 of 783 |
 | T002 | Errors and one-pass rendering: `GenerationError` (`generate/error.ts`); `renderLayout` replaces every `{{...}}` span in one pass, an unknown or malformed span throws naming the placeholder and the path, values are copied as written | 1 blocker fixed (a span with a brace or an unclosed `{{` was left in the output); 1 warning fixed (malformed and empty-value tests added) | task check passed: api 6 of 6, web 4 of 4, core 795 of 795 |
+| T003 | Templates input (`generate/templates.ts`); file-safe paths (`generate/paths.ts`); `listFiles` with a discriminated source per file, sorted by code point; an unsafe or duplicate path throws `GenerationError` | 0 blockers, 1 warning fixed (AC-024 collision test added); 2 suggestions fixed (test tag, escaped character) | task check passed: api 6 of 6, web 4 of 4, core 818 of 818 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 

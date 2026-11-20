@@ -40,3 +40,14 @@ describe('F-08 AC-011 the wizard makes no storage or console call', () => {
     expect(findForbidden('const consoleLike = 1; const storageKey = "x";')).toEqual([]);
   });
 });
+
+describe('F-09 AC-015 the project step is in the privacy scan', () => {
+  const scanned = () => wizardSourceFiles().map((file) => file.slice(WIZARD_DIR.length + 1));
+
+  it.each(['ProjectStep.tsx', 'project.ts', 'state.ts', 'StepBody.tsx'])(
+    'F-09 AC-015 scans %s, the project step source',
+    (name) => {
+      expect(scanned()).toContain(name);
+    },
+  );
+});

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/App.js';
 
 // Markup checks render the application as static HTML. The wiring checks click the real
@@ -9,7 +9,25 @@ import { App } from '../src/App.js';
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
 });
+
+// The project fields, found by their placeholders (the name is a single line, the idea a textarea).
+function nameField(): HTMLInputElement {
+  return screen.getByPlaceholderText('Name your project') as HTMLInputElement;
+}
+
+function ideaField(): HTMLTextAreaElement {
+  return screen.getByPlaceholderText('For example: a tracker for hourly work.') as HTMLTextAreaElement;
+}
+
+function clickNext(): void {
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+}
+
+function clickPrev(): void {
+  fireEvent.click(screen.getByRole('button', { name: 'Prev' }));
+}
 
 // Emotion writes a <style> tag before each styled element; they are not part of the layout.
 function markup(): string {
@@ -67,16 +85,35 @@ describe('F-08 AC-012 application wiring on the first screen', () => {
   });
 });
 
-describe('F-08 AC-013 step body in the centre area', () => {
-  it('F-08 AC-013 renders the step body placeholder line in the centre area', () => {
-    expect(centre(markup())).toContain(PLACEHOLDER_LINE);
+describe('F-09 AC-012 step 1 body in the centre area', () => {
+  it('F-09 AC-012 renders the project name and idea fields on the first screen', () => {
+    const body = centre(markup());
+    expect(body).toContain('id="project-name"');
+    expect(body).toContain('id="project-idea"');
   });
 
-  it('F-08 AC-013 negative case: the centre area shows no step title, step counter or input', () => {
-    const body = centre(markup());
-    TITLES.forEach((title) => expect(body).not.toContain(`>${title}<`));
-    expect(body).not.toMatch(/Step \d/);
-    expect(body).not.toMatch(/<input\b/);
+  it('F-09 AC-012 negative case: the first screen shows no F-08 placeholder line', () => {
+    expect(centre(markup())).not.toContain(PLACEHOLDER_LINE);
+  });
+});
+
+describe('F-08 AC-013 step body in the centre area on step 2', () => {
+  it('F-08 AC-013 renders the step body placeholder line in the centre area on step 2', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText(PLACEHOLDER_LINE)).toBeTruthy();
+  });
+
+  it('F-08 AC-013 negative case: the centre area shows no step title, step counter or input on step 2', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    const main = document.querySelector('main');
+    expect(main).not.toBeNull();
+    const text = main?.textContent ?? '';
+    expect(text).not.toMatch(/Step \d/);
+    TITLES.forEach((title) => expect(text).not.toContain(title));
+    expect(main?.querySelector('input')).toBeNull();
+    expect(main?.querySelector('textarea')).toBeNull();
   });
 });
 
@@ -143,5 +180,127 @@ describe('F-08 AC-012 New project restarts the wizard', () => {
 
     expect(screen.getByRole('img', { name: 'Project: current step' })).toBeTruthy();
     expect(screen.queryByRole('img', { name: 'Workflow: current step' })).toBeNull();
+  });
+});
+
+describe('F-09 AC-004 a blank name does not block Next', () => {
+  it.each([
+    { label: 'an empty name', value: '' },
+    { label: 'a spaces-only name', value: '   ' },
+  ])('F-09 AC-004 Next moves to step 2 with $label', ({ value }) => {
+    render(<App />);
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    fireEvent.change(nameField(), { target: { value } });
+    expect(nameField().value).toBe(value);
+
+    expect((screen.getByRole('button', { name: 'Next' }) as HTMLButtonElement).disabled).toBe(false);
+    clickNext();
+
+    expect(screen.getByRole('img', { name: 'Technical details: current step' })).toBeTruthy();
+  });
+});
+
+describe('F-09 AC-009 a blank idea does not block Next', () => {
+  it.each([
+    { label: 'an empty idea', value: '' },
+    { label: 'a spaces-only idea', value: '   ' },
+  ])('F-09 AC-009 Next moves to step 2 with $label', ({ value }) => {
+    render(<App />);
+    fireEvent.change(ideaField(), { target: { value: 'Hourly work log' } });
+    fireEvent.change(ideaField(), { target: { value } });
+    expect(ideaField().value).toBe(value);
+
+    expect((screen.getByRole('button', { name: 'Next' }) as HTMLButtonElement).disabled).toBe(false);
+    clickNext();
+
+    expect(screen.getByRole('img', { name: 'Technical details: current step' })).toBeTruthy();
+  });
+});
+
+describe('F-09 AC-013 name and idea are kept across steps', () => {
+  it('F-09 AC-013 keeps the name and the idea after Next, Prev and Next again', () => {
+    render(<App />);
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    fireEvent.change(ideaField(), { target: { value: 'Hourly work log' } });
+
+    clickNext();
+    clickPrev();
+    clickNext();
+
+    expect(screen.getByRole('img', { name: 'Technical details: current step' })).toBeTruthy();
+    clickPrev();
+    expect(nameField().value).toBe('Tracker');
+    expect(ideaField().value).toBe('Hourly work log');
+  });
+
+  it('F-09 AC-013 keeps the name and the idea after going to step 4 and back to step 1', () => {
+    render(<App />);
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    fireEvent.change(ideaField(), { target: { value: 'Hourly work log' } });
+
+    clickNext();
+    clickNext();
+    clickNext();
+    expect(screen.getByRole('img', { name: 'Analyze and generate: current step' })).toBeTruthy();
+
+    clickPrev();
+    clickPrev();
+    clickPrev();
+
+    expect(screen.getByRole('img', { name: 'Project: current step' })).toBeTruthy();
+    expect(nameField().value).toBe('Tracker');
+    expect(ideaField().value).toBe('Hourly work log');
+  });
+});
+
+describe('F-09 AC-014 New project clears the name and the idea', () => {
+  it('F-09 AC-014 shows the name and the idea empty again after New project', () => {
+    render(<App />);
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    fireEvent.change(ideaField(), { target: { value: 'Hourly work log' } });
+    clickNext();
+
+    fireEvent.click(screen.getByRole('button', { name: 'New project' }));
+
+    expect(screen.getByRole('img', { name: 'Project: current step' })).toBeTruthy();
+    expect(nameField().value).toBe('');
+    expect(ideaField().value).toBe('');
+  });
+
+  it('F-09 AC-014 negative case: no value of the earlier project remains after New project from step 4', () => {
+    render(<App />);
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    clickNext();
+    clickNext();
+    clickNext();
+
+    fireEvent.click(screen.getByRole('button', { name: 'New project' }));
+
+    expect(nameField().value).not.toBe('Tracker');
+    expect(nameField().value).toBe('');
+  });
+});
+
+describe('F-09 AC-015 the project step makes no storage or console call on change', () => {
+  it('F-09 AC-015 typing a name and an idea calls no localStorage, sessionStorage or console method', () => {
+    const storage = [
+      vi.spyOn(Storage.prototype, 'setItem'),
+      vi.spyOn(Storage.prototype, 'getItem'),
+    ];
+    const consoleMethods = [
+      vi.spyOn(console, 'log').mockImplementation(() => {}),
+      vi.spyOn(console, 'info').mockImplementation(() => {}),
+      vi.spyOn(console, 'warn').mockImplementation(() => {}),
+      vi.spyOn(console, 'error').mockImplementation(() => {}),
+      vi.spyOn(console, 'debug').mockImplementation(() => {}),
+    ];
+    render(<App />);
+
+    fireEvent.change(nameField(), { target: { value: 'Tracker' } });
+    fireEvent.change(ideaField(), { target: { value: 'Hourly work log' } });
+
+    for (const spy of [...storage, ...consoleMethods]) {
+      expect(spy).not.toHaveBeenCalled();
+    }
   });
 });

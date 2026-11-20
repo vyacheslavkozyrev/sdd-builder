@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 4 of 13 tasks committed |
+| Build    | 🔄 In Progress |  | 5 of 13 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -31,6 +31,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Errors and one-pass rendering: `GenerationError` (`generate/error.ts`); `renderLayout` replaces every `{{...}}` span in one pass, an unknown or malformed span throws naming the placeholder and the path, values are copied as written | 1 blocker fixed (a span with a brace or an unclosed `{{` was left in the output); 1 warning fixed (malformed and empty-value tests added) | task check passed: api 6 of 6, web 4 of 4, core 795 of 795 |
 | T003 | Templates input (`generate/templates.ts`); file-safe paths (`generate/paths.ts`); `listFiles` with a discriminated source per file, sorted by code point; an unsafe or duplicate path throws `GenerationError` | 0 blockers, 1 warning fixed (AC-024 collision test added); 2 suggestions fixed (test tag, escaped character) | task check passed: api 6 of 6, web 4 of 4, core 818 of 818 |
 | T004 | Refusals from the analysis: `configProblems` is the blocker filter (`blockersOf`) over `analyzeStructure`, in analysis order; no warning returned; flow id `pipeline`, zero flows and the default pipeline checked against the analysis | 0 blockers, 2 warnings fixed (test mock replaced by a pure filter; tautological order test made real); 1 suggestion fixed (rule asserted) | task check passed: api 6 of 6, web 4 of 4, core 830 of 830 |
+| T005 | The walk of a flow (`generate/walk.ts`): from the first Start along `next` and routes, `true` before `false`, each block listed once; a missing Start or a link to a missing block throws `GenerationError` | 0 blockers, 2 warnings fixed (order test compared a walk with itself; `{stop}` test did not prove the other branch); 1 suggestion fixed (helper renamed) | task check passed: api 6 of 6, web 4 of 4, core 840 of 840 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 

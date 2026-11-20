@@ -252,7 +252,8 @@ describe('F-09 AC-017 the layout sizes match screen 01 (name field 40 px, idea b
   it('F-09 AC-017 the name field is 40 px high and the idea box is nine rows of 20 px plus 9 px padding', () => {
     const styles = getProjectStepStyles(theme);
     expect(styles.nameField).toMatchObject({
-      '& .MuiOutlinedInput-root': { height: 40, borderRadius: '8px' },
+      '& .MuiInputBase-root': { height: 40 },
+      '& .MuiOutlinedInput-root': { borderRadius: '8px' },
     });
     expect(styles.ideaField).toMatchObject({
       '& .MuiOutlinedInput-input': { lineHeight: '20px', py: '9px' },

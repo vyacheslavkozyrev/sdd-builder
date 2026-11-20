@@ -16,6 +16,12 @@ export interface CommonStyles {
   readonly outlineButton: StyleObject;
   // Small secondary text, such as the footer note.
   readonly secondaryText: StyleObject;
+  // The label above a text field: 12 px, medium weight, primary text, 8 px above the field.
+  readonly fieldLabel: StyleObject;
+  // The outline and fill of a text field: white, 8 px radius, the grey border of the approved screens.
+  readonly formField: StyleObject;
+  // The red mark that follows a required field's label.
+  readonly requiredMark: StyleObject;
 }
 
 export function getCommonStyles(theme: Theme): CommonStyles {
@@ -40,6 +46,31 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       fontSize: 12,
       lineHeight: '20px',
       color: theme.palette.text.secondary,
+    },
+    fieldLabel: {
+      display: 'block',
+      m: 0,
+      fontSize: 12,
+      fontWeight: 500,
+      lineHeight: '16px',
+      color: theme.palette.text.primary,
+      mb: '8px',
+    },
+    formField: {
+      '& .MuiOutlinedInput-root': {
+        bgcolor: theme.palette.background.paper,
+        borderRadius: '8px',
+      },
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.grey[300],
+      },
+      '& .MuiInputBase-input::placeholder': {
+        color: theme.palette.text.secondary,
+        opacity: 1,
+      },
+    },
+    requiredMark: {
+      color: theme.palette.error.dark,
     },
   };
 }

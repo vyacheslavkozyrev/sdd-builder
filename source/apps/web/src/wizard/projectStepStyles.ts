@@ -1,8 +1,10 @@
 import type { SxProps, Theme } from '@mui/material/styles';
+import { getCommonStyles } from '../styles/common.js';
 
 // Style getter for the project step (.claude/rules/web-styling.md). It takes the theme and returns
 // the style objects ProjectStep passes to `sx`. Colours come from the theme's palette only.
 // Positions follow the approved F-09 screen 01 (1280 x 800, the card's content box at x 308 to 1232).
+// The label, field surface and required mark are the shared shapes of common.ts.
 
 export interface ProjectStepStyles {
   readonly root: SxProps<Theme>;
@@ -29,41 +31,12 @@ const NAME_FIELD_HEIGHT = 40;
 export const IDEA_ROWS = 9;
 const IDEA_LINE_HEIGHT = 20;
 const IDEA_PADDING = '9px';
-const FIELD_RADIUS = '8px';
 const NOTE_HEIGHT = 34;
 
 export function getProjectStepStyles(theme: Theme): ProjectStepStyles {
   const { palette } = theme;
-  // The outline and fill of a field: white, 8 px radius, the grey border of the approved screens.
-  const fieldSurface = {
-    '& .MuiOutlinedInput-root': {
-      bgcolor: palette.background.paper,
-      borderRadius: FIELD_RADIUS,
-    },
-    '& .MuiOutlinedInput-notchedOutline': {
-      borderColor: palette.grey[300],
-    },
-    '& .MuiInputBase-input::placeholder': {
-      color: palette.text.secondary,
-      opacity: 1,
-    },
-  };
-  const label: SxProps<Theme> = {
-    display: 'block',
-    m: 0,
-    fontSize: 12,
-    fontWeight: 500,
-    lineHeight: '16px',
-    color: palette.text.primary,
-    mb: '8px',
-  };
-  const help: SxProps<Theme> = {
-    m: 0,
-    mt: '4px',
-    fontSize: 12,
-    lineHeight: '20px',
-    color: palette.text.secondary,
-  };
+  const common = getCommonStyles(theme);
+  const help: SxProps<Theme> = { ...common.secondaryText, mt: '4px' };
   const limitText: SxProps<Theme> = {
     m: 0,
     fontSize: 12,
@@ -80,14 +53,13 @@ export function getProjectStepStyles(theme: Theme): ProjectStepStyles {
       flexDirection: 'column',
       p: 3,
     },
-    nameLabel: { ...label, mt: '4px' },
-    ideaLabel: { ...label, mt: '8px' },
-    required: { color: palette.error.dark },
+    nameLabel: { ...common.fieldLabel, mt: '4px' },
+    ideaLabel: { ...common.fieldLabel, mt: '8px' },
+    required: common.requiredMark,
     nameField: {
       width: '100%',
-      ...fieldSurface,
-      '& .MuiOutlinedInput-root': {
-        ...fieldSurface['& .MuiOutlinedInput-root'],
+      ...common.formField,
+      '& .MuiInputBase-root': {
         height: NAME_FIELD_HEIGHT,
       },
       '& .MuiOutlinedInput-input': {
@@ -102,7 +74,7 @@ export function getProjectStepStyles(theme: Theme): ProjectStepStyles {
     },
     ideaField: {
       width: '100%',
-      ...fieldSurface,
+      ...common.formField,
       '& .MuiOutlinedInput-input': {
         boxSizing: 'border-box',
         px: 2,

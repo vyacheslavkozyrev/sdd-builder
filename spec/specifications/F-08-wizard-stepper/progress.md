@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
-| Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
-| Build    | ⏳ Pending |  | 0 tasks committed (reset) |
+| Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
+| Build    | ⏳ Pending |  | 0 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -22,6 +22,8 @@ None
 ---
 
 ## Task Log
+
+_The rows below are the 2026-11-17 build, superseded by the reset of 2026-11-19. The re-planned tasks (T001 to T007 of 2026-11-20) are logged from their commits below these rows._
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |

@@ -150,3 +150,60 @@ export function getWizardStepperStyles(theme: Theme): WizardStepperStyles {
     },
   };
 }
+
+export interface StepBodyStyles {
+  readonly root: SxProps<Theme>;
+  readonly circle: SxProps<Theme>;
+  readonly sparkle: SxProps<Theme>;
+  readonly line: SxProps<Theme>;
+}
+
+// The placeholder body fills the height of the white card and centres its content both ways.
+// Screen 01: an 88 px light circle with the sparkle mark; the line (14 px, weight 500, 20 px line
+// height) has its baseline at y 410, about 11 px below the circle's bottom edge at y 384.
+const BODY_CIRCLE_SIZE = 88;
+const BODY_SPARKLE_SIZE = 52;
+const BODY_LINE_GAP = '11px';
+
+export function getStepBodyStyles(theme: Theme): StepBodyStyles {
+  const { palette } = theme;
+  return {
+    root: {
+      boxSizing: 'border-box',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    circle: {
+      boxSizing: 'border-box',
+      width: BODY_CIRCLE_SIZE,
+      height: BODY_CIRCLE_SIZE,
+      borderRadius: '50%',
+      bgcolor: palette.background.default,
+      border: `1px solid ${palette.divider}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    // The sparkle takes the primary colour through currentColor; the SVG path has no colour of its own.
+    sparkle: {
+      width: BODY_SPARKLE_SIZE,
+      height: BODY_SPARKLE_SIZE,
+      color: palette.primary.main,
+      display: 'block',
+    },
+    line: {
+      m: 0,
+      mt: BODY_LINE_GAP,
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: '20px',
+      color: palette.text.primary,
+      textAlign: 'center',
+    },
+  };
+}

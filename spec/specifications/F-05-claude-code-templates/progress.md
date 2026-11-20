@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 40 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-19 | 17 of 19 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 18 of 19 tasks committed |
 | Verify   | ⏳ Pending |  | Not yet run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -44,6 +44,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T015 | process.md layout (`templates/base/process.md`): fixed prose, the flows list (`processFlows`) and the Mermaid fence (`processDiagram`, first line `flowchart`); manifest lists process.md after CLAUDE.md; AC-029 conditions and retry routes and AC-030 fence content proved by tests | 0 blockers, 3 warnings fixed (T014 manifest test checked containment only; AC-029 conditions and retry routes untested; AC-030 did not check the fence holds only the diagram), 0 suggestions, 0 deferred | task check passed: core 1122 of 1122 (51 files), api 6 of 6, web 4 of 4 |
 | T016 | Spec template layouts (`templates/base/spec-template/`: stories, plan, progress) with the reply check's required headings in the template's order; manifest entries under `spec/specifications/F-00-template/`; AC-028 tested against the real reply check, with a negative case | 0 blockers, 1 warning fixed (AC-028 test did not run the reply check), 1 suggestion fixed (AC-026 test name), 0 deferred | task check passed: core 1131 of 1131 (52 files), api 6 of 6, web 4 of 4 |
 | T017 | Default pipeline output tests (`layouts-default.test.ts`): same plan twice (AC-036), no repository path in any output (AC-037), no `{{`, `#enabled` or `#step:` marker (AC-039). Found and fixed a real AC-037 failure: the `ux` flow body in `default.json` named `spec/design`; reworded to "Draws the screens of the feature from the stories." | 0 blockers, 0 warnings, 0 suggestions fixed, 1 suggestion deferred (the marker list is enumerated) | task check passed: core 1134 of 1134 (53 files), api 6 of 6, web 4 of 4 |
+| T018 | Templates README: value tables matched to the builders and layouts (processFlows, processDiagram, flowDescriptionYaml, pipelineDescriptionYaml, agentPurpose, agentReads and agentWrites as sections, `No arguments`); the Line breaks rules, with the two documented exceptions (agentRuleTags, processDiagram); the Claude Code layout table with the planned paths | 0 blockers, 3 warnings fixed (chained whole-line values; processDiagram missing from the tables; agentReads and agentWrites described wrongly), 3 suggestions fixed, 2 deferred (`flowId` and `ruleId` built but unused; blank lines under an empty description heading) | task check passed: core 1134 of 1134 (53 files), api 6 of 6, web 4 of 4 |
 
 ---
 
@@ -69,6 +70,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/packages/core/src/pipeline/generate/values-base.ts` (`commandList`, `agentList`, `ruleList`): the lists are built from the config in parallel with `listFiles`, not from the planned file list. The CLAUDE.md test compares them with the plan as sets, so a divergence fails the test; passing the plan in would change the value API committed in T010 to T012. SUGGESTION, kept as is (T014 review).
 - `source/packages/core/test/pipeline/layouts-claude-md.test.ts` (agent test, `expected`): the expected line uses the planned `description` as written, while `agentList` writes it through `inlineText`. The fixture and the default descriptions are one line, so the test passes; a description with a line break would fail the test rather than hide a defect. SUGGESTION, apply `inlineText` in the test when such a description is first tested (T014 review).
 - `source/packages/core/test/pipeline/layouts-default.test.ts` (`REPOSITORY_MARKERS`, T017): AC-037 checks an enumerated list of this repository's paths, so a repository path not on the list passes. SUGGESTION, kept as is: core cannot read the repository's file list, and `spec/documents/process.md` is a generated path (`base/manifest.json`), so it cannot be a marker.
+- `source/packages/core/src/pipeline/generate/values-flow.ts` (`flowId`) and `values-rule.ts` (`ruleId`): both values are built but no layout uses them, so they are dead values. SUGGESTION, not removed (T018 is documentation only): remove them in the next F-05 task that touches the value builders (T018 review).
+- `source/templates/claude-code/flow.md` (`{{flowDescription}}`), `pipeline.md` (`{{pipelineDescription}}{{pipelineBody}}`): an empty description leaves two or three blank lines under `## Purpose`. The README states the owner's option a and that such a value is empty when there is no description, so this is the layout's spacing, not a README error. SUGGESTION, not changed: a layout change needs the owner's view on the spacing (T018 review).
 
 ---
 

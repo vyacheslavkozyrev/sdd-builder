@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 37 criteria, all [auto]; re-specified for the flow model (decisions 38, 39) and approved by the user. Builder marks and analyzer share the rules (owner, 2026-11-19) |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 10 tasks (T001 to T010); AC-019 decided as a blocker (see Amendments) |
-| Build    | 🔄 In Progress | 2026-11-19 | 4 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 5 of 10 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T002 | Start and End per flow: no Start, a Start after the first, no End, empty flow, pipeline with no flow (`analyze/start-end.ts`). Paths follow F-02 (`pipeline.flows.N...`, no `root.`); a third Start is also reported | 0 blockers, 0 warnings; 1 suggestion fixed (assertions moved out of the map helper) | task check passed: core 652, api 6, web 4 |
 | T003 | Identity and required text: flow id file-safe and not `pipeline`, agent name file-safe, blank flow name or body, blank agent description (`analyze/text.ts`); `isFileSafeId` exported from `check/primitives.ts` | 0 blockers; 1 warning fixed (a test for a flow whose index is not 0); 2 suggestions fixed; 1 suggestion deferred (shared path helpers with T002) | task check passed: core 675, api 6, web 4 |
 | T004 | Reused id and tag checks: `checkIdsUnique` and `checkRuleTags` from F-02, each problem a blocker at its path, with the position read from the path by explicit shapes; a path of an unknown shape throws (`analyze/reuse.ts`) | 0 blockers; 2 warnings fixed (position lookup made explicit; a test for each path shape); 2 suggestions fixed | task check passed: core 698, api 6, web 4 |
+| T005 | Flow links and block links reused from F-02: flow `next` rules and loops, Start and Agent `next` rules; route problems left to T006 (`analyze/links.ts`). The wrong-kind `next` case of F-02 is kept as the same rule | 0 blockers; 2 warnings fixed (a self-loop test used a missing block; an Agent wrong-kind case added); 0 suggestions. Open for T006: a test named AC-014 checks a rule boundary (route to a missing block), to be re-tagged there | task check passed: core 723, api 6, web 4 |
 
 ### 2026-11-16 build (code removed in `58ef413`)
 

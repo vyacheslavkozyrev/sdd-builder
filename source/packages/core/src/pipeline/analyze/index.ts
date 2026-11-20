@@ -6,7 +6,7 @@ import { reuseRule } from './reuse.js';
 import { linksRule } from './links.js';
 import { outputsRule } from './outputs.js';
 import { routesRule } from './routes.js';
-import { reachRule } from './reach.js';
+import { reachRules } from './reach.js';
 
 export type { Finding, Severity } from './finding.js';
 
@@ -21,7 +21,7 @@ const RULE_MODULES: readonly RuleModule[] = [
   linksRule,
   outputsRule,
   routesRule,
-  reachRule,
+  reachRules,
 ];
 
 function comparePositions(a: Position, b: Position): number {

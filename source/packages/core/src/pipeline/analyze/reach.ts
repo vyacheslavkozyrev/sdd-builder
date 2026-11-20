@@ -75,3 +75,56 @@ function reachOfFlow(flow: Flow): PositionedFinding[] {
 export function reachRule(config: ProjectConfig): PositionedFinding[] {
   return config.pipeline.flows.flatMap(reachOfFlow);
 }
+
+// Every flow is reached from the first flow along the `next` links between flows (F-03 AC-023, AC-024). The first
+// flow is the first in pipeline order that no flow's `next` names. A `next` to a missing flow is not followed, and
+// a chain that loops stops at the flow already reached. A pipeline with no first flow (no flow, or every flow named
+// by a `next`, as in a loop) has nothing to start from, so it gives no finding here: the start and link rules
+// report it.
+const FLOW_REACH_RULE = 'flow-reach';
+const FLOW_REACH_MESSAGE =
+  'must be reached from the first flow of the pipeline along next links, got no next that leads to it';
+
+function firstFlow(flows: readonly Flow[]): Flow | undefined {
+  const named = new Set<string>();
+  for (const flow of flows) {
+    if (flow.next !== undefined) named.add(flow.next);
+  }
+  return flows.find((flow) => !named.has(flow.id));
+}
+
+// The ids of the flows reached. Flows are walked by id, as `next` names them, so a repeated id (AC-025) is reached
+// with the flow it repeats and is not reported a second time here.
+function reachedIds(flows: readonly Flow[]): ReadonlySet<string> {
+  const reached = new Set<string>();
+  let current: Flow | undefined = firstFlow(flows);
+  while (current !== undefined && !reached.has(current.id)) {
+    reached.add(current.id);
+    const next = current.next;
+    current = next === undefined ? undefined : flows.find((flow) => flow.id === next);
+  }
+  return reached;
+}
+
+function unreachedFlows(flows: readonly Flow[]): Flow[] {
+  const reached = reachedIds(flows);
+  return reached.size === 0 ? [] : flows.filter((flow) => !reached.has(flow.id));
+}
+
+// The flow-level blocker for each unreached flow, and the block blockers of the flows that are reached: the blocks
+// of an unreached flow are not reported separately (AC-023).
+export function reachRules(config: ProjectConfig): PositionedFinding[] {
+  const unreached = unreachedFlows(config.pipeline.flows);
+  const unreachedIndexes = new Set(unreached.map((flow) => flow.index));
+  const flowFindings = unreached.map(
+    (flow): PositionedFinding => ({
+      severity: 'blocker',
+      rule: FLOW_REACH_RULE,
+      path: childPath(FLOWS_PATH, String(flow.index)),
+      message: FLOW_REACH_MESSAGE,
+      position: { flow: flow.index, block: -1, slot: -1 },
+    }),
+  );
+  const blockFindings = reachRule(config).filter((finding) => !unreachedIndexes.has(finding.position.flow));
+  return [...flowFindings, ...blockFindings];
+}

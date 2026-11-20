@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reachRule } from '../../src/pipeline/analyze/reach.js';
+import { reachRule, reachRules } from '../../src/pipeline/analyze/reach.js';
 import type {
   AgentBlock,
   Block,
@@ -221,5 +221,113 @@ describe('F-03 AC-021 a partial model is walked without a throw', () => {
     const config = pipelineOf(flowOf(0, 'build', [start('start', 'check'), condition('check', {}), end('end')]));
     expect(() => reachRule(config)).not.toThrow();
     expect(reachProblems(config)).toEqual([{ path: 'pipeline.flows.0.blocks.2', message: NOT_REACHED }]);
+  });
+});
+
+// A flow named by the `next` of another flow; the flow it names is the one that follows it.
+function linked(flow: Flow, next: string): Flow {
+  return { ...flow, next };
+}
+
+const NOT_FLOW_REACHED =
+  'must be reached from the first flow of the pipeline along next links, got no next that leads to it';
+
+function flowReachProblems(config: ProjectConfig): Expected[] {
+  return reachRules(config).map(({ path, message }) => ({ path, message }));
+}
+
+const flowReachCases: Array<[string, ProjectConfig, Expected[]]> = [
+  [
+    'F-03 AC-023 a single flow is the first flow and gives no finding',
+    pipelineOf(flowOf(0, 'build', [start('start', 'a'), agent('a', 'end'), end('end')])),
+    [],
+  ],
+  [
+    'F-03 AC-023 a flow named by the next of the first flow is reached and gives no finding',
+    pipelineOf(
+      linked(flowOf(0, 'build', [start('start', 'a'), agent('a', 'end'), end('end')]), 'review'),
+      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]),
+    ),
+    [],
+  ],
+  [
+    'F-03 AC-023 a chain of next links reaches every flow in it and gives no finding',
+    pipelineOf(
+      linked(flowOf(0, 'build', [start('start', 'end'), end('end')]), 'review'),
+      linked(flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]), 'ship'),
+      flowOf(2, 'ship', [start('ship-start', 'ship-end'), end('ship-end')]),
+    ),
+    [],
+  ],
+  [
+    'F-03 AC-023 a flow no next reaches gives one blocker at its flow path, and its blocks are not reported',
+    pipelineOf(
+      flowOf(0, 'build', [start('start', 'a'), agent('a', 'end'), end('end')]),
+      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end'), agent('lost', 'review-end')]),
+    ),
+    [{ path: 'pipeline.flows.1', message: NOT_FLOW_REACHED }],
+  ],
+  [
+    'F-03 AC-023 a flow reached only from an unreached flow is unreached too, with one blocker each',
+    pipelineOf(
+      flowOf(0, 'build', [start('start', 'end'), end('end')]),
+      linked(flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]), 'ship'),
+      flowOf(2, 'ship', [start('ship-start', 'ship-end'), end('ship-end')]),
+    ),
+    [
+      { path: 'pipeline.flows.1', message: NOT_FLOW_REACHED },
+      { path: 'pipeline.flows.2', message: NOT_FLOW_REACHED },
+    ],
+  ],
+  [
+    'F-03 AC-024 two flows with no incoming next: the second gives a blocker at its path',
+    pipelineOf(
+      flowOf(0, 'build', [start('start', 'end'), end('end')]),
+      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]),
+    ),
+    [{ path: 'pipeline.flows.1', message: NOT_FLOW_REACHED }],
+  ],
+  [
+    'F-03 AC-024 the first flow is the one no next names, here the second in pipeline order',
+    pipelineOf(
+      flowOf(0, 'build', [start('start', 'end'), end('end')]),
+      linked(flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]), 'build'),
+    ),
+    [],
+  ],
+  [
+    'F-03 AC-024 a next to a missing flow is not followed, so the flow it names is not reached',
+    pipelineOf(
+      linked(flowOf(0, 'build', [start('start', 'end'), end('end')]), 'ghost'),
+      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]),
+    ),
+    [{ path: 'pipeline.flows.1', message: NOT_FLOW_REACHED }],
+  ],
+  [
+    'F-03 AC-023 a second flow with the id of a reached flow is not reported again as unreached (AC-025 reports it)',
+    pipelineOf(
+      flowOf(0, 'build', [start('start', 'end'), end('end')]),
+      flowOf(1, 'build', [start('dup-start', 'dup-end'), end('dup-end')]),
+    ),
+    [],
+  ],
+  [
+    'F-03 AC-024 a pipeline with no flow gives no finding here',
+    pipelineOf(),
+    [],
+  ],
+  [
+    'F-03 AC-024 a loop of next links has no first flow, so it gives no finding here',
+    pipelineOf(
+      linked(flowOf(0, 'build', [start('start', 'end'), end('end')]), 'review'),
+      linked(flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]), 'build'),
+    ),
+    [],
+  ],
+];
+
+describe('F-03 AC-023, AC-024 every flow is reached from the first flow of the pipeline', () => {
+  it.each(flowReachCases)('%s', (_name, config, expected) => {
+    expect(flowReachProblems(config)).toEqual(expected);
   });
 });

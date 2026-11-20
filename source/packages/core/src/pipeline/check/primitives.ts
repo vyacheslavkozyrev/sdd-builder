@@ -21,6 +21,13 @@ export const ROOT_PATH = 'root';
 
 const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 const ID_MAX = 60;
+
+// The file-safe form of an id: lowercase letters, digits and hyphens, starting with a letter. Shared by the
+// readers and the structural analysis, so both use one pattern (F-03 AC-026, AC-027).
+export function isFileSafeId(value: string): boolean {
+  return ID_PATTERN.test(value);
+}
+
 const MODELS: readonly Model[] = ['haiku', 'sonnet', 'opus', 'inherit'];
 
 export function createProblemCollector(): ProblemCollector {
@@ -108,7 +115,7 @@ export function readText(
 
 export function readId(value: unknown, path: string, problems: ProblemCollector): string | undefined {
   if (typeof value !== 'string') return refuse(value, path, problems, 'an id (text)');
-  if (!ID_PATTERN.test(value) || codePoints(value) > ID_MAX) {
+  if (!isFileSafeId(value) || codePoints(value) > ID_MAX) {
     problems.add(
       path,
       'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',

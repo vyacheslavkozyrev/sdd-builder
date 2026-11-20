@@ -25,7 +25,7 @@
       "name": "UX",
       "description": "Draws the screens of the feature for approval.",
       "arguments": [],
-      "body": "Draws the screens under spec/design from the stories.",
+      "body": "Draws the screens of the feature from the stories.",
       "artifacts": [{ "label": "screens.md", "template": "Screens, their states and decisions" }],
       "approval": true,
       "next": "plan",

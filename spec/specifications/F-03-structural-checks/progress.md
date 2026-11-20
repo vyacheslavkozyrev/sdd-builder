@@ -5,7 +5,7 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Specify  | ✅ Complete | 2026-11-19 | 7 stories, 37 criteria, all [auto]; re-specified for the flow model (decisions 38, 39) and approved by the user. Builder marks and analyzer share the rules (owner, 2026-11-19) |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | Build    | ⏳ Pending |  | 0 tasks committed (reset) |

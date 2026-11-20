@@ -1,14 +1,14 @@
 # User Stories — UI layout template (F-07)
 
 Feature entry: `spec/documents/features.md` → F-07
-Requirements owned by this feature: the F-07 scope items in `features.md` (left panel with the wordmark and New project, app footer with the not-saved note, centre content area, Material UI, desktop layout at the 1280 × 800 reference, every screen uses the layout); `ui.md` §1.1, §1.2, §1.3 (frame only), §7; `architecture.md` §5 (Material UI) and decision 31 (desktop only). Owner decisions of 2026-11-17: the logo is a text wordmark; New project calls a handler supplied by the caller; the layout is fluid with a 1024 px minimum width. Owner decisions of 2026-11-20: the restyled screens of 2026-11-18 (wordmark and New project in a left panel) are approved; the F-07 panel holds the wordmark and New project only.
+Requirements owned by this feature: the F-07 scope items in `features.md` (left panel with the wordmark and New project, app footer with the not-saved note, centre content area, Material UI, desktop layout at the 1280 × 800 reference, every screen uses the layout); `ui.md` §1.1, §1.2, §1.3 (frame only), §7; `architecture.md` §5 (Material UI) and decision 31 (desktop only). Owner decisions of 2026-11-17: the logo is a text wordmark; New project calls a handler supplied by the caller; the layout is fluid with a 1024 px minimum width. Owner decisions of 2026-11-20: the restyled screens of 2026-11-18 (wordmark and New project in a left panel) are approved; the F-07 panel holds the logo mark, the wordmark and New project only; the logo mark is shown before the wordmark, as on the screens.
 
 ## Out of Scope
 
 - The wizard, its stepper, Prev and Next, and the step bodies (F-08). F-08 adds the stepper and Prev and Next to the left panel. F-07 renders the centre area from its children only.
 - What New project does beyond calling the handler it is given. The handler is wired to the wizard in F-08.
 - The Demo button (not in the MVP; F-23).
-- A logo image file. The left panel shows the text wordmark `SDDBuilder`; a real logo is a later change.
+- A logo image file. The logo mark is the 24 × 24 px rounded square in the primary colour drawn in the left panel (screens 01); a logo image is a later change.
 - Any save, download or persistence control in the footer. The footer is a note only.
 - Phone and tablet layouts (decision 31).
 - Theme switching, dark mode and custom colours. Material UI defaults apply.
@@ -35,7 +35,7 @@ Every automated test names the feature and criterion it covers (`F-07 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-001 `[auto]`: the left panel renders the text `SDDBuilder` above the button `New project`.
+- [ ] AC-001 `[auto]`: the left panel renders the logo mark (labelled `SDDBuilder logo`) and the text `SDDBuilder` in one row, above the button `New project`; the logo mark comes before the text.
 - [ ] AC-002 `[auto]`: clicking `New project` calls the `onNewProject` handler passed to the layout exactly once, and calls no other handler.
 - [ ] AC-003 `[auto]`: the left panel contains no Demo button and no other button besides `New project` (negative case: Demo is not in the MVP; Prev and Next are added by F-08).
 

@@ -19,6 +19,14 @@ describe('F-07 AC-001 left panel wordmark and New project', () => {
     expect(markup()).toMatch(/<button\b[^>]*>New project<\/button>/);
   });
 
+  it('F-07 AC-001 renders the logo mark before the wordmark, in the same row', () => {
+    const html = markup();
+    const logo = html.indexOf('aria-label="SDDBuilder logo"');
+    const wordmark = html.indexOf('SDDBuilder</p>');
+    expect(logo).toBeGreaterThan(-1);
+    expect(wordmark).toBeGreaterThan(logo);
+  });
+
   it('F-07 AC-001 renders the wordmark above the New project button', () => {
     const html = markup();
     const wordmark = html.indexOf('SDDBuilder');

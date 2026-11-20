@@ -23,6 +23,8 @@ export function getAppFrameStyles(theme: Theme): AppFrameStyles {
 
 export interface LeftPanelStyles {
   readonly root: SxProps<Theme>;
+  readonly brandRow: SxProps<Theme>;
+  readonly logo: SxProps<Theme>;
   readonly wordmark: SxProps<Theme>;
   readonly newProjectButton: SxProps<Theme>;
 }
@@ -38,12 +40,24 @@ export function getLeftPanelStyles(theme: Theme): LeftPanelStyles {
       borderRight: `1px solid ${theme.palette.divider}`,
       bgcolor: theme.palette.background.paper,
     },
+    brandRow: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '10px',
+      mb: 3,
+    },
+    logo: {
+      width: 24,
+      height: 24,
+      borderRadius: '6px',
+      bgcolor: theme.palette.primary.main,
+      flexShrink: 0,
+    },
     wordmark: {
       fontSize: 18,
-      fontWeight: 600,
+      fontWeight: 500,
       lineHeight: '24px',
       color: theme.palette.text.primary,
-      mb: 3,
     },
     newProjectButton: common.outlineButton,
   };

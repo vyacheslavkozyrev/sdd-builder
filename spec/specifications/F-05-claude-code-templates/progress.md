@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
 | Build    | ✅ Complete | 2026-11-20 | 20 of 20 tasks committed (T020 added by Verify) |
-| Verify   | ⏳ Pending |  | Not yet run |
+| Verify   | ⏳ Pending |  | Re-verified 2026-11-20 at 59f997d: 40 of 40 criteria covered, no gaps; open owner decision on AC-033 |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -81,67 +81,68 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
-### Verify run — 2026-11-20 (HEAD `dbc346e`, branch `main`, clean tree)
+### Verify run — 2026-11-20 (HEAD `59f997d`, branch `main`, clean tree; re-verify after T020)
 
-**Check:** `source/scripts/task-check.sh` passed (exit 0): core 1139 of 1139 (54 files), api 6 of 6 (3 files), web 4 of 4 (2 files). Type check passed.
+**Preconditions:** all 20 tasks ticked, Current Task None, branch `main`, tree clean.
 
-**Verdict:** NOT complete. Two gaps (AC-002, AC-003) and one open limit (AC-033). Verify is not marked complete.
+**Check:** `source/scripts/task-check.sh` passed (exit 0). Type check passed. Tests: core 1142 of 1142 (54 files), api 6 of 6 (3 files), web 4 of 4 (2 files). No skipped or focused tests in the test trees.
+
+**Verdict:** all 40 criteria have at least one passing test that names them and proves the criterion (the test body was read). No gaps. AC-033 is an open limit (owner decision, see Deferred Findings), not a test defect. Verify is not marked complete, because the open owner decision on AC-033 is unresolved.
+
+**AC-002 and AC-003:** the tests whose array order differs from the `next` chain are `layouts-pipeline` (AC-002 "lists the flows in the order of the next links when the array lists them out of that order": array build, specify, ux; chain specify, ux, build), `layouts-pipeline` (AC-003 "gives the end-of-process stop to the last flow of the next links": array build, plan; chain plan, build) and `generate-values` (AC-002 "lists the flows in the order of the next links, not the array order": array build, plan). Each expects the chain order, so an implementation that walks `pipeline.flows` in array order fails them: the output would start with `build`, and the stop wording would land on the wrong flow.
 
 **Manual checklist:** empty. No criterion is tagged `[device]`; see `checklist.md`.
 
-Matrix. Test files are under `source/packages/core/test/pipeline/`. Every named test passed in the run above. "Covering test" lists the test name that names the criterion, shortened.
+Matrix. Test files are under `source/packages/core/test/pipeline/`; the name is shortened. Every named test passed in the run above.
 
-| Criterion | Tag | Covering test (file: test name) | Result |
+| Criterion | Tag | Covering tests (file: test) | Result |
 | --- | --- | --- | --- |
-| AC-001 | auto | layouts-pipeline: writes the pipeline title, and its arguments each with the id, the required flag and the hint; writes No arguments as a line | pass |
-| AC-002 | auto | layouts-pipeline: lists every flow as a numbered step, in pipeline order | GAP (see Gaps 1) |
-| AC-003 | auto | layouts-pipeline: adds a numbered stop step after a flow with approval on...; numbers the stop step of each approved flow; adds no stop step to a flow with approval off | GAP (see Gaps 1, last-flow wording) |
-| AC-004 | auto | layouts-pipeline: renders a one-flow pipeline with one flow step and no approval step; ... with approval on as one flow step and one stop step | pass |
-| AC-005 | auto | layouts-pipeline: writes no model or tools line; the model line; the tools line; quoted tools; model and tools together; body under Purpose only when set; description quoted in frontmatter | pass |
-| AC-006 | auto | layouts-flow: writes the flow name as the title, its description under Purpose, its body as Context; generate-values-flow: keeps the line breaks of the body | pass |
-| AC-007 | auto | generate-values-flow: writes the tags of the flow in their order; writes none when empty; layouts-flow: writes the rule tags in the frontmatter | pass |
-| AC-008 | auto | generate-values-flow: writes each argument on its own line; writes No arguments; layouts-flow: writes each argument on its own line | pass |
-| AC-009 | auto | generate-values-flow: writes each artifact in order with its label and template; writes No artifacts; layouts-flow: writes each artifact under the Artifacts heading | pass |
-| AC-010 | auto | generate-values-flow: lists the Start first and the End last; moves an End reached before other blocks to the last step; layouts-flow: writes the route from Start to End as numbered steps | pass |
-| AC-011 | auto | generate-values-flow: names the agent file from the agent name, not its block id; layouts-flow: names the agent file of an Agent step | pass |
-| AC-012 | auto | layouts-flow: gives the check of a Condition step, names its true route, writes stop and ask; generate-values-flow: names a false route that stops the flow | pass |
-| AC-013 | auto | layouts-flow: writes a retry as a numbered rule that names the agent and the round limit; rejects a round limit outside 1 to 5; generate-values-flow: writes the return of a Condition as a rule with its round limit | pass |
-| AC-014 | auto | generate-values-flow: names the producedArtifact on the End step; writes the plain End step when empty or blank; layouts-flow: names the produced artifact in the End step | pass |
-| AC-015 | auto | layouts-flow: writes the Start and End steps and no rule for a flow with only those two blocks | pass |
-| AC-016 | auto | layouts-agent: plans one agent file per Agent block, named after the block, with the name once in the path | pass |
-| AC-017 | auto | layouts-agent: writes the name and the quoted description in the frontmatter, and the plain description under Purpose; generate-values: quotes the description as it is; escapes quotes and backslashes | pass |
-| AC-018 | auto | layouts-agent: writes the model in the frontmatter as the block gives it; writes no model key when the block has no model | pass |
-| AC-019 | auto | layouts-agent: writes the tools as one comma-separated list in the block order; quotes the list when YAML would break; generate-values: quotes the whole list when a tool name starts with an indicator character | pass |
-| AC-020 | auto | layouts-agent: writes the body under an Instructions heading after Purpose; writes no Instructions section when missing or blank; generate-values: has no Instructions section when the body is empty, blank or only whitespace | pass |
-| AC-021 | auto | layouts-agent: writes the Reads and Writes artifacts as one label per line, in order; leaves out the sections when empty or absent; generate-values: gives a Reads section with one label per line | pass |
-| AC-022 | auto | layouts-agent: writes the rule tags of the block as one comma-separated list; writes none when the block has no rule tags; generate-values: writes the tags of the block in their order | pass |
-| AC-023 | auto | layouts-agent: writes a placeholder in the body as typed, without filling it a second time; writes a placeholder in the description as typed | pass |
-| AC-024 | auto | layouts-rule: writes each rule to .claude/rules/<id>.md, with its title as the heading and its text as the body; keeps the line breaks of the text | pass |
-| AC-025 | auto | layouts-rule: plans no file under .claude/rules/ for a configuration with no rules, and does not fail | pass |
-| AC-026 | auto | layouts-claude-md: renders CLAUDE.md from its layout and the values of a fixture; layouts-process: renders process.md from its layout; layouts-spec-template: plans each spec template file with the text of its layout | pass |
-| AC-027 | auto | layouts-claude-md: lists the command files of the default pipeline, each once; lists each agent file with its description; lists each rule file with its title; lists no rule file when there are no rules | pass |
-| AC-028 | auto | layouts-spec-template: stories.md has the level-2 headings Out of Scope, Stories and Requirement Coverage, in order; accepts each layout text as the reply for its file (the real F-04 reply check); names the path and heading when a level-3 heading is used | pass |
-| AC-029 | auto | layouts-process: lists each flow of the default pipeline once, in the order of the next links; gives each flow its approval sentence; writes conditions and retry routes as text; generate-values-base: lists the flows by the next links from the first flow | pass |
-| AC-030 | auto | layouts-process: holds exactly one fenced block marked mermaid; has flowchart as the first line inside the fence, and the fence holds only the diagram text | pass |
-| AC-031 | auto | mermaid-diagram: numbers the nodes F1, F2 and so on, labelled with each flow name; orders the nodes by the next links | pass |
-| AC-032 | auto | mermaid-diagram: draws one edge from each flow with a next link; gives no edge for the last flow; gives edges with no label text | pass |
-| AC-033 | auto | mermaid-diagram: ends the label of an approval flow with the word approval; has no approval word in the label of a flow with approval off | GAP (see Gaps 2) |
-| AC-034 | auto | mermaid-diagram: writes a quote, bracket, brace, pipe or hash as its entity code (each case); writes a line break as a space; writes a Unicode line or paragraph separator (U+2028, U+2029) as a space | pass |
-| AC-035 | auto | mermaid-diagram: gives the same text on two calls for a config with special characters and line breaks | pass |
-| AC-036 | auto | layouts-default: generating the default pipeline config twice gives the same file list, paths and text | pass |
-| AC-037 | auto | layouts-default: no output file of the default pipeline mentions SDDBuilder or a path of this repository; layouts-spec-template and layouts-claude-md: write no SDDBuilder name, path or feature id | pass |
-| AC-038 | auto | layouts-placeholders: every placeholder a layout under source/templates uses has a value; a layout with a placeholder that has no value fails; a real flow layout with one value left out fails | pass |
-| AC-039 | auto | layouts-default: no output file of the default pipeline has a placeholder, a section marker or a step marker left | pass |
-| AC-040 | auto | layouts-default: the default pipeline renders through every layout with no error; the planned paths are exactly the rows of the README Claude Code layout table | pass |
+| AC-001 | auto | layouts-pipeline: writes the title, arguments with id, required flag and hint; writes No arguments as a line | pass |
+| AC-002 | auto | layouts-pipeline: lists every flow as a numbered step in pipeline order; lists the flows in next-link order when the array differs; generate-values: lists the flows in next-link order, not array order | pass |
+| AC-003 | auto | layouts-pipeline: stop step after an approved flow, end-of-process wording for the last flow; end-of-process stop goes to the last flow of the chain, not the array; stop step for each approved flow, none for the others; no stop step with approval off | pass |
+| AC-004 | auto | layouts-pipeline: one-flow pipeline gives one flow step and no stop step; one-flow pipeline with approval gives one flow step and one stop step | pass |
+| AC-005 | auto | layouts-pipeline: no model or tools line when unset; model line; tools line and none for an empty list; quoted tools when YAML breaks; model and tools together; body under Purpose only when set and not when blank; description quoted in frontmatter, plain under Purpose | pass |
+| AC-006 | auto | layouts-flow: title, Purpose and Context with line breaks; quoted description in frontmatter; empty description; blank body; whole command with no stray blank line; generate-values-flow: body line breaks kept, blank body empty | pass |
+| AC-007 | auto | generate-values-flow: tags in order, one tag, none when empty; layouts-flow: tags in frontmatter, none when absent | pass |
+| AC-008 | auto | generate-values-flow: each argument on its own line; No arguments; layouts-flow: each argument line, No arguments | pass |
+| AC-009 | auto | generate-values-flow: each artifact in order with label and template; No artifacts; label alone for empty template; leading blank lines dropped; layouts-flow: artifacts under the Artifacts heading, No artifacts | pass |
+| AC-010 | auto | generate-values-flow: Start first and End last, one step per block; End reached early moved last; Condition numbered; route targets by step number; layouts-flow: route as numbered steps | pass |
+| AC-011 | auto | generate-values-flow: agent file from the agent name, not the block id; every Agent step has file and description; layouts-flow: agent file and description of an Agent step | pass |
+| AC-012 | auto | generate-values-flow: Condition check and true route; false route stops the flow (stop and ask); layouts-flow: check, true route, stop and ask | pass |
+| AC-013 | auto | generate-values-flow: return to an earlier Agent as a rule with its round limit; layouts-flow: retry as a numbered rule naming agent and limit; rejects a limit outside 1 to 5 | pass |
+| AC-014 | auto | generate-values-flow: producedArtifact on the End step; plain End when empty or blank; layouts-flow: produced artifact named in End | pass |
+| AC-015 | auto | layouts-flow: Start and End steps and no rule for a two-block flow | pass |
+| AC-016 | auto | layouts-agent: one agent file per Agent block, name once in the path | pass |
+| AC-017 | auto | layouts-agent: name and quoted description in frontmatter, plain description under Purpose; generate-values: description quoted, quotes and backslashes escaped, decodes back | pass |
+| AC-018 | auto | layouts-agent: model written as given; no model key when unset | pass |
+| AC-019 | auto | layouts-agent: tools as one list in block order; quoted when YAML would break; no tools key when none; generate-values: 14 tests of plain and quoted lists, including indicator characters, colon-space, control characters, decode round-trip | pass |
+| AC-020 | auto | layouts-agent: Instructions after Purpose; none when missing or blank; generate-values: Instructions heading, line breaks kept, no section when empty, blank or whitespace | pass |
+| AC-021 | auto | layouts-agent: Reads and Writes one label per line in order; sections left out when empty or absent; generate-values: Reads and Writes sections, each with its own heading | pass |
+| AC-022 | auto | layouts-agent: rule tags as one list, none when absent; generate-values: tags in order, one tag, none | pass |
+| AC-023 | auto | layouts-agent: placeholder in body and in description written as typed | pass |
+| AC-024 | auto | layouts-rule: each rule to .claude/rules/<id>.md with title heading and text; line breaks kept; heading alone with no text; trailing newline; heading alone for blank text | pass |
+| AC-025 | auto | layouts-rule: no file under .claude/rules/ for an empty rules list | pass |
+| AC-026 | auto | layouts-claude-md: CLAUDE.md renders from layout and fixture, no placeholder, from the default pipeline; layouts-process: process.md in the manifest after CLAUDE.md, renders from layout; layouts-spec-template: each spec template planned with its layout text | pass |
+| AC-027 | auto | layouts-claude-md: lists the command files of the default pipeline, each once; lists each agent with its description; lists each rule with its title; no rule file when none | pass |
+| AC-028 | auto | layouts-spec-template: stories.md headings in order; plan.md and progress.md headings; each heading a whole line; layout text accepted by the F-04 reply check; level-3 heading rejected with path and heading | pass |
+| AC-029 | auto | layouts-process: each flow once in next-link order; approval sentence matches the flag; description on the line; conditions and retry text; no Conditions part without a Condition; generate-values-base: processFlows in next-link order, array order differs | pass |
+| AC-030 | auto | layouts-process: one mermaid fence in the default pipeline; flowchart is the first line and the fence holds only the diagram | pass |
+| AC-031 | auto | mermaid-diagram: nodes F1, F2 and so on labelled with flow names; nodes ordered by next links, array order differs | pass |
+| AC-032 | auto | mermaid-diagram: one edge per next link; no edge for the last flow or a single flow; no edge label; a flow outside the chain is drawn nowhere | pass |
+| AC-033 | auto | mermaid-diagram: approval flow label ends with approval; approval-off flow has no approval word; each node by its own flag | pass with open limit (see below) |
+| AC-034 | auto | mermaid-diagram: each of quote, bracket, brace, pipe, hash written as its entity code; hash escaped first; all characters in one name; approval word kept after escaping; line break and CRLF as a space; U+2028 and U+2029 as a space; first line flowchart | pass |
+| AC-035 | auto | mermaid-diagram: same text on two calls for a config with special characters and line breaks; same pipeline object twice | pass |
+| AC-036 | auto | layouts-default: default pipeline generated twice gives the same file list, paths and text | pass |
+| AC-037 | auto | layouts-default: no output file mentions SDDBuilder or a repository path; layouts-spec-template and layouts-claude-md: no SDDBuilder name, path or feature id | pass |
+| AC-038 | auto | layouts-placeholders: every placeholder in source/templates has a value; a layout with a missing value fails naming placeholder and path; a real flow layout with one value left out fails | pass |
+| AC-039 | auto | layouts-default: no output file has a placeholder, a section marker or a step marker | pass |
+| AC-040 | auto | layouts-default: default pipeline renders through every layout, every planned file has text; planned paths equal the rows of the README Claude Code layout table | pass |
 
 Scope check (`spec/documents/features.md`, F-05): the pipeline command (AC-001 to AC-005), one command per flow (AC-006 to AC-015), agent files (AC-016 to AC-023), rule files (AC-024, AC-025), base files (AC-026 to AC-029), `process.md` with the Mermaid diagram (AC-030 to AC-035), and self-contained output (AC-036 to AC-040). Each scope item has at least one criterion.
 
-Gaps:
+Gaps: none.
 
-1. **AC-002 and AC-003 (pipeline command order).** The criteria say the flows are listed in the order of the `next` links from the first flow. `values-pipeline.ts` (`flowSteps`) walks `pipeline.flows` in array order, not the `next` chain that `flowChain` (`mermaid.ts`) follows for `processFlows` and the diagram. The structural checks do not require array order to match the chain (`check/flow-links.ts`), so a valid pipeline can list flows out of order. The AC-002 test only uses a fixture whose array order equals the chain, so it does not prove the criterion. The last-flow wording in AC-003 uses the array index for the same reason. Fix: take the flow order from `flowChain` in `flowSteps`, and add a test whose array order differs from the chain.
-2. **AC-033 (approval word in labels).** A flow with approval off whose own name contains the word `approval` puts that word in its label, which the criterion forbids as written. The tests cover only names without the word. This is the open owner decision recorded in Deferred Findings (`mermaid.ts`, AC-033), so it is an open limit, not a test defect.
-
-Caller follow-up: no test was added and no production code was changed. Gap 1 needs a production fix and a test (a new task in the plan); Gap 2 needs an owner decision on the label text.
+Open limit (not a gap, not a test defect): **AC-033.** A flow with approval off whose own name contains the word `approval` puts that word in its label, which AC-033 forbids as written. The tests cover only names without the word. The owner decision is open (Deferred Findings, `mermaid.ts`, AC-033). Until it is decided, Verify stays pending.
 
 ---
 

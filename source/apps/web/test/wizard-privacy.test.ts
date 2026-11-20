@@ -51,3 +51,26 @@ describe('F-09 AC-015 the project step is in the privacy scan', () => {
     },
   );
 });
+
+describe('F-10 AC-024 the technical details step is in the privacy scan', () => {
+  const scanned = () => wizardSourceFiles().map((file) => file.slice(WIZARD_DIR.length + 1));
+
+  it.each([
+    'TechnicalStep.tsx',
+    'technicalStepStyles.ts',
+    'technical.ts',
+    'RuleList.tsx',
+    'ruleListStyles.ts',
+    'RuleBlock.tsx',
+    'ruleBlockStyles.ts',
+  ])('F-10 AC-024 scans %s, the technical details step source', (name) => {
+    expect(scanned()).toContain(name);
+  });
+
+  it.each(['TechnicalStep.tsx', 'RuleList.tsx', 'RuleBlock.tsx', 'technical.ts'])(
+    'F-10 AC-024 %s has no localStorage, sessionStorage, indexedDB or console reference',
+    (name) => {
+      expect(findForbidden(readFileSync(join(WIZARD_DIR, name), 'utf8'))).toEqual([]);
+    },
+  );
+});

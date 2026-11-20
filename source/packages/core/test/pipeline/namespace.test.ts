@@ -40,7 +40,14 @@ function exportedNames(file: string): string[] {
   return names.sort();
 }
 
-const PIPELINE_VALUES = ['analyzeStructure', 'defaultPipeline', 'parseProjectConfig'];
+const PIPELINE_VALUES = [
+  'analyzeStructure',
+  'checkReply',
+  'configProblems',
+  'defaultPipeline',
+  'parseProjectConfig',
+  'planGeneration',
+];
 const ANALYSIS_TYPES = ['Finding', 'Severity'];
 const MODEL_TYPES = [
   'AgentBlock',
@@ -93,6 +100,17 @@ describe('F-02 AC-089 the core namespace exposes the pipeline module and nothing
   it('F-03 AC-037 exposes analyzeStructure from the pipeline namespace and adds no other value to it', () => {
     expect(typeof core.pipeline.analyzeStructure).toBe('function');
     expect(Object.keys(core.pipeline).sort()).toEqual([...PIPELINE_VALUES]);
+  });
+
+  it('F-04 AC-034 reaches configProblems, planGeneration and checkReply as pipeline namespace functions and adds no other generator name', () => {
+    expect(typeof core.pipeline.configProblems).toBe('function');
+    expect(typeof core.pipeline.planGeneration).toBe('function');
+    expect(typeof core.pipeline.checkReply).toBe('function');
+    expect(Object.keys(core.pipeline).sort()).toEqual([...PIPELINE_VALUES]);
+    const generatorNames = ['GenerationError', 'renderLayout', 'listFiles', 'walkFlow', 'headingsOf', 'blockersOf'];
+    for (const name of generatorNames) {
+      expect(Object.keys(core.pipeline)).not.toContain(name);
+    }
   });
 
   it('re-exports the parser and the default pipeline as values, never as types', () => {

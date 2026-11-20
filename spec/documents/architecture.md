@@ -308,7 +308,7 @@ The default pipeline is the flow of `.claude/commands/pipeline.md`, written as f
 | verify | on: the user approves the manual checklist results | — |
 | complete | off | — |
 
-The 400-line limit becomes text in a check. The routes that sent a failed check back to an earlier block (to `implement`, `specify`, `ux`, `plan` or `verify`) have no place in the flow model. Open point: `pipeline-schema.md` §1 gives a condition's false route as a retry to an earlier Agent, with a round limit, or a stop, while decision 40 says a failed check stops the flow and asks the user. The two are not reconciled here; the owner decides which one the default pipeline uses. The data file `source/templates/pipeline/default.json` follows the final schema in `spec/documents/pipeline-schema.md` (2026-11-19), and decisions 38 to 41 govern this flow model.
+The 400-line limit becomes text in a check. The routes that sent a failed check back to an earlier block (to `implement`, `specify`, `ux`, `plan` or `verify`) have no place in the flow model. Resolved 2026-11-19 by the owner: a condition's false route may be a retry to an earlier agent with a round limit, or a stop. Schema §1 and decision 40 agree; the default pipeline uses the stop. The data file `source/templates/pipeline/default.json` follows the final schema in `spec/documents/pipeline-schema.md` (2026-11-19), and decisions 38 to 41 govern this flow model.
 
 The pipeline's arguments include `feature-id` (required), set in the pipeline's properties panel. The pipeline has no release flow. A release flow can be added by the user. Presets (F-09) are other starting pipelines; the default is the first.
 

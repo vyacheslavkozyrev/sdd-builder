@@ -44,7 +44,7 @@ T020 — implemented
 | T017 | Default pipeline as data, imported, with its tests (`templates/pipeline/default.json`, `pipeline/default.ts`) | 0 open warnings; build check moved before the commit (owner option 2, Amendment 2026-11-19) | task check passed: api 6, web 4, core 577 |
 | T018 | Public namespace and the purity scan (`pipeline/index.ts`, core `index.ts`, `purity.test.ts`) | 0 blockers; 5 warnings and 2 suggestions fixed (globalThis, require, element access, scan fixtures, AC-089 test) | task check passed: api 6, web 4, core 586 |
 | T019 | Every problem returned, typed result and table tests (`pipeline/parse/index.ts`, `config.test.ts`, `problems-of.ts`) | 0 blockers open; 1 blocker fixed (false neighbour problems: cross-checks skip a list that lost an item), 3 warnings fixed (exact lists, typed brief test). Staged change over the 400-line guard; committed as one change by owner decision. Plan amendment for the gating is pending the owner | task check passed: api 6, web 4, core 632 |
-| T020 | Docs: architecture §6 decision 33 and §11 flow note point to the final schema (`spec/documents/architecture.md`) | 0 blockers; docs only. Open for the owner: Condition false route (retry vs stop) conflict between schema §1 and decision 40 | task check passed: api 6, web 4, core 632 |
+| T020 | Docs: architecture §6 decision 33 and §11 flow note point to the final schema (`spec/documents/architecture.md`) | 0 blockers; docs only. Condition false route (retry or stop) clarified by the owner 2026-11-19; decision 40 amended | task check passed: api 6, web 4, core 632 |
 
 ---
 

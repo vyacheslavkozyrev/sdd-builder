@@ -80,3 +80,43 @@ describe('F-07 AC-007 centre area holds the children', () => {
     expect(html.indexOf('<footer')).toBeGreaterThan(html.indexOf('</main>'));
   });
 });
+
+describe('F-08 AC-004 stepper and navigation go to the left panel, children to the centre area', () => {
+  function slotted(): string {
+    return renderToStaticMarkup(
+      <AppFrame onNewProject={noop} stepper={<p>STEPPER</p>} navigation={<p>NAVIGATION</p>}>
+        <p>BODY</p>
+      </AppFrame>,
+    );
+  }
+
+  it('F-08 AC-004 renders the stepper inside the left panel, below New project', () => {
+    const html = slotted();
+    const newProject = html.indexOf('New project');
+    const stepper = html.indexOf('STEPPER');
+    expect(stepper).toBeGreaterThan(newProject);
+    expect(stepper).toBeLessThan(html.indexOf('<main'));
+  });
+
+  it('F-08 AC-004 renders the navigation inside the left panel, before the centre area', () => {
+    const html = slotted();
+    const navigation = html.indexOf('NAVIGATION');
+    expect(navigation).toBeGreaterThan(html.indexOf('STEPPER'));
+    expect(navigation).toBeLessThan(html.indexOf('<main'));
+  });
+
+  it('F-08 AC-004 renders the children inside the centre area, after the left panel', () => {
+    const html = slotted();
+    const open = html.indexOf('<main');
+    const close = html.indexOf('</main>');
+    expect(html.indexOf('BODY')).toBeGreaterThan(open);
+    expect(html.indexOf('BODY')).toBeLessThan(close);
+  });
+
+  it('F-08 AC-004 negative case: without the slots the left panel renders as in F-07', () => {
+    const html = markup();
+    expect(html).not.toContain('STEPPER');
+    expect(html).not.toContain('NAVIGATION');
+    expect(html).toMatch(/<button\b[^>]*>New project<\/button>/);
+  });
+});

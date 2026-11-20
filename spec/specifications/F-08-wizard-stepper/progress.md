@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 6 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 7 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _The rows below are the 2026-11-17 build, superseded by the reset of 2026-11-19.
 | T004 (2026-11-20) | Prev and Next buttons: Prev disabled on step 1, Next shown and disabled on step 4; disabled look from the approved screens | 0 blockers, 2 warnings fixed (disabled Next and text colour from the screen, now in the palette), 1 suggestion fixed (duplicate width), 1 test gap fixed | task check passed: api 45, web 162, core 1208 |
 | T005 (2026-11-20) | Left panel slots: stepper under New project, navigation pinned to the foot; F-07 panel unchanged with no slots | 0 blockers, 1 warning fixed (pinning claim tested), 2 suggestions fixed (comment, redundant assertion) | task check passed: api 45, web 170, core 1208 |
 | T006 (2026-11-20) | Placeholder step body: sparkle in a light circle, the placeholder line, no title, counter or input | 0 blockers, 3 warnings fixed (line colour, weight, gap to the circle), 1 test warning fixed (sparkle geometry pinned), 1 suggestion fixed (private constant) | task check passed: api 45, web 186, core 1208 |
+| T007 (2026-11-20) | Application wiring: reducer in App, stepper and navigation through AppFrame to the left panel, step body in the centre; New project restarts | 0 blockers, 6 findings fixed (weakened F-07 negative case removed and restated as F-08 AC-013; wiring tested for steps 1 to 3; criterion labels corrected) | task check passed: api 45, web 201, core 1208 |
 
 ---
 

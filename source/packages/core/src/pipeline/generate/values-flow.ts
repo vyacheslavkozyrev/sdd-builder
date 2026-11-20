@@ -30,7 +30,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowSteps: linesOf(
       agents.map((block, index) => {
         const args = block.arguments.length === 0 ? '' : ` with the arguments ${describeArguments(block.arguments)}`;
-        return `${index + 1}. Run the agent \`.claude/agents/${block.name}.md\`${args}: ${block.description}`;
+        return `${index + 1}. Run the agent \`.claude/agents/${block.name}.md\`${args}: ${inlineText(block.description)}`;
       }),
     ),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
@@ -75,7 +75,7 @@ function conditionRule(
   flow: Flow,
 ): string {
   return [
-    `${number}. ${block.description}`,
+    `${number}. ${inlineText(block.description)}`,
     `   - True: ${routeText(block.true, block, places, flow)}`,
     `   - False: ${routeText(block.false, block, places, flow)}`,
   ].join('\n');
@@ -90,7 +90,7 @@ function routeText(
   flow: Flow,
 ): string {
   if ('stop' in route) {
-    return `the flow stops, and the command asks the person: "The check did not pass: ${condition.description} What should happen next?"`;
+    return `the flow stops, and the command asks the person: "The check did not pass: ${inlineText(condition.description)} What should happen next?"`;
   }
   const place = places.get(route.to);
   if (place === undefined) {

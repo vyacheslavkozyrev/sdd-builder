@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); amended 2026-11-19 to 16 tasks (T013 to T015 added, docs task now T016); 40 criteria, all covered |
-| Build    | 🔄 In Progress |  | 12 of 16 tasks committed |
+| Build    | 🔄 In Progress |  | 13 of 16 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-040 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T010 | Reply check part 1 (`generate/reply-check.ts`): `checkReply` returns findings for a missing planned path, an unsafe path, a path not in the plan, a non-string value, an empty text and a `{{...}}` placeholder; it never throws on a bad reply; the reply is a `ReadonlyMap<string, unknown>` | 0 blockers, 0 warnings; 2 suggestions fixed (typed test maps; negative placeholder test) | task check passed: api 6 of 6, web 4 of 4, core 911 of 911 |
 | T011 | Reply check, part 2: `headingsOf`; required `##` headings as whole lines of Markdown outputs; SDDBuilder self-reference check with a path-end boundary; findings sorted by path then message with the shared `compareCodePoints` (exported from `file-list.ts`, outside the task's listed files) | 0 blockers, 1 warning fixed (self-reference matched longer path names); 0 suggestions | task check passed: api 6 of 6, web 4 of 4, core 928 of 928 |
 | T012 | Namespace and purity: `configProblems`, `planGeneration` and `checkReply` exported from `pipeline`, no other generator name; purity scan covers `generate/` and its imports stay inside `src/pipeline` | 0 blockers, 1 warning fixed (a tautological purity assertion; the import scan had no proving fixture) | task check passed: api 6 of 6, web 4 of 4, core 932 of 932 |
+| T013 | Line breaks in numbered lines (AC-040): the Agent step line, the Condition rule line, its stop question and the argument lines take their text through `inlineText` | 0 blockers, 0 warnings; 1 suggestion deferred (flow description that is only a line break, in `values-pipeline.ts`) | task check passed: api 6 of 6, web 4 of 4, core 934 of 934 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 
@@ -61,6 +62,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/packages/core/src/pipeline/generate/values-flow.ts` (`routeText`, the `places.get` undefined branch): unreachable after `walkFlow`, which lists every route target; kept as the narrowing for `Map.get`, and removing it needs a non-null assertion, which the TypeScript rules avoid.
 
 - `source/packages/core/src/pipeline/generate/file-list.ts:62` (`compareCodePoints` is now exported for `reply-check.ts`): the file is not on T011's file list in `plan.md`. The export is the smallest way to share one comparator, so the code stays. Amend the T011 line in `plan.md` to list `file-list.ts`, or move the comparator to its own module in a later task.
+
+- `source/packages/core/src/pipeline/generate/values-pipeline.ts` (`flowLine`, T013 review): the pipeline's flow description is optional and not `nonBlank` (`parse/flow.ts`), so a description of only a line break is truthy, is inlined to '' and gives "1. Flow `id`:  The process ..." (a dangling colon and a double space). The line does not split. Outside T013's file list, so not changed here; fix with a `flow.description` check on the inlined text in a later task.
 
 ---
 

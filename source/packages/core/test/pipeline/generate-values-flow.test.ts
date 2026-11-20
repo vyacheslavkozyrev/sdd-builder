@@ -225,3 +225,35 @@ describe('F-04 AC-015 AC-012 an empty list leaves no blank line in a layout', ()
     expect(renderLayout('## Steps{{flowSteps}}\n', flowValues(flow), '.claude/commands/build.md')).toBe('## Steps\n');
   });
 });
+
+describe('F-04 AC-040 a line break in a description or a hint does not split a numbered line', () => {
+  it('writes an Agent description, a Condition description and an argument hint on one line each', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      {
+        ...agent(1, 'draft', 'check'),
+        description: 'Runs\n  the draft.',
+        arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'F-XX\r\nnow' }],
+      },
+      { ...condition(2, 'check', { to: 'end' }, { stop: true }), description: 'Is it\r\nmet?' },
+      END,
+    ]);
+    const values = flowValues(flow);
+    expect(values['flowSteps']).toBe(
+      '\n1. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX now): Runs the draft.',
+    );
+    expect(values['flowConditions']).toBe(
+      '\n' +
+      [
+        '1. Is it met?',
+        '   - True: go to the end of the flow',
+        '   - False: the flow stops, and the command asks the person: "The check did not pass: Is it met? What should happen next?"',
+      ].join('\n'),
+    );
+  });
+
+  it('writes a flow argument hint with a line break on one line', () => {
+    const flow = { ...fixtureFlow(), arguments: [{ index: 0, id: 'note', required: false, hint: 'a\nb' }] };
+    expect(flowValues(flow)['flowArguments']).toBe('\n- `note` (optional, a b)');
+  });
+});

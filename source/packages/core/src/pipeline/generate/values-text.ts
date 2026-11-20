@@ -17,7 +17,8 @@ export function inlineText(text: string): string {
 
 export function describeArgument(arg: Argument): string {
   const kind = arg.required ? 'required' : 'optional';
-  return arg.hint === '' ? `\`${arg.id}\` (${kind})` : `\`${arg.id}\` (${kind}, ${arg.hint})`;
+  const hint = inlineText(arg.hint);
+  return hint === '' ? `\`${arg.id}\` (${kind})` : `\`${arg.id}\` (${kind}, ${hint})`;
 }
 
 export function describeArguments(args: readonly Argument[]): string {

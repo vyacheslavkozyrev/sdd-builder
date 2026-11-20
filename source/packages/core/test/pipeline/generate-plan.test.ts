@@ -239,7 +239,7 @@ describe('F-04 AC-038 planning renders each base layout with the base values', (
       base: [
         {
           path: 'CLAUDE.md',
-          layout: 'Process:{{processList}}\nCommands:{{commandList}}\nAgents:{{agentList}}\nRules:{{ruleList}}',
+          layout: 'Process:{{processFlows}}\nCommands:{{commandList}}\nAgents:{{agentList}}\nRules:{{ruleList}}',
         },
       ],
     };
@@ -247,7 +247,7 @@ describe('F-04 AC-038 planning renders each base layout with the base values', (
     const plan = planOf(config, templates);
 
     expect(fileAt(plan, 'CLAUDE.md').layout).toBe(
-      'Process:\n- `build`' +
+      'Process:\n- Build (`build`): The process does not stop at the end of this flow.' +
         '\nCommands:\n- `.claude/commands/pipeline.md`\n- `.claude/commands/build.md`' +
         '\nAgents:\n- `.claude/agents/build-agent.md`: Builds the project.' +
         '\nRules:\n- `.claude/rules/alpha.md`: Alpha\n- `.claude/rules/beta.md`: Beta',

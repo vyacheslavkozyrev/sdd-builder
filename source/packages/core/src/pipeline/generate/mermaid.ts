@@ -34,7 +34,7 @@ function labelText(name: string): string {
 // The flows reached from the first flow along the `next` links, each once, in that order. A `next` to a missing flow
 // is not followed, and a chain that loops stops at the flow already listed. A pipeline with no first flow (no flow, or
 // every flow named by a `next`) gives an empty chain: the checks refuse such a pipeline before it is generated.
-function flowChain(flows: readonly Flow[]): Flow[] {
+export function flowChain(flows: readonly Flow[]): Flow[] {
   const named = new Set(flows.flatMap((flow) => (flow.next === undefined ? [] : [flow.next])));
   const chain: Flow[] = [];
   let current: Flow | undefined = flows.find((flow) => !named.has(flow.id));

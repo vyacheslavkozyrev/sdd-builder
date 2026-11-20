@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Flow, ProjectConfig, Rule } from '../../src/pipeline/model.js';
 import { baseValues } from '../../src/pipeline/generate/values-base.js';
+import { pipelineValues } from '../../src/pipeline/generate/values-pipeline.js';
 import { validConfig } from './analyze-fixture.js';
 
 // A flow with the given id, description and agent block names. Its blocks are Start, one Agent for each name and End.
@@ -40,23 +41,137 @@ function configWith(flows: readonly Flow[], rules: readonly Rule[]): ProjectConf
   return { ...base, rules, pipeline: { ...base.pipeline, flows: flows.map((flow, i) => ({ ...flow, index: i })) } };
 }
 
+// The flows with their `next` links set in the order given: each flow names the flow after it, and the last has none.
+function linked(flows: readonly Flow[]): Flow[] {
+  return flows.map((flow, i) => {
+    const next = flows[i + 1]?.id;
+    return next === undefined ? flow : { ...flow, next };
+  });
+}
+
+// The two approval sentences of a flow, as the pipeline command writes them in `pipelineFlows` (F-05, AC-029).
+const STOPS = 'The process stops for a person at the end of this flow.';
+const DOES_NOT_STOP = 'The process does not stop at the end of this flow.';
+
 const RULES: readonly Rule[] = [
   { index: 0, id: 'style', title: 'Plain style', text: 'Write short sentences.' },
   { index: 1, id: 'names', title: 'Names\nin files', text: 'Use kebab case.' },
 ];
 
 describe('F-04 AC-037 the process list has one line per flow in pipeline order', () => {
-  it('lists each flow by its id, with its description when it has one', () => {
+  it('lists each flow by its name and id, with its description when it has one', () => {
     const config = configWith(
-      [flowWith('build', 'Builds the project.', ['builder']), flowWith('test', undefined, ['tester'])],
+      linked([flowWith('build', 'Builds the project.', ['builder']), flowWith('test', undefined, ['tester'])]),
       [],
     );
-    expect(baseValues(config)['processList']).toBe('\n- `build`: Builds the project.\n- `test`');
+    expect(baseValues(config)['processFlows']).toBe(
+      `\n- build (\`build\`): Builds the project. ${DOES_NOT_STOP}\n- test (\`test\`): ${DOES_NOT_STOP}`,
+    );
   });
 
-  it('keeps the flows in the order of the pipeline, not in id order', () => {
-    const config = configWith([flowWith('test', undefined, []), flowWith('build', undefined, [])], []);
-    expect(baseValues(config)['processList']).toBe('\n- `test`\n- `build`');
+  it('keeps the flows in the order of the next links, not in id order', () => {
+    const test = { ...flowWith('test', undefined, []), next: 'build' };
+    const config = configWith([flowWith('build', undefined, []), test], []);
+    expect(baseValues(config)['processFlows']).toBe(
+      `\n- test (\`test\`): ${DOES_NOT_STOP}\n- build (\`build\`): ${DOES_NOT_STOP}`,
+    );
+  });
+});
+
+describe('F-05 AC-029 the process list lists each flow once, in the order of the next links', () => {
+  it('lists the flows by the next links from the first flow, not in array order', () => {
+    // `build` is the first flow (no flow names it), then `test`; the array holds `test` first.
+    const build = { ...flowWith('build', undefined, []), next: 'test' };
+    const config = configWith([flowWith('test', undefined, []), build], []);
+    expect(baseValues(config)['processFlows']).toBe(
+      `\n- build (\`build\`): ${DOES_NOT_STOP}\n- test (\`test\`): ${DOES_NOT_STOP}`,
+    );
+  });
+
+  it('lists a flow once when a next link loops back to a flow already listed', () => {
+    const head = { ...flowWith('head', undefined, []), next: 'build' };
+    const build = { ...flowWith('build', undefined, []), next: 'test' };
+    const test = { ...flowWith('test', undefined, []), next: 'build' };
+    const lines = baseValues(configWith([head, build, test], []))['processFlows']?.split('\n') ?? [];
+    expect(lines).toEqual([
+      '',
+      `- head (\`head\`): ${DOES_NOT_STOP}`,
+      `- build (\`build\`): ${DOES_NOT_STOP}`,
+      `- test (\`test\`): ${DOES_NOT_STOP}`,
+    ]);
+  });
+
+  it('gives the stop sentence of a flow with approval on, the same sentence the pipeline command writes', () => {
+    const flow = { ...flowWith('build', 'Builds the project.', []), approval: true };
+    const config = configWith([flow], []);
+    expect(baseValues(config)['processFlows']).toBe(`\n- build (\`build\`): Builds the project. ${STOPS}`);
+    expect(pipelineValues(config.pipeline)['pipelineFlows']).toContain(STOPS);
+  });
+
+  it('gives the does-not-stop sentence of a flow with approval off, as the pipeline command writes it', () => {
+    const config = configWith([flowWith('build', undefined, [])], []);
+    expect(baseValues(config)['processFlows']).toBe(`\n- build (\`build\`): ${DOES_NOT_STOP}`);
+    expect(pipelineValues(config.pipeline)['pipelineFlows']).toContain(DOES_NOT_STOP);
+  });
+
+  it('gives the stop sentence after the item text of a flow with approval on and no description', () => {
+    const flow = { ...flowWith('build', undefined, []), approval: true };
+    expect(baseValues(configWith([flow], []))['processFlows']).toBe(`\n- build (\`build\`): ${STOPS}`);
+  });
+
+  it('gives the conditions and the retry routes of a flow as text under its item', () => {
+    const flow: Flow = {
+      ...flowWith('build', undefined, []),
+      blocks: [
+        { index: 0, id: 'build-start', kind: 'start', next: 'build-check' },
+        {
+          index: 1,
+          id: 'build-check',
+          kind: 'condition',
+          description: 'Is the build green?',
+          true: { to: 'build-end' },
+          false: { to: 'build-start', roundLimit: 2 },
+        },
+        { index: 2, id: 'build-end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+      ],
+    };
+    expect(baseValues(configWith([flow], []))['processFlows']).toBe(
+      [
+        '',
+        `- build (\`build\`): ${DOES_NOT_STOP}`,
+        '  Conditions:',
+        '  1. Is the build green?',
+        '     - True: go to the end of the flow',
+        '     - False: return to the start of the flow, with at most 2 rounds',
+      ].join('\n'),
+    );
+  });
+
+  it('writes a stop route of a condition as the flow command does', () => {
+    const flow: Flow = {
+      ...flowWith('build', undefined, []),
+      blocks: [
+        { index: 0, id: 'build-start', kind: 'start', next: 'build-check' },
+        {
+          index: 1,
+          id: 'build-check',
+          kind: 'condition',
+          description: 'Is it done?',
+          true: { to: 'build-end' },
+          false: { stop: true },
+        },
+        { index: 2, id: 'build-end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+      ],
+    };
+    const line = baseValues(configWith([flow], []))['processFlows']?.split('\n')[5] ?? '';
+    expect(line).toBe(
+      '     - False: stop and ask the person what to do: "The check did not pass: Is it done? What should happen next?"',
+    );
+  });
+
+  it('names the flow by its name, and keeps its id in backticks', () => {
+    const flow = { ...flowWith('build', undefined, []), name: 'Build now' };
+    expect(baseValues(configWith([flow], []))['processFlows']).toBe(`\n- Build now (\`build\`): ${DOES_NOT_STOP}`);
   });
 });
 
@@ -113,7 +228,7 @@ describe('F-04 AC-037 the rule list has one line per rule with its file and titl
 
 describe('F-04 AC-037 each list is empty when it has no item, and the lists hold no line break in an item', () => {
   it('gives an empty process list when there are no flows', () => {
-    expect(baseValues(configWith([], []))['processList']).toBe('');
+    expect(baseValues(configWith([], []))['processFlows']).toBe('');
   });
 
   it('lists only the pipeline command when there are no flows', () => {
@@ -122,19 +237,19 @@ describe('F-04 AC-037 each list is empty when it has no item, and the lists hold
 
   it('keeps a description with a line break on one item line', () => {
     const config = configWith([flowWith('build', 'Builds\nthe project.', [])], []);
-    const lines = baseValues(config)['processList']?.split('\n') ?? [];
-    expect(lines).toEqual(['', '- `build`: Builds the project.']);
+    const lines = baseValues(config)['processFlows']?.split('\n') ?? [];
+    expect(lines).toEqual(['', `- build (\`build\`): Builds the project. ${DOES_NOT_STOP}`]);
   });
 });
 
 describe('F-04 AC-038 the base values are the lists and the process diagram, a pure function of the config', () => {
-  it('supplies the four lists and the processDiagram (F-05 T007)', () => {
+  it('supplies the four lists and the processDiagram (F-05 T007, T009)', () => {
     const values = baseValues(configWith([flowWith('build', undefined, ['builder'])], RULES));
     expect(Object.keys(values).sort()).toEqual([
       'agentList',
       'commandList',
       'processDiagram',
-      'processList',
+      'processFlows',
       'ruleList',
     ]);
     expect(values['processDiagram']).toBe('flowchart\nF1["build"]');

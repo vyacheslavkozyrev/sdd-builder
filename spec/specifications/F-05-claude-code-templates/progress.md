@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 40 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-19 | 8 of 19 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 9 of 19 tasks committed |
 | Verify   | ⏳ Pending |  | Not yet run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,6 +35,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T006 | Agent Reads and Writes: `agentReads` and `agentWrites` as `## Reads` and `## Writes` sections, one artifact label per line; left out when the list is empty or absent | 0 blockers, 0 warnings, 1 suggestion fixed (test name), 1 suggestion deferred (backtick in a label) | task check passed: core 1011 of 1011 (44 files), api 6 of 6, web 4 of 4 |
 | T007 | Mermaid flowchart: `processDiagram` in `generate/mermaid.ts` (first line `flowchart`; nodes `F1`, `F2` in `next` order from the first flow, labelled with the flow name and ` approval` when on; one unlabelled edge per `next`); supplied as `processDiagram` by `baseValues` | 0 blockers, 1 warning fixed (`templates/README.md` said `processDiagram` was not supplied), 2 suggestions fixed (plan line did not name the two F-04 test files whose expectations change; redundant type annotation in `flowChain`), 2 deferred (see below) | task check passed: core 1024 of 1024 (45 files), api 6 of 6, web 4 of 4 |
 | T008 | Mermaid escaping and determinism: flow names escape `#`, `"`, `[`, `]`, `{`, `}` and `|` to Mermaid entity codes (`#` first); line breaks and Unicode line separators become spaces; the approval word is added after escaping | 0 blockers, 1 warning fixed (U+2028/U+2029 untested), 2 suggestions fixed (AC-035 test against the same object; regex form) | task check passed: core 1037 of 1037 (45 files), api 6 of 6, web 4 of 4 |
+| T009 | process.md flow list: `processFlows` replaces `processList`; one item per flow in `next` order, each once (a loop stops at the flow already listed); each item has its name and id, its description, the pipeline's approval sentence (stop, or does not stop) and its conditions and retry routes under it | 1 blocker fixed (a flow without approval had no approval sentence), 3 warnings fixed (approval wording taken from the flow command, not the pipeline's; tests did not prove both cases; plan T009 line missed two files), 3 suggestions fixed (stale comment; a test title over 120 characters; `architecture.md` named `processList`), 1 suggestion deferred (`templates/README.md`, T018) | task check passed: core 1045 of 1045 (45 files), api 6 of 6, web 4 of 4 |
 
 ---
 
@@ -52,6 +53,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/templates/README.md` (value table, T018): the table does not list `agentPurpose` (the Purpose value of T005, the description as plain inline text) and describes `agentDescription` without its quoting. SUGGESTION: the plan assigns the table to T018, so it is left for T018.
 - `source/packages/core/src/pipeline/parse/lists.ts` (`readTools`): tool names are read with no non-blank rule, so a blank name reaches the agent line as `""` or `"Read, "`. The quoting reads the joined text back faithfully, so this is an input rule, not a YAML fault. SUGGESTION: refuse a blank tool name in the parser (owned by the pipeline parse task, not T005).
 - `source/packages/core/src/pipeline/generate/values-agent.ts` (`artifactSection`, T006): an artifact label with a backtick would break its code span, as for `flowArtifacts` above. Kept as is: the codebase writes ids and labels in code spans without escaping (`values-base.ts`, `values-text.ts`), and the fix belongs with the model's label rules.
+- `source/templates/README.md` (line 14 and the value table, `processList`): the README still names `processList`, which T009 renamed to `processFlows`. SUGGESTION: the plan assigns the value table to T018, so it is left for T018.
 
 ---
 

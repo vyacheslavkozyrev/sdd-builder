@@ -10,7 +10,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 ## Tasks
 
-- [ ] T001 [Web] Frame sizing as a pure style function: width 100%, minimum width 1024 px, minimum height full window, no hidden overflow — `source/apps/web/src/layout/frameStyle.ts`, `source/apps/web/test/frameStyle.test.ts` — covers AC-009, AC-010
+- [x] T001 [Web] Frame sizing as a pure style function: width 100%, minimum width 1024 px, minimum height full window, no hidden overflow — `source/apps/web/src/layout/frameStyle.ts`, `source/apps/web/test/frameStyle.test.ts` — covers AC-009, AC-010
 - [ ] T002 [Web] Left panel: the text wordmark `SDDBuilder` above a `New project` Material UI button that calls `onNewProject` once; no other control — `source/apps/web/src/layout/LeftPanel.tsx`, `source/apps/web/test/LeftPanel.test.tsx` — covers AC-001, AC-002, AC-003, AC-013
 - [ ] T003 [Web] Footer: the not-saved note, no button or link, built from Material UI — `source/apps/web/src/layout/Footer.tsx`, `source/apps/web/test/Footer.test.tsx` — covers AC-004, AC-005, AC-014
 - [ ] T004 [Web] Frame: left panel, centre area with the children, footer, in that order, styled by `frameStyle` — `source/apps/web/src/layout/AppFrame.tsx`, `source/apps/web/test/AppFrame.test.tsx` — covers AC-006, AC-007

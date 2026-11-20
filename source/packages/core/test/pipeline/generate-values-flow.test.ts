@@ -72,13 +72,169 @@ describe('F-04 AC-012 the flow id and the other flow values fill the placeholder
   });
 });
 
-describe('F-04 AC-015 the steps list the Agent blocks in walk order', () => {
-  it('numbers each Agent with its agent file and its description, Start and End not numbered', () => {
+describe('F-05 AC-010 the steps follow the route from the Start block to the End block', () => {
+  it('F-05 AC-010 lists the Start first and the End last, one numbered step for each block on the route', () => {
     expect(flowValues(fixtureFlow())['flowSteps']).toBe(
       '\n' +
       [
-        '1. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
-        '2. Run the agent `.claude/agents/publish-agent.md`: Runs publish.',
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
+        '3. Check to pass: Is review met?',
+        '   - True: go to step 4 (the agent `.claude/agents/publish-agent.md`)',
+        '   - False: return to step 2 (the agent `.claude/agents/draft-agent.md`), with at most 2 rounds',
+        '4. Run the agent `.claude/agents/publish-agent.md`: Runs publish.',
+        '5. Check to pass: Is gate met?',
+        '   - True: go to the end of the flow',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
+        '6. End the flow.',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-010 numbers each Condition as a step, and keeps it as a numbered rule too', () => {
+    const values = flowValues(fixtureFlow());
+    expect(values['flowSteps']).toContain('3. Check to pass: Is review met?');
+    expect(values['flowSteps']).toContain('5. Check to pass: Is gate met?');
+    expect(values['flowConditions']).toContain('1. Is review met?');
+  });
+
+  it('F-05 AC-010 moves an End reached before other blocks to the last step, and writes each block once', () => {
+    // The true route of check goes to end, which is listed first; draft also leads to end, which is listed once.
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'check' },
+      condition(1, 'check', { to: 'end' }, { to: 'draft' }),
+      agent(2, 'draft', 'end'),
+      END,
+    ]);
+    expect(flowValues(flow)['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Check to pass: Is check met?',
+        '   - True: go to the end of the flow',
+        '   - False: go to step 3 (the agent `.claude/agents/draft-agent.md`)',
+        '3. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
+        '4. End the flow.',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-010 numbers the route targets of a Condition with the same step numbers as the steps', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'check' },
+      condition(1, 'check', { to: 'draft' }, { to: 'end' }),
+      agent(2, 'draft', 'end'),
+      END,
+    ]);
+    const values = flowValues(flow);
+    expect(values['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Check to pass: Is check met?',
+        '   - True: go to step 3 (the agent `.claude/agents/draft-agent.md`)',
+        '   - False: go to the end of the flow',
+        '3. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
+        '4. End the flow.',
+      ].join('\n'),
+    );
+    expect(values['flowConditions']).toBe(
+      '\n' +
+      [
+        '1. Is check met?',
+        '   - True: go to step 3 (the agent `.claude/agents/draft-agent.md`)',
+        '   - False: go to the end of the flow',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-010 names a Condition that a route goes to by its step number and its check', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'c1' },
+      condition(1, 'c1', { to: 'c2' }, { stop: true }),
+      condition(2, 'c2', { to: 'end' }, { stop: true }),
+      END,
+    ]);
+    expect(flowValues(flow)['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Check to pass: Is c1 met?',
+        '   - True: go to step 3 (the check: Is c2 met?)',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is c1 met? What should happen next?"',
+        '3. Check to pass: Is c2 met?',
+        '   - True: go to the end of the flow',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is c2 met? What should happen next?"',
+        '4. End the flow.',
+      ].join('\n'),
+    );
+  });
+});
+
+describe('F-05 AC-011 an Agent step names the agent file and gives the agent description', () => {
+  it('F-05 AC-011 names the agent file from the agent name, not its block id', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      { ...agent(1, 'draft', 'end'), name: 'review-agent', description: 'Reviews the draft.' },
+      END,
+    ]);
+    expect(flowValues(flow)['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/review-agent.md`: Reviews the draft.',
+        '3. End the flow.',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-011 gives the file and the description of every Agent step in the route', () => {
+    const steps = flowValues(fixtureFlow())['flowSteps'] ?? '';
+    expect(steps).toContain('`.claude/agents/draft-agent.md`: Runs draft.');
+    expect(steps).toContain('`.claude/agents/publish-agent.md`: Runs publish.');
+  });
+});
+
+describe('F-05 AC-012 a Condition step gives its check and its routes', () => {
+  it('F-05 AC-012 gives the description as the check to pass, with the true route as the next step', () => {
+    const steps = flowValues(fixtureFlow())['flowSteps'] ?? '';
+    expect(steps).toContain(
+      '3. Check to pass: Is review met?\n   - True: go to step 4 (the agent `.claude/agents/publish-agent.md`)',
+    );
+  });
+
+  it('F-05 AC-012 names a false route that stops the flow as stop and ask the person what to do', () => {
+    const steps = flowValues(fixtureFlow())['flowSteps'] ?? '';
+    expect(steps).toContain(
+      '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
+    );
+  });
+});
+
+describe('F-05 AC-013 a retry is a numbered rule that names the agent and the round limit', () => {
+  it('F-05 AC-013 writes the return of a Condition to an earlier Agent as a rule with its round limit', () => {
+    const rules = flowValues(fixtureFlow())['flowConditions'] ?? '';
+    expect(rules).toContain(
+      '   - False: return to step 2 (the agent `.claude/agents/draft-agent.md`), with at most 2 rounds',
+    );
+  });
+});
+
+describe('F-04 AC-015 the steps list the blocks of the walk, the Start first and the End last', () => {
+  it('numbers each step of the walk with its agent file and description, the Start first and the End last', () => {
+    expect(flowValues(fixtureFlow())['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
+        '3. Check to pass: Is review met?',
+        '   - True: go to step 4 (the agent `.claude/agents/publish-agent.md`)',
+        '   - False: return to step 2 (the agent `.claude/agents/draft-agent.md`), with at most 2 rounds',
+        '4. Run the agent `.claude/agents/publish-agent.md`: Runs publish.',
+        '5. Check to pass: Is gate met?',
+        '   - True: go to the end of the flow',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
+        '6. End the flow.',
       ].join('\n'),
     );
   });
@@ -96,13 +252,18 @@ describe('F-04 AC-015 the steps list the Agent blocks in walk order', () => {
       END,
     ]);
     expect(flowValues(flow)['flowSteps']).toBe(
-      '\n1. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX), `note` (optional): Runs draft.',
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX), `note` (optional): Runs draft.',
+        '3. End the flow.',
+      ].join('\n'),
     );
   });
 
-  it('gives no steps for a flow with no Agent block', () => {
+  it('gives only the Start and End steps for a flow with no Agent block', () => {
     const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'end' }, END]);
-    expect(flowValues(flow)['flowSteps']).toBe('');
+    expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow.');
   });
 
   it('gives the same steps whatever order the blocks are declared in', () => {
@@ -118,11 +279,11 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
       '\n' +
       [
         '1. Is review met?',
-        '   - True: go to step 2 (the agent `.claude/agents/publish-agent.md`)',
-        '   - False: return to step 1 (the agent `.claude/agents/draft-agent.md`), with at most 2 rounds',
+        '   - True: go to step 4 (the agent `.claude/agents/publish-agent.md`)',
+        '   - False: return to step 2 (the agent `.claude/agents/draft-agent.md`), with at most 2 rounds',
         '2. Is gate met?',
         '   - True: go to the end of the flow',
-        '   - False: the flow stops, and the command asks the person: "The check did not pass: Is gate met? What should happen next?"',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
       ].join('\n'),
     );
   });
@@ -136,7 +297,7 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
         END,
       ]);
       expect(flowValues(flow)['flowConditions']).toContain(
-        `return to step 1 (the agent \`.claude/agents/draft-agent.md\`), with at most ${roundLimit} rounds`,
+        `return to step 2 (the agent \`.claude/agents/draft-agent.md\`), with at most ${roundLimit} rounds`,
       );
     }
   });
@@ -164,7 +325,7 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
       '\n' +
       [
         '1. Is the build green?',
-        '   - True: the flow stops, and the command asks the person: "The check did not pass: Is the build green? What should happen next?"',
+        '   - True: stop and ask the person what to do: "The check did not pass: Is the build green? What should happen next?"',
         '   - False: go to the end of the flow',
       ].join('\n'),
     );
@@ -179,7 +340,7 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
       END,
     ]);
     expect(flowValues(flow)['flowConditions']).toContain('1. Is check met?');
-    expect(flowValues(flow)['flowSteps']).toContain('2. Run the agent `.claude/agents/b-agent.md`');
+    expect(flowValues(flow)['flowSteps']).toContain('3. Run the agent `.claude/agents/b-agent.md`');
   });
 
   it('gives no rules for a flow with no Condition block', () => {
@@ -220,9 +381,11 @@ describe('F-04 AC-018 the approval line is present only when the flow approval i
 });
 
 describe('F-04 AC-015 AC-012 an empty list leaves no blank line in a layout', () => {
-  it('renders a steps section with no steps as its heading alone', () => {
-    const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'end' }, END]);
-    expect(renderLayout('## Steps{{flowSteps}}\n', flowValues(flow), '.claude/commands/build.md')).toBe('## Steps\n');
+  it('renders a rules section with no rules as its heading alone', () => {
+    const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'draft' }, agent(1, 'draft', 'end'), END]);
+    expect(renderLayout('## Rules{{flowConditions}}\n', flowValues(flow), '.claude/commands/build.md')).toBe(
+      '## Rules\n',
+    );
   });
 });
 
@@ -240,14 +403,22 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
     ]);
     const values = flowValues(flow);
     expect(values['flowSteps']).toBe(
-      '\n1. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX now): Runs the draft.',
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX now): Runs the draft.',
+        '3. Check to pass: Is it met?',
+        '   - True: go to the end of the flow',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is it met? What should happen next?"',
+        '4. End the flow.',
+      ].join('\n'),
     );
     expect(values['flowConditions']).toBe(
       '\n' +
       [
         '1. Is it met?',
         '   - True: go to the end of the flow',
-        '   - False: the flow stops, and the command asks the person: "The check did not pass: Is it met? What should happen next?"',
+        '   - False: stop and ask the person what to do: "The check did not pass: Is it met? What should happen next?"',
       ].join('\n'),
     );
   });

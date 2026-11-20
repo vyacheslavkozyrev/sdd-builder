@@ -1,13 +1,14 @@
-import type { Block, ConditionBlock, Flow, Route } from '../model.js';
+import type { AgentBlock, Block, ConditionBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
 import { describeArgument, describeArguments, inlineText, linesOf } from './values-text.js';
 import { walkFlow } from './walk.js';
 
 // The values of a flow's command layout (F-04, AC-012, AC-015, AC-016, AC-018). Each value is a text built in code
-// (decision 36b): `flowArguments` is one line per argument; `flowSteps` is one numbered line per Agent block, in the
-// order the walk lists them; `flowConditions` is one numbered rule per Condition, with its true and false routes as
-// sub-lines; `flowApproval` is the approval paragraph, empty when the flow's approval is off. The Start and End blocks
-// are not numbered. The values are a pure function of the flow: the same flow always gives the same text.
+// (decision 36b): `flowArguments` is one line per argument; `flowSteps` is one numbered line per block of the walk
+// (F-05, AC-010), the Start first and the End last; a Condition step gives its check and its true and false routes as
+// sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition, with the same routes as sub-lines;
+// `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a pure function of
+// the flow: the same flow always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
 // break and is empty when it has no lines. A layout writes such a placeholder at the end of a line, with no line break
@@ -18,8 +19,8 @@ const ROUND_LIMIT_MAX = 5;
 
 export function flowValues(flow: Flow): Record<string, string> {
   const walked = walkFlow(flow);
-  const places = placesOf(walked);
-  const agents = walked.flatMap((block) => (block.kind === 'agent' ? [block] : []));
+  const steps = stepsOf(walked);
+  const places = placesOf(steps);
   const conditions = walked.flatMap((block) => (block.kind === 'condition' ? [block] : []));
 
   return {
@@ -27,12 +28,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowName: inlineText(flow.name),
     flowDescription: inlineText(flow.description ?? ''),
     flowArguments: linesOf(flow.arguments.map((arg) => `- ${describeArgument(arg)}`)),
-    flowSteps: linesOf(
-      agents.map((block, index) => {
-        const args = block.arguments.length === 0 ? '' : ` with the arguments ${describeArguments(block.arguments)}`;
-        return `${index + 1}. Run the agent \`.claude/agents/${block.name}.md\`${args}: ${inlineText(block.description)}`;
-      }),
-    ),
+    flowSteps: linesOf(steps.map((block, index) => stepText(block, index + 1, places, flow))),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
     flowApproval: flow.approval
       ? "\n\nThe process stops here for the person's approval at the end of this flow."
@@ -40,31 +36,52 @@ export function flowValues(flow: Flow): Record<string, string> {
   };
 }
 
-// The place of each block a route can name, as the text names it: an Agent is its step number and agent file, a
-// Condition is its rule number, and the ends of the flow are named as they are. Numbers count only Agent and
-// Condition blocks, in walk order.
-function placesOf(walked: readonly Block[]): Map<string, string> {
+// The steps of the flow: every block of the walk, in walk order, with every End moved after the others so that the
+// End is last (AC-010). A Condition is a step too.
+function stepsOf(walked: readonly Block[]): Block[] {
+  return [...walked.filter((block) => block.kind !== 'end'), ...walked.filter((block) => block.kind === 'end')];
+}
+
+function stepText(block: Block, number: number, places: ReadonlyMap<string, string>, flow: Flow): string {
+  switch (block.kind) {
+    case 'start':
+      return `${number}. Start the flow.`;
+    case 'agent':
+      return agentStep(block, number);
+    case 'condition':
+      return [`${number}. Check to pass: ${inlineText(block.description)}`, ...routeLines(block, places, flow)].join('\n');
+    case 'end':
+      return `${number}. End the flow.`;
+  }
+}
+
+// An Agent step names the agent file and gives the agent's description (AC-011).
+function agentStep(block: AgentBlock, number: number): string {
+  const args = block.arguments.length === 0 ? '' : ` with the arguments ${describeArguments(block.arguments)}`;
+  return `${number}. Run the agent \`.claude/agents/${block.name}.md\`${args}: ${inlineText(block.description)}`;
+}
+
+// The place of each block a route can name, as the text names it: a step is its step number, with the agent file or
+// the check, and the ends of the flow are named as they are. Step numbers follow `stepsOf`.
+function placesOf(steps: readonly Block[]): Map<string, string> {
   const places = new Map<string, string>();
-  let step = 0;
-  let rule = 0;
-  for (const block of walked) {
+  steps.forEach((block, index) => {
+    const number = index + 1;
     switch (block.kind) {
       case 'start':
         places.set(block.id, 'the start of the flow');
         break;
       case 'agent':
-        step += 1;
-        places.set(block.id, `step ${step} (the agent \`.claude/agents/${block.name}.md\`)`);
+        places.set(block.id, `step ${number} (the agent \`.claude/agents/${block.name}.md\`)`);
         break;
       case 'condition':
-        rule += 1;
-        places.set(block.id, `rule ${rule}`);
+        places.set(block.id, `step ${number} (the check: ${inlineText(block.description)})`);
         break;
       case 'end':
         places.set(block.id, 'the end of the flow');
         break;
     }
-  }
+  });
   return places;
 }
 
@@ -74,15 +91,20 @@ function conditionRule(
   places: ReadonlyMap<string, string>,
   flow: Flow,
 ): string {
-  return [
-    `${number}. ${inlineText(block.description)}`,
-    `   - True: ${routeText(block.true, block, places, flow)}`,
-    `   - False: ${routeText(block.false, block, places, flow)}`,
-  ].join('\n');
+  return [`${number}. ${inlineText(block.description)}`, ...routeLines(block, places, flow)].join('\n');
 }
 
-// A route as a sentence without its final full stop. A `{stop}` route asks the person a question built from the
-// condition's description (decision 40). A return carries its round limit, checked here as a programmer error.
+// The true and false routes of a Condition, each as a sub-line.
+function routeLines(block: ConditionBlock, places: ReadonlyMap<string, string>, flow: Flow): string[] {
+  return [
+    `   - True: ${routeText(block.true, block, places, flow)}`,
+    `   - False: ${routeText(block.false, block, places, flow)}`,
+  ];
+}
+
+// A route as a sentence without its final full stop. A `{stop}` route reads "stop and ask the person what to do" and
+// asks a question built from the condition's description (decision 40). A return carries its round limit, checked here
+// as a programmer error.
 function routeText(
   route: Route,
   condition: ConditionBlock,
@@ -90,7 +112,7 @@ function routeText(
   flow: Flow,
 ): string {
   if ('stop' in route) {
-    return `the flow stops, and the command asks the person: "The check did not pass: ${inlineText(condition.description)} What should happen next?"`;
+    return `stop and ask the person what to do: "The check did not pass: ${inlineText(condition.description)} What should happen next?"`;
   }
   const place = places.get(route.to);
   if (place === undefined) {

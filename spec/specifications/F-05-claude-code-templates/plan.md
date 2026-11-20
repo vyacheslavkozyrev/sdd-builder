@@ -14,7 +14,7 @@ Paths are relative to the repository root. The layouts are text files under `sou
 
 Value tasks (T001 to T009) change the F-04 value builders in `generate/values-*.ts`. The stories allow this when the plan names it (Out of Scope: "any such change is named in the plan"). Each such task updates the F-04 tests that assert the old text.
 
-- [ ] T001 [Core] Flow steps: every block of the walk is a numbered step, Start first and End last; Condition blocks stay numbered rules — `source/packages/core/src/pipeline/generate/values-flow.ts`, `source/packages/core/test/pipeline/generate-values-flow.test.ts` — covers AC-010, AC-011
+- [x] T001 [Core] Flow steps: every block of the walk is a numbered step, Start first and End last; a Condition step gives its check and routes, and Conditions also stay numbered rules (AC-013) — `source/packages/core/src/pipeline/generate/values-flow.ts`, `source/packages/core/test/pipeline/generate-values-flow.test.ts` — covers AC-010, AC-011
 - [ ] T002 [Core] Flow artifacts: `flowArtifacts` writes each artifact's label and template, `No artifacts` when none; the End step names `producedArtifact` and writes no artifact line without one — `values-flow.ts`, `generate-values-flow.test.ts` — covers AC-009, AC-014
 - [ ] T003 [Core] Flow body and arguments: `flowBody` holds the body text with its line breaks; `flowArguments` writes `No arguments` when the flow has none — `values-flow.ts`, `generate-values-flow.test.ts` — covers AC-006, AC-008
 - [ ] T004 [Core] Rule tags: `flowRuleTags` and `agentRuleTags` write the tags as a comma-separated list in order, `none` when there are none — `values-flow.ts`, `values-agent.ts`, `generate-values.test.ts` — covers AC-007, AC-022

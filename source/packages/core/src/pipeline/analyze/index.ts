@@ -9,6 +9,8 @@ import { routesRule } from './routes.js';
 import { reachRules } from './reach.js';
 
 export type { Finding, Severity } from './finding.js';
+export type { ReviewEntry, ReviewResult } from './review.js';
+export { checkReview } from './review.js';
 
 // A rule module reads the config and returns its findings. It never changes the config.
 export type RuleModule = (config: ProjectConfig) => PositionedFinding[];

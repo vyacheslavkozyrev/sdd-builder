@@ -44,12 +44,13 @@ const PIPELINE_VALUES = [
   'analyzeBrief',
   'analyzeStructure',
   'checkReply',
+  'checkReview',
   'configProblems',
   'defaultPipeline',
   'parseProjectConfig',
   'planGeneration',
 ];
-const ANALYSIS_TYPES = ['Finding', 'Severity'];
+const ANALYSIS_TYPES = ['Finding', 'ReviewEntry', 'ReviewResult', 'Severity'];
 const MODEL_TYPES = [
   'AgentBlock',
   'Argument',

@@ -5,7 +5,7 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | Build    | ⏳ Pending |  | 0 tasks committed (reset) |

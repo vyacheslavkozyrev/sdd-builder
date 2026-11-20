@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-20 | Restyled left-panel screens (2026-11-18) approved by the user 2026-11-20; open points 1 and 2 kept; AC-001 and the stories amended to the left panel and re-approved the same day (supersedes the header approval of 2026-11-17) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the removal of the previous build (`58ef413`): 5 tasks, all `[Web]` |
 | Build    | ✅ Complete | 2026-11-20 | 5 of 5 tasks committed |
-| Verify   | 🔄 In Progress | 2026-11-20 | verify run pending |
+| Verify   | ✅ Complete | 2026-11-20 | 14 of 14 criteria: 12 `[auto]` passing; 2 `[device]` (AC-011, AC-012) passed by the user |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -64,7 +64,7 @@ Run 2026-11-20 (verify mode, branch `main`, clean tree before the run, all 5 tas
 | AC-009 | auto | `frameStyle.test.ts` (width 100%, min width 1024 px, min height 100vh) | Covered, pass |
 | AC-010 | auto | `frameStyle.test.ts` (exact key set: no overflow hiding, no max width) | Covered, pass |
 | AC-011 | device | Checklist (1280 × 800) | Passed by the user 2026-11-20 (no scroll at 1280 × 800 after the body-margin fix in `App.tsx`, the footer gaps at 12 px) |
-| AC-012 | device | Checklist (1024 px, narrower scrolls) | Awaiting user result |
+| AC-012 | device | Checklist (1024 px, narrower scrolls) | Passed by the user 2026-11-20 |
 | AC-013 | auto | `LeftPanel.test.tsx` (Mui panel; MuiButton-root) | Covered, pass |
 | AC-014 | auto | `Footer.test.tsx` (Mui footer and Mui typography) | Covered, pass |
 
@@ -74,7 +74,7 @@ Scope (`features.md` F-07): left panel with wordmark and New project (AC-001 to 
 
 Note for the owner: `features.md` line 32 and line 75 still say "header (logo, New project)" and "logo"; the approved design is a left panel with a text wordmark. The scope is covered by the criteria, but the feature list wording is stale.
 
-Manual checklist: `spec/specifications/F-07-ui-layout-template/checklist.md` (AC-011 at 1280 × 800, AC-012 at 1024 px). Status: awaiting the user's results (both boxes unticked).
+Manual checklist: `spec/specifications/F-07-ui-layout-template/checklist.md` (AC-011 at 1280 × 800, AC-012 at 1024 px). Status: both passed by the user on 2026-11-20 after the body-margin fix (`ad37880`).
 
 Risk for the device run (not a test gap): no CSS reset exists in `source/apps/web` (no `CssBaseline`, no `margin: 0` on body). The browser default body margin of 8 px applies, so a frame with `minHeight: 100vh` may scroll vertically by about 16 px at 1280 × 800, and at 1024 px the frame's `minWidth: 1024px` may scroll horizontally by about 16 px. This is from reading the code, not from a browser run. If the user reports a fail on AC-011 or AC-012, this is the first cause to check.
 

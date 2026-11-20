@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
 | Build    | ✅ Complete | 2026-11-20 | 20 of 20 tasks committed (T020 added by Verify) |
-| Verify   | ⏳ Pending |  | Re-verified 2026-11-20 at 59f997d: 40 of 40 criteria covered, no gaps; open owner decision on AC-033 |
+| Verify   | ✅ Complete | 2026-11-20 | 40 of 40 criteria covered by passing tests, no gaps; AC-033 amended by the owner's decision (approval-off flows get no suffix; a name may hold the word); manual checklist empty (no [device] criteria) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -60,7 +60,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/templates/README.md` (value table, line 14 and the `flowArguments` row): the table does not yet list `flowBody`, and `flowArguments` is still described as one line per argument only (no `No arguments`). SUGGESTION: the plan assigns the value table to T018 (the README was not updated by T001 or T002 either), so it is left for T018.
 - `source/packages/core/src/pipeline/generate/values-agent.ts` (`agentBody`) and `values-pipeline.ts` (`pipelineBody`): these use truthiness, so a whitespace-only body is not empty there, while `flowBody` (AC-006) trims and is empty when blank. SUGGESTION: align in T005 (`agentBody`) and with the pipeline layout task (`pipelineBody`); AC-006 is only required for flows here. Resolved for `agentBody` in T005 (a blank body is empty through `bodyText`) and for `pipelineBody` in T010 (`bodyText`).
 - `source/packages/core/src/pipeline/generate/mermaid.ts` (`processDiagram`, flow names in node labels): a name with a quote, bracket, brace, pipe or hash is written as is, so the diagram would not parse. Resolved in T008 (AC-034): these characters and a hash are written as entity codes, and a line break as a space.
-- `source/packages/core/src/pipeline/generate/mermaid.ts` (`processDiagram`, AC-033): a flow with approval off whose own name contains the word `approval` has that word in its label, which AC-033 forbids as written. The label is the flow name, so this needs an owner decision (rename the label, or accept the name). Not changed: the criterion cannot be met for such names without changing the label text, which is not in this task.
+- RESOLVED 2026-11-20 by the owner (option a), see the Amendment of that date. `source/packages/core/src/pipeline/generate/mermaid.ts` (`processDiagram`, AC-033): a flow with approval off whose own name contains the word `approval` has that word in its label, which AC-033 forbade as written. The label is the flow name, so this needs an owner decision (rename the label, or accept the name). Not changed: the criterion cannot be met for such names without changing the label text, which is not in this task.
 - `source/templates/README.md` (value table, T018): the table does not list `agentPurpose` (the Purpose value of T005, the description as plain inline text) and describes `agentDescription` without its quoting. SUGGESTION: the plan assigns the table to T018, so it is left for T018.
 - `source/packages/core/src/pipeline/parse/lists.ts` (`readTools`): tool names are read with no non-blank rule, so a blank name reaches the agent line as `""` or `"Read, "`. The quoting reads the joined text back faithfully, so this is an input rule, not a YAML fault. SUGGESTION: refuse a blank tool name in the parser (owned by the pipeline parse task, not T005).
 - `source/packages/core/src/pipeline/generate/values-agent.ts` (`artifactSection`, T006): an artifact label with a backtick would break its code span, as for `flowArtifacts` above. Kept as is: the codebase writes ids and labels in code spans without escaping (`values-base.ts`, `values-text.ts`), and the fix belongs with the model's label rules.
@@ -162,3 +162,8 @@ Open limit (not a gap, not a test defect): **AC-033.** A flow with approval off 
 **Changed**: plan.md adds T020 (pipeline command order). Build is in progress again, 19 of 20. The verify agent corrected the criteria count in checklist.md from 35 to 40 (stale count; no entries changed).
 **Reason**: Verify found that AC-002 (flows in the order of the `next` links from the first flow) and the last-flow wording of AC-003 are not met. `pipelineFlows` follows the array order, and a valid pipeline can list its flows out of order. The approved test fixture has matching array and chain order, so it did not show the difference.
 **Impact**: T020 runs the build cycle again, then Verify is repeated for AC-002 and AC-003. The open owner question on AC-033 (an approval-off flow whose name contains "approval") is unchanged and still in Deferred Findings.
+
+### Amendment — 2026-11-20 (AC-033, owner decision a)
+**Changed**: stories.md AC-033 now forbids only the `approval` suffix on an approval-off flow; a name that holds the word is written as typed. The code already did this, so no value changed. One test added (mermaid-diagram.test.ts, `F-05 AC-033`). Verify is complete.
+**Reason**: The owner chose option (a) for the conflict between the criterion and a flow named with the word `approval`.
+**Impact**: Build and Verify are complete. Feature F-05 is complete on this amendment.

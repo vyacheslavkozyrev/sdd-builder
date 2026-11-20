@@ -88,6 +88,7 @@ const TRUE_TO = 'pipeline.flows.0.blocks.2.true.to';
 const FALSE_TO = 'pipeline.flows.0.blocks.2.false.to';
 const CONDITION = 'pipeline.flows.0.blocks.2';
 const START_NEXT = 'pipeline.flows.0.blocks.0.next';
+const NOT_REACHED = 'must be reached from the Start of its flow, got no next or route that leads to it';
 
 interface Expected {
   readonly path: string;
@@ -233,7 +234,7 @@ describe('F-03 AC-016, AC-017, AC-018, AC-019, AC-020 route targets of a conditi
 
 describe('F-03 AC-013 a retry route to an earlier agent with a roundLimit is not a loop', () => {
   it('F-03 AC-013 a condition that retries an earlier agent gives no finding of the analysis', () => {
-    expect(analyzeStructure(linked({ true: { to: 'a', roundLimit: 2 }, false: STOP }))).toEqual([]);
+    expect(analyzeStructure(linked({ true: { to: 'a', roundLimit: 2 }, false: { to: 'b' } }))).toEqual([]);
   });
 
   it('F-03 AC-013 the retry route gives no route or link finding', () => {
@@ -290,8 +291,12 @@ describe('F-03 AC-035 a partial model is analysed without a throw', () => {
     const found = analyzeStructure(config).map(({ rule, path, message }) => ({ rule, path, message }));
     expect(found).toEqual([
       { rule: 'block-link', path: START_NEXT, message: 'must name a block of this flow, got nothing' },
+      { rule: 'block-reach', path: 'pipeline.flows.0.blocks.1', message: NOT_REACHED },
       { rule: 'condition-output', path: CONDITION, message: 'must have a true route, got none' },
       { rule: 'condition-output', path: CONDITION, message: 'must have a false route, got none' },
+      { rule: 'block-reach', path: CONDITION, message: NOT_REACHED },
+      { rule: 'block-reach', path: 'pipeline.flows.0.blocks.3', message: NOT_REACHED },
+      { rule: 'block-reach', path: 'pipeline.flows.0.blocks.4', message: NOT_REACHED },
     ]);
   });
 

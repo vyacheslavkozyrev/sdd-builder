@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 37 criteria, all [auto]; re-specified for the flow model (decisions 38, 39) and approved by the user. Builder marks and analyzer share the rules (owner, 2026-11-19) |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 10 tasks (T001 to T010); AC-019 decided as a blocker (see Amendments) |
-| Build    | 🔄 In Progress | 2026-11-19 | 6 of 10 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 7 of 10 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T003 | Identity and required text: flow id file-safe and not `pipeline`, agent name file-safe, blank flow name or body, blank agent description (`analyze/text.ts`); `isFileSafeId` exported from `check/primitives.ts` | 0 blockers; 1 warning fixed (a test for a flow whose index is not 0); 2 suggestions fixed; 1 suggestion deferred (shared path helpers with T002) | task check passed: core 675, api 6, web 4 |
 | T004 | Reused id and tag checks: `checkIdsUnique` and `checkRuleTags` from F-02, each problem a blocker at its path, with the position read from the path by explicit shapes; a path of an unknown shape throws (`analyze/reuse.ts`) | 0 blockers; 2 warnings fixed (position lookup made explicit; a test for each path shape); 2 suggestions fixed | task check passed: core 698, api 6, web 4 |
 | T005 | Flow links and block links reused from F-02: flow `next` rules and loops, Start and Agent `next` rules; route problems left to T006 (`analyze/links.ts`). The wrong-kind `next` case of F-02 is kept as the same rule | 0 blockers; 2 warnings fixed (a self-loop test used a missing block; an Agent wrong-kind case added); 0 suggestions. The AC-014 test that checked a rule boundary was re-tagged to AC-016 in T006 | task check passed: core 723, api 6, web 4 |
+| T007 | Block reachability from each flow's first Start along `next` and condition routes (`analyze/reach.ts`); a second Start in a flow is not reached from the first and gets its own blocker; the walk stays inside its flow. Two T006 test expectations changed by the new rule (AC-013 false route, AC-035 partial model) | 0 blockers; 1 warning fixed (a test that proves the walk stays in its flow); 2 suggestions fixed (line length); 1 suggestion deferred (block-path helper repeated across modules, as for T003) | task check passed: core 767, api 6, web 4 |
 | T006 | Condition outputs (`analyze/outputs.ts`), route rules (`analyze/routes.ts`, `.true.to` and `.false.to` from `checkBlockLinks`), and the guard in `check/block-links.ts` for a missing route or `next`; AC-035 partial model (a condition with no routes, a Start with no `next`, a flow with no `next`, description or arguments). Committed as one change over the 400-line guard by owner decision (see Amendments) | 0 blockers; 1 warning fixed (AC-035 flow case added); 2 suggestions deferred (`start()` test helper sets then deletes a placeholder; the plan's "skipped" wording for a missing `next` is superseded: AC-035 requires the finding) | task check passed: core 752, api 6, web 4 |
 
 ### 2026-11-16 build (code removed in `58ef413`)
@@ -58,6 +59,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T001 `source/packages/core/src/pipeline/analyze/finding.ts` (plan line T001 names "the rule-id strings"): no rule id is defined yet, since no rule module exists before T002. Each rule task defines its own id string where it is used; a constant list now would be dead code.
 - T003 `source/packages/core/src/pipeline/analyze/text.ts` (`flowPath` and `blockPath` repeat the helpers in `analyze/start-end.ts`): moving them to a shared `analyze/paths.ts` edits the T002 module and adds a file the plan does not name; deferred to a later task that touches both.
 - T006 `source/packages/core/src/pipeline/check/block-links.ts` (plan T006 says a missing `next` is "skipped"): the guard reports it as a finding instead, which is intended, since AC-035 says each gap gives its finding (the Start `next` finding comes from `analyze/links.ts`). The plan wording is approved and is not edited here; amend it with the next plan change.
+- T007 `source/packages/core/src/pipeline/analyze/reach.ts` (`blockPath` repeats the helpers in `analyze/outputs.ts`, `analyze/start-end.ts` and `analyze/text.ts`): the same duplication as the T003 entry; one shared helper is a change to four modules, deferred to the task that moves them.
 - T006 `source/packages/core/test/pipeline/analyze-routes.test.ts` (`start()` helper sets `next: id` and deletes it when absent): test-only helper, the default is never used; reworking it is not worth the churn.
 
 ---

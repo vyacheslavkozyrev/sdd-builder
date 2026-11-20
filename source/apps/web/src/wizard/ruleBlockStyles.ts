@@ -32,7 +32,7 @@ export function getRuleBlockStyles(theme: Theme): RuleBlockStyles {
     root: {
       ...common.card,
       boxSizing: 'border-box',
-      width: 444,
+      width: '100%',
       p: '16px',
     },
     header: {

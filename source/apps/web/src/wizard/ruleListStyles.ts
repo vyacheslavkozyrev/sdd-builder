@@ -40,8 +40,8 @@ export function getRuleListStyles(theme: Theme): RuleListStyles {
   return {
     root: {
       boxSizing: 'border-box',
-      width: 444,
-      flexShrink: 0,
+      flex: 1,
+      minWidth: 0,
       minHeight: 0,
       display: 'flex',
       flexDirection: 'column',

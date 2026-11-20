@@ -65,39 +65,41 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
-**Verify run 2026-11-17, branch `main`, clean tree.** Type check passed for api, web and core. Tests: api 57 passed, web 303 passed (18 files), core 1017 passed (53 files); `source/scripts/task-check.sh` passed.
+**Verify run 2026-11-20, branch `main`, clean tree.** Type check passed for api, web and core. Tests: api 45 passed (6 files), web 501 passed (23 files), core 1208 passed (57 files); `source/scripts/task-check.sh` exit 0.
 
 | Criterion | Tag | Covering tests (all passed) | Result |
 | --- | --- | --- | --- |
 | AC-001 | auto | TechnicalStep.test.tsx | covered |
 | AC-002 | auto | TechnicalStep.test.tsx | covered |
-| AC-003 | auto | TechnicalStep.test.tsx | covered |
-| AC-004 | auto | technical.test.ts, TechnicalStep.test.tsx | covered |
+| AC-003 | auto | TechnicalStep.test.tsx, state.test.ts | covered |
+| AC-004 | auto | TechnicalStep.test.tsx, technical.test.ts | covered |
 | AC-005 | auto | TechnicalStep.test.tsx | covered |
-| AC-006 | auto | technical.test.ts, TechnicalStep.test.tsx | covered |
-| AC-007 | auto | state.test.ts (reducer: Next, Prev, no trim) | covered for the reducer; configuration-function half open until F-13, as the approved plan records |
-| AC-008 | auto | state.test.ts, App.test.tsx, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
-| AC-009 | auto | state.test.ts, App.test.tsx, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
-| AC-010 | auto | state.test.ts, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
-| AC-011 | auto | RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
-| AC-012 | auto | state.test.ts, technical.test.ts, RuleBlocks.test.tsx, RuleBlocks.dom.test.tsx | covered |
-| AC-013 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
-| AC-014 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
-| AC-015 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
-| AC-016 | auto | RuleBlocks.test.tsx | covered |
-| AC-017 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
-| AC-018 | auto | technical.test.ts, RuleBlocks.test.tsx | covered |
-| AC-019 | auto | Wizard.test.tsx, App.test.tsx | covered |
-| AC-020 | auto | state.test.ts, App.test.tsx | covered |
-| AC-021 | auto | state.test.ts, App.test.tsx | covered |
-| AC-022 | auto | TechnicalStep.test.tsx, RuleBlocks.test.tsx, wizard-privacy.test.ts | covered |
-| AC-023 | device | `checklist.md` C-01 | awaiting the user's result |
+| AC-006 | auto | TechnicalStep.test.tsx, technical.test.ts | covered |
+| AC-007 | auto | state.test.ts | GAP (partial): reducer half covered (Next, Prev keep the text). The configuration-function half has no test; the function comes with F-13 (plan, Rationale) |
+| AC-008 | auto | state.test.ts, RuleList.test.tsx, App.test.tsx | covered |
+| AC-009 | auto | state.test.ts, RuleList.test.tsx | covered |
+| AC-010 | auto | state.test.ts, RuleList.test.tsx, RuleBlock.test.tsx | covered |
+| AC-011 | auto | RuleList.test.tsx | covered |
+| AC-012 | auto | state.test.ts, technical.test.ts, RuleList.test.tsx | covered |
+| AC-013 | auto | RuleBlock.test.tsx, technical.test.ts | covered |
+| AC-014 | auto | RuleBlock.test.tsx, technical.test.ts | covered |
+| AC-015 | auto | RuleBlock.test.tsx, technical.test.ts | covered |
+| AC-016 | auto | RuleBlock.test.tsx, technical.test.ts | covered |
+| AC-017 | auto | RuleBlock.test.tsx, technical.test.ts | covered |
+| AC-018 | auto | RuleBlock.test.tsx | covered |
+| AC-019 | auto | RuleBlock.test.tsx, technical.test.ts, App.test.tsx | covered |
+| AC-020 | auto | RuleBlock.test.tsx, technical.test.ts, state.test.ts | covered |
+| AC-021 | auto | StepBody.test.tsx, App.test.tsx | covered |
+| AC-022 | auto | state.test.ts, App.test.tsx | covered |
+| AC-023 | auto | state.test.ts, App.test.tsx | covered |
+| AC-024 | auto | TechnicalStep.test.tsx, App.test.tsx, wizard-privacy.test.ts | covered |
+| AC-025 | device | `checklist.md` C-01 | awaiting the user's result. Tests named AC-025 (App, StepBody, RuleList) check structure only, not the layout at 1280 × 800 |
 
-**Scope (`features.md` F-10):** each part of the scope (language required, four optional stack fields, architecture at most 5,000, rule name and description limits, file name per block, at most 60 blocks, duplicate ids flagged, list starts empty) is covered by at least one criterion above.
+**Scope (`features.md` F-10):** each part of the scope is covered by at least one criterion above.
 
-**Gaps:** none blocking. AC-007 is partly open by design (approved plan): the configuration-function half waits for F-13.
+**Gaps:** AC-007, configuration-function half (no code exists before F-13; the plan records it as a known gap). No failing test.
 
-**Manual checklist:** `spec/specifications/F-10-technical-details/checklist.md`, one item (C-01, AC-023), result pending. The owner's open layout points (inner scroll, block height at three blocks, clipped name) and the rule-name help line decision are recorded there.
+**Manual checklist:** `spec/specifications/F-10-technical-details/checklist.md`, one item (C-01, AC-025), result blank.
 
 ---
 

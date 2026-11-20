@@ -44,7 +44,7 @@ export function getTechnicalStepStyles(theme: Theme): TechnicalStepStyles {
     },
     // The divider is 1 px at x 772; it is 32 px from the stack column and 15 px from the rule list.
     divider: {
-      width: 1,
+      width: '1px',
       flexShrink: 0,
       alignSelf: 'stretch',
       bgcolor: theme.palette.divider,
@@ -53,14 +53,14 @@ export function getTechnicalStepStyles(theme: Theme): TechnicalStepStyles {
     },
     column: {
       boxSizing: 'border-box',
-      width: 432,
-      flexShrink: 0,
+      flex: 1,
+      minWidth: 0,
     },
     sectionTitle: { ...common.sectionTitle, mb: '12px' },
     // Two 208 px columns with a 16 px gap; a row of fields is 64 px high (label, 8 px, field) and rows sit 8 px apart.
     stackGrid: {
       display: 'grid',
-      gridTemplateColumns: '208px 208px',
+      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
       columnGap: '16px',
       rowGap: '8px',
     },

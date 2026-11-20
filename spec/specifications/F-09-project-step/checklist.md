@@ -24,9 +24,9 @@ Steps:
 
 Result (pass / fail, and what was seen for steps 4 and 6):
 
-Pass / fail:
+Pass / fail: pass (user, 2026-11-20)
 
-Notes:
+Notes: the user reported pass for C-01 on 2026-11-20.
 
 ---
 
@@ -34,6 +34,6 @@ Notes:
 
 | Item | Criterion | Result |
 |---|---|---|
-| C-01 | AC-017 (`[device]`) | pending |
+| C-01 | AC-017 (`[device]`) | pass (user, 2026-11-20) |
 
 Owner decisions of 2026-11-20 are settled (see the top of this file).

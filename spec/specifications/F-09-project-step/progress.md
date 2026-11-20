@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; screens in `spec/design/features/F-09-project-step/` on the F-08 frame. Name help line resolved 2026-11-20 (screen 01 as drawn; AC-016 `[auto]`, AC-017 `[device]`). Limit note styling kept as drawn |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 4 tasks, all `[Web]`, on the current F-08 wizard (F-02 to F-13 code removed in `58ef413`) |
 | Build    | ✅ Complete | 2026-11-20 | 4 of 4 tasks committed |
-| Verify   | ⏳ Pending |  | runs after all tasks are committed |
+| Verify   | ✅ Complete | 2026-11-20 | 17 of 17 criteria: 16 `[auto]` passing; AC-017 `[device]` passed by the user on the 1280 × 800 checklist (C-01) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -79,7 +79,7 @@ Scope in `features.md` F-09 (name single-line, stored as typed, required but not
 2. Name limit note on screen 03: resolved by the owner. Plain amber text as drawn; `screens.md` amended to say so.
 3. `screens.md` open point 1: resolved (screen 01 as drawn).
 
-**Manual checklist:** `spec/specifications/F-09-project-step/checklist.md`, C-01 (AC-017), pending the user's run.
+**Manual checklist:** `spec/specifications/F-09-project-step/checklist.md`, C-01 (AC-017): pass, reported by the user on 2026-11-20.
 
 ---
 

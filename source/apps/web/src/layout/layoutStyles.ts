@@ -27,6 +27,8 @@ export interface LeftPanelStyles {
   readonly logo: SxProps<Theme>;
   readonly wordmark: SxProps<Theme>;
   readonly newProjectButton: SxProps<Theme>;
+  readonly stepper: SxProps<Theme>;
+  readonly foot: SxProps<Theme>;
 }
 
 export function getLeftPanelStyles(theme: Theme): LeftPanelStyles {
@@ -36,6 +38,8 @@ export function getLeftPanelStyles(theme: Theme): LeftPanelStyles {
       width: 260,
       minHeight: '100%',
       boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
       p: 3,
       borderRight: `1px solid ${theme.palette.divider}`,
       bgcolor: theme.palette.background.paper,
@@ -60,6 +64,12 @@ export function getLeftPanelStyles(theme: Theme): LeftPanelStyles {
       color: theme.palette.text.primary,
     },
     newProjectButton: common.outlineButton,
+    // The stepper sits 32 px below New project (the approved screens: New project ends at y 112,
+    // the step 1 ring's outer edge is at y 144: radius 18 plus half the 4 px stroke).
+    stepper: { mt: 4 },
+    // The foot holds Prev and Next and is pinned to the bottom: 8 px here and the 24 px panel
+    // padding make the 32 px gap above the bottom edge on the approved screens.
+    foot: { mt: 'auto', pb: 1 },
   };
 }
 

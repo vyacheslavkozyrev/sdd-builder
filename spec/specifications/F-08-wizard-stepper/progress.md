@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 4 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 5 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _The rows below are the 2026-11-17 build, superseded by the reset of 2026-11-19.
 | T002 (2026-11-20) | Wizard state reducer: step and values, Next and Prev one step, restart, privacy scan | 0 blockers, 1 warning fixed (marker fixture typed as empty values), 1 suggestion fixed (weak input-unchanged assertion) | task check passed: api 45, web 106, core 1208 |
 | T003 (2026-11-20) | Palette success colours and vertical MUI stepper (not clickable), states, per-node title for screen readers | 0 blockers, 4 warnings fixed (label size, node title U-03, connector colour, ring as in the SVG), 1 suggestion fixed (redundant disabled prop) | task check passed: api 45, web 128, core 1208 |
 | T004 (2026-11-20) | Prev and Next buttons: Prev disabled on step 1, Next shown and disabled on step 4; disabled look from the approved screens | 0 blockers, 2 warnings fixed (disabled Next and text colour from the screen, now in the palette), 1 suggestion fixed (duplicate width), 1 test gap fixed | task check passed: api 45, web 162, core 1208 |
+| T005 (2026-11-20) | Left panel slots: stepper under New project, navigation pinned to the foot; F-07 panel unchanged with no slots | 0 blockers, 1 warning fixed (pinning claim tested), 2 suggestions fixed (comment, redundant assertion) | task check passed: api 45, web 170, core 1208 |
 
 ---
 

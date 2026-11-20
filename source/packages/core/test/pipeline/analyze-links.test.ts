@@ -193,7 +193,7 @@ const crossFlowCases: Array<[string, ProjectConfig, Expected[]]> = [
     [],
   ],
   [
-    'F-03 AC-014 a condition route that names a missing block is left to the route rule (T006)',
+    'F-03 AC-016 a condition route that names a missing block is left to the route rule, not the links rule',
     withBlocks([
       { index: 0, id: 'start', kind: 'start', next: 'check' },
       { index: 1, id: 'check', kind: 'condition', description: 'Checks.', true: { to: 'missing' }, false: { stop: true } },

@@ -36,6 +36,11 @@ function checkStartOrAgentNext(
 ): void {
   if (block.kind !== 'start' && block.kind !== 'agent') return;
   const path = childPath(blockPath, 'next');
+  // A partial model (analysed, not parsed) may have no next: it is refused here instead of read.
+  if (block.next === undefined) {
+    problems.push({ path, message: 'must name a block of this flow, got nothing' });
+    return;
+  }
   const target = resolveTarget(flow, block.next, pipelineIds);
   if (typeof target === 'string') {
     problems.push({ path, message: target });
@@ -61,11 +66,13 @@ function checkStartOrAgentNext(
 function checkRoute(
   flow: Flow,
   condition: ConditionBlock,
-  route: Route,
+  route: Route | undefined,
   routePath: string,
   pipelineIds: ReadonlySet<string>,
   problems: Problem[],
 ): void {
+  // A partial model may have no route: it is skipped here, and the analysis reports the missing output.
+  if (route === undefined) return;
   if ('stop' in route) return;
   const toPath = childPath(routePath, 'to');
   const target = resolveTarget(flow, route.to, pipelineIds);

@@ -84,7 +84,7 @@ describe('F-05 layouts: the pipeline command layout', () => {
       approval: true,
       next: 'ux',
     });
-    const ux = flow({ index: 1, id: 'ux', description: 'Draws the screens.' });
+    const ux = flow({ index: 1, id: 'ux', description: 'Draws the screens.', next: 'plan' });
     const plan = flow({ index: 2, id: 'plan' });
     const text = render(pipelineWith({ flows: [specify, ux, plan] }));
     expect(numberedSteps(text)).toEqual([
@@ -99,6 +99,25 @@ describe('F-05 layouts: the pipeline command layout', () => {
     const approved = flow({ index: 0, id: 'build', approval: true });
     const text = render(pipelineWith({ flows: [approved] }));
     expect(numberedSteps(text)).toEqual(['1. Flow `build`.', `2. ${STOP_LAST}`]);
+  });
+
+  it('F-05 AC-002 lists the flows in the order of the next links when the array lists them out of that order', () => {
+    const build = flow({ index: 0, id: 'build' });
+    const specify = flow({ index: 1, id: 'specify', description: 'Drafts the stories.', next: 'ux' });
+    const ux = flow({ index: 2, id: 'ux', description: 'Draws the screens.', next: 'build' });
+    const text = render(pipelineWith({ flows: [build, specify, ux] }));
+    expect(numberedSteps(text)).toEqual([
+      '1. Flow `specify`: Drafts the stories.',
+      '2. Flow `ux`: Draws the screens.',
+      '3. Flow `build`.',
+    ]);
+  });
+
+  it('F-05 AC-003 gives the end-of-process stop to the last flow of the next links, not the last flow of the array', () => {
+    const build = flow({ index: 0, id: 'build', approval: true });
+    const plan = flow({ index: 1, id: 'plan', approval: true, next: 'build' });
+    const text = render(pipelineWith({ flows: [build, plan] }));
+    expect(numberedSteps(text)).toEqual(['1. Flow `plan`.', `2. ${STOP}`, '3. Flow `build`.', `4. ${STOP_LAST}`]);
   });
 
   it('F-05 AC-003 numbers the stop step of each approved flow after that flow, and writes no stop step for the others', () => {

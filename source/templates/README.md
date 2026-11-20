@@ -45,7 +45,7 @@ Pipeline command (`pipeline` layout):
 | `pipelineTools` | the frontmatter line `tools: …`, the list quoted when YAML would break on a tool name; empty if none |
 | `pipelineBody` | the paragraph of the pipeline's body, under `## Purpose`; empty when the body is blank or missing |
 | `pipelineArguments` | one line per argument; `No arguments` when there are none |
-| `pipelineFlows` | one numbered line per flow, in pipeline order, with its id and, when it has one, its description; a flow with approval on is followed by its own numbered line that stops for the person (the last flow's line says the approval is at the end of the process) |
+| `pipelineFlows` | one numbered line per flow, in the order of the `next` links from the first flow, with its id and, when it has one, its description; a flow with approval on is followed by its own numbered line that stops for the person (the last flow's line says the approval is at the end of the process) |
 
 Agent file (`agent` layout):
 

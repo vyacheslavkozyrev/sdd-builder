@@ -61,11 +61,25 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     );
   });
 
-  it('lists each flow once, in pipeline order, with its description, and a stop step after a flow with approval on', () => {
+  it('lists each flow once, in the order of the next links, with its description, and a stop step after a flow with approval on', () => {
     const pipeline = pipelineWith({
       flows: [
-        flow({ id: 'plan', description: 'Plans the work.', approval: true }),
+        flow({ id: 'plan', description: 'Plans the work.', approval: true, next: 'build' }),
         flow({ id: 'build' }),
+      ],
+    });
+    expect(pipelineValues(pipeline)['pipelineFlows']).toBe(
+      '\n1. Flow `plan`: Plans the work.' +
+        "\n2. Stop and wait for the person's approval before the next flow." +
+        '\n3. Flow `build`.',
+    );
+  });
+
+  it('F-05 AC-002 lists the flows in the order of the next links, not the array order', () => {
+    const pipeline = pipelineWith({
+      flows: [
+        flow({ id: 'build' }),
+        flow({ id: 'plan', description: 'Plans the work.', approval: true, next: 'build' }),
       ],
     });
     expect(pipelineValues(pipeline)['pipelineFlows']).toBe(

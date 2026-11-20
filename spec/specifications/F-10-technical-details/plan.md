@@ -22,7 +22,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 - [x] T006 [Web] Wizard and app wiring: `StepBody` shows `TechnicalStep` on step 2, keeps `ProjectStep` on step 1 and the F-08 placeholder on steps 3 and 4; `App` passes the step 2 values and the handlers through the wizard; New project clears them; the privacy scan covers the new step files — `source/apps/web/src/wizard/StepBody.tsx`, `source/apps/web/src/App.tsx`, `source/apps/web/test/StepBody.test.tsx`, `source/apps/web/test/App.test.tsx`, `source/apps/web/test/wizard-privacy.test.ts` — covers AC-008 (through the app), AC-019, AC-021, AC-022 (through the app: values kept after step 4 and back), AC-023 (through the app), AC-024 (privacy scan), AC-025 (wiring of the layout)
 
-- [ ] T007 [Docs] `ui.md` §2 Step 2 and §6: the rule id message rules (no letter or digit; id must start with a letter; id longer than 60 characters), the note that the block is kept and Next stays enabled, and the reason beside a disabled Add rule block; the rule name field is named as the schema's `title` and the description as `text` in §2 — `spec/documents/ui.md` — covers AC-012 (documented), AC-015 (documented), AC-016 (documented), AC-017 (documented)
+- [x] T007 [Docs] `ui.md` §2 Step 2 and §6: the rule id message rules (no letter or digit; id must start with a letter; id longer than 60 characters), the note that the block is kept and Next stays enabled, and the reason beside a disabled Add rule block; the rule name field is named as the schema's `title` and the description as `text` in §2 — `spec/documents/ui.md` — covers AC-012 (documented), AC-015 (documented), AC-016 (documented), AC-017 (documented)
 
 ## Rationale
 

@@ -40,9 +40,12 @@ The layout is the same on every screen (F-07, approved 2026-11-20): a white **le
 - **Stack**: language (required); framework, platform, build tool and test framework (optional). Each is a single-line text field limited to **100 characters**, counted in code points (an emoji counts as one); typing or pasting past the limit keeps the first 100 characters.
 - **Architecture**: multi-line text field, optional. Limit **5,000 characters**, counted in code points.
 - **Rules** (a list of rule blocks):
-  - Each block has a **name** (single line, limited to **100 characters**, counted and cut as in the stack fields) and a **description** (multi-line). Each description is limited to **1,000 characters**.
+  - Each block has a **name** (single line, limited to **100 characters**, counted and cut as in the stack fields), stored as the rule's `title`, and a **description** (multi-line), stored as its `text`. Each description is limited to **1,000 characters**.
   - Each block shows its file name `.claude/rules/<id>.md`. The id is the name in lower case, with each run of characters outside `a–z` and `0–9` replaced by one hyphen.
-  - A name with no letter or digit (blank, spaces only, or only symbols) gives no id. The block shows a message in place of the file name saying the name needs a letter or digit, and no file name. The block is kept as typed, and Next stays enabled; the analysis reports it.
+  - A name with no letter or digit (blank, spaces only, or only symbols) gives no id. The block shows "Needs a letter or digit." in place of the file name, and no file name.
+  - An id that does not start with a letter (for example `2 tests` gives `2-tests`) shows "The id must start with a letter." in place of the file name.
+  - An id longer than 60 characters shows "The id is longer than 60 characters." in place of the file name.
+  - If more than one of these applies, the first one listed above is shown. In each of these cases the block is kept as typed, and Next stays enabled; the analysis reports it.
   - **Add rule block** appends one empty block after the last one. **Remove block** removes that block only; the others keep their order.
   - At most **60** blocks. At 60, Add is disabled and the reason is shown beside it: "Limit reached: 60 of 60 rule blocks. Remove a block to add one."
   - Two blocks whose names give the same id both show a duplicate-id message; both are kept as entered.
@@ -151,6 +154,7 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 | Stack fields (all five: language, framework, platform, build tool, test framework) | 100 characters (code points), single line |
 | Architecture | 5,000 characters (code points), optional |
 | Rule block name | 100 characters (code points), single line |
+| Rule block id | derived from the name: starts with a letter, at most 60 characters; a refused id shows a message and does not block Next |
 | Rule block description | 1,000 characters |
 | Agent body | 1000 characters (code points) |
 | Flow body | 1000 characters (code points), required |

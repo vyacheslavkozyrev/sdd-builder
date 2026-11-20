@@ -11,6 +11,8 @@ export const cardShadow = '0 1px 4px rgba(50, 56, 62, 0.12)';
 export const theme = createTheme({
   palette: {
     primary: { main: '#635BFF' },
+    // Done steps of the wizard stepper (F-08): kepple 500 for the node, kepple 600 for the label.
+    success: { main: '#15B79F', dark: '#107569' },
     background: { default: '#F0F4F8', paper: '#FFFFFF' },
     text: { primary: '#32383E', secondary: '#636B74' },
     divider: '#DDE7EE',

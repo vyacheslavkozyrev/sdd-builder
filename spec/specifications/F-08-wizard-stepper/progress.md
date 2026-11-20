@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 2 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 3 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -35,12 +35,15 @@ _The rows below are the 2026-11-17 build, superseded by the reset of 2026-11-19.
 | T006 | Next is shown disabled on step 4 (amendment to AC-007); Next kept in place on every step | 0 blockers, 0 warnings, 1 suggestion fixed | task check passed: api 57, web 114, core 1017 |
 | T001 (2026-11-20) | Step model as pure functions: titles, done/current/to-do states, Prev and Next flags | 0 blockers, 2 warnings fixed (AC-009 weak tests), 2 suggestions fixed (casts) | task check passed: api 45, web 74, core 1208 |
 | T002 (2026-11-20) | Wizard state reducer: step and values, Next and Prev one step, restart, privacy scan | 0 blockers, 1 warning fixed (marker fixture typed as empty values), 1 suggestion fixed (weak input-unchanged assertion) | task check passed: api 45, web 106, core 1208 |
+| T003 (2026-11-20) | Palette success colours and vertical MUI stepper (not clickable), states, per-node title for screen readers | 0 blockers, 4 warnings fixed (label size, node title U-03, connector colour, ring as in the SVG), 1 suggestion fixed (redundant disabled prop) | task check passed: api 45, web 128, core 1208 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T003 (documentation, for the owner): `spec/design/features/F-08-wizard-stepper/screens.md` gives the to-do node outline as `#DDE7EE`, but the approved SVG and the implementation use `#CDD7E1` (grey[300). The SVG is the reference; screens.md wording is to be corrected by the owner.
 
 ---
 

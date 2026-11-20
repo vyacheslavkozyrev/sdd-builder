@@ -279,7 +279,7 @@ describe('F-04 AC-036 the same fixture templates give the same plan in two runs'
         {
           path: '.claude/commands/build.md',
           layout:
-            'Flow build:\n1. Start the flow.\n2. Run the agent `.claude/agents/build-agent.md`: Builds the project.\n3. End the flow.',
+            'Flow build:\n1. Start the flow.\n2. Run the agent `.claude/agents/build-agent.md`: Builds the project.\n3. End the flow, producing the artifact `out.md`.',
           description: '',
           ruleTags: [],
         },

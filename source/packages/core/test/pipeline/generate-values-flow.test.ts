@@ -86,7 +86,7 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
         '5. Check to pass: Is gate met?',
         '   - True: go to the end of the flow',
         '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
-        '6. End the flow.',
+        '6. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
@@ -114,7 +114,7 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
         '   - True: go to the end of the flow',
         '   - False: go to step 3 (the agent `.claude/agents/draft-agent.md`)',
         '3. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
-        '4. End the flow.',
+        '4. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
@@ -135,7 +135,7 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
         '   - True: go to step 3 (the agent `.claude/agents/draft-agent.md`)',
         '   - False: go to the end of the flow',
         '3. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
-        '4. End the flow.',
+        '4. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
     expect(values['flowConditions']).toBe(
@@ -165,7 +165,7 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
         '3. Check to pass: Is c2 met?',
         '   - True: go to the end of the flow',
         '   - False: stop and ask the person what to do: "The check did not pass: Is c2 met? What should happen next?"',
-        '4. End the flow.',
+        '4. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
@@ -183,7 +183,7 @@ describe('F-05 AC-011 an Agent step names the agent file and gives the agent des
       [
         '1. Start the flow.',
         '2. Run the agent `.claude/agents/review-agent.md`: Reviews the draft.',
-        '3. End the flow.',
+        '3. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
@@ -234,7 +234,7 @@ describe('F-04 AC-015 the steps list the blocks of the walk, the Start first and
         '5. Check to pass: Is gate met?',
         '   - True: go to the end of the flow',
         '   - False: stop and ask the person what to do: "The check did not pass: Is gate met? What should happen next?"',
-        '6. End the flow.',
+        '6. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
@@ -256,14 +256,14 @@ describe('F-04 AC-015 the steps list the blocks of the walk, the Start first and
       [
         '1. Start the flow.',
         '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX), `note` (optional): Runs draft.',
-        '3. End the flow.',
+        '3. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
 
   it('gives only the Start and End steps for a flow with no Agent block', () => {
     const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'end' }, END]);
-    expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow.');
+    expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow, producing the artifact `out.md`.');
   });
 
   it('gives the same steps whatever order the blocks are declared in', () => {
@@ -410,7 +410,7 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
         '3. Check to pass: Is it met?',
         '   - True: go to the end of the flow',
         '   - False: stop and ask the person what to do: "The check did not pass: Is it met? What should happen next?"',
-        '4. End the flow.',
+        '4. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
     expect(values['flowConditions']).toBe(
@@ -426,5 +426,91 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
   it('writes a flow argument hint with a line break on one line', () => {
     const flow = { ...fixtureFlow(), arguments: [{ index: 0, id: 'note', required: false, hint: 'a\nb' }] };
     expect(flowValues(flow)['flowArguments']).toBe('\n- `note` (optional, a b)');
+  });
+});
+
+describe('F-05 AC-009 each artifact of the flow is written with its label and template text', () => {
+  it('F-05 AC-009 writes each artifact in order, with its label as a heading and its template text under it', () => {
+    const flow = {
+      ...fixtureFlow(),
+      artifacts: [
+        { label: 'plan.md', template: 'Task list, in order.\nOne task per line.' },
+        { label: 'notes.md', template: 'Open questions.' },
+      ],
+    };
+    expect(flowValues(flow)['flowArtifacts']).toBe(
+      '\n' +
+      [
+        '### plan.md',
+        '',
+        'Task list, in order.',
+        'One task per line.',
+        '',
+        '### notes.md',
+        '',
+        'Open questions.',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-009 writes No artifacts when the flow has no artifacts', () => {
+    expect(flowValues({ ...fixtureFlow(), artifacts: [] })['flowArtifacts']).toBe('\nNo artifacts');
+  });
+
+  it('F-05 AC-009 writes an artifact with an empty template as its label alone, and drops trailing blank lines', () => {
+    const flow = {
+      ...fixtureFlow(),
+      artifacts: [
+        { label: 'empty.md', template: '  \n' },
+        { label: 'trimmed.md', template: 'Text.\n\n' },
+      ],
+    };
+    expect(flowValues(flow)['flowArtifacts']).toBe('\n### empty.md\n\n### trimmed.md\n\nText.');
+  });
+
+  it('F-05 AC-009 drops leading blank lines of a template but keeps the indentation of its first text line', () => {
+    const flow = {
+      ...fixtureFlow(),
+      artifacts: [
+        { label: 'lead.md', template: '\n  \nLead.' },
+        { label: 'indent.md', template: '  Indented.' },
+      ],
+    };
+    expect(flowValues(flow)['flowArtifacts']).toBe('\n### lead.md\n\nLead.\n\n### indent.md\n\n  Indented.');
+  });
+
+  it('F-05 AC-009 keeps a label that holds line breaks on one heading line', () => {
+    const flow = { ...fixtureFlow(), artifacts: [{ label: 'plan\r\n.md', template: 'Text.' }] };
+    expect(flowValues(flow)['flowArtifacts']).toBe('\n### plan .md\n\nText.');
+  });
+});
+
+describe('F-05 AC-014 the End step names the produced artifact, or writes no artifact line', () => {
+  it('F-05 AC-014 names the producedArtifact on the End step', () => {
+    expect(flowValues(fixtureFlow())['flowSteps']).toContain('6. End the flow, producing the artifact `out.md`.');
+  });
+
+  it('F-05 AC-014 writes the plain End step when the producedArtifact is empty', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      agent(1, 'draft', 'end'),
+      { ...END, producedArtifact: '' },
+    ]);
+    expect(flowValues(flow)['flowSteps']).toBe(
+      '\n' +
+      [
+        '1. Start the flow.',
+        '2. Run the agent `.claude/agents/draft-agent.md`: Runs draft.',
+        '3. End the flow.',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-014 writes the plain End step when the producedArtifact is blank', () => {
+    const flow = flowWith([
+      { index: 0, id: 'start', kind: 'start', next: 'end' },
+      { ...END, producedArtifact: ' \n ' },
+    ]);
+    expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow.');
   });
 });

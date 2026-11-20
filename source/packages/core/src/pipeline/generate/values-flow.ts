@@ -1,4 +1,4 @@
-import type { AgentBlock, Block, ConditionBlock, Flow, Route } from '../model.js';
+import type { AgentBlock, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
 import { describeArgument, describeArguments, inlineText, linesOf } from './values-text.js';
 import { walkFlow } from './walk.js';
@@ -7,8 +7,10 @@ import { walkFlow } from './walk.js';
 // (decision 36b): `flowArguments` is one line per argument; `flowSteps` is one numbered line per block of the walk
 // (F-05, AC-010), the Start first and the End last; a Condition step gives its check and its true and false routes as
 // sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition, with the same routes as sub-lines;
-// `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a pure function of
-// the flow: the same flow always gives the same text.
+// `flowArtifacts` is each artifact as a heading with its label and its template text, `No artifacts` when the flow has
+// none (F-05, AC-009); the End step names the produced artifact when there is one (F-05, AC-014). `flowApproval` is the
+// approval paragraph, empty when the flow's approval is off. The values are a pure function of the flow: the same flow
+// always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
 // break and is empty when it has no lines. A layout writes such a placeholder at the end of a line, with no line break
@@ -28,6 +30,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowName: inlineText(flow.name),
     flowDescription: inlineText(flow.description ?? ''),
     flowArguments: linesOf(flow.arguments.map((arg) => `- ${describeArgument(arg)}`)),
+    flowArtifacts: artifactsText(flow.artifacts),
     flowSteps: linesOf(steps.map((block, index) => stepText(block, index + 1, places, flow))),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
     flowApproval: flow.approval
@@ -51,8 +54,29 @@ function stepText(block: Block, number: number, places: ReadonlyMap<string, stri
     case 'condition':
       return [`${number}. Check to pass: ${inlineText(block.description)}`, ...routeLines(block, places, flow)].join('\n');
     case 'end':
-      return `${number}. End the flow.`;
+      return endStep(block, number);
   }
+}
+
+// The End step names the flow's produced artifact when it has one (AC-014); with none, it is the plain end.
+function endStep(block: EndBlock, number: number): string {
+  const artifact = inlineText(block.producedArtifact);
+  if (artifact === '') return `${number}. End the flow.`;
+  return `${number}. End the flow, producing the artifact \`${artifact}\`.`;
+}
+
+// Each artifact of the flow, in order; `No artifacts` when there are none (AC-009). The layout writes the `## Artifacts`
+// heading before this value; each artifact heading is level 3 under it.
+function artifactsText(artifacts: readonly Artifact[]): string {
+  return artifacts.length === 0 ? '\nNo artifacts' : `\n${artifacts.map(artifactText).join('\n\n')}`;
+}
+
+// An artifact is a heading with its label, and its template text under it as written; the template's leading and
+// trailing blank lines are dropped so that no artifact leaves a gap (AC-009).
+function artifactText(artifact: Artifact): string {
+  const heading = `### ${inlineText(artifact.label)}`;
+  const body = artifact.template.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
+  return body === '' ? heading : `${heading}\n\n${body}`;
 }
 
 // An Agent step names the agent file and gives the agent's description (AC-011).

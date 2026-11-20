@@ -1,32 +1,55 @@
 import type { Flow, Pipeline } from '../model.js';
-import { describeArgument, inlineText, linesOf } from './values-text.js';
+import {
+  argumentsText,
+  bodyText,
+  inlineText,
+  linesOf,
+  quotedText,
+  yamlToolsText,
+} from './values-text.js';
 
-// The values of the pipeline command layout (F-04, AC-017). `pipelineName` and `pipelineDescription` are inline;
-// `pipelineArguments` is one line per argument; `pipelineFlows` is one numbered line per flow, in pipeline order, with
-// its id, its description when it has one, and whether the process stops for a person at the end of the flow. A flow
-// is listed once and its id is not written as a step. `pipelineModel` and `pipelineTools` are the optional frontmatter
-// lines and `pipelineBody` the body paragraph (AC-039, decision 26); each starts with its own line break and is ''
-// when the pipeline has no such entry. A tool name is inline text, so a line break in it cannot add a frontmatter
-// line. The values are a pure function of the pipeline.
+// The lines that stop the run after a flow with approval on (F-05, AC-003). Each is a step of its own, so the flow's own
+// step stays one step (AC-004). The last flow has no next flow to wait before, so it has its own line.
+const APPROVAL_STEP = "Stop and wait for the person's approval before the next flow.";
+const LAST_APPROVAL_STEP = "Stop and wait for the person's approval at the end of the process.";
+
+// The values of the pipeline command layout (F-04, AC-017). `pipelineName` and `pipelineDescription` are inline, and
+// `pipelineDescriptionYaml` is the description as a quoted YAML string for the frontmatter line (F-05, AC-005, as AC-017
+// does for agents). `pipelineArguments` is one line per argument, `No arguments` when there are none (F-05, AC-001).
+// `pipelineFlows` is one numbered step per flow, in pipeline order, with its id and its description when it has one; a
+// flow with approval on is followed by its own numbered approval step (F-05, AC-002 to AC-004). A flow is listed once
+// and its id is not written as a step. `pipelineModel` and `pipelineTools` are the optional frontmatter lines and
+// `pipelineBody` the body paragraph (AC-039, decision 26, F-05 AC-005); each starts with its own line break and is ''
+// when the pipeline has no such entry. The values are a pure function of the pipeline.
 export function pipelineValues(pipeline: Pipeline): Record<string, string> {
   return {
     pipelineName: inlineText(pipeline.name),
     pipelineDescription: inlineText(pipeline.description),
+    pipelineDescriptionYaml: quotedText(inlineText(pipeline.description)),
     pipelineModel: pipeline.model === undefined ? '' : `\nmodel: ${pipeline.model}`,
     pipelineTools:
-      pipeline.tools === undefined || pipeline.tools.length === 0
-        ? ''
-        : `\ntools: ${pipeline.tools.map(inlineText).join(', ')}`,
-    pipelineBody: pipeline.body ? `\n\n${pipeline.body}` : '',
-    pipelineArguments: linesOf(pipeline.arguments.map((arg) => `- ${describeArgument(arg)}`)),
-    pipelineFlows: linesOf(pipeline.flows.map((flow, index) => flowLine(flow, index + 1))),
+      pipeline.tools === undefined || pipeline.tools.length === 0 ? '' : `\ntools: ${yamlToolsText(pipeline.tools)}`,
+    pipelineBody: bodyText(pipeline.body ?? ''),
+    pipelineArguments: argumentsText(pipeline.arguments),
+    pipelineFlows: linesOf(flowSteps(pipeline.flows)),
   };
 }
 
-function flowLine(flow: Flow, number: number): string {
-  const head = `${number}. Flow \`${flow.id}\``;
-  const approval = flow.approval
-    ? 'The process stops for a person at the end of this flow.'
-    : 'The process does not stop at the end of this flow.';
-  return flow.description ? `${head}: ${inlineText(flow.description)} ${approval}` : `${head}. ${approval}`;
+// The numbered steps of the flow list: each flow is one step, and each flow with approval on is followed by a step that
+// stops the run. The numbers run over both kinds of step.
+function flowSteps(flows: readonly Flow[]): string[] {
+  const steps: string[] = [];
+  flows.forEach((flow, index) => {
+    steps.push(`${steps.length + 1}. ${flowStep(flow)}`);
+    if (flow.approval) {
+      const stop = index === flows.length - 1 ? LAST_APPROVAL_STEP : APPROVAL_STEP;
+      steps.push(`${steps.length + 1}. ${stop}`);
+    }
+  });
+  return steps;
+}
+
+function flowStep(flow: Flow): string {
+  const head = `Flow \`${flow.id}\``;
+  return flow.description ? `${head}: ${inlineText(flow.description)}` : `${head}.`;
 }

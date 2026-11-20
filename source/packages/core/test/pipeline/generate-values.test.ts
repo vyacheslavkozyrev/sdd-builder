@@ -50,9 +50,9 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     expect(values['pipelineDescription']).toBe('One flow that builds the project.');
   });
 
-  it('gives one line per pipeline argument with its required mark and hint, empty when there are none', () => {
+  it('gives one line per pipeline argument with its required mark and hint, or No arguments when there are none', () => {
     const base = validConfig().pipeline;
-    expect(pipelineValues(base)['pipelineArguments']).toBe('');
+    expect(pipelineValues(base)['pipelineArguments']).toBe('\nNo arguments');
     const withArgs = pipelineWith({
       arguments: [argument(0, 'topic', true, 'the subject'), argument(1, 'scope', false)],
     });
@@ -61,7 +61,7 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     );
   });
 
-  it('lists each flow once, in pipeline order, with its description and its approval', () => {
+  it('lists each flow once, in pipeline order, with its description, and a stop step after a flow with approval on', () => {
     const pipeline = pipelineWith({
       flows: [
         flow({ id: 'plan', description: 'Plans the work.', approval: true }),
@@ -69,16 +69,15 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
       ],
     });
     expect(pipelineValues(pipeline)['pipelineFlows']).toBe(
-      '\n1. Flow `plan`: Plans the work. The process stops for a person at the end of this flow.' +
-        '\n2. Flow `build`. The process does not stop at the end of this flow.',
+      '\n1. Flow `plan`: Plans the work.' +
+        "\n2. Stop and wait for the person's approval before the next flow." +
+        '\n3. Flow `build`.',
     );
   });
 
   it('leaves the description out of a flow line when the flow has none', () => {
     const pipeline = pipelineWith({ flows: [flow({ id: 'build' })] });
-    expect(pipelineValues(pipeline)['pipelineFlows']).toBe(
-      '\n1. Flow `build`. The process does not stop at the end of this flow.',
-    );
+    expect(pipelineValues(pipeline)['pipelineFlows']).toBe('\n1. Flow `build`.');
   });
 
   it('gives an empty flow list when the pipeline has no flows', () => {
@@ -94,9 +93,7 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     const values = pipelineValues(pipeline);
     expect(values['pipelineName']).toBe('Build pipeline');
     expect(values['pipelineDescription']).toBe('One flow that builds.');
-    expect(values['pipelineFlows']).toBe(
-      '\n1. Flow `build`: Builds it. The process does not stop at the end of this flow.',
-    );
+    expect(values['pipelineFlows']).toBe('\n1. Flow `build`: Builds it.');
   });
 
   it('F-04 AC-039 gives the model and tools frontmatter lines only when the pipeline sets them', () => {
@@ -119,6 +116,18 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     );
   });
 
+  it('F-05 AC-005 quotes the tools list when a tool name would break the YAML, as the agent tools do', () => {
+    expect(pipelineValues(pipelineWith({ tools: ['Read', 'Bash(git: *)'] }))['pipelineTools']).toBe(
+      '\ntools: "Read, Bash(git: *)"',
+    );
+  });
+
+  it('F-05 AC-005 gives the description as a quoted YAML string for the frontmatter, and the plain text for Purpose', () => {
+    const values = pipelineValues(pipelineWith({ description: 'Builds "it":\nC:\\bin.' }));
+    expect(values['pipelineDescriptionYaml']).toBe('"Builds \\"it\\": C:\\\\bin."');
+    expect(values['pipelineDescription']).toBe('Builds "it": C:\\bin.');
+  });
+
   it('F-04 AC-003 keeps a line break in an agent tool name from splitting the agent tools frontmatter line', () => {
     expect(agentValues(agent({ tools: ['Read', 'Edit\nBash'] }))['agentTools']).toBe('\ntools: Read, Edit Bash');
   });
@@ -126,6 +135,7 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
   it('F-04 AC-039 gives the body as a paragraph after a blank line, empty when the pipeline has no body', () => {
     expect(pipelineValues(validConfig().pipeline)['pipelineBody']).toBe('');
     expect(pipelineValues(pipelineWith({ body: '' }))['pipelineBody']).toBe('');
+    expect(pipelineValues(pipelineWith({ body: ' \n\t\n' }))['pipelineBody']).toBe('');
     expect(pipelineValues(pipelineWith({ body: 'Run the flows in order.' }))['pipelineBody']).toBe(
       '\n\nRun the flows in order.',
     );
@@ -153,7 +163,7 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     const values = pipelineValues(pipeline);
     expect(
       renderLayout('Args:{{pipelineArguments}}\nFlows:{{pipelineFlows}}', values, '.claude/commands/pipeline.md'),
-    ).toBe('Args:\nFlows:\n1. Flow `build`. The process does not stop at the end of this flow.');
+    ).toBe('Args:\nNo arguments\nFlows:\n1. Flow `build`.');
   });
 });
 

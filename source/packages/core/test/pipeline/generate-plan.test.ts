@@ -285,7 +285,7 @@ describe('F-04 AC-036 the same fixture templates give the same plan in two runs'
         },
         {
           path: '.claude/commands/pipeline.md',
-          layout: 'Pipeline Build pipeline:\n1. Flow `build`. The process does not stop at the end of this flow.',
+          layout: 'Pipeline Build pipeline:\n1. Flow `build`.',
           description: '',
           ruleTags: [],
         },

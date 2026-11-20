@@ -38,3 +38,37 @@ export function bodyText(body: string): string {
 export function ruleTagsText(tags: readonly RuleTag[] | undefined): string {
   return tags === undefined || tags.length === 0 ? 'none' : tags.map((tag) => tag.ruleId).join(', ');
 }
+
+// Each argument of a flow or the pipeline on its own line; `No arguments` when there are none (F-05, AC-008 and AC-001).
+export function argumentsText(args: readonly Argument[]): string {
+  return args.length === 0 ? '\nNo arguments' : linesOf(args.map((arg) => `- ${describeArgument(arg)}`));
+}
+
+// The tools as one comma-separated list in their order. The list is written plain when every tool name is a plain YAML
+// scalar; otherwise the whole list is quoted, so that the frontmatter line stays one YAML string (F-05, AC-019).
+export function yamlToolsText(tools: readonly string[]): string {
+  const names = tools.map(inlineText);
+  const list = names.join(', ');
+  return names.every(isPlainYamlScalar) ? list : quotedText(list);
+}
+
+// Whether YAML reads the text as a plain scalar of its own: it does not start with an indicator character, a digit, a
+// sign or a dot (YAML reads those as numbers), does not end with a colon, holds no `: ` or ` #` and no control
+// character, is not empty, and is not a word YAML reads as another type.
+function isPlainYamlScalar(text: string): boolean {
+  if (text === '' || /^(?:true|false|yes|no|on|off|null|~)$/i.test(text)) return false;
+  return !/^[\s\-?:,[\]{}#&*!|>'"%@`+.\d]|[\s:]$|: |\s#|[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(text);
+}
+
+// A double-quoted YAML string: the backslashes and the quotes inside the text are escaped, and so are the control
+// characters and the line and paragraph separators, which a YAML double-quoted string cannot hold as they are.
+export function quotedText(text: string): string {
+  const escaped = text
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(
+      /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g,
+      (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
+    );
+  return `"${escaped}"`;
+}

@@ -49,9 +49,12 @@ function linked(flows: readonly Flow[]): Flow[] {
   });
 }
 
-// The two approval sentences of a flow, as the pipeline command writes them in `pipelineFlows` (F-05, AC-029).
+// The two approval sentences of a flow, as the process list writes them (F-05, AC-029), and the stop step the pipeline
+// command writes after a flow with approval on (F-05, AC-003).
 const STOPS = 'The process stops for a person at the end of this flow.';
 const DOES_NOT_STOP = 'The process does not stop at the end of this flow.';
+const PIPELINE_STOP = "Stop and wait for the person's approval before the next flow.";
+const PIPELINE_STOP_LAST = "Stop and wait for the person's approval at the end of the process.";
 
 const RULES: readonly Rule[] = [
   { index: 0, id: 'style', title: 'Plain style', text: 'Write short sentences.' },
@@ -105,13 +108,13 @@ describe('F-05 AC-029 the process list lists each flow once, in the order of the
     const flow = { ...flowWith('build', 'Builds the project.', []), approval: true };
     const config = configWith([flow], []);
     expect(baseValues(config)['processFlows']).toBe(`\n- build (\`build\`): Builds the project. ${STOPS}`);
-    expect(pipelineValues(config.pipeline)['pipelineFlows']).toContain(STOPS);
+    expect(pipelineValues(config.pipeline)['pipelineFlows']).toContain(PIPELINE_STOP_LAST);
   });
 
   it('gives the does-not-stop sentence of a flow with approval off, as the pipeline command writes it', () => {
     const config = configWith([flowWith('build', undefined, [])], []);
     expect(baseValues(config)['processFlows']).toBe(`\n- build (\`build\`): ${DOES_NOT_STOP}`);
-    expect(pipelineValues(config.pipeline)['pipelineFlows']).toContain(DOES_NOT_STOP);
+    expect(pipelineValues(config.pipeline)['pipelineFlows']).not.toContain(PIPELINE_STOP);
   });
 
   it('gives the stop sentence after the item text of a flow with approval on and no description', () => {

@@ -1,5 +1,13 @@
 import type { AgentBlock } from '../model.js';
-import { bodyText, describeArgument, inlineText, linesOf, ruleTagsText } from './values-text.js';
+import {
+  bodyText,
+  describeArgument,
+  inlineText,
+  linesOf,
+  quotedText,
+  ruleTagsText,
+  yamlToolsText,
+} from './values-text.js';
 
 // The values of an agent file layout (F-04, AC-003). `agentName` is inline. `agentDescription` is the description as a
 // quoted YAML string (F-05, AC-017), and `agentPurpose` the same description as plain inline text for the Purpose
@@ -18,42 +26,13 @@ export function agentValues(agent: AgentBlock): Record<string, string> {
     agentPurpose: inlineText(agent.description),
     agentModel: agent.model === undefined ? '' : `\nmodel: ${agent.model}`,
     agentTools:
-      agent.tools === undefined || agent.tools.length === 0 ? '' : `\ntools: ${toolsText(agent.tools)}`,
+      agent.tools === undefined || agent.tools.length === 0 ? '' : `\ntools: ${yamlToolsText(agent.tools)}`,
     agentReads: artifactSection('Reads', agent.reads),
     agentWrites: artifactSection('Writes', agent.writes),
     agentBody: instructionsText(agent.body ?? ''),
     agentArguments: linesOf(agent.arguments.map((arg) => `- ${describeArgument(arg)}`)),
     agentRuleTags: ruleTagsText(agent.ruleTags),
   };
-}
-
-// The tools as one comma-separated list in their order. The list is written plain when every tool name is a plain YAML
-// scalar; otherwise the whole list is quoted, so that the frontmatter line stays one YAML string (F-05, AC-019).
-function toolsText(tools: readonly string[]): string {
-  const names = tools.map(inlineText);
-  const list = names.join(', ');
-  return names.every(isPlainYamlScalar) ? list : quotedText(list);
-}
-
-// Whether YAML reads the text as a plain scalar of its own: it does not start with an indicator character, a digit, a
-// sign or a dot (YAML reads those as numbers), does not end with a colon, holds no `: ` or ` #` and no control
-// character, is not empty, and is not a word YAML reads as another type.
-function isPlainYamlScalar(text: string): boolean {
-  if (text === '' || /^(?:true|false|yes|no|on|off|null|~)$/i.test(text)) return false;
-  return !/^[\s\-?:,[\]{}#&*!|>'"%@`+.\d]|[\s:]$|: |\s#|[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(text);
-}
-
-// A double-quoted YAML string: the backslashes and the quotes inside the text are escaped, and so are the control
-// characters and the line and paragraph separators, which a YAML double-quoted string cannot hold as they are.
-function quotedText(text: string): string {
-  const escaped = text
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(
-      /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g,
-      (char) => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`,
-    );
-  return `"${escaped}"`;
 }
 
 // The Instructions section of the agent file: a level 2 heading and the body paragraph. '' when the body is blank or

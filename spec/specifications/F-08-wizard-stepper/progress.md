@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 1 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 2 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _The rows below are the 2026-11-17 build, superseded by the reset of 2026-11-19.
 | T005 | Application root: reducer state, wizard in the frame, New project restarts, F-07 placeholder removed; AppFrame centre area as a flex column (approved deviation) | 0 blockers, 1 warning fixed (App test mock now runs the recorded reducer and checks it is wizardReducer; a wrong New project wiring fails), 1 suggestion fixed (AC-015 test name marks the style part only); deviation reviewed against F-07 AC-006 to AC-010, no regression | task check passed: api 57, web 110, core 1017 |
 | T006 | Next is shown disabled on step 4 (amendment to AC-007); Next kept in place on every step | 0 blockers, 0 warnings, 1 suggestion fixed | task check passed: api 57, web 114, core 1017 |
 | T001 (2026-11-20) | Step model as pure functions: titles, done/current/to-do states, Prev and Next flags | 0 blockers, 2 warnings fixed (AC-009 weak tests), 2 suggestions fixed (casts) | task check passed: api 45, web 74, core 1208 |
+| T002 (2026-11-20) | Wizard state reducer: step and values, Next and Prev one step, restart, privacy scan | 0 blockers, 1 warning fixed (marker fixture typed as empty values), 1 suggestion fixed (weak input-unchanged assertion) | task check passed: api 45, web 106, core 1208 |
 
 ---
 

@@ -5,6 +5,7 @@ import { renderLayout } from './render.js';
 import { configProblems } from './refuse.js';
 import type { GenerationTemplates } from './templates.js';
 import { agentValues } from './values-agent.js';
+import { baseValues } from './values-base.js';
 import { flowValues } from './values-flow.js';
 import { pipelineValues } from './values-pipeline.js';
 import { ruleValues } from './values-rule.js';
@@ -41,7 +42,7 @@ function planFile(file: ListedFile, config: ProjectConfig, templates: Generation
   const source = file.source;
   switch (source.kind) {
     case 'base':
-      return planned(file.path, renderLayout(source.layout, {}, file.path), '', []);
+      return planned(file.path, renderLayout(source.layout, baseValues(config), file.path), '', []);
     case 'pipeline':
       return planned(
         file.path,

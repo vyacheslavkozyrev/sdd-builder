@@ -218,7 +218,7 @@ describe('F-04 AC-011 each planned file has its rendered layout, description and
 
 describe('F-04 AC-013 a placeholder with no value makes planning throw', () => {
   it('throws for a base layout that uses a placeholder, naming the placeholder and the file', () => {
-    // Base layouts take no values in F-04 (see plan.md, Interpretations): a placeholder in one is a template error.
+    // Base layouts take only the base values (AC-037): a placeholder that those do not name is a template error.
     const templates: GenerationTemplates = {
       ...TEMPLATES,
       base: [{ path: 'CLAUDE.md', layout: 'Project {{projectName}}.' }],
@@ -228,6 +228,39 @@ describe('F-04 AC-013 a placeholder with no value makes planning throw', () => {
     expect(() => planOf(config, templates)).toThrow(GenerationError);
     expect(() => planOf(config, templates)).toThrow(
       /the layout of CLAUDE\.md uses the placeholder \{\{projectName\}\}, which has no value/,
+    );
+  });
+});
+
+describe('F-04 AC-038 planning renders each base layout with the base values', () => {
+  it('renders the process, command, agent and rule lists into a base layout', () => {
+    const templates: GenerationTemplates = {
+      ...TEMPLATES,
+      base: [
+        {
+          path: 'CLAUDE.md',
+          layout: 'Process:{{processList}}\nCommands:{{commandList}}\nAgents:{{agentList}}\nRules:{{ruleList}}',
+        },
+      ],
+    };
+    const config = configWith([flowOf('build')], RULES);
+    const plan = planOf(config, templates);
+
+    expect(fileAt(plan, 'CLAUDE.md').layout).toBe(
+      'Process:\n- `build`' +
+        '\nCommands:\n- `.claude/commands/pipeline.md`\n- `.claude/commands/build.md`' +
+        '\nAgents:\n- `.claude/agents/build-agent.md`: Builds the project.' +
+        '\nRules:\n- `.claude/rules/alpha.md`: Alpha\n- `.claude/rules/beta.md`: Beta',
+    );
+  });
+
+  it('throws for a base layout that uses processDiagram, which the base values do not supply', () => {
+    const templates: GenerationTemplates = {
+      ...TEMPLATES,
+      base: [{ path: 'CLAUDE.md', layout: 'Diagram:{{processDiagram}}' }],
+    };
+    expect(() => planOf(configWith([flowOf('build')], RULES), templates)).toThrow(
+      /the layout of CLAUDE\.md uses the placeholder \{\{processDiagram\}\}, which has no value/,
     );
   });
 });

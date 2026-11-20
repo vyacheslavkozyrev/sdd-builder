@@ -8,92 +8,72 @@ Each task is **one implement → review → test → commit cycle** and produces
 - **Ordered:** a task never depends on a later task.
 - **Traceable:** each task names the acceptance criteria it covers.
 
-Paths are relative to the repository root. The generator lives in `source/packages/core/src/pipeline/generate/` (decision 23 and `source/templates/README.md`). Tests live in `source/packages/core/test/pipeline/`, and each test name carries `F-04 AC-0xx`. Templates are passed in as data; no task reads a template file from disk (AC-032).
+Source of the criteria: `stories.md` (AC-001 to AC-036, all `[auto]`). Paths are relative to the repository root. The generator lives in `source/packages/core/src/pipeline/generate/`, one module per concern. Tests live in `source/packages/core/test/pipeline/`, and each test name carries `F-04 AC-0xx`. Templates are passed in as data (AC-035): no task reads a template file from disk. The layouts themselves are F-05; F-04 tests use fixture layouts.
+
+## Decision used by the plan: the templates are data
+
+`planGeneration(config, templates)` takes a `GenerationTemplates` value, defined in T003:
+
+- `base`: the base files in output order, each `{ path, layout }`. The paths come from `source/templates/base/manifest.json` (decision 36d) and include the spec-template files under `spec/specifications/F-00-template/`.
+- `pipeline`, `flow`, `agent`, `rule`: one layout text each, for `.claude/commands/pipeline.md`, a flow command, an agent file and a rule file.
+
+Layouts use `{{name}}` placeholders. Each value is a text built in code (decision 36b): a value that is a whole line (a step list, a condition list, an optional frontmatter line, the approval line) is built by `generate/`, so no layout holds a conditional.
+
+## Interpretations (taken at Specify and carried into the rules)
+
+- The walk of a flow starts at its Start and follows `next` links; at a condition it visits the `true` route before the `false` route; a block reached twice is listed once (AC-015).
+- A retry route always carries a `roundLimit` (the schema requires it), so the layout never writes "no limit set".
+- A configuration with a blocker, including a flow whose id is `pipeline`, is refused before any layout is rendered (AC-020, AC-022).
+- Warnings never refuse a configuration (AC-021).
+- The file list is sorted by path in code-point order (decision 35). The text of `pipeline.md` follows the flow order, so a reordering of flows changes that text but not the list of paths.
 
 ## Tasks
 
-- [x] T001 [Docs] Record the decisions the stories rely on and correct the conflicting wording: `spec/documents/architecture.md` §3 (`planGeneration` and `checkReply` belong to F-04, not F-03); a new decision 35 in §6 (the file list is sorted by path; a flow whose id is `pipeline` is a blocker, since its command file would clash with `pipeline.md`; a duplicate output path throws, as decision 23 says, and no configuration reaches it because of the blocker); decision 22 (the flat analyzer's removal moves to F-06, the analyzer's owner); `source/templates/README.md` (the duplicate-path sentence and the sort sentence match decisions 23 and 35) — covers no criterion; records the rules that AC-007, AC-016, AC-019 and AC-021 rely on
+- [ ] T001 [Docs] Align the generation model with the flow model: `spec/documents/architecture.md` §3 steps 2 and 4 (remove "required blocks and the flow approvals and checks are always present" and the "gates" wording; state that the walk follows `next` and conditions, and that approval is a flag of the flow); `spec/documents/features.md` F-04 scope line only if its wording names gates or checks as flow properties. Covers no criterion; no code.
 
-- [x] T002 [Core] Refusals: the flow-name rule and `configProblems`: `source/packages/core/src/pipeline/analyze/generated-names.ts` (a blocker at the flow's path when a flow's id is `pipeline`; the rule is registered in `analyze/index.ts`); `source/packages/core/src/pipeline/generate/problems.ts` (`configProblems(config)` returns the blocker findings of `analyzeStructure`, in its order, and no warning); `source/packages/core/test/pipeline/generated-names.test.ts` (table-driven) and `source/packages/core/test/pipeline/config-problems.test.ts` — covers AC-016, AC-018, AC-019, AC-020
+- [ ] T002 [Core] Errors and one-pass rendering: `source/packages/core/src/pipeline/generate/error.ts` (class `GenerationError`, a programmer error that names a path); `source/packages/core/src/pipeline/generate/render.ts` (`renderLayout(layout, values, path)`: replaces every `{{name}}` in one pass; an unknown name throws `GenerationError` naming the name and the path; a value is copied as written and is not rendered again). Test: `source/packages/core/test/pipeline/generate-render.test.ts`. Covers AC-012 (substitution), AC-013, AC-014.
 
-- [x] T003 [Core] Template input and placeholders: `source/packages/core/src/pipeline/generate/templates.ts` (the type `Templates`: base files, each with its output path, text and required `##` headings, plus the layout texts for the pipeline, command, agent and rule files); `source/packages/core/src/pipeline/generate/render.ts` (replaces every `{{name}}` in one pass from a value map; a placeholder with no value throws `GenerationError` naming the placeholder and the file path); `source/packages/core/src/pipeline/generate/errors.ts` (`GenerationError`); `source/packages/core/test/pipeline/render.test.ts` (fixture templates; a value containing `{{...}}` is copied as written) — covers AC-012, AC-013, AC-014
+- [ ] T003 [Core] Templates input and the file list: `source/packages/core/src/pipeline/generate/templates.ts` (type `GenerationTemplates` as in the decision above); `source/packages/core/src/pipeline/generate/paths.ts` (file-safe test of a relative path: no leading slash, no `..`, no backslash, no empty segment); `source/packages/core/src/pipeline/generate/file-list.ts` (lists each planned path with its kind: base, pipeline command, flow command, agent, rule; sorted by code-point order; two planned files with one path throw `GenerationError` naming the path). Tests: `generate-file-list.test.ts`. Covers AC-001, AC-002, AC-003, AC-004, AC-006, AC-024; the sort part of AC-007.
 
-- [x] T004 [Core] The file list: `source/packages/core/src/pipeline/generate/plan.ts` (`planGeneration(config, templates)` returns `{ ok: true, files }` or `{ ok: false, problems }`; a refused config returns its problems and renders nothing; files: the base files in template order, `.claude/commands/pipeline.md`, `.claude/commands/<flow-id>.md` per flow, `.claude/agents/<name>.md` per Agent block of each flow, `.claude/rules/<id>.md` per rule; paths are checked as file-safe; the list is sorted by path in code-point order; a duplicate path throws `GenerationError`); `source/packages/core/test/pipeline/plan-files.test.ts` (table-driven, fixture config and templates) — covers AC-001, AC-002, AC-003, AC-004, AC-006, AC-007, AC-017, AC-021
+- [ ] T004 [Core] Refusals from the analysis: `source/packages/core/src/pipeline/generate/refuse.ts` (`configProblems(config)` returns the blocker findings of `analyzeStructure` in the same order and no warning). Test: `generate-refuse.test.ts`. Covers AC-019, AC-021 (warnings do not refuse), AC-022 (a flow id `pipeline` is a blocker at the flow's path), AC-023 (a pipeline with no flows is refused with F-03's blocker).
 
-- [x] T005 [Core] Entries of the flow and pipeline command files: `source/packages/core/src/pipeline/generate/values-command.ts` (the values `flowId`, `flowName`, `description`, `ruleTags` (`none` when empty), `stepList`, `routeRules` (a numbered rule per back route, `no limit set` when the limit is absent), `argumentList`, `pipelineStepList` and `commandList`); `plan.ts` gains each command file's entry: its rendered layout, its description (the flow's description, empty when none) and its rule tags (the flow's `ruleTags`, empty when none); `source/packages/core/test/pipeline/plan-command.test.ts` — covers AC-011 (command files), AC-012 (`{{flowId}}`), AC-015
+- [ ] T005 [Core] The walk of a flow: `source/packages/core/src/pipeline/generate/walk.ts` (from the flow's Start, follow `next` and a condition's `true` before `false`; list each block once; return the ordered blocks). Test: `generate-walk.test.ts` with a fixture flow that has a condition with a return, a `{stop: true}` route and a block reached by two routes. Covers AC-015 (the order and the once-only rule).
 
-- [x] T006 [Core] Entries of the agent, rule and base files: `source/packages/core/src/pipeline/generate/values-agent.ts` (the values `name`, `description`, `ruleTags`, `ruleTitle`, `ruleText`, and the lists `agentList`, `ruleList`, `processList` and `commandList` used by the base files); `plan.ts` gains each agent entry (its Agent block's description, its `ruleTags`), each rule entry (its title and text) and each base file entry (empty description and tags, its rendered text); `source/packages/core/test/pipeline/plan-entries.test.ts` — covers AC-011 (agent, rule and base entries)
+- [ ] T006 [Core] Values of a flow command: `source/packages/core/src/pipeline/generate/values-flow.ts` (values for a flow's command: `flowId`, `flowName`, `flowDescription`; the argument lines; the step lines, one numbered line per Agent block with its agent file, its arguments and its description; the condition lines, one numbered rule per condition with its description, its true and false routes, the round limit of a return (1 to 5) and, for `{stop: true}`, the text that the flow stops and asks the person a question built from the condition's description; the approval line, present only when the flow's approval is on). Test: `generate-values-flow.test.ts`. Covers AC-012 (the `flowId` value), AC-015 (the steps and conditions), AC-016, AC-018.
 
-- [x] T007 [Core] Determinism and the default plan: tests only, with the code of T004 to T006: `source/packages/core/test/pipeline/plan-determinism.test.ts` (the same config and templates planned twice give equal plans; a config with its flows and rules in another order gives the same paths; no planned text holds a date, a time, a UUID or a random string; the config and the templates are not changed by planning) and `source/packages/core/test/pipeline/plan-default.test.ts` (the default pipeline plans without a blocker, and its plan holds `pipeline.md`, one command file per child flow and one agent file per Agent block) — covers AC-005, AC-008, AC-009, AC-010
+- [ ] T007 [Core] Values of the pipeline command, agents and rules: `source/packages/core/src/pipeline/generate/values-pipeline.ts` (the pipeline's name and description, its argument lines, and one line per flow in pipeline order with its id, description and approval); `source/packages/core/src/pipeline/generate/values-agent.ts` (`agentName`, `agentDescription`, the optional `model` and `tools` frontmatter lines, the reads and writes lines, the body, the argument lines); `source/packages/core/src/pipeline/generate/values-rule.ts` (`ruleId`, `ruleTitle`, `ruleText`). Test: `generate-values.test.ts`. Covers AC-017, and the value part of AC-003 and AC-004.
 
-- [x] T008 [Core] Reply check, part 1: `source/packages/core/src/pipeline/generate/reply-check.ts` (`checkReply(plan, reply)` returns findings: a planned path missing from the reply; a reply path not in the plan; a path that is absolute, has a `..` segment, a backslash or an empty segment; an empty text or a `{{...}}` placeholder; a reply value that is not a string; a complete reply has no finding); `source/packages/core/test/pipeline/reply-check.test.ts` (table-driven) — covers AC-022, AC-023, AC-024, AC-025, AC-026, AC-029
+- [ ] T008 [Core] The plan: `source/packages/core/src/pipeline/generate/plan.ts` (`planGeneration(config, templates)` returns a `GeneratedPlan` of `PlannedFile` entries `{ path, layout (rendered), description, ruleTags }` in the file-list order; the description and rule tags are the flow's or the Agent block's; an empty description or list when none; no date, time or random value is added; the input is not changed). Test: `generate-plan.test.ts` with fixture templates; the default pipeline from `source/templates/pipeline/default.json` plans with fixture layouts. Covers AC-005, AC-007 (the reordering of rules and flows after the first gives the same paths), AC-008, AC-009, AC-010, AC-011, AC-036.
 
-- [x] T009 [Core] Reply check, part 2: `reply-check.ts` gains the required `##` headings of each Markdown output (a finding names the path and the heading), and the self-reference rule (a text naming `SDDBuilder`, `source/apps/web`, `source/apps/api` or `source/packages/core` is a finding naming the path); the findings come out sorted by path, then by message; `source/packages/core/test/pipeline/reply-check-text.test.ts` (the same reply checked twice gives the same findings; the plan and the reply are not changed) — covers AC-027, AC-028, AC-030
+- [ ] T009 [Core] The refusal gate of the plan: in `plan.ts`, `planGeneration` runs `configProblems` first; with a blocker it returns `{ ok: false, problems }` with every blocker in analysis order, and it renders no layout and returns no files. Test: `generate-plan-refuse.test.ts` (a control: the same layout that fails on a blocked config throws on a valid one). Covers AC-020.
 
-- [x] T010 [Core] Namespace, purity and the generator's data: `source/packages/core/src/pipeline/index.ts` exports `configProblems`, `planGeneration`, `checkReply` and `GenerationError`; the root export list stays as it is; `source/packages/core/test/pipeline/namespace.test.ts` gains the check of the new names; `source/packages/core/test/pipeline/purity.test.ts` scans `source/packages/core/src/pipeline/generate/` for `fs`, `http`, `process`, `window` and model client imports; `source/packages/core/test/pipeline/plan-fixed-templates.test.ts` (the same fixture templates given as data give the same plan in two runs) — covers AC-031, AC-032, AC-033
+- [ ] T010 [Core] Reply check, part 1: `source/packages/core/src/pipeline/generate/reply-check.ts` (`checkReply(plan, reply)` returns findings `{ path, message }`: a planned path missing from the reply; a reply path not in the plan (its text is not used); a reply path that is unsafe (T003 test); an empty text or a `{{...}}` placeholder in a text; a value that is not a string). Test: `generate-reply-check.test.ts`. Covers AC-026, AC-027, AC-028, AC-029, AC-032.
 
-- [x] T011 [Core] Test: a refused config renders no layout (AC-017, no-render clause): `source/packages/core/test/pipeline/plan-files.test.ts` gains a case where the config has a blocker and the templates hold a layout with an unknown placeholder (`{{nope}}`); planning must return `{ ok: false, problems }` and must not throw, which proves no layout was rendered. Test-only; covers AC-017 (the no-render clause, added by the Verify amendment of 2026-11-17)
+- [ ] T011 [Core] Reply check, part 2: `source/packages/core/src/pipeline/generate/headings.ts` (`headingsOf(layout)`: the lines that start with `## `, in order; a `###` line is not one); `reply-check.ts` gains the required heading check (each heading of a Markdown layout must be a whole line of the reply text), the SDDBuilder self-reference check (`SDDBuilder`, `source/apps/web`, `source/apps/api`, `source/packages/core`), the sort of findings by path then message, and the no-change test. Tests: `generate-reply-check-text.test.ts`. Covers AC-025 (a valid reply has no finding), AC-030, AC-031, AC-033.
 
-- [x] T012 [Core] Test: planning a flow-less pipeline returns no files (AC-020, planning clause): `source/packages/core/test/pipeline/config-problems.test.ts` or `plan-files.test.ts` gains a case that calls `planGeneration` on a config with no flows and asserts `{ ok: false }` with the F-03 "no flow" blocker and no `files`. Test-only; covers AC-020 (the planning clause, added by the Verify amendment of 2026-11-17)
+- [ ] T012 [Core] Namespace and purity: `source/packages/core/src/pipeline/index.ts` exports `configProblems`, `planGeneration` and `checkReply` and no other generator name; `source/packages/core/test/pipeline/namespace.test.ts` gains the generator names; `source/packages/core/test/pipeline/purity.test.ts` scans the `generate/` folder (no `fs`, `http`, `process`, `window`, model client, or template file read). Covers AC-034, AC-035.
 
-- [x] T013 [Core] Test: a reordering that leaves a flow unreached is refused, not planned (AC-007, refusal clause): `source/packages/core/test/pipeline/plan-determinism.test.ts` (or plan-files.test.ts) gains a case, named `F-04 AC-007`, that moves a flow so that a flow is no longer reached from the first flow and asserts `planGeneration` returns `{ ok: false }` with the reachability blocker (F-03 AC-022) and no `files`. Test-only. Covers AC-007 (the refusal clause, added by the Verify amendment of 2026-11-17)
+- [ ] T013 [Docs] Record F-04 as built: `spec/documents/architecture.md` §3 (the functions as built and their names: `pipeline.planGeneration`, `pipeline.checkReply`, `pipeline.configProblems`; the templates as data and the one-pass rendering); `source/templates/README.md` (the value names of section T006 and T007 that layouts may use, so F-05 writes its layouts against them). Covers no criterion; no code.
 
 ## Rationale
 
-- **Decisions first (T001).** Four things the stories rely on (refusal of flow id `pipeline`, sort by path, duplicate handling, and F-04's ownership of `planGeneration` and `checkReply`) conflict with the docs today. `CLAUDE.md` and `general.md` require the decision in `architecture.md` before code depends on it, so the record comes before any code.
-- **Refusals before planning (T002).** `planGeneration` calls `configProblems` before it renders anything (AC-017), and the flow-name rule must exist in the analysis before the generator relies on it.
-- **Placeholders before entries (T003 before T005, T006).** The entries are rendered by the placeholder function, so that function and the template type come first.
-- **File list before entries (T004 before T005, T006).** Entries are attached to the files the list produces, so the list is fixed first; the entries then fill it in by file kind.
-- **Determinism after the entries (T007).** The determinism tests compare complete plans, so they run after every entry kind exists. They add tests only, since the code they test is already in place.
-- **Reply check after the plan type (T008, T009).** `checkReply` takes the plan from T004 and uses the layouts' headings from T003, so it comes after both. Part 2 extends part 1 in the same file, so it comes second.
-- **Namespace and purity last (T010).** The exports and the purity scan describe the finished module, so they are the last change.
+- **The docs first (T001).** The architecture text still names gates and required checks as flow properties, which the flow model removed (`pipeline-schema.md` §5). The code is written against the corrected text.
+- **Rendering before the plan (T002).** Every layout goes through one renderer; the error path and the one-pass rule are proven once, before anything depends on them.
+- **Paths before text (T003, T004).** The file list and the refusal gate come from the model and the analysis; neither needs a layout, so they are built and tested first.
+- **Values in small modules (T005 to T007).** The walk is the hardest part of the command text, so it is its own task. Each value builder is pure and tested with fixed input; the plan (T008) only assembles them.
+- **The plan after its parts (T008, T009).** The plan uses every value builder and the refusal, so it comes after them. The refusal is a separate task so that the rule "no layout rendered on a blocked config" has its own control test.
+- **The reply check in two tasks (T010, T011).** The first covers the file set and the text values; the second covers headings, self-references and ordering. Each stays within one review.
+- **Namespace and purity last (T012).** The public names come after the modules exist; the purity scan covers the whole `generate/` folder at once.
+- **Docs last (T013).** The functions and value names are written down once they are built.
 
-**Libraries:** none added. The generator is pure TypeScript over the model, the templates and the reply (decision 1). Templates are read at build time by `source/apps/api` (F-07) and passed in as data, so core never reads a file (AC-032).
+**Libraries:** none added. The generator is pure TypeScript over `ProjectConfig` and the model types (decision 19); it reuses `analyzeStructure` (F-03).
 
-**Layer tags:** `[Docs]` for T001 (the spec and the template README), `[Core]` for T002 to T010.
+**Layer tag:** all code tasks are `[Core]`. T001 and T013 are `[Docs]`.
 
 ## Layer Tags
 
 | Tag | Scope |
 |-----|-------|
-| `[Core]` | `source/packages/core`: the generator, the reply check, the refusal rule and their tests |
+| `[Core]` | `source/packages/core`: the pure generator and its tests |
 | `[Build]` | Project setup, manifests, scripts, and the default pipeline data file |
 | `[Docs]` | Documentation changes required by the feature |
-
-## Coverage check
-
-| Criterion | Task |
-|---|---|
-| AC-001 | T004 |
-| AC-002 | T004 |
-| AC-003 | T004 |
-| AC-004 | T004 |
-| AC-005 | T007 |
-| AC-006 | T004 |
-| AC-007 | T004 |
-| AC-008 | T007 |
-| AC-009 | T007 |
-| AC-010 | T007 |
-| AC-011 | T005, T006 |
-| AC-012 | T003, T005 |
-| AC-013 | T003 |
-| AC-014 | T003 |
-| AC-015 | T005 |
-| AC-016 | T002 |
-| AC-017 | T004 |
-| AC-018 | T002 |
-| AC-019 | T002 |
-| AC-020 | T002 |
-| AC-021 | T004 |
-| AC-022 | T008 |
-| AC-023 | T008 |
-| AC-024 | T008 |
-| AC-025 | T008 |
-| AC-026 | T008 |
-| AC-027 | T009 |
-| AC-028 | T009 |
-| AC-029 | T008 |
-| AC-030 | T009 |
-| AC-031 | T010 |
-| AC-032 | T010 |
-| AC-033 | T010 |

@@ -10,7 +10,7 @@ Each task is **one implement → review → test → commit cycle** and produces
 
 ## Tasks
 
-- [ ] T001 [Web] Project text rules as pure functions: the code-point count, truncation to the first N code points that never splits a surrogate pair (limits 100 for the name, 5,000 for the idea), the counter text `N / 5,000` with the thousands separator, and `ideaForConfig` (trims both ends, keeps internal line breaks, spaces-only gives an empty string, the stored value is not changed) — `source/apps/web/src/wizard/project.ts`, `source/apps/web/test/project.test.ts` — covers AC-003 (rule), AC-006 (counter text), AC-007 (rule), AC-008 (rule), AC-011
+- [x] T001 [Web] Project text rules as pure functions: the code-point count, truncation to the first N code points that never splits a surrogate pair (limits 100 for the name, 5,000 for the idea), the counter text `N / 5,000` with the thousands separator, and `ideaForConfig` (trims both ends, keeps internal line breaks, spaces-only gives an empty string, the stored value is not changed) — `source/apps/web/src/wizard/project.ts`, `source/apps/web/test/project.test.ts` — covers AC-003 (rule), AC-006 (counter text), AC-007 (rule), AC-008 (rule), AC-011
 
 - [ ] T002 [Web] Wizard values for the project step: `WizardValues` gains `name` and `idea` (empty strings at start); a `setValues` action merges one or both fields as typed (no trim, spaces kept); Next and Prev keep the values; restart clears them. Extends the F-08 state tests — `source/apps/web/src/wizard/state.ts`, `source/apps/web/test/state.test.ts` — covers AC-002 (reducer), AC-010 (reducer), AC-013 (reducer), AC-014 (reducer)
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); all 36 criteria covered |
-| Build    | 🔄 In Progress |  | 10 of 13 tasks committed |
+| Build    | 🔄 In Progress |  | 11 of 13 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-036 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | The plan (`generate/plan.ts`): `planGeneration` lists the files, renders each layout with its values, carries description and rule tags from flows and Agent blocks only; base layouts render with no values | 0 blockers, 2 warnings fixed (AC-013 plan-level test; interpretations recorded in the plan); 1 suggestion fixed (code-point comparator in the test) | task check passed: api 6 of 6, web 4 of 4, core 889 of 889 |
 | T009 | The refusal gate of the plan: `planGeneration` returns `{ ok: false, problems }` with no files and no layout rendered when `configProblems` has a blocker; the T008 fixtures are now valid chained configs | 0 blockers, 1 warning fixed (fixture index values matched no parser output); 1 suggestion fixed (single call); gate and sort proven by mutation | task check passed: api 6 of 6, web 4 of 4, core 893 of 893 |
 | T010 | Reply check part 1 (`generate/reply-check.ts`): `checkReply` returns findings for a missing planned path, an unsafe path, a path not in the plan, a non-string value, an empty text and a `{{...}}` placeholder; it never throws on a bad reply; the reply is a `ReadonlyMap<string, unknown>` | 0 blockers, 0 warnings; 2 suggestions fixed (typed test maps; negative placeholder test) | task check passed: api 6 of 6, web 4 of 4, core 911 of 911 |
+| T011 | Reply check, part 2: `headingsOf`; required `##` headings as whole lines of Markdown outputs; SDDBuilder self-reference check with a path-end boundary; findings sorted by path then message with the shared `compareCodePoints` (exported from `file-list.ts`, outside the task's listed files) | 0 blockers, 1 warning fixed (self-reference matched longer path names); 0 suggestions | task check passed: api 6 of 6, web 4 of 4, core 928 of 928 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 
@@ -57,6 +58,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/packages/core/test/pipeline/generate-plan.test.ts` (AC-009, the clock test): it spies on `Date.now` only, so a bare `new Date()` in planning would not be caught. No code path reads a clock, and the text check catches any date that reaches the output. A `Date` stub would add more test code than it protects.
 
 - `source/packages/core/src/pipeline/generate/values-flow.ts` (`routeText`, the `places.get` undefined branch): unreachable after `walkFlow`, which lists every route target; kept as the narrowing for `Map.get`, and removing it needs a non-null assertion, which the TypeScript rules avoid.
+
+- `source/packages/core/src/pipeline/generate/file-list.ts:62` (`compareCodePoints` is now exported for `reply-check.ts`): the file is not on T011's file list in `plan.md`. The export is the smallest way to share one comparator, so the code stays. Amend the T011 line in `plan.md` to list `file-list.ts`, or move the comparator to its own module in a later task.
 
 ---
 

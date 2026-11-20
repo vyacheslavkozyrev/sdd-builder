@@ -84,8 +84,8 @@ describe('F-04 reply check', () => {
       ['.claude/commands/pipeline.md', null],
     ]);
     expect(checkReply(PLAN, reply)).toEqual([
-      { path: 'CLAUDE.md', message: 'is not a string' },
       { path: '.claude/commands/pipeline.md', message: 'is not a string' },
+      { path: 'CLAUDE.md', message: 'is not a string' },
     ]);
   });
 
@@ -104,8 +104,8 @@ describe('F-04 reply check', () => {
 
   it('F-04 AC-026 names every missing path of a reply with no entries', () => {
     expect(checkReply(PLAN, new Map<string, unknown>())).toEqual([
-      { path: 'CLAUDE.md', message: 'is missing from the reply' },
       { path: '.claude/commands/pipeline.md', message: 'is missing from the reply' },
+      { path: 'CLAUDE.md', message: 'is missing from the reply' },
     ]);
   });
 

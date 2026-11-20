@@ -59,7 +59,7 @@ export function listFiles(config: ProjectConfig, templates: GenerationTemplates)
 }
 
 // Code-point order: it differs from the UTF-16 order of `<` only for characters beyond the BMP.
-function compareCodePoints(a: string, b: string): number {
+export function compareCodePoints(a: string, b: string): number {
   const x = Array.from(a);
   const y = Array.from(b);
   const length = Math.min(x.length, y.length);

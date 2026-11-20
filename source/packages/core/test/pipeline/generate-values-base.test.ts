@@ -127,11 +127,17 @@ describe('F-04 AC-037 each list is empty when it has no item, and the lists hold
   });
 });
 
-describe('F-04 AC-038 the base values give no process diagram and are a pure function of the config', () => {
-  it('supplies the four lists and no processDiagram', () => {
+describe('F-04 AC-038 the base values are the lists and the process diagram, a pure function of the config', () => {
+  it('supplies the four lists and the processDiagram (F-05 T007)', () => {
     const values = baseValues(configWith([flowWith('build', undefined, ['builder'])], RULES));
-    expect(Object.keys(values).sort()).toEqual(['agentList', 'commandList', 'processList', 'ruleList']);
-    expect(Object.hasOwn(values, 'processDiagram')).toBe(false);
+    expect(Object.keys(values).sort()).toEqual([
+      'agentList',
+      'commandList',
+      'processDiagram',
+      'processList',
+      'ruleList',
+    ]);
+    expect(values['processDiagram']).toBe('flowchart\nF1["build"]');
   });
 
   it('gives the same values for two equal configs built apart, and does not change the config', () => {

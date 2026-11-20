@@ -71,4 +71,4 @@ Base files (base layouts, listed in `source/templates/base/manifest.json`, which
 | `agentList` | one bullet per Agent block: its agent file and its description if it has one |
 | `ruleList` | one bullet per rule: its rule file and its title |
 
-`processDiagram` (the Mermaid view of the process) is not supplied yet: it belongs to F-05. A base layout that names it fails rendering until F-05 adds it.
+`processDiagram` is the Mermaid flowchart of the process: the first line is `flowchart`, then one node per flow in `next` order (ids `F1`, `F2` and so on, labelled with the flow's name, with ` approval` at the end of the label when approval is on), then one unlabelled edge per `next` link. Flow names are not yet escaped for Mermaid (F-05 T008).

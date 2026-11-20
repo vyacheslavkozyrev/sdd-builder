@@ -254,13 +254,13 @@ describe('F-04 AC-038 planning renders each base layout with the base values', (
     );
   });
 
-  it('throws for a base layout that uses processDiagram, which the base values do not supply', () => {
+  it('throws for a base layout that uses a placeholder the base values do not supply', () => {
     const templates: GenerationTemplates = {
       ...TEMPLATES,
-      base: [{ path: 'CLAUDE.md', layout: 'Diagram:{{processDiagram}}' }],
+      base: [{ path: 'CLAUDE.md', layout: 'Other:{{unsuppliedList}}' }],
     };
     expect(() => planOf(configWith([flowOf('build')], RULES), templates)).toThrow(
-      /the layout of CLAUDE\.md uses the placeholder \{\{processDiagram\}\}, which has no value/,
+      /the layout of CLAUDE\.md uses the placeholder \{\{unsuppliedList\}\}, which has no value/,
     );
   });
 });

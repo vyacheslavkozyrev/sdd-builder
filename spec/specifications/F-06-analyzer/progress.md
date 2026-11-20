@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | Re-specified from the final schema (`pipeline-schema.md`, 2026-11-19) and decision 37; 5 stories, 26 criteria, all [auto]. The brief model is F-02's (owner choice: the parse stories are dropped from F-06, F-02 AC-074 to AC-076 cover them); decision 37 (a) named F-06 as the adder of the brief fields; corrected in T001 |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 6 tasks (T001 to T006); 26 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-20 | 1 of 6 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 2 of 6 tasks committed |
 | Verify   | ⏳ Pending |  | 26 criteria, all [auto] |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Decision 37 (a) in `architecture.md` §6 corrected: F-02 owns the brief fields; F-06 adds none (docs only, no test) | 0 blockers, 0 warnings, 1 suggestion fixed (Specify note no longer calls decision 37 (a) stale) | task check passed: web 4 of 4 (2 files), core 1143 of 1143 (54 files), api 6 of 6 |
+| T002 | `analyzeBrief` in `analyze/brief.ts`: blockers for `name`, `idea`, `stack.language`; warnings for blank optional stack fields and empty `rules`; fixed order; kept out of `analyzeStructure`; exported from `pipeline/index.ts` (namespace pin in `namespace.test.ts` updated to match the export) | 0 blockers, 1 warning fixed (the rule-id list in the structure test named 5 of 8 ids), 3 suggestions fixed (it.each titles, rule ids in kebab style, the blank-character comment) | task check passed: core 1166 of 1166 (56 files), api 6 of 6, web 4 of 4 |
 
 ### 2026-11-17 build (before the reset of 2026-11-19; the code was removed by the reset, the log is kept)
 

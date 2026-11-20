@@ -41,6 +41,7 @@ function exportedNames(file: string): string[] {
 }
 
 const PIPELINE_VALUES = [
+  'analyzeBrief',
   'analyzeStructure',
   'checkReply',
   'configProblems',

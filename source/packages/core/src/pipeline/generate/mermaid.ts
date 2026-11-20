@@ -8,12 +8,27 @@ import type { Flow, Pipeline } from '../model.js';
 // flow's node to the node of the flow it names. The text is a pure function of the pipeline: no date, no random value.
 export function processDiagram(pipeline: Pipeline): string {
   const chain = flowChain(pipeline.flows);
-  const nodes = chain.map((flow, i) => `F${i + 1}["${flow.name}${flow.approval ? ' approval' : ''}"]`);
+  const nodes = chain.map((flow, i) => `F${i + 1}["${labelText(flow.name)}${flow.approval ? ' approval' : ''}"]`);
   const edges = chain.flatMap((flow, i) => {
     const target = flow.next === undefined ? -1 : chain.findIndex((other) => other.id === flow.next);
     return target === -1 ? [] : [`F${i + 1} --> F${target + 1}`];
   });
   return ['flowchart', ...nodes, ...edges].join('\n');
+}
+
+// A flow name as the text of a node label (AC-034). A line break becomes a space. The characters that would end or
+// change a Mermaid label (a double quote, a square bracket, a brace, a pipe) and a hash are written as Mermaid entity
+// codes. The hash is escaped first, so the codes written after it are not escaped again.
+function labelText(name: string): string {
+  return name
+    .replace(/\r\n|[\r\n\u2028\u2029]/g, ' ')
+    .replace(/#/g, '#35;')
+    .replace(/"/g, '#quot;')
+    .replace(/\[/g, '#91;')
+    .replace(/\]/g, '#93;')
+    .replace(/\{/g, '#123;')
+    .replace(/\}/g, '#125;')
+    .replace(/\|/g, '#124;');
 }
 
 // The flows reached from the first flow along the `next` links, each once, in that order. A `next` to a missing flow

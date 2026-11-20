@@ -112,6 +112,83 @@ describe('F-05 AC-032 each next link is one unlabelled edge, and the last flow g
   });
 });
 
+describe('F-05 AC-034 a quote, bracket, brace, pipe or hash in a flow name is written as an entity code', () => {
+  it.each([
+    ['a double quote', 'Say "hi"', 'Say #quot;hi#quot;'],
+    ['a square bracket', 'Run [now]', 'Run #91;now#93;'],
+    ['a brace', 'Use {x}', 'Use #123;x#125;'],
+    ['a pipe', 'a | b', 'a #124; b'],
+    ['a hash', 'Issue #5', 'Issue #35;5'],
+  ])('F-05 AC-034 writes %s in the label as its entity code', (_case, name, escaped) => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', name)]));
+    expect(diagram).toBe(`flowchart\nF1["${escaped}"]`);
+  });
+
+  it('F-05 AC-034 writes a hash before the other codes, so an entity code in a name is not escaped twice', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', '#quot; "x"')]));
+    expect(diagram.split('\n')[1]).toBe('F1["#35;quot; #quot;x#quot;"]');
+  });
+
+  it('F-05 AC-034 escapes every special character of one name and keeps the other characters', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', 'A "b" [c] {d} | e # f')]));
+    expect(diagram.split('\n')[1]).toBe('F1["A #quot;b#quot; #91;c#93; #123;d#125; #124; e #35; f"]');
+  });
+
+  it('F-05 AC-034 escapes the name before the approval word, which stays as written', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', 'Plan "v2"', { approval: true })]));
+    expect(diagram.split('\n')[1]).toBe('F1["Plan #quot;v2#quot; approval"]');
+  });
+
+  it('F-05 AC-034 writes a line break in a name as a space, and a CRLF as one space', () => {
+    const lines = processDiagram(
+      pipelineWith([flowWith('specify', 'Plan\nthe work', { next: 'plan' }), flowWith('plan', 'Build\r\nit\rnow')]),
+    ).split('\n');
+    expect(lines.slice(1, 3)).toEqual(['F1["Plan the work"]', 'F2["Build it now"]']);
+  });
+
+  it('F-05 AC-034 writes a Unicode line or paragraph separator in a name as a space', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', 'a b c')]));
+    expect(diagram.split('\n')[1]).toBe('F1["a b c"]');
+  });
+
+  it('F-05 AC-034 keeps the first line flowchart when a name holds special characters', () => {
+    const diagram = processDiagram(pipelineWith([flowWith('specify', 'a "b"\nc')]));
+    expect(diagram.split('\n')[0]).toBe('flowchart');
+  });
+});
+
+describe('F-05 AC-035 the same configuration gives the same diagram text, byte for byte', () => {
+  it('F-05 AC-035 gives the same text on two calls for a config with special characters and line breaks', () => {
+    const build = (): Pipeline =>
+      pipelineWith([
+        flowWith('specify', 'Specify "the" [brief]\n{now}', { approval: true, next: 'plan' }),
+        flowWith('plan', 'Plan | #1', { next: 'build' }),
+        flowWith('build', 'Build'),
+      ]);
+    const expected = [
+      'flowchart',
+      'F1["Specify #quot;the#quot; #91;brief#93; #123;now#125; approval"]',
+      'F2["Plan #124; #35;1"]',
+      'F3["Build"]',
+      'F1 --> F2',
+      'F2 --> F3',
+    ].join('\n');
+    expect(processDiagram(build())).toBe(expected);
+    expect(processDiagram(build())).toBe(expected);
+  });
+
+  it('F-05 AC-035 gives the same text on two calls with the same pipeline object', () => {
+    const pipeline = pipelineWith([
+      flowWith('specify', 'Say "hi" {x}', { approval: true, next: 'plan' }),
+      flowWith('plan', 'Plan'),
+    ]);
+    const first = processDiagram(pipeline);
+    const second = processDiagram(pipeline);
+    expect(second).toBe(first);
+    expect(first.split('\n')[1]).toBe('F1["Say #quot;hi#quot; #123;x#125; approval"]');
+  });
+});
+
 describe('F-05 AC-033 an approval flow ends its label with approval, and an approval-off flow has no such word', () => {
   it('ends the label of an approval flow with the word approval', () => {
     const diagram = processDiagram(pipelineWith([flowWith('specify', 'Specify', { approval: true })]));

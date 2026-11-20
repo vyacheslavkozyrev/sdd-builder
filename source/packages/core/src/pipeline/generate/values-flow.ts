@@ -1,16 +1,17 @@
-import type { AgentBlock, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
+import type { AgentBlock, Argument, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
 import { GenerationError } from './error.js';
 import { describeArgument, describeArguments, inlineText, linesOf } from './values-text.js';
 import { walkFlow } from './walk.js';
 
 // The values of a flow's command layout (F-04, AC-012, AC-015, AC-016, AC-018). Each value is a text built in code
-// (decision 36b): `flowArguments` is one line per argument; `flowSteps` is one numbered line per block of the walk
-// (F-05, AC-010), the Start first and the End last; a Condition step gives its check and its true and false routes as
-// sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition, with the same routes as sub-lines;
-// `flowArtifacts` is each artifact as a heading with its label and its template text, `No artifacts` when the flow has
-// none (F-05, AC-009); the End step names the produced artifact when there is one (F-05, AC-014). `flowApproval` is the
-// approval paragraph, empty when the flow's approval is off. The values are a pure function of the flow: the same flow
-// always gives the same text.
+// (decision 36b): `flowArguments` is one line per argument, `No arguments` when there are none (F-05, AC-008);
+// `flowBody` is the body paragraph with its line breaks, empty when the body is blank (F-05, AC-006); `flowSteps` is
+// one numbered line per block of the walk (F-05, AC-010), the Start first and the End last; a Condition step gives its
+// check and its true and false routes as sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition,
+// with the same routes as sub-lines; `flowArtifacts` is each artifact as a heading with its label and its template
+// text, `No artifacts` when the flow has none (F-05, AC-009); the End step names the produced artifact when there is
+// one (F-05, AC-014). `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a
+// pure function of the flow: the same flow always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
 // break and is empty when it has no lines. A layout writes such a placeholder at the end of a line, with no line break
@@ -29,7 +30,8 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowId: flow.id,
     flowName: inlineText(flow.name),
     flowDescription: inlineText(flow.description ?? ''),
-    flowArguments: linesOf(flow.arguments.map((arg) => `- ${describeArgument(arg)}`)),
+    flowArguments: argumentsText(flow.arguments),
+    flowBody: bodyText(flow.body),
     flowArtifacts: artifactsText(flow.artifacts),
     flowSteps: linesOf(steps.map((block, index) => stepText(block, index + 1, places, flow))),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
@@ -63,6 +65,19 @@ function endStep(block: EndBlock, number: number): string {
   const artifact = inlineText(block.producedArtifact);
   if (artifact === '') return `${number}. End the flow.`;
   return `${number}. End the flow, producing the artifact \`${artifact}\`.`;
+}
+
+// Each argument of the flow on its own line; `No arguments` when there are none (AC-008).
+function argumentsText(args: readonly Argument[]): string {
+  return args.length === 0 ? '\nNo arguments' : linesOf(args.map((arg) => `- ${describeArgument(arg)}`));
+}
+
+// The body of the flow as a paragraph with its line breaks kept (AC-006). The blank lines before the first text and
+// the whitespace after the last text are dropped, so the paragraph starts with its own line break and the body of a
+// blank flow leaves no gap.
+function bodyText(body: string): string {
+  const text = body.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd();
+  return text === '' ? '' : `\n\n${text}`;
 }
 
 // Each artifact of the flow, in order; `No artifacts` when there are none (AC-009). The layout writes the `## Artifacts`

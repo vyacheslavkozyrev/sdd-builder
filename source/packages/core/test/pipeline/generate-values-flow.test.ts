@@ -58,9 +58,9 @@ describe('F-04 AC-012 the flow id and the other flow values fill the placeholder
     expect(flowValues(flow)['flowDescription']).toBe('Builds the project.');
   });
 
-  it('gives one line per flow argument with its required mark and hint, empty when there are none', () => {
+  it('gives one line per flow argument with its required mark and hint, or No arguments when there are none', () => {
     const flow = fixtureFlow();
-    expect(flowValues(flow)['flowArguments']).toBe('');
+    expect(flowValues(flow)['flowArguments']).toBe('\nNo arguments');
     const withArgs = {
       ...flow,
       arguments: [
@@ -426,6 +426,62 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
   it('writes a flow argument hint with a line break on one line', () => {
     const flow = { ...fixtureFlow(), arguments: [{ index: 0, id: 'note', required: false, hint: 'a\nb' }] };
     expect(flowValues(flow)['flowArguments']).toBe('\n- `note` (optional, a b)');
+  });
+});
+
+describe('F-05 AC-006 the flow body is a paragraph with its line breaks kept', () => {
+  it('F-05 AC-006 keeps the line breaks of the body, as a paragraph that starts with its own line break', () => {
+    const flow = { ...fixtureFlow(), body: 'First line.\nSecond line.\n\nA new paragraph.' };
+    expect(flowValues(flow)['flowBody']).toBe('\n\nFirst line.\nSecond line.\n\nA new paragraph.');
+  });
+
+  it('F-05 AC-006 gives an empty value when the body is blank', () => {
+    expect(flowValues({ ...fixtureFlow(), body: '' })['flowBody']).toBe('');
+    expect(flowValues({ ...fixtureFlow(), body: '  \n\t\n' })['flowBody']).toBe('');
+  });
+
+  it('F-05 AC-006 drops the blank lines before the body and the whitespace after it, keeping the first line indent', () => {
+    const flow = { ...fixtureFlow(), body: '\n  \n  Indented first line.\n\nLast line.\n\n  ' };
+    expect(flowValues(flow)['flowBody']).toBe('\n\n  Indented first line.\n\nLast line.');
+  });
+
+  it('F-05 AC-006 leaves no blank line in a layout when the body is blank', () => {
+    const layout = 'Intro.{{flowBody}}\n';
+    expect(renderLayout(layout, flowValues({ ...fixtureFlow(), body: ' ' }), '.claude/commands/build.md')).toBe(
+      'Intro.\n',
+    );
+    expect(
+      renderLayout(layout, flowValues({ ...fixtureFlow(), body: 'Body.' }), '.claude/commands/build.md'),
+    ).toBe('Intro.\n\nBody.\n');
+  });
+});
+
+describe('F-05 AC-008 each flow argument is written on its own line, or No arguments', () => {
+  it('F-05 AC-008 writes each argument on its own line with its id, its required mark and its hint', () => {
+    const flow = {
+      ...fixtureFlow(),
+      arguments: [
+        { index: 0, id: 'feature-id', required: true, hint: 'F-XX' },
+        { index: 1, id: 'note', required: false, hint: 'A short note' },
+        { index: 2, id: 'owner', required: false, hint: '' },
+      ],
+    };
+    expect(flowValues(flow)['flowArguments']).toBe(
+      [
+        '',
+        '- `feature-id` (required, F-XX)',
+        '- `note` (optional, A short note)',
+        '- `owner` (optional)',
+      ].join('\n'),
+    );
+  });
+
+  it('F-05 AC-008 writes No arguments for a flow with no arguments, in the layout line', () => {
+    const flow = { ...fixtureFlow(), arguments: [] };
+    expect(flowValues(flow)['flowArguments']).toBe('\nNo arguments');
+    expect(renderLayout('Arguments:{{flowArguments}}\n', flowValues(flow), '.claude/commands/build.md')).toBe(
+      'Arguments:\nNo arguments\n',
+    );
   });
 });
 

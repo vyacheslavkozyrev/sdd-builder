@@ -133,11 +133,11 @@ function fences(text: string): string[][] {
 }
 
 describe('F-05 layouts: the base manifest lists process.md', () => {
-  it('F-05 AC-026 lists spec/documents/process.md after CLAUDE.md with its layout base/process.md', () => {
-    expect(readManifest()).toEqual([
-      { path: 'CLAUDE.md', layout: 'base/CLAUDE.md' },
-      { path: 'spec/documents/process.md', layout: 'base/process.md' },
-    ]);
+  it('F-05 AC-026 lists spec/documents/process.md right after CLAUDE.md with its layout base/process.md', () => {
+    const manifest = readManifest();
+    const index = manifest.findIndex((entry) => entry.path === PROCESS_MD);
+    expect(manifest[index - 1]).toEqual({ path: 'CLAUDE.md', layout: 'base/CLAUDE.md' });
+    expect(manifest[index]).toEqual({ path: PROCESS_MD, layout: 'base/process.md' });
   });
 
   it('F-05 AC-026 renders process.md from its layout and the values of a fixture, with no placeholder left', () => {

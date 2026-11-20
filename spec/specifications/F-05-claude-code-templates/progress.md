@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 40 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-19 | 15 of 19 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 16 of 19 tasks committed |
 | Verify   | ⏳ Pending |  | Not yet run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -42,6 +42,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | Rule file layout (`templates/claude-code/rule.md`): `# <title>` and the rule text; rule text through `bodyText`, so a text ending in line breaks or blank lines writes no stray blank line; no rule file for an empty list | 0 blockers, 1 warning fixed (stray blank line from a text ending in line breaks), 0 suggestions, 0 deferred | task check passed: core 1103 of 1103 (49 files), api 6 of 6, web 4 of 4 |
 | T014 | Base manifest (`templates/base/manifest.json`, CLAUDE.md only for now) and the generated CLAUDE.md layout (`templates/base/CLAUDE.md`): the command, agent and rule lists from the generator's values; no SDDBuilder name, path or F-XX id; AC-027 proved against the planned files as a set (config order kept) | 0 blockers, 2 warnings fixed (a rule-reading claim the layouts do not make; a test name that claimed an order it did not check), 0 suggestions fixed, 3 suggestions deferred | task check passed: core 1111 of 1111 (50 files), api 6 of 6, web 4 of 4 |
 | T015 | process.md layout (`templates/base/process.md`): fixed prose, the flows list (`processFlows`) and the Mermaid fence (`processDiagram`, first line `flowchart`); manifest lists process.md after CLAUDE.md; AC-029 conditions and retry routes and AC-030 fence content proved by tests | 0 blockers, 3 warnings fixed (T014 manifest test checked containment only; AC-029 conditions and retry routes untested; AC-030 did not check the fence holds only the diagram), 0 suggestions, 0 deferred | task check passed: core 1122 of 1122 (51 files), api 6 of 6, web 4 of 4 |
+| T016 | Spec template layouts (`templates/base/spec-template/`: stories, plan, progress) with the reply check's required headings in the template's order; manifest entries under `spec/specifications/F-00-template/`; AC-028 tested against the real reply check, with a negative case | 0 blockers, 1 warning fixed (AC-028 test did not run the reply check), 1 suggestion fixed (AC-026 test name), 0 deferred | task check passed: core 1131 of 1131 (52 files), api 6 of 6, web 4 of 4 |
 
 ---
 

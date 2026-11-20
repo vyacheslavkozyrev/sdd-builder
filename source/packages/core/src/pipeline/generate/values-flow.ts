@@ -6,6 +6,7 @@ import {
   describeArguments,
   inlineText,
   linesOf,
+  quotedText,
   ruleTagsText,
 } from './values-text.js';
 import { walkFlow } from './walk.js';
@@ -18,8 +19,10 @@ import { walkFlow } from './walk.js';
 // with the same routes as sub-lines; `flowArtifacts` is each artifact as a heading with its label and its template
 // text, `No artifacts` when the flow has none (F-05, AC-009); the End step names the produced artifact when there is
 // one (F-05, AC-014). `flowRuleTags` is the flow's rule tags as one comma-separated list, `none` when there are none
-// (F-05, AC-007). `flowApproval` is the approval paragraph, empty when the flow's approval is off. The values are a
-// pure function of the flow: the same flow always gives the same text.
+// (F-05, AC-007). `flowDescriptionYaml` is the description as a quoted YAML string for the frontmatter line, so that a
+// description with `: ` or a quote or a leading indicator stays one YAML string; `flowDescription` is the same text
+// inline, for the Purpose line. `flowApproval` is the approval paragraph, empty when the flow's approval is off. The
+// values are a pure function of the flow: the same flow always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
 // break and is empty when it has no lines. A layout writes such a placeholder at the end of a line, with no line break
@@ -38,6 +41,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowId: flow.id,
     flowName: inlineText(flow.name),
     flowDescription: inlineText(flow.description ?? ''),
+    flowDescriptionYaml: quotedText(inlineText(flow.description ?? '')),
     flowArguments: argumentsText(flow.arguments),
     flowBody: bodyText(flow.body),
     flowArtifacts: artifactsText(flow.artifacts),

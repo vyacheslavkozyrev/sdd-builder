@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 40 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-19 | 10 of 19 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 11 of 19 tasks committed |
 | Verify   | ⏳ Pending |  | Not yet run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | Mermaid escaping and determinism: flow names escape `#`, `"`, `[`, `]`, `{`, `}` and `|` to Mermaid entity codes (`#` first); line breaks and Unicode line separators become spaces; the approval word is added after escaping | 0 blockers, 1 warning fixed (U+2028/U+2029 untested), 2 suggestions fixed (AC-035 test against the same object; regex form) | task check passed: core 1037 of 1037 (45 files), api 6 of 6, web 4 of 4 |
 | T009 | process.md flow list: `processFlows` replaces `processList`; one item per flow in `next` order, each once (a loop stops at the flow already listed); each item has its name and id, its description, the pipeline's approval sentence (stop, or does not stop) and its conditions and retry routes under it | 1 blocker fixed (a flow without approval had no approval sentence), 3 warnings fixed (approval wording taken from the flow command, not the pipeline's; tests did not prove both cases; plan T009 line missed two files), 3 suggestions fixed (stale comment; a test title over 120 characters; `architecture.md` named `processList`), 1 suggestion deferred (`templates/README.md`, T018) | task check passed: core 1045 of 1045 (45 files), api 6 of 6, web 4 of 4 |
 | T010 | Pipeline command layout (`templates/claude-code/pipeline.md`) and the test loader; values: a separate stop step after each flow with approval on, `No arguments` when there are no arguments, the description and tools YAML-quoted in the frontmatter, a blank body empty; helpers shared in `values-text.ts`. Committed as one commit at the owner's decision (the 400-line guard was waived for this task; see Amendments) | 0 blockers, 2 warnings fixed (tools not quoted when YAML would break; blank pipeline body written as a paragraph), 2 suggestions fixed (stop wording after the last flow; duplicated helpers moved), 1 warning resolved by owner decision (line-break rule, see Deferred Findings) | task check passed: core 1063 of 1063 (46 files), api 6 of 6, web 4 of 4 |
+| T011 | Flow command layout (`templates/claude-code/flow.md`): frontmatter with the quoted description (`flowDescriptionYaml`, new) and the rule tags; Purpose, Context, Arguments, Artifacts (level-2 heading before the level-3 artifacts), Steps, Rules and Approval | 0 blockers, 1 warning fixed (flow description not quoted in the frontmatter), 0 suggestions fixed, 1 suggestion deferred (README, T018) | task check passed: core 1082 of 1082 (47 files), api 6 of 6, web 4 of 4 |
 
 ---
 
@@ -57,6 +58,7 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/templates/README.md` (line 14 and the value table, `processList`): the README still names `processList`, which T009 renamed to `processFlows`. SUGGESTION: the plan assigns the value table to T018, so it is left for T018.
 - `source/templates/claude-code/pipeline.md` (line 9, `{{pipelineDescription}}` as the Purpose paragraph): WARNING. `templates/README.md` (Line breaks) says an inline value is never alone on a line, and the Purpose paragraph is the description alone. The layout cannot keep it inside a sentence without adding words to the Purpose text (AC-005 gives the text) or renaming the values. Left as is on the caller's direction. Resolved by owner decision (2026-11-19, option a): a description is a paragraph value and may stand alone on its line. T018 states this in the README line-break rule.
 - `source/templates/README.md` (value table and Line breaks, T018): stale after T010. `pipelineArguments` writes `No arguments`, `pipelineFlows` writes a stop step after a flow with approval on (no approval sentence on the flow line), `pipelineBody` is blank-checked, and `pipelineDescriptionYaml` (the quoted frontmatter description) is not listed. SUGGESTION: the README is not edited in T010 (T018 owns it, by the caller's direction).
+- `source/templates/README.md` (value table, T018): `flowDescriptionYaml` (the quoted flow description for the frontmatter, T011) is not listed, and `flowDescription` is described without its frontmatter quoting. SUGGESTION: the plan assigns the table to T018, so it is left for T018.
 
 ---
 

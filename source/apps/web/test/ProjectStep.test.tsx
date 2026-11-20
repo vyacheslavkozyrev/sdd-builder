@@ -15,6 +15,7 @@ import {
 } from '../src/wizard/ProjectStep.js';
 import { IDEA_ROWS, getProjectStepStyles } from '../src/wizard/projectStepStyles.js';
 import type { ProjectValuesPatch, WizardValues } from '../src/wizard/state.js';
+import { valuesWith } from './wizardValues.js';
 
 const EMOJI = '\u{1F600}'; // one code point, two UTF-16 units
 const PLACEHOLDER_LINE = 'The content of this step is added in a later feature.';
@@ -44,6 +45,7 @@ function Harness({ initial, onPatch }: { initial: WizardValues; onPatch?: (patch
         onChange={(patch) => {
           onPatch?.(patch);
           setValues((current) => ({
+            ...current,
             name: patch.name ?? current.name,
             idea: patch.idea ?? current.idea,
           }));
@@ -61,7 +63,7 @@ function markupOf(values: WizardValues): string {
   );
 }
 
-const EMPTY: WizardValues = { name: '', idea: '' };
+const EMPTY: WizardValues = valuesWith('', '');
 
 function nameInput(): HTMLInputElement {
   return screen.getByRole('textbox', { name: 'Project name' }) as HTMLInputElement;
@@ -103,13 +105,13 @@ describe('F-09 AC-003 the name keeps the first 100 code points', () => {
 
   it('F-09 AC-003 pasting across the limit keeps the characters up to 100 and drops the rest', () => {
     const onChange = vi.fn();
-    renderFixed({ name: 'a'.repeat(90), idea: '' }, onChange);
+    renderFixed(valuesWith('a'.repeat(90), ''), onChange);
     fireEvent.change(nameInput(), { target: { value: 'a'.repeat(90) + 'b'.repeat(20) } });
     expect(onChange).toHaveBeenLastCalledWith({ name: 'a'.repeat(90) + 'b'.repeat(10) });
   });
 
   it('F-09 AC-003 negative case: the name field renders no counter such as N / 100', () => {
-    expect(markupOf({ name: 'a'.repeat(40), idea: '' })).not.toMatch(/\d+ \/ 100\b/);
+    expect(markupOf(valuesWith('a'.repeat(40), ''))).not.toMatch(/\d+ \/ 100\b/);
   });
 });
 
@@ -136,14 +138,14 @@ describe('F-09 AC-006 the idea counter shows N / 5,000 in code points', () => {
   ];
 
   it.each(cases)('F-09 AC-006 shows the counter for %s', (_label, idea, expected) => {
-    expect(markupOf({ name: '', idea })).toContain(expected);
+    expect(markupOf(valuesWith('', idea))).toContain(expected);
   });
 });
 
 describe('F-09 AC-007 typing past 5,000 code points keeps the first 5,000', () => {
   it('F-09 AC-007 the 5,001st code point is not stored and the counter stays at 5,000 / 5,000', () => {
     const onPatch = vi.fn();
-    render(<Harness initial={{ name: '', idea: 'a'.repeat(4999) }} onPatch={onPatch} />);
+    render(<Harness initial={valuesWith('', 'a'.repeat(4999))} onPatch={onPatch} />);
     fireEvent.change(ideaInput(), { target: { value: 'a'.repeat(5000) + 'b' } });
     expect(onPatch).toHaveBeenLastCalledWith({ idea: 'a'.repeat(5000) });
     expect(codePointCount(ideaInput().value)).toBe(5000);
@@ -161,7 +163,7 @@ describe('F-09 AC-008 a paste that crosses 5,000 keeps the first code points up 
 
   it.each(cases)('F-09 AC-008 %s', (_label, stored, pasted, expected) => {
     const onChange = vi.fn();
-    renderFixed({ name: '', idea: stored }, onChange);
+    renderFixed(valuesWith('', stored), onChange);
     fireEvent.change(ideaInput(), { target: { value: stored + pasted } });
     expect(onChange).toHaveBeenLastCalledWith({ idea: expected });
   });
@@ -169,7 +171,7 @@ describe('F-09 AC-008 a paste that crosses 5,000 keeps the first code points up 
 
 describe('F-09 AC-012 the project step shows the name field, the idea field and the counter', () => {
   it('F-09 AC-012 renders both fields, their labels and the counter', () => {
-    renderFixed({ name: 'Demo', idea: 'Short idea' });
+    renderFixed(valuesWith('Demo', 'Short idea'));
     expect(nameInput().value).toBe('Demo');
     expect(ideaInput().value).toBe('Short idea');
     expect(screen.getByText('10 / 5,000')).toBeTruthy();
@@ -225,13 +227,13 @@ describe('F-09 AC-016 the help text is exactly the approved wording', () => {
 
 describe('F-09 AC-017 the limit notes show when a limit is reached (screen 03)', () => {
   it('F-09 AC-017 the name note replaces the name help line at 100 characters', () => {
-    const html = markupOf({ name: 'a'.repeat(100), idea: '' });
+    const html = markupOf(valuesWith('a'.repeat(100), ''));
     expect(html).toContain(NAME_LIMIT_NOTE);
     expect(html).not.toContain(NAME_HELP_LINE);
   });
 
   it('F-09 AC-017 the idea note and the 5,000 / 5,000 counter show at the idea limit, with the help lines', () => {
-    const html = markupOf({ name: '', idea: 'a'.repeat(5000) });
+    const html = markupOf(valuesWith('', 'a'.repeat(5000)));
     expect(html).toContain(IDEA_LIMIT_NOTE);
     expect(html).toContain('5,000 / 5,000');
     for (const line of IDEA_HELP_LINES) {
@@ -240,7 +242,7 @@ describe('F-09 AC-017 the limit notes show when a limit is reached (screen 03)',
   });
 
   it('F-09 AC-017 negative case: below the limit no limit note is shown', () => {
-    const html = markupOf({ name: 'a'.repeat(99), idea: 'a'.repeat(4999) });
+    const html = markupOf(valuesWith('a'.repeat(99), 'a'.repeat(4999)));
     expect(html).not.toContain(NAME_LIMIT_NOTE);
     expect(html).not.toContain(IDEA_LIMIT_NOTE);
   });

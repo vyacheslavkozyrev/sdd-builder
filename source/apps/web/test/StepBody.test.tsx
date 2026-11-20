@@ -7,9 +7,11 @@ import type { StepNumber } from '../src/wizard/steps.js';
 import type { WizardValues } from '../src/wizard/state.js';
 import { getStepBodyStyles } from '../src/wizard/wizardStyles.js';
 
+import { valuesWith } from './wizardValues.js';
+
 // Markup tests run in the Node environment (architecture.md §5). The body takes the step, the
 // values and the update handler; the placeholder steps ignore the values.
-const EMPTY_VALUES: WizardValues = { name: '', idea: '' };
+const EMPTY_VALUES: WizardValues = valuesWith('', '');
 const PLACEHOLDER_STEPS: readonly StepNumber[] = [2, 3, 4];
 
 function markup(step: StepNumber): string {
@@ -39,7 +41,7 @@ describe('F-09 AC-012 step body shows the project step on step 1', () => {
 
   it('F-09 AC-012 passes the values to the project step on step 1', () => {
     const html = renderToStaticMarkup(
-      <StepBody step={1} values={{ name: 'Tracker', idea: '' }} onChange={() => {}} />,
+      <StepBody step={1} values={valuesWith('Tracker', '')} onChange={() => {}} />,
     );
     expect(html).toContain('value="Tracker"');
   });

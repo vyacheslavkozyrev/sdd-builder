@@ -1,6 +1,6 @@
 # Manual checklist — Wizard stepper (F-08)
 
-Covers the one `[device]` criterion in `stories.md`: AC-015. Compare against `spec/design/features/F-08-wizard-stepper/screens.md` (screen 01 for step 1, screen 04 for step 4).
+Covers the one `[device]` criterion in `stories.md`: AC-015. Compare against the approved left-panel screens `spec/design/features/F-08-wizard-stepper/01-step-project.svg` (step 1) and `04-step-analyze-generate.svg` (step 4), and against the F-07 frame (left panel, content area, footer note).
 
 ## Before you start
 
@@ -10,19 +10,22 @@ Covers the one `[device]` criterion in `stories.md`: AC-015. Compare against `sp
 
 ---
 
-## AC-015 `[device]` — 1280 × 800: stepper, Prev and Next on one row, body below with no vertical scroll
+## AC-015 `[device]` — 1280 × 800: left panel with the stepper and Prev and Next, body in the content area, no vertical scroll
 
 Window: 1280 × 800.
 
 1. Set the viewport to 1280 × 800 (width 1280, height 800). Reload the page.
-2. Look at the top of the centre area, just below the header. Expected: the Prev button (round, with a left arrow and the word "Prev" under it) is at the left, the four step labels (Project, Technical details, Workflow, Analyze and generate) are in the middle, and the Next button (round, with a right arrow and the word "Next" under it) is at the right. All of them are on one row.
-3. Look at the area below that row. Expected: a white card with a coloured rule across its top and a sparkle mark with the line "The content of this step is added in a later feature." is visible. The card starts just below the row and ends just above the footer. Nothing is cut off.
-4. Click Next. Expected: the stepper row stays on one row, Prev and Next stay in the same place, and the card still fills the space below the row without a vertical scrollbar.
-5. Click Next twice more to reach step 4. Expected: the row is still on one row. Next is greyed out (disabled) at the right of the row, in the same place as on steps 1 to 3, and clicking it does nothing. Prev is still at the left and enabled. The card is still visible below the row.
-6. At step 4, scroll the page with the mouse wheel or trackpad, both up and down. Expected: the page does not scroll vertically. The header, the row, the card and the footer all stay in view, and there is no vertical scrollbar.
-7. Click Prev three times to return to step 1. Expected: Prev is grey and disabled on step 1, Next is shown, and the layout is the same as in step 2.
-8. Optional visual check (compare with screen 01): the row sits about 80 to 140 px below the top of the page, the card runs 16 px below the row to 16 px above the footer, and the card spans the full width between the 24 px side margins.
+2. Look at the left panel (white, on the left side). Expected, from the top: the SDDBuilder logo and wordmark, then the New project button (white with a grey outline), then the vertical stepper with four steps in this order: Project, Technical details, Workflow, Analyze and generate.
+3. On step 1, check the stepper states. Expected: Project has the current marker (violet number with a soft ring); Technical details, Workflow and Analyze and generate are to do (grey outlined numbers).
+4. Look at the foot of the left panel. Expected: the Prev button (left, grey and disabled on step 1) and the Next button (right, enabled) sit side by side near the bottom of the panel, with their words inside, and nothing below them.
+5. Look at the content area on the right of the panel. Expected: a white card that starts just below the top of the page and ends above the footer note. Inside the card, a sparkle mark in a light circle and the line "The content of this step is added in a later feature." are visible, centred. There is no step title and no input field in the card.
+6. Look at the bottom of the grey area, below the card. Expected: the footer note "The work is not saved. It is lost when the browser is refreshed." is visible in full, with nothing cut off.
+7. Click Next. Expected: the stepper marks Project as done (green circle with a white check mark) and Technical details as current. Prev and Next stay at the foot of the left panel. The card still fills the space without a vertical scrollbar.
+8. Click Next twice more to reach step 4. Expected: Project and Technical details and Workflow are done; Analyze and generate is current. Next is shown greyed out (disabled) at the same place, and clicking it does nothing. Prev is enabled.
+9. At step 4, scroll the page with the mouse wheel or trackpad, both up and down. Expected: the page does not scroll vertically. The header, the left panel, the card and the footer note all stay in view, and there is no vertical scrollbar on the page or in the content area.
+10. Click Prev three times to return to step 1. Expected: Prev is grey and disabled, Next is enabled, and the layout is the same as in step 2.
+11. Optional visual check (compare with screen 01): the first step marker sits about 164 px below the top of the page, the Prev and Next buttons sit about 32 px above the bottom of the page, and the card has a 24 px margin from the panel edge and from the right window edge.
 
-Result: [x] Pass  [ ] Fail (confirmed by the user on 2026-11-17)
+Result: [ ] Pass  [ ] Fail
 
 Notes: ______________________________________________

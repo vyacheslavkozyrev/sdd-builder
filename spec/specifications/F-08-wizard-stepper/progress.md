@@ -56,31 +56,31 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
-Verify re-run on 2026-11-17 on `main`, clean tree, all six tasks committed (T006 is the AC-007 amendment: Next shown disabled on step 4). `source/scripts/task-check.sh` passed: typecheck clean in api, web and core; tests api 57, web 114, core 1017 (1188 total), 0 failing.
+Verify run on 2026-11-20 on `main`, clean tree, all seven tasks of the 2026-11-20 plan committed, Current Task None. `source/scripts/task-check.sh` passed (exit 0): typecheck clean; tests api 45, web 201, core 1208 (1454 total), 0 failing.
 
 | Criterion | Tag | Covering tests (names contain the criterion) | Result |
 |---|---|---|---|
-| AC-001 | auto | `steps.test.ts` AC-001; `WizardStepper.test.tsx` AC-001 | Covered |
-| AC-002 | auto | `steps.test.ts` AC-002 (×4 table plus one-current check); `WizardStepper.test.tsx` AC-002 (table) | Covered |
-| AC-003 | auto | `WizardStepper.test.tsx` AC-003 (×3: no title as button or link; no stepper click handler) | Covered |
-| AC-004 | auto | `Wizard.test.tsx` AC-004 (×4: order, Prev and Next above body); `WizardStepper.test.tsx` AC-004 (one row) | Covered |
-| AC-005 | auto | `steps.test.ts` AC-005 (table, plus programmer-error case); `WizardStepper.test.tsx` AC-005 (table) | Covered |
-| AC-006 | auto | `steps.test.ts` AC-006 (1→2, 2→3, 3→4); `WizardStepper.test.tsx` AC-006 (×3, plus Prev); `App.test.tsx` AC-006 | Covered |
-| AC-007 | auto | `steps.test.ts` AC-007 (×2: disabled on 4, enabled on 1–3); `WizardStepper.test.tsx` AC-007 (step 4 Next disabled; Next enabled on 1–3, table; Next in the same place on every step); `Wizard.test.tsx` AC-007 (step 4 Next disabled above the body) | Covered |
-| AC-008 | auto | `steps.test.ts` AC-008 (×2); `state.test.ts` AC-008 (×2); `App.test.tsx` AC-008 | Covered |
-| AC-009 | auto | `steps.test.ts` AC-009 | Covered |
-| AC-010 | auto | `state.test.ts` AC-010 (×2) | Covered |
-| AC-011 | auto | `wizard-privacy.test.ts` AC-011 (no `localStorage`, `sessionStorage`, `indexedDB` or `console` in `src/wizard`) | Covered |
-| AC-012 | auto | `state.test.ts` AC-012 (×4); `App.test.tsx` AC-012 (×5) | Covered |
-| AC-013 | auto | `Wizard.test.tsx` AC-013 (×5: placeholder line, no repeated title, no counter, no input) | Covered |
-| AC-014 | auto | `WizardStepper.test.tsx` AC-014 (×2: `MuiStepper-root`, `MuiButton-root`) | Covered |
-| AC-015 | device | `AppFrame.test.tsx` AC-015 covers the style part only (flex column); the one-row and no-scroll check is manual | Pending: `checklist.md` |
+| AC-001 | auto | `steps.test.ts`; `WizardStepper.test.tsx`; `App.test.tsx` | Pass |
+| AC-002 | auto | `steps.test.ts` (table, N = 1 to 4); `WizardStepper.test.tsx` (table) | Pass |
+| AC-003 | auto | `WizardStepper.test.tsx` (no button, no link, no click handler) | Pass |
+| AC-004 | auto | `LeftPanel.test.tsx` (order, foot pinned, no-slot F-07 render); `AppFrame.test.tsx` (stepper in panel, children in centre) | Pass |
+| AC-005 | auto | `steps.test.ts`; `WizardNav.test.tsx`; `WizardNav.click.test.tsx`; `App.test.tsx` | Pass |
+| AC-006 | auto | `state.test.ts` (Next 1 to 2, 2 to 3, 3 to 4); `App.test.tsx` | Pass |
+| AC-007 | auto | `steps.test.ts`; `state.test.ts`; `WizardNav.test.tsx`; `WizardNav.click.test.tsx` | Pass |
+| AC-008 | auto | `state.test.ts` (Prev one step, values kept); `App.test.tsx` | Pass |
+| AC-009 | auto | `steps.test.ts` | Pass |
+| AC-010 | auto | `state.test.ts` | Pass |
+| AC-011 | auto | `wizard-privacy.test.ts` (scans `src/wizard`) | Pass |
+| AC-012 | auto | `state.test.ts`; `App.test.tsx` | Pass |
+| AC-013 | auto | `StepBody.test.tsx`; `App.test.tsx` | Pass |
+| AC-014 | auto | `WizardStepper.test.tsx` (`MuiStepper-root`); `WizardNav.test.tsx` (`MuiButton-root`) | Pass |
+| AC-015 | device | style part only: `AppFrame.test.tsx`, `StepBody.test.tsx`; the 1280 x 800 check is manual | Pending: `checklist.md` (not run) |
 
-Gaps among `[auto]` criteria: none. Scope in `features.md` (F-08: four steps in a stepper that is not clickable; done, current and to-do states; Prev and Next beside it; Prev disabled on step 1; Next shown disabled on step 4; values kept in memory) is covered by AC-001 to AC-014 as in the Requirement Coverage table.
+Gaps among `[auto]` criteria: none. Scope in `features.md` F-08 (four steps in a stepper that is not clickable; done, current and to-do states; Prev and Next beside it; Prev disabled on step 1; Next disabled on step 4; values kept in memory) is covered by AC-001 to AC-014.
 
-Manual checklist: `spec/specifications/F-08-wizard-stepper/checklist.md` (AC-015 at 1280 × 800, one step at a time through the four steps). Outcome: passed by the user on 2026-11-17.
+Manual checklist: `spec/specifications/F-08-wizard-stepper/checklist.md` (AC-015, rewritten 2026-11-20 for the left-panel layout). Status: pending; the user has not run it. Result line left empty.
 
-Document note (not a gap): `screens.md` still records an open "story conflict" on AC-013 and shows Approval as pending. `stories.md` AC-013 already carries the 2026-11-17 amendment (placeholder line only), and the progress log records the UX as approved. The caller may want the screens file brought in line.
+Previous Test Results (2026-11-17, horizontal layout, before the reset) are superseded by this run.
 
 ---
 

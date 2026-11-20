@@ -1,13 +1,15 @@
 # User Stories — Technical details step (F-10)
 
 Feature entry: `spec/documents/features.md` → F-10
-Requirements owned by this feature: the F-10 scope items in `features.md` (language required; framework, platform, build tool and test framework; architecture text of at most 5,000 characters; rule blocks with a name and a description of at most 1,000 characters, each showing its file name, at most 60 blocks; duplicate ids flagged; the list starts empty); `ui.md` §2 Step 2 — Technical details and §6 Limits; owner decisions of 2026-11-17: the stack fields are free text, every single-line stack field and a rule block's name are limited to 100 characters (code points), and a rule name that gives no id is kept with a message and never blocks Next.
+Requirements owned by this feature: the F-10 scope items in `features.md` (language required; framework, platform, build tool and test framework; architecture text of at most 5,000 characters; rule blocks with a name and a description of at most 1,000 characters, each showing its file name, at most 60 blocks; duplicate ids flagged; the list starts empty); `ui.md` §2 Step 2 — Technical details and §6 Limits; `pipeline-schema.md` §2 (`stack`, `architecture`, `rules`: each rule has `id`, `title` and `text`) and §3 (rule tags name rules); owner decisions of 2026-11-17 (stack fields and rule names limited to 100 characters, code points; a name that gives no id is kept with a message and never blocks Next); owner decision of 2026-11-20 (a derived id that the schema refuses, because it is over 60 characters or does not start with a letter, is shown with a message on its block; Next stays enabled).
+
+Mapping to the schema: a rule block's **name** is `rules[].title`, its **description** is `rules[].text`, and its file name is `.claude/rules/<id>.md` with `id` as `rules[].id`. The stack fields are `stack.language`, `stack.framework`, `stack.platform`, `stack.buildTool` and `stack.testFramework`; the architecture text is `architecture`.
 
 Counting and kept-as-typed rules follow the project's settled decisions: lengths are counted in code points (an emoji counts as one); the architecture text is kept as submitted, not trimmed (`architecture.md` decision 37); the `ui.md` §2 counter is for the idea only.
 
 ## Out of Scope
 
-- The analysis of the content: a blank language, a duplicate id, an id that breaks the id rule and a blank project brief are reported by the analysis (F-06, F-14). F-10 never blocks Next on content.
+- The analysis of the content: a blank language, a duplicate id, an id that breaks the id rule and a blank project brief are reported by the analysis (F-06, F-14). F-10 never blocks Next on content. A configuration that the parser refuses (for example a rule id that is not file-safe) gets a 422 from `/analyze` with every problem (F-14); F-10 does not change that.
 - Preset lists for the stack fields. They are free text (owner decision).
 - Calling the Analyze API, building the configuration and writing the rule list into it (F-13, F-14, F-15). F-10 holds the values and the pure functions the later steps use.
 - Rule-set tags on agents and flows (F-11, F-12).
@@ -16,6 +18,7 @@ Counting and kept-as-typed rules follow the project's settled decisions: lengths
 - The project step (F-09, done), the workflow builder (F-11, F-12) and the analyze and generate step (F-13).
 - Phone and tablet layouts (decision 31).
 - Changing the placeholder on steps 3 and 4.
+- Shortening the rule name limit: the name stays at 100 characters. A long or invalid id is handled by the message in US-004, not by a lower limit.
 
 ---
 
@@ -34,7 +37,7 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 **I want to** name the language, framework, platform, build tool and test framework of my project
 **So that** the generated rules and commands use the tools I actually work with.
 
-**Requirements:** `features.md` F-10 (language required; four optional stack fields); `ui.md` §2 Step 2 Stack; owner decision 100-character limit on single-line fields
+**Requirements:** `features.md` F-10 (language required; four optional stack fields); `ui.md` §2 Step 2 Stack; `pipeline-schema.md` §2 `stack`; owner decision 100-character limit on single-line fields
 
 #### Acceptance Criteria
 
@@ -49,7 +52,7 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 **I want to** describe the architecture of my project in several lines
 **So that** the generated rules follow the structure I have in mind.
 
-**Requirements:** `features.md` F-10 (architecture text of at most 5,000 characters); `ui.md` §2 Step 2 Architecture; `architecture.md` decision 37 (kept as submitted)
+**Requirements:** `features.md` F-10 (architecture text of at most 5,000 characters); `ui.md` §2 Step 2 Architecture; `pipeline-schema.md` §2 `architecture`; `architecture.md` decision 37 (kept as submitted)
 
 #### Acceptance Criteria
 
@@ -77,16 +80,18 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 
 **As a** builder user
 **I want to** give each rule a name and see the file it will become
-**So that** I know which file the rule is written to, and I can fix a name that gives no usable file.
+**So that** I know which file the rule is written to, and I am told when a name gives a file name the project cannot use.
 
-**Requirements:** `features.md` F-10 (rule block name; each shows its file name); `ui.md` §2 Step 2 Rules (name, file name `.claude/rules/<id>.md`, id derivation); owner decisions: name limit 100 characters, and a name that gives no id is kept with a message, never blocking Next
+**Requirements:** `features.md` F-10 (rule block name; each shows its file name); `ui.md` §2 Step 2 Rules (name, file name `.claude/rules/<id>.md`, id derivation, the no-id message); `pipeline-schema.md` §2 `rule.id` (lowercase letters, digits and hyphens, starting with a letter, at most 60 characters) and `title` (at most 100); owner decisions of 2026-11-17 and 2026-11-20 (message on the block, Next enabled)
 
 #### Acceptance Criteria
 
 - [ ] AC-013 `[auto]`: the rule name is a single-line input (Enter adds no line break) limited to 100 code points, with the same cut as AC-004 (table-driven: 100 → 100, 101 → 100).
-- [ ] AC-014 `[auto]`: the file name line shows `.claude/rules/<id>.md`, where the id is the name in lower case with each run of characters outside `a–z` and `0–9` replaced by one hyphen (table-driven: `Code Style` → `code-style`; `Naming & Tests!` → `naming-tests-`; `  Rule  2 ` → `-rule-2-`).
-- [ ] AC-015 `[auto]`: a name with no letter or digit (blank, spaces only, or only symbols such as `!!!`) shows a message in place of the file name saying it needs a letter or digit; the block is kept as typed, no file name is shown, and Next stays enabled (negative case).
-- [ ] AC-016 `[auto]`: the file name line changes as the name is typed (table-driven: typing `A` then `Ab` shows `a` then `ab`); an id that starts with a hyphen, such as `-rule-2-`, is shown as derived and is not blocked in the wizard (the analysis reports it, F-14).
+- [ ] AC-014 `[auto]`: the file name line shows `.claude/rules/<id>.md`, where the id is the name in lower case with each run of characters outside `a–z` and `0–9` replaced by one hyphen (table-driven: `Code Style` → `code-style`; `Code   Style` → `code-style`; `Naming & Tests!` → `naming-tests-`; `Rule 2` → `rule-2`).
+- [ ] AC-015 `[auto]`: a name with no letter or digit (blank, spaces only, or only symbols such as `!!!`) shows the message "Needs a letter or digit." in place of the file name; no file name is shown; the block is kept as typed; Next stays enabled (negative case).
+- [ ] AC-016 `[auto]`: a name with a letter or digit whose derived id does not start with a letter shows the message "The id must start with a letter." in place of the file name (table-driven: `2 tests` → `2-tests` shows the message; `  Rule` → `-rule` shows the message; `Rule 2` → `rule-2` shows the file name); the block is kept as typed; Next stays enabled (negative case: the wizard does not block the id, the analysis reports it).
+- [ ] AC-017 `[auto]`: a derived id longer than 60 characters shows the message "The id is longer than 60 characters." in place of the file name (table-driven: 60 letters → the file name shows; 61 letters → the message; 100 letters → the message); the block is kept as typed; Next stays enabled.
+- [ ] AC-018 `[auto]`: the file name line, or the message in its place, changes as the name is typed (table-driven: typing `A` then `Ab` shows `a` then `ab`; typing `2` shows the AC-016 message, and deleting it back to `Rule 2` shows `rule-2`; the message clears as soon as the name is valid again: negative case, no stale message stays).
 
 ### US-005: Flag duplicate rule ids and limit the description
 
@@ -94,12 +99,12 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 **I want to** see when two rules would write the same file, and keep each description within its limit
 **So that** no rule file is overwritten by accident and each description stays within 1,000 characters.
 
-**Requirements:** `features.md` F-10 (duplicate ids flagged; description of at most 1,000 characters); `ui.md` §2 Step 2 Rules (duplicate message, both kept as entered; description limit); `ui.md` §6
+**Requirements:** `features.md` F-10 (duplicate ids flagged; description of at most 1,000 characters); `ui.md` §2 Step 2 Rules (duplicate message, both kept as entered; description limit); `ui.md` §6; `pipeline-schema.md` §2 `rule.text`
 
 #### Acceptance Criteria
 
-- [ ] AC-017 `[auto]`: two blocks whose names give the same id both show a duplicate-id message and both are kept as entered (table-driven: `Code Style` and `code style` → both flagged; `Code Style` and `Code-Style` → both flagged; a unique id → no message). Removing one of the two clears the message on the other (negative case: no message stays on a block that is now unique).
-- [ ] AC-018 `[auto]`: the rule description is a multi-line field: Enter adds a line break kept in the stored value; typing or pasting past 1,000 code points keeps the first 1,000 (table-driven: 999 → 999, 1,000 → 1,000, 1,001 → 1,000; an emoji counts as one).
+- [ ] AC-019 `[auto]`: two blocks whose names give the same valid id both show a duplicate-id message and both are kept as entered (table-driven: `Code Style` and `code style` → both flagged; `Code Style` and `Code-Style` → both flagged; a unique id → no message). Removing one of the two clears the message on the other (negative case: no message stays on a block that is now unique). Two blocks whose names give an invalid id (AC-015 to AC-017) show their own message and no duplicate message (negative case).
+- [ ] AC-020 `[auto]`: the rule description is a multi-line field: Enter adds a line break kept in the stored value; typing or pasting past 1,000 code points keeps the first 1,000 (table-driven: 999 → 999, 1,000 → 1,000, 1,001 → 1,000; an emoji counts as one); a blank description does not block Next and is kept as typed (negative case).
 
 ### US-006: Step 2 shows the technical details and keeps the values
 
@@ -111,11 +116,11 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-019 `[auto]`: the step 2 body shows the five stack fields, the architecture field and the rule list with its Add rule block control, and no longer shows the F-08 placeholder line; step 1 still shows the F-09 body, and steps 3 and 4 still show the placeholder line (table-driven over the four steps).
-- [ ] AC-020 `[auto]`: step 2 values (stack, architecture, and each rule block's name and description, in order) are still present after Next, Prev and Next again, and after going to step 4 and back to step 2 (table-driven over the fields).
-- [ ] AC-021 `[auto]`: New project clears every step 2 value, including the rule list, and step 2 shows the stack and architecture fields empty and the rule list empty again (negative case: no value from the earlier project remains).
-- [ ] AC-022 `[auto]`: the technical details step makes no call to `localStorage`, `sessionStorage`, `indexedDB` or `console` when a value changes (extends F-09 AC-015; decision 13).
-- [ ] AC-023 `[device]`: at a window of 1280 × 800 the step 2 fields and the Add rule block control are visible on the first screen, and the page does not scroll vertically with the list empty; a person judges the layout with two or more rule blocks shown, against the approved screens (UX step).
+- [ ] AC-021 `[auto]`: the step 2 body shows the five stack fields, the architecture field and the rule list with its Add rule block control, and no longer shows the F-08 placeholder line; step 1 still shows the F-09 body, and steps 3 and 4 still show the placeholder line (table-driven over the four steps).
+- [ ] AC-022 `[auto]`: step 2 values (stack, architecture, and each rule block's name and description, in order) are still present after Next, Prev and Next again, and after going to step 4 and back to step 2 (table-driven over the fields).
+- [ ] AC-023 `[auto]`: New project clears every step 2 value, including the rule list, and step 2 shows the stack and architecture fields empty and the rule list empty again (negative case: no value from the earlier project remains).
+- [ ] AC-024 `[auto]`: the technical details step makes no call to `localStorage`, `sessionStorage`, `indexedDB` or `console` when a value changes (extends F-09 AC-015; decision 13).
+- [ ] AC-025 `[device]`: at a window of 1280 × 800 the step 2 fields and the Add rule block control are visible on the first screen, and the page does not scroll vertically with the list empty; a person judges the layout with two or more rule blocks shown, one of them with a message in place of its file name, against the approved screens (UX step).
 
 ---
 
@@ -127,16 +132,18 @@ Every automated test names the feature and criterion it covers (`F-10 AC-003`).
 | `features.md` F-10 framework, platform, build tool, test framework (optional, single-line) | AC-001, AC-003 |
 | owner decision: single-line stack fields and rule names limited to 100 code points | AC-004, AC-013 |
 | `features.md` F-10 architecture text of at most 5,000 characters | AC-005, AC-006, AC-007 |
-| `features.md` F-10 rule block name and description | AC-013, AC-018 |
-| `features.md` F-10 description of at most 1,000 characters | AC-018 |
-| `features.md` F-10 each rule block shows its file name | AC-014, AC-015, AC-016 |
+| `features.md` F-10 rule block name and description | AC-013, AC-020 |
+| `features.md` F-10 description of at most 1,000 characters | AC-020 |
+| `features.md` F-10 each rule block shows its file name | AC-014, AC-015, AC-016, AC-017, AC-018 |
+| owner decision 2026-11-20: a derived id the schema refuses shows a message, Next enabled | AC-016, AC-017, AC-018 |
 | `features.md` F-10 at most 60 rule blocks | AC-012 |
-| `features.md` F-10 duplicate ids flagged | AC-017 |
+| `features.md` F-10 duplicate ids flagged | AC-019 |
 | `features.md` F-10 the list starts empty | AC-008 |
 | `ui.md` §2 Step 2 Add rule block and Remove block, order kept | AC-009, AC-010, AC-011 |
 | `ui.md` §5 Delete asks for confirmation | AC-011 |
-| `ui.md` §2 Step 2 step body and layout | AC-019, AC-023 |
-| F-08 AC-010 and F-09 AC-013 values kept between steps | AC-020 |
-| F-08 AC-012 and F-09 AC-014 New project clears the values | AC-021 |
-| `architecture.md` decision 13 memory only | AC-022 |
+| `ui.md` §2 Step 2 step body and layout | AC-021, AC-025 |
+| F-08 AC-010 and F-09 AC-013 values kept between steps | AC-022 |
+| F-08 AC-012 and F-09 AC-014 New project clears the values | AC-023 |
+| `architecture.md` decision 13 memory only | AC-024 |
 | `architecture.md` decision 37 architecture text kept as submitted | AC-007 |
+| `pipeline-schema.md` §2 `rules[].text` and blank description | AC-020 |

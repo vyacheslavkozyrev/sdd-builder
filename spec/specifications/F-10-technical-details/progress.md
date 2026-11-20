@@ -5,7 +5,7 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
+| Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 25 criteria, 24 `[auto]`, 1 `[device]` (AC-025); approved by the user; rule ids that the schema refuses show a message (owner decision 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | Build    | ⏳ Pending |  | 0 tasks committed (reset) |

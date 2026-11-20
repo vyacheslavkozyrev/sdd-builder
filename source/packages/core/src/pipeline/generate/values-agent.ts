@@ -1,7 +1,7 @@
 import type { AgentBlock } from '../model.js';
 import {
+  argumentsText,
   bodyText,
-  describeArgument,
   inlineText,
   linesOf,
   quotedText,
@@ -16,7 +16,8 @@ import {
 // per line in the block's order (F-05, AC-021); each starts with its own blank line and is '' when the block's list is
 // empty or absent. `agentTools` is quoted when YAML would break on a tool name (F-05, AC-019). `agentBody` is the
 // Instructions section, its heading and the paragraph of the block's body, and '' when the body is blank
-// (F-05, AC-020). `agentArguments` is one line per argument. `agentRuleTags` is the block's rule tags as one
+// (F-05, AC-020). `agentArguments` is one line per argument, `No arguments` when there are none, as in the flow and
+// pipeline layouts (F-05, AC-008 and AC-001). `agentRuleTags` is the block's rule tags as one
 // comma-separated list, `none` when there are none (F-05, AC-022). A layout writes each of them at the end of a line.
 // The values are a pure function of the Agent block: the same block always gives the same text.
 export function agentValues(agent: AgentBlock): Record<string, string> {
@@ -30,7 +31,7 @@ export function agentValues(agent: AgentBlock): Record<string, string> {
     agentReads: artifactSection('Reads', agent.reads),
     agentWrites: artifactSection('Writes', agent.writes),
     agentBody: instructionsText(agent.body ?? ''),
-    agentArguments: linesOf(agent.arguments.map((arg) => `- ${describeArgument(arg)}`)),
+    agentArguments: argumentsText(agent.arguments),
     agentRuleTags: ruleTagsText(agent.ruleTags),
   };
 }

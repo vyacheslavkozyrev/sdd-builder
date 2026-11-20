@@ -208,8 +208,8 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
     expect(values['agentDescription']).not.toContain('\n');
   });
 
-  it('gives one line per argument with its required mark and hint, empty when there are none', () => {
-    expect(agentValues(agent())['agentArguments']).toBe('');
+  it('gives one line per argument with its required mark and hint, or No arguments when there are none, as the flow layout does', () => {
+    expect(agentValues(agent())['agentArguments']).toBe('\nNo arguments');
     const values = agentValues(agent({ arguments: [argument(0, 'topic', true, 'the subject')] }));
     expect(values['agentArguments']).toBe('\n- `topic` (required, the subject)');
   });

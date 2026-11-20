@@ -11,7 +11,10 @@ export function agentValues(agent: AgentBlock): Record<string, string> {
     agentName: agent.name,
     agentDescription: inlineText(agent.description),
     agentModel: agent.model === undefined ? '' : `\nmodel: ${agent.model}`,
-    agentTools: agent.tools === undefined || agent.tools.length === 0 ? '' : `\ntools: ${agent.tools.join(', ')}`,
+    agentTools:
+      agent.tools === undefined || agent.tools.length === 0
+        ? ''
+        : `\ntools: ${agent.tools.map(inlineText).join(', ')}`,
     agentReads: pathsLine('Reads', agent.reads),
     agentWrites: pathsLine('Writes', agent.writes),
     agentBody: agent.body ? `\n\n${agent.body}` : '',

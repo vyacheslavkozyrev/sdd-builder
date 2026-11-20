@@ -99,6 +99,55 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     );
   });
 
+  it('F-04 AC-039 gives the model and tools frontmatter lines only when the pipeline sets them', () => {
+    const bare = pipelineValues(validConfig().pipeline);
+    expect(bare['pipelineModel']).toBe('');
+    expect(bare['pipelineTools']).toBe('');
+
+    const set = pipelineValues(pipelineWith({ model: 'sonnet', tools: ['Read', 'Edit'] }));
+    expect(set['pipelineModel']).toBe('\nmodel: sonnet');
+    expect(set['pipelineTools']).toBe('\ntools: Read, Edit');
+  });
+
+  it('F-04 AC-039 treats an empty tools list as no tools line', () => {
+    expect(pipelineValues(pipelineWith({ tools: [] }))['pipelineTools']).toBe('');
+  });
+
+  it('F-04 AC-039 keeps a line break in a tool name from splitting the tools frontmatter line', () => {
+    expect(pipelineValues(pipelineWith({ tools: ['Read', 'Edit\nBash'] }))['pipelineTools']).toBe(
+      '\ntools: Read, Edit Bash',
+    );
+  });
+
+  it('F-04 AC-003 keeps a line break in an agent tool name from splitting the agent tools frontmatter line', () => {
+    expect(agentValues(agent({ tools: ['Read', 'Edit\nBash'] }))['agentTools']).toBe('\ntools: Read, Edit Bash');
+  });
+
+  it('F-04 AC-039 gives the body as a paragraph after a blank line, empty when the pipeline has no body', () => {
+    expect(pipelineValues(validConfig().pipeline)['pipelineBody']).toBe('');
+    expect(pipelineValues(pipelineWith({ body: '' }))['pipelineBody']).toBe('');
+    expect(pipelineValues(pipelineWith({ body: 'Run the flows in order.' }))['pipelineBody']).toBe(
+      '\n\nRun the flows in order.',
+    );
+  });
+
+  it('F-04 AC-039 fills a frontmatter layout with the optional lines and leaves no blank line when they are empty', () => {
+    const layout =
+      '---\nname: {{pipelineName}}\ndescription: {{pipelineDescription}}{{pipelineModel}}{{pipelineTools}}\n---{{pipelineBody}}';
+    expect(
+      renderLayout(
+        layout,
+        pipelineValues(pipelineWith({ model: 'haiku', tools: ['Read'], body: 'Keep it short.' })),
+        '.claude/commands/pipeline.md',
+      ),
+    ).toBe(
+      '---\nname: Build pipeline\ndescription: One flow that builds the project.\nmodel: haiku\ntools: Read\n---\n\nKeep it short.',
+    );
+    expect(renderLayout(layout, pipelineValues(validConfig().pipeline), '.claude/commands/pipeline.md')).toBe(
+      '---\nname: Build pipeline\ndescription: One flow that builds the project.\n---',
+    );
+  });
+
   it('fills a layout with the flow lines and leaves no blank line when a value is empty', () => {
     const pipeline = pipelineWith({ arguments: [] });
     const values = pipelineValues(pipeline);

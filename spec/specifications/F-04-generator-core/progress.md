@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 6 stories, 36 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); amended 2026-11-19 to 16 tasks (T013 to T015 added, docs task now T016); 40 criteria, all covered |
-| Build    | 🔄 In Progress |  | 14 of 16 tasks committed |
+| Build    | 🔄 In Progress |  | 15 of 16 tasks committed |
 | Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-040 are all `[auto]` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T012 | Namespace and purity: `configProblems`, `planGeneration` and `checkReply` exported from `pipeline`, no other generator name; purity scan covers `generate/` and its imports stay inside `src/pipeline` | 0 blockers, 1 warning fixed (a tautological purity assertion; the import scan had no proving fixture) | task check passed: api 6 of 6, web 4 of 4, core 932 of 932 |
 | T013 | Line breaks in numbered lines (AC-040): the Agent step line, the Condition rule line, its stop question and the argument lines take their text through `inlineText` | 0 blockers, 0 warnings; 1 suggestion deferred (flow description that is only a line break, in `values-pipeline.ts`) | task check passed: api 6 of 6, web 4 of 4, core 934 of 934 |
 | T014 | Base values (`generate/values-base.ts`): `processList`, `commandList`, `agentList`, `ruleList` built in code; `plan.ts` renders base layouts with them; `processDiagram` is not supplied and still throws | 0 blockers; 2 warnings fixed (a self-comparing determinism test; no line-break case for agent lists); 2 suggestions fixed (typed agent collection; long lines wrapped) | task check passed: api 6 of 6, web 4 of 4, core 949 of 949 |
+| T015 | The pipeline command's model, tools and body (`values-pipeline.ts`): frontmatter lines and body in the agent form, empty when absent; tool names are inlined (agent tools too, in `values-agent.ts`) | 0 blockers; 2 warnings fixed (a tool name with a line break in the pipeline and in the agent form); 0 suggestions | task check passed: api 6 of 6, web 4 of 4, core 955 of 955 |
 
 _The earlier task log of this feature (before the 2026-11-19 reset to the flow model) was removed; its code is no longer in the tree. It remains in git history before commit `3b601aa`._
 

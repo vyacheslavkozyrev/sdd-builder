@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 6 tasks (T001 to T006); 26 criteria, all covered |
 | Build    | ✅ Complete | 2026-11-20 | 6 of 6 tasks committed |
-| Verify   | ⏳ Pending |  | 26 criteria, all [auto] |
+| Verify   | ✅ Complete | 2026-11-20 | 26 criteria, all [auto], all covered by passing tests; no [device] criteria, so no manual checklist. Matrix under Test Results |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -55,7 +55,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 _Review suggestions intentionally not applied, with the reason._
 
 - T006 SUGGESTION `source/apps/api/test/analyze-privacy.test.ts` "writes no file": checks the cwd, `TMPDIR` and `HOME` only, so a write to another absolute path would not be seen. Not extended: `analyzePipeline` takes no path argument, and a spy on `node:fs` would need a module mock for little gain.
-- T006 doc (not T006 code): the `## Test Results` table numbers the privacy criteria AC-030 to AC-032 and counts 32 criteria, but `stories.md` has AC-024 to AC-026 and 26 criteria. Left for the Verify step, which owns that table.
+- T006 doc (not T006 code): the old `## Test Results` table numbered the privacy criteria AC-030 to AC-032 and counted 32 criteria, but `stories.md` has AC-024 to AC-026 and 26 criteria. Resolved by the 2026-11-20 verify, which replaced that table with the current matrix.
 - T002 SUGGESTION `source/packages/core/src/pipeline/parse/brief.ts` `longBriefText`: repeats the two-part length check of `bodyText` (`check/primitives.ts`). A shared helper would change `bodyText`, an earlier task's code, so it is left for a later tidy-up.
 - Doc inconsistency found in T001 (not F-06 scope): `spec/documents/architecture.md` §4 "Input" still said the idea is capped at 8,000 characters. Resolved after F-06 completed: §4 Input and decision 12 now give 5,000 code points (decision 28), and the F-05 wireframe counter and limit text read 5,000.
 
@@ -63,47 +63,42 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Verify run 2026-11-17 on `main`, clean tree, all 7 tasks ticked and committed, Current Task None. `source/scripts/task-check.sh`: exit 0; typecheck passed for api, web and core; tests passed in full: api 57 of 57 (6 files), web 3 of 3 (2 files), core 1017 of 1017 (53 files). F-06 filter: 164 passed, 0 failed, 0 skipped (core `test/pipeline/` 113 cases, api `test/` 51 cases). Manual checklist: none (all 32 criteria are `[auto]`; no `checklist.md` created).
+Verify run 2026-11-20 on `main`, clean tree, all 6 tasks ticked and committed (latest `6a10b99`), Current Task None. `source/scripts/task-check.sh`: exit 0; typecheck passed; tests passed in full: core 1208 of 1208 (57 files), api 45 of 45 (6 files), web 4 of 4 (2 files). F-06 filter (verbose run of core and api): 104 passed, 0 failed, 0 skipped (core `test/pipeline/` 65 cases, api `test/` 39 cases). Criteria: 26 of 26 are `[auto]`, 0 `[device]`. Manual checklist: none; no `checklist.md` created, since there are no `[device]` criteria.
 
-Matrix (criterion → test file, test names). Each name starts with `F-06 AC-###`; the count is the number of passing cases.
+Matrix (criterion → test file, test names). Each name starts with `F-06 AC-###`; the count is the number of passing cases. Names are shortened.
 
-| Criterion | Covering tests (file: name) | Result |
+| Criterion | Covering tests (file: test names) | Result |
 | --- | --- | --- |
-| AC-001 | `brief-parse.test.ts`: keeps name, idea, architecture and each stack field as typed; keeps the brief for each config shape (4) | pass (4) |
-| AC-002 | `brief-parse.test.ts`: parses a config with no brief fields and reads the brief as blank | pass (1) |
-| AC-003 | `brief-parse.test.ts`: refuses a non-string brief field (number, list, and others) at its path (9) | pass (9) |
-| AC-004 | `brief-parse.test.ts`: refuses an unknown key inside stack with its path; refuses a non-object stack at `stack`; still refuses an unknown root key (5) | pass (5) |
-| AC-005 | `brief-parse.test.ts`: 5,000 accepted and 5,001 refused for idea and architecture; surrogate pair counted as one; very long idea refused (11) | pass (11) |
-| AC-006 | `brief-parse.test.ts`: keeps idea unchanged with spaces, line breaks and edges; keeps name, architecture and stack values unchanged (5) | pass (5) |
-| AC-007 | `brief-checks.test.ts`: blocker at name, idea or stack.language when absent, empty or blank; blockers when the stack or the brief is absent (17) | pass (17) |
-| AC-008 | `brief-checks.test.ts`: warning at stack.framework, platform, buildTool, testFramework when absent or blank (22) | pass (22) |
-| AC-009 | `brief-checks.test.ts`: warning at rules for an empty list; none for one rule or several (3) | pass (3) |
-| AC-010 | `brief-checks.test.ts`: complete brief gives no finding; a value with surrounding spaces counts as filled (2) | pass (2) |
-| AC-011 | `brief-structure.test.ts`: same structural findings with no brief, a blank brief and a complete brief (2) | pass (2) |
-| AC-012 | `brief-checks.test.ts`: findings in the order name, idea, stack.language, stack fields, rules, also when some are missing (2) | pass (2) |
-| AC-013 | `review-request.test.ts`: request carries the fixed prompt, brief and config; same text on two calls; fixed key order; blank brief for no brief; a brief change changes the text (7) | pass (7) |
-| AC-014 | `review-request.test.ts`: max_tokens 8192; timeout 60000 ms; same parameters on two calls; `callReview` sends the parameters and returns text and stop reason; max_tokens stop reason (6) | pass (6) |
-| AC-015 | `analyze.test.ts`: one analysis makes exactly one review call; a throwing call is not retried; one review event logged (3). `review-request.test.ts`: maxRetries 0; `callReview` makes one call and passes the error on (2) | pass (5) |
-| AC-016 | `analyze.test.ts`: with no model configured the review is failed and the analysis still returns (1) | pass (1) |
-| AC-017 | `review-reply.test.ts`: gives failed for a reply that is not valid JSON (3 cases) | pass (3) |
-| AC-018 | `review-reply.test.ts`: gives failed for valid JSON that is not an array (5 cases) | pass (5) |
-| AC-019 | `analyze.test.ts`: a reply stopped at max_tokens gives failed and its entries are not parsed (1) | pass (1) |
-| AC-020 | `review-reply.test.ts`: keeps warning and info entries with subject and message; keeps text without trimming; drops and counts each invalid entry (17) | pass (17) |
-| AC-021 | `review-reply.test.ts`: keeps a blocker entry as a warning, never a blocker (1) | pass (1) |
-| AC-022 | `review-reply.test.ts`: keeps entries in reply order; at most 10 kept; invalid and beyond-10 entries counted together in dropped (3) | pass (3) |
-| AC-023 | `review-reply.test.ts`: empty array gives ok, no findings and dropped 0 (1) | pass (1) |
-| AC-024 | `analyze.test.ts`: a failed review has dropped 0 (1) | pass (1) |
-| AC-025 | `analyze.test.ts`: result has findings and review with status, findings, dropped; brief findings follow structural; config with no findings gives an empty list (3) | pass (3) |
-| AC-026 | `analyze.test.ts`: with each failure (no model, thrown error, non-JSON, non-array, max_tokens) structural and brief findings returned in full (6) | pass (6) |
-| AC-027 | `analyze.test.ts`: valid empty reply gives ok with no entries; every entry dropped still gives ok with the count (2) | pass (2) |
-| AC-028 | `analyze.test.ts`: review entries carry only severity, subject and message; config strictly equal before and after, for each path (5) | pass (5) |
-| AC-029 | `analyze.test.ts`: structural findings come first, in the order `analyzeStructure` returns them (1) | pass (1) |
-| AC-030 | `analyze-privacy.test.ts`: no file written on success or failure paths; two calls with different configs return only their own findings; no state changes the next call (3) | pass (3) |
-| AC-031 | `analyze-privacy.test.ts`: sentinel idea in no log line on the success path and on each failure path; nothing reaches console or process output (7) | pass (7) |
-| AC-032 | `analyze-privacy.test.ts`: thrown error holding the sentinel is kept out of the log lines and the result; a non-Error thrown value is kept out too (3) | pass (3) |
+| AC-001 | `brief-checks.test.ts`: a blank name, idea or stack.language is a blocker at its path (5) | pass (5) |
+| AC-002 | `brief-checks.test.ts`: a blank or absent optional stack field is a warning at stack.<field> (9) | pass (9) |
+| AC-003 | `brief-checks.test.ts`: an empty rules list is a warning at rules (3) | pass (3) |
+| AC-004 | `brief-checks.test.ts`: a complete brief gives no brief finding (1) | pass (1) |
+| AC-005 | `brief-structure.test.ts`: the brief checks are not part of analyzeStructure (3) | pass (3) |
+| AC-006 | `brief-checks.test.ts`: brief findings come in the fixed order (2) | pass (2) |
+| AC-007 | `review-request.test.ts`: the request carries the fixed review prompt, the brief and the pipeline config; the same config gives the same request text on two calls; fixed key order; no-brief config; a brief change changes the text (6) | pass (6) |
+| AC-008 | `review-request.test.ts`: max_tokens is 8192; timeout is 60,000 ms per attempt; names the model and sends the fixed prompt as the system prompt (3) | pass (3) |
+| AC-009 | `analyze.test.ts`: one analysis makes one review call, and a thrown call is not retried (1). `review-request.test.ts`: the review call sets no SDK retry; one review call makes one client call; a throwing call is not retried; callReview returns the text and stop reason (4) | pass (5) |
+| AC-010 | `analyze.test.ts`: with no model the review is failed and the findings are still returned (1) | pass (1) |
+| AC-011 | `review-reply.test.ts`: a reply that is not valid JSON fails with no review findings (5); a failed review gives each caller its own result (1) | pass (6) |
+| AC-012 | `review-reply.test.ts`: a reply that is JSON but not an array fails with no review findings (6) | pass (6) |
+| AC-013 | `analyze.test.ts`: a reply stopped at max_tokens gives a failed review, and the reply is not parsed (1) | pass (1) |
+| AC-014 | `review-reply.test.ts`: an entry is kept only with a valid severity, subject and message (18); a kept entry keeps its text as the reply gives it (1) | pass (19) |
+| AC-015 | `review-reply.test.ts`: a blocker entry is kept as a warning (4) | pass (4) |
+| AC-016 | `review-reply.test.ts`: kept entries keep reply order and are capped at 10 (6) | pass (6) |
+| AC-017 | `review-reply.test.ts`: an empty array gives status ok with no findings and dropped 0 (1) | pass (1) |
+| AC-018 | `analyze.test.ts`: a failed review has dropped 0 (1) | pass (1) |
+| AC-019 | `analyze.test.ts`: the result has the findings and a review with status, findings and dropped (1) | pass (1) |
+| AC-020 | `analyze.test.ts`: a model call that throws, the error text reaching neither result nor log, a reply that is not JSON, and a reply that is not an array each give a failed review with the findings in full (4) | pass (4) |
+| AC-021 | `analyze.test.ts`: a valid reply with entries gives ok; a valid empty reply gives ok with no entries; a reply whose every entry is dropped gives ok with the count (3) | pass (3) |
+| AC-022 | `analyze.test.ts`: the config is equal before and after the call (1); a review entry carries only severity, subject and message (1) | pass (2) |
+| AC-023 | `analyze.test.ts`: the structural findings are the analyzeStructure output, then the brief findings (1) | pass (1) |
+| AC-024 | `analyze-privacy.test.ts`: two calls with different configs each return only their own findings (1); a later failing call does not change an earlier result (1); the analysis run in a temp folder leaves it unchanged (1) | pass (3) |
+| AC-025 | `analyze-privacy.test.ts`: the sentinel idea appears in no log line on the success path (1) and on each failure path (5); the log lines carry the event and the status only (1) | pass (7) |
+| AC-026 | `analyze-privacy.test.ts`: a thrown error whose message holds the sentinel is kept out of the log lines and the result (1) | pass (1) |
 
-Gaps: none. Every `[auto]` criterion AC-001 to AC-032 has at least one passing test named with its `F-06 AC-###`.
-Failures: none. Scope in `features.md` F-06 (structural findings, advice-only review, validation and cap, findings kept on review failure, brief not stored or logged) is covered by AC-025 and AC-029; AC-021, AC-027 and AC-028; AC-017 to AC-024; AC-026; AC-030 to AC-032.
+Gaps: none. Every `[auto]` criterion AC-001 to AC-026 has at least one passing test named with its `F-06 AC-###`.
+Failures: none. Every F-06 test case in the verbose run passed; none skipped.
+Scope in `features.md` F-06 (structural findings included, advice-only review, validation and cap, findings kept when the review fails, brief not stored or logged) is covered by AC-019, AC-023; AC-015, AC-021, AC-022; AC-009 to AC-014, AC-017, AC-018; AC-020; AC-024 to AC-026.
 
 ---
 

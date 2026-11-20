@@ -37,13 +37,7 @@ export function getProjectStepStyles(theme: Theme): ProjectStepStyles {
   const { palette } = theme;
   const common = getCommonStyles(theme);
   const help: SxProps<Theme> = { ...common.secondaryText, mt: '4px' };
-  const limitText: SxProps<Theme> = {
-    m: 0,
-    fontSize: 12,
-    fontWeight: 500,
-    lineHeight: '20px',
-    color: palette.warning.dark,
-  };
+  const limitText: SxProps<Theme> = common.warningText;
   return {
     root: {
       boxSizing: 'border-box',
@@ -106,15 +100,9 @@ export function getProjectStepStyles(theme: Theme): ProjectStepStyles {
     limitCounter: { ...limitText, ml: 'auto', flexShrink: 0 },
     // The idea note box (screen 03): 34 px high, 6 px radius, a 1 px amber outline and an amber fill.
     noteBox: {
-      boxSizing: 'border-box',
+      ...common.warningBox,
       mt: '4px',
       height: NOTE_HEIGHT,
-      display: 'flex',
-      alignItems: 'center',
-      px: 2,
-      borderRadius: '6px',
-      border: `1px solid ${palette.warning.main}`,
-      bgcolor: palette.warning.light,
     },
     noteText: { ...limitText, mt: 0 },
     helpAfterNote: { ...help, mt: '20px' },

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 25 criteria, 24 `[auto]`, 1 `[device]` (AC-025); approved by the user; rule ids that the schema refuses show a message (owner decision 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user; six screens in `spec/design/features/F-10-technical-details/`. Open for the owner before Verify: inner scroll of the rule list, block height at three or more blocks, clipped 100-character name, red confirm button, `section` text class |
 | Plan     | ✅ Complete | 2026-11-20 | re-planned after the reset: 7 tasks (T001 to T007); Approved by the user |
-| Build    | 🔄 In Progress |  | 3 of 7 tasks committed |
+| Build    | 🔄 In Progress |  | 4 of 7 tasks committed |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T001 (2026-11-20) | Technical text rules as pure functions: limits, rule id, id problem messages in order (no letter or digit, start with a letter, longer than 60), duplicate flags among valid ids, `canAddRule` | 0 blockers, 0 warnings, 1 suggestion fixed (test name for the AC-015 to AC-017 order), 1 suggestion deferred (`ruleFileLine`, used by T004) | task check passed: api 45, web 346, core 1208 |
 | T002 (2026-11-20) | Wizard values for step 2: stack, architecture and rule list in the reducer; add, remove and update rule actions; Next, Prev and restart keep or clear them; a rule update on a non-block index is a programmer error | 0 blockers, 2 warnings fixed (blank-description test checks the step moves; invalid-index negative test), 2 suggestions fixed (one shared test helper in wizardValues.ts; AC-022 asserts stack and architecture) | task check passed: api 45, web 370, core 1208 |
 | T003 (2026-11-20) | Technical details step, stack and architecture fields: five single-line stack fields (language required), the architecture multi-line field with its 5,000 limit and help line, no storage or console call. Committed as one commit over the size guard (Amendment 2) | 0 blockers, 1 warning fixed (AC-006 test now types two characters past 4,999), 2 suggestions deferred | task check passed: api 45, web 403, core 1208 |
+| T004 (2026-11-20) | Rule block, one block: name (100 limit), file line or the id message, duplicate note, description (1,000 limit, blank allowed), remove control. Committed as one commit over the size guard (Amendment 3) | 0 blockers, 4 warnings fixed (primary outline on remove, shared field and warning shapes, AC-015 test checks the typed value), 1 suggestion fixed (one test render helper), 3 suggestions deferred | task check passed: api 45, web 438, core 1208 |
 ---
 
 ## Deferred Findings
@@ -48,6 +49,9 @@ _Review suggestions intentionally not applied, with the reason._
 - T003 `source/apps/web/src/wizard/TechnicalStep.tsx` stack help lines: not linked to the stack fields with `aria-describedby` (only the architecture field is). No criterion asks for it. Not changed: outside the T003 criteria.
 - T001 `source/apps/web/src/wizard/technical.ts` `ruleFileLine`: exported with its test before any caller exists. Not removed: T004 renders the file line with it, and the path format stays in one place (AC-014). Owner may move it into T004 if preferred.
 - T004 `source/apps/web/src/wizard/RuleBlocks.tsx`, name field: the help line "Up to 100 characters; text past the limit is cut." is not rendered on a block. Screen 06 shows it at the limit; screen 01 does not. The unused constant was removed in review. Owner to decide before Verify whether the line shows on every block (the same as open point 3 of the UX screens).
+- T004 `source/apps/web/src/wizard/RuleBlock.tsx`, no-id message: the block shows "Needs a letter or digit." (AC-015 wording, also used for the other two id messages); approved screen 06 shows "Name needs a letter or digit. No file name is written." Not changed: the stories wording is kept as Amendment 3 directs. Owner to confirm the wording or pick screen 06's before Verify.
+- T004 `source/apps/web/src/wizard/RuleBlock.tsx`, description field: `multiline` with two rows (about 60 px) because AC-020 requires a multi-line field with Enter; screens 01 to 06 draw a 40 px field, so a block is taller than the 224 px on the screens. Not changed: the stories govern the behaviour; block height is already open point 2 of the UX screens.
+- T004 `source/apps/web/src/wizard/RuleBlock.tsx`, description help line: screen 06 shows "Up to 1,000 characters; text past the limit is cut." under Description, screen 03 does not, and the block does not render it. Same open point as the name help line above. Not changed: owner decides the help lines for all blocks at once.
 
 ---
 
@@ -92,6 +96,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment 3 — 2026-11-20 (T004: size guard overridden by the user)
+**Changed**: T004 is committed as one commit (5 staged files, 518 changed lines, over the 400-line guard). Not split into T004a and T004b.
+**Reason**: the size guard stopped T004; the user chose to keep T004 as one commit ("proceed with 1 commit"). The message wording stays as the approved stories state it (AC-015 to AC-017: "Needs a letter or digit.", and the stories wording for the other two messages); the difference from screen 06 is recorded as an open point for the owner.
+**Impact**: none on the remaining tasks.
 
 ### Amendment 2 — 2026-11-20 (T003: size guard overridden by the user)
 **Changed**: T003 is committed as one commit (8 staged files, 487 changed lines, over the 400-line guard). Not split into T003a, T003b and T003c.

@@ -63,13 +63,9 @@ export function getTechnicalStepStyles(theme: Theme): TechnicalStepStyles {
         height: SINGLE_FIELD_HEIGHT,
       },
       '& .MuiInputBase-input': {
-        boxSizing: 'border-box',
+        ...common.fieldText,
         height: '100%',
-        px: 2,
         py: 0,
-        fontSize: 13,
-        lineHeight: '20px',
-        color: palette.text.primary,
       },
     },
     help: common.secondaryText,
@@ -85,12 +81,8 @@ export function getTechnicalStepStyles(theme: Theme): TechnicalStepStyles {
       width: '100%',
       ...common.formField,
       '& .MuiInputBase-input': {
-        boxSizing: 'border-box',
-        px: 2,
+        ...common.fieldText,
         py: ARCHITECTURE_PADDING,
-        fontSize: 13,
-        lineHeight: '20px',
-        color: palette.text.primary,
       },
     },
     architectureHelp: {

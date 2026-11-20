@@ -22,6 +22,14 @@ export interface CommonStyles {
   readonly formField: StyleObject;
   // The red mark that follows a required field's label.
   readonly requiredMark: StyleObject;
+  // The text inside a field, set on the input element: 13 px, 20 px line, primary text, 16 px side padding.
+  // A field sets its own height and vertical padding.
+  readonly fieldText: StyleObject;
+  // The amber note box under a field (F-09 screen 03, F-10 screens 03 and 06): a 1 px amber outline,
+  // an amber fill, a 6 px radius and the text centred. A component sets its own size and margin.
+  readonly warningBox: StyleObject;
+  // The text of an amber note: 12 px, medium weight, the dark amber text colour.
+  readonly warningText: StyleObject;
 }
 
 export function getCommonStyles(theme: Theme): CommonStyles {
@@ -71,6 +79,29 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     },
     requiredMark: {
       color: theme.palette.error.dark,
+    },
+    fieldText: {
+      boxSizing: 'border-box',
+      px: 2,
+      fontSize: 13,
+      lineHeight: '20px',
+      color: theme.palette.text.primary,
+    },
+    warningBox: {
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'center',
+      px: 2,
+      borderRadius: '6px',
+      border: `1px solid ${theme.palette.warning.main}`,
+      bgcolor: theme.palette.warning.light,
+    },
+    warningText: {
+      m: 0,
+      fontSize: 12,
+      fontWeight: 500,
+      lineHeight: '20px',
+      color: theme.palette.warning.dark,
     },
   };
 }

@@ -9,7 +9,7 @@
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 13 tasks (T001 to T013); amended 2026-11-19 to 16 tasks (T013 to T015 added, docs task now T016); 40 criteria, all covered |
 | Build    | ✅ Complete | 2026-11-19 | 16 of 16 tasks committed |
-| Verify   | ⏳ Pending |  | Not run; criteria AC-001 to AC-040 are all `[auto]` |
+| Verify   | ✅ Complete | 2026-11-19 | 40 of 40 `[auto]` criteria covered by passing tests; task check passed (core 955, api 6, web 4); no gaps, no `[device]` criteria |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -76,7 +76,60 @@ _Review suggestions intentionally not applied, with the reason._
 
 ## Test Results
 
-Not run yet for this feature's new build (reset 2026-11-19).
+### Verify — 2026-11-19 (verify mode, after T016)
+
+Preconditions: 16 of 16 tasks ticked and committed; Current Task None; branch `main`; working tree clean.
+
+Task check (`source/scripts/task-check.sh`): passed, exit 0. Typecheck of all workspaces passed. Tests: api 6 of 6 (3 files), web 4 of 4 (2 files), core 955 of 955 (44 files). No skipped, todo or only tests. A verbose run lists 172 test lines tagged F-04, all passed.
+
+Result: 40 of 40 criteria `[auto]` covered by passing tests. Gaps: none. `[device]` criteria: none, so no manual checklist is needed. Scope in `features.md` (F-04: the pure file tree, deterministic paths and order, the reply check, the refusals) is covered by AC-001 to AC-006, AC-007 to AC-010, AC-025 to AC-033 and AC-019 to AC-024.
+
+Criterion matrix (test files in `source/packages/core/test/pipeline/`, line numbers of the `F-04 AC-0xx` title):
+
+| Criterion | Covering tests (file:line) | Result |
+| --- | --- | --- |
+| AC-001 | generate-file-list:63, :204 | pass |
+| AC-002 | generate-file-list:75, :89 | pass |
+| AC-003 | generate-file-list:95; generate-values:122, :160 | pass |
+| AC-004 | generate-file-list:106, :117; generate-values:223 | pass |
+| AC-005 | generate-plan:89 | pass |
+| AC-006 | generate-file-list:121, :139, :198 | pass |
+| AC-007 | generate-file-list:143, :153, :162; generate-plan:110 | pass |
+| AC-008 | generate-plan:130 | pass |
+| AC-009 | generate-plan:137 | pass |
+| AC-010 | generate-plan:164 | pass |
+| AC-011 | generate-plan:178 | pass |
+| AC-012 | generate-render:8, :14, :47; generate-values-flow:39 | pass |
+| AC-013 | generate-render:18, :35, :51; generate-plan:219 | pass |
+| AC-014 | generate-render:56, :62, :68 | pass |
+| AC-015 | generate-walk:42, :102; generate-values-flow:75, :115, :222 | pass |
+| AC-016 | generate-values-flow:115 (describe title `F-04 AC-015 AC-016`) | pass |
+| AC-017 | generate-values:46 | pass |
+| AC-018 | generate-values-flow:200 | pass |
+| AC-019 | generate-refuse:22 | pass |
+| AC-020 | generate-plan-refuse:32 | pass |
+| AC-021 | generate-refuse:38 | pass |
+| AC-022 | generate-refuse:61 | pass |
+| AC-023 | generate-refuse:79 | pass |
+| AC-024 | generate-file-list:175, :181, :189 | pass |
+| AC-025 | generate-reply-check:21, :112; generate-reply-check-text:22 | pass |
+| AC-026 | generate-reply-check:25, :105 | pass |
+| AC-027 | generate-reply-check:32, :37 | pass |
+| AC-028 | generate-reply-check:50 | pass |
+| AC-029 | generate-reply-check:55, :63, :71, :97 | pass |
+| AC-030 | generate-reply-check-text:31, :40, :52, :61, :70, :75 | pass |
+| AC-031 | generate-reply-check-text:81, :93, :111 | pass |
+| AC-032 | generate-reply-check:81, :92 | pass |
+| AC-033 | generate-reply-check-text:120, :136 | pass |
+| AC-034 | namespace:105 | pass |
+| AC-035 | purity:101, :140, :147, :154 | pass |
+| AC-036 | generate-plan:268 | pass |
+| AC-037 | generate-values-base:48, :63, :72, :100, :114 | pass |
+| AC-038 | generate-plan:235; generate-values-base:130 | pass |
+| AC-039 | generate-values:102, :112, :116, :126, :134 | pass |
+| AC-040 | generate-values-flow:229 | pass |
+
+Note: AC-016 is tagged only on a `describe` title, not on an `it` name. The rule asks for the tag in the test's name; a later pass should put `F-04 AC-016` on the `it` that checks the numbered rules and the round limit.
 
 ---
 

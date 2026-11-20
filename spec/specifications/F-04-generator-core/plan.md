@@ -28,6 +28,8 @@ Placement of block values (T006): a value of whole lines or a paragraph (`flowAr
 - A configuration with a blocker, including a flow whose id is `pipeline`, is refused before any layout is rendered (AC-020, AC-022).
 - Warnings never refuse a configuration (AC-021).
 - The file list is sorted by path in code-point order (decision 35). The text of `pipeline.md` follows the flow order, so a reordering of flows changes that text but not the list of paths.
+- Only a flow and an Agent block carry a description and rule tags (AC-011). The pipeline command, the base files and the rule files plan an empty description and an empty list of rule tags, because they are neither a flow nor an Agent block.
+- Base layouts take no values in F-04 (T008), so a base layout holds no placeholder, and one that does makes planning throw a `GenerationError` naming the placeholder and the path (AC-013). Which values the base layouts get is the open decision in `progress.md` (Deferred Findings); F-05 depends on it.
 
 ## Tasks
 
@@ -45,7 +47,7 @@ Placement of block values (T006): a value of whole lines or a paragraph (`flowAr
 
 - [x] T007 [Core] Values of the pipeline command, agents and rules: `source/packages/core/src/pipeline/generate/values-pipeline.ts` (the pipeline's name and description, its argument lines, and one line per flow in pipeline order with its id, description and approval); `source/packages/core/src/pipeline/generate/values-agent.ts` (`agentName`, `agentDescription`, the optional `model` and `tools` frontmatter lines, the reads and writes lines, the body, the argument lines); `source/packages/core/src/pipeline/generate/values-rule.ts` (`ruleId`, `ruleTitle`, `ruleText`). Test: `generate-values.test.ts`. Covers AC-017, and the value part of AC-003 and AC-004.
 
-- [ ] T008 [Core] The plan: `source/packages/core/src/pipeline/generate/plan.ts` (`planGeneration(config, templates)` returns a `GeneratedPlan` of `PlannedFile` entries `{ path, layout (rendered), description, ruleTags }` in the file-list order; the description and rule tags are the flow's or the Agent block's; an empty description or list when none; no date, time or random value is added; the input is not changed). Test: `generate-plan.test.ts` with fixture templates; the default pipeline from `source/templates/pipeline/default.json` plans with fixture layouts. Covers AC-005, AC-007 (the reordering of rules and flows after the first gives the same paths), AC-008, AC-009, AC-010, AC-011, AC-036.
+- [x] T008 [Core] The plan: `source/packages/core/src/pipeline/generate/plan.ts` (`planGeneration(config, templates)` returns a `GeneratedPlan` of `PlannedFile` entries `{ path, layout (rendered), description, ruleTags }` in the file-list order; the description and rule tags are the flow's or the Agent block's; an empty description or list when none; no date, time or random value is added; the input is not changed). Test: `generate-plan.test.ts` with fixture templates; the default pipeline from `source/templates/pipeline/default.json` plans with fixture layouts. Covers AC-005, AC-007 (the reordering of rules and flows after the first gives the same paths), AC-008, AC-009, AC-010, AC-011, AC-036.
 
 - [ ] T009 [Core] The refusal gate of the plan: in `plan.ts`, `planGeneration` runs `configProblems` first; with a blocker it returns `{ ok: false, problems }` with every blocker in analysis order, and it renders no layout and returns no files. Test: `generate-plan-refuse.test.ts` (a control: the same layout that fails on a blocked config throws on a valid one). Covers AC-020.
 

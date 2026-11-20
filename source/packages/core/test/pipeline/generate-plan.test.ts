@@ -1,0 +1,244 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { analyzeStructure } from '../../src/pipeline/analyze/index.js';
+import { planGeneration, type GeneratedPlan } from '../../src/pipeline/generate/plan.js';
+import type { GenerationTemplates } from '../../src/pipeline/generate/templates.js';
+import { GenerationError } from '../../src/pipeline/generate/error.js';
+import { defaultPipeline } from '../../src/pipeline/default.js';
+import type { Flow, ProjectConfig, Rule } from '../../src/pipeline/model.js';
+import { parseProjectConfig } from '../../src/pipeline/parse/index.js';
+import { validConfig } from './analyze-fixture.js';
+
+// Fixture layouts, given as data (AC-035): no template file is read.
+const TEMPLATES: GenerationTemplates = {
+  base: [{ path: 'CLAUDE.md', layout: 'Project instructions.' }],
+  pipeline: 'Pipeline {{pipelineName}}:{{pipelineFlows}}',
+  flow: 'Flow {{flowId}}:{{flowSteps}}{{flowApproval}}',
+  agent: 'Agent {{agentName}}{{agentBody}}',
+  rule: 'Rule {{ruleId}}{{ruleText}}',
+};
+
+const RULES: readonly Rule[] = [
+  { index: 0, id: 'alpha', title: 'Alpha', text: 'First rule.' },
+  { index: 1, id: 'beta', title: 'Beta', text: 'Second rule.' },
+];
+
+// A flow of the valid fixture with its own id and its own agent name, so that flows do not share a path.
+function flowOf(id: string, index: number): Flow {
+  const flow = validConfig().pipeline.flows[0];
+  if (flow === undefined) throw new Error('the fixture has no flow');
+  return {
+    ...flow,
+    id,
+    index,
+    blocks: flow.blocks.map((block) => (block.kind === 'agent' ? { ...block, name: `${id}-agent` } : block)),
+  };
+}
+
+// Three flows (build, test, lint) and two rules, in the given order.
+function configWith(flows: readonly Flow[], rules: readonly Rule[]): ProjectConfig {
+  const base = validConfig();
+  return { ...base, rules, pipeline: { ...base.pipeline, flows } };
+}
+
+function pathsOf(plan: GeneratedPlan): string[] {
+  return plan.files.map((file) => file.path);
+}
+
+// Code-point order, the order of the file list (decision 35). It differs from `sort()` (UTF-16) only beyond the BMP.
+function byCodePoint(a: string, b: string): number {
+  const x = [...a].map((char) => char.codePointAt(0) ?? 0);
+  const y = [...b].map((char) => char.codePointAt(0) ?? 0);
+  for (let i = 0; i < Math.min(x.length, y.length); i += 1) {
+    const diff = (x[i] ?? 0) - (y[i] ?? 0);
+    if (diff !== 0) return diff;
+  }
+  return x.length - y.length;
+}
+
+function fileAt(plan: GeneratedPlan, path: string) {
+  const file = plan.files.find((planned) => planned.path === path);
+  if (file === undefined) throw new Error(`the plan has no file ${path}`);
+  return file;
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe('F-04 AC-005 the default pipeline plans its files', () => {
+  it('plans pipeline.md, one command for each of the six flows and one agent for each Agent block', () => {
+    const parsed = parseProjectConfig({ schemaVersion: 2, rules: [], pipeline: defaultPipeline });
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const config = parsed.config;
+    expect(analyzeStructure(config)).toEqual([]);
+
+    const plan = planGeneration(config, TEMPLATES);
+    const paths = pathsOf(plan);
+    const flows = config.pipeline.flows;
+    const agents = flows.flatMap((flow) => flow.blocks.flatMap((block) => (block.kind === 'agent' ? [block] : [])));
+
+    expect(flows).toHaveLength(6);
+    expect(paths).toContain('.claude/commands/pipeline.md');
+    for (const flow of flows) expect(paths).toContain(`.claude/commands/${flow.id}.md`);
+    for (const agent of agents) expect(paths).toContain(`.claude/agents/${agent.name}.md`);
+    expect(paths).toHaveLength(1 + flows.length + agents.length + TEMPLATES.base.length);
+  });
+});
+
+describe('F-04 AC-007 the order of rules and flows after the first gives the same paths', () => {
+  it('gives the same paths when the rules are reversed and the flows after the first are reordered', () => {
+    const build = flowOf('build', 0);
+    const test = flowOf('test', 1);
+    const lint = flowOf('lint', 2);
+    const original = planGeneration(configWith([build, test, lint], RULES), TEMPLATES);
+    const reordered = planGeneration(configWith([build, lint, test], [...RULES].reverse()), TEMPLATES);
+
+    expect(pathsOf(reordered)).toEqual(pathsOf(original));
+  });
+
+  it('lists the planned files sorted by path in code-point order', () => {
+    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    const paths = pathsOf(plan);
+
+    expect(paths).toEqual([...paths].sort(byCodePoint));
+    expect(paths[0]).toBe('.claude/agents/build-agent.md');
+  });
+});
+
+describe('F-04 AC-008 planning the same config twice gives equal plans', () => {
+  it('gives equal plans for the same config and templates', () => {
+    const config = configWith([flowOf('build', 0), flowOf('test', 1)], RULES);
+    expect(planGeneration(config, TEMPLATES)).toEqual(planGeneration(config, TEMPLATES));
+  });
+});
+
+describe('F-04 AC-009 the plan holds no date, time, UUID or random value', () => {
+  it('draws no random value and reads no clock while planning', () => {
+    const random = vi.spyOn(Math, 'random').mockImplementation(() => {
+      throw new Error('Math.random was called');
+    });
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => {
+      throw new Error('Date.now was called');
+    });
+    planGeneration(configWith([flowOf('build', 0)], RULES), TEMPLATES);
+    expect(random).not.toHaveBeenCalled();
+    expect(now).not.toHaveBeenCalled();
+  });
+
+  it('holds no date, time or UUID in any path, layout, description or tag', () => {
+    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    const patterns = [
+      /\b\d{4}-\d{2}-\d{2}\b/,
+      /\b\d{2}:\d{2}(:\d{2})?\b/,
+      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i,
+    ];
+    for (const file of plan.files) {
+      const text = [file.path, file.layout, file.description, JSON.stringify(file.ruleTags)].join('\n');
+      for (const pattern of patterns) expect(text).not.toMatch(pattern);
+    }
+  });
+});
+
+describe('F-04 AC-010 planning does not change the config or the templates', () => {
+  it('leaves the config and the templates equal to their values before the call', () => {
+    const config = configWith([flowOf('build', 0), flowOf('test', 1)], RULES);
+    const templates: GenerationTemplates = { ...TEMPLATES, base: [...TEMPLATES.base] };
+    const configBefore = structuredClone(config);
+    const templatesBefore = structuredClone(templates);
+
+    planGeneration(config, templates);
+
+    expect(config).toEqual(configBefore);
+    expect(templates).toEqual(templatesBefore);
+  });
+});
+
+describe('F-04 AC-011 each planned file has its rendered layout, description and rule tags', () => {
+  it('carries the description and rule tags of its flow or Agent block, and empty ones otherwise', () => {
+    const build: Flow = {
+      ...flowOf('build', 0),
+      description: 'Builds the project.',
+      ruleTags: [{ ruleId: 'alpha', index: 0 }],
+    };
+    const agentBuild = build.blocks.map((block) =>
+      block.kind === 'agent'
+        ? { ...block, description: 'Builds the code.', ruleTags: [{ ruleId: 'beta', index: 1 }] }
+        : block,
+    );
+    const plan = planGeneration(configWith([{ ...build, blocks: agentBuild }, flowOf('test', 1)], RULES), TEMPLATES);
+
+    const command = fileAt(plan, '.claude/commands/build.md');
+    expect(command.description).toBe('Builds the project.');
+    expect(command.ruleTags).toEqual([{ ruleId: 'alpha', index: 0 }]);
+    expect(command.layout).toContain('Flow build:');
+
+    const agent = fileAt(plan, '.claude/agents/build-agent.md');
+    expect(agent.description).toBe('Builds the code.');
+    expect(agent.ruleTags).toEqual([{ ruleId: 'beta', index: 1 }]);
+
+    const noDescription = fileAt(plan, '.claude/commands/test.md');
+    expect(noDescription.description).toBe('');
+    expect(noDescription.ruleTags).toEqual([]);
+
+    for (const path of ['.claude/commands/pipeline.md', 'CLAUDE.md', '.claude/rules/alpha.md']) {
+      const file = fileAt(plan, path);
+      expect(file.description).toBe('');
+      expect(file.ruleTags).toEqual([]);
+    }
+  });
+
+  it('gives every layout with its placeholders rendered', () => {
+    const plan = planGeneration(configWith([flowOf('build', 0), flowOf('test', 1)], RULES), TEMPLATES);
+    for (const file of plan.files) expect(file.layout).not.toMatch(/\{\{/);
+    expect(fileAt(plan, '.claude/rules/beta.md').layout).toBe('Rule beta\n\nSecond rule.');
+  });
+});
+
+describe('F-04 AC-013 a placeholder with no value makes planning throw', () => {
+  it('throws for a base layout that uses a placeholder, naming the placeholder and the file', () => {
+    // Base layouts take no values in F-04 (see plan.md, Interpretations): a placeholder in one is a template error.
+    const templates: GenerationTemplates = {
+      ...TEMPLATES,
+      base: [{ path: 'CLAUDE.md', layout: 'Project {{projectName}}.' }],
+    };
+    const config = configWith([flowOf('build', 0)], RULES);
+
+    expect(() => planGeneration(config, templates)).toThrow(GenerationError);
+    expect(() => planGeneration(config, templates)).toThrow(
+      /the layout of CLAUDE\.md uses the placeholder \{\{projectName\}\}, which has no value/,
+    );
+  });
+});
+
+describe('F-04 AC-036 the same fixture templates give the same plan in two runs', () => {
+  it('returns the expected plan twice from the same data', () => {
+    const config = configWith([flowOf('build', 0)], []);
+    const expected: GeneratedPlan = {
+      files: [
+        {
+          path: '.claude/agents/build-agent.md',
+          layout: 'Agent build-agent',
+          description: 'Builds the project.',
+          ruleTags: [],
+        },
+        {
+          path: '.claude/commands/build.md',
+          layout: 'Flow build:\n1. Run the agent `.claude/agents/build-agent.md`: Builds the project.',
+          description: '',
+          ruleTags: [],
+        },
+        {
+          path: '.claude/commands/pipeline.md',
+          layout: 'Pipeline Build pipeline:\n1. Flow `build`. The process does not stop at the end of this flow.',
+          description: '',
+          ruleTags: [],
+        },
+        { path: 'CLAUDE.md', layout: 'Project instructions.', description: '', ruleTags: [] },
+      ],
+    };
+
+    expect(planGeneration(config, TEMPLATES)).toEqual(expected);
+    expect(planGeneration(config, TEMPLATES)).toEqual(expected);
+  });
+});

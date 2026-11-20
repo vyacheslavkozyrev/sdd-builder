@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-19 | 7 stories, 40 criteria, all [auto]; re-specified from the final schema (`pipeline-schema.md`) and approved by the user |
 | UX       | ➖ Not needed |  | No user interface (F-02 to F-06) |
 | Plan     | ✅ Complete | 2026-11-19 | Approved by the user; 19 tasks (T001 to T019); 40 criteria, all covered |
-| Build    | 🔄 In Progress | 2026-11-19 | 13 of 19 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-19 | 14 of 19 tasks committed |
 | Verify   | ⏳ Pending |  | Not yet run |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T011 | Flow command layout (`templates/claude-code/flow.md`): frontmatter with the quoted description (`flowDescriptionYaml`, new) and the rule tags; Purpose, Context, Arguments, Artifacts (level-2 heading before the level-3 artifacts), Steps, Rules and Approval | 0 blockers, 1 warning fixed (flow description not quoted in the frontmatter), 0 suggestions fixed, 1 suggestion deferred (README, T018) | task check passed: core 1082 of 1082 (47 files), api 6 of 6, web 4 of 4 |
 | T012 | Agent file layout (`templates/claude-code/agent.md`): frontmatter with the name, the quoted description, model and tools; Purpose, Instructions, Arguments, Reads, Writes and Rule tags; `agentArguments` writes `No arguments` as the flow and pipeline do | 0 blockers, 1 warning fixed (AC-016 test title claimed a duplicate-name check it did not make), 1 caller change applied (`No arguments` for agents), 0 suggestions open | task check passed: core 1097 of 1097 (48 files), api 6 of 6, web 4 of 4 |
 | T013 | Rule file layout (`templates/claude-code/rule.md`): `# <title>` and the rule text; rule text through `bodyText`, so a text ending in line breaks or blank lines writes no stray blank line; no rule file for an empty list | 0 blockers, 1 warning fixed (stray blank line from a text ending in line breaks), 0 suggestions, 0 deferred | task check passed: core 1103 of 1103 (49 files), api 6 of 6, web 4 of 4 |
+| T014 | Base manifest (`templates/base/manifest.json`, CLAUDE.md only for now) and the generated CLAUDE.md layout (`templates/base/CLAUDE.md`): the command, agent and rule lists from the generator's values; no SDDBuilder name, path or F-XX id; AC-027 proved against the planned files as a set (config order kept) | 0 blockers, 2 warnings fixed (a rule-reading claim the layouts do not make; a test name that claimed an order it did not check), 0 suggestions fixed, 3 suggestions deferred | task check passed: core 1111 of 1111 (50 files), api 6 of 6, web 4 of 4 |
 
 ---
 
@@ -61,6 +62,9 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/templates/claude-code/pipeline.md` (line 9, `{{pipelineDescription}}` as the Purpose paragraph): WARNING. `templates/README.md` (Line breaks) says an inline value is never alone on a line, and the Purpose paragraph is the description alone. The layout cannot keep it inside a sentence without adding words to the Purpose text (AC-005 gives the text) or renaming the values. Left as is on the caller's direction. Resolved by owner decision (2026-11-19, option a): a description is a paragraph value and may stand alone on its line. T018 states this in the README line-break rule.
 - `source/templates/README.md` (value table and Line breaks, T018): stale after T010. `pipelineArguments` writes `No arguments`, `pipelineFlows` writes a stop step after a flow with approval on (no approval sentence on the flow line), `pipelineBody` is blank-checked, and `pipelineDescriptionYaml` (the quoted frontmatter description) is not listed. SUGGESTION: the README is not edited in T010 (T018 owns it, by the caller's direction).
 - `source/templates/README.md` (value table, T018): `flowDescriptionYaml` (the quoted flow description for the frontmatter, T011) is not listed, and `flowDescription` is described without its frontmatter quoting. SUGGESTION: the plan assigns the table to T018, so it is left for T018.
+- `source/packages/core/src/pipeline/generate/values-base.ts` (header comment): says the items come in the order of the flows' `next` links, but `commandList` and `agentList` follow `config.pipeline.flows` order, which `flowChain` does not change. SUGGESTION: fix the comment in the next F-05 task that touches `values-base.ts`; the order is the one AC-027 accepts (T014 review).
+- `source/packages/core/src/pipeline/generate/values-base.ts` (`commandList`, `agentList`, `ruleList`): the lists are built from the config in parallel with `listFiles`, not from the planned file list. The CLAUDE.md test compares them with the plan as sets, so a divergence fails the test; passing the plan in would change the value API committed in T010 to T012. SUGGESTION, kept as is (T014 review).
+- `source/packages/core/test/pipeline/layouts-claude-md.test.ts` (agent test, `expected`): the expected line uses the planned `description` as written, while `agentList` writes it through `inlineText`. The fixture and the default descriptions are one line, so the test passes; a description with a line break would fail the test rather than hide a defect. SUGGESTION, apply `inlineText` in the test when such a description is first tested (T014 review).
 
 ---
 

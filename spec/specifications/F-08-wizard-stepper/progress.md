@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | re-specified after the 2026-11-19 reset: 15 criteria, 14 `[auto]`, 1 `[device]`; approved by the user as written |
 | UX       | ✅ Complete | 2026-11-17 | Approved by the user (Prev kept; placeholder line visible until F-09 to F-13); screens in `spec/design/features/F-08-wizard-stepper/` |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; re-planned after the reset: 7 tasks, all `[Web]` |
-| Build    | 🔄 In Progress |  | 7 of 7 tasks committed |
+| Build    | ✅ Complete | 2026-11-20 | 7 of 7 tasks committed |
 | Verify   | ✅ Complete | 2026-11-20 | 15 of 15 criteria: 14 `[auto]` passing; AC-015 `[device]` passed by the user on the 1280 × 800 checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

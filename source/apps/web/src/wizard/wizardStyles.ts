@@ -1,5 +1,6 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 import { alpha } from '@mui/material/styles';
+import { getCommonStyles } from '../styles/common.js';
 import type { StepState } from './steps.js';
 
 // Style getters for the wizard (.claude/rules/web-styling.md). Each takes the theme and returns
@@ -18,6 +19,55 @@ const NODE_SIZE = 24;
 const RING_GAP = '4px';
 const RING_OUTER = '8px';
 const RING_ALPHA = 0.2;
+
+export interface WizardNavStyles {
+  readonly row: SxProps<Theme>;
+  readonly prev: SxProps<Theme>;
+  readonly next: SxProps<Theme>;
+}
+
+// Prev and Next are 100 x 40 px with an 8 px radius; they sit 12 px apart (screen 01: x 24 and
+// x 136). Prev takes the outlined shape from common.ts. A disabled button keeps its place and
+// takes the screen's grey (screen 01 for Prev, screen 04 for Next): grey fill, grey outline and
+// grey text, all from the palette.
+const NAV_BUTTON_WIDTH = 100;
+const NAV_GAP = '12px';
+
+export function getWizardNavStyles(theme: Theme): WizardNavStyles {
+  const { palette } = theme;
+  const common = getCommonStyles(theme);
+  const button: SxProps<Theme> = {
+    width: NAV_BUTTON_WIDTH,
+    height: 40,
+    borderRadius: '8px',
+    boxShadow: 'none',
+    textTransform: 'none',
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: 1,
+  };
+  const disabled: SxProps<Theme> = {
+    bgcolor: palette.background.default,
+    borderColor: palette.divider,
+    color: palette.text.disabled,
+    boxShadow: 'none',
+  };
+  return {
+    row: {
+      display: 'flex',
+      gap: NAV_GAP,
+    },
+    prev: {
+      ...button,
+      ...common.outlineButton,
+      '&.Mui-disabled': disabled,
+    },
+    next: {
+      ...button,
+      '&.Mui-disabled': { ...disabled, border: '1px solid' },
+    },
+  };
+}
 
 export function getWizardStepperStyles(theme: Theme): WizardStepperStyles {
   const { palette } = theme;

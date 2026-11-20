@@ -14,7 +14,8 @@ export const theme = createTheme({
     // Done steps of the wizard stepper (F-08): kepple 500 for the node, kepple 600 for the label.
     success: { main: '#15B79F', dark: '#107569' },
     background: { default: '#F0F4F8', paper: '#FFFFFF' },
-    text: { primary: '#32383E', secondary: '#636B74' },
+    // Disabled Prev and Next (F-08 screens 01 and 04): the grey text of a disabled button.
+    text: { primary: '#32383E', secondary: '#636B74', disabled: '#9FA6AD' },
     divider: '#DDE7EE',
     grey: { 300: '#CDD7E1' },
   },

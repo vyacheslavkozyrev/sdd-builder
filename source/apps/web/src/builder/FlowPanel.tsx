@@ -145,7 +145,7 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
         {refusal('description')}
 
         <ArgumentRows
-          key={flow.id}
+          key={`${flow.id}-arguments`}
           target={{ kind: 'flow', flowId: flow.id }}
           pipelineState={pipelineState}
           rules={rules}
@@ -193,10 +193,16 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
         </Typography>
         {refusal('body')}
 
-        <ArtifactRows key={flow.id} flowId={flow.id} pipelineState={pipelineState} rules={rules} onChange={onChange} />
+        <ArtifactRows
+          key={`${flow.id}-artifacts`}
+          flowId={flow.id}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
 
         <RuleTagRows
-          key={flow.id}
+          key={`${flow.id}-rule-tags`}
           target={{ kind: 'flow', flowId: flow.id }}
           pipelineState={pipelineState}
           rules={rules}

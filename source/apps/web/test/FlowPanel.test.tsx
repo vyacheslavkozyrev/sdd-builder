@@ -354,3 +354,92 @@ describe('F-11 AC-029 delete flow asks first', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });
+
+// The flow with one argument, one artifact and one rule tag, for the typing tests: a keystroke must leave
+// each list as it was, so the lists are read before and after each edit.
+function flowWithRows(): Pipeline {
+  return pipelineOf({
+    ...flow('plan', 'Plan', 'build'),
+    arguments: [{ index: 0, id: 'alpha', required: true, hint: 'The first input.' }],
+    artifacts: [{ label: 'plan.md', template: '# Plan' }],
+    ruleTags: [{ index: 0, ruleId: 'security' }],
+  }, flow('build', 'Build'));
+}
+
+function listsOf() {
+  return {
+    argumentTitles: screen.queryAllByText('Arguments').length,
+    arguments: screen.queryAllByRole('group', { name: /^Argument \d+$/ }).map((item) => item.getAttribute('aria-label')),
+    artifactTitles: screen.queryAllByText('Outcome artifacts').length,
+    artifacts: screen.queryAllByRole('group', { name: /^Artifact \d+$/ }).map((item) => item.getAttribute('aria-label')),
+    ruleTagTitles: screen.queryAllByText('Rule tags').length,
+    ruleTags: screen.queryAllByRole('group', { name: /^Rule tag \d+$/ }).map((item) => item.getAttribute('aria-label')),
+  };
+}
+
+describe('F-11 AC-019 typing leaves the lists alone', () => {
+  it('F-11 AC-019 typing in the name adds no argument row and no artifact', () => {
+    renderPanel(flowWithRows());
+    const before = listsOf();
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Plann' } });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Planne' } });
+
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Planne');
+    expect(listsOf()).toEqual(before);
+    expect(before).toEqual({
+      argumentTitles: 1,
+      arguments: ['Argument 1'],
+      artifactTitles: 1,
+      artifacts: ['Artifact 1'],
+      ruleTagTitles: 1,
+      ruleTags: ['Rule tag 1'],
+    });
+  });
+});
+
+describe('F-11 AC-024 typing in the description leaves the lists alone', () => {
+  it('F-11 AC-024 typing in the description adds no argument row and no artifact', () => {
+    renderPanel(flowWithRows());
+    const before = listsOf();
+
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'The Plan step, longer.' } });
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'The Plan step, longer still.' } });
+
+    expect(screen.getByLabelText('Description')).toHaveProperty('value', 'The Plan step, longer still.');
+    expect(listsOf()).toEqual(before);
+    expect(before.argumentTitles).toBe(1);
+    expect(before.artifactTitles).toBe(1);
+  });
+});
+
+describe('F-11 AC-025 typing in the body leaves the lists alone', () => {
+  it('F-11 AC-025 typing in the body adds no argument row and no artifact', () => {
+    renderPanel(flowWithRows());
+    const before = listsOf();
+
+    fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: 'Do the Plan work. More.' } });
+    fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: 'Do the Plan work. More text.' } });
+
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Do the Plan work. More text.');
+    expect(listsOf()).toEqual(before);
+    expect(before.argumentTitles).toBe(1);
+    expect(before.artifactTitles).toBe(1);
+  });
+});
+
+describe('F-11 AC-027 changing the model leaves the lists alone', () => {
+  it('F-11 AC-027 changing the model adds no argument row and no artifact', () => {
+    const { onChange } = renderPanel(flowWithRows());
+    const before = listsOf();
+
+    fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'sonnet' } });
+    fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'opus' } });
+
+    const saved = onChange.mock.calls.at(-1)?.[0] as Pipeline | undefined;
+    expect(saved?.flows.find((item) => item.id === 'plan')?.model).toBe('opus');
+    expect(listsOf()).toEqual(before);
+    expect(before.argumentTitles).toBe(1);
+    expect(before.artifactTitles).toBe(1);
+  });
+});

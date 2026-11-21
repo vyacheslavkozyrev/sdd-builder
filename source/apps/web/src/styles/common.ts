@@ -205,7 +205,9 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       display: 'flex',
       alignItems: 'center',
       gap: '12px',
+      px: '16px',
       pt: '16px',
+      pb: '16px',
     },
     panelRoot: {
       boxSizing: 'border-box',

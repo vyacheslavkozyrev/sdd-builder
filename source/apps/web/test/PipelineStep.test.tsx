@@ -7,6 +7,8 @@ import type { Edge, ReactFlow as ReactFlowComponent } from '@xyflow/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { StructureMarks } from '../src/builder/marks.js';
 import { getCanvasStyles } from '../src/builder/canvasStyles.js';
+import { getConnectionPanelStyles } from '../src/builder/connectionPanelStyles.js';
+import { getFlowPanelStyles } from '../src/builder/flowPanelStyles.js';
 import type { Pipeline } from '../src/builder/model.js';
 import { theme } from '../src/theme.js';
 import { builderRules, PipelineStep } from '../src/wizard/PipelineStep.js';
@@ -436,10 +438,23 @@ describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only 
     expect(getCanvasStyles(theme).root).toMatchObject({ height: '100%', minHeight: 0, overflow: 'hidden' });
   });
 
-  it('F-11 AC-006 layout point 2 the properties body is the scrolling part and the card hides its overflow', () => {
+  it('F-11 AC-006 layout point 2 the one scrolling region is the panel fields inside the body, with the padding inside it', () => {
     const styles = getPipelineStepStyles(theme);
-    expect(styles.propertiesBody).toMatchObject({ flex: 1, minHeight: 0, overflowY: 'auto' });
+    const panel = getFlowPanelStyles(theme);
+    const connection = getConnectionPanelStyles(theme);
+    // The card has no padding of its own, so the scrollbar is on its right edge.
     expect(styles.propertiesCard).toMatchObject({ minHeight: 0, overflow: 'hidden' });
+    expect(styles.propertiesCard).not.toHaveProperty('p');
+    // The body between the header and the footer holds the one scrolling region, and it does not scroll itself.
+    expect(styles.propertiesBody).toMatchObject({ flex: 1, minHeight: 0, overflow: 'hidden' });
+    // The scrolling region carries the 16 px side inset, so the content has a gap before the scrollbar.
+    expect(panel.scroll).toMatchObject({ flex: 1, minHeight: 0, overflowY: 'auto', px: '16px' });
+    // The header and the footer keep their own inset and stay outside the scrolling region.
+    expect(styles.propertiesHeader).toMatchObject({ flexShrink: 0, px: '16px', pt: '16px' });
+    expect(panel.footer).toMatchObject({ flexShrink: 0, px: '16px', pb: '16px' });
+    // The connection panel has the same region: its fields scroll and its footer stays fixed.
+    expect(connection.fields).toMatchObject({ flex: 1, minHeight: 0, overflowY: 'auto', px: '16px' });
+    expect(connection.footer).toMatchObject({ flexShrink: 0, px: '16px', pb: '16px' });
   });
 
   it('F-11 AC-006 layout point 2 negative case: the canvas and the step column do not scroll themselves', () => {

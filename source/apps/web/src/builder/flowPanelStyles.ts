@@ -11,6 +11,7 @@ export interface FlowPanelStyles {
   // The panel: a column that fills its place, with the fields above and the footer fixed below.
   readonly root: StyleObject;
   // The fields, in the order of AC-019: a column that scrolls inside the panel, the footer stays in view.
+  // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge.
   readonly scroll: StyleObject;
   // The footer under the fields: the Delete flow control (AC-019, AC-029).
   readonly footer: StyleObject;
@@ -43,6 +44,7 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
+      px: '16px',
       minWidth: 0,
     },
     footer: common.panelFooter,

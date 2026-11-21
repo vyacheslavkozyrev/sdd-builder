@@ -24,7 +24,9 @@ export interface PipelineStepStyles {
   readonly canvasArea: StyleObject;
   // The warning notes under one flow box: placed at the box's left edge and the given top, 100 px wide.
   readonly noteColumn: (left: number, top: number) => StyleObject;
-  // The properties card: 272 px wide, with a header and a scrolling body.
+  // The properties card: 272 px wide, with a fixed header and a body that fills the rest. The card has no
+  // padding of its own: the header and the panel's scrolling region each carry the 16 px inset, so the
+  // scrollbar sits on the card's right edge with a gap before the content (F-11 AC-006 layout point 2).
   readonly propertiesCard: StyleObject;
   readonly propertiesHeader: StyleObject;
   readonly propertiesTitle: StyleObject;
@@ -109,20 +111,24 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
-      p: '16px',
-      gap: '12px',
     },
     propertiesHeader: {
+      flexShrink: 0,
       display: 'flex',
       flexDirection: 'column',
       gap: '4px',
+      px: '16px',
+      pt: '16px',
+      pb: '12px',
     },
     propertiesTitle: common.sectionTitle,
     propertiesSubtitle: common.secondaryText,
+    // The slot between the header and the card's edge. The panel inside it holds the one scrolling region
+    // (its fields) and the fixed footer, so this slot itself does not scroll.
     propertiesBody: {
       flex: 1,
       minHeight: 0,
-      overflowY: 'auto',
+      overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
     },

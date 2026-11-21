@@ -21,10 +21,17 @@ export function getConnectionPanelStyles(theme: Theme): ConnectionPanelStyles {
   const common = getCommonStyles(theme);
   return {
     root: common.panelRoot,
+    // The fields are the panel's one scrolling region, as in the flow panel; the footer stays fixed below.
+    // The 16 px side inset is inside the region, so the scrollbar sits on the card's edge.
     fields: {
+      boxSizing: 'border-box',
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
+      px: '16px',
       minWidth: 0,
     },
     label: common.fieldLabel,

@@ -110,9 +110,10 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 - **Move up** and **Move down** for the selected block. Delete asks first.
 
 ### 3.4 Structure marks
-- A **blocker on a flow** (for example a flow with no link, `architecture.md` §12) is shown as a red border and light red background on the flow's box. Its message is shown as a red band at the **top centre** of the builder. Blockers disable no control: editing, Delete flow, Delete connection, **+** and the drags stay available.
-- A **warning** is shown beside the box or arrow it belongs to, with its message (amber).
-- A problem whose item is not drawn (a block inside a flow, or the pipeline as a whole, or a flow missing its body) is listed under the canvas in a section **Not on a drawn item**, with its path and message.
+- A **blocker on a flow** (for example a flow with no link, `architecture.md` §12) is shown as a red border and light red background on the flow's box. Its message is listed in the **error panel** (below). Blockers disable no control: editing, Delete flow, Delete connection, **+** and the drags stay available.
+- A **warning** is shown beside the box or arrow it belongs to, with its message (amber), and is also listed in the error panel.
+- The **error panel** sits in the header of the canvas card, on the right, so it covers no box while closed. It shows one counter for all blockers and warnings ("3 errors · 2 warnings"). A click opens the full list: each finding with its kind, its path and its message. The list closes on the next click.
+- A problem whose item is not drawn (a block inside a flow, or the pipeline as a whole, or a flow missing its body) is listed in the error panel's list, in a section **Not on a drawn item**, with its path and message.
 - Each mark is the analyzer's message (`analyzeStructure`, `architecture.md` §12); the builder adds no wording of its own.
 - Brief problems (name, idea, stack, rules) are not shown on the Pipeline tab; they appear at Analyze.
 - Marks never block an edit.
@@ -205,7 +206,7 @@ The body limit is written **1000** everywhere (owner decision, 2026-11-18; the s
 | D13 | `next` is set only by dragging the right connection point of a flow onto the left one of another flow; no button, no field, no toolbox | Decided 2026-11-18. |
 | D14 | The Pipeline tab has no toolbox; gates are not dropped on arrows | Decided 2026-11-18. |
 | D15 | Delete flow removes the whole flow; the flows that pointed to it lose that `next`; the confirmation asks "Are you sure you want to delete this flow?" | Decided 2026-11-18. |
-| D16 | A flow with a blocker is red (border and light red background); the message is a notification at the top centre of the builder; "Not on a drawn item" stays a list under the canvas | Decided 2026-11-18. |
+| D16 | A flow with a blocker is red (border and light red background); its message is listed in the error panel (one counter, opened by a click, in the canvas card header); "Not on a drawn item" is a section inside that list. A refused drag or repoint stays one line at the top centre. | Decided 2026-11-18; the panel replaces the stacked band by Amendment 2026-11-21 (T025). |
 | D17 | Layout after the Material Kit look (MIT, attribution in §3.0 and `architecture.md` §5); arguments and rule tags as rows with a minus button and **+** in the title row | Decided 2026-11-18. |
 | D18 | Checks: "No checks yet." when a flow has none; a new flow is `flow-N` with its name starting as its id | Decided 2026-11-18. |
 | D19 | Screens: 10 screens, numbered 01 to 10 (`spec/design/features/F-11-pipeline-builder/screens.md`) | Decided 2026-11-18. |

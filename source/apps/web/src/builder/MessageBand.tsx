@@ -1,35 +1,23 @@
 import { Box, useTheme } from '@mui/material';
 import { getMessageBandStyles } from './builderStyles.js';
 
-// The message band at the top centre of the builder (F-11 AC-014, AC-035). It shows a refused drag or
-// repoint with its reason, and a blocker's message. Each line starts with its kind: "Refused ·" or
-// "Blocker ·". With no message it draws nothing.
-
-export type BandMessage =
-  | { readonly kind: 'refused'; readonly text: string }
-  | { readonly kind: 'blocker'; readonly text: string };
+// The message band at the top centre of the builder (F-11 AC-014). It shows one line: the reason of a
+// refused drag or repoint, shown while it applies. Blockers and warnings are not shown here; they are
+// collected in the error panel (ErrorPanel). With no refusal it draws nothing.
 
 export interface MessageBandProps {
-  readonly messages: readonly BandMessage[];
+  // The reason of the last refused drag or repoint, or null when there is none to show.
+  readonly refusal: string | null;
 }
 
-const kindLabels: Record<BandMessage['kind'], string> = {
-  refused: 'Refused',
-  blocker: 'Blocker',
-};
-
-export function MessageBand({ messages }: MessageBandProps) {
+export function MessageBand({ refusal }: MessageBandProps) {
   const styles = getMessageBandStyles(useTheme());
-  if (messages.length === 0) {
+  if (refusal === null) {
     return null;
   }
   return (
     <Box role="status" sx={styles.root}>
-      {messages.map((message, index) => (
-        <Box key={`${message.kind}-${index}`} sx={styles.message}>
-          {`${kindLabels[message.kind]} · ${message.text}`}
-        </Box>
-      ))}
+      <Box sx={styles.message}>{`Refused · ${refusal}`}</Box>
     </Box>
   );
 }

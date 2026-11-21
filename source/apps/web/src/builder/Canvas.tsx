@@ -9,7 +9,6 @@ import { getCanvasStyles } from './canvasStyles.js';
 import { drawingOf, leftHandle, rightHandle } from './drawing.js';
 import type { FlowBoxNode } from './drawing.js';
 import { MessageBand } from './MessageBand.js';
-import type { BandMessage } from './MessageBand.js';
 import type { Pipeline } from './model.js';
 import type { Selection } from './panel.js';
 
@@ -17,14 +16,12 @@ import type { Selection } from './panel.js';
 // in one row, in pipeline order, with a left and a right connection point each, and an arrow along each
 // `next` with no label. A link is made only by dragging from a right point onto another flow's left point
 // (connect.ts decides); an arrow end is moved by dragging it onto a point (repointArrow decides). A
-// refused drag or repoint shows its reason in the message band, and so does each blocker's message.
+// refused drag or repoint shows its reason in the message band; blockers and warnings are in the error panel.
 // The canvas reports the new pipeline through `onPipelineChange`; it keeps no pipeline of its own.
 
 export interface CanvasProps {
   readonly pipelineState: Pipeline;
   readonly blockedFlowIds: readonly string[];
-  // The messages of the blockers in the pipeline, shown in the band as "Blocker · …" (AC-035).
-  readonly blockerMessages: readonly string[];
   // Called with the new pipeline when a drag or repoint changes it. Never called for a refusal.
   readonly onPipelineChange: (pipeline: Pipeline) => void;
   // Called when a box or an arrow is clicked (the box or arrow selected), or the empty canvas is clicked
@@ -69,7 +66,7 @@ function FlowBox({ data }: NodeProps<FlowBoxNode>) {
 // Defined once, outside the component, so React Flow keeps the same node types between renders.
 const nodeTypes = { flow: FlowBox };
 
-export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipelineChange, onSelect }: CanvasProps) {
+export function Canvas({ pipelineState, blockedFlowIds, onPipelineChange, onSelect }: CanvasProps) {
   const styles = getCanvasStyles(useTheme());
   const drawing = useMemo(() => drawingOf(pipelineState, blockedFlowIds), [pipelineState, blockedFlowIds]);
   // The reason of the last refused drag or repoint. A drag that does not count (AC-012) keeps it.
@@ -85,11 +82,6 @@ export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipel
       setRefusal(result.reason);
     }
   };
-
-  const messages: BandMessage[] = [
-    ...(refusal === null ? [] : [{ kind: 'refused' as const, text: refusal }]),
-    ...blockerMessages.map((text): BandMessage => ({ kind: 'blocker', text })),
-  ];
 
   const flowCanvas =
     drawing.nodes.length === 0 ? (
@@ -142,7 +134,7 @@ export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipel
   return (
     <Box aria-label="Pipeline canvas" sx={styles.root}>
       {flowCanvas}
-      <MessageBand messages={messages} />
+      <MessageBand refusal={refusal} />
     </Box>
   );
 }

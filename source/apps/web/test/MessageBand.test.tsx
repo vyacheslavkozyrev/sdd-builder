@@ -25,46 +25,25 @@ function rgbOf(hex: string): string {
 
 describe('F-11 AC-014 refusal reason in the band', () => {
   it('F-11 AC-014 shows a refused drag with its reason at the top centre of the builder', () => {
-    renderWithTheme(
-      <MessageBand messages={[{ kind: 'refused', text: 'flow "specify" already has an outgoing arrow to "plan"' }]} />,
-    );
+    renderWithTheme(<MessageBand refusal={'flow "specify" already has an outgoing arrow to "plan"'} />);
     const band = screen.getByRole('status');
     expect(band.textContent).toBe('Refused · flow "specify" already has an outgoing arrow to "plan"');
     const style = getComputedStyle(band);
     expect(style.position).toBe('absolute');
     expect(style.left).toBe('50%');
   });
-});
 
-describe('F-11 AC-035 blocker message in the band', () => {
-  it('F-11 AC-035 shows a blocker message as a notification in the blocker colour from the theme', () => {
-    renderWithTheme(<MessageBand messages={[{ kind: 'blocker', text: 'flow-2 is not connected.' }]} />);
-    const message = screen.getByText('Blocker · flow-2 is not connected.');
-    const style = getComputedStyle(message);
+  it('F-11 AC-014 shows the refusal as one line only, in the error colours from the theme', () => {
+    renderWithTheme(<MessageBand refusal={'the target "plan" is not a flow of this pipeline'} />);
+    const band = screen.getByRole('status');
+    expect(band.children).toHaveLength(1);
+    const style = getComputedStyle(band.firstElementChild as HTMLElement);
     expect(style.color).toBe(rgbOf(theme.palette.error.main));
     expect(style.backgroundColor).toBe(rgbOf(theme.palette.error.light));
   });
 
-  it('F-11 AC-035 lists a refusal before the blocker messages, one line each', () => {
-    renderWithTheme(
-      <MessageBand
-        messages={[
-          { kind: 'refused', text: 'the target "plan" is not a flow of this pipeline' },
-          { kind: 'blocker', text: 'the pipeline has no flow.' },
-        ]}
-      />,
-    );
-    const lines = Array.from(screen.getByRole('status').children).map((line) => line.textContent);
-    expect(lines).toEqual([
-      'Refused · the target "plan" is not a flow of this pipeline',
-      'Blocker · the pipeline has no flow.',
-    ]);
-  });
-});
-
-describe('F-11 AC-014 band with no message', () => {
-  it('F-11 AC-014 draws nothing when there is no message', () => {
-    const { container } = renderWithTheme(<MessageBand messages={[]} />);
+  it('F-11 AC-014 negative case: a band with no refusal draws nothing', () => {
+    const { container } = renderWithTheme(<MessageBand refusal={null} />);
     expect(container.childElementCount).toBe(0);
     expect(screen.queryByRole('status')).toBeNull();
   });

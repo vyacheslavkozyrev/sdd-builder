@@ -277,24 +277,37 @@ describe('F-11 AC-003 + adds a flow and opens its tab', () => {
   });
 });
 
-describe('F-11 AC-035 AC-036 the message band and the list under the canvas', () => {
-  it('F-11 AC-035 a blocker shows its message in the band as "Blocker · …"', () => {
+describe('F-11 AC-035 AC-036 the error panel on the Pipeline tab', () => {
+  it('F-11 AC-035 a blocker is counted in the error panel, and no line is drawn in the band', () => {
     renderStep();
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
     fireEvent.click(tabNamed('Pipeline'));
-    expect(screen.getByRole('status').textContent).toContain('Blocker · ');
+    expect(screen.getByRole('button', { name: /^\d+ errors?$/ })).toBeTruthy();
+    expect(screen.queryByRole('status')).toBeNull();
   });
 
-  it('F-11 AC-036 a finding with no drawn item is listed under the canvas as "Not on a drawn item"', () => {
+  it('F-11 AC-035 the panel sits in the canvas card header, outside the canvas, so no box is covered', () => {
     renderStep();
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
     fireEvent.click(tabNamed('Pipeline'));
+    const counter = screen.getByRole('button', { name: /^\d+ errors?$/ });
+    expect(screen.getByLabelText('Pipeline canvas').contains(counter)).toBe(false);
+    expect(screen.getByRole('region', { name: 'Canvas card' }).contains(counter)).toBe(true);
+  });
+
+  it('F-11 AC-036 a finding with no drawn item is listed in the panel as "Not on a drawn item", closed by default', () => {
+    renderStep();
+    fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
+    fireEvent.click(tabNamed('Pipeline'));
+    expect(screen.queryByRole('region', { name: 'Not on a drawn item' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /^\d+ errors?$/ }));
     const section = screen.getByRole('region', { name: 'Not on a drawn item' });
     expect(within(section).getAllByRole('listitem').length).toBeGreaterThan(0);
   });
 
-  it('F-11 AC-036 negative case: the default pipeline with a body in each flow lists no unplaced finding', () => {
+  it('F-11 AC-036 negative case: the default pipeline with a body in each flow shows no panel and no unplaced finding', () => {
     renderStep();
+    expect(screen.queryByRole('button', { name: /errors?|warnings?/ })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Not on a drawn item' })).toBeNull();
   });
 });
@@ -343,10 +356,11 @@ describe('F-11 AC-035 a warning shows beside the box or arrow it names', () => {
     expect(screen.getByRole('note').textContent).toBe('Warning · goes far');
   });
 
-  it('F-11 AC-036 a warning with no drawn item is listed under the canvas and not beside a box', () => {
+  it('F-11 AC-036 a warning with no drawn item is listed in the error panel and not beside a box', () => {
     extraMarks.findings = [{ finding: warning('pipeline.name', 'is blank'), placement: { kind: 'none' } }];
     renderStep();
     expect(screen.queryByRole('note')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '1 warning' }));
     const section = screen.getByRole('region', { name: 'Not on a drawn item' });
     expect(within(section).getByText('pipeline.name')).toBeTruthy();
     expect(within(section).getByText('is blank')).toBeTruthy();

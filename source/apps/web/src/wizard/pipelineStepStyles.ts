@@ -12,10 +12,12 @@ export interface PipelineStepStyles {
   readonly root: StyleObject;
   // The row of the two cards, 20 px apart.
   readonly body: StyleObject;
-  // The canvas card (F-11 screen 01): the white card that holds the title, the hint, the canvas and the
-  // list under it. The title and hint sit inside it, at 16 px from its top edge.
+  // The canvas card (F-11 screen 01): the white card that holds the header, the canvas and the warning
+  // notes. The header sits inside it, at 16 px from its top edge.
   readonly canvasColumn: StyleObject;
+  // The header row: the title and hint on the left, the error panel's counter on the right.
   readonly canvasHeader: StyleObject;
+  readonly canvasTitles: StyleObject;
   readonly canvasTitle: StyleObject;
   readonly hint: StyleObject;
   // The box that holds the canvas and the warning notes laid over it.
@@ -68,8 +70,16 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
     },
     canvasHeader: {
       display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: '16px',
+    },
+    canvasTitles: {
+      display: 'flex',
       flexDirection: 'column',
       gap: '4px',
+      minWidth: 0,
     },
     canvasTitle: common.sectionTitle,
     hint: common.secondaryText,

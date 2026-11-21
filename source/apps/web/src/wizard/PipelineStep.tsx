@@ -3,9 +3,10 @@ import { Box, Typography, useTheme } from '@mui/material';
 import { Canvas } from '../builder/Canvas.js';
 import { ConnectionPanel } from '../builder/ConnectionPanel.js';
 import type { Rule } from '../builder/fields.js';
+import { ErrorPanel } from '../builder/ErrorPanel.js';
 import { FlowPanel } from '../builder/FlowPanel.js';
 import { canvasLayout } from '../builder/layout.js';
-import { UnplacedFindings, WarningNote, unplacedFindings, warningsAt } from '../builder/MarkViews.js';
+import { WarningNote, warningsAt } from '../builder/MarkViews.js';
 import { structureMarks } from '../builder/marks.js';
 import type { StructureMarks } from '../builder/marks.js';
 import { addFlow } from '../builder/model.js';
@@ -77,10 +78,6 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   const rules = useMemo(() => builderRules(values.rules), [values.rules]);
   const marks = useMemo(() => structureMarks(pipelineState, rules), [pipelineState, rules]);
   const blockedFlowIds = useMemo(() => marks.blockedFlowIds, [marks]);
-  const blockerMessages = useMemo(
-    () => marks.findings.filter((entry) => entry.finding.severity === 'blocker').map((entry) => entry.finding.message),
-    [marks],
-  );
   const boxes = useMemo(() => canvasLayout(pipelineState).boxes, [pipelineState]);
   const { tab, selection } = panel;
 
@@ -182,18 +179,20 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
       <Box sx={styles.body}>
         <Box component="section" aria-label="Canvas card" sx={styles.canvasColumn}>
           <Box sx={styles.canvasHeader}>
-            <Typography component="h2" sx={styles.canvasTitle}>
-              Pipeline
-            </Typography>
-            <Typography component="p" sx={styles.hint}>
-              Flows in pipeline order, left to right. Select a flow to edit its artifacts and Human approval.
-            </Typography>
+            <Box sx={styles.canvasTitles}>
+              <Typography component="h2" sx={styles.canvasTitle}>
+                Pipeline
+              </Typography>
+              <Typography component="p" sx={styles.hint}>
+                Flows in pipeline order, left to right. Select a flow to edit its artifacts and Human approval.
+              </Typography>
+            </Box>
+            <ErrorPanel findings={marks.findings} />
           </Box>
           <Box sx={styles.canvasArea}>
             <Canvas
               pipelineState={pipelineState}
               blockedFlowIds={blockedFlowIds}
-              blockerMessages={blockerMessages}
               onPipelineChange={changeFromCanvas}
               onSelect={select}
             />
@@ -209,7 +208,6 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
               );
             })}
           </Box>
-          <UnplacedFindings findings={unplacedFindings(marks)} />
         </Box>
         <Box component="section" aria-label="Properties" sx={styles.propertiesCard}>
           <Box sx={styles.propertiesHeader}>

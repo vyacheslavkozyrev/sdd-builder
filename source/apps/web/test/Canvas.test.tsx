@@ -112,7 +112,7 @@ function nodeIds(): string[] {
 // Renders the canvas with a change callback that the test can read.
 function renderCanvas(
   pipeline: Pipeline,
-  options: { blockedFlowIds?: string[]; blockerMessages?: string[] } = {},
+  options: { blockedFlowIds?: string[] } = {},
 ) {
   const onPipelineChange = vi.fn<(next: Pipeline) => void>();
   const onSelect = vi.fn<(selection: Selection) => void>();
@@ -120,7 +120,6 @@ function renderCanvas(
     <Canvas
       pipelineState={pipeline}
       blockedFlowIds={options.blockedFlowIds ?? []}
-      blockerMessages={options.blockerMessages ?? []}
       onPipelineChange={onPipelineChange}
       onSelect={onSelect}
     />,
@@ -212,18 +211,10 @@ describe('F-11 AC-035 red box for a blocked flow', () => {
     expect(normal.backgroundColor).toBe(rgbOf(theme.palette.background.paper));
   });
 
-  it('F-11 AC-035 shows the blocker message in the band at the top centre', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')), {
-      blockedFlowIds: ['plan'],
-      blockerMessages: ['flow-2 is not connected.'],
-    });
-    expect(bandText()).toBe('Blocker · flow-2 is not connected.');
-  });
-
-  it('F-11 AC-035 shows the blocker message of an empty pipeline with the empty message', () => {
-    renderCanvas(pipelineOf(), { blockerMessages: ['the pipeline has no flow.'] });
+  it('F-11 AC-035 draws the empty message, and no band line, for a pipeline with no flow', () => {
+    renderCanvas(pipelineOf());
     expect(screen.getByText('No flows yet.')).toBeTruthy();
-    expect(bandText()).toBe('Blocker · the pipeline has no flow.');
+    expect(bandText()).toBe('');
   });
 });
 

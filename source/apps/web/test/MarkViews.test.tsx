@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { UnplacedFindings, WarningNote, unplacedFindings, warningsAt } from '../src/builder/MarkViews.js';
+import { WarningNote, warningsAt } from '../src/builder/MarkViews.js';
 import { structureMarks } from '../src/builder/marks.js';
 import type { Finding, Placement, StructureMarks } from '../src/builder/marks.js';
 import { theme } from '../src/theme.js';
@@ -98,50 +98,18 @@ describe('F-11 AC-036 findings with no drawn item under the canvas', () => {
       { finding: finding('blocker', 'pipeline.name', 'a name is required'), placement: onNothing },
       { finding: finding('blocker', 'pipeline.flows.0', 'a flow blocker'), placement: onPlan },
     );
-    expect(unplacedFindings(marks)).toEqual([
+    const unplaced = marks.findings.filter((entry) => entry.placement.kind === 'none').map((entry) => entry.finding);
+    expect(unplaced).toEqual([
       finding('warning', 'pipeline.flows.0.blocks.0.next', 'block warning'),
       finding('blocker', 'pipeline.name', 'a name is required'),
     ]);
   });
 
-  it('F-11 AC-036 gives the real analyzer finding of a pipeline with no flow to the list', () => {
+  it('F-11 AC-036 gives the real analyzer finding of a pipeline with no flow to the panel, with no drawn item', () => {
     const empty = { name: 'Demo', description: 'A demo pipeline.', arguments: [], flows: [] };
     const marks = structureMarks(empty, []);
-    const unplaced = unplacedFindings(marks);
-    expect(unplaced.length).toBeGreaterThan(0);
-    expect(unplaced.every((item) => item.path !== '')).toBe(true);
+    expect(marks.findings.length).toBeGreaterThan(0);
+    expect(marks.findings.every((entry) => entry.finding.path !== '')).toBe(true);
     expect(marks.findings.every((entry) => entry.placement.kind === 'none')).toBe(true);
-  });
-
-  it('F-11 AC-036 titles the section "Not on a drawn item" and lists each finding with its path and message', () => {
-    renderWithTheme(
-      <UnplacedFindings
-        findings={[
-          finding('blocker', 'pipeline.flows.0.blocks.1.next', 'must point at a block of this flow'),
-          finding('warning', 'pipeline.flows.1.body', 'is blank; the generated project will not use it'),
-        ]}
-      />,
-    );
-    const section = screen.getByRole('region', { name: 'Not on a drawn item' });
-    const items = within(section).getAllByRole('listitem');
-    expect(items.map((item) => item.textContent)).toEqual([
-      'Blockerpipeline.flows.0.blocks.1.nextmust point at a block of this flow',
-      'Warningpipeline.flows.1.bodyis blank; the generated project will not use it',
-    ]);
-    expect(within(items[0] as HTMLElement).getByText('pipeline.flows.0.blocks.1.next')).toBeDefined();
-    expect(within(items[0] as HTMLElement).getByText('must point at a block of this flow')).toBeDefined();
-  });
-
-  it('F-11 AC-036 lists a blocker in the section too, not only in the message band', () => {
-    renderWithTheme(<UnplacedFindings findings={[finding('blocker', 'pipeline.name', 'a name is required')]} />);
-    const section = screen.getByRole('region', { name: 'Not on a drawn item' });
-    expect(within(section).getByText('Blocker')).toBeDefined();
-    expect(within(section).getByText('a name is required')).toBeDefined();
-  });
-
-  it('F-11 AC-036 draws no section when no finding is left without a drawn item', () => {
-    const { container } = renderWithTheme(<UnplacedFindings findings={[]} />);
-    expect(container.childElementCount).toBe(0);
-    expect(screen.queryByRole('region', { name: 'Not on a drawn item' })).toBeNull();
   });
 });

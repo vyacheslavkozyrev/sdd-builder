@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-20 | 8 of 23 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 9 of 23 tasks committed |
 | Verify   | ⏳ Pending |  | |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T006 | Flow name, description, body and model through the parser: edit on a copy, parser decides, refusal reason kept; core flow body made non-blank (owner decision, see Amendments) (`source/apps/web/src/builder/fields.ts`, `source/packages/core/src/pipeline/parse/flow.ts`) | 0 blockers; 2 warnings fixed (duplicate-name test asserted only refusal; schema doc body rule); 1 suggestion fixed (AC-028 expected reason) | task check passed: api 45, web 625, core 1211 |
 | T007 | Flow argument rows (add, edit, remove; the parser decides, id unique project-wide) and rule tag rows (must name a rule of the project) (`source/apps/web/src/builder/fields.ts`) | 0 blockers, 0 warnings; 3 suggestions fixed (duplicate rule-tag pre-check removed; comment; a test) | task check passed: api 45, web 662, core 1211 |
 | T008 | Flow outcome artifacts: add, edit (label and template as separate fields), remove; refused edits keep the saved values; remove and label edits follow the parser's End rule (`source/apps/web/src/builder/fields.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (header width; label limit test) | task check passed: api 45, web 685, core 1211 |
+| T009 | Human approval flag: `setFlowApproval` changes only `approval`, through the parser path (`source/apps/web/src/builder/fields.ts`) | 0 blockers, 0 warnings; 1 suggestion fixed (test title for a programmer error) | task check passed: api 45, web 695, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 

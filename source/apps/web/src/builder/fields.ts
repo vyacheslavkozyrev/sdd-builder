@@ -1,7 +1,8 @@
-// The flow field edits of the Flow panel (F-11 AC-020 to AC-023, AC-028), the flow's argument and
-// rule tag rows (F-11 AC-024, AC-026) and its outcome artifact rows (F-11 AC-025). An edit is applied
-// to a copy of the config, and the parser (`parseProjectConfig` in core) decides. A refused edit leaves
-// the saved pipeline as it was and returns the parser's reason. Pure functions: no React and no I/O.
+// The flow field edits of the Flow panel (F-11 AC-020 to AC-023, AC-028), the Human approval flag (F-11
+// AC-027), the flow's argument and rule tag rows (F-11 AC-024, AC-026) and its outcome artifact rows
+// (F-11 AC-025). An edit is applied to a copy of the config, and the parser (`parseProjectConfig` in core)
+// decides. A refused edit leaves the saved pipeline as it was and returns the parser's reason. Pure
+// functions: no React and no I/O.
 
 import { pipeline } from '@sddbuilder/core';
 
@@ -208,6 +209,27 @@ export function editFlowField(
   }
 
   return { ok: true, pipeline: withFlow(pipelineState, position, editedFlow(flow, prepared)) };
+}
+
+// Sets the Human approval flag of the flow `flowId` to `approval` (AC-027). The flag is a checkbox, so it
+// changes only the flow's `approval` value: every other field of the flow and of the pipeline is kept as it
+// was. The edit goes through the parser like every field edit (AC-028), and its refusal is the parser's reason.
+export function setFlowApproval(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  flowId: string,
+  approval: boolean,
+): RowResult {
+  const { position, flow } = flowAt(pipelineState, flowId);
+  const reason = refusalOf(
+    pipelineState,
+    rules,
+    { position, change: (document) => ({ ...document, approval }) },
+    `pipeline.flows.${position}.approval`,
+  );
+  if (reason !== undefined) return { ok: false, reason };
+
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, approval }) };
 }
 
 // Appends an argument row to the flow `flowId` (AC-024). The parser decides whether the row is valid:

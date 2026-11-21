@@ -5,8 +5,8 @@
 | Phase    | Status     | Date | Notes |
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
-| Specify  | ✅ Complete | 2026-11-20 | 7 stories, 41 criteria: 35 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept (owner, 2026-11-20) |
-| UX       | ⏳ Pending |  | reset 2026-11-20: the 2026-11-17 screens show flow checks and the connection-era panel; redraw from the approved stories |
+| Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
+| UX       | ⏳ Pending |  | reset 2026-11-20: the screens of 2026-11-19 predate US-008 and the blocker and refusal placement of the stories (top-centre notification, Not on a drawn item); revise to the stories, then approval |
 | Plan     | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |
 | Build    | ⏳ Pending |  | 0 tasks committed (reset) |
 | Verify   | ⏳ Pending |  | reset 2026-11-19: to be re-specified from the final schema and architecture |

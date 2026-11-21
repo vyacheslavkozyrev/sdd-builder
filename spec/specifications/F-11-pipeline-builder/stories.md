@@ -19,6 +19,7 @@ Owner decisions taken in this specification, to confirm at approval:
 - **Checks are not on the flow panel.** The final schema removes flow-level checks (`pipeline-schema.md` §5); a check is a Condition block on the flow tab, built in F-12. The owner chose this on 2026-11-20.
 - **Rule tags are on the flow panel.** The owner decision of 2026-11-18 (item 11 of the consolidated decisions) keeps them, although `features.md` does not list them in the F-11 scope. The owner chose to include them on 2026-11-20.
 - **Delete connection is on the arrow panel.** The owner decision of 2026-11-18g removes only the link, with a confirmation. `features.md` says the arrow panel is read-only apart from the source and target; this is the one addition. To confirm at approval.
+- **The pipeline panel holds its arguments and body** (user decision, 2026-11-20; US-008). The approved screens already show it.
 - The flow tab is a one-line placeholder until F-12 (as the steps are before their feature).
 
 ## Out of Scope
@@ -27,7 +28,7 @@ Owner decisions taken in this specification, to confirm at approval:
 - The toolbox on the flow tab (F-12). The Pipeline tab has no toolbox at all.
 - Gates and labels on arrows. The Approval and Check tools (removed; approval is the flow's checkbox).
 - Saved canvas positions. Layout is automatic (no position key in the schema).
-- The pipeline-level properties (name, description, arguments, model, tools, rule tags, body). Only flows are edited in F-11.
+- The pipeline's name, description, model, tools and rule tags. F-11 edits the pipeline's arguments and body only (US-008).
 - The brief checks and the LLM review. The builder runs only the structural checks (`analyzeStructure`); Analyze and its findings list are F-13.
 - Save, load, import and export of the pipeline (F-18). The pipeline is in memory only.
 - The process diagram (F-05, F-18), the Demo button and presentation mode (F-23).
@@ -162,6 +163,21 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 - [ ] AC-040 `[auto]`: New project resets the pipeline value to a fresh copy of the default pipeline, and two wizard states never share one pipeline object.
 - [ ] AC-041 `[auto]`: The builder code makes no network request and writes nothing to storage; the privacy scan of the web app covers the builder's files.
 
+### US-008: The pipeline panel
+
+**As a** builder user
+**I want to** set the pipeline's arguments and body when no flow or arrow is selected
+**So that** the pipeline command has the text and arguments I wrote.
+
+**Requirements:** the pipeline-level panel (arguments and body) on the Pipeline tab.
+
+#### Acceptance Criteria
+
+- [ ] AC-042 `[auto]`: On the Pipeline tab, the properties card shows the pipeline panel when no flow and no arrow is selected. Selecting a flow or an arrow shows that item's panel instead; one item is selected at a time.
+- [ ] AC-043 `[auto]`: The pipeline's arguments are rows, with the same rules as a flow's arguments (AC-024): a file-safe id unique within the pipeline, a required flag, and a hint of at most 100 characters. Add, edit and remove work on each row. A refused edit keeps the saved row and shows its reason beneath the row.
+- [ ] AC-044 `[auto]`: The pipeline's body is optional and may be empty. It is at most 1000 characters, counted in code points; a counter shows "n / 1000". A longer body is refused with the reason and the saved body stays.
+- [ ] AC-045 `[auto]`: The pipeline panel has no field for the pipeline's name, description, model, tools or rule tags. Those values are unchanged by any edit in F-11.
+
 ---
 
 ## Requirement Coverage
@@ -183,4 +199,5 @@ Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 | Delete flow with confirmation | AC-029, AC-030, AC-031, AC-032 |
 | Structure marks from the analyzer; blocker red and notified; warnings beside items | AC-033, AC-034, AC-035, AC-036, AC-037, AC-038 |
 | Builder state and the default pipeline | AC-039, AC-040, AC-041 |
+| Pipeline panel: arguments and body (user decision 2026-11-20) | AC-042, AC-043, AC-044, AC-045 |
 | Required name and body; flow connected (decisions 39 and `pipeline-schema.md` §3) | AC-020, AC-022, AC-034 |

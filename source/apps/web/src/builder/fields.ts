@@ -1,7 +1,8 @@
 // The flow field edits of the Flow panel (F-11 AC-020 to AC-023, AC-028), the Human approval flag (F-11
 // AC-027), the flow's argument and rule tag rows (F-11 AC-024, AC-026) and its outcome artifact rows
-// (F-11 AC-025). An edit is applied to a copy of the config, and the parser (`parseProjectConfig` in core)
-// decides. A refused edit leaves the saved pipeline as it was and returns the parser's reason. Pure
+// (F-11 AC-025). The same row and refusal helpers serve the pipeline's own lists (pipelineFields.ts), so a
+// list is changed in one place. An edit is applied to a copy of the config, and the parser (`parseProjectConfig`
+// in core) decides. A refused edit leaves the saved pipeline as it was and returns the parser's reason. Pure
 // functions: no React and no I/O.
 
 import { pipeline } from '@sddbuilder/core';
@@ -12,6 +13,8 @@ export type Model = pipeline.Model;
 export type Rule = pipeline.Rule;
 export type Problem = pipeline.Problem;
 export type Artifact = pipeline.Artifact;
+export type Argument = pipeline.Argument;
+type RuleTag = pipeline.RuleTag;
 
 // One field edit of a flow. A model of `undefined` unsets the model (AC-023); any other model text is
 // given to the parser, which refuses it.
@@ -25,7 +28,7 @@ export type FlowFieldResult =
   | { readonly ok: true; readonly pipeline: Pipeline }
   | { readonly ok: false; readonly field: FlowFieldEdit['field']; readonly reason: string };
 
-// One argument row as the user types it (AC-024). Its place in the flow's list is its position.
+// One argument row as the user types it (AC-024). Its place in the list is its position.
 export interface ArgumentRow {
   readonly id: string;
   readonly required: boolean;
@@ -37,11 +40,14 @@ export type RowResult =
   | { readonly ok: true; readonly pipeline: Pipeline }
   | { readonly ok: false; readonly reason: string };
 
+// Whose lists an edit changes: the pipeline's own lists (`'pipeline'`), or the lists of the flow at a position.
+type Holder = 'pipeline' | number;
+
 // The models the parser accepts. The keys are the type `Model`, so a model added to core must be added
 // here too, and TypeScript reports the gap.
 const MODEL_NAMES: Record<Model, true> = { haiku: true, sonnet: true, opus: true, inherit: true };
 
-function isModel(value: string): value is Model {
+export function isModel(value: string): value is Model {
   return Object.hasOwn(MODEL_NAMES, value);
 }
 
@@ -74,31 +80,25 @@ function problemKey(problem: Problem): string {
   return `${problem.path}\n${problem.message}`;
 }
 
-// A change to the document form of one flow.
-type FlowChange = (flow: Record<string, unknown>) => Record<string, unknown>;
+// A change to the document form of the holder: the pipeline's own document, or one flow's.
+type DocumentChange = (document: Record<string, unknown>) => Record<string, unknown>;
 
-// The pipeline as the document holds it. `changed` names the flow position that carries the change.
-function documentPipeline(
-  pipelineState: Pipeline,
-  changed: { readonly position: number; readonly change: FlowChange } | undefined,
-): unknown {
-  return {
-    ...(toDocument(pipelineState) as Record<string, unknown>),
-    flows: pipelineState.flows.map((flow, index) => {
-      const document = toDocument(flow) as Record<string, unknown>;
-      return changed?.position === index ? changed.change(document) : document;
-    }),
-  };
+// The pipeline as the document holds it, with `change` applied to the holder's document.
+function documentWith(pipelineState: Pipeline, holder: Holder, change: DocumentChange): unknown {
+  const document = toDocument(pipelineState) as Record<string, unknown>;
+  if (holder === 'pipeline') return change(document);
+  const flows = document.flows as Record<string, unknown>[];
+  return { ...document, flows: flows.map((flow, index) => (index === holder ? change(flow) : flow)) };
 }
 
-// The change that sets a flow field, or unsets it when the value is undefined.
-function fieldChange(edit: FlowFieldEdit): FlowChange {
+// The change that sets a field of the document, or unsets it when the value is undefined.
+export function fieldChange(field: string, value: unknown): DocumentChange {
   return (document) => {
     const next = { ...document };
-    if (edit.value === undefined) {
-      delete next[edit.field];
+    if (value === undefined) {
+      delete next[field];
     } else {
-      next[edit.field] = edit.value;
+      next[field] = value;
     }
     return next;
   };
@@ -114,51 +114,90 @@ function isUnder(path: string, placePath: string): boolean {
 function refusalProblemOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
-  changed: { readonly position: number; readonly change: FlowChange },
+  holder: Holder,
+  change: DocumentChange,
   placePath: string,
 ): Problem | undefined {
-  const before = new Set(problemsOf(documentPipeline(pipelineState, undefined), rules).map(problemKey));
-  const refusals = problemsOf(documentPipeline(pipelineState, changed), rules).filter(
+  const before = new Set(problemsOf(toDocument(pipelineState), rules).map(problemKey));
+  const refusals = problemsOf(documentWith(pipelineState, holder, change), rules).filter(
     (problem) => isUnder(problem.path, placePath) || !before.has(problemKey(problem)),
   );
   return refusals.find((problem) => isUnder(problem.path, placePath)) ?? refusals[0];
 }
 
 // The parser's reason for an edit, or undefined when the edit is accepted.
-function refusalOf(
+export function refusalOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
-  changed: { readonly position: number; readonly change: FlowChange },
+  holder: Holder,
+  change: DocumentChange,
   placePath: string,
 ): string | undefined {
-  return refusalProblemOf(pipelineState, rules, changed, placePath)?.message;
+  return refusalProblemOf(pipelineState, rules, holder, change, placePath)?.message;
 }
 
-// The flow `flowId` and its position, or a programmer error when the pipeline has no such flow.
-function flowAt(pipelineState: Pipeline, flowId: string): { readonly position: number; readonly flow: Flow } {
+// The position of the flow `flowId`, or a programmer error when the pipeline has no such flow.
+function positionOf(pipelineState: Pipeline, flowId: string): number {
   const position = pipelineState.flows.findIndex((flow) => flow.id === flowId);
-  const flow = pipelineState.flows[position];
-  if (flow === undefined) {
+  if (position === -1) {
     throw new Error(`F-11: the pipeline has no flow "${flowId}"`);
   }
-  return { position, flow };
+  return position;
+}
+
+// The flow at `position`, or a programmer error when there is none.
+function flowIn(pipelineState: Pipeline, position: number): Flow {
+  const flow = pipelineState.flows[position];
+  if (flow === undefined) {
+    throw new Error(`F-11: the pipeline has no flow at position ${position}`);
+  }
+  return flow;
+}
+
+// The name of the holder in a programmer-error message: "the pipeline" or "the flow "plan"".
+function holderName(pipelineState: Pipeline, holder: Holder): string {
+  return holder === 'pipeline' ? 'the pipeline' : `the flow "${flowIn(pipelineState, holder).id}"`;
 }
 
 function withFlow(pipelineState: Pipeline, position: number, flow: Flow): Pipeline {
   return { ...pipelineState, flows: pipelineState.flows.map((item, index) => (index === position ? flow : item)) };
 }
 
-// The flow's list with its positions renumbered, so every row's index is its position again.
+// The list with its positions renumbered, so every row's index is its position again.
 function renumber<T extends { readonly index: number }>(rows: readonly T[]): T[] {
   return rows.map((row, index) => ({ ...row, index }));
 }
 
-function rowPath(position: number, key: 'arguments' | 'artifacts' | 'ruleTags', rowPosition: number): string {
-  return `pipeline.flows.${position}.${key}.${rowPosition}`;
+// The path of a row of a holder's list, as the parser names it.
+function rowPath(holder: Holder, key: 'arguments' | 'artifacts' | 'ruleTags', rowPosition: number): string {
+  return `${holderPath(holder)}.${key}.${rowPosition}`;
+}
+
+function holderPath(holder: Holder): string {
+  return holder === 'pipeline' ? 'pipeline' : `pipeline.flows.${holder}`;
 }
 
 function argumentDocument(row: ArgumentRow): Record<string, unknown> {
   return { id: row.id, required: row.required, hint: row.hint };
+}
+
+function argumentsOf(pipelineState: Pipeline, holder: Holder): readonly Argument[] {
+  return holder === 'pipeline' ? pipelineState.arguments : flowIn(pipelineState, holder).arguments;
+}
+
+function withArguments(pipelineState: Pipeline, holder: Holder, rows: readonly Argument[]): Pipeline {
+  if (holder === 'pipeline') return { ...pipelineState, arguments: rows };
+  return withFlow(pipelineState, holder, { ...flowIn(pipelineState, holder), arguments: rows });
+}
+
+function ruleTagsOf(pipelineState: Pipeline, holder: Holder): readonly RuleTag[] {
+  const tags = holder === 'pipeline' ? pipelineState.ruleTags : flowIn(pipelineState, holder).ruleTags;
+  return tags ?? [];
+}
+
+function withRuleTags(pipelineState: Pipeline, holder: Holder, tags: readonly RuleTag[]): Pipeline {
+  if (holder === 'pipeline') return { ...pipelineState, ruleTags: tags };
+  return withFlow(pipelineState, holder, { ...flowIn(pipelineState, holder), ruleTags: tags });
 }
 
 // The typed flow after an accepted edit. The parser has already accepted the value, so a model that is
@@ -195,14 +234,16 @@ export function editFlowField(
   flowId: string,
   edit: FlowFieldEdit,
 ): FlowFieldResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
+  const position = positionOf(pipelineState, flowId);
+  const flow = flowIn(pipelineState, position);
   const prepared: FlowFieldEdit = edit.field === 'name' ? { field: 'name', value: edit.value.trim() } : edit;
 
   const reason = refusalOf(
     pipelineState,
     rules,
-    { position, change: fieldChange(prepared) },
-    `pipeline.flows.${position}.${prepared.field}`,
+    position,
+    fieldChange(prepared.field, prepared.value),
+    `${holderPath(position)}.${prepared.field}`,
   );
   if (reason !== undefined) {
     return { ok: false, field: prepared.field, reason };
@@ -220,45 +261,116 @@ export function setFlowApproval(
   flowId: string,
   approval: boolean,
 ): RowResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
+  const position = positionOf(pipelineState, flowId);
+  const flow = flowIn(pipelineState, position);
   const reason = refusalOf(
     pipelineState,
     rules,
-    { position, change: (document) => ({ ...document, approval }) },
-    `pipeline.flows.${position}.approval`,
+    position,
+    (document) => ({ ...document, approval }),
+    `${holderPath(position)}.approval`,
   );
   if (reason !== undefined) return { ok: false, reason };
 
   return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, approval }) };
 }
 
-// Appends an argument row to the flow `flowId` (AC-024). The parser decides whether the row is valid:
-// a file-safe id unique in the pipeline, a required flag and a hint of at most 100 characters. A refused
-// row is not added and the reason is the parser's message for the row.
+// Appends an argument row to the holder's list (AC-024, AC-043). The parser decides whether the row is valid:
+// a file-safe id unique in the pipeline, a required flag and a hint of at most 100 characters. A refused row
+// is not added and the reason is the parser's message for the row.
+export function addArgument(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  holder: Holder,
+  row: ArgumentRow,
+): RowResult {
+  const rows = argumentsOf(pipelineState, holder);
+  const rowPosition = rows.length;
+  const reason = refusalOf(
+    pipelineState,
+    rules,
+    holder,
+    (document) => ({ ...document, arguments: [...rows.map(toDocument), argumentDocument(row)] }),
+    rowPath(holder, 'arguments', rowPosition),
+  );
+  if (reason !== undefined) return { ok: false, reason };
+
+  return { ok: true, pipeline: withArguments(pipelineState, holder, [...rows, { index: rowPosition, ...row }]) };
+}
+
+// Replaces the argument row at `rowPosition` of the holder's list (AC-024, AC-043). A refused edit keeps the
+// saved row, and the reason is the parser's message for that row.
+export function editArgument(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  holder: Holder,
+  rowPosition: number,
+  row: ArgumentRow,
+): RowResult {
+  const rows = argumentsOf(pipelineState, holder);
+  if (rows[rowPosition] === undefined) {
+    throw new Error(`F-11: ${holderName(pipelineState, holder)} has no argument row ${rowPosition}`);
+  }
+  const reason = refusalOf(
+    pipelineState,
+    rules,
+    holder,
+    (document) => ({
+      ...document,
+      arguments: rows.map((item, index) => (index === rowPosition ? argumentDocument(row) : toDocument(item))),
+    }),
+    rowPath(holder, 'arguments', rowPosition),
+  );
+  if (reason !== undefined) return { ok: false, reason };
+
+  const next = rows.map((item, index) => (index === rowPosition ? { index, ...row } : item));
+  return { ok: true, pipeline: withArguments(pipelineState, holder, next) };
+}
+
+// Removes the argument row at `rowPosition` of the holder's list (AC-024, AC-043). Removing a row cannot make
+// the pipeline invalid, so it is not refused; the rows after it are renumbered.
+export function removeArgument(pipelineState: Pipeline, holder: Holder, rowPosition: number): Pipeline {
+  const rows = argumentsOf(pipelineState, holder);
+  if (rows[rowPosition] === undefined) {
+    throw new Error(`F-11: ${holderName(pipelineState, holder)} has no argument row ${rowPosition}`);
+  }
+  return withArguments(pipelineState, holder, renumber(rows.filter((_item, index) => index !== rowPosition)));
+}
+
+// Adds the rule tag `ruleId` to the holder's tags (AC-026). `rules` are the rules of the Technical
+// details step. A tag that names no rule of them, or that the list already has, is refused with the parser's
+// wording, and a refused tag is not stored.
+export function addRuleTag(pipelineState: Pipeline, rules: readonly Rule[], holder: Holder, ruleId: string): RowResult {
+  const tags = ruleTagsOf(pipelineState, holder);
+  const reason = refusalOf(
+    pipelineState,
+    rules,
+    holder,
+    (document) => ({ ...document, ruleTags: [...tags.map((tag) => tag.ruleId), ruleId] }),
+    rowPath(holder, 'ruleTags', tags.length),
+  );
+  if (reason !== undefined) return { ok: false, reason };
+
+  return { ok: true, pipeline: withRuleTags(pipelineState, holder, [...tags, { index: tags.length, ruleId }]) };
+}
+
+// Removes the rule tag at `rowPosition` of the holder's tags (AC-026). The tags after it are renumbered.
+export function removeRuleTag(pipelineState: Pipeline, holder: Holder, rowPosition: number): Pipeline {
+  const tags = ruleTagsOf(pipelineState, holder);
+  if (tags[rowPosition] === undefined) {
+    throw new Error(`F-11: ${holderName(pipelineState, holder)} has no rule tag row ${rowPosition}`);
+  }
+  return withRuleTags(pipelineState, holder, renumber(tags.filter((_tag, index) => index !== rowPosition)));
+}
+
+// Appends an argument row to the flow `flowId` (AC-024). The refusal and the row rules are those of addArgument.
 export function addFlowArgument(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   flowId: string,
   row: ArgumentRow,
 ): RowResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  const rowPosition = flow.arguments.length;
-  const reason = refusalOf(
-    pipelineState,
-    rules,
-    {
-      position,
-      change: (document) => ({
-        ...document,
-        arguments: [...flow.arguments.map(toDocument), argumentDocument(row)],
-      }),
-    },
-    rowPath(position, 'arguments', rowPosition),
-  );
-  if (reason !== undefined) return { ok: false, reason };
-
-  const rows = [...flow.arguments, { index: rowPosition, ...row }];
-  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, arguments: rows }) };
+  return addArgument(pipelineState, rules, positionOf(pipelineState, flowId), row);
 }
 
 // Replaces the argument row at `rowPosition` of the flow `flowId` (AC-024). A refused edit keeps the saved
@@ -270,39 +382,12 @@ export function editFlowArgument(
   rowPosition: number,
   row: ArgumentRow,
 ): RowResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  if (flow.arguments[rowPosition] === undefined) {
-    throw new Error(`F-11: the flow "${flowId}" has no argument row ${rowPosition}`);
-  }
-  const reason = refusalOf(
-    pipelineState,
-    rules,
-    {
-      position,
-      change: (document) => ({
-        ...document,
-        arguments: flow.arguments.map((item, index) =>
-          index === rowPosition ? argumentDocument(row) : toDocument(item),
-        ),
-      }),
-    },
-    rowPath(position, 'arguments', rowPosition),
-  );
-  if (reason !== undefined) return { ok: false, reason };
-
-  const rows = flow.arguments.map((item, index) => (index === rowPosition ? { index, ...row } : item));
-  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, arguments: rows }) };
+  return editArgument(pipelineState, rules, positionOf(pipelineState, flowId), rowPosition, row);
 }
 
-// Removes the argument row at `rowPosition` of the flow `flowId` (AC-024). Removing a row cannot make the
-// pipeline invalid, so it is not refused; the rows after it are renumbered.
+// Removes the argument row at `rowPosition` of the flow `flowId` (AC-024).
 export function removeFlowArgument(pipelineState: Pipeline, flowId: string, rowPosition: number): Pipeline {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  if (flow.arguments[rowPosition] === undefined) {
-    throw new Error(`F-11: the flow "${flowId}" has no argument row ${rowPosition}`);
-  }
-  const rows = renumber(flow.arguments.filter((_item, index) => index !== rowPosition));
-  return withFlow(pipelineState, position, { ...flow, arguments: rows });
+  return removeArgument(pipelineState, positionOf(pipelineState, flowId), rowPosition);
 }
 
 // Adds the rule tag `ruleId` to the flow `flowId` (AC-026). `rules` are the rules of the Technical details
@@ -314,34 +399,12 @@ export function addFlowRuleTag(
   flowId: string,
   ruleId: string,
 ): RowResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  const tags = flow.ruleTags ?? [];
-  const reason = refusalOf(
-    pipelineState,
-    rules,
-    {
-      position,
-      change: (document) => ({ ...document, ruleTags: [...tags.map((tag) => tag.ruleId), ruleId] }),
-    },
-    rowPath(position, 'ruleTags', tags.length),
-  );
-  if (reason !== undefined) return { ok: false, reason };
-
-  return {
-    ok: true,
-    pipeline: withFlow(pipelineState, position, { ...flow, ruleTags: [...tags, { index: tags.length, ruleId }] }),
-  };
+  return addRuleTag(pipelineState, rules, positionOf(pipelineState, flowId), ruleId);
 }
 
-// Removes the rule tag at `rowPosition` of the flow `flowId` (AC-026). The tags after it are renumbered.
+// Removes the rule tag at `rowPosition` of the flow `flowId` (AC-026).
 export function removeFlowRuleTag(pipelineState: Pipeline, flowId: string, rowPosition: number): Pipeline {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  const tags = flow.ruleTags ?? [];
-  if (tags[rowPosition] === undefined) {
-    throw new Error(`F-11: the flow "${flowId}" has no rule tag row ${rowPosition}`);
-  }
-  const kept = renumber(tags.filter((_tag, index) => index !== rowPosition));
-  return withFlow(pipelineState, position, { ...flow, ruleTags: kept });
+  return removeRuleTag(pipelineState, positionOf(pipelineState, flowId), rowPosition);
 }
 
 // One outcome artifact as the user types it (AC-025). Its place in the flow's list is its position.
@@ -387,19 +450,18 @@ export function addFlowArtifact(
   flowId: string,
   row: ArtifactRow,
 ): ArtifactResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
+  const position = positionOf(pipelineState, flowId);
+  const flow = flowIn(pipelineState, position);
   const rowPosition = flow.artifacts.length;
   const placePath = rowPath(position, 'artifacts', rowPosition);
   const problem = refusalProblemOf(
     pipelineState,
     rules,
-    {
-      position,
-      change: (document) => ({
-        ...document,
-        artifacts: [...flow.artifacts.map(artifactDocument), artifactDocument(row)],
-      }),
-    },
+    position,
+    (document) => ({
+      ...document,
+      artifacts: [...flow.artifacts.map(artifactDocument), artifactDocument(row)],
+    }),
     placePath,
   );
   if (problem !== undefined) {
@@ -419,9 +481,9 @@ export function editFlowArtifact(
   rowPosition: number,
   edit: ArtifactEdit,
 ): ArtifactResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
-  const saved = flow.artifacts[rowPosition];
-  if (saved === undefined) {
+  const position = positionOf(pipelineState, flowId);
+  const flow = flowIn(pipelineState, position);
+  if (flow.artifacts[rowPosition] === undefined) {
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
   }
   const placePath = rowPath(position, 'artifacts', rowPosition);
@@ -429,15 +491,13 @@ export function editFlowArtifact(
   const problem = refusalProblemOf(
     pipelineState,
     rules,
-    {
-      position,
-      change: (document) => ({
-        ...document,
-        artifacts: flow.artifacts.map((item, index) =>
-          index === rowPosition ? artifactDocument(artifactWith(item, edit)) : artifactDocument(item),
-        ),
-      }),
-    },
+    position,
+    (document) => ({
+      ...document,
+      artifacts: flow.artifacts.map((item, index) =>
+        index === rowPosition ? artifactDocument(artifactWith(item, edit)) : artifactDocument(item),
+      ),
+    }),
     editedPath,
   );
   if (problem !== undefined) {
@@ -457,7 +517,8 @@ export function removeFlowArtifact(
   flowId: string,
   rowPosition: number,
 ): RowResult {
-  const { position, flow } = flowAt(pipelineState, flowId);
+  const position = positionOf(pipelineState, flowId);
+  const flow = flowIn(pipelineState, position);
   if (flow.artifacts[rowPosition] === undefined) {
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
   }
@@ -465,8 +526,9 @@ export function removeFlowArtifact(
   const reason = refusalOf(
     pipelineState,
     rules,
-    { position, change: (document) => ({ ...document, artifacts: kept.map(artifactDocument) }) },
-    `pipeline.flows.${position}.artifacts`,
+    position,
+    (document) => ({ ...document, artifacts: kept.map(artifactDocument) }),
+    `${holderPath(position)}.artifacts`,
   );
   if (reason !== undefined) return { ok: false, reason };
 

@@ -42,6 +42,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T015 | Tab row: Pipeline first, a tab per flow in list order, `+` after the last; the tab list holds only tabs; no toolbox (`source/apps/web/src/builder/PipelineTabs.tsx`, `builderStyles.ts`) | 0 blockers; 2 warnings fixed (+ inside the tablist; untyped style shapes); 1 suggestion fixed | task check passed: api 45, web 819, core 1211 |
 | T016 | Canvas with React Flow: boxes in layout order with left and right points, arrows from `next` with no label, blocked flow red, "No flows yet." (`source/apps/web/src/builder/Canvas.tsx`, `drawing.ts`, `canvasStyles.ts`; `theme.ts` light red). Size: 547 changed lines, accepted by the user as a one-off exception | 0 blockers, 0 warnings; 3 suggestions fixed (comments and a wrapped line) | task check passed: api 45, web 843, core 1211 |
 | T017 | Canvas interactions: a drag from a right point onto a left point goes through `dropLink`; an arrow end drag goes through `repointArrow`; refusals and blocker messages in the top-centre band (`Canvas.tsx`, `MessageBand.tsx`, `builderStyles.ts`) | 1 blocker fixed (reconnect end mapping inverted); 1 warning fixed (drag could start at a left point); 1 suggestion fixed (test name). Refusal lifetime deferred to the owner | task check passed: api 45, web 861, core 1211 |
+| T018 | Flow panel fields: Name, Description, Model, Body with its counter, Human approval; refusals beneath the field keep the saved value (`source/apps/web/src/builder/FlowPanel.tsx`, `flowPanelStyles.ts`). Delete flow control moved to T020 (Amendment 2026-11-20) | 0 blockers; 1 warning fixed (unused style getter removed); 1 suggestion fixed (aria-describedby set only while a refusal shows); 1 suggestion fixed (state name). Open: Delete flow part of AC-019 moved to T020 by amendment. Size: about 629 changed lines, accepted by the user as a one-off exception | task check passed: api 45, web 885, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 
@@ -61,6 +62,10 @@ _The records of the earlier build (T001 to T020 of the connection model, its Def
 
 - T017 `source/apps/web/src/builder/Canvas.tsx` (refusal lifetime): a refused drag's reason stays in the band until the next accepted drag or repoint, and it is not cleared when the pipeline changes from outside. AC-014 does not say when it goes. Kept as built; the owner should decide whether the reason clears on the next drag or on any edit. Not a code change in T017.
 
+- T018 `source/apps/web/src/builder/FlowPanel.tsx` (AC-019, Delete flow control): AC-019 lists a Delete flow control at the end of the flow panel, and T018 covers AC-019. The panel has no Delete control yet. Plan T020 owns Delete flow with its confirmation, and a control without that confirmation would break AC-029. The control is to be added with T020; the owner should confirm that AC-019 is proved across T018 and T020. Not a code change in T018.
+
+- T018 `source/apps/web/src/builder/FlowPanel.tsx` (codePointCount import): the panel imports `codePointCount` from `wizard/project.ts`. Moving the helper to a shared module touches F-09 code and is outside T018. Kept as built.
+
 _Otherwise none for the 2026-11-20 build._
 
 ---
@@ -72,6 +77,12 @@ _Recorded per task in the Task Log and in the commit messages. Verify results co
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-20 (T018 review: Delete flow control)
+**Changed**: `plan.md` T020 now also covers the Delete flow control part of AC-019. T018 covers AC-019 for every field except Delete flow.
+**Reason**: AC-019 lists a Delete flow control in the flow panel; the plan put it in T020 with its confirmation (AC-029). A control without the confirmation would break AC-029 until T020, so the control moves with its confirmation. Decided by the user.
+**Impact**: T018 and T020 only.
+
 
 ### Amendment — 2026-11-20 (T006 blank flow body)
 **Changed**: `source/packages/core/src/pipeline/parse/flow.ts` reads the flow body as non-blank (owner decision: the parser refuses a blank body, AC-022). The body keeps its 1000-code-point limit and the parser's message style.

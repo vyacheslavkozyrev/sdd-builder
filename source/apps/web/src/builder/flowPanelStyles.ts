@@ -4,7 +4,7 @@ import type { StyleObject } from '../styles/common.js';
 
 // Style getter for the flow panel (.claude/rules/web-styling.md). It takes the theme and returns the
 // style objects FlowPanel passes to `sx`. Colours come from the theme's palette; the label, the field
-// surface, the section title and the plus button are the shared shapes of common.ts.
+// surface are the shared shapes of common.ts. The list sections have their own getter (rowEditorStyles.ts).
 
 export interface FlowPanelStyles {
   // The column of the fields, in the order of AC-019.
@@ -21,10 +21,6 @@ export interface FlowPanelStyles {
   // The Human approval checkbox row and its label.
   readonly approval: StyleObject;
   readonly approvalLabel: StyleObject;
-  // The title of a list section (Arguments, Outcome artifacts, Rule tags).
-  readonly sectionTitle: StyleObject;
-  // The space a list section keeps for its rows (filled by the row editors).
-  readonly slot: StyleObject;
 }
 
 export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
@@ -100,10 +96,6 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       fontSize: 13,
       lineHeight: '20px',
       color: theme.palette.text.primary,
-    },
-    sectionTitle: common.sectionTitle,
-    slot: {
-      minHeight: 28,
     },
   };
 }

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-20 | 17 of 23 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 19 of 23 tasks committed |
 | Verify   | ⏳ Pending |  | |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -43,6 +43,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T016 | Canvas with React Flow: boxes in layout order with left and right points, arrows from `next` with no label, blocked flow red, "No flows yet." (`source/apps/web/src/builder/Canvas.tsx`, `drawing.ts`, `canvasStyles.ts`; `theme.ts` light red). Size: 547 changed lines, accepted by the user as a one-off exception | 0 blockers, 0 warnings; 3 suggestions fixed (comments and a wrapped line) | task check passed: api 45, web 843, core 1211 |
 | T017 | Canvas interactions: a drag from a right point onto a left point goes through `dropLink`; an arrow end drag goes through `repointArrow`; refusals and blocker messages in the top-centre band (`Canvas.tsx`, `MessageBand.tsx`, `builderStyles.ts`) | 1 blocker fixed (reconnect end mapping inverted); 1 warning fixed (drag could start at a left point); 1 suggestion fixed (test name). Refusal lifetime deferred to the owner | task check passed: api 45, web 861, core 1211 |
 | T018 | Flow panel fields: Name, Description, Model, Body with its counter, Human approval; refusals beneath the field keep the saved value (`source/apps/web/src/builder/FlowPanel.tsx`, `flowPanelStyles.ts`). Delete flow control moved to T020 (Amendment 2026-11-20) | 0 blockers; 1 warning fixed (unused style getter removed); 1 suggestion fixed (aria-describedby set only while a refusal shows); 1 suggestion fixed (state name). Open: Delete flow part of AC-019 moved to T020 by amendment. Size: about 629 changed lines, accepted by the user as a one-off exception | task check passed: api 45, web 885, core 1211 |
+| T019 | Row and list editors: argument rows (in place, Save for a new row), rule tag rows (add then remove on change), outcome artifacts (Edit, Save, Cancel, Remove; per-field refusal) in the flow and pipeline panels (`RowEditors.tsx`, `rowEditorStyles.ts`) | 0 blockers; 2 warnings fixed (name-line layout; boundary and per-field tests); 1 suggestion fixed (DOM ids from useId). Open: one artifact form at a time drops the other draft (owner). Size: about 1393 changed lines, accepted by the user as a one-off exception | task check passed: api 45, web 918, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 
@@ -51,6 +52,8 @@ _The records of the earlier build (T001 to T020 of the connection model, its Def
 ## Deferred Findings
 
 - T007 `source/packages/core/src/pipeline/check/ids.ts` (AC-024 wording): AC-024 and AC-043 say an argument id is unique within its flow or pipeline; decision 18 and the parser make it unique project-wide. The builder follows the parser (kept on review). The stories wording needs an amendment by the owner; not a code change.
+
+- T019 `source/apps/web/src/builder/RowEditors.tsx` (artifact row, AC-025): choosing Edit or + while another artifact form is open replaces that form and drops its typed draft. The screens show one open form at a time and do not say what happens to a draft; kept as built. The owner should decide whether a draft is kept. Not a code change in T019.
 
 - T011 `source/apps/web/src/builder/marks.ts` (AC-034, AC-035, AC-036): a flow's body or name blocker marks its box red (AC-034) and its message is listed under "Not on a drawn item" (AC-036 names a flow missing its body). AC-035 says a blocker's message shows as a notification at the top centre. Read together, the body and name blocker messages are not shown as a notification. Kept as the implementer decided (AC-036 is the more specific rule); the owner should confirm the wording in stories.md. Not a code change in T011.
 

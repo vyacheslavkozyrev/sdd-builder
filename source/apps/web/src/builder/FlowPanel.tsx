@@ -4,12 +4,13 @@ import { codePointCount } from '../wizard/project.js';
 import { editFlowField, setFlowApproval } from './fields.js';
 import type { Model, Pipeline, RowResult, Rule } from './fields.js';
 import type { Flow } from './model.js';
+import { ArgumentRows, ArtifactRows, RuleTagRows } from './RowEditors.js';
 import { getFlowPanelStyles } from './flowPanelStyles.js';
 
 // The flow panel of the Pipeline tab (F-11 AC-019, AC-020 to AC-023, AC-027, AC-028). It shows the
 // fields of the selected flow in this order: name, description, arguments, model, body, outcome
-// artifacts, rule tags, Human approval. The argument, artifact and rule tag lists are filled in by the
-// row editors (T019); their sections keep a slot here. There is no checks field and no next-flow field.
+// artifacts, rule tags, Human approval. The argument, artifact and rule tag lists are the row editors of
+// RowEditors.tsx, the same ones the pipeline panel uses. There is no checks field and no next-flow field.
 //
 // Each edit goes through the parser's field rules (fields.ts). An accepted edit is reported to the
 // caller as the new pipeline. A refused edit keeps the saved value in the field and shows the parser's
@@ -135,10 +136,13 @@ export function FlowPanel({ pipelineState, rules, flow, onChange }: FlowPanelPro
       />
       {refusal('description')}
 
-      <Typography component="p" sx={styles.fieldLabel}>
-        Arguments
-      </Typography>
-      <Box sx={styles.slot} />
+      <ArgumentRows
+        key={flow.id}
+        target={{ kind: 'flow', flowId: flow.id }}
+        pipelineState={pipelineState}
+        rules={rules}
+        onChange={onChange}
+      />
 
       <Typography component="label" htmlFor="flow-model" sx={styles.fieldLabel}>
         Model
@@ -181,15 +185,15 @@ export function FlowPanel({ pipelineState, rules, flow, onChange }: FlowPanelPro
       </Typography>
       {refusal('body')}
 
-      <Typography component="p" sx={styles.sectionTitle}>
-        Outcome artifacts
-      </Typography>
-      <Box sx={styles.slot} />
+      <ArtifactRows key={flow.id} flowId={flow.id} pipelineState={pipelineState} rules={rules} onChange={onChange} />
 
-      <Typography component="p" sx={styles.sectionTitle}>
-        Rule tags
-      </Typography>
-      <Box sx={styles.slot} />
+      <RuleTagRows
+        key={flow.id}
+        target={{ kind: 'flow', flowId: flow.id }}
+        pipelineState={pipelineState}
+        rules={rules}
+        onChange={onChange}
+      />
 
       <FormControlLabel
         sx={styles.approval}

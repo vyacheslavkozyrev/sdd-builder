@@ -1,33 +1,37 @@
 # User Stories — Pipeline builder (UI only) (F-11)
 
 Feature entry: `spec/documents/features.md` → F-11
-Requirements owned by this feature: the F-11 scope items in `features.md` (the Pipeline tab that cannot be removed; one tab per flow and a + button after the last tab; the canvas with flows as boxes, connections as arrows and one gate per arrow; the properties panel for the pipeline, including its arguments; structure marks next to the items they name; no Start or End on this tab); `ui.md` §3.1 to §3.5 (tab row, Pipeline tab, flow tab placeholder, property panels, structure marks), §4 (block table for Approval, Check, Connection, Flow, Pipeline), §5 (interaction rules); `architecture.md` decisions 24 (the builder is a view-model over the pipeline config, marks from `analyzeStructure`), 30 (tabs, toolboxes), 33 (gate types in the schema), 34 (no switch-off).
+Requirements owned by this feature: the F-11 scope items in `features.md` (listed in the Requirement Coverage table); `architecture.md` §6 decisions 38 (a flow is one object, linear, no loops), 39 (name and body required, flows connected), 40 (checks are conditions, not flow fields); `spec/documents/pipeline-schema.md` §1, §3 and §5 (the final schema); `spec/documents/ui.md` §3.1, §3.2, §3.4 and §5.
 
-Owner decisions of 2026-11-17 (this specification):
+Owner decisions taken before this specification (2026-11-17 and 2026-11-18) and kept here:
 
-- Flow boxes are laid out automatically, left to right in pipeline order. The schema has no position key and gets none; a dragged box keeps its place only until the next layout and is never saved.
-- A flow's own properties (name, description, arguments, model, body) are edited in F-11 from its box's properties panel. Blocks, Agent blocks and custom agents are F-12.
-- + adds an empty flow with no Start and no End; the structure marks show what it still needs. The user adds those in the flow tab (F-12).
-- A flow can be deleted from the Pipeline tab in F-11, after a confirmation.
+- Flow boxes are laid out automatically, left to right in pipeline order. The schema has no position key; a dragged box is not saved.
+- Connections are made only by dragging the right connection point of one flow onto the left connection point of another. There is no button, no next-flow field and no Connection tool.
+- A flow is one object with a `next`. There is no connection object, so an arrow carries no label and no gate.
+- A flow with an outgoing arrow never offers a second one. A link that would close a loop, or point a flow to itself, is refused with the reason.
+- Delete flow removes the flow with its artifacts, arguments, approval, rule tags and `next`. A flow that pointed to it loses that `next`.
+- A blocker shows as a red flow box and a notification at the top centre of the builder. Blockers disable nothing.
+- Body limit 1000 characters, counted in code points. Description limit 1000. Argument hint limit 100. Artifact template limit 5000 (`pipeline-schema.md` §6).
+- `+` adds an empty flow; the structure marks show what it still needs.
 
-Decisions taken in this specification (not owner decisions; changes are welcome at approval):
+Owner decisions taken in this specification, to confirm at approval:
 
-- A connection's artifact label is required (`ui.md` §4), on the Pipeline tab too.
-- An arrow holds at most one gate; a second gate is refused with the reason.
-- A check on an arrow has no true or false output on this tab: a failed check stops the process (`architecture.md` §9). Routing a check stays on the flow tab (F-12).
-- The flow tab's body is a one-line placeholder until F-12 (as F-08 does for the steps).
-- Deleting an arrow asks for confirmation, like Delete on a flow; Remove gate on an arrow needs no confirmation and keeps the arrow.
+- **Checks are not on the flow panel.** The final schema removes flow-level checks (`pipeline-schema.md` §5); a check is a Condition block on the flow tab, built in F-12. The owner chose this on 2026-11-20.
+- **Rule tags are on the flow panel.** The owner decision of 2026-11-18 (item 11 of the consolidated decisions) keeps them, although `features.md` does not list them in the F-11 scope. The owner chose to include them on 2026-11-20.
+- **Delete connection is on the arrow panel.** The owner decision of 2026-11-18g removes only the link, with a confirmation. `features.md` says the arrow panel is read-only apart from the source and target; this is the one addition. To confirm at approval.
+- The flow tab is a one-line placeholder until F-12 (as the steps are before their feature).
 
 ## Out of Scope
 
-- The flow tab's content: blocks, Start, End, Agent, the flow's own Connection between blocks, Check routes, Move up and Move down, block properties, custom agents and their delete (F-12).
-- Save, load and import or export of the pipeline as JSON (F-18, post MVP). The pipeline is in memory only; nothing is written to storage (`architecture.md` decision 13).
-- Saving canvas positions. The schema has no position key (decision 33), and F-11 adds none.
-- The Analyze step, its button and its findings list (F-13 and F-14). The builder only reports the config to its host after each change.
-- Switching a block or a flow off (`architecture.md` decision 34).
-- The process diagram with its gates (F-05 and F-18, `architecture.md` §10).
-- The Demo button and presentation mode (F-23, post MVP).
-- Phone and tablet layouts (decision 31).
+- A flow's checks and every Condition block: the flow tab's content (Start, Agent, Condition and End blocks, their order, routes and properties) is F-12. Checks are not on the flow panel (decision 40, `pipeline-schema.md` §5).
+- The toolbox on the flow tab (F-12). The Pipeline tab has no toolbox at all.
+- Gates and labels on arrows. The Approval and Check tools (removed; approval is the flow's checkbox).
+- Saved canvas positions. Layout is automatic (no position key in the schema).
+- The pipeline-level properties (name, description, arguments, model, tools, rule tags, body). Only flows are edited in F-11.
+- The brief checks and the LLM review. The builder runs only the structural checks (`analyzeStructure`); Analyze and its findings list are F-13.
+- Save, load, import and export of the pipeline (F-18). The pipeline is in memory only.
+- The process diagram (F-05, F-18), the Demo button and presentation mode (F-23).
+- Phone and tablet layouts. Browser (end-to-end) tests in the MVP, unless a criterion says otherwise.
 
 ---
 
@@ -36,280 +40,147 @@ Decisions taken in this specification (not owner decisions; changes are welcome 
 Acceptance criteria are tagged by how they are verified:
 
 - `[auto]` — an automated test can prove it.
-- `[device]` — needs a person, a real device, drive or network; verified with a checklist.
+- `[device]` — needs a person and a real browser session (drawn arrows, drag gestures, colours); verified with a checklist.
 
 Every automated test names the feature and criterion it covers (`F-11 AC-003`).
 
 ### US-001: The Pipeline tab and the flow tabs
 
 **As a** builder user
-**I want to** see the Pipeline tab first and one tab per flow after it, with a + button to add a flow
-**So that** I can see the whole process and open any flow from one place.
+**I want to** see the pipeline's flows as tabs and add a flow with +
+**So that** I can open each flow and add new ones.
 
-**Requirements:** `features.md` F-11 (the Pipeline tab, flow tabs and +); `ui.md` §3.1, §3.3; decision 30
+**Requirements:** Pipeline tab with no toolbox; flow tabs and +.
 
 #### Acceptance Criteria
 
-- [ ] AC-001 `[auto]`: the tab row shows the Pipeline tab first, then one tab per flow in pipeline order, then a + button after the last tab.
-- [ ] AC-002 `[auto]`: the Pipeline tab has no remove control, and no control on the tab row removes it (negative case: the tab is still there after every flow is deleted).
-- [ ] AC-003 `[auto]`: + adds one flow with no blocks, with the id `flow-2`, `flow-3` and so on (the first number not used by another flow's id or name, so that the new name, which starts as the id, does not clash; owner decision, 2026-11-17), which is file-safe and unique in the pipeline (decision 18); the new flow's tab is selected at once.
-- [ ] AC-004 `[auto]`: + is the only control that adds a flow (negative case: no toolbox, arrow panel or box panel on the Pipeline tab adds a flow).
-- [ ] AC-005 `[auto]`: a flow tab shows the flow's name and an empty body, with no placeholder text; the Pipeline tab shows the canvas (owner decision, 2026-11-18: no placeholder).
-- [ ] AC-006 `[device]`: the tab row spans the full width of the available space; it is not centred and has no fixed width.
+- [ ] AC-001 `[auto]`: The tab row shows Pipeline first, then one tab per flow in pipeline order, then the + control after the last flow. The Pipeline tab cannot be removed.
+- [ ] AC-002 `[auto]`: Selecting the Pipeline tab shows the canvas. Selecting a flow tab shows the flow's name and a one-line note that its blocks are built in a later step; it shows no block.
+- [ ] AC-003 `[auto]`: + appends a flow after the last one, with the id `flow-N`, where N is the lowest positive number such that neither `flow-N` is the id nor the name of another flow. The new flow's name is its id, its description and arguments are empty, its body is blank, it has no blocks and no artifacts, and its tab opens.
+- [ ] AC-004 `[auto]`: The Pipeline tab offers no toolbox: no Connection, Approval or Check tool is listed or drawn on it.
 
-### US-002: Flows as boxes and connections as arrows
+### US-002: Flows as boxes and next arrows
 
 **As a** builder user
-**I want to** see every flow as a box and every connection as an arrow between two boxes
+**I want to** see the flows as boxes in one row with an arrow to each next flow
 **So that** I can read the order of the process at a glance.
 
-**Requirements:** `features.md` F-11 (canvas: flows as boxes, connections as arrows); `ui.md` §3.2; decision 24
+**Requirements:** the canvas with flows as boxes and next arrows; arrows carry no label and no gate.
 
 #### Acceptance Criteria
 
-- [ ] AC-007 `[auto]`: each flow is drawn as a box showing its name and its block count (table: 0, 1 and 5 blocks give `0`, `1` and `5`).
-- [ ] AC-008 `[auto]`: each connection of the pipeline is drawn as an arrow from its source flow to its target flow, with its artifact label on the arrow.
-- [ ] AC-009 `[auto]`: boxes are placed automatically, left to right in pipeline order; the same pipeline gives the same positions when laid out twice.
-- [ ] AC-010 `[auto]`: laying out the canvas does not change the pipeline value: the saved config has no position key before or after the layout (negative case for position data).
-- [ ] AC-011 `[device]`: the canvas pans, selects one item at a time and lets a box be dragged; a dragged box keeps its place until the next layout.
-- [ ] AC-012 `[device]`: dragging an arrow's end onto another flow's box repoints that end of the connection; dragging the Connection tool from the toolbox onto a flow and then onto another flow starts a new connection, and the artifact label (AC-013) is asked before it is added (owner decision, 2026-11-17).
+- [ ] AC-005 `[auto]`: The canvas layout is a pure function of the flow list: boxes sit left to right in pipeline order at a fixed pitch, and a dragged box is not part of the layout. The same pipeline gives the same positions.
+- [ ] AC-006 `[device]`: Each flow is drawn as a box in one row, with its name in the box, left to right in pipeline order. The canvas stays inside the content area and scrolls horizontally when the row is wider than the area.
+- [ ] AC-007 `[auto]`: For each flow with a `next`, one arrow runs from that flow to the flow it names. A flow without a `next` has no outgoing arrow. Arrow data holds the source, the target and no label and no gate.
+- [ ] AC-008 `[device]`: Each arrow is drawn from the right connection point of its source box to the left connection point of its target box. No arrow shows a label or a gate.
+- [ ] AC-009 `[auto]`: With no flows, the canvas shows "No flows yet." and no box or arrow.
 
 ### US-003: Connections between flows
 
 **As a** builder user
-**I want to** connect one flow to the next with a labelled arrow, by drag or by button
-**So that** the hand-over between two flows is named.
+**I want to** link one flow to the next by dragging from one box to another
+**So that** the pipeline order is set without a form, and impossible links are refused.
 
-**Requirements:** `ui.md` §3.2 (connection between flows, repoint by drag, button path), §4 (Connection: artifact label required), §5 (every drag has a button path)
+**Requirements:** next set only by a drag; second outgoing arrow and loop refused with the reason; repoint by drag.
 
 #### Acceptance Criteria
 
-- [ ] AC-013 `[auto]`: a new connection needs a non-blank artifact label (table: empty, spaces only and a valid label); a blank label is refused, no connection is added, and the reason is shown next to the field.
-- [ ] AC-014 `[auto]`: the source flow's properties panel has **Connect to next flow**; it lists the other flows, and choosing one and giving a label creates the same connection a drag would create.
-- [ ] AC-015 `[auto]`: repointing an end through the arrow's panel (**Target flow** or **Source flow**) changes only that end; the label and any gate on the arrow stay.
-- [ ] AC-016 `[auto]`: Delete on an arrow asks for confirmation; a confirmed delete removes the connection and its gate, and cancel changes nothing (negative case).
+- [ ] AC-010 `[auto]`: `connectFlows(source, target)` sets the source's `next` to the target's id. It is refused, with the reason and with no change to the pipeline, when: the source or target is not a flow of the pipeline; the target is the source; the source already has a `next` (a second outgoing arrow); or the target reaches the source along `next` links (a loop).
+- [ ] AC-011 `[auto]`: Each refusal of AC-010 gives its own reason text, and the reason for a second outgoing arrow names the source flow. A refused link leaves the pipeline value equal to what it was before the attempt.
+- [ ] AC-012 `[auto]`: A link is accepted only as a drop on another flow's left connection point. A drop anywhere else (on empty canvas, on an arrow, on the same flow's own point, on a box's body) creates no link and changes nothing.
+- [ ] AC-013 `[device]`: A link is made only by dragging from the right connection point of one flow onto the left connection point of another. No button, no form field and no tool creates a link.
+- [ ] AC-014 `[device]`: A refused drag shows its reason in the message area at the top centre of the builder, and no arrow is drawn for it.
+- [ ] AC-015 `[auto]`: Repointing an arrow: dragging its target end onto another flow's left point sets the source's `next` to that flow, under the rules of AC-010. Dragging its source end onto another flow's right point moves the arrow to start from that flow, which must have no `next`; the old source loses its `next`. A refused repoint leaves the pipeline unchanged and gives its reason.
+- [ ] AC-016 `[device]`: An arrow's end moves by a drag onto another flow's connection point. No picker, field or menu repoints an arrow.
+- [ ] AC-017 `[auto]`: Selecting an arrow opens its panel with the source flow's name and the target flow's name, both read-only. The panel has no field that changes them.
+- [ ] AC-018 `[auto]`: Delete connection (on the arrow panel, after a confirmation) sets the source's `next` to none. The target flow and every other field of both flows stay unchanged. Cancel keeps the arrow.
 
-### US-004: Gates on arrows
+### US-004: The flow panel
 
 **As a** builder user
-**I want to** place an approval or a check on an arrow between two flows
-**So that** the process stops for a person, or for a check, before the next flow starts.
+**I want to** edit a flow's name, description, arguments, model, body, artifacts, rule tags and approval in one panel
+**So that** each flow is complete before its blocks are built.
 
-**Requirements:** `features.md` F-11 (approval and check on the arrows, one gate per arrow); `ui.md` §3.2, §4 (Approval and Check); `architecture.md` §9 (gate types), decision 33 (gate types and their properties)
+**Requirements:** flow panel (name, description, arguments, model, body, artifacts, Human approval); rule tags; required name and body; checks are not on the panel.
 
 #### Acceptance Criteria
 
-- [ ] AC-017 `[auto]`: **Add approval** on an arrow adds an approval with a description; a blank description is refused with the reason, and no gate is added.
-- [ ] AC-018 `[auto]`: **Add check** on an arrow adds a check with a description and a type of `checks` or `diff size`. Table: `checks` without a threshold is valid; `checks` with a threshold is refused; `diff size` with a positive whole-number threshold is valid; `diff size` with a missing, blank, zero, negative or fractional threshold is refused; each refusal gives its reason and adds no gate.
-- [ ] AC-019 `[auto]`: an arrow holds at most one gate: adding a second gate (approval or check) to an arrow that already has one is refused with the reason, and the existing gate stays (negative case).
-- [ ] AC-020 `[auto]`: a check on an arrow has no true or false output on this tab: its properties show no output choice, and a failed check stops the process.
-- [ ] AC-021 `[auto]`: **Remove gate** in the arrow's panel removes only the gate; the connection stays.
-- [ ] AC-022 `[device]`: dragging an Approval or a Check from the toolbox onto an arrow adds that gate to the arrow; dropping it on a box or on empty canvas adds nothing.
+- [ ] AC-019 `[auto]`: Selecting a flow box opens its panel with these fields in this order: name, description, arguments, model, body, artifacts, rule tags, Human approval, and a Delete flow control. The panel has no checks field and no next-flow field.
+- [ ] AC-020 `[auto]`: Name is required. A blank name (empty after trimming spaces) is refused with the parser's reason. A name equal to the name of another flow is refused with the parser's reason. A refused value keeps the saved name and shows its reason beneath the field.
+- [ ] AC-021 `[auto]`: Description is optional free text of at most 1000 characters. A longer value is refused with the reason, and the saved value stays.
+- [ ] AC-022 `[auto]`: Body is required: a blank body is refused with the reason. It is at most 1000 characters, counted in code points, and a counter shows the count of the form "n / 1000". A longer body is refused with the reason and the saved body stays.
+- [ ] AC-023 `[auto]`: Model is one of `haiku`, `sonnet`, `opus` or `inherit`, or is unset. Any other value is refused and not stored.
+- [ ] AC-024 `[auto]`: Arguments are rows with an id, a required flag and a hint. Add appends a row. Each row can be edited and removed on its own. An id must be file-safe and unique within the flow; a hint is at most 100 characters. A refused edit keeps the saved row and shows its reason beneath the row.
+- [ ] AC-025 `[auto]`: Artifacts are a list. Add appends an artifact with a `label` and a `template`. A label is required, one line and not blank. A template may be empty or span several lines, and is at most 5000 characters. Each artifact is edited and removed on its own row. A refused edit keeps the saved values and shows the reason beneath the field.
+- [ ] AC-026 `[auto]`: Rule tags are rows with a dropdown that offers only the rules of the Technical details step. Add appends a row; a row is removed on its own. A rule tag that is not in that list is refused with the reason and not stored.
+- [ ] AC-027 `[auto]`: Human approval is a checkbox. Ticking or unticking it changes only the flow's `approval` value.
+- [ ] AC-028 `[auto]`: Every field edit goes through the parser's field rules. A refused value never changes the pipeline value, and the refusal text is the parser's message for that field.
 
-### US-005: Toolbox and properties panels
+### US-005: Deleting a flow
 
 **As a** builder user
-**I want to** see the tools I can use and the properties of what I have selected
-**So that** I can change the pipeline, a flow or a connection without leaving the tab.
+**I want to** delete a flow I no longer need, after a confirmation
+**So that** a mistake cannot remove a flow by one click.
 
-**Requirements:** `features.md` F-11 (the Pipeline toolbox, the properties panel for the pipeline including its arguments); `ui.md` §3.2, §3.4, §4 (Pipeline and Flow properties); decision 26 (pipeline model, tools and body)
+**Requirements:** Delete flow with confirmation removes the flow, its artifacts, arguments, approval, rule tags and `next`; a flow that pointed to it loses that `next`.
 
 #### Acceptance Criteria
 
-- [ ] AC-023 `[auto]`: the Pipeline toolbox holds Connection, Approval and Check in that order; it holds no Start and no End (negative case).
-- [ ] AC-024 `[device]`: at the reference layout 1280 × 800 the toolbox is on the left at a fixed width, the canvas takes the centre, and the properties panel is on the right at a fixed width.
-- [ ] AC-025 `[auto]`: with nothing selected, the properties panel shows the pipeline's name, description, arguments, model, tools, rule tags and body; with a flow selected, its name, description, arguments, model and body; with an arrow selected, its artifact label and its gate when it has one.
-- [ ] AC-026 `[auto]`: each panel shows the file its item generates: the pipeline `.claude/commands/pipeline.md`, a flow `.claude/commands/<flow id>.md`. Note (2026-11-17): a flow's generated file is named from its id, not its name, as decision 18 states; the owner accepted the id in the approved plan (open point 1).
-- [ ] AC-027 `[auto]`: an edit the parser accepts updates the pipeline value at once and the panel shows the new value; an edit the parser refuses keeps the previous value and shows the parser's message next to the field.
-- [ ] AC-028 `[auto]`: a body (pipeline or flow) is at most 1000 characters, counted in code points: 1000 is accepted, 1001 is refused, and one emoji counts as one character (owner decision, 2026-11-17: the limit is written 1000, as the parser's message states it).
-- [ ] AC-029 `[auto]`: a flow's name is free text that is non-blank and unique among the flows' names; a blank or duplicate name is refused with the reason, and the previous name stays (table of valid and refused names). The flow's id, which names its generated file, is file-safe (lowercase letters, digits and hyphens, starting with a letter, as decision 18 states) and is set when the flow is created; it is not changed by the Name field (owner decision, 2026-11-17).
-- [ ] AC-030 `[auto]`: only one item is selected at a time; selecting another item moves the selection, and the panel shows that item (negative case: no two items selected).
+- [ ] AC-029 `[auto]`: Delete flow shows the confirmation "Are you sure you want to delete this flow?" and changes nothing until it is confirmed. Cancel keeps the flow and its selection.
+- [ ] AC-030 `[auto]`: On confirmation the flow is removed with its artifacts, arguments, approval, rule tags, blocks and its own `next`. Any flow whose `next` named it loses that `next`. The other flows keep all their fields.
+- [ ] AC-031 `[auto]`: After a confirmed delete, the selection is cleared and the open tab moves to the Pipeline tab.
+- [ ] AC-032 `[auto]`: The last flow can be deleted. The pipeline then has no flows, the canvas shows "No flows yet." (AC-009), and the structure marks report the empty pipeline.
 
-### US-006: Deleting a flow
+### US-006: Structure marks and blockers
 
 **As a** builder user
-**I want to** delete a flow from the Pipeline tab, with a clear warning about what goes with it
-**So that** I never remove a connection or gate by accident.
+**I want to** see what the structural checks find, beside the box or arrow it concerns
+**So that** I can fix a flow before the Analyze step.
 
-**Requirements:** `ui.md` §3.4 (Delete for a flow, with confirmation naming the connections it removes), §5 (Delete always asks for confirmation); decision 34 (no switch-off)
+**Requirements:** structure marks from `analyzeStructure`; blocker shown as a red box and a top notification; warnings beside their item; items that are not drawn are listed.
 
 #### Acceptance Criteria
 
-- [ ] AC-031 `[auto]`: Delete in a flow's footer asks for confirmation; the confirmation names every connection the flow has, in or out, and the gate on each; cancel changes nothing (negative case).
-- [ ] AC-032 `[auto]`: a confirmed delete removes the flow's tab and box, its connections and their gates; no other flow, connection or gate changes.
-- [ ] AC-033 `[auto]`: deleting the last flow is allowed; the structure marks then show that the pipeline has no flow, and no edit is blocked by it.
-- [ ] AC-034 `[auto]`: a flow and its properties have no switch-off control (negative case, decision 34).
+- [ ] AC-033 `[auto]`: After every change the builder runs the pure structural checks of core (`analyzeStructure`) on the pipeline and maps each finding to a flow box, to an arrow, or to none. The builder adds no wording of its own: each shown message is the analyzer's message.
+- [ ] AC-034 `[auto]`: A flow with a blocker has its box marked as a blocker. A flow with no incoming and no outgoing `next` in a pipeline of more than one flow is a blocker, marked on its box (`pipeline-schema.md` §3, decision 39).
+- [ ] AC-035 `[device]`: A blocker shows a red flow box border and its message as a notification at the top centre of the builder, in the blocker colour from the theme. A warning shows beside the box or arrow it belongs to.
+- [ ] AC-036 `[auto]`: A finding that belongs to no drawn item (for example a block inside a flow, or a flow missing its body) is listed under the canvas in a section named "Not on a drawn item", with its path and message.
+- [ ] AC-037 `[auto]`: Blockers disable no control. Editing, Delete flow, Delete connection, + and the drags stay available while a blocker exists.
+- [ ] AC-038 `[auto]`: A newly added flow (AC-003) shows its marks at once: a blank body, no Start and no End, each listed under "Not on a drawn item" or on its box, as the analyzer reports them.
 
-### US-007: Structure marks
+### US-007: Builder state and the default pipeline
 
 **As a** builder user
-**I want to** see the structural problems next to the items they name, as I edit
-**So that** I can fix a broken process before I run the analysis.
+**I want to** start from the default pipeline and keep my changes while I work on step 3
+**So that** the builder always shows the pipeline the generator will use.
 
-**Requirements:** `features.md` F-11 (structure marks next to the items they name); `ui.md` §3.5; `architecture.md` §12 (structural rules), decision 24 (marks reuse the analyzer's rules)
-
-#### Acceptance Criteria
-
-- [ ] AC-035 `[auto]`: a finding from `analyzeStructure` that names a flow, a connection or a gate is shown beside that item, in its severity colour (blocker red, warning amber, info grey) with its message.
-- [ ] AC-036 `[auto]`: a finding that names an item not drawn on this tab (a block, or the pipeline as a whole) is listed under the heading "Not on a drawn item", with its message and its path.
-- [ ] AC-037 `[auto]`: the marks are updated after every edit; a blocker never stops an edit (negative case: Delete and Add stay enabled while a blocker shows).
-- [ ] AC-038 `[auto]`: brief problems (name, idea, stack and rules) are not shown on the Pipeline tab.
-- [ ] AC-039 `[auto]`: the marks are the findings of `analyzeStructure` for the same config, unchanged; the builder adds no rule of its own (test: a fixed config gives the same findings from both).
-
-### US-008: Builder state and the default pipeline
-
-**As a** builder user
-**I want to** start from the default process and have my edits kept while I work
-**So that** I can change the default instead of building one from nothing.
-
-**Requirements:** `architecture.md` decision 24 (in-memory view-model, reported to the host), decision 13 (no storage); `ui.md` §1.1 (New project starts over, F-08)
+**Requirements:** the wizard holds the pipeline value; the builder makes no network request.
 
 #### Acceptance Criteria
 
-- [ ] AC-040 `[auto]`: the pipeline is held in memory and reported to the wizard after each change; the builder makes no network call and writes no storage (negative case: nothing is written to `localStorage`, `sessionStorage` or IndexedDB).
-- [ ] AC-041 `[auto]`: when the wizard opens, the Pipeline tab shows the default pipeline: its flows as tabs in the default order.
-- [ ] AC-042 `[auto]`: New project restarts the pipeline at the default pipeline, and every edit is discarded.
+- [ ] AC-039 `[auto]`: Step 3 starts with the default pipeline from core in the wizard state. Each builder change replaces the pipeline value in the wizard state, and nothing else in the wizard changes.
+- [ ] AC-040 `[auto]`: New project resets the pipeline value to a fresh copy of the default pipeline, and two wizard states never share one pipeline object.
+- [ ] AC-041 `[auto]`: The builder code makes no network request and writes nothing to storage; the privacy scan of the web app covers the builder's files.
 
 ---
 
 ## Requirement Coverage
 
-| Requirement | Covered by |
+| Requirement (`features.md` F-11 scope or owner decision) | Covered by |
 |---|---|
-| The Pipeline tab, which cannot be removed (`features.md` F-11) | AC-001, AC-002 |
-| One tab per flow, and a + button after the last tab that adds a flow | AC-001, AC-003, AC-004 |
-| The canvas shows flows as boxes | AC-007, AC-009, AC-011 |
-| Connections shown as arrows | AC-008, AC-012, AC-013, AC-014, AC-015, AC-016 |
-| Approval and check on the arrows, one gate per arrow | AC-017, AC-018, AC-019, AC-020, AC-021, AC-022 |
-| The properties panel for the pipeline, including its arguments | AC-025, AC-026, AC-027 |
-| Structure marks next to the items they name | AC-035, AC-036, AC-037, AC-038, AC-039 |
-| The Pipeline toolbox (Connection, Approval, Check) | AC-023, AC-024 |
-| No Start or End on this tab | AC-023 |
-| The flow tab is a placeholder until F-12 (decision for this specification) | AC-005 |
-| Flow properties edited from its box (owner decision) | AC-025, AC-027, AC-028, AC-029 |
-| Delete a flow from the Pipeline tab (owner decision) | AC-031, AC-032, AC-033, AC-034 |
-| Box layout automatic, no saved positions (owner decision) | AC-009, AC-010, AC-011 |
-| The default pipeline is the start (`ui.md` §3, decision 24) | AC-041, AC-042, AC-040 |
-
----
-
-## Amendment 2026-11-17 (owner, after Verify): connections carry artifacts and checks; no toolbox
-
-The owner asks for these changes before implementation. They supersede the criteria named below; the superseded criteria stay in the text for the record and are not tested. The UX screens are redrawn from this amendment before the plan changes.
-
-- **Connections have no label.** The arrow shows no artifact label. Artifacts belong to the connection and are listed in its properties.
-- **Artifacts (replace AC-013 and the label parts of AC-014 to AC-016).** A connection holds any number of artifacts. Each artifact has a `label` (free text, one line, required, non-blank) and a `template` (free text, several lines, may be empty). Add artifact, edit, and remove are in the connection's properties. A refused value keeps the saved value and shows its reason beneath the field.
-- **Human approval is a checkbox (replaces AC-017 and the approval parts of AC-019 and AC-021).** The connection has a "Human approval" checkbox. Ticked, the process stops for a person at this connection; unticked, it does not. No description is needed.
-- **Checks are added from the properties (replaces AC-018, AC-019 and AC-021).** A connection can hold any number of checks. "Add check" in the connection's properties adds one. Each check has a description (required, non-blank), a type (`checks` or `diff size`) and, for `diff size` only, a positive whole-number threshold (AC-018's table still applies to a check). A check is removed from its own row. Checks have no true or false output (AC-020 still applies).
-- **No toolbox on the Pipeline tab (replaces AC-023 and the drop parts of AC-012 and AC-022).** The Connection, Approval and Check tools are removed from the Pipeline tab. A connection is still made by dragging from one flow's connection point to another's, or by the button "Connect to next flow" in the source flow's properties.
-- **Unchanged:** the one outgoing arrow per flow (AC-014 refusal), the no-self-connection rule, repointing an arrow end (AC-015 without its label), delete of a connection (AC-016 without its label and gate), the flow properties and delete (AC-025 for flows, AC-031 to AC-034), the structure marks (AC-035 to AC-039), the default pipeline (AC-040 to AC-042).
-
-New criteria for the amendment:
-
-- AC-043 `[auto]`: a connection holds any number of artifacts, each with a non-blank one-line label and a template that may be empty and may span lines; adding an artifact appends it; a blank label is refused with the reason and the artifact is not added.
-- AC-044 `[auto]`: an artifact can be edited and removed; a refused edit keeps the saved values and shows the reason beneath the field.
-- AC-045 `[auto]`: the connection's "Human approval" checkbox is on or off; switching it on and off changes only that flag; the arrow itself shows no label.
-- AC-046 `[auto]`: "Add check" adds one check to the connection; a connection holds any number of checks; each check is removed on its own row; an invalid check (blank description, a threshold on `checks`, a missing or non-positive threshold on `diff size`) is refused with the reason and not added.
-- AC-047 `[auto]`: the Pipeline tab has no toolbox; no Connection, Approval or Check tool is offered on the tab.
-- AC-048 `[device]`: the arrows show no label; the connection's properties show its artifacts, checks and approval checkbox (checked on screen at Verify).
-- AC-049 `[auto]`: a drag from one flow's connection point, or a link set by any other means, that would close a loop is refused with the reason, and nothing changes (owner decision, 2026-11-18: loops are forbidden).
-- AC-050 `[auto]`: a rule tag can only be one of the rules of the previous step (the Technical details list); the rule-tag dropdown offers only those rules, and a rule tag that is not in that list is refused with the reason and not added (owner decision, 2026-11-18).
-
----
-
-## Decisions 2026-11-18 (owner, on the redrawn screens)
-
-- **Arrows show no label.** The artifact label is not on the arrow (AC-048).
-- **Artifacts, checks and the approval flag belong to the source flow's connection.** They are edited in that connection's properties; the arrow itself carries nothing.
-- **Linear flow.** A flow with an outgoing arrow never offers a second one. "Connect to next flow" is not offered on such a flow, so the refusal of AC-014 is not reachable from the UI.
-- **No loops.** A drag or a "Connect to next flow" that would close a loop is refused, with the reason, and nothing is added. The structural rule (architecture §12) still flags any loop that reaches the file, as a safety net.
-- **Repoint by drag only.** The arrow's end is moved by dragging it (AC-015 as drawn); no picker in the panel.
-- **Empty artifacts.** A new connection's artifact list is empty; no empty-state line is drawn.
-- **Model.** Open: the stored model keeps one label and one gate per connection (`architecture.md` §6 decision 33). Multiple artifacts and multiple checks need a change to the stored model. Not decided.
-
----
-
-## Decision 2026-11-18 (owner): artifacts, checks and approval belong to the flow
-
-- **A connection only points one flow to another.** It carries no artifacts, no checks and no approval. Its properties show the source and target only (already drawn); it has no fields to edit.
-- **A flow has outcome artifacts (multiple).** Each artifact has a `label` (one line, required, non-blank) and a `template` (several lines, may be empty). The flow's properties list them: add, edit and remove. This replaces the artifacts of the connection in AC-043 and AC-044.
-- **A flow has checks (multiple).** "Add check" in the flow's properties adds one check, as in AC-046; each check is removed on its own row.
-- **A flow has a "Human approval" checkbox.** Owner assumption, to be confirmed on the screens: the approval moves with the checks and sits on the flow, as AC-045 says for the connection.
-- **Model (decision needed to implement).** The stored model changes: a flow holds `artifacts`, `checks` and `approval`; a connection holds only its target. This supersedes `architecture.md` §6 decision 33 for the connection's label and gate. Recorded for approval before any code.
-
----
-
-## Decision 2026-11-18 (owner, second): a flow is one JSON object; there is no connection object
-
-- **A flow holds:** its id, name, description, arguments, model, body, blocks, its outcome `artifacts` (each with `label` and `template`), its `checks`, its `approval` (on or off) and its `next` (the id of the next flow, or none).
-- **There is no connection object.** The arrow is drawn from a flow's `next`. "Connect to next flow" sets `next`; the connection points set `next`; repointing changes `next`.
-- **Human approval stops the process at the end of its flow.**
-- **Delete removes the whole flow object**: its artifacts, checks, approval and its `next`. Flows pointing to it lose that `next`.
-- **Keep** the scroll in the flow panel; **keep** "No checks yet." for checks.
-- **Template help text:** open (the owner asked for the wording).
-- **Not approved yet:** the screens wait for a visual style change; they are not committed.
-- **Model:** this replaces `architecture.md` §6 decision 33 (connections as `connectedTo` with a label and gate). Needs an architecture decision before code.
-
----
-
-## Decision 2026-11-18c (owner): a check is free text
-
-- **A check is free text only.** It has no type (`checks` or `diff size`) and no threshold. The check's text says what must pass, and a check is removed on its own row. This supersedes the type and threshold rules of AC-018 and the check's fields in AC-046 (the blank-description refusal remains: a check's text is required, non-blank).
-- **Human approval** remains the flow's checkbox, as in the 2026-11-18 decision.
-
----
-
-## Decision 2026-11-18d (owner): the next flow is set only by drag
-
-- **No next-flow field on the flow panel.** The flow's next flow is set only by dragging a connection point of one flow onto another flow (AC-012, connection points). The "Connect to next flow" button path of AC-014 is removed; the Connection tool drag is removed too (the decision of 2026-11-18 already removed the toolbox).
-- **Read-only text of the next flow** may stay only where the flow is shown as a link (for example the "Next flow" line on a flow that already has one), not as an editable field. Screen 03 drops it.
-
----
-
-## Decision 2026-11-18e (owner): required attributes of a flow; a flow must be connected
-
-- **A flow's required attributes are its name and its body.** Description and arguments are optional.
-- **A flow must be connected**: it has an incoming or an outgoing link to another flow. The only exception is a pipeline with one flow.
-- **Structure marks (AC-035 to AC-037)**: the blocker for a flow with no link is shown on the flow's box when the pipeline has more than one flow. The "no End block" example of screen 06 is no longer a use case and the screen is removed.
-
----
-
-## Decision 2026-11-18f (owner): how a blocker is shown
-
-- **A flow with a blocker is highlighted in red** (its box border).
-- **The blocker's message is shown as a notification at the top centre of the builder** (above the canvas, in the content area), with its severity colour; it is not a callout under the box. This replaces the placement of AC-035 (beside the item) for blockers; warnings keep their placement beside the item.
-
-## UX and model decisions 2026-11-18 (consolidated)
-
-This section lists the owner's decisions of 2026-11-17 and 2026-11-18 in one place. The sections above hold each decision in full: the amendment of 2026-11-17, the decisions of 2026-11-18 (and their letters a to f) and the criteria. The criteria are not renumbered. Where a criterion still names the connection's artifacts, checks or approval, the decision below applies to the flow.
-
-1. **Flow object.** A flow is one JSON object with no connection object. It holds id, name, description (optional), arguments (optional), model, body (required), blocks, outcome artifacts, checks, approval and next (the id of the next flow, optional). Pointers: "Decision 2026-11-18 (owner, second)"; `architecture.md` §6 decision 38. Decision 33 is superseded for the connection.
-2. **Linear pipeline and no loops.** A flow has at most one next. A second outgoing arrow is refused with the reason. A link that would close a loop (including a flow to itself) is refused with the reason; nothing is drawn. Pointers: "Decisions 2026-11-18" (linear flow, no loops); AC-014 and AC-035 as amended by the decisions above (AC-035 still needs rewording, see the screens' open points). `architecture.md` §6 decision 38.
-3. **Required attributes and connection.** A flow requires a name and a body; description and arguments are optional. A flow must be connected (an incoming or an outgoing next) unless the pipeline has one flow. Pointer: "Decision 2026-11-18e (owner)"; `architecture.md` §6 decision 39.
-4. **Arrows, panels and no label.** Arrows show no label. Artifacts, checks and approval are in the flow's panel; the connection's panel shows only the read-only source and target. Pointers: AC-045, AC-048; "Decision 2026-11-18 (owner): artifacts, checks and approval belong to the flow".
-5. **Next flow only by drag.** A next is set only by dragging the right connection point of a flow onto the left connection point of another flow. There is no "Connect to next flow" button, no next-flow field and no Connection tool. Pointer: "Decision 2026-11-18d (owner)"; AC-012 and AC-014 as amended.
-6. **No toolbox, no gates on arrows.** The Pipeline tab has no toolbox. Gates are not dropped on arrows. Pointer: AC-047; the amendment of 2026-11-17.
-7. **Repointing.** An arrow's end is moved by dragging it onto another flow. There is no picker. Pointer: AC-015 as amended.
-8. **Delete flow.** Delete flow removes the whole flow object: its artifacts, checks, approval and next. A flow that pointed to it loses that next. The confirmation asks only "Are you sure you want to delete this flow?". Pointers: AC-031, AC-032.
-9. **Errors.** A flow with an error is highlighted red (border and light red background), and the error message is a notification at the top centre of the builder. The callouts and the "Not on a drawn item" section are for items that are not drawn (blocks inside a flow), and stay as a list under the canvas. Pointer: "Decision 2026-11-18f (owner)"; AC-035 to AC-037.
-10. **Layout.** The look follows Material Kit React (Devias IO, MIT licence, credited in `ui.md` §3.0 and `architecture.md` §5): left panel with the logo, New project, a vertical stepper and Prev and Next; a grey content area (`#F0F4F8`) with white cards; the footer note and caption inside the grey area, 24 px below the cards; an 8 px grid; Inter; primary `#635BFF`; 8 px radius for controls and 12 px for cards. Properties panels scroll in the implementation. Pointer: `spec/design/features/F-11-pipeline-builder/screens.md` (Visual style).
-11. **Arguments and rule tags.** Arguments are rows with a text field and a minus button, with **+** in the title row. Rule tags are rows with a dropdown listing the rules of the previous step (Technical details), a minus button, and **+** in the title row. Pointers: AC-027 and the argument rows of screen 07.
-12. **Template help text.** "The template is the starting structure of this artifact: the headings or fields its file must have. The agent fills them in. May be empty." Pointer: AC-043 (the template may be empty).
-13. **Body limit.** 1000 characters, counted in code points. The limit is written 1000 everywhere, the counter included. Pointers: AC-028; `ui.md` §6.
-14. **Checks.** A check is free text only, required and non-blank. It has no type and no threshold. "No checks yet." is shown when a flow has none. Pointers: "Decision 2026-11-18c (owner)"; AC-018 and AC-046 as amended; AC-020 (no true or false output).
-15. **Flow ids.** A new flow gets `flow-N`, N the first number not used as another flow's id or name; its name starts as its id. The id is file-safe, fixed at creation and names the generated file. Pointers: AC-029, AC-003.
-16. **Screens.** The screens are numbered 01 to 10, as in `screens.md`. The earlier 04, 06, 12 and 14 are removed.
-
-Open for the owner, from the screens (`screens.md`, open points): the tab after + on AC-003, and the input height in the flow panel. Item 13 is decided.
-
----
-
-## Decision 2026-11-18g (owner): loops, connection delete, flow delete, failed checks, counter, reachability
-
-- **Loops are forbidden.** A link that would close a loop is refused on the canvas, with the reason (screen 08).
-- **Delete connection removes only the link.** It sets the source flow's `next` to none. The target flow is not deleted, and its own fields stay.
-- **Delete flow is done from the flow's properties panel**: select the flow, then Delete flow, with the confirmation.
-- **Blockers are shown as decided on 2026-11-18f**: the flow box is red, and the message is a notification at the top centre of the builder. No canvas callouts.
-- **The body limit is written 1000** everywhere on the screens (01 and 07 included).
-- **A failed check stops the flow and asks the user**, as the commit size check does in the generated process. A check is free text for the user; the generated command asks the person when it fails.
-- **Reachability**: the first flow is the one no other flow's `next` points to. Confirmed.
+| Pipeline tab with no toolbox | AC-004 |
+| Flow tabs and + after the last | AC-001, AC-002, AC-003 |
+| Canvas with flows as boxes and next arrows | AC-005, AC-006, AC-007, AC-008, AC-009 |
+| Next set only by dragging the right point onto the left point | AC-010, AC-012, AC-013, AC-015, AC-016 |
+| A second outgoing arrow and a loop refused with the reason | AC-010, AC-011, AC-014 |
+| Arrows carry no label and no gate | AC-007, AC-008 |
+| Selecting an arrow shows source and target, read-only | AC-017 |
+| Delete connection removes only the link (owner decision 2026-11-18g; to confirm) | AC-018 |
+| Flow panel: name, description, arguments, model, body, artifacts | AC-019, AC-020, AC-021, AC-022, AC-023, AC-024, AC-025, AC-028 |
+| Rule tags on the flow panel (owner decision 2026-11-18, item 11) | AC-026 |
+| Human approval checkbox | AC-027 |
+| Checks on the flow panel (scope item, removed by the final schema) | Out of Scope; AC-019 (no checks field) |
+| Delete flow with confirmation | AC-029, AC-030, AC-031, AC-032 |
+| Structure marks from the analyzer; blocker red and notified; warnings beside items | AC-033, AC-034, AC-035, AC-036, AC-037, AC-038 |
+| Builder state and the default pipeline | AC-039, AC-040, AC-041 |
+| Required name and body; flow connected (decisions 39 and `pipeline-schema.md` §3) | AC-020, AC-022, AC-034 |

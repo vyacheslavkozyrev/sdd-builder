@@ -74,3 +74,50 @@ describe('F-10 AC-024 the technical details step is in the privacy scan', () => 
     },
   );
 });
+
+// The builder makes no network request and writes nothing to storage (F-11 AC-041). Its files are
+// scanned for every network call and every storage or console use.
+const BUILDER_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'builder');
+const BUILDER_FORBIDDEN =
+  /\b(fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|localStorage|sessionStorage|indexedDB|cookie|console)\b/g;
+
+function findBuilderForbidden(source: string): string[] {
+  return [...source.matchAll(BUILDER_FORBIDDEN)].map((match) => match[0]);
+}
+
+function builderSourceFiles(): string[] {
+  return readdirSync(BUILDER_DIR)
+    .filter((name) => name.endsWith('.ts') || name.endsWith('.tsx'))
+    .map((name) => join(BUILDER_DIR, name));
+}
+
+describe('F-11 AC-041 the builder makes no network request and writes nothing to storage', () => {
+  it('F-11 AC-041 src/builder has at least one source file to scan', () => {
+    expect(builderSourceFiles().length).toBeGreaterThan(0);
+  });
+
+  for (const file of builderSourceFiles()) {
+    it(`F-11 AC-041 ${file.slice(BUILDER_DIR.length + 1)} has no network, storage or console reference`, () => {
+      expect(findBuilderForbidden(readFileSync(file, 'utf8'))).toEqual([]);
+    });
+  }
+
+  it('F-11 AC-041 the scanner flags each network and storage name (negative case: sample lines)', () => {
+    expect(findBuilderForbidden('await fetch("/api/analyze")')).toEqual(['fetch']);
+    expect(findBuilderForbidden('const xhr = new XMLHttpRequest();')).toEqual(['XMLHttpRequest']);
+    expect(findBuilderForbidden('new WebSocket(url)')).toEqual(['WebSocket']);
+    expect(findBuilderForbidden('navigator.sendBeacon(url, body)')).toEqual(['sendBeacon']);
+    expect(findBuilderForbidden("localStorage.setItem('pipeline', json)")).toEqual(['localStorage']);
+    expect(findBuilderForbidden('document.cookie = "a=1"')).toEqual(['cookie']);
+  });
+
+  it('F-11 AC-041 the scanner does not flag unrelated names (negative case)', () => {
+    expect(findBuilderForbidden('const prefetchList = []; const fetchCount = 1;')).toEqual([]);
+  });
+
+  it('F-11 AC-041 the scan covers the builder files pipelineFields.ts and model.ts', () => {
+    const scanned = builderSourceFiles().map((file) => file.slice(BUILDER_DIR.length + 1));
+    expect(scanned).toContain('pipelineFields.ts');
+    expect(scanned).toContain('model.ts');
+  });
+});

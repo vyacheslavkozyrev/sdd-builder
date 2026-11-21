@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { theme } from '../src/theme.js';
 import { DESCRIPTION_LABEL, NAME_LABEL, RuleBlock, duplicateMessage } from '../src/wizard/RuleBlock.js';
 import type { RulePatch, RuleValues, WizardState } from '../src/wizard/state.js';
-import { wizardReducer } from '../src/wizard/state.js';
+import { defaultPipelineValue, wizardReducer } from '../src/wizard/state.js';
 
 const EMOJI = '\u{1F600}'; // one code point, two UTF-16 units
 
@@ -82,6 +82,7 @@ function nextStepWith(rules: readonly RuleValues[]): number {
       stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
       architecture: '',
       rules,
+      pipeline: defaultPipelineValue(),
     },
   };
   return wizardReducer(state, { type: 'next' }).step;

@@ -14,7 +14,7 @@ import {
   type RuleActions,
 } from '../src/wizard/RuleList.js';
 import type { RuleValues, WizardState, WizardValues } from '../src/wizard/state.js';
-import { createInitialWizardState, wizardReducer } from '../src/wizard/state.js';
+import { createInitialWizardState, defaultPipelineValue, wizardReducer } from '../src/wizard/state.js';
 
 const BLANK_VALUES: WizardValues = {
   name: '',
@@ -22,6 +22,7 @@ const BLANK_VALUES: WizardValues = {
   stack: { language: '', framework: '', platform: '', buildTool: '', testFramework: '' },
   architecture: '',
   rules: [],
+  pipeline: defaultPipelineValue(),
 };
 
 function rulesOf(count: number, name = ''): RuleValues[] {

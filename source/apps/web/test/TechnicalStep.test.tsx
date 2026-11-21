@@ -6,12 +6,19 @@ import { theme } from '../src/theme.js';
 import type { RuleActions } from '../src/wizard/RuleList.js';
 import { ARCHITECTURE_HELP_LINE, STACK_HELP_LINES, TechnicalStep } from '../src/wizard/TechnicalStep.js';
 import type { ProjectValuesPatch, StackValues, WizardState, WizardValues } from '../src/wizard/state.js';
-import { wizardReducer } from '../src/wizard/state.js';
+import { defaultPipelineValue, wizardReducer } from '../src/wizard/state.js';
 
 const EMOJI = '\u{1F600}'; // one code point, two UTF-16 units
 
 const BLANK_STACK: StackValues = { language: '', framework: '', platform: '', buildTool: '', testFramework: '' };
-const BLANK: WizardValues = { name: '', idea: '', stack: BLANK_STACK, architecture: '', rules: [] };
+const BLANK: WizardValues = {
+  name: '',
+  idea: '',
+  stack: BLANK_STACK,
+  architecture: '',
+  rules: [],
+  pipeline: defaultPipelineValue(),
+};
 
 function withStack(stack: Partial<StackValues>): WizardValues {
   return { ...BLANK, stack: { ...BLANK_STACK, ...stack } };

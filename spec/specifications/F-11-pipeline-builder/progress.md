@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-20 | 13 of 23 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 14 of 23 tasks committed |
 | Verify   | ⏳ Pending |  | |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T011 | Structure marks: analyzer findings placed on a flow box, an arrow or none; blocked flows; no disabled controls; new-flow marks (`source/apps/web/src/builder/marks.ts`) | 0 blockers; 2 warnings fixed (AC-038 missing End not tested; blocker kinds not proven on the box); 1 suggestion fixed (unused parameter) | task check passed: api 45, web 726, core 1211 |
 | T012 | Selection and panel choice: `panelFor` (pipeline, flow, arrow); after a confirmed delete the selection is the pipeline and the tab is Pipeline (`source/apps/web/src/builder/panel.ts`) | 0 blockers; 2 warnings fixed (delete rule not conditional; vacuous one-item tests); 1 suggestion fixed (type import) | task check passed: api 45, web 739, core 1211 |
 | T013 | Pipeline-level fields through the parser: name, description, model, tools, rule tags, body, arguments rows; `fields.ts` refactored to share the holder helpers with the flow functions (`pipelineFields.ts`, `fields.ts`) | 0 blockers; 1 warning fixed (id-clash test did not prove the reason); 6 suggestions fixed. Size: 831 changed lines, accepted by the user as a one-off exception to the 400-line guard | task check passed: api 45, web 776, core 1211 |
+| T014 | Wizard state: `defaultPipelineValue()` (a checked copy of the default) in step 3 and on New project; `set-pipeline` replaces only the pipeline; AC-041 scan of the builder files (`source/apps/web/src/wizard/state.ts`, test helpers) | 0 blockers; 1 warning fixed (a negative test that could not fail); 1 suggestion fixed (test name). Plan file list corrected (wizardValues.ts is a test helper). | task check passed: api 45, web 803, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 
@@ -48,6 +49,8 @@ _The records of the earlier build (T001 to T020 of the connection model, its Def
 - T007 `source/packages/core/src/pipeline/check/ids.ts` (AC-024 wording): AC-024 and AC-043 say an argument id is unique within its flow or pipeline; decision 18 and the parser make it unique project-wide. The builder follows the parser (kept on review). The stories wording needs an amendment by the owner; not a code change.
 
 - T011 `source/apps/web/src/builder/marks.ts` (AC-034, AC-035, AC-036): a flow's body or name blocker marks its box red (AC-034) and its message is listed under "Not on a drawn item" (AC-036 names a flow missing its body). AC-035 says a blocker's message shows as a notification at the top centre. Read together, the body and name blocker messages are not shown as a notification. Kept as the implementer decided (AC-036 is the more specific rule); the owner should confirm the wording in stories.md. Not a code change in T011.
+
+- T014 `source/apps/web/src/wizard/state.ts` (AC-040 wording): AC-040 says two wizard states never share one pipeline object. A fresh state and a restart get fresh copies (tested). The states that follow a builder change or a step move share the pipeline object, as the other values do; the reducer never mutates it. Kept as built. The owner should confirm the wording in stories.md. Not a code change in T014.
 
 _Otherwise none for the 2026-11-20 build._
 

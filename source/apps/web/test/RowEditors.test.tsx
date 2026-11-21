@@ -461,6 +461,7 @@ describe('F-11 AC-024 AC-026 the flow panel shows the list editors in its slots'
         rules={RULES}
         flow={pipelineState.flows[0] as Flow}
         onChange={vi.fn()}
+        onDelete={vi.fn()}
       />,
     );
     const text = document.body.textContent ?? '';

@@ -30,9 +30,6 @@ export interface RuleListStyles {
 // The limit note sits left of the plus button: 300 px wide, 32 px high, two lines of 16 px.
 const LIMIT_NOTE_WIDTH = 300;
 const LIMIT_NOTE_HEIGHT = 32;
-const DIALOG_WIDTH = 400;
-const DIALOG_BUTTON_WIDTH = 120;
-const DIALOG_BUTTON_HEIGHT = 40;
 
 export function getRuleListStyles(theme: Theme): RuleListStyles {
   const { palette } = theme;
@@ -87,42 +84,11 @@ export function getRuleListStyles(theme: Theme): RuleListStyles {
     },
     emptyTitle: { ...common.fieldLabel, mb: 0 },
     emptyText: { ...common.secondaryText, mt: '4px' },
-    dialogPaper: {
-      boxSizing: 'border-box',
-      width: DIALOG_WIDTH,
-      maxWidth: '100%',
-      p: '24px',
-      borderRadius: '12px',
-      bgcolor: palette.background.paper,
-    },
-    dialogTitle: {
-      m: 0,
-      fontSize: 16,
-      fontWeight: 600,
-      lineHeight: '24px',
-      color: palette.text.primary,
-      textAlign: 'center',
-    },
-    dialogText: { ...common.secondaryText, mt: '8px', textAlign: 'center' },
-    dialogActions: {
-      display: 'flex',
-      justifyContent: 'center',
-      gap: '16px',
-      mt: '24px',
-    },
-    dialogCancel: {
-      ...common.outlineButton,
-      width: DIALOG_BUTTON_WIDTH,
-      height: DIALOG_BUTTON_HEIGHT,
-    },
-    dialogRemove: {
-      width: DIALOG_BUTTON_WIDTH,
-      height: DIALOG_BUTTON_HEIGHT,
-      borderRadius: '8px',
-      textTransform: 'none',
-      bgcolor: palette.error.main,
-      color: palette.background.paper,
-      '&:hover': { bgcolor: palette.error.dark },
-    },
+    dialogPaper: common.dialogPaper,
+    dialogTitle: common.dialogTitle,
+    dialogText: common.dialogText,
+    dialogActions: common.dialogActions,
+    dialogCancel: common.dialogCancel,
+    dialogRemove: common.dialogConfirm,
   };
 }

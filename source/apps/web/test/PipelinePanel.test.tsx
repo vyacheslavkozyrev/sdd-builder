@@ -1,0 +1,219 @@
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import type { pipeline as core } from '@sddbuilder/core';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { Pipeline, Rule } from '../src/builder/fields.js';
+import { PipelinePanel } from '../src/builder/PipelinePanel.js';
+import { editPipelineField, type PipelineFieldEdit } from '../src/builder/pipelineFields.js';
+
+// The pipeline panel is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
+
+afterEach(() => {
+  cleanup();
+});
+
+type Flow = core.Flow;
+
+function flow(id: string, name = id, next?: string): Flow {
+  const base: Flow = {
+    index: 0,
+    id,
+    name,
+    description: `The ${name} step.`,
+    arguments: [],
+    body: `Do the ${name} work.`,
+    artifacts: [{ label: `${id}.md`, template: 'output.md' }],
+    approval: false,
+    blocks: [],
+  };
+  return next === undefined ? base : { ...base, next };
+}
+
+// The pipeline as screen 01 shows it: a name, a description, a model, tools, a body and one argument.
+function pipelineState(): Pipeline {
+  return {
+    name: 'SDD process',
+    description: 'The process we built',
+    arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'The feature' }],
+    model: 'inherit',
+    tools: ['Read', 'Write', 'Edit', 'Bash'],
+    body: 'Runs the feature from specify to complete.',
+    ruleTags: [{ ruleId: 'general', index: 0 }],
+    flows: [flow('plan', 'Plan', 'build'), flow('build', 'Build')].map((item, index) => ({ ...item, index })),
+  };
+}
+
+const RULES: readonly Rule[] = [
+  { index: 0, id: 'general', title: 'general', text: 'The general rule.' },
+  { index: 1, id: 'qa', title: 'qa', text: 'The qa rule.' },
+];
+
+function renderPanel(saved: Pipeline = pipelineState()) {
+  const onChange = vi.fn();
+  render(<PipelinePanel pipelineState={saved} rules={RULES} onChange={onChange} />);
+  return { onChange };
+}
+
+// The parser's reason for an edit the panel is expected to refuse; the panel must show exactly this text.
+function parserReason(saved: Pipeline, change: PipelineFieldEdit): string {
+  const result = editPipelineField(saved, RULES, change);
+  if (result.ok) throw new Error('the test edit was accepted by the parser');
+  return result.reason;
+}
+
+describe('F-11 AC-042 the pipeline panel', () => {
+  it('F-11 AC-042 shows the pipeline fields when nothing is selected', () => {
+    renderPanel();
+
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'SDD process');
+    expect(screen.getByLabelText('Description')).toHaveProperty('value', 'The process we built');
+    expect(screen.getByLabelText('Tools')).toHaveProperty('value', 'Read, Write, Edit, Bash');
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Runs the feature from specify to complete.');
+  });
+});
+
+describe('F-11 AC-045 pipeline panel fields', () => {
+  it('F-11 AC-045 shows the fields in the order of screen 01', () => {
+    renderPanel();
+
+    const text = document.body.textContent ?? '';
+    const order = ['Name', 'Description', 'Arguments', 'Model', 'Tools', 'Rule tags', 'Body'];
+    const positions = order.map((label) => text.indexOf(label));
+    expect(positions.every((position) => position >= 0)).toBe(true);
+    expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+  });
+
+  it('F-11 AC-045 shows the arguments and rule tags as row editors', () => {
+    renderPanel();
+
+    expect(screen.getByRole('group', { name: 'Argument 1' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Rule tag 1' })).toBeTruthy();
+  });
+
+  it('F-11 AC-045 has no Delete control, and a footer that says the pipeline cannot be removed', () => {
+    renderPanel();
+
+    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+    expect(screen.getByText('The pipeline cannot be removed.')).toBeTruthy();
+  });
+
+  it('F-11 AC-045 accepts a new name and reports the new pipeline', () => {
+    const { onChange } = renderPanel();
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Renamed' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ name: 'Renamed' });
+  });
+
+  it('F-11 AC-045 refuses a blank name with the parser reason and keeps the saved name', () => {
+    const saved = pipelineState();
+    const reason = parserReason(saved, { field: 'name', value: '   ' });
+    const { onChange } = renderPanel(saved);
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '   ' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason).id).toBe('pipeline-name-refusal');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'SDD process');
+  });
+
+  it('F-11 AC-045 refuses a description longer than 1000 characters and keeps the saved one', () => {
+    const saved = pipelineState();
+    const longText = 'd'.repeat(1001);
+    const reason = parserReason(saved, { field: 'description', value: longText });
+    const { onChange } = renderPanel(saved);
+
+    fireEvent.change(screen.getByLabelText('Description'), { target: { value: longText } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Description')).toHaveProperty('value', 'The process we built');
+  });
+
+  it('F-11 AC-045 sets the model the user picks, from the same options as a flow', () => {
+    const { onChange } = renderPanel();
+
+    const options = within(screen.getByLabelText('Model'))
+      .getAllByRole('option')
+      .map((option) => option.textContent);
+    expect(options).toEqual(['', 'haiku', 'sonnet', 'opus', 'inherit']);
+
+    fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'sonnet' } });
+
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ model: 'sonnet' });
+  });
+
+  it('F-11 AC-045 unsets the model when the blank option is picked', () => {
+    const { onChange } = renderPanel();
+
+    fireEvent.change(screen.getByLabelText('Model'), { target: { value: '' } });
+
+    const next = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(next).not.toHaveProperty('model');
+  });
+
+  it('F-11 AC-045 splits the tools the user types on commas and reports them as a list', () => {
+    const { onChange } = renderPanel();
+
+    fireEvent.change(screen.getByLabelText('Tools'), { target: { value: 'Read,  Grep , ,Glob' } });
+
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ tools: ['Read', 'Grep', 'Glob'] });
+    expect(screen.getByLabelText('Tools')).toHaveProperty('value', 'Read,  Grep , ,Glob');
+  });
+
+  it('F-11 AC-045 refuses a tool longer than 100 characters with the parser reason and keeps the saved tools', () => {
+    const saved = pipelineState();
+    const tooLong = 't'.repeat(101);
+    const reason = parserReason(saved, { field: 'tools', value: `Read, ${tooLong}` });
+    const { onChange } = renderPanel(saved);
+
+    fireEvent.change(screen.getByLabelText('Tools'), { target: { value: `Read, ${tooLong}` } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Tools')).toHaveProperty('value', 'Read, Write, Edit, Bash');
+  });
+});
+
+describe('F-11 AC-044 pipeline body', () => {
+  it('F-11 AC-044 shows the counter as n / 1000 characters under the body', () => {
+    renderPanel();
+
+    expect(screen.getByText('42 / 1000 characters')).toBeTruthy();
+  });
+
+  it('F-11 AC-044 accepts an empty body and counts it as 0', () => {
+    const { onChange } = renderPanel();
+
+    fireEvent.change(screen.getByLabelText('Body'), { target: { value: '' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ body: '' });
+    expect(screen.getByText('0 / 1000 characters')).toBeTruthy();
+  });
+
+  it('F-11 AC-044 accepts a body of exactly 1000 characters', () => {
+    const { onChange } = renderPanel();
+    const body = 'b'.repeat(1000);
+
+    fireEvent.change(screen.getByLabelText('Body'), { target: { value: body } });
+
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ body });
+    expect(screen.getByText('1000 / 1000 characters')).toBeTruthy();
+  });
+
+  it('F-11 AC-044 refuses a body of 1001 characters with the reason and keeps the saved body', () => {
+    const saved = pipelineState();
+    const longBody = 'b'.repeat(1001);
+    const reason = parserReason(saved, { field: 'body', value: longBody });
+    const { onChange } = renderPanel(saved);
+
+    fireEvent.change(screen.getByLabelText('Body'), { target: { value: longBody } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Runs the feature from specify to complete.');
+    expect(screen.getByText('42 / 1000 characters')).toBeTruthy();
+  });
+});

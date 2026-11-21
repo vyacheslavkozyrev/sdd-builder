@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { deleteFlow } from '../src/builder/delete.js';
 import { FlowPanel, bodyCounterText } from '../src/builder/FlowPanel.js';
 import { editFlowField } from '../src/builder/fields.js';
 import type { Pipeline } from '../src/builder/fields.js';
@@ -45,10 +46,13 @@ function twoFlows(): Pipeline {
 
 function renderPanel(pipelineState: Pipeline, flowId = 'plan') {
   const onChange = vi.fn();
+  const onDelete = vi.fn();
   const selected = pipelineState.flows.find((item) => item.id === flowId);
   if (selected === undefined) throw new Error(`no flow ${flowId} in the test pipeline`);
-  render(<FlowPanel pipelineState={pipelineState} rules={[]} flow={selected} onChange={onChange} />);
-  return { onChange };
+  render(
+    <FlowPanel pipelineState={pipelineState} rules={[]} flow={selected} onChange={onChange} onDelete={onDelete} />,
+  );
+  return { onChange, onDelete };
 }
 
 // The parser's reason for an edit the panel is expected to refuse; the panel must show exactly this text.
@@ -301,5 +305,52 @@ describe('F-11 AC-028 refusals go through the parser', () => {
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Planning' } });
     expect(screen.queryByText(reason)).toBeNull();
+  });
+});
+
+describe('F-11 AC-019 Delete flow control', () => {
+  it('F-11 AC-019 shows a Delete flow control after Human approval, and no other delete control', () => {
+    renderPanel(twoFlows());
+
+    const text = document.body.textContent ?? '';
+    expect(text.indexOf('Human approval')).toBeLessThan(text.indexOf('Delete flow'));
+    expect(screen.getAllByRole('button', { name: /delete/i })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Delete flow' })).toBeTruthy();
+  });
+});
+
+describe('F-11 AC-029 delete flow asks first', () => {
+  it('F-11 AC-029 shows the question and changes nothing until it is confirmed', () => {
+    const { onChange, onDelete } = renderPanel(twoFlows());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Delete flow Plan?' });
+    expect(within(dialog).getByText('Are you sure you want to delete this flow?')).toBeTruthy();
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-029 Cancel keeps the flow and closes the question', async () => {
+    const { onDelete } = renderPanel(twoFlows());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Plan');
+  });
+
+  it('F-11 AC-029 Confirm reports the pipeline without the flow, as deleteFlow gives it', async () => {
+    const pipelineState = twoFlows();
+    const { onDelete } = renderPanel(pipelineState);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(onDelete).toHaveBeenCalledWith(deleteFlow(pipelineState, 'plan'));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });

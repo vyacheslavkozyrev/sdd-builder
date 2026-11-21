@@ -4,11 +4,19 @@ import type { StyleObject } from '../styles/common.js';
 
 // Style getter for the flow panel (.claude/rules/web-styling.md). It takes the theme and returns the
 // style objects FlowPanel passes to `sx`. Colours come from the theme's palette; the label, the field
-// surface are the shared shapes of common.ts. The list sections have their own getter (rowEditorStyles.ts).
+// surface are the shared shapes of common.ts. The pipeline panel uses the same field shapes, so it
+// takes this getter too. The list sections have their own getter (rowEditorStyles.ts).
 
 export interface FlowPanelStyles {
-  // The column of the fields, in the order of AC-019.
+  // The panel: a column that fills its place, with the fields above and the footer fixed below.
   readonly root: StyleObject;
+  // The fields, in the order of AC-019: a column that scrolls inside the panel, the footer stays in view.
+  readonly scroll: StyleObject;
+  // The footer under the fields: the Delete flow control (AC-019, AC-029).
+  readonly footer: StyleObject;
+  readonly deleteButton: StyleObject;
+  // The line of the footer that says what the footer cannot do (the pipeline cannot be removed).
+  readonly footerNote: StyleObject;
   // One field: its label above it, its input, and the lines under it.
   readonly fieldLabel: StyleObject;
   readonly field: StyleObject;
@@ -26,13 +34,20 @@ export interface FlowPanelStyles {
 export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
   const common = getCommonStyles(theme);
   return {
-    root: {
+    root: common.panelRoot,
+    scroll: {
       boxSizing: 'border-box',
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
       gap: '16px',
       minWidth: 0,
     },
+    footer: common.panelFooter,
+    deleteButton: common.panelDeleteButton,
+    footerNote: common.secondaryText,
     fieldLabel: common.fieldLabel,
     field: {
       width: '100%',

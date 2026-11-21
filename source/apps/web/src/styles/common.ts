@@ -34,9 +34,48 @@ export interface CommonStyles {
   readonly sectionTitle: StyleObject;
   // The 28 px plus and minus buttons: a primary outline and a primary glyph on white (F-10 and F-11).
   readonly plusMinusButton: StyleObject;
+  // The confirmation dialog (F-11 screen 04, F-10 remove): a white 400 px card with 24 px padding.
+  readonly dialogPaper: StyleObject;
+  // The dialog's title and text, centred.
+  readonly dialogTitle: StyleObject;
+  readonly dialogText: StyleObject;
+  // The row of the dialog's two buttons, centred.
+  readonly dialogActions: StyleObject;
+  // The Cancel button of a dialog: the outlined secondary button, 120 by 40.
+  readonly dialogCancel: StyleObject;
+  // The confirming button of a dialog that removes something: the danger button, 120 by 40.
+  readonly dialogConfirm: StyleObject;
+  // The danger button (F-11 screens 03 and 04): a red fill with white text, 8 px radius, no size.
+  readonly dangerButton: StyleObject;
+  // The footer of a properties panel: fixed under the scrolling fields, with a space above.
+  readonly panelFooter: StyleObject;
+  // The root column of a properties panel: fills its place and may shrink inside its parent.
+  readonly panelRoot: StyleObject;
+  // The Delete button of a properties panel's footer: the danger button, 130 by 40.
+  readonly panelDeleteButton: StyleObject;
 }
 
+const DIALOG_WIDTH = 400;
+const DIALOG_BUTTON_WIDTH = 120;
+const DIALOG_BUTTON_HEIGHT = 40;
+const PANEL_DELETE_BUTTON_WIDTH = 130;
+
 export function getCommonStyles(theme: Theme): CommonStyles {
+  const outlineButton: StyleObject = {
+    height: 40,
+    borderRadius: '8px',
+    borderColor: theme.palette.grey[300],
+    color: theme.palette.text.primary,
+    bgcolor: theme.palette.background.paper,
+    textTransform: 'none',
+  };
+  const dangerButton: StyleObject = {
+    borderRadius: '8px',
+    textTransform: 'none',
+    bgcolor: theme.palette.error.main,
+    color: theme.palette.background.paper,
+    '&:hover': { bgcolor: theme.palette.error.dark },
+  };
   return {
     card: {
       bgcolor: theme.palette.background.paper,
@@ -45,14 +84,7 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       boxShadow: cardShadow,
       boxSizing: 'border-box',
     },
-    outlineButton: {
-      height: 40,
-      borderRadius: '8px',
-      borderColor: theme.palette.grey[300],
-      color: theme.palette.text.primary,
-      bgcolor: theme.palette.background.paper,
-      textTransform: 'none',
-    },
+    outlineButton,
     secondaryText: {
       m: 0,
       fontSize: 12,
@@ -126,6 +158,67 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       color: theme.palette.primary.main,
       bgcolor: theme.palette.background.paper,
       textTransform: 'none',
+    },
+    dialogPaper: {
+      boxSizing: 'border-box',
+      width: DIALOG_WIDTH,
+      maxWidth: '100%',
+      p: '24px',
+      borderRadius: '12px',
+      bgcolor: theme.palette.background.paper,
+    },
+    dialogTitle: {
+      m: 0,
+      fontSize: 16,
+      fontWeight: 600,
+      lineHeight: '24px',
+      color: theme.palette.text.primary,
+      textAlign: 'center',
+    },
+    dialogText: {
+      m: 0,
+      fontSize: 12,
+      lineHeight: '20px',
+      color: theme.palette.text.secondary,
+      mt: '8px',
+      textAlign: 'center',
+    },
+    dialogActions: {
+      display: 'flex',
+      justifyContent: 'center',
+      gap: '16px',
+      mt: '24px',
+    },
+    dialogCancel: {
+      ...outlineButton,
+      width: DIALOG_BUTTON_WIDTH,
+      height: DIALOG_BUTTON_HEIGHT,
+    },
+    dialogConfirm: {
+      ...dangerButton,
+      width: DIALOG_BUTTON_WIDTH,
+      height: DIALOG_BUTTON_HEIGHT,
+    },
+    dangerButton,
+    panelFooter: {
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      pt: '16px',
+    },
+    panelRoot: {
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      flex: 1,
+      minWidth: 0,
+      minHeight: 0,
+    },
+    panelDeleteButton: {
+      ...dangerButton,
+      width: PANEL_DELETE_BUTTON_WIDTH,
+      height: DIALOG_BUTTON_HEIGHT,
     },
   };
 }

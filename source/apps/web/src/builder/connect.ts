@@ -135,6 +135,20 @@ export function repointArrow(pipelineState: Pipeline, arrow: Arrow, end: ArrowEn
   return fromConnect(connectFlows(detached, drop.flow, arrow.target));
 }
 
+// Deletes an arrow: sets the source flow's `next` to none (F-11 AC-018). The target flow and every
+// other field of both flows stay as they were. Refused, with a reason and no change, when the source
+// is not a flow of the pipeline or has no `next`. The confirmation is the view's job.
+export function removeConnection(pipelineState: Pipeline, sourceId: string): ConnectResult {
+  const source = pipelineState.flows.find((flow) => flow.id === sourceId);
+  if (source === undefined) {
+    return { ok: false, reason: `the source "${sourceId}" is not a flow of this pipeline` };
+  }
+  if (source.next === undefined) {
+    return { ok: false, reason: `flow "${sourceId}" has no outgoing arrow to remove` };
+  }
+  return { ok: true, pipeline: withoutNext(pipelineState, sourceId) };
+}
+
 // The pipeline with the flow's `next` removed. The input is not changed.
 function withoutNext(pipelineState: Pipeline, flowId: string): Pipeline {
   return {

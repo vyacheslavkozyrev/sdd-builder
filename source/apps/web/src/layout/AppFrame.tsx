@@ -12,21 +12,24 @@ import { getAppFrameStyles } from './layoutStyles.js';
 // Sizes follow the approved screens: the card sits 24 px in from the panel edge and
 // from the window edge, and the footer sits in the grey area below it. The card is
 // white with a 1 px border, a 12 px radius and a soft shadow (screens.md, restyle note).
+// With `fill` the window height bounds the frame and the centre area draws no card, so the step
+// draws its own cards under its tab row (F-11 step 3). Without it the frame is the card layout of F-07.
 
 export interface AppFrameProps {
   readonly onNewProject: () => void;
   readonly stepper?: ReactNode;
   readonly navigation?: ReactNode;
+  readonly fill?: boolean;
   readonly children?: ReactNode;
 }
 
-export function AppFrame({ onNewProject, stepper, navigation, children }: AppFrameProps) {
+export function AppFrame({ onNewProject, stepper, navigation, fill = false, children }: AppFrameProps) {
   const styles = getAppFrameStyles(useTheme());
   return (
-    <Box sx={styles.root}>
+    <Box sx={styles.root(fill)}>
       <LeftPanel onNewProject={onNewProject} stepper={stepper} navigation={navigation} />
       <Box sx={styles.content}>
-        <Box component="main" sx={styles.main}>
+        <Box component="main" sx={styles.main(fill)}>
           {children}
         </Box>
         <Footer />

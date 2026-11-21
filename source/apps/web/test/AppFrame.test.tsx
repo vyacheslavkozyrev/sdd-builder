@@ -120,3 +120,18 @@ describe('F-08 AC-004 stepper and navigation go to the left panel, children to t
     expect(html).toMatch(/<button\b[^>]*>New project<\/button>/);
   });
 });
+
+describe('F-11 AC-006 layout point 1: the fill centre area keeps the frame order', () => {
+  it('F-11 AC-006 layout point 1 renders the children in the centre area with the fill frame, before the footer', () => {
+    const html = renderToStaticMarkup(
+      <AppFrame onNewProject={noop} fill>
+        <p>TABS</p>
+      </AppFrame>,
+    );
+    const open = html.indexOf('<main');
+    const close = html.indexOf('</main>');
+    expect(html.indexOf('TABS')).toBeGreaterThan(open);
+    expect(html.indexOf('TABS')).toBeLessThan(close);
+    expect(html.indexOf('<footer')).toBeGreaterThan(close);
+  });
+});

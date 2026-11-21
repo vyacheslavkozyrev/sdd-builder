@@ -26,8 +26,16 @@ describe('style getters read colours from the theme palette', () => {
 
   it('the app frame uses the theme page and paper colours', () => {
     const styles = getAppFrameStyles(other);
-    expect(styles.root).toMatchObject({ bgcolor: '#000001' });
-    expect(styles.main).toMatchObject({ bgcolor: '#000002', border: '1px solid #000005' });
+    expect(styles.root(false)).toMatchObject({ bgcolor: '#000001' });
+    expect(styles.root(true)).toMatchObject({ bgcolor: '#000001' });
+    expect(styles.main(false)).toMatchObject({ bgcolor: '#000002', border: '1px solid #000005' });
+  });
+
+  it('F-11 AC-006 layout point 1: the fill centre area takes no paper colour and no border', () => {
+    const fill = getAppFrameStyles(other).main(true);
+    expect(fill).not.toHaveProperty('bgcolor');
+    expect(fill).not.toHaveProperty('border');
+    expect(fill).not.toHaveProperty('boxShadow');
   });
 
   it('the footer note uses the theme secondary text colour', () => {
@@ -36,11 +44,17 @@ describe('style getters read colours from the theme palette', () => {
 
   it('the app theme gives the approved Material Kit values for the frame and the note', () => {
     expect(getLeftPanelStyles(theme).root).toMatchObject({ borderRight: '1px solid #DDE7EE', bgcolor: '#FFFFFF' });
-    expect(getAppFrameStyles(theme).root).toMatchObject({ bgcolor: '#F0F4F8' });
+    expect(getAppFrameStyles(theme).root(false)).toMatchObject({ bgcolor: '#F0F4F8' });
     expect(getFooterStyles(theme).note).toMatchObject({ color: '#636B74' });
   });
 
   it('the card shadow is the approved soft shadow, not the default MUI shadow', () => {
-    expect(getAppFrameStyles(theme).main).toMatchObject({ boxShadow: '0 1px 4px rgba(50, 56, 62, 0.12)' });
+    expect(getAppFrameStyles(theme).main(false)).toMatchObject({ boxShadow: '0 1px 4px rgba(50, 56, 62, 0.12)' });
+  });
+
+  it('F-11 AC-006 layout point 1: the fill centre area draws no white card, so the tab row sits on the grey page', () => {
+    const main = getAppFrameStyles(theme).main(true);
+    expect(main).not.toHaveProperty('boxShadow');
+    expect(main).toMatchObject({ m: 3, mb: 0, display: 'flex', flexDirection: 'column' });
   });
 });

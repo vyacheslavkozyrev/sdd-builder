@@ -8,7 +8,7 @@ import type { StyleObject } from '../styles/common.js';
 // the library's default colours never show.
 
 export interface CanvasStyles {
-  // The white card that holds the canvas, with the React Flow colours set from the palette.
+  // The canvas area, inside the step's canvas card (no card of its own), with the React Flow colours set from the palette.
   readonly root: StyleObject;
   // The message shown when the pipeline has no flows (AC-009): centred, secondary text.
   readonly empty: StyleObject;
@@ -37,7 +37,6 @@ export function getCanvasStyles(theme: Theme): CanvasStyles {
   };
   return {
     root: {
-      ...common.card,
       position: 'relative',
       height: '100%',
       minHeight: 0,

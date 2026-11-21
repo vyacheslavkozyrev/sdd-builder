@@ -6,9 +6,11 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testi
 import type { Edge, ReactFlow as ReactFlowComponent } from '@xyflow/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import type { StructureMarks } from '../src/builder/marks.js';
+import { getCanvasStyles } from '../src/builder/canvasStyles.js';
 import type { Pipeline } from '../src/builder/model.js';
 import { theme } from '../src/theme.js';
 import { builderRules, PipelineStep } from '../src/wizard/PipelineStep.js';
+import { getPipelineStepStyles } from '../src/wizard/pipelineStepStyles.js';
 import type { RuleValues, WizardValues } from '../src/wizard/state.js';
 import { defaultPipelineValue } from '../src/wizard/state.js';
 import { valuesWith } from './wizardValues.js';
@@ -348,5 +350,87 @@ describe('F-11 AC-035 a warning shows beside the box or arrow it names', () => {
     const section = screen.getByRole('region', { name: 'Not on a drawn item' });
     expect(within(section).getByText('pipeline.name')).toBeTruthy();
     expect(within(section).getByText('is blank')).toBeTruthy();
+  });
+});
+
+describe('F-11 AC-006 layout point 1: the tab row sits outside the white cards, on the page', () => {
+  it('F-11 AC-006 layout point 1 the tab row is not inside the properties card or the canvas', () => {
+    renderStep();
+    const tabList = screen.getByRole('tablist', { name: 'Pipeline tabs' });
+    expect(propertiesCard().contains(tabList)).toBe(false);
+    expect(screen.getByLabelText('Pipeline canvas').contains(tabList)).toBe(false);
+  });
+
+  it('F-11 AC-006 layout point 1 the tab row and both cards share the step column, the tab row before the cards', () => {
+    renderStep();
+    const tabList = screen.getByRole('tablist', { name: 'Pipeline tabs' });
+    const column = tabList.parentElement?.parentElement;
+    expect(column?.contains(propertiesCard())).toBe(true);
+    expect(column?.contains(screen.getByLabelText('Pipeline canvas'))).toBe(true);
+    expect(tabList.compareDocumentPosition(propertiesCard()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('F-11 AC-006 layout point 1 negative case: the step column draws no card, the properties card draws the white card', () => {
+    const styles = getPipelineStepStyles(theme);
+    expect(styles.root).not.toHaveProperty('bgcolor');
+    expect(styles.root).not.toHaveProperty('boxShadow');
+    expect(styles.propertiesCard).toMatchObject({ bgcolor: theme.palette.background.paper, boxShadow: expect.any(String) });
+  });
+});
+
+describe('F-11 AC-006 layout point 1 (screen 01): the title and the hint sit inside the canvas card', () => {
+  const HINT = 'Flows in pipeline order, left to right. Select a flow to edit its artifacts and Human approval.';
+
+  it('F-11 AC-006 layout point 1 the Pipeline title and the hint are inside the canvas card, above the canvas', () => {
+    renderStep();
+    const card = screen.getByLabelText('Canvas card');
+    const canvas = screen.getByLabelText('Pipeline canvas');
+    const title = within(card).getByRole('heading', { name: 'Pipeline' });
+    const hint = within(card).getByText(HINT);
+    expect(card.contains(canvas)).toBe(true);
+    expect(title.compareDocumentPosition(hint) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(hint.compareDocumentPosition(canvas) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('F-11 AC-006 layout point 1 negative case: no Pipeline title sits on the page outside the card', () => {
+    renderStep();
+    const card = screen.getByLabelText('Canvas card');
+    const outside = screen.getAllByRole('heading', { name: 'Pipeline' }).filter((heading) => !propertiesCard().contains(heading));
+    expect(outside).toHaveLength(1);
+    expect(card.contains(outside[0] ?? null)).toBe(true);
+    expect(card.contains(screen.getByText(HINT))).toBe(true);
+  });
+
+  it('F-11 AC-006 layout point 1 the canvas card is the white card, and the canvas area draws no second card', () => {
+    const styles = getPipelineStepStyles(theme);
+    expect(styles.canvasColumn).toMatchObject({ bgcolor: theme.palette.background.paper, boxShadow: expect.any(String) });
+    expect(getCanvasStyles(theme).root).not.toHaveProperty('boxShadow');
+    expect(getCanvasStyles(theme).root).not.toHaveProperty('bgcolor');
+  });
+});
+
+describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only the properties body scrolls', () => {
+  it('F-11 AC-006 layout point 3 the step column and its body fill the height and may shrink inside the frame', () => {
+    const styles = getPipelineStepStyles(theme);
+    expect(styles.root).toMatchObject({ flex: 1, minHeight: 0 });
+    expect(styles.body).toMatchObject({ flex: 1, minHeight: 0 });
+    expect(styles.canvasColumn).toMatchObject({ minHeight: 0 });
+    expect(styles.canvasArea).toMatchObject({ flex: 1, minHeight: 0 });
+  });
+
+  it('F-11 AC-006 layout point 3 the canvas card fills its area and does not scroll the page', () => {
+    expect(getCanvasStyles(theme).root).toMatchObject({ height: '100%', minHeight: 0, overflow: 'hidden' });
+  });
+
+  it('F-11 AC-006 layout point 2 the properties body is the scrolling part and the card hides its overflow', () => {
+    const styles = getPipelineStepStyles(theme);
+    expect(styles.propertiesBody).toMatchObject({ flex: 1, minHeight: 0, overflowY: 'auto' });
+    expect(styles.propertiesCard).toMatchObject({ minHeight: 0, overflow: 'hidden' });
+  });
+
+  it('F-11 AC-006 layout point 2 negative case: the canvas and the step column do not scroll themselves', () => {
+    const styles = getPipelineStepStyles(theme);
+    expect(styles.root).not.toHaveProperty('overflowY');
+    expect(styles.canvasArea).not.toHaveProperty('overflowY');
   });
 });

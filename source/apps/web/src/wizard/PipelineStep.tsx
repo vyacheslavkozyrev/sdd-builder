@@ -180,7 +180,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     <Box sx={styles.root}>
       {tabs}
       <Box sx={styles.body}>
-        <Box sx={styles.canvasColumn}>
+        <Box component="section" aria-label="Canvas card" sx={styles.canvasColumn}>
           <Box sx={styles.canvasHeader}>
             <Typography component="h2" sx={styles.canvasTitle}>
               Pipeline

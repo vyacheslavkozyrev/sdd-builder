@@ -36,6 +36,7 @@ export function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppFrame
+        fill={state.step === 3}
         onNewProject={() => {
           dispatch({ type: 'restart' });
         }}

@@ -1,23 +1,32 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 import { getCommonStyles } from '../styles/common.js';
-import { frameStyle } from './frameStyle.js';
+import { fillFrameStyle, frameStyle } from './frameStyle.js';
 
 // Style getters for the shared frame and its parts (.claude/rules/web-styling.md). Each takes
 // the theme and returns the style objects its component passes to `sx`. Colours come from the
 // theme's palette; shared shapes come from getCommonStyles.
 
 export interface AppFrameStyles {
-  readonly root: SxProps<Theme>;
+  // The frame and the centre area take the fill flag: false for the card layout every step uses, true for
+  // the step that fills the window (F-11 step 3), where the centre area draws no card.
+  readonly root: (fill: boolean) => SxProps<Theme>;
   readonly content: SxProps<Theme>;
-  readonly main: SxProps<Theme>;
+  readonly main: (fill: boolean) => SxProps<Theme>;
 }
 
 export function getAppFrameStyles(theme: Theme): AppFrameStyles {
   const common = getCommonStyles(theme);
   return {
-    root: { ...frameStyle(), display: 'flex', bgcolor: theme.palette.background.default },
+    root: (fill) => ({
+      ...(fill ? fillFrameStyle() : frameStyle()),
+      display: 'flex',
+      bgcolor: theme.palette.background.default,
+    }),
     content: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' },
-    main: { ...common.card, flex: 1, m: 3, mb: 0 },
+    main: (fill) =>
+      fill
+        ? { flex: 1, minWidth: 0, minHeight: 0, m: 3, mb: 0, display: 'flex', flexDirection: 'column' }
+        : { ...common.card, flex: 1, m: 3, mb: 0 },
   };
 }
 

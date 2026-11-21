@@ -79,6 +79,7 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 - Inter font. Primary `#635BFF`. An 8 px grid. Controls have an 8 px radius; cards a 12 px radius.
 - The look is adapted from **Material Kit React** by Devias IO (MIT licence, github.com/devias-io/material-kit-react). No code is copied and no package is added (`architecture.md` §5).
 - The properties panels scroll. Their footer buttons (Delete flow, Delete connection, Save and similar) stay in place.
+- The window height bounds this step (F-11 AC-006, layout points 1 to 3): the tab row sits on the grey area above the two white cards, with no white card behind it. The canvas card, which holds the Pipeline title and the hint above the canvas, and the properties card fill the height under the tab row. The page does not scroll vertically; only the content of the properties card scrolls.
 
 ### 3.1 Tab row
 - Full width of the available space. The first tab is **Pipeline** (the whole process); it cannot be removed.

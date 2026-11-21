@@ -7,11 +7,13 @@ import type { StyleObject } from '../styles/common.js';
 // colours come from the theme's palette only (.claude/rules/web-styling.md).
 
 export interface PipelineStepStyles {
-  // The step's column: the tab row, then the body of the two cards.
+  // The step's column in the centre area: the tab row, then the body of the two cards. The frame draws
+  // no card behind it (AppFrame fill), so the tab row sits on the grey page above the cards.
   readonly root: StyleObject;
   // The row of the two cards, 20 px apart.
   readonly body: StyleObject;
-  // The canvas side: its title and hint, the canvas, and the list under it.
+  // The canvas card (F-11 screen 01): the white card that holds the title, the hint, the canvas and the
+  // list under it. The title and hint sit inside it, at 16 px from its top edge.
   readonly canvasColumn: StyleObject;
   readonly canvasHeader: StyleObject;
   readonly canvasTitle: StyleObject;
@@ -40,14 +42,12 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
   const common = getCommonStyles(theme);
   return {
     root: {
-      boxSizing: 'border-box',
-      width: '100%',
-      height: '100%',
+      flex: 1,
+      minWidth: 0,
+      minHeight: 0,
       display: 'flex',
       flexDirection: 'column',
-      gap: '16px',
-      p: 3,
-      minHeight: 0,
+      gap: '24px',
     },
     body: {
       flex: 1,
@@ -57,11 +57,13 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
       gap: COLUMN_GAP,
     },
     canvasColumn: {
+      ...common.card,
       flex: 1,
       minWidth: 0,
       minHeight: 0,
       display: 'flex',
       flexDirection: 'column',
+      p: '16px',
       gap: '12px',
     },
     canvasHeader: {
@@ -94,6 +96,7 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
       width: PROPERTIES_WIDTH,
       flexShrink: 0,
       minHeight: 0,
+      overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       p: '16px',
@@ -109,6 +112,7 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
     propertiesBody: {
       flex: 1,
       minHeight: 0,
+      overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
     },

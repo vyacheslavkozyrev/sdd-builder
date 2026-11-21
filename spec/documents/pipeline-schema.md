@@ -32,7 +32,7 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$", "maxLength": 60 },
     "text": { "type": "string", "pattern": "\\S", "maxLength": 1000 },
-    "body": { "type": "string", "maxLength": 1000, "description": "Counted in code points." },
+    "body": { "type": "string", "pattern": "\\S", "maxLength": 1000, "description": "Not blank; counted in code points." },
     "model": { "enum": ["haiku", "sonnet", "opus", "inherit"] },
     "stack": {
       "type": "object", "additionalProperties": false,
@@ -196,7 +196,7 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
 - **Deleting a block** removes its arrows; the blocks that pointed to it lose that route or `next`.
 - **Checks are conditions:** a Condition's `description` is required and non-blank.
 - **Approval** is a flag on the flow; it stops the process at the end of the flow (owner, 2026-11-18).
-- **Body** texts are at most 1000 code points.
+- **Body** texts are required, not blank, and at most 1000 code points (decision 39; F-11 AC-022).
 - **Rule tags** name rules in `rules`.
 
 ## 4. Example: the flow `plan`

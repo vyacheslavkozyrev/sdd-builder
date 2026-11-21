@@ -251,7 +251,11 @@ describe('F-02 AC-020 nothing throws: a value that is not a valid flow is refuse
   });
 });
 
-describe('F-02 AC-029 a flow body is up to 1,000 code points', () => {
+describe('F-02 AC-029 F-11 AC-022 a flow body is not blank and up to 1,000 code points', () => {
+  it.each(['', '   ', '\n\t'])('refuses the blank body %j at the path of the body', (body) => {
+    refusedAt({ ...validFlow, body }, `${FLOW}.body`, 'must not be blank');
+  });
+
   it('accepts a body of exactly 1,000 code points', () => {
     expect(readF({ ...validFlow, body: 'b'.repeat(1000) }).problems).toEqual([]);
   });

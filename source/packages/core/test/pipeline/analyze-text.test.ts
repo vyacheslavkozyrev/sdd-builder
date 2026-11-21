@@ -35,6 +35,8 @@ const AGENT_DESCRIPTION_1: Expected[] = [
   { rule: 'agent-description', path: 'pipeline.flows.0.blocks.1.description' },
 ];
 
+// The blank body cases are built without the parser, which refuses a blank body (flow.ts), so the
+// analyzer's own blocker is still proved on a config the parser would not accept.
 const cases: Array<[string, ProjectConfig, Expected[]]> = [
   ['F-03 AC-026 a valid flow id and names have no finding', validConfig(), []],
   [

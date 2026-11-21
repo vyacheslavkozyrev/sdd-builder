@@ -20,7 +20,8 @@ import { readRuleTags } from './lists.js';
 // `body`, `arguments`, `artifacts`, `approval` and `blocks`; `description`, `model`, `ruleTags` and
 // `next` are optional; no other key is allowed. An unknown key is refused at the path of that key;
 // a missing required key is refused at the path of the flow. `name` is 1 to 100 code points and not
-// blank; `description` and `body` are text of up to 1,000 code points. `approval` is a boolean.
+// blank; `body` is not blank and at most 1,000 code points (AC-022, owner decision 2026-11-20);
+// `description` is text of up to 1,000 code points. `approval` is a boolean.
 // `id` follows the id rule and is unique across the project (checked later). `next` names a flow and
 // is checked later (AC-031 to AC-035). An optional key that is present but refused makes the flow
 // incomplete, and it is left out.
@@ -30,6 +31,8 @@ const OPTIONAL_KEYS: readonly string[] = ['description', 'model', 'ruleTags', 'n
 const FLOW_KEYS: readonly string[] = [...REQUIRED_KEYS, ...OPTIONAL_KEYS];
 
 const readLongText: Reader<string> = (value, path, problems) => readText(value, path, { max: 1000 }, problems);
+const readBody: Reader<string> = (value, path, problems) =>
+  readText(value, path, { max: 1000, nonBlank: true }, problems);
 
 export function readFlow(
   value: unknown,
@@ -57,7 +60,7 @@ export function readFlow(
 
   const id = readId(record.id, childPath(path, 'id'), problems);
   const name = readText(record.name, childPath(path, 'name'), { max: 100, nonBlank: true }, problems);
-  const body = readLongText(record.body, childPath(path, 'body'), problems);
+  const body = readBody(record.body, childPath(path, 'body'), problems);
   const args = readArguments(record.arguments, childPath(path, 'arguments'), problems);
   const artifacts = readArtifacts(record.artifacts, childPath(path, 'artifacts'), problems);
   const approval = readBoolean(record.approval, childPath(path, 'approval'), problems);

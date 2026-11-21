@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-20 | 5 of 23 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 6 of 23 tasks committed |
 | Verify   | ⏳ Pending |  | |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -30,6 +30,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T003 | `connectFlows`: sets `next`; refuses with its own reason when the source or target is not a flow, the target is the source, the source already has a `next`, or the link would close a loop (`source/apps/web/src/builder/connect.ts`) | 0 blockers, 1 warning fixed (success-path test asserted only ok); 1 suggestion fixed (long line split) | task check passed: api 45, web 556, core 1208 |
 | T004 | Drop rule (a left point of another flow counts) and repoint of an arrow end (target end through the T003 rules; source end moves to a flow with no next) (`source/apps/web/src/builder/connect.ts`) | 0 blockers, 1 warning fixed (no test for an unknown flow on either end); 2 suggestions fixed (check order; throw documented) | task check passed: api 45, web 578, core 1208 |
 | T005 | Arrow panel data (source and target names, frozen) and `removeConnection` (clears the source's `next`, keeps the rest) (`source/apps/web/src/builder/panel.ts`, `connect.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (duplicate type alias; untyped index in a test) | task check passed: api 45, web 596, core 1208 |
+| T006 | Flow name, description, body and model through the parser: edit on a copy, parser decides, refusal reason kept; core flow body made non-blank (owner decision, see Amendments) (`source/apps/web/src/builder/fields.ts`, `source/packages/core/src/pipeline/parse/flow.ts`) | 0 blockers; 2 warnings fixed (duplicate-name test asserted only refusal; schema doc body rule); 1 suggestion fixed (AC-028 expected reason) | task check passed: api 45, web 625, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 
@@ -48,6 +49,11 @@ _Recorded per task in the Task Log and in the commit messages. Verify results co
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-20 (T006 blank flow body)
+**Changed**: `source/packages/core/src/pipeline/parse/flow.ts` reads the flow body as non-blank (owner decision: the parser refuses a blank body, AC-022). The body keeps its 1000-code-point limit and the parser's message style.
+**Reason**: AC-022 requires a blank body to be refused with the reason; the parser accepted it, so the web edit could save a blank body.
+**Impact**: F-02 and F-03 tests touched: `flow.test.ts` (blank body refusal added), `analyze-text.test.ts` (blank body cases comment on being built without the parser; they still prove the analyzer blocker). Nothing else.
 
 ### Amendment — 2026-11-17 (Verify failure: connections not visible; owner request for connection points)
 **Changed**: `plan.md` adds T019 (visible connections: explicit connection points on each box, verified in a real browser) and T020 (drag from one flow's connection point to another's to create a connection, with the label asked first).

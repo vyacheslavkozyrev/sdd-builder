@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-20 | 14 of 23 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-20 | 15 of 23 tasks committed |
 | Verify   | ⏳ Pending |  | |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _None. While a task is in flight, this holds its ID and the step reached: `imple
 | T012 | Selection and panel choice: `panelFor` (pipeline, flow, arrow); after a confirmed delete the selection is the pipeline and the tab is Pipeline (`source/apps/web/src/builder/panel.ts`) | 0 blockers; 2 warnings fixed (delete rule not conditional; vacuous one-item tests); 1 suggestion fixed (type import) | task check passed: api 45, web 739, core 1211 |
 | T013 | Pipeline-level fields through the parser: name, description, model, tools, rule tags, body, arguments rows; `fields.ts` refactored to share the holder helpers with the flow functions (`pipelineFields.ts`, `fields.ts`) | 0 blockers; 1 warning fixed (id-clash test did not prove the reason); 6 suggestions fixed. Size: 831 changed lines, accepted by the user as a one-off exception to the 400-line guard | task check passed: api 45, web 776, core 1211 |
 | T014 | Wizard state: `defaultPipelineValue()` (a checked copy of the default) in step 3 and on New project; `set-pipeline` replaces only the pipeline; AC-041 scan of the builder files (`source/apps/web/src/wizard/state.ts`, test helpers) | 0 blockers; 1 warning fixed (a negative test that could not fail); 1 suggestion fixed (test name). Plan file list corrected (wizardValues.ts is a test helper). | task check passed: api 45, web 803, core 1211 |
+| T015 | Tab row: Pipeline first, a tab per flow in list order, `+` after the last; the tab list holds only tabs; no toolbox (`source/apps/web/src/builder/PipelineTabs.tsx`, `builderStyles.ts`) | 0 blockers; 2 warnings fixed (+ inside the tablist; untyped style shapes); 1 suggestion fixed | task check passed: api 45, web 819, core 1211 |
 
 _The records of the earlier build (T001 to T020 of the connection model, its Deferred Findings and its Test Results) were removed at the 2026-11-20 re-plan. They remain in git history before commit `4c6e642`._
 

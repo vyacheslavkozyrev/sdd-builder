@@ -7,12 +7,16 @@ import type { pipeline as model } from '@sddbuilder/core';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { Canvas } from '../src/builder/Canvas.js';
 import type { Pipeline } from '../src/builder/model.js';
+import type { Selection } from '../src/builder/panel.js';
 import { theme } from '../src/theme.js';
 
 // The canvas is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
 
 type ReactFlowProps = ComponentProps<typeof ReactFlowComponent>;
 type ReconnectStartEvent = Parameters<NonNullable<ReactFlowProps['onReconnectStart']>>[0];
+type NodeClick = NonNullable<ReactFlowProps['onNodeClick']>;
+type EdgeClick = NonNullable<ReactFlowProps['onEdgeClick']>;
+type PaneClick = NonNullable<ReactFlowProps['onPaneClick']>;
 
 // The props the canvas gives to React Flow. The real component still renders; the wrapper only keeps
 // the props, so a test can call the handlers the canvas wired (AC-013, AC-016) the way React Flow would.
@@ -111,15 +115,17 @@ function renderCanvas(
   options: { blockedFlowIds?: string[]; blockerMessages?: string[] } = {},
 ) {
   const onPipelineChange = vi.fn<(next: Pipeline) => void>();
+  const onSelect = vi.fn<(selection: Selection) => void>();
   renderWithTheme(
     <Canvas
       pipelineState={pipeline}
       blockedFlowIds={options.blockedFlowIds ?? []}
       blockerMessages={options.blockerMessages ?? []}
       onPipelineChange={onPipelineChange}
+      onSelect={onSelect}
     />,
   );
-  return { onPipelineChange };
+  return { onPipelineChange, onSelect };
 }
 
 // The React Flow props of the last render.
@@ -338,5 +344,31 @@ describe('F-11 AC-014 a refused drag shows its reason in the band', () => {
     });
     expect(onPipelineChange).toHaveBeenCalledTimes(1);
     expect(bandText()).toBe('');
+  });
+});
+
+describe('F-11 AC-042 the canvas reports the selection of a box, an arrow or the empty canvas', () => {
+  it('F-11 AC-042 a click on a flow box selects that flow', () => {
+    const { onSelect } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'plan' } as Parameters<NodeClick>[1]);
+    });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'flow', id: 'plan' });
+  });
+
+  it('F-11 AC-042 a click on an arrow selects that arrow by its two flows', () => {
+    const { onSelect } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    act(() => {
+      flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], { id: 'specify->plan', source: 'specify', target: 'plan' } as Edge);
+    });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'arrow', arrow: { source: 'specify', target: 'plan' } });
+  });
+
+  it('F-11 AC-042 a click on the empty canvas selects the pipeline', () => {
+    const { onSelect } = renderCanvas(pipelineOf(flow('specify')));
+    act(() => {
+      flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
+    });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'pipeline' });
   });
 });

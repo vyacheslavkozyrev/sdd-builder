@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { renderToStaticMarkup } from 'react-dom/server';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { App } from '../src/App.js';
 
 // Markup checks render the application as static HTML. The wiring checks click the real
@@ -10,6 +10,16 @@ import { App } from '../src/App.js';
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+});
+
+// Step 3 draws the pipeline canvas (React Flow), which creates a ResizeObserver; jsdom does not provide one.
+// The observer never reports, which is enough: the canvas boxes carry their own size.
+beforeAll(() => {
+  globalThis.ResizeObserver ??= class {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
 });
 
 // The project fields, found by their placeholders (the name is a single line, the idea a textarea).
@@ -97,16 +107,18 @@ describe('F-09 AC-012 step 1 body in the centre area', () => {
   });
 });
 
-describe('F-08 AC-013 step body in the centre area on step 3', () => {
-  it('F-08 AC-013 renders the step body placeholder line in the centre area on step 3', () => {
+describe('F-08 AC-013 step body in the centre area on step 4', () => {
+  it('F-08 AC-013 renders the step body placeholder line in the centre area on step 4', () => {
     render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(screen.getByText(PLACEHOLDER_LINE)).toBeTruthy();
   });
 
-  it('F-08 AC-013 negative case: the centre area shows no step title, step counter or input on step 3', () => {
+  it('F-08 AC-013 negative case: the centre area shows no step title, step counter or input on step 4', () => {
     render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     const main = document.querySelector('main');
@@ -414,7 +426,7 @@ describe('F-10 AC-021 each wizard step shows its own body through the app', () =
   it.each([
     { label: 'Project', clicks: 0, shows: 'Project: current step', present: 'id="project-name"' },
     { label: 'Technical details', clicks: 1, shows: 'Technical details: current step', present: 'id="technical-language"' },
-    { label: 'Workflow', clicks: 2, shows: 'Workflow: current step', present: PLACEHOLDER_LINE },
+    { label: 'Workflow', clicks: 2, shows: 'Workflow: current step', present: 'aria-label="Pipeline tabs"' },
     { label: 'Analyze and generate', clicks: 3, shows: 'Analyze and generate: current step', present: PLACEHOLDER_LINE },
   ])('F-10 AC-021 step $label shows its own body', ({ clicks, shows, present }) => {
     const { container } = render(<App />);

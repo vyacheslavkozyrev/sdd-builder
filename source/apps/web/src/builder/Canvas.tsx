@@ -11,6 +11,7 @@ import type { FlowBoxNode } from './drawing.js';
 import { MessageBand } from './MessageBand.js';
 import type { BandMessage } from './MessageBand.js';
 import type { Pipeline } from './model.js';
+import type { Selection } from './panel.js';
 
 // The Pipeline canvas (F-11 AC-006, AC-008, AC-009, AC-013, AC-014, AC-016, AC-035): the flows as boxes
 // in one row, in pipeline order, with a left and a right connection point each, and an arrow along each
@@ -26,6 +27,9 @@ export interface CanvasProps {
   readonly blockerMessages: readonly string[];
   // Called with the new pipeline when a drag or repoint changes it. Never called for a refusal.
   readonly onPipelineChange: (pipeline: Pipeline) => void;
+  // Called when a box or an arrow is clicked (the box or arrow selected), or the empty canvas is clicked
+  // (nothing selected, so the pipeline is shown). The caller holds the selection (AC-030, AC-042).
+  readonly onSelect: (selection: Selection) => void;
 }
 
 // The label under a flow's name: the count of its blocks (F-11 screen 01).
@@ -65,7 +69,7 @@ function FlowBox({ data }: NodeProps<FlowBoxNode>) {
 // Defined once, outside the component, so React Flow keeps the same node types between renders.
 const nodeTypes = { flow: FlowBox };
 
-export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipelineChange }: CanvasProps) {
+export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipelineChange, onSelect }: CanvasProps) {
   const styles = getCanvasStyles(useTheme());
   const drawing = useMemo(() => drawingOf(pipelineState, blockedFlowIds), [pipelineState, blockedFlowIds]);
   // The reason of the last refused drag or repoint. A drag that does not count (AC-012) keeps it.
@@ -107,6 +111,15 @@ export function Canvas({ pipelineState, blockedFlowIds, blockerMessages, onPipel
         nodesConnectable
         connectOnClick={false}
         elementsSelectable={false}
+        onNodeClick={(_event, node) => {
+          onSelect({ kind: 'flow', id: node.id });
+        }}
+        onEdgeClick={(_event, edge) => {
+          onSelect({ kind: 'arrow', arrow: { source: edge.source, target: edge.target } });
+        }}
+        onPaneClick={() => {
+          onSelect({ kind: 'pipeline' });
+        }}
         onConnect={(connection: Connection) =>
           settle(dropLink(pipelineState, connection.source, dropOnHandle(connection.target, connection.targetHandle)))
         }

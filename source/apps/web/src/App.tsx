@@ -59,6 +59,9 @@ export function App() {
             dispatch({ type: 'setValues', patch });
           }}
           ruleActions={ruleActions}
+          onPipelineChange={(pipeline) => {
+            dispatch({ type: 'set-pipeline', pipeline });
+          }}
         />
       </AppFrame>
     </ThemeProvider>

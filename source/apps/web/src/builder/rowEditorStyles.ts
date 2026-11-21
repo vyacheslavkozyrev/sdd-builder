@@ -167,6 +167,8 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       gap: '8px',
     },
     saveButton: {
+      whiteSpace: 'nowrap',
+      minWidth: 64,
       height: 32,
       borderRadius: '8px',
       textTransform: 'none',

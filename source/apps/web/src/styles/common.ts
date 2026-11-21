@@ -12,7 +12,8 @@ export type StyleObject = Exclude<SxProps<Theme>, ReadonlyArray<unknown> | ((the
 export interface CommonStyles {
   // A white surface with a 1 px divider border, a 12 px radius and the approved soft shadow.
   readonly card: StyleObject;
-  // The outlined secondary button (New project): white fill, 8 px radius, 40 px high.
+  // The outlined secondary button (New project, Prev, form Cancel): white fill, 8 px radius, 40 px high.
+  // The caption does not wrap; the width comes from the caption.
   readonly outlineButton: StyleObject;
   // Small secondary text, such as the footer note.
   readonly secondaryText: StyleObject;
@@ -33,6 +34,7 @@ export interface CommonStyles {
   // The title of a section of a step (Stack, Rule blocks): 14 px, semibold, primary text.
   readonly sectionTitle: StyleObject;
   // The 28 px plus and minus buttons: a primary outline and a primary glyph on white (F-10 and F-11).
+  // The caption does not wrap; the width is at least 28 px.
   readonly plusMinusButton: StyleObject;
   // The confirmation dialog (F-11 screen 04, F-10 remove): a white 400 px card with 24 px padding.
   readonly dialogPaper: StyleObject;
@@ -41,27 +43,33 @@ export interface CommonStyles {
   readonly dialogText: StyleObject;
   // The row of the dialog's two buttons, centred.
   readonly dialogActions: StyleObject;
-  // The Cancel button of a dialog: the outlined secondary button, 120 by 40.
+  // The Cancel button of a dialog: the outlined secondary button, 40 high, at least 120 wide.
   readonly dialogCancel: StyleObject;
-  // The confirming button of a dialog that removes something: the danger button, 120 by 40.
+  // The confirming button of a dialog that removes something: the danger button, 40 high, at least 120 wide.
   readonly dialogConfirm: StyleObject;
   // The danger button (F-11 screens 03 and 04): a red fill with white text, 8 px radius, no size.
+  // The caption does not wrap; the width comes from the caption.
   readonly dangerButton: StyleObject;
   // The footer of a properties panel: fixed under the scrolling fields, with a space above.
   readonly panelFooter: StyleObject;
   // The root column of a properties panel: fills its place and may shrink inside its parent.
   readonly panelRoot: StyleObject;
-  // The Delete button of a properties panel's footer: the danger button, 130 by 40.
+  // The Delete button of a properties panel's footer: the danger button, 40 high, at least 130 wide.
+  // The caption does not wrap; the width comes from the caption.
   readonly panelDeleteButton: StyleObject;
 }
 
 const DIALOG_WIDTH = 400;
-const DIALOG_BUTTON_WIDTH = 120;
+const DIALOG_BUTTON_MIN_WIDTH = 120;
 const DIALOG_BUTTON_HEIGHT = 40;
-const PANEL_DELETE_BUTTON_WIDTH = 130;
+const PANEL_DELETE_BUTTON_MIN_WIDTH = 130;
+const PLUS_MINUS_SIZE = 28;
 
 export function getCommonStyles(theme: Theme): CommonStyles {
+  // Every button caption is one line: a caption never wraps, and the width follows the caption.
+  const captionNoWrap: StyleObject = { whiteSpace: 'nowrap' };
   const outlineButton: StyleObject = {
+    ...captionNoWrap,
     height: 40,
     borderRadius: '8px',
     borderColor: theme.palette.grey[300],
@@ -70,6 +78,7 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     textTransform: 'none',
   };
   const dangerButton: StyleObject = {
+    ...captionNoWrap,
     borderRadius: '8px',
     textTransform: 'none',
     bgcolor: theme.palette.error.main,
@@ -147,9 +156,9 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       color: theme.palette.text.primary,
     },
     plusMinusButton: {
-      width: 28,
-      height: 28,
-      minWidth: 0,
+      ...captionNoWrap,
+      height: PLUS_MINUS_SIZE,
+      minWidth: PLUS_MINUS_SIZE,
       p: 0,
       fontSize: 16,
       lineHeight: 1,
@@ -191,12 +200,12 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     },
     dialogCancel: {
       ...outlineButton,
-      width: DIALOG_BUTTON_WIDTH,
+      minWidth: DIALOG_BUTTON_MIN_WIDTH,
       height: DIALOG_BUTTON_HEIGHT,
     },
     dialogConfirm: {
       ...dangerButton,
-      width: DIALOG_BUTTON_WIDTH,
+      minWidth: DIALOG_BUTTON_MIN_WIDTH,
       height: DIALOG_BUTTON_HEIGHT,
     },
     dangerButton,
@@ -219,7 +228,7 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     },
     panelDeleteButton: {
       ...dangerButton,
-      width: PANEL_DELETE_BUTTON_WIDTH,
+      minWidth: PANEL_DELETE_BUTTON_MIN_WIDTH,
       height: DIALOG_BUTTON_HEIGHT,
     },
   };

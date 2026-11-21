@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
 | Build    | ✅ Complete | 2026-11-20 | 23 of 23 tasks committed |
-| Verify   | ⏳ Pending |  | |
+| Verify   | 🔄 In Progress | 2026-11-21 | Automated checks pass (45 of 45 criteria covered). Awaiting the device checklist (AC-006, AC-008, AC-013, AC-014, AC-016, AC-035 and layout points 1 to 4) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -90,7 +90,59 @@ _Otherwise none for the 2026-11-20 build._
 
 ## Test Results
 
-_Recorded per task in the Task Log and in the commit messages. Verify results come at the Verify step._
+Verify run 2026-11-21 (verify mode, test agent). Checks: `source/scripts/task-check.sh` passed (typecheck clean; api 45, web 988, core 1211 tests, all passing). F-11 tests: 488 results, 488 passing, 0 failing, 0 gaps among [auto] criteria. Test names carry "F-11 AC-###"; no F-11 test name lacks a criterion ID, and none names an ID outside 001 to 045.
+
+| Criterion | Tag | Passing F-11 tests | Test files | Result |
+|---|---|---|---|---|
+| AC-001 | auto | 17 | PipelineTabs.test.tsx, builder-model.test.ts | Covered |
+| AC-002 | auto | 4 | PipelineStep.test.tsx | Covered |
+| AC-003 | auto | 23 | PipelineStep.test.tsx, PipelineTabs.test.tsx, builder-model.test.ts | Covered |
+| AC-004 | auto | 1 | PipelineTabs.test.tsx | Covered |
+| AC-005 | auto | 5 | builder-layout.test.ts | Covered |
+| AC-006 | device | 7 | Canvas.test.tsx, drawing.test.ts | Checklist (automated tests also pass) |
+| AC-007 | auto | 5 | builder-layout.test.ts | Covered |
+| AC-008 | device | 4 | drawing.test.ts | Checklist (automated tests also pass) |
+| AC-009 | auto | 5 | Canvas.test.tsx, builder-layout.test.ts, drawing.test.ts | Covered |
+| AC-010 | auto | 11 | builder-connect.test.ts | Covered |
+| AC-011 | auto | 6 | builder-connect.test.ts | Covered |
+| AC-012 | auto | 7 | builder-repoint.test.ts | Covered |
+| AC-013 | device | 4 | Canvas.test.tsx | Checklist (automated tests also pass) |
+| AC-014 | device | 6 | Canvas.test.tsx, MessageBand.test.tsx | Checklist (automated tests also pass) |
+| AC-015 | auto | 15 | builder-repoint.test.ts | Covered |
+| AC-016 | device | 3 | Canvas.test.tsx | Checklist (automated tests also pass) |
+| AC-017 | auto | 12 | ConnectionPanel.test.tsx, builder-arrow.test.ts | Covered |
+| AC-018 | auto | 13 | ConnectionPanel.test.tsx, builder-arrow.test.ts | Covered |
+| AC-019 | auto | 4 | FlowPanel.test.tsx | Covered |
+| AC-020 | auto | 13 | FlowPanel.test.tsx, builder-fields.test.ts | Covered |
+| AC-021 | auto | 5 | FlowPanel.test.tsx, builder-fields.test.ts | Covered |
+| AC-022 | auto | 15 | FlowPanel.test.tsx, builder-fields.test.ts, flow.test.ts | Covered |
+| AC-023 | auto | 11 | FlowPanel.test.tsx, builder-fields.test.ts | Covered |
+| AC-024 | auto | 36 | RowEditors.test.tsx, builder-rows.test.ts | Covered |
+| AC-025 | auto | 34 | RowEditors.test.tsx, builder-artifacts.test.ts | Covered |
+| AC-026 | auto | 17 | PipelineStep.test.tsx, RowEditors.test.tsx, builder-rows.test.ts | Covered |
+| AC-027 | auto | 12 | FlowPanel.test.tsx, builder-approval.test.ts | Covered |
+| AC-028 | auto | 12 | FlowPanel.test.tsx, builder-fields.test.ts, builder-pipeline-fields.test.ts, builder-rows.test.ts | Covered |
+| AC-029 | auto | 3 | FlowPanel.test.tsx | Covered |
+| AC-030 | auto | 12 | builder-delete.test.ts | Covered |
+| AC-031 | auto | 5 | PipelineStep.test.tsx, builder-panel.test.ts | Covered |
+| AC-032 | auto | 2 | builder-delete.test.ts | Covered |
+| AC-033 | auto | 6 | builder-marks.test.ts | Covered |
+| AC-034 | auto | 5 | builder-marks.test.ts | Covered |
+| AC-035 | device | 20 | Canvas.test.tsx, MarkViews.test.tsx, MessageBand.test.tsx, PipelineStep.test.tsx, drawing.test.ts | Checklist (automated tests also pass) |
+| AC-036 | auto | 10 | MarkViews.test.tsx, PipelineStep.test.tsx, builder-marks.test.ts | Covered |
+| AC-037 | auto | 2 | builder-marks.test.ts | Covered |
+| AC-038 | auto | 2 | builder-marks.test.ts | Covered |
+| AC-039 | auto | 8 | wizard-pipeline.test.ts | Covered |
+| AC-040 | auto | 7 | wizard-pipeline.test.ts | Covered |
+| AC-041 | auto | 29 | wizard-privacy.test.ts | Covered |
+| AC-042 | auto | 20 | Canvas.test.tsx, PipelinePanel.test.tsx, PipelineStep.test.tsx, builder-panel.test.ts | Covered |
+| AC-043 | auto | 18 | RowEditors.test.tsx, builder-pipeline-fields.test.ts | Covered |
+| AC-044 | auto | 7 | PipelinePanel.test.tsx, builder-pipeline-fields.test.ts | Covered |
+| AC-045 | auto | 29 | PipelinePanel.test.tsx, builder-pipeline-fields.test.ts | Covered |
+
+Layout points flagged for the device check (white cards and tab row, no selection highlight, warning placement, canvas card border) have no automated test; they are in the checklist as Layout 1 to 4.
+
+Checklist: `spec/specifications/F-11-pipeline-builder/checklist.md`, status AWAITING CONFIRMATION. Verify stays open until the user records the device results.
 
 ---
 

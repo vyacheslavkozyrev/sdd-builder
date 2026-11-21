@@ -1,7 +1,7 @@
-// The flow field edits of the Flow panel (F-11 AC-020 to AC-023, AC-028), and the flow's argument and
-// rule tag rows (F-11 AC-024, AC-026). An edit is applied to a copy of the config, and the parser
-// (`parseProjectConfig` in core) decides. A refused edit leaves the saved pipeline as it was and returns
-// the parser's reason. Pure functions: no React and no I/O.
+// The flow field edits of the Flow panel (F-11 AC-020 to AC-023, AC-028), the flow's argument and
+// rule tag rows (F-11 AC-024, AC-026) and its outcome artifact rows (F-11 AC-025). An edit is applied
+// to a copy of the config, and the parser (`parseProjectConfig` in core) decides. A refused edit leaves
+// the saved pipeline as it was and returns the parser's reason. Pure functions: no React and no I/O.
 
 import { pipeline } from '@sddbuilder/core';
 
@@ -10,6 +10,7 @@ export type Flow = pipeline.Flow;
 export type Model = pipeline.Model;
 export type Rule = pipeline.Rule;
 export type Problem = pipeline.Problem;
+export type Artifact = pipeline.Artifact;
 
 // One field edit of a flow. A model of `undefined` unsets the model (AC-023); any other model text is
 // given to the parser, which refuses it.
@@ -106,21 +107,30 @@ function isUnder(path: string, placePath: string): boolean {
   return path === placePath || path.startsWith(`${placePath}.`);
 }
 
-// The parser's reason for an edit, or undefined when the edit is accepted. The problems the saved pipeline
+// The parser's problem for an edit, or undefined when the edit is accepted. The problems the saved pipeline
 // already had are left out, so an edit is refused only for what it causes. A problem at the edited value
-// (`placePath`, or under it) is the reason when there is one; otherwise the first new problem is.
+// (`placePath`, or under it) is the problem when there is one; otherwise the first new problem is.
+function refusalProblemOf(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  changed: { readonly position: number; readonly change: FlowChange },
+  placePath: string,
+): Problem | undefined {
+  const before = new Set(problemsOf(documentPipeline(pipelineState, undefined), rules).map(problemKey));
+  const refusals = problemsOf(documentPipeline(pipelineState, changed), rules).filter(
+    (problem) => isUnder(problem.path, placePath) || !before.has(problemKey(problem)),
+  );
+  return refusals.find((problem) => isUnder(problem.path, placePath)) ?? refusals[0];
+}
+
+// The parser's reason for an edit, or undefined when the edit is accepted.
 function refusalOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   changed: { readonly position: number; readonly change: FlowChange },
   placePath: string,
 ): string | undefined {
-  const before = new Set(problemsOf(documentPipeline(pipelineState, undefined), rules).map(problemKey));
-  const refusals = problemsOf(documentPipeline(pipelineState, changed), rules).filter(
-    (problem) => isUnder(problem.path, placePath) || !before.has(problemKey(problem)),
-  );
-  const reason = refusals.find((problem) => isUnder(problem.path, placePath)) ?? refusals[0];
-  return reason?.message;
+  return refusalProblemOf(pipelineState, rules, changed, placePath)?.message;
 }
 
 // The flow `flowId` and its position, or a programmer error when the pipeline has no such flow.
@@ -142,7 +152,7 @@ function renumber<T extends { readonly index: number }>(rows: readonly T[]): T[]
   return rows.map((row, index) => ({ ...row, index }));
 }
 
-function rowPath(position: number, key: 'arguments' | 'ruleTags', rowPosition: number): string {
+function rowPath(position: number, key: 'arguments' | 'artifacts' | 'ruleTags', rowPosition: number): string {
   return `pipeline.flows.${position}.${key}.${rowPosition}`;
 }
 
@@ -310,4 +320,133 @@ export function removeFlowRuleTag(pipelineState: Pipeline, flowId: string, rowPo
   }
   const kept = renumber(tags.filter((_tag, index) => index !== rowPosition));
   return withFlow(pipelineState, position, { ...flow, ruleTags: kept });
+}
+
+// One outcome artifact as the user types it (AC-025). Its place in the flow's list is its position.
+export interface ArtifactRow {
+  readonly label: string;
+  readonly template: string;
+}
+
+// One field edit of an artifact row: its label or its template.
+export type ArtifactEdit = { readonly field: ArtifactField; readonly value: string };
+
+export type ArtifactField = 'label' | 'template';
+
+// The result of an artifact add or edit: the new pipeline, or the field that was refused with the parser's
+// reason. The field is the one the reason is shown beneath (AC-025).
+export type ArtifactResult =
+  | { readonly ok: true; readonly pipeline: Pipeline }
+  | { readonly ok: false; readonly field: ArtifactField; readonly reason: string };
+
+function artifactDocument(artifact: Artifact | ArtifactRow): Record<string, unknown> {
+  return { label: artifact.label, template: artifact.template };
+}
+
+// The artifact with one field replaced by the edit's value.
+function artifactWith(artifact: Artifact, edit: ArtifactEdit): Artifact {
+  return edit.field === 'label'
+    ? { label: edit.value, template: artifact.template }
+    : { label: artifact.label, template: edit.value };
+}
+
+// The field the refusal belongs to: the template when the parser's problem is at the template, otherwise
+// the label (a problem with another artifact's label is shown at the label of the edited row).
+function refusedField(problem: Problem, rowPathValue: string): ArtifactField {
+  return isUnder(problem.path, `${rowPathValue}.template`) ? 'template' : 'label';
+}
+
+// Appends an artifact to the flow `flowId` (AC-025). The label is required, one line and not blank; the
+// template may be empty and is at most 5000 characters. The parser decides; a refused artifact is not
+// added, and the reason is the parser's message for the field it belongs to.
+export function addFlowArtifact(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  flowId: string,
+  row: ArtifactRow,
+): ArtifactResult {
+  const { position, flow } = flowAt(pipelineState, flowId);
+  const rowPosition = flow.artifacts.length;
+  const placePath = rowPath(position, 'artifacts', rowPosition);
+  const problem = refusalProblemOf(
+    pipelineState,
+    rules,
+    {
+      position,
+      change: (document) => ({
+        ...document,
+        artifacts: [...flow.artifacts.map(artifactDocument), artifactDocument(row)],
+      }),
+    },
+    placePath,
+  );
+  if (problem !== undefined) {
+    return { ok: false, field: refusedField(problem, placePath), reason: problem.message };
+  }
+
+  const artifacts = [...flow.artifacts, { label: row.label, template: row.template }];
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts }) };
+}
+
+// Replaces one field of the artifact at `rowPosition` of the flow `flowId` (AC-025). A refused edit keeps
+// the saved values, and the reason is the parser's message for the field the edit changed.
+export function editFlowArtifact(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  flowId: string,
+  rowPosition: number,
+  edit: ArtifactEdit,
+): ArtifactResult {
+  const { position, flow } = flowAt(pipelineState, flowId);
+  const saved = flow.artifacts[rowPosition];
+  if (saved === undefined) {
+    throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
+  }
+  const placePath = rowPath(position, 'artifacts', rowPosition);
+  const editedPath = `${placePath}.${edit.field}`;
+  const problem = refusalProblemOf(
+    pipelineState,
+    rules,
+    {
+      position,
+      change: (document) => ({
+        ...document,
+        artifacts: flow.artifacts.map((item, index) =>
+          index === rowPosition ? artifactDocument(artifactWith(item, edit)) : artifactDocument(item),
+        ),
+      }),
+    },
+    editedPath,
+  );
+  if (problem !== undefined) {
+    return { ok: false, field: refusedField(problem, placePath), reason: problem.message };
+  }
+
+  const artifacts = flow.artifacts.map((item, index) => (index === rowPosition ? artifactWith(item, edit) : item));
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts }) };
+}
+
+// Removes the artifact at `rowPosition` of the flow `flowId` (AC-025). An artifact that an End block of the
+// flow names is not removed: the parser reports that end, and the reason is its message. The artifacts after
+// the removed one keep their order.
+export function removeFlowArtifact(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  flowId: string,
+  rowPosition: number,
+): RowResult {
+  const { position, flow } = flowAt(pipelineState, flowId);
+  if (flow.artifacts[rowPosition] === undefined) {
+    throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
+  }
+  const kept = flow.artifacts.filter((_item, index) => index !== rowPosition);
+  const reason = refusalOf(
+    pipelineState,
+    rules,
+    { position, change: (document) => ({ ...document, artifacts: kept.map(artifactDocument) }) },
+    `pipeline.flows.${position}.artifacts`,
+  );
+  if (reason !== undefined) return { ok: false, reason };
+
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts: kept }) };
 }

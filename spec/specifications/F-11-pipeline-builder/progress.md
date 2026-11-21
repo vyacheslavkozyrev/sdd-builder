@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | ✅ Complete | 2026-11-20 | 23 of 23 tasks committed |
-| Verify   | 🔄 In Progress | 2026-11-21 | Automated checks pass (45 of 45 criteria covered). Awaiting the device checklist (AC-006, AC-008, AC-013, AC-014, AC-016, AC-035 and layout points 1 to 4) |
+| Build    | 🔄 In Progress | 2026-11-21 | 23 of 23 tasks committed; reopened by Amendment 2026-11-21 (T024 to T026) |
+| Verify   | ⏳ Pending | 2026-11-21 | Automated checks pass (45 of 45 criteria covered). Awaiting the device checklist (AC-006, AC-008, AC-013, AC-014, AC-016, AC-035 and layout points 1 to 4) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -147,6 +147,11 @@ Checklist: `spec/specifications/F-11-pipeline-builder/checklist.md`, status AWAI
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-21 (Verify: layout and bugs reported by the user)
+**Changed**: `plan.md` adds T024 (layout: tabs outside the white card, no page scroll, only the properties content scrolls), T025 (one error panel with a counter and an expandable list, including the "Not on a drawn item" list), T026 (bug: typing in a flow's name, description or body, or changing its model, adds an argument row and an outcome artifact).
+**Reason**: the user's manual check of 2026-11-21 (screenshot) found these. Verify does not complete until they are fixed and the checklist is re-run.
+**Impact**: Build reopens for T024 to T026. Checklist Layout 1 to 4 and AC-035 are re-run afterwards.
 
 ### Amendment — 2026-11-20 (T018 review: Delete flow control)
 **Changed**: `plan.md` T020 now also covers the Delete flow control part of AC-019. T018 covers AC-019 for every field except Delete flow.

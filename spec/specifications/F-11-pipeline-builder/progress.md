@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-20 | 8 stories, 45 criteria: 39 `[auto]`, 6 `[device]`; re-specified from the final schema (`pipeline-schema.md`) and approved by the user. Flow checks removed from the panel; rule tags kept; Delete connection kept; pipeline panel (arguments and body) added as US-008 (user decisions, 2026-11-20) |
 | UX       | ✅ Complete | 2026-11-20 | Approved by the user at the committed screens (`5dd262d`, 2026-11-19 revision; earlier 2026-11-20 redraw reverted at the user's request). Stories changed to match them (US-008, AC-035 and AC-045, option 1). Screens 11 to 13 and the review fixes were not kept. Three states have no screen: the delete-connection confirmation and the refused flow name and body (proved by tests), and the red blocker box (Verify checklist) |
 | Plan     | ✅ Complete | 2026-11-20 | Approved by the user; 23 tasks (T001 to T023), written from the stories and the approved screens |
-| Build    | 🔄 In Progress | 2026-11-21 | 23 of 23 tasks committed; reopened by Amendment 2026-11-21 (T024 to T026) |
-| Verify   | ⏳ Pending | 2026-11-21 | Automated checks pass (45 of 45 criteria covered). Awaiting the device checklist (AC-006, AC-008, AC-013, AC-014, AC-016, AC-035 and layout points 1 to 4) |
+| Build    | ✅ Complete | 2026-11-21 | 26 of 26 tasks committed (23 build, then T024 to T026 by Amendment 2026-11-21) |
+| Verify   | 🔄 In Progress | 2026-11-21 | Automated checks pass (45 of 45 criteria covered). Awaiting the device checklist (AC-006, AC-008, AC-013, AC-014, AC-016, AC-035 and layout points 1 to 4) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

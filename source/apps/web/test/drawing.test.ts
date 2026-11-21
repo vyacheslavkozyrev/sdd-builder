@@ -69,9 +69,10 @@ describe('F-11 AC-006 boxes in pipeline order', () => {
     ]);
   });
 
-  it('F-11 AC-006 boxes are not dragged, selected or connected from the canvas', () => {
+  it('F-11 AC-006 boxes are not dragged or selected; connecting is the canvas setting (AC-013)', () => {
     const drawing = drawingOf(pipelineOf(flow('specify')), []);
-    expect(drawing.nodes[0]).toMatchObject({ draggable: false, selectable: false, connectable: false });
+    expect(drawing.nodes[0]).toMatchObject({ draggable: false, selectable: false });
+    expect(drawing.nodes[0]).not.toHaveProperty('connectable');
   });
 });
 

@@ -58,3 +58,40 @@ export function getPipelineTabsStyles(theme: Theme): PipelineTabsStyles {
     addButton: common.plusMinusButton,
   };
 }
+
+export interface MessageBandStyles {
+  // The column at the top centre of the builder: it floats over the canvas and takes no pointer input,
+  // so it never blocks a drag.
+  readonly root: StyleObject;
+  // One message: the blocker colours from the palette, a light red fill with red text (F-11 screens 05 and 08).
+  readonly message: StyleObject;
+}
+
+export function getMessageBandStyles(theme: Theme): MessageBandStyles {
+  return {
+    root: {
+      position: 'absolute',
+      top: '12px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      maxWidth: 'calc(100% - 24px)',
+      zIndex: 1,
+      pointerEvents: 'none',
+    },
+    message: {
+      boxSizing: 'border-box',
+      px: '16px',
+      py: '8px',
+      borderRadius: '8px',
+      border: `1px solid ${theme.palette.error.main}`,
+      bgcolor: theme.palette.error.light,
+      color: theme.palette.error.main,
+      fontSize: 12,
+      lineHeight: '20px',
+      textAlign: 'center',
+    },
+  };
+}

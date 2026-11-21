@@ -58,7 +58,6 @@ export function drawingOf(pipelineState: Pipeline, blockedFlowIds: readonly stri
       },
       draggable: false,
       selectable: false,
-      connectable: false,
     };
   });
   const edges = layout.arrows.map(

@@ -171,25 +171,105 @@ function describedBy(shown: boolean, id: string): string | undefined {
   return shown ? id : undefined;
 }
 
-// The argument list (F-11 AC-024, AC-043): a title with + in it, then one row per argument. Each row holds
-// its id, a required flag, a hint and a minus. A saved row is edited in place, and each change is checked
-// by the parser at once. The + opens a new row with Save and Cancel, which the parser checks on Save.
-export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
+// The text of a saved argument row as screens 01 and 07 draw it: its id, and "· required" after it when required.
+function argumentText(item: Argument): string {
+  return item.required ? `${item.id} · required` : item.id;
+}
+
+type ArgumentMode =
+  | { readonly kind: 'closed' }
+  | { readonly kind: 'add'; readonly draft: ArgumentRow; readonly refusal: string | undefined }
+  | { readonly kind: 'edit'; readonly position: number; readonly draft: ArgumentRow; readonly refusal: string | undefined };
+
+interface ArgumentFormProps {
+  // The group name of the form, and the prefix of its field names: "New argument", or "Argument N" for an edit.
+  readonly label: string;
+  readonly draft: ArgumentRow;
+  readonly refusal: string | undefined;
+  readonly onDraftChange: (draft: ArgumentRow) => void;
+  readonly onSave: () => void;
+  readonly onCancel: () => void;
+}
+
+// The form of an argument, for Add and for Edit: an Id field, a required checkbox, a Hint field, and Cancel and
+// Save. The parser's reason shows beneath the form; the form keeps what was typed.
+function ArgumentForm({ label, draft, refusal, onDraftChange, onSave, onCancel }: ArgumentFormProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
-  const [draft, setDraft] = useState<ArgumentRow | undefined>(undefined);
-  const [refusal, setRefusal] = useState<RowRefusal | undefined>(undefined);
+  const refusalId = `${idBase}-refusal`;
+  const described = describedBy(refusal !== undefined, refusalId);
+  return (
+    <Box role="group" aria-label={label} sx={styles.form}>
+      <TextField
+        placeholder="Id"
+        value={draft.id}
+        onChange={(event) => {
+          onDraftChange({ ...draft, id: event.target.value });
+        }}
+        sx={styles.input}
+        slotProps={{ htmlInput: { 'aria-label': `${label} id`, 'aria-describedby': described } }}
+      />
+      <FormControlLabel
+        sx={styles.checkbox}
+        control={
+          <Checkbox
+            checked={draft.required}
+            onChange={(event) => {
+              onDraftChange({ ...draft, required: event.target.checked });
+            }}
+          />
+        }
+        label={<Box component="span" sx={styles.checkboxLabel}>required</Box>}
+      />
+      <TextField
+        placeholder="Hint"
+        value={draft.hint}
+        onChange={(event) => {
+          onDraftChange({ ...draft, hint: event.target.value });
+        }}
+        sx={styles.input}
+        slotProps={{ htmlInput: { 'aria-label': `${label} hint`, 'aria-describedby': described } }}
+      />
+      {refusal === undefined ? null : <Refusal id={refusalId} reason={refusal} />}
+      <Box sx={styles.formActions}>
+        <Button variant="outlined" onClick={onCancel} sx={styles.cancelButton}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={onSave} sx={styles.saveButton}>
+          Save
+        </Button>
+      </Box>
+    </Box>
+  );
+}
+
+// The argument list (F-11 AC-024, AC-043; screens 01 and 07): a title with + in it, then one row per argument. A
+// saved row is a field with its id and "· required", and a minus; the field opens the argument's form in place,
+// and Save checks the edit with the parser. + opens an empty form after the list, with Save and Cancel. Only one
+// form is open at a time, and it is closed until + or the field is pressed.
+export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
+  const styles = getRowEditorStyles(useTheme());
+  const [mode, setMode] = useState<ArgumentMode>({ kind: 'closed' });
   const rows = argumentsOf(pipelineState, target);
 
-  // An accepted edit is reported; a refused one keeps the saved pipeline and shows its reason at `row`.
-  function accept(result: RowResult, row: RowKey): boolean {
+  function saveAdd(draft: ArgumentRow) {
+    const result = addArgumentTo(pipelineState, rules, target, draft);
     if (result.ok) {
       onChange(result.pipeline);
-      setRefusal(undefined);
-      return true;
+      setMode({ kind: 'closed' });
+      return;
     }
-    setRefusal({ row, reason: result.reason });
-    return false;
+    setMode({ kind: 'add', draft, refusal: result.reason });
+  }
+
+  function saveEdit(position: number, draft: ArgumentRow) {
+    const result = editArgumentAt(pipelineState, rules, target, position, draft);
+    if (result.ok) {
+      onChange(result.pipeline);
+      setMode({ kind: 'closed' });
+      return;
+    }
+    setMode({ kind: 'edit', position, draft, refusal: result.reason });
   }
 
   return (
@@ -202,8 +282,7 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
           variant="outlined"
           aria-label="Add argument"
           onClick={() => {
-            setRefusal(undefined);
-            setDraft(draft ?? EMPTY_ARGUMENT);
+            setMode({ kind: 'add', draft: EMPTY_ARGUMENT, refusal: undefined });
           }}
           sx={styles.addButton}
         >
@@ -212,135 +291,69 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
       </Box>
 
       {rows.map((item, position) => {
-        const shownRefusal = refusal !== undefined && refusal.row === position;
-        const refusalId = `${idBase}-argument-${position + 1}-refusal`;
+        if (mode.kind === 'edit' && mode.position === position) {
+          return (
+            <ArgumentForm
+              key={position}
+              label={`Argument ${position + 1}`}
+              draft={mode.draft}
+              refusal={mode.refusal}
+              onDraftChange={(draft) => {
+                setMode({ ...mode, draft });
+              }}
+              onSave={() => {
+                saveEdit(position, mode.draft);
+              }}
+              onCancel={() => {
+                setMode({ kind: 'closed' });
+              }}
+            />
+          );
+        }
         return (
           <Box key={position} role="group" aria-label={`Argument ${position + 1}`} sx={styles.row}>
             <Box sx={styles.rowLine}>
-              <TextField
-                value={item.id}
-                onChange={(event) => {
-                  accept(
-                    editArgumentAt(pipelineState, rules, target, position, { ...rowOf(item), id: event.target.value }),
-                    position,
-                  );
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setMode({ kind: 'edit', position, draft: rowOf(item), refusal: undefined });
                 }}
-                sx={styles.input}
-                slotProps={{
-                  htmlInput: {
-                    'aria-label': `Argument ${position + 1} id`,
-                    'aria-describedby': describedBy(shownRefusal, refusalId),
-                  },
-                }}
-              />
-              <FormControlLabel
-                sx={styles.checkbox}
-                control={
-                  <Checkbox
-                    checked={item.required}
-                    onChange={(event) => {
-                      accept(
-                        editArgumentAt(pipelineState, rules, target, position, {
-                          ...rowOf(item),
-                          required: event.target.checked,
-                        }),
-                        position,
-                      );
-                    }}
-                  />
-                }
-                label={<Box component="span" sx={styles.checkboxLabel}>required</Box>}
-              />
+                sx={styles.argumentField}
+              >
+                {argumentText(item)}
+              </Button>
               <Button
                 variant="outlined"
                 aria-label={`Remove argument ${position + 1}`}
                 onClick={() => {
                   onChange(removeArgumentAt(pipelineState, target, position));
-                  setRefusal(undefined);
+                  setMode({ kind: 'closed' });
                 }}
                 sx={styles.minusButton}
               >
                 −
               </Button>
             </Box>
-            <TextField
-              placeholder="Hint"
-              value={item.hint}
-              onChange={(event) => {
-                accept(
-                  editArgumentAt(pipelineState, rules, target, position, { ...rowOf(item), hint: event.target.value }),
-                  position,
-                );
-              }}
-              sx={styles.input}
-              slotProps={{
-                htmlInput: {
-                  'aria-label': `Argument ${position + 1} hint`,
-                  'aria-describedby': describedBy(shownRefusal, refusalId),
-                },
-              }}
-            />
-            {shownRefusal ? <Refusal id={refusalId} reason={refusal.reason} /> : null}
           </Box>
         );
       })}
 
-      {draft === undefined ? null : (
-        <Box role="group" aria-label="New argument" sx={styles.form}>
-          <TextField
-            placeholder="Id"
-            value={draft.id}
-            onChange={(event) => {
-              setDraft({ ...draft, id: event.target.value });
-            }}
-            sx={styles.input}
-            slotProps={{ htmlInput: { 'aria-label': 'New argument id' } }}
-          />
-          <FormControlLabel
-            sx={styles.checkbox}
-            control={
-              <Checkbox
-                checked={draft.required}
-                onChange={(event) => {
-                  setDraft({ ...draft, required: event.target.checked });
-                }}
-              />
-            }
-            label={<Box component="span" sx={styles.checkboxLabel}>required</Box>}
-          />
-          <TextField
-            placeholder="Hint"
-            value={draft.hint}
-            onChange={(event) => {
-              setDraft({ ...draft, hint: event.target.value });
-            }}
-            sx={styles.input}
-            slotProps={{ htmlInput: { 'aria-label': 'New argument hint' } }}
-          />
-          {refusal !== undefined && refusal.row === 'new' ? <Refusal id={`${idBase}-argument-new-refusal`} reason={refusal.reason} /> : null}
-          <Box sx={styles.formActions}>
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setDraft(undefined);
-                setRefusal(undefined);
-              }}
-              sx={styles.cancelButton}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              onClick={() => {
-                if (accept(addArgumentTo(pipelineState, rules, target, draft), 'new')) setDraft(undefined);
-              }}
-              sx={styles.saveButton}
-            >
-              Save
-            </Button>
-          </Box>
-        </Box>
-      )}
+      {mode.kind === 'add' ? (
+        <ArgumentForm
+          label="New argument"
+          draft={mode.draft}
+          refusal={mode.refusal}
+          onDraftChange={(draft) => {
+            setMode({ kind: 'add', draft, refusal: mode.refusal });
+          }}
+          onSave={() => {
+            saveAdd(mode.draft);
+          }}
+          onCancel={() => {
+            setMode({ kind: 'closed' });
+          }}
+        />
+      ) : null}
     </Box>
   );
 }

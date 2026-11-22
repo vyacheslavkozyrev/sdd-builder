@@ -17,6 +17,8 @@ export interface RowEditorStyles {
   // One row: a line of controls, with the reason of a refused edit beneath it.
   readonly row: StyleObject;
   readonly rowLine: StyleObject;
+  // A saved argument row: a field as screens 01 and 07 draw it, with its id and "· required" text; it opens the form.
+  readonly argumentField: StyleObject;
   // A text field and a dropdown in a row or a form; the multi-line template field is taller.
   readonly input: StyleObject;
   readonly multilineInput: StyleObject;
@@ -91,6 +93,23 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       alignItems: 'center',
       gap: '8px',
       minWidth: 0,
+    },
+    argumentField: {
+      ...common.outlineButton,
+      flex: 1,
+      minWidth: 0,
+      display: 'block',
+      px: 2,
+      fontSize: 13,
+      fontWeight: 400,
+      lineHeight: '38px',
+      textAlign: 'left',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      '&:hover': {
+        bgcolor: theme.palette.background.paper,
+        borderColor: theme.palette.grey[300],
+      },
     },
     input,
     multilineInput: {

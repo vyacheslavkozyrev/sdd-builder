@@ -14,7 +14,7 @@ import {
   removeFlowArtifact,
 } from '../src/builder/fields.js';
 import type { ArgumentRow, Pipeline, Rule } from '../src/builder/fields.js';
-import { addPipelineArgument } from '../src/builder/pipelineFields.js';
+import { addPipelineArgument, editPipelineArgument } from '../src/builder/pipelineFields.js';
 
 // The row editors are rendered in the DOM, so this file runs in jsdom (architecture.md §5). Every refusal
 // text is the parser's own message, taken from the same parser call the editor makes, so the test does not
@@ -72,6 +72,11 @@ function argumentRefusal(result: ReturnType<typeof addFlowArgument>): string {
   return result.reason;
 }
 
+// Presses Save in the argument form of `group` (its group name, as the form draws it).
+function saveForm(group: string) {
+  fireEvent.click(within(screen.getByRole('group', { name: group })).getByRole('button', { name: 'Save' }));
+}
+
 function renderArguments(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'plan' }) {
   const onChange = vi.fn();
   render(<ArgumentRows pipelineState={pipelineState} rules={RULES} target={target} onChange={onChange} />);
@@ -98,13 +103,19 @@ function reported(onChange: ReturnType<typeof vi.fn>): Pipeline {
 }
 
 describe('F-11 AC-024 flow argument rows', () => {
-  it('F-11 AC-024 shows each saved argument as a row with its id, required flag, hint and minus', () => {
+  it('F-11 AC-024 shows each saved argument as a field with its id and "· required", and a minus; the form is closed', () => {
     renderArguments(basePipeline());
     const row = within(screen.getByRole('group', { name: 'Argument 1' }));
-    expect(row.getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
-    expect(row.getByLabelText('required')).toHaveProperty('checked', true);
-    expect(row.getByLabelText('Argument 1 hint')).toHaveProperty('value', 'The feature');
+    expect(row.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
     expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByLabelText('Argument 1 id')).toBeNull();
+  });
+
+  it('F-11 AC-024 shows no "· required" text for an argument that is not required', () => {
+    renderArguments(withArguments({ id: 'topic', required: false, hint: '' }));
+    expect(screen.getByRole('button', { name: 'topic' })).toBeTruthy();
+    expect(screen.queryByText(/required/)).toBeNull();
   });
 
   it('F-11 AC-024 + in the title row opens a new row, and Save appends it when the parser accepts it', () => {
@@ -134,47 +145,66 @@ describe('F-11 AC-024 flow argument rows', () => {
     expect(draft.getByLabelText('New argument id')).toHaveProperty('value', 'bad id!');
   });
 
-  it('F-11 AC-024 refuses an edit that repeats the id of another argument, and keeps the saved row', () => {
+  it('F-11 AC-024 refuses an edit that repeats the id of another argument, keeps the form open and shows the reason beneath it', () => {
     const pipelineState = withArguments(
       { id: 'a', required: false, hint: '' },
       { id: 'b', required: false, hint: '' },
     );
     const { onChange } = renderArguments(pipelineState);
+    fireEvent.click(screen.getByRole('button', { name: 'b' }));
     fireEvent.change(screen.getByLabelText('Argument 2 id'), { target: { value: 'a' } });
+    saveForm('Argument 2');
 
     const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 1, { id: 'a', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
     expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'b');
+    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'a');
   });
 
   it('F-11 AC-024 edits a saved row through the parser and reports the new pipeline', () => {
     const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
     fireEvent.click(screen.getByLabelText('required'));
+    saveForm('Argument 1');
 
     expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'feature-id', required: false, hint: 'The feature' }]);
   });
 
-  it('F-11 AC-024 refuses a hint longer than 100 characters, keeps the saved row and shows the reason beneath the row', () => {
+  it('F-11 AC-024 refuses a hint longer than 100 characters, keeps the form open and shows the reason beneath it', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderArguments(pipelineState);
     const longHint = 'x'.repeat(101);
+    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
     fireEvent.change(screen.getByLabelText('Argument 1 hint'), { target: { value: longHint } });
+    saveForm('Argument 1');
 
     const reason = argumentRefusal(
       editFlowArgument(pipelineState, RULES, 'plan', 0, { id: 'feature-id', required: true, hint: longHint }),
     );
     expect(onChange).not.toHaveBeenCalled();
     expect(within(screen.getByRole('group', { name: 'Argument 1' })).getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 1 hint')).toHaveProperty('value', 'The feature');
+    expect(screen.getByLabelText('Argument 1 hint')).toHaveProperty('value', longHint);
   });
 
   it('F-11 AC-024 accepts a hint of exactly 100 characters on edit', () => {
     const { onChange } = renderArguments(basePipeline());
     const hint = 'x'.repeat(100);
+    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
     fireEvent.change(screen.getByLabelText('Argument 1 hint'), { target: { value: hint } });
+    saveForm('Argument 1');
 
     expect(reported(onChange).flows[0]?.arguments[0]?.hint).toBe(hint);
+  });
+
+  it('F-11 AC-024 Cancel closes the edit form and keeps the saved row', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
+    fireEvent.change(screen.getByLabelText('Argument 1 id'), { target: { value: 'other' } });
+    fireEvent.click(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('button', { name: 'Cancel' }));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByLabelText('Argument 1 id')).toBeNull();
+    expect(screen.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
   });
 
   it('F-11 AC-024 removes one row on its own and leaves the others', () => {
@@ -197,7 +227,9 @@ describe('F-11 AC-043 pipeline argument rows', () => {
 
   it('F-11 AC-043 edits the pipeline arguments, not the arguments of a flow', () => {
     const { onChange } = renderArguments(basePipeline(), { kind: 'pipeline' });
+    fireEvent.click(screen.getByRole('button', { name: 'brief' }));
     fireEvent.click(screen.getByLabelText('required'));
+    saveForm('Argument 1');
 
     const next = reported(onChange);
     expect(next.arguments[0]?.required).toBe(true);
@@ -215,6 +247,27 @@ describe('F-11 AC-043 pipeline argument rows', () => {
     const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
     expect(draft.getByText(reason)).toBeTruthy();
+  });
+
+  it('F-11 AC-043 refuses a pipeline argument edit that repeats another id, keeps the form open and shows the reason beneath it', () => {
+    const pipelineState: Pipeline = {
+      ...basePipeline(),
+      arguments: [
+        { index: 0, id: 'brief', required: false, hint: '' },
+        { index: 1, id: 'topic', required: false, hint: '' },
+      ],
+    };
+    const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
+    fireEvent.click(screen.getByRole('button', { name: 'topic' }));
+    fireEvent.change(screen.getByLabelText('Argument 2 id'), { target: { value: 'brief' } });
+    saveForm('Argument 2');
+
+    const reason = argumentRefusal(
+      editPipelineArgument(pipelineState, RULES, 1, { id: 'brief', required: false, hint: '' }),
+    );
+    expect(onChange).not.toHaveBeenCalled();
+    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'brief');
   });
 
   it('F-11 AC-043 removes one pipeline argument row on its own', () => {

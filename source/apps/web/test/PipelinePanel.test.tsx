@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Pipeline, Rule } from '../src/builder/fields.js';
 import { PipelinePanel } from '../src/builder/PipelinePanel.js';
 import { editPipelineField, type PipelineFieldEdit } from '../src/builder/pipelineFields.js';
+import { defaultPipelineValue } from '../src/wizard/state.js';
 
 // The pipeline panel is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
 
@@ -215,5 +216,26 @@ describe('F-11 AC-044 pipeline body', () => {
     expect(screen.getByText(reason)).toBeTruthy();
     expect(screen.getByLabelText('Body')).toHaveProperty('value', 'Runs the feature from specify to complete.');
     expect(screen.getByText('42 / 1000 characters')).toBeTruthy();
+  });
+});
+
+describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () => {
+  it('F-11 AC-043 draws the saved feature-id argument as a field with "· required" and a minus, as screen 01 does', () => {
+    const onChange = vi.fn();
+    render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
+
+    const row = within(screen.getByRole('group', { name: 'Argument 1' }));
+    expect(row.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
+    expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
+  });
+
+  it('F-11 AC-043 keeps the add form closed until + is pressed', () => {
+    const onChange = vi.fn();
+    render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
+
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByLabelText('New argument id')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    expect(screen.getByRole('group', { name: 'New argument' })).toBeTruthy();
   });
 });

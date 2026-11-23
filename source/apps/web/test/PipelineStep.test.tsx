@@ -457,6 +457,13 @@ describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only 
     expect(connection.footer).toMatchObject({ flexShrink: 0, px: '16px', pb: '16px' });
   });
 
+  it('F-11 AC-019 AC-045 the flow and pipeline panel spacing follows screen 01: 24 px from a field to the next label, 12 px inside the body box', () => {
+    const panel = getFlowPanelStyles(theme);
+    // The label sits 8 px above its own field (common.ts); the field groups are 24 px apart.
+    expect(panel.scroll).toMatchObject({ gap: '24px' });
+    expect(panel.multilineField).toMatchObject({ '& .MuiOutlinedInput-input': expect.objectContaining({ px: '12px' }) });
+  });
+
   it('F-11 AC-006 layout point 2 negative case: the canvas and the step column do not scroll themselves', () => {
     const styles = getPipelineStepStyles(theme);
     expect(styles.root).not.toHaveProperty('overflowY');

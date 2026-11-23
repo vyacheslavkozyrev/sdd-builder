@@ -220,16 +220,17 @@ describe('F-11 AC-044 pipeline body', () => {
 });
 
 describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () => {
-  it('F-11 AC-043 draws the saved feature-id argument as a field with "· required" and a minus, as screen 01 does', () => {
+  it('F-11 AC-043 draws the saved feature-id argument as a field with a ticked "required" box and a minus', () => {
     const onChange = vi.fn();
     render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
 
     const row = within(screen.getByRole('group', { name: 'Argument 1' }));
-    expect(row.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
+    expect(row.getByRole('checkbox', { name: 'required' })).toHaveProperty('checked', true);
     expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
   });
 
-  it('F-11 AC-043 keeps the add form closed until + is pressed', () => {
+  it('F-11 AC-043 keeps the new line closed until + is pressed', () => {
     const onChange = vi.fn();
     render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
 
@@ -237,5 +238,30 @@ describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () 
     expect(screen.queryByLabelText('New argument id')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
     expect(screen.getByRole('group', { name: 'New argument' })).toBeTruthy();
+  });
+
+  it('F-11 AC-043 + adds one line with a text box and a minus, and no Cancel or Save', () => {
+    const onChange = vi.fn();
+    render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+
+    const line = within(screen.getByRole('group', { name: 'New argument' }));
+    expect(line.getByLabelText('New argument id')).toBeTruthy();
+    expect(line.getByRole('button', { name: 'Cancel new argument' })).toBeTruthy();
+    expect(line.queryByRole('button', { name: 'Save' })).toBeNull();
+    expect(line.queryByRole('button', { name: 'Cancel' })).toBeNull();
+  });
+
+  it('F-11 AC-043 a valid id typed on the pipeline panel line is saved through the parser on blur', () => {
+    const onChange = vi.fn();
+    render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    const input = screen.getByLabelText('New argument id');
+    fireEvent.change(input, { target: { value: 'topic' } });
+    fireEvent.blur(input);
+
+    const next = onChange.mock.calls[0]?.[0] as { arguments: { id: string }[] } | undefined;
+    expect(next?.arguments.map((item) => item.id)).toEqual(['feature-id', 'topic']);
+    expect(next?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
   });
 });

@@ -11,7 +11,8 @@ export interface FlowPanelStyles {
   // The panel: a column that fills its place, with the fields above and the footer fixed below.
   readonly root: StyleObject;
   // The fields, in the order of AC-019: a column that scrolls inside the panel, the footer stays in view.
-  // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge.
+  // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge. A field
+  // group ends 24 px above the next label, as screen 01 draws it (the label sits 8 px above its own field).
   readonly scroll: StyleObject;
   // The footer under the fields: the Delete flow control (AC-019, AC-029).
   readonly footer: StyleObject;
@@ -43,7 +44,7 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column',
-      gap: '16px',
+      gap: '24px',
       px: '16px',
       minWidth: 0,
     },
@@ -72,7 +73,8 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       ...common.formField,
       '& .MuiOutlinedInput-input': {
         boxSizing: 'border-box',
-        px: 2,
+        // The body's text sits 12 px in from its box, as screen 01 draws it (fields keep their 16 px).
+        px: '12px',
         py: '8px',
         fontSize: 13,
         lineHeight: '20px',

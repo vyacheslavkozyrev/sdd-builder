@@ -72,9 +72,10 @@ function argumentRefusal(result: ReturnType<typeof addFlowArgument>): string {
   return result.reason;
 }
 
-// Presses Save in the argument form of `group` (its group name, as the form draws it).
-function saveForm(group: string) {
-  fireEvent.click(within(screen.getByRole('group', { name: group })).getByRole('button', { name: 'Save' }));
+// Types `value` into a one-line field and leaves it (blur), which is how the editor takes an id.
+function commitText(input: HTMLElement, value: string) {
+  fireEvent.change(input, { target: { value } });
+  fireEvent.blur(input);
 }
 
 function renderArguments(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'plan' }) {
@@ -103,108 +104,195 @@ function reported(onChange: ReturnType<typeof vi.fn>): Pipeline {
 }
 
 describe('F-11 AC-024 flow argument rows', () => {
-  it('F-11 AC-024 shows each saved argument as a field with its id and "· required", and a minus; the form is closed', () => {
+  it('F-11 AC-024 shows each saved argument as a field with its id, a "required" checkbox and a minus; no new line is open', () => {
     renderArguments(basePipeline());
     const row = within(screen.getByRole('group', { name: 'Argument 1' }));
-    expect(row.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
+    expect(row.getByRole('checkbox', { name: 'required' })).toBeTruthy();
     expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByLabelText('Argument 1 id')).toBeNull();
   });
 
-  it('F-11 AC-024 shows no "· required" text for an argument that is not required', () => {
-    renderArguments(withArguments({ id: 'topic', required: false, hint: '' }));
-    expect(screen.getByRole('button', { name: 'topic' })).toBeTruthy();
-    expect(screen.queryByText(/required/)).toBeNull();
-  });
-
-  it('F-11 AC-024 + in the title row opens a new row, and Save appends it when the parser accepts it', () => {
-    const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const draft = within(screen.getByRole('group', { name: 'New argument' }));
-    fireEvent.change(draft.getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.change(draft.getByLabelText('New argument hint'), { target: { value: 'What to plan' } });
-    fireEvent.click(draft.getByRole('button', { name: 'Save' }));
-
-    expect(reported(onChange).flows[0]?.arguments).toEqual([
-      { index: 0, id: 'feature-id', required: true, hint: 'The feature' },
-      { index: 1, id: 'topic', required: false, hint: 'What to plan' },
-    ]);
-  });
-
-  it('F-11 AC-024 refuses a new argument whose id is not file-safe, keeps the typed values and shows the parser reason beneath the form', () => {
-    const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const draft = within(screen.getByRole('group', { name: 'New argument' }));
-    fireEvent.change(draft.getByLabelText('New argument id'), { target: { value: 'bad id!' } });
-    fireEvent.click(draft.getByRole('button', { name: 'Save' }));
-
-    const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: 'bad id!', required: false, hint: '' }));
-    expect(onChange).not.toHaveBeenCalled();
-    expect(draft.getByText(reason)).toBeTruthy();
-    expect(draft.getByLabelText('New argument id')).toHaveProperty('value', 'bad id!');
-  });
-
-  it('F-11 AC-024 refuses an edit that repeats the id of another argument, keeps the form open and shows the reason beneath it', () => {
-    const pipelineState = withArguments(
-      { id: 'a', required: false, hint: '' },
-      { id: 'b', required: false, hint: '' },
+  it('F-11 AC-024 the required checkbox reflects the flag: the feature-id row is checked, an unrequired argument is not', () => {
+    renderArguments(withArguments({ id: 'feature-id', required: true, hint: '' }, { id: 'topic', required: false, hint: '' }));
+    expect(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('checkbox', { name: 'required' })).toHaveProperty(
+      'checked',
+      true,
     );
-    const { onChange } = renderArguments(pipelineState);
-    fireEvent.click(screen.getByRole('button', { name: 'b' }));
-    fireEvent.change(screen.getByLabelText('Argument 2 id'), { target: { value: 'a' } });
-    saveForm('Argument 2');
-
-    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 1, { id: 'a', required: false, hint: '' }));
-    expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'a');
+    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByRole('checkbox', { name: 'required' })).toHaveProperty(
+      'checked',
+      false,
+    );
   });
 
-  it('F-11 AC-024 edits a saved row through the parser and reports the new pipeline', () => {
+  it('F-11 AC-024 ticking the required checkbox of a saved argument saves required true through the parser, keeping its id and hint', () => {
+    const { onChange } = renderArguments(withArguments({ id: 'topic', required: false, hint: 'The topic' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
+
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'topic', required: true, hint: 'The topic' }]);
+  });
+
+  it('F-11 AC-024 unticking the required checkbox of the feature-id argument saves required false, keeping its id and hint', () => {
     const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
-    fireEvent.click(screen.getByLabelText('required'));
-    saveForm('Argument 1');
+    fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
 
     expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'feature-id', required: false, hint: 'The feature' }]);
   });
 
-  it('F-11 AC-024 refuses a hint longer than 100 characters, keeps the form open and shows the reason beneath it', () => {
-    const pipelineState = basePipeline();
-    const { onChange } = renderArguments(pipelineState);
-    const longHint = 'x'.repeat(101);
-    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
-    fireEvent.change(screen.getByLabelText('Argument 1 hint'), { target: { value: longHint } });
-    saveForm('Argument 1');
+  it('F-11 AC-024 a new argument starts unrequired: its required checkbox is not ticked', () => {
+    renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
 
-    const reason = argumentRefusal(
-      editFlowArgument(pipelineState, RULES, 'plan', 0, { id: 'feature-id', required: true, hint: longHint }),
+    expect(within(screen.getByRole('group', { name: 'New argument' })).getByRole('checkbox', { name: 'required' })).toHaveProperty(
+      'checked',
+      false,
     );
-    expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'Argument 1' })).getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 1 hint')).toHaveProperty('value', longHint);
   });
 
-  it('F-11 AC-024 accepts a hint of exactly 100 characters on edit', () => {
+  it('F-11 AC-024 a new line whose required box is ticked before its id is accepted is saved required', () => {
     const { onChange } = renderArguments(basePipeline());
-    const hint = 'x'.repeat(100);
-    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
-    fireEvent.change(screen.getByLabelText('Argument 1 hint'), { target: { value: hint } });
-    saveForm('Argument 1');
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    fireEvent.click(within(screen.getByRole('group', { name: 'New argument' })).getByRole('checkbox', { name: 'required' }));
+    expect(screen.getByLabelText('New argument id')).toHaveProperty('value', '');
+    commitText(screen.getByLabelText('New argument id'), 'topic');
 
-    expect(reported(onChange).flows[0]?.arguments[0]?.hint).toBe(hint);
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: true, hint: 'topic' });
   });
 
-  it('F-11 AC-024 Cancel closes the edit form and keeps the saved row', () => {
+  it('F-11 AC-024 the press on the required box of the new line keeps the focus in the line, so the line is not saved early', () => {
     const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'feature-id · required' }));
-    fireEvent.change(screen.getByLabelText('Argument 1 id'), { target: { value: 'other' } });
-    fireEvent.click(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    const label = within(screen.getByRole('group', { name: 'New argument' })).getByText('required');
+
+    expect(fireEvent.mouseDown(label)).toBe(false);
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('group', { name: 'New argument' })).toBeTruthy();
+  });
+
+  it('F-11 AC-043 the required checkbox of a pipeline argument saves through the pipeline parser', () => {
+    const { onChange } = renderArguments(basePipeline(), { kind: 'pipeline' });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
+
+    expect(reported(onChange).arguments).toEqual([{ index: 0, id: 'brief', required: true, hint: '' }]);
+  });
+
+  it('F-11 AC-024 + adds one line with a text box and a minus, and no Cancel or Save', () => {
+    renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    const line = within(screen.getByRole('group', { name: 'New argument' }));
+    expect(line.getByLabelText('New argument id')).toBeTruthy();
+    expect(line.getByRole('button', { name: 'Cancel new argument' })).toBeTruthy();
+    expect(line.queryByRole('button', { name: 'Save' })).toBeNull();
+    expect(line.queryByRole('button', { name: 'Cancel' })).toBeNull();
+    expect(line.queryByLabelText('New argument hint')).toBeNull();
+    expect(line.queryByLabelText('New argument required')).toBeNull();
+  });
+
+  it('F-11 AC-024 a blank new line is discarded on blur and nothing is saved', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), '   ');
+
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-024 a valid id on blur saves a new argument through the parser: not required, the hint is the id', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'topic');
+
+    expect(reported(onChange).flows[0]?.arguments).toEqual([
+      { index: 0, id: 'feature-id', required: true, hint: 'The feature' },
+      { index: 1, id: 'topic', required: false, hint: 'topic' },
+    ]);
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+  });
+
+  it('F-11 AC-024 Enter on the new line saves a valid id the same way as blur', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    const input = screen.getByLabelText('New argument id');
+    fireEvent.change(input, { target: { value: 'topic' } });
+    input.focus();
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
+  });
+
+  it('F-11 AC-024 a refused new id keeps the line with the parser reason beneath it, and the typed text', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'bad id!');
+
+    const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: 'bad id!', required: false, hint: 'bad id!' }));
+    const line = within(screen.getByRole('group', { name: 'New argument' }));
+    expect(onChange).not.toHaveBeenCalled();
+    expect(line.getByText(reason)).toBeTruthy();
+    expect(line.getByLabelText('New argument id')).toHaveProperty('value', 'bad id!');
+  });
+
+  it('F-11 AC-024 Tab from the new line\'s id to its required box keeps the line open until the box is ticked', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    const input = screen.getByLabelText('New argument id');
+    const box = within(screen.getByRole('group', { name: 'New argument' })).getByRole('checkbox', { name: 'required' });
+    fireEvent.change(input, { target: { value: 'topic' } });
+    fireEvent.blur(input, { relatedTarget: box });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByLabelText('Argument 1 id')).toBeNull();
-    expect(screen.getByRole('button', { name: 'feature-id · required' })).toBeTruthy();
+    expect(screen.getByLabelText('New argument id')).toHaveProperty('value', 'topic');
+    fireEvent.click(box);
+    fireEvent.blur(box);
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: true, hint: 'topic' });
+  });
+
+  it('F-11 AC-024 a minus on the new line discards it without saving', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel new argument' }));
+
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-024 the press on the minus of the new line keeps its focus, so a typed id is not saved before the click', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    const minus = screen.getByRole('button', { name: 'Cancel new argument' });
+
+    expect(fireEvent.mouseDown(minus)).toBe(false);
+    fireEvent.click(minus);
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-024 an edit of a saved id is checked by the parser on blur and keeps required and the hint', () => {
+    const { onChange } = renderArguments(basePipeline());
+    commitText(screen.getByLabelText('Argument 1 id'), 'feature-two');
+
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'feature-two', required: true, hint: 'The feature' }]);
+  });
+
+  it('F-11 AC-024 an unchanged saved id is not sent on blur', () => {
+    const { onChange } = renderArguments(basePipeline());
+    commitText(screen.getByLabelText('Argument 1 id'), 'feature-id');
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-024 a refused edit repeats the id of another argument: the saved id returns and the reason shows beneath the row', () => {
+    const pipelineState = withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' });
+    const { onChange } = renderArguments(pipelineState);
+    commitText(screen.getByLabelText('Argument 2 id'), 'a');
+
+    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 1, { id: 'a', required: false, hint: '' }));
+    expect(onChange).not.toHaveBeenCalled();
+    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'b');
   });
 
   it('F-11 AC-024 removes one row on its own and leaves the others', () => {
@@ -214,6 +302,31 @@ describe('F-11 AC-024 flow argument rows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Remove argument 1' }));
 
     expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'b', required: false, hint: '' }]);
+  });
+
+  it('F-11 AC-024 after a removal the field of each row shows the id that row now has', () => {
+    const pipelineState = withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' });
+    const onChange = vi.fn();
+    const view = render(<ArgumentRows pipelineState={pipelineState} rules={RULES} target={{ kind: 'flow', flowId: 'plan' }} onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove argument 1' }));
+    // The panel draws the pipeline it was handed back, so the list is drawn again from the reported state.
+    view.rerender(<ArgumentRows pipelineState={reported(onChange)} rules={RULES} target={{ kind: 'flow', flowId: 'plan' }} onChange={onChange} />);
+
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'b');
+    expect(screen.queryByLabelText('Argument 2 id')).toBeNull();
+  });
+
+  it('F-11 AC-024 a refused edit does not take the focus from the field the user moved to', () => {
+    renderArguments(withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' }));
+    const first = screen.getByLabelText('Argument 1 id');
+    const second = screen.getByLabelText('Argument 2 id');
+    first.focus();
+    fireEvent.change(first, { target: { value: 'bad id!' } });
+    // The browser blurs the first field, then focuses the second one it pressed: the blur must not replace the second.
+    fireEvent.blur(first);
+    second.focus();
+
+    expect(document.activeElement).toBe(second);
   });
 });
 
@@ -225,31 +338,27 @@ describe('F-11 AC-043 pipeline argument rows', () => {
     expect(screen.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
   });
 
-  it('F-11 AC-043 edits the pipeline arguments, not the arguments of a flow', () => {
+  it('F-11 AC-043 edits the pipeline arguments on blur, not the arguments of a flow', () => {
     const { onChange } = renderArguments(basePipeline(), { kind: 'pipeline' });
-    fireEvent.click(screen.getByRole('button', { name: 'brief' }));
-    fireEvent.click(screen.getByLabelText('required'));
-    saveForm('Argument 1');
+    commitText(screen.getByLabelText('Argument 1 id'), 'lead');
 
     const next = reported(onChange);
-    expect(next.arguments[0]?.required).toBe(true);
-    expect(next.flows[0]?.arguments[0]?.required).toBe(true);
+    expect(next.arguments[0]?.id).toBe('lead');
+    expect(next.flows[0]?.arguments[0]?.id).toBe('feature-id');
   });
 
-  it('F-11 AC-043 refuses a new pipeline argument whose id another pipeline argument already has', () => {
+  it('F-11 AC-043 a new pipeline argument whose id another pipeline argument already has is refused, and the line keeps the reason', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const draft = within(screen.getByRole('group', { name: 'New argument' }));
-    fireEvent.change(draft.getByLabelText('New argument id'), { target: { value: 'brief' } });
-    fireEvent.click(draft.getByRole('button', { name: 'Save' }));
+    commitText(screen.getByLabelText('New argument id'), 'brief');
 
-    const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: '' }));
+    const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: 'brief' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(draft.getByText(reason)).toBeTruthy();
+    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
   });
 
-  it('F-11 AC-043 refuses a pipeline argument edit that repeats another id, keeps the form open and shows the reason beneath it', () => {
+  it('F-11 AC-043 a pipeline argument edit that repeats another id is refused, and the saved id returns with the reason beneath the row', () => {
     const pipelineState: Pipeline = {
       ...basePipeline(),
       arguments: [
@@ -258,16 +367,12 @@ describe('F-11 AC-043 pipeline argument rows', () => {
       ],
     };
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
-    fireEvent.click(screen.getByRole('button', { name: 'topic' }));
-    fireEvent.change(screen.getByLabelText('Argument 2 id'), { target: { value: 'brief' } });
-    saveForm('Argument 2');
+    commitText(screen.getByLabelText('Argument 2 id'), 'brief');
 
-    const reason = argumentRefusal(
-      editPipelineArgument(pipelineState, RULES, 1, { id: 'brief', required: false, hint: '' }),
-    );
+    const reason = argumentRefusal(editPipelineArgument(pipelineState, RULES, 1, { id: 'brief', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
     expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'brief');
+    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
   });
 
   it('F-11 AC-043 removes one pipeline argument row on its own', () => {
@@ -537,6 +642,59 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
     expect(reported(onChange).flows[0]?.artifacts[0]?.label).toBe('design.md');
     expect(artifactGroup(1).queryByText(refusal.reason)).toBeNull();
+  });
+
+  it('F-11 AC-025 removing the first of two artifacts shows the second artifact\'s own label', () => {
+    const pipelineState = pipelineOf({
+      ...flow('plan', 'Plan'),
+      artifacts: [
+        { label: 'plan.md', template: 'Plan headings' },
+        { label: 'notes.md', template: 'Notes headings' },
+      ],
+    });
+    const onChange = vi.fn();
+    const view = render(<ArtifactRows pipelineState={pipelineState} rules={RULES} flowId="plan" onChange={onChange} />);
+    fireEvent.click(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' }));
+    // The panel draws the pipeline it was handed back, so the list is drawn again from the reported state.
+    view.rerender(<ArtifactRows pipelineState={reported(onChange)} rules={RULES} flowId="plan" onChange={onChange} />);
+
+    expect(labelField(1).value).toBe('notes.md');
+    expect(templateField(1).value).toBe('Notes headings');
+    expect(screen.queryByDisplayValue('plan.md')).toBeNull();
+  });
+
+  it('F-11 AC-025 a refused label edit keeps the focus on the refused row\'s template and does not redraw the other rows', () => {
+    const pipelineState = pipelineOf({
+      ...flow('plan', 'Plan'),
+      artifacts: [
+        { label: 'plan.md', template: 'Plan headings' },
+        { label: 'notes.md', template: 'Notes headings' },
+        { label: 'design.md', template: 'Design headings' },
+      ],
+    });
+    renderArtifacts(pipelineState);
+    const firstLabel = labelField(1);
+    const firstTemplate = templateField(1);
+    const otherLabel = labelField(3);
+    const otherTemplate = templateField(3);
+    const refusal = editFlowArtifact(pipelineState, RULES, 'plan', 1, { field: 'label', value: '' });
+    if (refusal.ok) throw new Error('the parser accepted a blank label');
+
+    // The user types a blank label of row 2 and presses Tab into the template of row 2: the label is checked on the blur.
+    const refusedTemplate = templateField(2);
+    labelField(2).focus();
+    fireEvent.change(labelField(2), { target: { value: '' } });
+    fireEvent.blur(labelField(2));
+    refusedTemplate.focus();
+
+    expect(artifactGroup(2).getByText(refusal.reason)).toBeTruthy();
+    expect(labelField(2).value).toBe('notes.md');
+    expect(document.activeElement).toBe(refusedTemplate);
+    expect(labelField(1)).toBe(firstLabel);
+    expect(templateField(1)).toBe(firstTemplate);
+    expect(labelField(3)).toBe(otherLabel);
+    expect(templateField(3)).toBe(otherTemplate);
+    expect(otherLabel.value).toBe('design.md');
   });
 
   it('F-11 AC-025 the minus removes the artifact on its own row', () => {

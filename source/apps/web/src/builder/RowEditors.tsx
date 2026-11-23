@@ -75,14 +75,15 @@ interface ArtifactAdd {
   readonly refusals: Refusals;
 }
 
-// The last refusal of the artifact list: the row, the field (or the removal of the row) and the parser's reason.
+// The last refusal of the artifact list: the row, the field (or the removal of the row), the parser's reason and a
+// count that changes on each refusal.
 interface ArtifactRefusal {
   readonly position: number;
   readonly target: ArtifactField | 'removal';
   readonly reason: string;
+  readonly attempt: number;
 }
 
-const EMPTY_ARGUMENT: ArgumentRow = { id: '', required: false, hint: '' };
 const EMPTY_ARTIFACT: ArtifactRow = { label: '', template: '' };
 
 // The help text under an artifact's template (F-11 screen 10).
@@ -105,11 +106,6 @@ function argumentsOf(pipelineState: Pipeline, target: ListTarget): readonly Argu
 function tagsOf(pipelineState: Pipeline, target: ListTarget): readonly RuleTagValue[] {
   const tags = target.kind === 'pipeline' ? pipelineState.ruleTags : flowOf(pipelineState, target.flowId).ruleTags;
   return tags ?? [];
-}
-
-// The argument row as the user edits it: the saved row without its position.
-function rowOf(item: Argument): ArgumentRow {
-  return { id: item.id, required: item.required, hint: item.hint };
 }
 
 function addArgumentTo(pipelineState: Pipeline, rules: readonly Rule[], target: ListTarget, row: ArgumentRow): RowResult {
@@ -174,105 +170,82 @@ function describedBy(shown: boolean, id: string): string | undefined {
   return shown ? id : undefined;
 }
 
-// The text of a saved argument row as screens 01 and 07 draw it: its id, and "· required" after it when required.
-function argumentText(item: Argument): string {
-  return item.required ? `${item.id} · required` : item.id;
-}
-
-type ArgumentMode =
-  | { readonly kind: 'closed' }
-  | { readonly kind: 'add'; readonly draft: ArgumentRow; readonly refusal: string | undefined }
-  | { readonly kind: 'edit'; readonly position: number; readonly draft: ArgumentRow; readonly refusal: string | undefined };
-
-interface ArgumentFormProps {
-  // The group name of the form, and the prefix of its field names: "New argument", or "Argument N" for an edit.
-  readonly label: string;
-  readonly draft: ArgumentRow;
+// The text of a new argument line, its required flag (ticked before the line is saved) and the parser's reason
+// for it, when the parser refused the id.
+interface NewArgument {
+  readonly text: string;
+  readonly required: boolean;
   readonly refusal: string | undefined;
-  readonly onDraftChange: (draft: ArgumentRow) => void;
-  readonly onSave: () => void;
-  readonly onCancel: () => void;
 }
 
-// The form of an argument, for Add and for Edit: an Id field, a required checkbox, a Hint field, and Cancel and
-// Save. The parser's reason shows beneath the form; the form keeps what was typed.
-function ArgumentForm({ label, draft, refusal, onDraftChange, onSave, onCancel }: ArgumentFormProps) {
-  const styles = getRowEditorStyles(useTheme());
-  const idBase = useId();
-  const refusalId = `${idBase}-refusal`;
-  const described = describedBy(refusal !== undefined, refusalId);
-  return (
-    <Box role="group" aria-label={label} sx={styles.form}>
-      <TextField
-        placeholder="Id"
-        value={draft.id}
-        onChange={(event) => {
-          onDraftChange({ ...draft, id: event.target.value });
-        }}
-        sx={styles.input}
-        slotProps={{ htmlInput: { 'aria-label': `${label} id`, 'aria-describedby': described } }}
-      />
-      <FormControlLabel
-        sx={styles.checkbox}
-        control={
-          <Checkbox
-            checked={draft.required}
-            onChange={(event) => {
-              onDraftChange({ ...draft, required: event.target.checked });
-            }}
-          />
-        }
-        label={<Box component="span" sx={styles.checkboxLabel}>required</Box>}
-      />
-      <TextField
-        placeholder="Hint"
-        value={draft.hint}
-        onChange={(event) => {
-          onDraftChange({ ...draft, hint: event.target.value });
-        }}
-        sx={styles.input}
-        slotProps={{ htmlInput: { 'aria-label': `${label} hint`, 'aria-describedby': described } }}
-      />
-      {refusal === undefined ? null : <Refusal id={refusalId} reason={refusal} />}
-      <Box sx={styles.formActions}>
-        <Button variant="outlined" onClick={onCancel} sx={styles.cancelButton}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={onSave} sx={styles.saveButton}>
-          Save
-        </Button>
-      </Box>
-    </Box>
-  );
+// The last refusal of a saved row: its position, the parser's reason, and a count that changes on each refusal.
+interface ArgumentRefusal {
+  readonly position: number;
+  readonly reason: string;
+  readonly attempt: number;
 }
 
-// The argument list (F-11 AC-024, AC-043; screens 01 and 07): a title with + in it, then one row per argument. A
-// saved row is a field with its id and "· required", and a minus; the field opens the argument's form in place,
-// and Save checks the edit with the parser. + opens an empty form after the list, with Save and Cancel. Only one
-// form is open at a time, and it is closed until + or the field is pressed.
+// Enter ends the edit of a one-line field, as losing focus does. Enter that ends an IME composition is not an edit end.
+function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
+  if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
+}
+
+// The argument list (F-11 AC-024, AC-043; screens 01 and 07): a title with + in it, then one row per argument. A saved
+// row is a field with its id, a "required" checkbox and a minus. The field is edited in place: its id is checked by
+// the parser when it loses focus (or Enter). The checkbox saves the argument's required flag through the parser. A
+// refused edit keeps the saved values and shows the reason beneath the row. + adds one line after the list, a text box,
+// a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's id: an
+// accepted line is saved with the id as its hint and the required flag the checkbox shows (a new one starts unrequired).
+// A blank line is discarded on blur; a refused id keeps the line with the reason beneath it.
 export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
   const styles = getRowEditorStyles(useTheme());
-  const [mode, setMode] = useState<ArgumentMode>({ kind: 'closed' });
+  const idBase = useId();
+  const [adding, setAdding] = useState<NewArgument | undefined>(undefined);
+  const [refused, setRefused] = useState<ArgumentRefusal | undefined>(undefined);
   const rows = argumentsOf(pipelineState, target);
+  const newRefusalId = `${idBase}-new-refusal`;
 
-  function saveAdd(draft: ArgumentRow) {
-    const result = addArgumentTo(pipelineState, rules, target, draft);
-    if (result.ok) {
-      onChange(result.pipeline);
-      setMode({ kind: 'closed' });
+  function commitNew(text: string, required: boolean) {
+    if (text.trim() === '') {
+      setAdding(undefined);
       return;
     }
-    setMode({ kind: 'add', draft, refusal: result.reason });
+    const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
+    if (result.ok) {
+      onChange(result.pipeline);
+      setAdding(undefined);
+      return;
+    }
+    setAdding({ text, required, refusal: result.reason });
   }
 
-  function saveEdit(position: number, draft: ArgumentRow) {
-    const result = editArgumentAt(pipelineState, rules, target, position, draft);
+  // Sends a saved row with the values given. A refused row keeps the saved row and shows the reason beneath it.
+  function saveRow(position: number, row: ArgumentRow) {
+    const result = editArgumentAt(pipelineState, rules, target, position, row);
     if (result.ok) {
       onChange(result.pipeline);
-      setMode({ kind: 'closed' });
+      setRefused(undefined);
       return;
     }
-    setMode({ kind: 'edit', position, draft, refusal: result.reason });
+    // Each refusal draws the refused row again from the saved values. Only that row is redrawn, so the field the
+    // user moved to keeps its focus.
+    setRefused((current) => ({ position, reason: result.reason, attempt: (current?.attempt ?? 0) + 1 }));
+  }
+
+  // An unchanged id is not sent. The required flag and the hint are kept.
+  function commitEdit(position: number, item: Argument, text: string) {
+    if (text === item.id) return;
+    saveRow(position, { id: text, required: item.required, hint: item.hint });
+  }
+
+  // The checkbox saves the flag at once, with the saved id and hint.
+  function commitRequired(position: number, item: Argument, required: boolean) {
+    saveRow(position, { id: item.id, required, hint: item.hint });
+  }
+
+  function removeAt(position: number) {
+    onChange(removeArgumentAt(pipelineState, target, position));
+    setRefused(undefined);
   }
 
   return (
@@ -285,7 +258,7 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
           variant="outlined"
           aria-label="Add argument"
           onClick={() => {
-            setMode({ kind: 'add', draft: EMPTY_ARGUMENT, refusal: undefined });
+            setAdding((current) => current ?? { text: '', required: false, refusal: undefined });
           }}
           sx={styles.addButton}
         >
@@ -294,69 +267,126 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
       </Box>
 
       {rows.map((item, position) => {
-        if (mode.kind === 'edit' && mode.position === position) {
-          return (
-            <ArgumentForm
-              key={position}
-              label={`Argument ${position + 1}`}
-              draft={mode.draft}
-              refusal={mode.refusal}
-              onDraftChange={(draft) => {
-                setMode({ ...mode, draft });
-              }}
-              onSave={() => {
-                saveEdit(position, mode.draft);
-              }}
-              onCancel={() => {
-                setMode({ kind: 'closed' });
-              }}
-            />
-          );
-        }
+        const refusalId = `${idBase}-refusal-${position}`;
+        const isRefused = refused !== undefined && refused.position === position;
+        const reason = isRefused ? refused.reason : undefined;
         return (
           <Box key={position} role="group" aria-label={`Argument ${position + 1}`} sx={styles.row}>
             <Box sx={styles.rowLine}>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setMode({ kind: 'edit', position, draft: rowOf(item), refusal: undefined });
+              <TextField
+                // Keyed by the saved id, so a row that moves up after a removal shows its own id; and by the refusal
+                // count, so a refused text is drawn again from the saved id.
+                key={`${item.id}-${isRefused ? refused.attempt : 0}`}
+                defaultValue={item.id}
+                error={reason !== undefined}
+                onBlur={(event) => {
+                  commitEdit(position, item, event.target.value);
                 }}
-                sx={styles.argumentField}
-              >
-                {argumentText(item)}
-              </Button>
+                sx={styles.input}
+                slotProps={{
+                  htmlInput: {
+                    'aria-label': `Argument ${position + 1} id`,
+                    'aria-describedby': describedBy(reason !== undefined, refusalId),
+                    onKeyDown: endOnEnter,
+                  },
+                }}
+              />
+              <FormControlLabel
+                sx={styles.requiredLabel}
+                control={
+                  <Checkbox
+                    size="small"
+                    checked={item.required}
+                    onChange={(event) => {
+                      commitRequired(position, item, event.target.checked);
+                    }}
+                    sx={styles.requiredCheckbox}
+                  />
+                }
+                label={<Box component="span" sx={styles.requiredText}>required</Box>}
+              />
               <Button
                 variant="outlined"
                 aria-label={`Remove argument ${position + 1}`}
                 onClick={() => {
-                  onChange(removeArgumentAt(pipelineState, target, position));
-                  setMode({ kind: 'closed' });
+                  removeAt(position);
                 }}
                 sx={styles.minusButton}
               >
                 −
               </Button>
             </Box>
+            {reason === undefined ? null : <Refusal id={refusalId} reason={reason} />}
           </Box>
         );
       })}
 
-      {mode.kind === 'add' ? (
-        <ArgumentForm
-          label="New argument"
-          draft={mode.draft}
-          refusal={mode.refusal}
-          onDraftChange={(draft) => {
-            setMode({ kind: 'add', draft, refusal: mode.refusal });
+      {adding === undefined ? null : (
+        <Box
+          role="group"
+          aria-label="New argument"
+          sx={styles.row}
+          // The line is saved when focus leaves it, not when Tab moves it to the line's own required box or minus.
+          onBlur={(event) => {
+            const next = event.relatedTarget;
+            if (next instanceof Node && event.currentTarget.contains(next)) return;
+            commitNew(adding.text, adding.required);
           }}
-          onSave={() => {
-            saveAdd(mode.draft);
-          }}
-          onCancel={() => {
-            setMode({ kind: 'closed' });
-          }}
-        />
-      ) : null}
+        >
+          <Box sx={styles.rowLine}>
+            <TextField
+              value={adding.text}
+              error={adding.refusal !== undefined}
+              onChange={(event) => {
+                const text = event.target.value;
+                setAdding((current) => (current === undefined ? current : { ...current, text }));
+              }}
+              sx={styles.input}
+              slotProps={{
+                htmlInput: {
+                  'aria-label': 'New argument id',
+                  'aria-describedby': describedBy(adding.refusal !== undefined, newRefusalId),
+                  onKeyDown: endOnEnter,
+                },
+              }}
+            />
+            <FormControlLabel
+              sx={styles.requiredLabel}
+              // The press keeps the focus in the line, so the line is not saved on blur before the box is ticked.
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              control={
+                <Checkbox
+                  size="small"
+                  checked={adding.required}
+                  onChange={(event) => {
+                    const required = event.target.checked;
+                    setAdding((current) => (current === undefined ? current : { ...current, required }));
+                  }}
+                  sx={styles.requiredCheckbox}
+                />
+              }
+              label={<Box component="span" sx={styles.requiredText}>required</Box>}
+            />
+            <Button
+              variant="outlined"
+              aria-label="Cancel new argument"
+              // The press keeps the focus in the line, so the line is discarded and not saved on blur.
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              onClick={() => {
+                setAdding(undefined);
+              }}
+              sx={styles.minusButton}
+            >
+              −
+            </Button>
+          </Box>
+          {adding.refusal === undefined ? null : <Refusal id={newRefusalId} reason={adding.refusal} />}
+        </Box>
+      )}
     </Box>
   );
 }
@@ -583,18 +613,17 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
   const idBase = useId();
   const [adding, setAdding] = useState<ArtifactAdd | undefined>(undefined);
   const [refused, setRefused] = useState<ArtifactRefusal | undefined>(undefined);
-  // Bumped on each refusal and each removal. A field is keyed by it, so it is drawn again from the saved values.
-  const [version, setVersion] = useState(0);
   const artifacts = flowOf(pipelineState, flowId).artifacts;
 
-  function refuse(next: ArtifactRefusal) {
-    setRefused(next);
-    setVersion((current) => current + 1);
+  // Each refusal draws the refused field again from the saved value. Only that field is redrawn, so the other rows
+  // and the field the user moved to keep their focus.
+  function refuse(position: number, target: ArtifactField | 'removal', reason: string) {
+    setRefused((current) => ({ position, target, reason, attempt: (current?.attempt ?? 0) + 1 }));
   }
 
-  // The reason of a refused field or of a removal, when it is the one the list last refused at this position.
-  function reasonAt(position: number, target: ArtifactRefusal['target']): string | undefined {
-    return refused !== undefined && refused.position === position && refused.target === target ? refused.reason : undefined;
+  // The last refusal of a field or of a removal at this position, when it is the one the list last refused.
+  function refusalAt(position: number, target: ArtifactRefusal['target']): ArtifactRefusal | undefined {
+    return refused !== undefined && refused.position === position && refused.target === target ? refused : undefined;
   }
 
   // Sends one field to the parser. An unchanged value is not sent.
@@ -606,7 +635,7 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
       setRefused(undefined);
       return;
     }
-    refuse({ position, target: field, reason: result.reason });
+    refuse(position, field, result.reason);
   }
 
   function saveAdd(draft: ArtifactRow) {
@@ -624,10 +653,9 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
     if (result.ok) {
       onChange(result.pipeline);
       setRefused(undefined);
-      setVersion((current) => current + 1);
       return;
     }
-    refuse({ position, target: 'removal', reason: result.reason });
+    refuse(position, 'removal', result.reason);
   }
 
   return (
@@ -652,9 +680,9 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
       {artifacts.map((artifact, position) => {
         const labelId = `${idBase}-label-${position}`;
         const templateId = `${idBase}-template-${position}`;
-        const labelRefusal = reasonAt(position, 'label');
-        const templateRefusal = reasonAt(position, 'template');
-        const removalRefusal = reasonAt(position, 'removal');
+        const labelRefusal = refusalAt(position, 'label');
+        const templateRefusal = refusalAt(position, 'template');
+        const removalRefusal = refusalAt(position, 'removal');
         return (
           <Box key={position} role="group" aria-label={`Artifact ${position + 1}`} sx={styles.artifact}>
             <Typography component="label" htmlFor={labelId} sx={styles.fieldLabel}>
@@ -663,7 +691,9 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
             <Box sx={styles.rowLine}>
               <TextField
                 id={labelId}
-                key={`label-${version}`}
+                // Keyed by the saved label, so a row that moves up after a removal shows its own label; and by the
+                // refusal count, so a refused label is drawn again from the saved one.
+                key={`${artifact.label}-${labelRefusal?.attempt ?? 0}`}
                 defaultValue={artifact.label}
                 error={labelRefusal !== undefined}
                 onBlur={(event) => {
@@ -673,11 +703,7 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                 slotProps={{
                   htmlInput: {
                     'aria-describedby': describedBy(labelRefusal !== undefined, `${labelId}-refusal`),
-                    // Enter ends the edit of the one-line label, as losing focus does. Enter that ends an IME
-                    // composition is not an edit end.
-                    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
-                      if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
-                    },
+                    onKeyDown: endOnEnter,
                   },
                 }}
               />
@@ -692,14 +718,14 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                 −
               </Button>
             </Box>
-            {labelRefusal === undefined ? null : <Refusal id={`${labelId}-refusal`} reason={labelRefusal} />}
+            {labelRefusal === undefined ? null : <Refusal id={`${labelId}-refusal`} reason={labelRefusal.reason} />}
 
             <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
               Template
             </Typography>
             <TextField
               id={templateId}
-              key={`template-${version}`}
+              key={`${artifact.template}-${templateRefusal?.attempt ?? 0}`}
               multiline
               minRows={3}
               defaultValue={artifact.template}
@@ -712,11 +738,11 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                 htmlInput: { 'aria-describedby': describedBy(templateRefusal !== undefined, `${templateId}-refusal`) },
               }}
             />
-            {templateRefusal === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={templateRefusal} />}
+            {templateRefusal === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={templateRefusal.reason} />}
             <Typography component="p" sx={styles.helpText}>
               {TEMPLATE_HELP_TEXT}
             </Typography>
-            {removalRefusal === undefined ? null : <Refusal id={`${idBase}-removal-${position}`} reason={removalRefusal} />}
+            {removalRefusal === undefined ? null : <Refusal id={`${idBase}-removal-${position}`} reason={removalRefusal.reason} />}
           </Box>
         );
       })}

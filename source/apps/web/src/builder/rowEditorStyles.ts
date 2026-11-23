@@ -17,15 +17,15 @@ export interface RowEditorStyles {
   // One row: a line of controls, with the reason of a refused edit beneath it.
   readonly row: StyleObject;
   readonly rowLine: StyleObject;
-  // A saved argument row: a field as screens 01 and 07 draw it, with its id and "· required" text; it opens the form.
-  readonly argumentField: StyleObject;
+  // The "required" checkbox beside an argument's minus: its label, its text and the small box.
+  readonly requiredLabel: StyleObject;
+  readonly requiredText: StyleObject;
+  readonly requiredCheckbox: StyleObject;
   // A text field and a dropdown in a row or a form; the multi-line template field is taller. A field with a
   // refused value (MUI error state) takes the light red fill of screen 10 from the palette.
   readonly input: StyleObject;
   readonly multilineInput: StyleObject;
   readonly select: StyleObject;
-  readonly checkbox: StyleObject;
-  readonly checkboxLabel: StyleObject;
   // One artifact as screen 03 draws it: a Label field with its minus, then the Template box and its help text.
   readonly artifact: StyleObject;
   // The form that holds an artifact's Label and Template, and its Save and Cancel buttons.
@@ -96,22 +96,17 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       gap: '8px',
       minWidth: 0,
     },
-    argumentField: {
-      ...common.outlineButton,
-      flex: 1,
-      minWidth: 0,
-      display: 'block',
-      px: 2,
-      fontSize: 13,
-      fontWeight: 400,
-      lineHeight: '38px',
-      textAlign: 'left',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      '&:hover': {
-        bgcolor: theme.palette.background.paper,
-        borderColor: theme.palette.grey[300],
-      },
+    requiredLabel: {
+      m: 0,
+      gap: '4px',
+      flexShrink: 0,
+    },
+    requiredText: {
+      ...common.secondaryText,
+      whiteSpace: 'nowrap',
+    },
+    requiredCheckbox: {
+      p: '4px',
     },
     input,
     multilineInput: {
@@ -131,17 +126,6 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
         boxSizing: 'border-box',
         py: 0,
       },
-    },
-    checkbox: {
-      m: 0,
-      flex: 'none',
-      gap: '4px',
-    },
-    checkboxLabel: {
-      m: 0,
-      fontSize: 12,
-      lineHeight: '20px',
-      color: theme.palette.text.primary,
     },
     artifact: {
       boxSizing: 'border-box',

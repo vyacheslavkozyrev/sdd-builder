@@ -6,7 +6,7 @@
 // flow and selection give the same drawing. Pure geometry in the canvas's own pixels: no React and no I/O.
 
 import type { pipeline as model } from '@sddbuilder/core';
-import { blockName, flowArrows } from './blockArrows.js';
+import { blockName, flowArrows, hasInput, outputsOf } from './blockArrows.js';
 import type { BlockArrow, OutputName } from './blockArrows.js';
 import { blockLayout } from './blockLayout.js';
 import type { BlockSelection } from './panel.js';
@@ -63,11 +63,23 @@ export interface ArrowShape {
   readonly accessibleName: string;
 }
 
+// A connection point of a block (AC-013): the input point, or an output point of one of the block's outputs.
+// A drag starts at an output point and a drop lands on a point (AC-012, AC-018).
+export type PortRole = 'input' | OutputName;
+
+export interface PortShape {
+  readonly blockId: string;
+  readonly role: PortRole;
+  readonly x: number;
+  readonly y: number;
+}
+
 export interface BlockDrawing {
   readonly width: number;
   readonly height: number;
   readonly blocks: readonly BlockShape[];
   readonly arrows: readonly ArrowShape[];
+  readonly ports: readonly PortShape[];
 }
 
 // The height of the drawing area in canvas pixels: the lanes above and below the line, and the labels.
@@ -188,6 +200,22 @@ function branchMark(arrow: BlockArrow, from: Placed, route: readonly Point[]): T
     throw new Error(`F-12: arrow from ${arrow.fromId} has no route`);
   }
   return { text, x: (first.x + last.x) / 2, y: mainY - 6, anchor: 'middle' };
+}
+
+// The points of a block (AC-013): its input point on the left side, when its kind has one, and an output point
+// for each output its kind has. An output point sits where its arrow starts, so a return leaves from the top
+// and a false branch that goes forward from the bottom; an output with no arrow sits at its default place, the
+// right side for next and true, the bottom vertex for false.
+function portsOf(placed: Placed, arrows: readonly ArrowShape[]): readonly PortShape[] {
+  const { block } = placed;
+  const left = anchor(placed, 'left');
+  const input: PortShape[] = hasInput(block) ? [{ blockId: block.id, role: 'input', x: left.x, y: left.y }] : [];
+  const outputs = outputsOf(block).map((output): PortShape => {
+    const arrow = arrows.find((candidate) => candidate.fromId === block.id && candidate.output === output);
+    const at = arrow?.points[0] ?? anchor(placed, output === 'false' ? 'bottom' : 'right');
+    return { blockId: block.id, role: output, x: at.x, y: at.y };
+  });
+  return [...input, ...outputs];
 }
 
 // The round limit of a return, above its lane (AC-008). A return with no limit set has no label.
@@ -312,5 +340,6 @@ export function blockDrawingOf(flow: Flow, selection: BlockSelection = { kind: '
       accessibleName: `${outputName} from ${blockName(from.block)}`,
     };
   });
-  return { width, height: drawingHeight, blocks, arrows };
+  const ports = places.flatMap((placed) => portsOf(placed, arrows));
+  return { width, height: drawingHeight, blocks, arrows, ports };
 }

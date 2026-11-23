@@ -69,15 +69,16 @@ function editedAgent(agent: AgentBlock, field: AgentField, value: string): Agent
   }
 }
 
-// Applies one field edit to the Agent `blockId` of the flow `flowId`. A block that is not an Agent is a
-// programmer error, and so is an unknown flow or block id.
-export function editAgentField(
-  pipelineState: Pipeline,
-  rules: readonly Rule[],
-  flowId: string,
-  blockId: string,
-  edit: AgentFieldEdit,
-): BlockFieldResult {
+// An Agent of the pipeline with its position: the flow's position and the block's position in that flow.
+export interface AgentLocation {
+  readonly flowPosition: number;
+  readonly blockPosition: number;
+  readonly agent: AgentBlock;
+}
+
+// The Agent `blockId` of the flow `flowId`. A block that is not an Agent is a programmer error, and so is an
+// unknown flow or block id.
+export function agentAt(pipelineState: Pipeline, flowId: string, blockId: string): AgentLocation {
   const flowPosition = positionOf(pipelineState.flows, flowId, `there is no flow "${flowId}"`);
   const flow = pipelineState.flows[flowPosition];
   if (flow === undefined) throw new Error(`F-12: there is no flow "${flowId}"`);
@@ -86,17 +87,35 @@ export function editAgentField(
   if (block === undefined || block.kind !== 'agent') {
     throw new Error(`F-12: the block "${blockId}" of the flow "${flowId}" is not an Agent`);
   }
+  return { flowPosition, blockPosition, agent: block };
+}
 
-  const value = edit.field === 'name' ? edit.value.trim() : edit.value;
-  const agent = editedAgent(block, edit.field, value);
-  const edited: Pipeline = {
+// The pipeline with the Agent at `location` replaced by `agent`; every other block and flow is kept.
+export function withAgent(pipelineState: Pipeline, location: AgentLocation, agent: AgentBlock): Pipeline {
+  return {
     ...pipelineState,
     flows: pipelineState.flows.map((item, position) =>
-      position === flowPosition
-        ? { ...item, blocks: item.blocks.map((other, index) => (index === blockPosition ? agent : other)) }
+      position === location.flowPosition
+        ? { ...item, blocks: item.blocks.map((other, index) => (index === location.blockPosition ? agent : other)) }
         : item,
     ),
   };
+}
+
+// Applies one field edit to the Agent `blockId` of the flow `flowId`.
+export function editAgentField(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  flowId: string,
+  blockId: string,
+  edit: AgentFieldEdit,
+): BlockFieldResult {
+  const location = agentAt(pipelineState, flowId, blockId);
+  const { flowPosition, blockPosition, agent: block } = location;
+
+  const value = edit.field === 'name' ? edit.value.trim() : edit.value;
+  const agent = editedAgent(block, edit.field, value);
+  const edited = withAgent(pipelineState, location, agent);
 
   const problem = refusalProblemOf(
     pipelineState,

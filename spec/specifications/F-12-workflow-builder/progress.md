@@ -58,6 +58,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment — 2026-11-23 (AC-017 refusal wording)
+**Changed**: `stories.md` AC-017: the refusal "Only an Agent can be returned to." for a false output that links to an earlier block which is not an Agent (wording confirmed by the user).
+**Reason**: T004 needs this refusal; the stories had no wording for it, so the task stopped.
+**Impact**: T004 resumes; no task is re-run.
+
 ```
 ### Amendment — YYYY-MM-DD
 **Changed**: [documents updated]

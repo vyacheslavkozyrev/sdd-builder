@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | 🔄 In Progress | | 13 of 24 tasks committed |
+| Build    | 🔄 In Progress | | 14 of 24 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -51,6 +51,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T011 | Block structure marks (logic): findings on a block (`pipeline.flows.<n>.blocks.<m>...`), on the arrow of a route, or on the flow; a route with no arrow falls back to its block; blocked flows; no disabled control (`source/apps/web/src/builder/marks.ts`, `MarkViews.tsx` placement keys) | 0 blockers, 0 warnings; 2 suggestions fixed (import style; test for an Agent with an empty next). Open for the user, core: a Condition blank-description rule and a "no route out" wording (see Deferred Findings) | task check passed: api 45, web 1341, core 1215 |
 | T012 | Selection and panel choice for blocks: `blockPanelFor` and `BlockSelection` (flow panel when nothing is selected; Start, Agent, Condition or End panel by kind; block-arrow panel with source and target), `afterDeleteBlock` (tab kept, selection empty) (`source/apps/web/src/builder/panel.ts`) | 0 blockers; 1 warning fixed (a test that could not fail); 3 suggestions fixed. Plan deviation: `blockPanelFor` instead of `panelFor` (Amendment 2026-11-23) | task check passed: api 45, web 1355, core 1215 |
 | T013 | Flow tab state (logic): `addFlow` gives no blocks, switching tabs keeps each flow's blocks, the default pipeline's blocks and arrows as the model holds them, step 3 keeps the pipeline across steps; tests added (`model.ts` and `state.ts` already met the criteria, no production change); the memory-only scan covers `blocks.ts`, `blockLink.ts`, `blockArrows.ts` (`source/apps/web/test/builder-model.test.ts`, `wizard-pipeline.test.ts`, `wizard-privacy.test.ts`) | 0 blockers; 2 warnings fixed (an AC-049 isolation test that could not fail, rewritten on a pipeline; a block-id test labelled AC-049 relabelled AC-004); 0 suggestions. Plan deviations: the flow tab UI is not in T013 (see Deferred Findings); `wizard-privacy.test.ts` is outside the T013 file list (accepted, see Deferred Findings) | task check passed: api 45, web 1367, core 1215 |
+| T014 | Toolbox component: a card with four icon buttons (Agent, Condition, Start, End), each named by a tooltip; no Link, Move, Connection or Delete-flow control; Start disabled with "This flow already has a Start block."; a press calls `addBlock` and reports the result; not mounted yet (T015) (`source/apps/web/src/builder/Toolbox.tsx`, `toolboxStyles.ts`) | 0 blockers; 1 warning fixed (a tooltip test checked the wrong thing); 1 suggestion fixed (card padding); 1 suggestion deferred (aria-label on the span). Hand-off to T015: the canvas card needs `position: relative` | task check passed: api 45, web 1384, core 1215 |
 
 ---
 
@@ -72,6 +73,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T013 review (plan file list): `source/apps/web/test/wizard-privacy.test.ts` was changed for F-12 AC-052 and is not in the T013 file list. Accepted: the T013 line names the memory-only scan as part of the task, and the scan's test lives in that file. The new test only checks that the three block files are in the scan list. Plan amendment: add the file to the T013 line.
 
 ---
+
+- T014 `source/apps/web/src/builder/Toolbox.tsx` (SUGGESTION, unresolved): `Tooltip` puts `aria-label` on the wrapping span, which has no role, so the span's label is ignored by assistive tech; the button keeps its own `aria-label`. Left as is: `describeChild` would add a native `title` on the span and a second tooltip.
+
+- T014 hand-off for T015 (not a finding in T014): the toolbox is `position: absolute` at top 16 px and right 24 px, so the canvas card must set `position: relative` when T015 mounts it. Without it the toolbox sits relative to the wrong ancestor.
 
 ## Test Results
 

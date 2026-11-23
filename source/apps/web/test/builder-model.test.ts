@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { pipeline as model } from '@sddbuilder/core';
+import { addBlock } from '../src/builder/blocks.js';
 import { addFlow, nextFlowId, tabOrder } from '../src/builder/model.js';
 import type { Pipeline } from '../src/builder/model.js';
 
@@ -155,5 +156,49 @@ describe('F-11 AC-003 + appends an empty flow after the last one', () => {
     expect(pipeline.name).toBe('Demo');
     expect(pipeline.description).toBe('A demo pipeline.');
     expect(pipeline.flows[0]).toBe(existing.flows[0]);
+  });
+});
+
+describe('F-12 AC-006 a flow created on the Pipeline tab starts with no blocks', () => {
+  it('F-12 AC-006 the added flow has an empty block list', () => {
+    const { pipeline } = addFlow(pipelineOf(flow('plan')));
+    expect(pipeline.flows[1]?.blocks).toEqual([]);
+  });
+
+  it('F-12 AC-006 an added flow after a flow with blocks has no blocks of its own', () => {
+    const planned = addBlock(flow('plan'), 'start').flow;
+    const { pipeline } = addFlow(pipelineOf(planned));
+    expect(pipeline.flows[0]?.blocks).toHaveLength(1);
+    expect(pipeline.flows[1]?.blocks).toEqual([]);
+  });
+});
+
+describe('F-12 AC-049 each flow keeps its own blocks', () => {
+  it('F-12 AC-049 adding a flow keeps the blocks of every flow before it', () => {
+    const planned = addBlock(flow('plan'), 'start').flow;
+    const before = pipelineOf(planned, flow('build'));
+    const { pipeline } = addFlow(before);
+    expect(pipeline.flows[0]?.blocks).toBe(before.flows[0]?.blocks);
+    expect(pipeline.flows[1]?.blocks).toBe(before.flows[1]?.blocks);
+  });
+
+  it('F-12 AC-049 a block added on a flow tab leaves the other flow\'s blocks unchanged', () => {
+    const before = pipelineOf(flow('plan'), addBlock(flow('build'), 'start').flow);
+    const after = {
+      ...before,
+      flows: before.flows.map((f) => (f.id === 'plan' ? addBlock(f, 'agent').flow : f)),
+    };
+    expect(after.flows[0]?.blocks).toHaveLength(1);
+    expect(after.flows[1]).toBe(before.flows[1]);
+    expect(after.flows[1]?.blocks[0]?.kind).toBe('start');
+  });
+});
+
+describe('F-12 AC-004 block ids are numbered per flow', () => {
+  it('F-12 AC-004 two flows each number their first block block-1 (block ids belong to a flow)', () => {
+    const first = addBlock(flow('plan'), 'start').flow;
+    const second = addBlock(flow('build'), 'start').flow;
+    expect(first.blocks[0]?.id).toBe('block-1');
+    expect(second.blocks[0]?.id).toBe('block-1');
   });
 });

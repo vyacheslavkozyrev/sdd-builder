@@ -120,4 +120,11 @@ describe('F-11 AC-041 the builder makes no network request and writes nothing to
     expect(scanned).toContain('pipelineFields.ts');
     expect(scanned).toContain('model.ts');
   });
+
+  it('F-12 AC-052 the scan covers the block files blocks.ts, blockLink.ts and blockArrows.ts', () => {
+    const scanned = builderSourceFiles().map((file) => file.slice(BUILDER_DIR.length + 1));
+    expect(scanned).toContain('blocks.ts');
+    expect(scanned).toContain('blockLink.ts');
+    expect(scanned).toContain('blockArrows.ts');
+  });
 });

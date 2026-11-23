@@ -6,6 +6,8 @@ import {
   wizardReducer,
   type WizardState,
 } from '../src/wizard/state.js';
+import { addBlock } from '../src/builder/blocks.js';
+import { flowArrows } from '../src/builder/blockArrows.js';
 import { valuesWith } from './wizardValues.js';
 
 type Pipeline = core.Pipeline;
@@ -145,5 +147,86 @@ describe('F-11 AC-040 two wizard states never share one pipeline object', () => 
     const before = createInitialWizardState();
     const restarted = wizardReducer(before, { type: 'restart' });
     expect(restarted.values.pipeline).not.toBe(before.values.pipeline);
+  });
+});
+
+// The default pipeline's flow with the given id, or a failure when the default does not hold it.
+function defaultFlow(id: string) {
+  const found = defaultPipelineValue().flows.find((flow) => flow.id === id);
+  if (found === undefined) throw new Error(`the default pipeline has no flow ${id}`);
+  return found;
+}
+
+describe('F-12 AC-051 the default pipeline shows its blocks as the model holds them', () => {
+  it('F-12 AC-051 each default flow holds the blocks of the default data', () => {
+    const counts = defaultPipelineValue().flows.map((flow) => [flow.id, flow.blocks.length]);
+    expect(counts).toEqual([
+      ['specify', 3],
+      ['ux', 3],
+      ['plan', 3],
+      ['build', 7],
+      ['verify', 3],
+      ['complete', 3],
+    ]);
+  });
+
+  it('F-12 AC-051 a linear flow shows its arrows of next, in block order', () => {
+    expect(flowArrows(defaultFlow('specify')).map((arrow) => [arrow.fromId, arrow.toId])).toEqual([
+      ['specify-start', 'specify-agent'],
+      ['specify-agent', 'specify-end'],
+    ]);
+  });
+
+  it('F-12 AC-051 the build flow shows the true route of its condition and no arrow for the false stop', () => {
+    const arrows = flowArrows(defaultFlow('build'));
+    expect(arrows).toHaveLength(6);
+    expect(arrows).toContainEqual({
+      fromId: 'build-check',
+      output: 'true',
+      toId: 'build-commit',
+      isReturn: false,
+      roundLimit: null,
+      branchLabel: 'true',
+      roundsLabel: null,
+    });
+    expect(arrows.some((arrow) => arrow.fromId === 'build-check' && arrow.output === 'false')).toBe(false);
+  });
+
+  it('F-12 AC-051 the default blocks keep their ids and kinds in order (negative: no block is invented)', () => {
+    const kinds = defaultFlow('build').blocks.map((block) => `${block.id}:${block.kind}`);
+    expect(kinds).toEqual([
+      'build-start:start',
+      'build-implement:agent',
+      'build-review:agent',
+      'build-test:agent',
+      'build-check:condition',
+      'build-commit:agent',
+      'build-end:end',
+    ]);
+  });
+});
+
+describe('F-12 AC-053 step 3 keeps the pipeline with its blocks when the user moves to step 4 and back', () => {
+  it('F-12 AC-053 the blocks added on step 3 are the same after next and prev', () => {
+    const base = step3WithValues();
+    const flows = base.values.pipeline.flows.map((flow) =>
+      flow.id === 'specify' ? addBlock(flow, 'end').flow : flow,
+    );
+    const onStep3 = wizardReducer(base, {
+      type: 'set-pipeline',
+      pipeline: { ...base.values.pipeline, flows },
+    });
+    const back = wizardReducer(wizardReducer(onStep3, { type: 'next' }), { type: 'prev' });
+    expect(back.step).toBe(3);
+    expect(back.values.pipeline).toBe(onStep3.values.pipeline);
+    // The default specify flow has three blocks; the added End makes four.
+    expect(back.values.pipeline.flows[0]?.blocks).toHaveLength(4);
+  });
+
+  it('F-12 AC-053 the pipeline is the same object on step 4 as on step 3 (negative: no reset on next)', () => {
+    const base = step3WithValues();
+    const onStep4 = wizardReducer(base, { type: 'next' });
+    expect(onStep4.step).toBe(4);
+    expect(onStep4.values.pipeline).toBe(base.values.pipeline);
   });
 });

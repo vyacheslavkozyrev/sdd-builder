@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | 🔄 In Progress | | 7 of 24 tasks committed |
+| Build    | 🔄 In Progress | | 8 of 24 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -45,6 +45,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T005 | Repoint an arrow end through the link rules (a refused repoint leaves the flow unchanged), `removeBlockArrow` (empty true or next, `stop` for false) and the empty-output texts (`source/apps/web/src/builder/blockLink.ts`) | 0 blockers, 0 warnings; 1 suggestion fixed (a test asserted a constant); 1 suggestion deferred (the layout used for a return after a repoint, see Deferred Findings) | task check passed: api 45, web 1201, core 1211 |
 | T006 | Block field edits through the parser (`editAgentField`): the edit is applied to a copy and the parser's problem for that field decides; Agent name (the name clash shown as "Another Agent already has this name." by path), description and body; core: a blank Agent body is refused (Amendment 2026-11-23) (`source/apps/web/src/builder/blockFields.ts`, `source/packages/core/src/pipeline/parse/agent.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (a long comment line; a padded-name clash test) | task check passed: api 45, web 1222, core 1215 |
 | T007 | Agent lists through the parser: argument rows (id, required, hint), tools, model, reads and writes (labels from the flows' outcome artifacts, no duplicates), rule tags (project rules only) (`source/apps/web/src/builder/blockAgentFields.ts`, `source/apps/web/src/builder/blockFields.ts`) | 0 blockers; 2 warnings fixed (weak refusal tests; missing error-path tests); 1 suggestion fixed (programmer-error wording). One-off size exception: 625 changed lines, accepted by the user. Open: core check for reads and writes labels (AC-026), see Deferred Findings | task check passed: api 45, web 1260, core 1215 |
+| T008 | Condition fields: description through the parser (AC-030); true route text (AC-031); false route text (AC-032); round limit as an integer 1 to 5, refusal "A return allows 1 to 5 rounds." (AC-033); the field only for a return (AC-034) (`source/apps/web/src/builder/blockCondition.ts`). Unset round limit: "Returns to <name>, round limit not set" (AC-017, confirmed). One-off size exception: 432 changed lines, accepted by the user | 0 blockers, 0 warnings; 2 suggestions fixed (exact parser reasons in tests; unused type removed) | task check passed: api 45, web 1290, core 1215 |
+| T008 | Condition fields: description (through the parser), round limit (1 to 5, AC-033 reason), false route text (stop, goes to, returns to with the limit or "round limit not set"), true route text (`source/apps/web/src/builder/blockCondition.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (weak blank and length assertions now name the parser reasons; unused type alias removed). One-off size exception: 432 changed lines, accepted by the user | task check passed: api 45, web 1290, core 1215 |
 
 ---
 
@@ -52,7 +54,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 _Review suggestions intentionally not applied, with the reason._
 
-- Open decision (T007, AC-026): the core parser checks that reads and writes labels are not duplicated but not that they name an outcome artifact of a flow. The web layer refuses such a label; the API and JSON load would accept it. Proposed: a core check with a core test (a small [Core] task after T007b). Awaiting the user's decision.
+- Open decision (T007, AC-026): the core parser checks that reads and writes labels are not duplicated but not that they name an outcome artifact of a flow. The web layer refuses such a label; the API and JSON load would accept it. Proposed: a core check with a core test (a small [Core] task after T007b). Decided by the user: the core check is task T025 (Amendment 2026-11-23).
 
 - T004 review note (not a finding): AC-018's first half (a drag that starts at an input point starts no link) is a canvas concern. `linkBlocks` takes an output name, so an input point cannot start a link in the logic; the drag handling is checked in T015 or T016.
 - T005 review (SUGGESTION, `source/apps/web/src/builder/blockLink.ts` `repointBlockTarget` and `repointBlockSource`): a return is judged on the layout after the dragged arrow is cleared, not on the layout on screen before the drag. Both readings are defensible (a free block placed after an End looks like a return on screen but gives a valid forward link once wired). Kept as implemented; the stories do not say which layout applies. Confirm at Verify.
@@ -66,6 +68,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-23 (T007 size waiver, T008 wording, T025 core check)
+**Changed**: `plan.md` adds T025 [Core] (the parser refuses a reads or writes label that no flow lists as an outcome artifact, with a core test). T007 and T008 committed as one task each under a one-off waiver of the 400-line size guard (625 and 432 changed lines; the user accepted both). The unset round-limit text for a return (AC-017) is "Returns to <name>, round limit not set" (confirmed by the user).
+**Reason**: the core parser did not check that reads and writes labels name an outcome artifact (AC-026); the user chose the core check; T008 needed the wording.
+**Impact**: T025 runs after T024; the web pre-check of T007 stays. No task is re-run.
 
 ### Amendment — 2026-11-23 (T006: Agent body rule and name-clash wording)
 **Changed**: `plan.md` T006 and "Core untouched". Core `readBody` for an Agent becomes non-blank (the flow body and the schema already require it). The name clash keeps the parser's check; the web app maps that problem, by its path, to "Another Agent already has this name." (both decisions confirmed by the user).

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1000" viewBox="0 0 1280 1000">
+<defs>
+<filter id="sh" x="-5%" y="-5%" width="110%" height="115%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#32383E" flood-opacity="0.12"/></filter>
+<filter id="shT" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#32383E" flood-opacity="0.16"/></filter>
+<marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#636B74"/></marker>
+<marker id="arrP" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#635BFF"/></marker>
+</defs>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap");
+text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:#32383E}
+.brand{font-size:18px;font-weight:500}
+.onP{fill:#FFFFFF;font-weight:500;font-size:13px}
+.btnText{font-size:14px;font-weight:500;fill:#FFFFFF}
+.btnDark{font-size:14px;font-weight:500;fill:#32383E}
+.navT{font-size:14px;font-weight:500}
+.h2{font-size:14px;font-weight:500}
+.bold{font-size:12px;font-weight:500}
+.muted{font-size:12px;fill:#636B74}
+.small{font-size:11px;fill:#636B74}
+.caption{font-size:11px;fill:#636B74}
+.tabT{fill:#32383E;font-size:12px}
+.plus{font-size:16px;font-weight:500;fill:#32383E}
+.label-done{font-size:12px;font-weight:500;fill:#107569}
+.label-cur{font-size:13px;font-weight:500;fill:#635BFF}
+.label-todo{font-size:12px;font-weight:500;fill:#636B74}
+.num{font-size:12px;font-weight:500;fill:#FFFFFF}
+.num-todo{font-size:12px;font-weight:500;fill:#636B74}
+.check{font-size:13px;font-weight:500;fill:#FFFFFF}
+.card{fill:#FFFFFF;stroke:#DDE7EE}
+.btnP{fill:#635BFF}
+.btn{fill:#FFFFFF;stroke:#CDD7E1}
+.tab{fill:#FFFFFF;stroke:#DDE7EE}
+.tabOn{fill:#635BFF}
+.ring{fill:none;stroke:#DDE3FF;stroke-width:4}
+.node-todo{fill:#FFFFFF;stroke:#CDD7E1;stroke-width:1.5}
+.node-cur{fill:#635BFF}
+.line-todo{stroke:#CDD7E1;stroke-width:2}
+.line-done{stroke:#15B79F;stroke-width:2}
+.field{fill:#FFFFFF;stroke:#CDD7E1}
+.ro{fill:#F0F4F8;stroke:#CDD7E1}
+.err{fill:#FEF3F2;stroke:#BB241A;stroke-width:1.5}
+.errT{font-size:11px;fill:#BB241A}
+.errF{fill:#BB241A}
+.box{fill:#FBFCFE;stroke:#CDD7E1}
+.note{fill:#FFFAEA}
+.noteT{font-size:12px;font-weight:500;fill:#B84D05}
+.btnDanger{fill:#BB241A}
+.bt-primary{fill:#FFFFFF;font-weight:500}
+.tbBox{fill:#FFFFFF;stroke:#DDE7EE}
+.tbIcon{fill:none;stroke:#635BFF;stroke-width:1.5}
+.tbIconG{fill:none;stroke:#636B74;stroke-width:1.5}
+.node{fill:#FFFFFF;stroke:#635BFF;stroke-width:1.5}
+.nodeSel{fill:#ECF0FF;stroke:#635BFF;stroke-width:2.5}
+.dia{fill:#FFFFFF;stroke:#636B74;stroke-width:1.5}
+.diaSel{fill:#ECF0FF;stroke:#635BFF;stroke-width:2.5}
+.line{stroke:#636B74;stroke-width:1.5;fill:none;marker-end:url(#arr)}
+.ret{stroke:#635BFF;stroke-width:1.5;stroke-dasharray:6 4;fill:none;marker-end:url(#arrP)}
+.tTrue{font-size:11px;font-weight:500;fill:#107569}
+.tFalse{font-size:11px;font-weight:500;fill:#B84D05}
+.startC{fill:#FFFFFF;stroke:#635BFF;stroke-width:2}
+.endC{fill:#FFFFFF;stroke:#32383E;stroke-width:2}
+.tbFillP{fill:#635BFF}
+.tbFillK{fill:#32383E}
+.tbStart{fill:none;stroke:#635BFF;stroke-width:1.5}
+.tbEnd{fill:none;stroke:#32383E;stroke-width:1.5}
+.ringS{fill:none;stroke:#635BFF;stroke-width:2.5}
+.dim{fill:#32383E;fill-opacity:0.35}
+.dlg{fill:#FFFFFF;stroke:#CDD7E1}
+.dlgTitle{font-size:24px;font-weight:500;fill:#32383E}
+.btnOut{fill:#FFFFFF;stroke:#635BFF;stroke-width:1}
+.minusP{fill:#635BFF}
+.plusT{font-size:18px;font-weight:500;fill:#635BFF}
+.field-label{font-size:12px;font-weight:500;fill:#32383E}
+</style>
+<rect width="1280" height="1000" fill="#F0F4F8"/>
+
+<!-- Left panel: wordmark, New project, vertical stepper, Prev and Next at the foot -->
+<rect x="0" y="0" width="260" height="1000" fill="#FFFFFF"/>
+<rect x="259" y="0" width="1" height="1000" fill="#DDE7EE"/>
+<rect x="24" y="24" width="24" height="24" rx="6" fill="#635BFF"/>
+<text x="58" y="42" class="brand">SDDBuilder</text>
+<rect x="24" y="72" width="212" height="40" rx="8" class="btn"/>
+<text x="130" y="97" class="btnDark" text-anchor="middle">New project</text>
+<line x1="40" y1="176" x2="40" y2="216" class="line-done"/>
+<line x1="40" y1="240" x2="40" y2="280" class="line-done"/>
+<line x1="40" y1="304" x2="40" y2="344" class="line-todo"/>
+<circle cx="40" cy="164" r="12" fill="#15B79F"/><text class="check" x="40" y="168.5" text-anchor="middle">&#10003;</text>
+<text class="label-done" x="64" y="168">Project</text>
+<circle cx="40" cy="228" r="12" fill="#15B79F"/><text class="check" x="40" y="232.5" text-anchor="middle">&#10003;</text>
+<text class="label-done" x="64" y="232">Technical details</text>
+<circle class="ring" cx="40" cy="292" r="18"/><circle class="node-cur" cx="40" cy="292" r="12"/>
+<text class="num" x="40" y="296.5" text-anchor="middle">3</text>
+<text class="label-cur" x="64" y="296">Workflow</text>
+<circle class="node-todo" cx="40" cy="356" r="12"/><text class="num-todo" x="40" y="360.5" text-anchor="middle">4</text>
+<text class="label-todo" x="64" y="360">Analyze and generate</text>
+<g><title>Prev: go to the previous step</title><rect class="btn" x="24" y="928" width="100" height="40" rx="8"/><text class="navT" x="74" y="952" text-anchor="middle">Prev</text></g>
+<g><title>Next: go to the next step</title><rect class="btnP" x="136" y="928" width="100" height="40" rx="8"/><text class="btnText" x="186" y="952" text-anchor="middle">Next</text></g>
+
+<rect x="284" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="297" y="44" class="tabT">Pipeline</text>
+<rect x="377.2" y="24" width="77.8" height="32" rx="8" class="tab"/><text x="390.2" y="44" class="tabT">specify</text>
+<rect x="463" y="24" width="60" height="32" rx="8" class="tab"/><text x="476" y="44" class="tabT">ux</text>
+<rect x="531" y="24" width="60" height="32" rx="8" class="tabOn"/><text x="544" y="44" class="onP">plan</text>
+<rect x="599" y="24" width="63" height="32" rx="8" class="tab"/><text x="612" y="44" class="tabT">build</text>
+<rect x="670" y="24" width="70.4" height="32" rx="8" class="tab"/><text x="683" y="44" class="tabT">verify</text>
+<rect x="748.4" y="24" width="85.2" height="32" rx="8" class="tab"/><text x="761.4" y="44" class="tabT">complete</text>
+<rect x="844.6" y="26" width="28" height="28" rx="6" class="btnOut"/><text x="858.6" y="46" class="plusT" text-anchor="middle">+</text>
+<rect x="284" y="80" width="680" height="852" rx="12" class="card" filter="url(#sh)"/><rect x="732" y="96" width="208" height="44" rx="10" class="tbBox" filter="url(#shT)"/>
+<g><title>Add an Agent block</title><rect x="748" y="112" width="16" height="12" rx="3" class="tbIcon"/></g>
+<g><title>Add a Condition on an arrow</title><polygon points="796,110 804,118 796,126 788,118" class="tbIconG"/></g>
+<g><title>Link two blocks with an arrow</title><line x1="829" y1="124" x2="843" y2="112" class="line"/></g>
+<g><title>Add a Start block</title><circle cx="876" cy="118" r="9" class="tbStart"/><polygon points="873,114 873,122 881,118" class="tbFillP"/></g>
+<g><title>Add an End block</title><circle cx="916" cy="118" r="9" class="tbEnd"/><rect x="912" y="114" width="8" height="8" rx="1" class="tbFillK"/></g>
+<text x="308" y="118" class="h2">plan</text>
+<text x="308" y="136" class="small">2 Agents, 2 Conditions</text>
+<g transform="translate(0,100)">
+<circle cx="330" cy="400" r="22" class="startC"/>
+<polygon points="326,392 326,408 340,400" class="tbFillP"/>
+<text x="330" y="370" text-anchor="middle" class="small">Start</text>
+<line x1="352" y1="400" x2="380" y2="400" class="line"/>
+<polygon points="410,370 440,400 410,430 380,400" class="dia"/>
+<text x="410" y="350" text-anchor="middle" class="small">The brief is complete</text>
+<text x="454" y="394" text-anchor="middle" class="tTrue">true</text>
+<line x1="440" y1="400" x2="468" y2="400" class="line"/>
+<path d="M410 430 V500 H914 V424" class="line"/>
+<text x="416" y="452" class="tFalse">false</text>
+<text x="600" y="492" text-anchor="middle" class="small">stops the flow, outcome stopped</text>
+<rect x="468" y="364" width="140" height="72" rx="8" class="nodeSel"/><text x="480" y="392" class="bold">planner</text><text x="480" y="412" class="small">Writes the plan</text>
+<line x1="608" y1="400" x2="636" y2="400" class="line"/>
+<rect x="636" y="364" width="140" height="72" rx="8" class="node"/><text x="648" y="392" class="bold">reviewer</text><text x="648" y="412" class="small">Checks the plan</text>
+<line x1="776" y1="400" x2="804" y2="400" class="line"/>
+<polygon points="834,370 864,400 834,430 804,400" class="dia"/>
+<text x="834" y="452" text-anchor="middle" class="small">The reviewer approves</text>
+<text x="874" y="394" text-anchor="middle" class="tTrue">true</text>
+<line x1="864" y1="400" x2="892" y2="400" class="line"/>
+<path d="M834 370 V300 H542 V362" class="ret"/>
+<text x="688" y="292" text-anchor="middle" class="small">up to 3 rounds</text>
+<text x="842" y="346" class="tFalse">false</text>
+<circle cx="914" cy="400" r="22" class="endC"/>
+<rect x="908" y="394" width="12" height="12" rx="1" class="tbFillK"/>
+<text x="914" y="370" text-anchor="middle" class="small">End</text>
+</g>
+<text x="308" y="908" class="small">Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.</text><rect x="984" y="80" width="272" height="852" rx="12" class="card" filter="url(#sh)"/><text x="1008" y="118" class="h2">Agent: planner</text><text x="1008" y="136" class="small">Agent block in the plan flow</text><text x="1008" y="176" class="field-label">Name</text><rect x="1008" y="188" width="224" height="40" rx="8" class="field"/><text x="1020" y="213">planner</text><text x="1008" y="264" class="field-label">Description</text><rect x="1008" y="276" width="224" height="40" rx="8" class="field"/><text x="1020" y="301">Writes the plan from the brief.</text><text x="1008" y="352" class="bold">Arguments</text><rect x="1206" y="338" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="358" class="plusT" text-anchor="middle">+</text><rect x="1008" y="372" width="192" height="40" rx="8" class="field"/><text x="1020" y="397">feature-id · required</text><rect x="1206" y="378" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="391" width="12" height="2" class="minusP"/><rect x="1008" y="420" width="192" height="40" rx="8" class="field"/><text x="1020" y="445">topic</text><rect x="1206" y="426" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="439" width="12" height="2" class="minusP"/><text x="1008" y="496" class="field-label">Model</text><rect x="1008" y="508" width="224" height="40" rx="8" class="field"/><text x="1020" y="533">inherit</text><text x="1218" y="533" class="plus" text-anchor="middle">&#9662;</text><text x="1008" y="584" class="bold">Tools</text><rect x="1206" y="570" width="28" height="28" rx="6" class="btnOut"/><text x="1220" y="590" class="plusT" text-anchor="middle">+</text><rect x="1008" y="604" width="192" height="40" rx="8" class="field"/><text x="1020" y="629">Read</text><rect x="1206" y="610" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="623" width="12" height="2" class="minusP"/><rect x="1008" y="652" width="192" height="40" rx="8" class="field"/><text x="1020" y="677">Write</text><rect x="1206" y="658" width="28" height="28" rx="6" class="btnOut"/><rect x="1214" y="671" width="12" height="2" class="minusP"/><text x="1008" y="728" class="field-label">Body</text><rect x="1008" y="740" width="224" height="80" rx="8" class="box"/><text x="1020" y="760" class="small">Reads the brief and writes plan.md</text><text x="1020" y="776" class="small">with one section for each story.</text><text x="1008" y="840" class="small">96 / 1000 characters</text><rect x="1008" y="868" width="130" height="40" rx="8" class="btnDanger"/><text x="1073" y="893" class="bt-primary" text-anchor="middle">Delete block</text><text x="1146" y="893" class="small">Asks first</text><text x="284" y="965" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>
+<text x="1256" y="965" class="caption" text-anchor="end">F-12 &#183; screen 5 &#183; step 3 of 4 &#183; 1280 &#215; 1000</text>
+<rect x="0" y="0" width="1280" height="1000" class="dim"/><rect x="440" y="392" width="400" height="168" rx="12" class="dlg" filter="url(#sh)"/><text x="464" y="438" class="dlgTitle">Delete the planner block?</text><text x="464" y="468" class="muted" style="font-size:13px">Are you sure you want to delete this block?</text><text x="464" y="486" class="muted" style="font-size:13px">Its arrows are removed too.</text><rect x="512" y="504" width="120" height="40" rx="8" class="btn"/><text x="572" y="529" class="btnDark" text-anchor="middle">Cancel</text><rect x="648" y="504" width="120" height="40" rx="8" class="btnDanger"/><text x="708" y="529" class="bt-primary" style="font-size:14px" text-anchor="middle">Delete</text></svg>

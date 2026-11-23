@@ -1,81 +1,100 @@
 # UX screens — Workflow builder (F-12)
 
-Feature entry: `spec/documents/features.md` → F-12. Stories: `spec/specifications/F-12-workflow-builder/stories.md` (9 stories, 53 criteria, approved 2026-11-23). The frame and the look are F-07 and F-11 (`spec/design/features/F-07-ui-layout-template/`, `spec/design/features/F-11-pipeline-builder/`).
+Feature entry: `spec/documents/features.md` → F-12. The model is the draft `spec/documents/pipeline-schema.md` (section 7 holds the flow tab decisions of 2026-11-19); the frame is F-07 (`spec/design/features/F-07-ui-layout-template/`) and the flow tab's place is F-11 (`spec/design/features/F-11-pipeline-builder/`, screen 06).
 
-Status: **approved by the user** on 2026-11-23, as drawn (the version before the usability and visual reviews). Fourteen screens. They replace the 2026-11-19 draft, which showed Condition-era flow tab details that the stories changed (Move buttons, a Link tool). Wireframes: layout, content and states only; colours, fonts and wording are placeholders.
+Status: a **visual draft for finalising the pipeline schema**, redrawn on 2026-11-19 as a flow canvas. Six screens, not yet reviewed by `usability` and `visual`, and not approved. The open schema questions are listed below; each amber note names the question a drawing depends on.
 
-Scope: step 3 of the wizard, the flow tab of one flow (here `plan`). The canvas holds the flow's blocks: Start, Agent, Condition and End. Arrows are drawn by dragging from one point to another, as on the Pipeline tab (F-11). Order comes from the arrows; there are no Move buttons. Each block has its own panel on the right.
+Scope: step 3 of the wizard (Workflow), the flow tab of one flow (here `plan`). The flow is a canvas of blocks joined by arrows. Approval is a checkbox on the flow's panel in the Pipeline tab (F-11); the next flow is set there too. The flow tab has no flow-level checks: a check is a Condition on an arrow inside the flow.
 
-## Decided by the stories (2026-11-23)
+## Decided by the owner (2026-11-19)
 
-- Condition blocks are in F-12. The toolbox holds four icons: Agent, Condition, Start, End (no Link).
-- Start is disabled while the flow has one, with the reason beside the toolbox.
-- A flow keeps its Start. A flow keeps at least one End. Their Delete controls are disabled with the reason.
-- The true route of a Condition is read-only (set by its arrow). The false route is one of three texts: stop (no arrow), goes to a later block, or returns to an earlier Agent with a round limit of 1 to 5.
-- A refused drop or edit shows its reason in the message band (drops) or beneath the field (edits). A refused edit keeps the saved value.
-- Panels are for one block at a time. Delete asks first and names what goes with the block.
+- The flow tab is a **canvas**, like the Pipeline tab. Start and End are circles; an Agent is a rounded box (name and one short description line); a Condition is a diamond on an arrow with two branches, **true** and **false**, and a short description of what it checks.
+- **Start and End are kept.**
+- **Checks are Conditions.** A pre-check is a Condition between Start and the first Agent; a check at the end is a Condition between the last Agent and End. There are **no flow-level checks**; the flow's checks are the Conditions in its tab.
+- **The true branch goes to the next block.** It is not chosen; the screens show it read-only.
+- **A false branch can return to any earlier Agent**, with a round limit shown on the arrow ("up to N rounds"). The limit is kept.
+- **The toolbox floats** over the canvas, top-right, with **icon buttons** only (Agent, Condition, Link, Start, End); the names are tooltips.
+- **No Move up or Move down.** The canvas orders the blocks by their arrows.
+- Human approval stays a flow property (decision 38 in `pipeline-schema.md`).
 
 ## Layout grid and frame
 
-Each SVG is 1280 wide and 1060 high.
+Each SVG is 1280 wide and 1000 high; the caption gives the height.
 
-- **Left panel** x 0–260, full height, white: wordmark, **New project**, the vertical stepper (step 3 current), **Prev** x 24–124 and **Next** x 136–236 at y 988.
-- **Tab row** y 24–56 from x 284: Pipeline, specify, ux, **plan** (selected), build, verify, complete, then **+**.
-- **Canvas card** x 284–964, white, 12 px radius, y 80–992. Heading "plan" and the count line at x 308 (y 112 and 130). The **toolbox** floats at the top right of the card, x 764–940, y 96–140. The refusal band sits under the count line, x 308, y 146–174. The reason for a disabled toolbox button sits under the toolbox, right-aligned at x 940, y 160.
-- **Properties card** x 984–1256, white, y 80–992. Title y 118, subtitle y 136. Fields are 40 high, 224 wide (rows and chips 192 or 72–96 wide). The footer Delete button is at y 944–984, the disabled reason just above it at y 920.
-- **Footer note** baseline y 1025: "The work is not saved. It is lost when the browser is refreshed." Caption at x 1256: "F-12 · screen N · step 3 of 4 · 1280 × 1060".
-- **Dialog** x 440–840, y 392–560, centred on the whole screen, with the whole screen dimmed behind it (screens 07 and 14).
+- **Left panel** x 0–260, full height, white: wordmark at x 24, **New project** x 24–236 at y 72–112, the vertical stepper at x 40 (steps 1 and 2 done, step 3 current), **Prev** x 24–124 and **Next** x 136–236 at y H−72.
+- **Tab row** y 24–56 from x 284: Pipeline, specify, ux, plan (selected), build, verify, complete, then **+**.
+- **Canvas card** x 284–964, white, 12 px radius, from y 80 to H−68. The **toolbox** floats at the top-right of the card, x 732–940, y 96–140 (white, soft shadow, five 32 px icon buttons: Agent, Condition, Link, Start, End). The heading "plan" and the count "2 Agents, 2 Conditions" sit at the top-left, x 308. The flow is drawn on one row, centred on the card (its centre line is y 500): Start, pre-check, planner, reviewer, end check, End. A dashed arrow over the top is the return; a solid arrow under the row is the pre-check's false branch. The hint at the foot of the card (y H−92) says how to read the arrows.
+- **Properties card** x 984–1256, white, same top and bottom. The title at y 118, the subtitle at y 136. Fields are 40 px high, 224 wide (rows of arguments and tools 192 wide, with the 28 px minus at x 1204); labels at 12 px, weight 500, #32383E.
+- **Footer note** baseline H−35: "The work is not saved. It is lost when the browser is refreshed." at x 284; the caption "F-12 · screen N · step 3 of 4 · 1280 × H" right-aligned at x 1256.
+- **Dialog** centred on the whole screen (x 440–840, y 392–560), with the whole screen dimmed behind it, the left panel and the tab row included.
 
 ## Visual style
 
-F-07 and F-11 look (Material Kit React colours as used there). Primary `#635BFF` (Next, the selected tab, the outline of the selected block, the return arrow); selected block on tint `#ECF0FF`; page `#F0F4F8`; cards white with `#DDE7EE` borders; controls with `#CDD7E1` borders, 8 px radius; text `#32383E` and `#636B74`. True labels `#107569` (green text); false labels `#B84D05` (amber text); errors `#BB241A` (refused field border and text, the message band, the Delete button fill); amber marks `#B84D05` text on `#FFFAEA`. Font Inter, weights 400 and 500, 8 px grid.
+The F-07 frame and F-11 look: Material Kit React (Devias IO, MIT licence; credit in `spec/documents/ui.md` §3.0 and `spec/documents/architecture.md` §5). Only the Material Kit colours are used: primary `#635BFF` (Next, the selected tab, the outline of an Agent box and of the Start circle, the return arrow); the selected block's outline `#635BFF` on tint `#ECF0FF`; page `#F0F4F8`; cards white with `#DDE7EE` borders; controls with `#CDD7E1` borders, 8 px radius; secondary buttons white with a border; text `#32383E` and `#636B74`; the Start outline `#635BFF` and the End outline `#32383E`, both circles on a white fill; a read-only field on `#F0F4F8`. True labels `#107569` (done green, text); false labels `#B84D05` (amber text, the same ink as the notes). Errors `#BB241A` (the refused field's border and text, and the Delete button fill). Amber notes `#B84D05` text on `#FFFAEA`. Font Inter, weights 400 and 500, on the 8 px grid.
 
 ## Legend
 
-- **Circle, blue outline:** Start. **Circle, dark outline:** End.
-- **Rounded box with a name and a line of description:** an Agent.
-- **Diamond with its description above it:** a Condition on an arrow. Its true arrow is labelled "true" (green); its false arrow is labelled "false" (amber). A false output with no arrow is labelled "false · stop".
-- **Solid grey arrow:** a normal route. **Dashed blue arrow:** a return to an earlier Agent, labelled "up to N rounds".
-- **Blue outline on a tint:** the selected block or arrow.
-- **Red dashed line:** a drag that the flow refuses.
-- **Amber box:** a structure mark (a finding on a block).
-- **Grey disabled button with a reason:** a control that the flow refuses now; the reason is written beside it.
+- **Rounded box with a name and a line of description:** an Agent. **Blue outline:** the selected block (tint `#ECF0FF`).
+- **Diamond on an arrow:** a Condition. Its description sits above it (pre-check) or below it (end check), so that no arrow crosses the text.
+- **Solid grey arrow:** the normal run order. **Dashed blue arrow:** a return, a false branch back to an earlier Agent; its round limit is written on it ("up to 3 rounds").
+- **"true" (green) and "false" (amber):** the two branches of a Condition, at their outgoing arrows.
+- **Circle on a white fill:** Start (blue outline, a play mark) and End (dark outline, a square mark). The two are told apart by their mark only; both are also toolbox buttons.
+- **Toolbox icons:** rounded box = Agent; diamond = Condition; arrow = Link (joins two blocks with an arrow); circle with a play mark = Start; circle with a square = End. Names are tooltips only.
+- **Read-only grey field** (True goes to): the next block, not chosen.
+- **Field with a ▾:** a dropdown. **Field with − beside it:** a row of a list, with + above the list to add one.
+- **Counter** under the body: characters used of 1000.
+- **Red border and red text under a field:** a refused value and its reason, in the error style. The field keeps the saved value (as F-11 does); the reason names the refused value.
+- **Delete block** (red) with "Asks first" beside it: a confirmation follows. On screens 01 to 06 it is pinned to the foot of the properties card (24 px above the card's bottom edge), as the Delete flow footer is on F-11's flow panel; on screen 05 the panel behind the dialog shows it in the same place.
+- **Amber note:** a point of the draft that depends on an open schema question (its number is given in the note).
 
 ## Screens
 
-| No. | File | What it shows | Criteria it proves |
+| Screen | File | Shows | Covers |
 |---|---|---|---|
-| 01 | `01-flow-canvas.svg` | The flow tab with its blocks and arrows, nothing selected. Start disabled with its reason. | AC-001, AC-003, AC-007, AC-008, AC-009, AC-010, AC-011 (empty panel), AC-013, AC-017, AC-020 |
-| 02 | `02-agent-selected.svg` | Agent panel: Name, Description, Arguments, Model, Tools, Reads, Writes, Rule tags, Body with counter, Delete block. | AC-002 (new Agent opens its panel), AC-022, AC-023, AC-024, AC-025, AC-026, AC-027, AC-028, AC-039 |
-| 03 | `03-agent-name-refused.svg` | Name refused: another Agent has the name; the saved name stays. | AC-023 |
-| 04 | `04-condition-selected.svg` | Condition panel: Description, read-only True route, False route text, round limit. | AC-030, AC-031, AC-032, AC-033, AC-039 |
-| 05 | `05-round-limit-refused.svg` | Round limit 7 refused beneath the field. | AC-033, AC-050 |
-| 06 | `06-link-refused.svg` | A drag from a non-false output back to an earlier Agent; the band states the reason. | AC-016, AC-019 (refused drop keeps the arrow), AC-015 (same band pattern), AC-018 (same band pattern) |
-| 07 | `07-delete-block-confirm.svg` | Delete block confirmation for the reviewer: names the block and its two arrows; routes are cleared, not rewired. | AC-039, AC-040, AC-041 |
-| 08 | `08-start-selected.svg` | Start panel: Delete block disabled with "A flow keeps its Start block."; toolbox Start disabled. | AC-042, AC-003 |
-| 09 | `09-end-selected.svg` | End panel: Outcome (done, stopped), Produced artifact from the flow's artifacts, Delete block disabled with "A flow keeps at least one End block.". | AC-035, AC-036, AC-043 |
-| 10 | `10-end-no-artifacts.svg` | End panel on a flow with no outcome artifacts: the field is empty and says to add one on the flow panel first. | AC-036 (empty case) |
-| 11 | `11-flow-empty.svg` | A flow with no blocks: "No blocks yet.", count "0 Agents, 0 Conditions", Start enabled. | AC-006, AC-001 (Start enabled) |
-| 12 | `12-structure-marks.svg` | An unlinked Agent "writer" with its findings on the canvas and in the panel; the panel is read-only. | AC-045, AC-047, AC-048 |
-| 13 | `13-arrow-selected.svg` | Arrow panel: source and target read-only, Delete connection. | AC-011, AC-021 |
-| 14 | `14-delete-connection-confirm.svg` | Delete connection confirmation: the arrow is removed, both blocks keep their properties. | AC-021 |
+| 01 | `01-flow-canvas.svg` | The canvas of plan with the toolbox: Start, pre-check, planner, reviewer, end check, End; the return arrow with "up to 3 rounds"; the pre-check's false arrow to End. End selected: outcome dropdown (done), produced artifact dropdown (plan.md), Delete block | The canvas grammar (circles, boxes, diamonds, branches, return); End properties |
+| 02 | `02-agent-selected.svg` | The planner Agent selected: name, description, arguments rows, model, tools rows, body with the counter, Delete block | Agent properties; no move buttons; body at most 1000 characters |
+| 03 | `03-condition-precheck-selected.svg` | The pre-check selected: what it checks ("The previous step is complete"), true goes to planner (read-only), false goes to End, stopped. No return, so no round limit | A Condition's description; true target fixed; a false branch that ends the flow |
+| 04 | `04-condition-return-selected.svg` | The end check selected: what it checks ("The reviewer approves"), true goes to End (read-only), false goes to planner, round limit 3 rounds | A Condition's return target; the round limit kept |
+| 05 | `05-delete-block-confirm.svg` | "Delete the planner block?" with "Are you sure you want to delete this block?" and "Its arrows are removed too.", Cancel and Delete (120 × 40), the whole screen dimmed | Delete asks first; the arrows go with the block |
+| 06 | `06-agent-name-refused.svg` | The reviewer Agent selected with the name planner refused: error style, reason beneath, saved name kept, its box on the canvas keeps reviewer | Name unique among agents; a refused edit keeps the saved value |
 
-## Criteria with no screen
+## Drawings that differ from the brief or the schema
 
-These are proved by tests, or by the same pattern as a screen. The checklist (`[device]`) covers the rest.
+- Screen 01 selects End (not nothing) so that the End block's outcome and produced artifact are drawn on the canvas.
+- The brief's example listed a check between planner and reviewer. Two Conditions are drawn instead: the pre-check and the end check, which carries the return. A check in the middle of the flow is possible in the model but is not drawn; say if the owner wants one.
+- Screen 03: the pre-check's false branch ends the flow with the outcome "stopped" (End). The brief does not say what a false pre-check does; it is question 9.
+- Screen 04: the round limit is a number field "3" with "rounds" beside it. The limit's range and default are question 10.
+- Screen 05: the dialog is centred on the whole screen (x 440–840). The earlier draft centred it on the content area (x 570–970); the change follows the rule of the frame.
+- Screen 06: the reason line sits 18 px under the name field, which leaves little space above the Description label. It is kept on the same grid as the other screens; `visual` may move it.
+- Screen 01 shows Delete on End, enabled, as in the earlier draft (question 7).
+- The Delete button is the danger colour `#BB241A` (redOrange 700, owner decision; was `#DE3024`). One colour is used for the Delete buttons, the refused field and its text.
+- The pipeline's arguments list (F-11) and the block arguments (F-12) are both drawn as rows (question 1).
 
-- AC-004 (ids), AC-005 (other flows unchanged), AC-014 (Start to End refused: band text as 06), AC-029 (Agent edits keep arrows), AC-034 (forward route has no round field: the panel of 04 with a later target), AC-037 (artifact removal refused: the F-11 flow panel, its screen 10 of F-11), AC-038 (more than one End), AC-044, AC-046 (the blocked flow box is on the Pipeline tab, F-11), AC-049 to AC-053 (state, tabs, memory only).
-- AC-012, AC-007, AC-008 are `[device]`: the drag, the shapes and the arrow styles are checked on the drawn screens 01 and 06 in a real browser.
+## Schema questions
 
-## Decisions taken with the approval (2026-11-23)
+Each question is needed to finalise `spec/documents/pipeline-schema.md`. The screens draw the answer shown in the brief unless marked decided.
 
-These open points were not reviewed separately; the approved screens show the drawn option for each, and the plan follows it.
+**Decided (2026-11-19):**
 
-1. **Last End.** Delete on an End is disabled with its reason only when it is the flow's last End (screen 09).
-2. **Round limit.** The round field sits under the false route (screen 04).
-3. **Structure marks.** The marks sit on the block (canvas) and as a read-only list in the Agent panel (screen 12).
-4. **Empty flow.** "No blocks yet." in the canvas middle, with no hint line beside the toolbox (screen 11).
-5. **Return arrow entry.** The return ends on the bottom edge of the Agent (screens 01 to 14). The browser check of AC-008 confirms it.
-6. **Name.** The Agent name is file-safe and unique (AC-023), as drawn, and not marked required on the screen; the plan treats a blank name as refused.
-7. **Reads and Writes.** As drawn, these are chips without an add or remove control. Rule tags have + and − as drawn. The approved screens do not show how to add or remove a Reads or Writes label, so the plan must add that control, in the Rule tags pattern, to meet AC-026.
-8. **Dialogs.** Confirmations are centred on the screen (screens 07 and 14).
+- **4. Links between blocks.** Decided: an Agent connects to another by an arrow; the flow's blocks are linked from Start to End (the schema's `next`). The screens draw the arrows.
+- **Checks as Conditions, no flow-level checks, Start and End kept, the return limit kept, the toolbox with icons.** Decided; see the list above. Question 7 is only partly decided (below).
+
+**Open:**
+
+1. **Block arguments are rows.** The schema has `arguments` as one string on an Agent block (`blockAgent`). The screen draws rows with + and minus (id, required, hint, as the pipeline's arguments). Keep the string, or use argument rows?
+2. **Agent tools as a list.** The schema has `tools` as a list of strings with no catalogue. The screen draws one row per tool, typed as free text. Is there a fixed list of tool names to pick from?
+3. **Agent reads and writes.** Not in the schema and not drawn, as they are not in the brief. Does an agent block need them to declare what it reads and writes?
+5. **The End block's produced artifact.** The schema stores a free string (up to 200 characters). The screen offers a dropdown of the flow's artifacts. Store the artifact's label (a rename breaks it) or an id on each artifact (the artifact has no id today)? Is "none" allowed?
+6. **Scope of agent names.** The screen draws "unique among the pipeline's agents" (screen 06). Is the name unique across the whole pipeline or inside the flow? The rule is not in `pipeline-schema.md` section 3.
+7. **Start and End, partly decided.** Start and End are kept. Still open: can a Start or End be deleted and added again (screens 01 and 05 leave Delete enabled on End, and the Start block is not drawn with a delete), and is one Start and one End per flow a rule?
+8. **Agent blocks and a catalogue.** The brief says custom agents are Agent blocks. Is there a catalogue of built-in agents to pick from, or does every Agent block name its own agent? The screens assume the second.
+9. **A false pre-check.** Screen 03 draws a false branch that ends the flow with the outcome stopped. Is that the rule, or may the false branch of a pre-check go to an Agent or be otherwise handled?
+10. **The round limit.** Screen 04 draws a number of rounds (3) on the return arrow. What are the range and the default, and is the limit required on every false branch that returns?
+11. **Deleting a block with arrows.** Screen 05 says the arrows are removed with the block. Or should the arrows be rewired (the block's predecessor to its successor)?
+
+## Owner decisions applied (2026-11-19)
+
+- Field labels: 12 px, weight 500, #32383E (were 12 px muted grey).
+- Plus and minus buttons: 28 × 28 px, radius 6, primary outline 1 px, primary glyph.
+- Amber notes (draft questions 5, 9 and 10): 12 px, weight 500, #B84D05 on #FFFAEA; re-wrapped to the 224 px box (the notes on screens 01, 03 and 04 are taller).
+- Danger colour #BB241A.

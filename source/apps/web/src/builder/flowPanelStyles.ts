@@ -10,20 +10,17 @@ import type { StyleObject } from '../styles/common.js';
 export interface FlowPanelStyles {
   // The panel: a column that fills its place, with the fields above and the footer fixed below.
   readonly root: StyleObject;
-  // The fields, in the order of AC-019: a column that scrolls inside the panel, the footer stays in view.
-  // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge. A field
-  // group (below) ends 24 px above the next label, so the next label's baseline is 36 px below the field (screen 01):
-  // the label box is 16 px high with its baseline about 4 px above its bottom.
+  // The fields, in the order of AC-019: the shared panelFields shape of common.ts (a scrolling column, 24 px
+  // between groups, 16 px side inset).
   readonly scroll: StyleObject;
-  // One field group: its label and its field, a column with 8 px between them, so the label's baseline sits
-  // 12 px above the field (screen 01). It is a child of `scroll`, so the 24 px gap applies between groups only.
+  // One field group: the shared fieldGroup shape of common.ts (8 px between its label and its field).
   readonly group: StyleObject;
   // The footer under the fields: the Delete flow control (AC-019, AC-029).
   readonly footer: StyleObject;
   readonly deleteButton: StyleObject;
   // The line of the footer that says what the footer cannot do (the pipeline cannot be removed).
   readonly footerNote: StyleObject;
-  // One field: its label above it, its input, and the lines under it.
+  // One field: its label above it (the shared groupLabel shape), its input, and the lines under it.
   readonly fieldLabel: StyleObject;
   // One field is FIELD_HEIGHT (40 px) high, with its text centred (screen 01).
   readonly field: StyleObject;
@@ -43,28 +40,12 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
   const common = getCommonStyles(theme);
   return {
     root: common.panelRoot,
-    scroll: {
-      boxSizing: 'border-box',
-      flex: 1,
-      minHeight: 0,
-      overflowY: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '24px',
-      px: '16px',
-      minWidth: 0,
-    },
-    group: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '8px',
-      minWidth: 0,
-    },
+    scroll: common.panelFields,
+    group: common.fieldGroup,
     footer: common.panelFooter,
     deleteButton: common.panelDeleteButton,
     footerNote: common.secondaryText,
-    // The group's gap is the 8 px between the label and its field, so the label has no margin of its own.
-    fieldLabel: { ...common.fieldLabel, mb: 0 },
+    fieldLabel: common.groupLabel,
     field: {
       width: '100%',
       ...common.formField,

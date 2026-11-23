@@ -1,16 +1,20 @@
 import type { Theme } from '@mui/material/styles';
-import { getCommonStyles } from '../styles/common.js';
+import { FIELD_HEIGHT, getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
 
 // Style getter for the connection panel (.claude/rules/web-styling.md). It takes the theme and returns the
-// style objects ConnectionPanel passes to `sx`. The read-only boxes are grey, as screen 02 draws them;
-// the label, the note and the footer are the shared shapes of common.ts.
+// style objects ConnectionPanel passes to `sx`. The fields, the label groups, the note and the footer are the
+// shared shapes of common.ts, the same ones the flow and pipeline panels take, so the spacing matches them.
+// Only the read-only box is set here: it is grey, as screen 02 draws it, and it has the outline and inset of a field.
 
 export interface ConnectionPanelStyles {
   readonly root: StyleObject;
+  // The fields: the shared scrolling column (24 px between groups).
   readonly fields: StyleObject;
+  // One label and its read-only box: the shared group (8 px between them).
+  readonly group: StyleObject;
   readonly label: StyleObject;
-  // The read-only box that shows a flow's name: grey, with the same outline as a field.
+  // The read-only box that shows a flow's name: FIELD_HEIGHT high, grey, with the outline and text inset of a field.
   readonly readOnly: StyleObject;
   readonly note: StyleObject;
   readonly footer: StyleObject;
@@ -21,26 +25,13 @@ export function getConnectionPanelStyles(theme: Theme): ConnectionPanelStyles {
   const common = getCommonStyles(theme);
   return {
     root: common.panelRoot,
-    // The fields are the panel's one scrolling region, as in the flow panel; the footer stays fixed below.
-    // The 16 px side inset is inside the region, so the scrollbar sits on the card's edge.
-    fields: {
-      boxSizing: 'border-box',
-      flex: 1,
-      minHeight: 0,
-      overflowY: 'auto',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      px: '16px',
-      minWidth: 0,
-    },
-    label: common.fieldLabel,
+    fields: common.panelFields,
+    group: common.fieldGroup,
+    label: common.groupLabel,
     readOnly: {
-      boxSizing: 'border-box',
       display: 'flex',
       alignItems: 'center',
-      height: 34,
-      px: 2,
+      height: FIELD_HEIGHT,
       borderRadius: '8px',
       border: `1px solid ${theme.palette.grey[300]}`,
       bgcolor: theme.palette.grey[100],

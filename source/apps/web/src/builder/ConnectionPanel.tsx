@@ -32,18 +32,22 @@ export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPa
   return (
     <Box sx={styles.root}>
       <Box sx={styles.fields}>
-        <Typography id={sourceLabelId} component="p" sx={styles.label}>
-          Source · read only
-        </Typography>
-        <Box aria-labelledby={sourceLabelId} sx={styles.readOnly}>
-          {names.sourceName}
+        <Box sx={styles.group}>
+          <Typography id={sourceLabelId} component="p" sx={styles.label}>
+            Source · read only
+          </Typography>
+          <Box aria-labelledby={sourceLabelId} sx={styles.readOnly}>
+            {names.sourceName}
+          </Box>
         </Box>
 
-        <Typography id={targetLabelId} component="p" sx={styles.label}>
-          Target · read only
-        </Typography>
-        <Box aria-labelledby={targetLabelId} sx={styles.readOnly}>
-          {names.targetName}
+        <Box sx={styles.group}>
+          <Typography id={targetLabelId} component="p" sx={styles.label}>
+            Target · read only
+          </Typography>
+          <Box aria-labelledby={targetLabelId} sx={styles.readOnly}>
+            {names.targetName}
+          </Box>
         </Box>
 
         <Typography component="p" sx={styles.note}>

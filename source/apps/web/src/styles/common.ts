@@ -57,6 +57,16 @@ export interface CommonStyles {
   // The Delete button of a properties panel's footer: the danger button, 40 high, at least 130 wide.
   // The caption does not wrap; the width comes from the caption.
   readonly panelDeleteButton: StyleObject;
+  // The fields of a properties panel: a column that scrolls inside the panel, the footer stays in view.
+  // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge. A field
+  // group ends 24 px above the next label, so the next label's baseline is 36 px below the field (screen 01):
+  // the label box is 16 px high with its baseline about 4 px above its bottom.
+  readonly panelFields: StyleObject;
+  // One field group: its label and its field, a column with 8 px between them, so the label's baseline sits
+  // 12 px above the field (screen 01). It is a child of panelFields, so the 24 px gap applies between groups only.
+  readonly fieldGroup: StyleObject;
+  // The label of a field inside a field group: the group's gap is the 8 px, so the label has no margin of its own.
+  readonly groupLabel: StyleObject;
 }
 
 // The height of a single-line field: screens 01, 03 and 05 draw each field 40 px high, with its text centred.
@@ -88,6 +98,15 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     color: theme.palette.background.paper,
     '&:hover': { bgcolor: theme.palette.error.dark },
   };
+  const fieldLabel: StyleObject = {
+    display: 'block',
+    m: 0,
+    fontSize: 12,
+    fontWeight: 500,
+    lineHeight: '16px',
+    color: theme.palette.text.primary,
+    mb: '8px',
+  };
   return {
     card: {
       bgcolor: theme.palette.background.paper,
@@ -103,15 +122,8 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       lineHeight: '20px',
       color: theme.palette.text.secondary,
     },
-    fieldLabel: {
-      display: 'block',
-      m: 0,
-      fontSize: 12,
-      fontWeight: 500,
-      lineHeight: '16px',
-      color: theme.palette.text.primary,
-      mb: '8px',
-    },
+    fieldLabel,
+    groupLabel: { ...fieldLabel, mb: 0 },
     formField: {
       '& .MuiOutlinedInput-root': {
         bgcolor: theme.palette.background.paper,
@@ -233,6 +245,23 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       ...dangerButton,
       minWidth: PANEL_DELETE_BUTTON_MIN_WIDTH,
       height: DIALOG_BUTTON_HEIGHT,
+    },
+    panelFields: {
+      boxSizing: 'border-box',
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px',
+      px: '16px',
+      minWidth: 0,
+    },
+    fieldGroup: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      minWidth: 0,
     },
   };
 }

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
@@ -13,7 +14,15 @@ export interface CanvasStyles {
   // The message shown when the pipeline has no flows (AC-009): centred, secondary text.
   readonly empty: StyleObject;
   // A flow box by its state: `flowBox.normal`, or `flowBox.blocked` with a red border and light red fill (AC-035).
-  readonly flowBox: { readonly normal: StyleObject; readonly blocked: StyleObject };
+  // A selected box has the 2 px primary outline (AC-042); a blocked box that is selected keeps its red fill.
+  readonly flowBox: {
+    readonly normal: StyleObject;
+    readonly blocked: StyleObject;
+    readonly selected: StyleObject;
+    readonly blockedSelected: StyleObject;
+  };
+  // The selected arrow (AC-042): the primary colour with a 2.5 px stroke, and its arrowhead in the same colour.
+  readonly selectedArrow: { readonly style: CSSProperties; readonly markerColor: string };
   // The flow's name in its box: bold, one line, cut with an ellipsis.
   readonly flowName: StyleObject;
   // The block count under the name: small, secondary text.
@@ -64,6 +73,20 @@ export function getCanvasStyles(theme: Theme): CanvasStyles {
         border: `1.5px solid ${theme.palette.error.main}`,
         bgcolor: theme.palette.error.light,
       },
+      selected: {
+        ...box,
+        border: `2px solid ${theme.palette.primary.main}`,
+        bgcolor: theme.palette.background.paper,
+      },
+      blockedSelected: {
+        ...box,
+        border: `2px solid ${theme.palette.primary.main}`,
+        bgcolor: theme.palette.error.light,
+      },
+    },
+    selectedArrow: {
+      style: { stroke: theme.palette.primary.main, strokeWidth: 2.5 },
+      markerColor: theme.palette.primary.main,
     },
     flowName: {
       display: 'block',

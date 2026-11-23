@@ -6,26 +6,33 @@ import { MarkerType } from '@xyflow/react';
 import type { Edge, Node } from '@xyflow/react';
 import { canvasLayout } from './layout.js';
 import type { Pipeline } from './model.js';
+import type { Selection } from './panel.js';
 
 // The size of a flow box in canvas pixels (F-11 screen 01: 80 by 76).
 export const flowBoxWidth = 80;
 export const flowBoxHeight = 76;
 
-// The data a flow box carries: what its component draws (AC-006, AC-035).
+// The data a flow box carries: what its component draws (AC-006, AC-035, AC-042).
 export type FlowBoxData = {
   readonly flowId: string;
   readonly name: string;
   readonly blockCount: number;
   readonly blocked: boolean;
+  readonly selected: boolean;
 };
 
+// The data an arrow carries: whether it is the selected arrow (AC-042).
+export type ArrowData = { readonly selected: boolean };
+
 export type FlowBoxNode = Node<FlowBoxData, 'flow'>;
+
+export type ArrowEdge = Edge<ArrowData>;
 
 // The drawing of a pipeline: the nodes and the edges, in layout order.
 // The arrays are mutable because React Flow takes mutable arrays; they are built fresh per call.
 export interface Drawing {
   readonly nodes: FlowBoxNode[];
-  readonly edges: Edge[];
+  readonly edges: ArrowEdge[];
 }
 
 // The handles of a flow box: the left point takes an arrow, the right point gives one (AC-008).
@@ -34,10 +41,18 @@ export const rightHandle = 'right';
 
 // Every flow in layout order as a box, and every `next` as an arrow from the right point of its source
 // to the left point of its target. An arrow has no label and no gate (AC-008). A flow whose id is in
-// `blockedFlowIds` is marked blocked (AC-035). An empty pipeline gives no nodes and no edges (AC-009).
-export function drawingOf(pipelineState: Pipeline, blockedFlowIds: readonly string[]): Drawing {
+// `blockedFlowIds` is marked blocked (AC-035). The selected flow box and the selected arrow are marked
+// selected (AC-042); with nothing selected (the pipeline selection) none is. An empty pipeline gives no
+// nodes and no edges (AC-009). Boxes are draggable (AC-005); a drag is not part of this drawing.
+export function drawingOf(
+  pipelineState: Pipeline,
+  blockedFlowIds: readonly string[],
+  selection: Selection = { kind: 'pipeline' },
+): Drawing {
   const layout = canvasLayout(pipelineState);
   const blocked = new Set(blockedFlowIds);
+  const selectedFlowId = selection.kind === 'flow' ? selection.id : undefined;
+  const selectedArrow = selection.kind === 'arrow' ? selection.arrow : undefined;
   const flowsById = new Map(pipelineState.flows.map((flow) => [flow.id, flow] as const));
   const nodes = layout.boxes.map((box): FlowBoxNode => {
     const flow = flowsById.get(box.flowId);
@@ -55,13 +70,14 @@ export function drawingOf(pipelineState: Pipeline, blockedFlowIds: readonly stri
         name: flow.name,
         blockCount: flow.blocks.length,
         blocked: blocked.has(flow.id),
+        selected: flow.id === selectedFlowId,
       },
-      draggable: false,
+      draggable: true,
       selectable: false,
     };
   });
   const edges = layout.arrows.map(
-    (arrow): Edge => ({
+    (arrow): ArrowEdge => ({
       id: `${arrow.source}->${arrow.target}`,
       source: arrow.source,
       target: arrow.target,
@@ -69,6 +85,10 @@ export function drawingOf(pipelineState: Pipeline, blockedFlowIds: readonly stri
       targetHandle: leftHandle,
       markerEnd: { type: MarkerType.ArrowClosed },
       selectable: false,
+      data: {
+        selected:
+          selectedArrow !== undefined && selectedArrow.source === arrow.source && selectedArrow.target === arrow.target,
+      },
     }),
   );
   return { nodes, edges };

@@ -193,6 +193,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
             <Canvas
               pipelineState={pipelineState}
               blockedFlowIds={blockedFlowIds}
+              selection={selection}
               onPipelineChange={changeFromCanvas}
               onSelect={select}
             />

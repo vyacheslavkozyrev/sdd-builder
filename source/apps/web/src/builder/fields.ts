@@ -473,7 +473,10 @@ export function addFlowArtifact(
 }
 
 // Replaces one field of the artifact at `rowPosition` of the flow `flowId` (AC-025). A refused edit keeps
-// the saved values, and the reason is the parser's message for the field the edit changed.
+// the saved values, and the reason is the parser's message for the field the edit changed. A label that
+// an End block of the flow names is renamed with that End: each such End is set to the new label, on the
+// copy the parser checks and in the saved flow (AC-025, amendment 2026-11-23). A blank label is not moved,
+// so the parser's reason for it is the same as before.
 export function editFlowArtifact(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -483,11 +486,13 @@ export function editFlowArtifact(
 ): ArtifactResult {
   const position = positionOf(pipelineState, flowId);
   const flow = flowIn(pipelineState, position);
-  if (flow.artifacts[rowPosition] === undefined) {
+  const saved = flow.artifacts[rowPosition];
+  if (saved === undefined) {
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
   }
   const placePath = rowPath(position, 'artifacts', rowPosition);
   const editedPath = `${placePath}.${edit.field}`;
+  const movesEnds = edit.field === 'label' && edit.value.trim() !== '';
   const problem = refusalProblemOf(
     pipelineState,
     rules,
@@ -497,6 +502,9 @@ export function editFlowArtifact(
       artifacts: flow.artifacts.map((item, index) =>
         index === rowPosition ? artifactDocument(artifactWith(item, edit)) : artifactDocument(item),
       ),
+      blocks: movesEnds
+        ? endsMoved(document.blocks as { readonly kind: string; readonly producedArtifact?: string }[], saved.label, edit.value)
+        : document.blocks,
     }),
     editedPath,
   );
@@ -505,7 +513,8 @@ export function editFlowArtifact(
   }
 
   const artifacts = flow.artifacts.map((item, index) => (index === rowPosition ? artifactWith(item, edit) : item));
-  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts }) };
+  const blocks = movesEnds ? endsMoved(flow.blocks, saved.label, edit.value) : flow.blocks;
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts, blocks }) };
 }
 
 // The blocks with each End block that named `removedLabel` set to `replacement` (AC-025, amendment 2026-11-22).
@@ -535,10 +544,21 @@ function removalChange(kept: readonly Artifact[], removedLabel: string): Documen
   };
 }
 
+// The reason shown when the only outcome of a flow is removed while its End block still names it (AC-025,
+// user report 2026-11-23). The parser's own reason for that case is not shown, because it does not say what to do.
+const ONLY_OUTCOME_REASON =
+  'This is the only outcome of this flow, and its End block produces it. Add another outcome first; then this one can be removed.';
+
+// Whether an End block of the flow names the artifact `label`.
+function namedByEnd(flow: Flow, label: string): boolean {
+  return flow.blocks.some((block) => block.kind === 'end' && block.producedArtifact === label);
+}
+
 // Removes the artifact at `rowPosition` of the flow `flowId` (AC-025). An artifact that an End block of the flow
 // names can be removed when the flow has another artifact: each such End block is moved to the first remaining
 // artifact (amendment 2026-11-22). When it is the flow's only artifact, the parser refuses the removal and the
-// reason is its message. The artifacts after the removed one keep their order.
+// reason is its message, except that the only outcome named by an End gets a reason that says what to do.
+// The artifacts after the removed one keep their order.
 export function removeFlowArtifact(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -552,14 +572,20 @@ export function removeFlowArtifact(
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
   }
   const kept = flow.artifacts.filter((_item, index) => index !== rowPosition);
-  const reason = refusalOf(
+  const problem = refusalProblemOf(
     pipelineState,
     rules,
     position,
     removalChange(kept, removed.label),
     `${holderPath(position)}.artifacts`,
   );
-  if (reason !== undefined) return { ok: false, reason };
+  if (problem !== undefined) {
+    const endNamesIt = isUnder(problem.path, `${holderPath(position)}.blocks`) && problem.path.endsWith('.producedArtifact');
+    if (kept.length === 0 && namedByEnd(flow, removed.label) && endNamesIt) {
+      return { ok: false, reason: ONLY_OUTCOME_REASON };
+    }
+    return { ok: false, reason: problem.message };
+  }
 
   const replacement = kept[0]?.label;
   const blocks = replacement === undefined ? flow.blocks : endsMoved(flow.blocks, removed.label, replacement);

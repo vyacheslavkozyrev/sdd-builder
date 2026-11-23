@@ -112,7 +112,7 @@ function nodeIds(): string[] {
 // Renders the canvas with a change callback that the test can read.
 function renderCanvas(
   pipeline: Pipeline,
-  options: { blockedFlowIds?: string[] } = {},
+  options: { blockedFlowIds?: string[]; selection?: Selection } = {},
 ) {
   const onPipelineChange = vi.fn<(next: Pipeline) => void>();
   const onSelect = vi.fn<(selection: Selection) => void>();
@@ -120,11 +120,28 @@ function renderCanvas(
     <Canvas
       pipelineState={pipeline}
       blockedFlowIds={options.blockedFlowIds ?? []}
+      selection={options.selection ?? { kind: 'pipeline' }}
       onPipelineChange={onPipelineChange}
       onSelect={onSelect}
     />,
   );
   return { onPipelineChange, onSelect };
+}
+
+// Renders the canvas with a pipeline that the test can replace, as the wizard does after an edit (AC-005).
+function renderWithRerender(pipeline: Pipeline) {
+  const noop = (): void => {};
+  const view = renderWithTheme(
+    <Canvas pipelineState={pipeline} blockedFlowIds={[]} selection={{ kind: 'pipeline' }} onPipelineChange={noop} onSelect={noop} />,
+  );
+  return {
+    rerender: (next: Pipeline) =>
+      view.rerender(
+        <ThemeProvider theme={theme}>
+          <Canvas pipelineState={next} blockedFlowIds={[]} selection={{ kind: 'pipeline' }} onPipelineChange={noop} onSelect={noop} />
+        </ThemeProvider>,
+      ),
+  };
 }
 
 // The React Flow props of the last render.
@@ -361,5 +378,91 @@ describe('F-11 AC-042 the canvas reports the selection of a box, an arrow or the
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
     });
     expect(onSelect).toHaveBeenLastCalledWith({ kind: 'pipeline' });
+  });
+});
+
+// The edge the canvas gave to React Flow for an arrow. React Flow draws no edge path in jsdom (it measures
+// the handles in the browser), so the style the canvas sets on the edge is what the test checks.
+function edgeOf(id: string): Edge {
+  const edge = flowProps().edges?.find((item) => item.id === id);
+  if (edge === undefined) {
+    throw new Error(`no arrow ${id}`);
+  }
+  return edge;
+}
+
+describe('F-11 AC-042 the selected box and arrow are drawn with the selected style', () => {
+  it('F-11 AC-042 the selected flow box has the 2 px primary outline; an unselected box does not', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
+      selection: { kind: 'flow', id: 'plan' },
+    });
+    const selected = getComputedStyle(boxOf('plan'));
+    expect(selected.borderTopColor).toBe(rgbOf(theme.palette.primary.main));
+    expect(selected.borderTopWidth).toBe('2px');
+    const unselected = getComputedStyle(boxOf('specify'));
+    expect(unselected.borderTopWidth).toBe('1.5px');
+  });
+
+  it('F-11 AC-042 the selected arrow has the primary colour and a 2.5 px stroke; the other arrows do not', () => {
+    renderCanvas(
+      pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')),
+      { selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } } },
+    );
+    const selected = edgeOf('plan->build');
+    expect(selected.style).toEqual({ stroke: theme.palette.primary.main, strokeWidth: 2.5 });
+    expect(selected.markerEnd).toMatchObject({ color: theme.palette.primary.main });
+    const other = edgeOf('specify->plan');
+    expect(other.style).toBeUndefined();
+    expect(other.markerEnd).not.toMatchObject({ color: theme.palette.primary.main });
+  });
+
+  it('F-11 AC-042 with the pipeline selected no box and no arrow has the selected style', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    expect(getComputedStyle(boxOf('specify')).borderTopWidth).toBe('1.5px');
+    expect(getComputedStyle(boxOf('plan')).borderTopWidth).toBe('1.5px');
+    expect(edgeOf('specify->plan').style).toBeUndefined();
+  });
+});
+
+describe('F-11 AC-005 boxes are dragged on the canvas and the pipeline is not changed', () => {
+  it('F-11 AC-005 every flow box is draggable', () => {
+    renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    expect(flowProps().nodesDraggable).toBe(true);
+    expect(flowProps().nodes?.every((node) => node.draggable === true)).toBe(true);
+  });
+
+  it('F-11 AC-005 a drag moves the box where it was dropped and reports no pipeline change', () => {
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    act(() => {
+      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+    });
+    expect(onPipelineChange).not.toHaveBeenCalled();
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+      'translate(300px,40px)',
+    );
+  });
+
+  it('F-11 AC-005 a dragged place is dropped when the layout changes', () => {
+    const pipeline = pipelineOf(flow('specify'), flow('plan'));
+    const { rerender } = renderWithRerender(pipeline);
+    act(() => {
+      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+    });
+    rerender(pipelineOf(flow('specify'), flow('plan', { next: 'specify' })));
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+      'translate(110px,0px)',
+    );
+  });
+
+  it('F-11 AC-005 a dragged place is not brought back when the layout returns to an earlier one', () => {
+    const { rerender } = renderWithRerender(pipelineOf(flow('specify'), flow('plan')));
+    act(() => {
+      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+    });
+    rerender(pipelineOf(flow('specify'), flow('plan', { next: 'specify' })));
+    rerender(pipelineOf(flow('specify'), flow('plan')));
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+      'translate(110px,0px)',
+    );
   });
 });

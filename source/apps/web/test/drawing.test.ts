@@ -64,15 +64,42 @@ describe('F-11 AC-006 boxes in pipeline order', () => {
       [],
     );
     expect(drawing.nodes.map((node) => node.data)).toEqual([
-      { flowId: 'specify', name: 'Specify it', blockCount: 3, blocked: false },
-      { flowId: 'plan', name: 'plan', blockCount: 0, blocked: false },
+      { flowId: 'specify', name: 'Specify it', blockCount: 3, blocked: false, selected: false },
+      { flowId: 'plan', name: 'plan', blockCount: 0, blocked: false, selected: false },
     ]);
   });
 
-  it('F-11 AC-006 boxes are not dragged or selected; connecting is the canvas setting (AC-013)', () => {
+  it('F-11 AC-005 boxes are draggable; they are not selectable by React Flow, and connecting is the canvas setting (AC-013)', () => {
     const drawing = drawingOf(pipelineOf(flow('specify')), []);
-    expect(drawing.nodes[0]).toMatchObject({ draggable: false, selectable: false });
+    expect(drawing.nodes[0]).toMatchObject({ draggable: true, selectable: false });
     expect(drawing.nodes[0]).not.toHaveProperty('connectable');
+  });
+});
+
+describe('F-11 AC-042 selected flow box and arrow in the drawing', () => {
+  it('F-11 AC-042 marks the selected flow box and no other', () => {
+    const drawing = drawingOf(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), [], {
+      kind: 'flow',
+      id: 'plan',
+    });
+    expect(drawing.nodes.map((node) => node.data.selected)).toEqual([false, true]);
+  });
+
+  it('F-11 AC-042 marks the selected arrow and no other', () => {
+    const drawing = drawingOf(
+      pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')),
+      [],
+      { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    );
+    expect(drawing.edges.map((edge) => edge.data?.selected)).toEqual([false, true]);
+  });
+
+  it('F-11 AC-042 with nothing selected (the pipeline selection) no box and no arrow is selected', () => {
+    const pipeline = pipelineOf(flow('specify', { next: 'plan' }), flow('plan'));
+    const drawing = drawingOf(pipeline, [], { kind: 'pipeline' });
+    expect(drawing.nodes.some((node) => node.data.selected)).toBe(false);
+    expect(drawing.edges.some((edge) => edge.data?.selected === true)).toBe(false);
+    expect(drawingOf(pipeline, [])).toEqual(drawing);
   });
 });
 

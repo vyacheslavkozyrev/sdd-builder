@@ -6,7 +6,7 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
-| UX       | ⏳ Pending  | | The existing `spec/design/features/F-12-workflow-builder/` screens are the 2026-11-19 draft, not approved and not reviewed. They are redrawn in UX to match these stories (Move buttons and the Link icon are not in the stories) |
+| UX       | ✅ Complete | 2026-11-23 | Approved by the user as drawn, before the usability and visual reviews (14 screens in `spec/design/features/F-12-workflow-builder/`; the reviews' changes were reverted at the user's request). Decisions and the Reads and Writes add and remove gap are in `screens.md`, "Decisions taken with the approval" |
 | Plan     | ⏳ Pending  | | Approved by the user before any code is written |
 | Build    | ⏳ Pending  | | 0 of N tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |

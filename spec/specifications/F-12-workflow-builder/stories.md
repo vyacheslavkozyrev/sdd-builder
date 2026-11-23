@@ -55,9 +55,9 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-007 `[device]`: A Start is a circle with the primary outline; an End is a circle with the dark text outline; an Agent is a rounded box showing its name and one line of its description, cut with an ellipsis when long; a Condition is a diamond with its description beside it. The selected block has the primary outline on the tint.
+- [ ] AC-007 `[device]`: A Start is a circle with the primary outline; an End is a circle with the dark text outline; an Agent is a rounded box showing its name and one line of its description, cut with an ellipsis when long; a Condition is a diamond with its description above it, or below it when either of its routes returns to an earlier Agent (amended 2026-11-23; the pre-check of screen 03 is above). The selected block has the primary outline on the tint.
 - [ ] AC-008 `[device]`: An arrow runs from the output point of a block to the input point of its target. A normal arrow is solid. An arrow that goes back to an earlier Agent is dashed and labelled "up to N rounds" with its round limit. The true output of a Condition is labelled "true" and its false output "false".
-- [ ] AC-009 `[auto]`: The canvas places the blocks in the order of their arrows, starting from Start, with the same layout for the same blocks. Blocks not reached from Start follow the chain in list order, after it.
+- [ ] AC-009 `[auto]`: The canvas places the blocks in the order of their arrows, starting from Start, with the same layout for the same blocks. Blocks not reached from Start follow the chain in list order, after it. The End block is placed after every other block of its flow, as on screen 01 (amended 2026-11-23).
 - [ ] AC-010 `[auto]`: The canvas heading shows the flow's name and a count line "N Agents, N Conditions". With no Agent and no Condition, the count line reads "0 Agents, 0 Conditions".
 - [ ] AC-011 `[auto]`: Selecting a block opens its panel. Selecting an arrow opens the arrow's panel: its source and target are shown read-only, and Delete connection asks first (AC-021).
 
@@ -160,7 +160,7 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 #### Acceptance Criteria
 
 - [ ] AC-045 `[auto]`: A finding of the structural checks that names a block of the flow is shown on that block. A finding that names an arrow is shown on that arrow. Any other finding is listed under "Not on a drawn item" (F-11).
-- [ ] AC-046 `[auto]`: The structural checks report, and the flow's box on the Pipeline tab shows as blocked, while the flow has no Start, no End, a block not reached from Start, a block with no route out, a Condition with no true arrow or a blank description, a return with no round limit, or an End with no produced artifact.
+- [ ] AC-046 `[auto]`: The structural checks report, and the flow's box on the Pipeline tab shows as blocked, while the flow has no Start, no End, a block not reached from Start, a block with no route out (shown with the analyzer's message, "must name a block of this flow"), a Condition with no true arrow or a blank description, a return with no round limit, or an End with no produced artifact (amended 2026-11-23: the message is the analyzer's; a Condition's blank description is refused by the core rule of task T026).
 - [ ] AC-047 `[auto]`: A new unlinked block is not refused in editing. Its marks say what is missing (for example "No route out"), and the flow stays editable.
 - [ ] AC-048 `[auto]`: Marks are read-only. No mark adds a control or changes a property.
 

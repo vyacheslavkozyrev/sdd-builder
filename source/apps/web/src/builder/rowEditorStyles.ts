@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material/styles';
-import { getCommonStyles } from '../styles/common.js';
+import { FIELD_HEIGHT, getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
 
 // Style getter for the row and list editors of the builder panels (.claude/rules/web-styling.md). It takes
@@ -41,8 +41,6 @@ export interface RowEditorStyles {
   readonly fieldLabel: StyleObject;
 }
 
-const FIELD_HEIGHT = 34;
-
 export function getRowEditorStyles(theme: Theme): RowEditorStyles {
   const common = getCommonStyles(theme);
   // A field with a refused value (MUI error state) takes the light red fill of screen 10 from the palette.
@@ -64,6 +62,7 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       boxSizing: 'border-box',
       height: '100%',
       py: 0,
+      lineHeight: `${FIELD_HEIGHT}px`,
     },
     ...refusedField,
   };
@@ -125,6 +124,7 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
         ...common.fieldText,
         boxSizing: 'border-box',
         py: 0,
+        lineHeight: `${FIELD_HEIGHT}px`,
       },
     },
     artifact: {

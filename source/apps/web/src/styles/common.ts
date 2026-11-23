@@ -59,6 +59,9 @@ export interface CommonStyles {
   readonly panelDeleteButton: StyleObject;
 }
 
+// The height of a single-line field: screens 01, 03 and 05 draw each field 40 px high, with its text centred.
+export const FIELD_HEIGHT = 40;
+
 const DIALOG_WIDTH = 400;
 const DIALOG_BUTTON_MIN_WIDTH = 120;
 const DIALOG_BUTTON_HEIGHT = 40;

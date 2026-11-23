@@ -1,5 +1,5 @@
 import type { Theme } from '@mui/material/styles';
-import { getCommonStyles } from '../styles/common.js';
+import { FIELD_HEIGHT, getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
 
 // Style getter for the flow panel (.claude/rules/web-styling.md). It takes the theme and returns the
@@ -12,8 +12,12 @@ export interface FlowPanelStyles {
   readonly root: StyleObject;
   // The fields, in the order of AC-019: a column that scrolls inside the panel, the footer stays in view.
   // It carries the 16 px side inset of the properties card, so its scrollbar sits on the card's edge. A field
-  // group ends 24 px above the next label, as screen 01 draws it (the label sits 8 px above its own field).
+  // group (below) ends 24 px above the next label, so the next label's baseline is 36 px below the field (screen 01):
+  // the label box is 16 px high with its baseline about 4 px above its bottom.
   readonly scroll: StyleObject;
+  // One field group: its label and its field, a column with 8 px between them, so the label's baseline sits
+  // 12 px above the field (screen 01). It is a child of `scroll`, so the 24 px gap applies between groups only.
+  readonly group: StyleObject;
   // The footer under the fields: the Delete flow control (AC-019, AC-029).
   readonly footer: StyleObject;
   readonly deleteButton: StyleObject;
@@ -21,6 +25,7 @@ export interface FlowPanelStyles {
   readonly footerNote: StyleObject;
   // One field: its label above it, its input, and the lines under it.
   readonly fieldLabel: StyleObject;
+  // One field is FIELD_HEIGHT (40 px) high, with its text centred (screen 01).
   readonly field: StyleObject;
   readonly multilineField: StyleObject;
   readonly select: StyleObject;
@@ -48,15 +53,22 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       px: '16px',
       minWidth: 0,
     },
+    group: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px',
+      minWidth: 0,
+    },
     footer: common.panelFooter,
     deleteButton: common.panelDeleteButton,
     footerNote: common.secondaryText,
-    fieldLabel: common.fieldLabel,
+    // The group's gap is the 8 px between the label and its field, so the label has no margin of its own.
+    fieldLabel: { ...common.fieldLabel, mb: 0 },
     field: {
       width: '100%',
       ...common.formField,
       '& .MuiInputBase-root': {
-        height: 34,
+        height: FIELD_HEIGHT,
       },
       '& .MuiOutlinedInput-input': {
         boxSizing: 'border-box',
@@ -64,18 +76,23 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
         px: 2,
         py: 0,
         fontSize: 13,
-        lineHeight: '20px',
+        lineHeight: `${FIELD_HEIGHT}px`,
         color: theme.palette.text.primary,
       },
     },
     multilineField: {
       width: '100%',
       ...common.formField,
+      // The outlined root pads a multi-line field by 16.5 px and 14 px; the body box has no root padding.
+      '& .MuiInputBase-root': {
+        p: 0,
+      },
       '& .MuiOutlinedInput-input': {
         boxSizing: 'border-box',
-        // The body's text sits 12 px in from its box, as screen 01 draws it (fields keep their 16 px).
-        px: '12px',
-        py: '8px',
+        // The body box is 80 px: three 20 px lines (the field's minRows) and 20 px of padding. The first line's
+        // baseline sits 20 px below the top of the box, and its text is 12 px in from the left edge, as screen 01 draws it
+        // (fields keep their 16 px).
+        padding: '5px 12px 15px',
         fontSize: 13,
         lineHeight: '20px',
         color: theme.palette.text.primary,
@@ -85,14 +102,14 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       width: '100%',
       ...common.formField,
       '& .MuiInputBase-root': {
-        height: 34,
+        height: FIELD_HEIGHT,
       },
       '& .MuiNativeSelect-select': {
         boxSizing: 'border-box',
         py: 0,
         px: 2,
         fontSize: 13,
-        lineHeight: '20px',
+        lineHeight: `${FIELD_HEIGHT}px`,
         color: theme.palette.text.primary,
       },
     },

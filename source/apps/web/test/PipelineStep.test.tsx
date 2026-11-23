@@ -9,6 +9,7 @@ import type { StructureMarks } from '../src/builder/marks.js';
 import { getCanvasStyles } from '../src/builder/canvasStyles.js';
 import { getConnectionPanelStyles } from '../src/builder/connectionPanelStyles.js';
 import { getFlowPanelStyles } from '../src/builder/flowPanelStyles.js';
+import { getRowEditorStyles } from '../src/builder/rowEditorStyles.js';
 import type { Pipeline } from '../src/builder/model.js';
 import { theme } from '../src/theme.js';
 import { builderRules, PipelineStep } from '../src/wizard/PipelineStep.js';
@@ -457,11 +458,39 @@ describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only 
     expect(connection.footer).toMatchObject({ flexShrink: 0, px: '16px', pb: '16px' });
   });
 
-  it('F-11 AC-019 AC-045 the flow and pipeline panel spacing follows screen 01: 24 px from a field to the next label, 12 px inside the body box', () => {
+  it('F-11 AC-019 AC-045 a field is 40 px high with its text centred, as screen 01 draws it', () => {
     const panel = getFlowPanelStyles(theme);
-    // The label sits 8 px above its own field (common.ts); the field groups are 24 px apart.
-    expect(panel.scroll).toMatchObject({ gap: '24px' });
-    expect(panel.multilineField).toMatchObject({ '& .MuiOutlinedInput-input': expect.objectContaining({ px: '12px' }) });
+    expect(panel.field).toMatchObject({ '& .MuiInputBase-root': { height: 40 } });
+    expect(panel.field).toMatchObject({ '& .MuiOutlinedInput-input': expect.objectContaining({ lineHeight: '40px' }) });
+    expect(panel.select).toMatchObject({ '& .MuiInputBase-root': { height: 40 } });
+  });
+
+  it('F-11 AC-019 AC-045 the label baseline is 12 px above its field: a label and its field form a group with an 8 px gap', () => {
+    // The label's baseline sits about 4 px above the bottom of its 16 px line, so an 8 px gap puts it 12 px above the field.
+    const panel = getFlowPanelStyles(theme);
+    expect(panel.group).toMatchObject({ display: 'flex', flexDirection: 'column', gap: '8px' });
+    expect(panel.fieldLabel).toMatchObject({ lineHeight: '16px', mb: 0 });
+  });
+
+  it('F-11 AC-019 AC-045 the next label baseline is 36 px below a field: the groups are 24 px apart, not the label and its field', () => {
+    // 24 px from the field bottom to the next label box, plus the 12 px from the label box top to its baseline.
+    // The 24 px gap belongs to the scroll column, so it does not also apply between a label and its own field.
+    expect(getFlowPanelStyles(theme).scroll).toMatchObject({ gap: '24px' });
+  });
+
+  it('F-11 AC-019 AC-045 the body box is 80 px high: three 20 px lines and 20 px of padding, 5 px above the first line', () => {
+    const body = getFlowPanelStyles(theme).multilineField;
+    expect(body).toMatchObject({ '& .MuiInputBase-root': { p: 0 } });
+    expect(body).toMatchObject({
+      '& .MuiOutlinedInput-input': expect.objectContaining({ padding: '5px 12px 15px', lineHeight: '20px' }),
+    });
+  });
+
+  it('F-11 AC-019 AC-045 an argument row is a 40 px field with a 28 px minus, and rows are 8 px apart', () => {
+    const rows = getRowEditorStyles(theme);
+    expect(rows.list).toMatchObject({ gap: '8px' });
+    expect(rows.input).toMatchObject({ '& .MuiInputBase-root': { height: 40 } });
+    expect(rows.minusButton).toMatchObject({ height: 28, minWidth: 28 });
   });
 
   it('F-11 AC-006 layout point 2 negative case: the canvas and the step column do not scroll themselves', () => {

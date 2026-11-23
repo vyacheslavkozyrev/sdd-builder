@@ -116,32 +116,36 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
   return (
     <Box sx={styles.root}>
       <Box sx={styles.scroll}>
-        <Typography component="label" htmlFor="flow-name" sx={styles.fieldLabel}>
-          Name
-        </Typography>
-        <TextField
-          id="flow-name"
-          value={shownText('name')}
-          onChange={(event) => {
-            editText('name', event.target.value);
-          }}
-          sx={styles.field}
-          slotProps={{ htmlInput: { 'aria-describedby': describedBy('name') } }}
-        />
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="flow-name" sx={styles.fieldLabel}>
+            Name
+          </Typography>
+          <TextField
+            id="flow-name"
+            value={shownText('name')}
+            onChange={(event) => {
+              editText('name', event.target.value);
+            }}
+            sx={styles.field}
+            slotProps={{ htmlInput: { 'aria-describedby': describedBy('name') } }}
+          />
+        </Box>
         {refusal('name')}
 
-        <Typography component="label" htmlFor="flow-description" sx={styles.fieldLabel}>
-          Description
-        </Typography>
-        <TextField
-          id="flow-description"
-          value={shownText('description')}
-          onChange={(event) => {
-            editText('description', event.target.value);
-          }}
-          sx={styles.field}
-          slotProps={{ htmlInput: { 'aria-describedby': describedBy('description') } }}
-        />
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="flow-description" sx={styles.fieldLabel}>
+            Description
+          </Typography>
+          <TextField
+            id="flow-description"
+            value={shownText('description')}
+            onChange={(event) => {
+              editText('description', event.target.value);
+            }}
+            sx={styles.field}
+            slotProps={{ htmlInput: { 'aria-describedby': describedBy('description') } }}
+          />
+        </Box>
         {refusal('description')}
 
         <ArgumentRows
@@ -152,42 +156,46 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
           onChange={onChange}
         />
 
-        <Typography component="label" htmlFor="flow-model" sx={styles.fieldLabel}>
-          Model
-        </Typography>
-        <TextField
-          id="flow-model"
-          select
-          value={flow.model ?? ''}
-          onChange={(event) => {
-            editModel(event.target.value);
-          }}
-          sx={styles.select}
-          slotProps={{ select: { native: true }, htmlInput: { 'aria-describedby': describedBy('model') } }}
-        >
-          <option value="" />
-          {MODELS.map((model) => (
-            <option key={model} value={model}>
-              {model}
-            </option>
-          ))}
-        </TextField>
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="flow-model" sx={styles.fieldLabel}>
+            Model
+          </Typography>
+          <TextField
+            id="flow-model"
+            select
+            value={flow.model ?? ''}
+            onChange={(event) => {
+              editModel(event.target.value);
+            }}
+            sx={styles.select}
+            slotProps={{ select: { native: true }, htmlInput: { 'aria-describedby': describedBy('model') } }}
+          >
+            <option value="" />
+            {MODELS.map((model) => (
+              <option key={model} value={model}>
+                {model}
+              </option>
+            ))}
+          </TextField>
+        </Box>
         {refusal('model')}
 
-        <Typography component="label" htmlFor="flow-body" sx={styles.fieldLabel}>
-          Body · required
-        </Typography>
-        <TextField
-          id="flow-body"
-          multiline
-          minRows={3}
-          value={body}
-          onChange={(event) => {
-            editText('body', event.target.value);
-          }}
-          sx={styles.multilineField}
-          slotProps={{ htmlInput: { 'aria-describedby': describedBy('body', 'flow-body-counter') } }}
-        />
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="flow-body" sx={styles.fieldLabel}>
+            Body · required
+          </Typography>
+          <TextField
+            id="flow-body"
+            multiline
+            minRows={3}
+            value={body}
+            onChange={(event) => {
+              editText('body', event.target.value);
+            }}
+            sx={styles.multilineField}
+            slotProps={{ htmlInput: { 'aria-describedby': describedBy('body', 'flow-body-counter') } }}
+          />
+        </Box>
         <Typography id="flow-body-counter" component="p" sx={styles.counter}>
           {bodyCounterText(body)}
         </Typography>

@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import type { KeyboardEvent } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography, useTheme } from '@mui/material';
 import type { pipeline as core } from '@sddbuilder/core';
 import {
@@ -68,14 +69,21 @@ type RuleTagValue = core.RuleTag;
 // The reasons of an artifact form, one for each field the parser refused.
 type Refusals = Partial<Record<ArtifactField, string>>;
 
-type ArtifactMode =
-  | { readonly kind: 'closed' }
-  | { readonly kind: 'add'; readonly draft: ArtifactRow; readonly refusals: Refusals }
-  | { readonly kind: 'edit'; readonly position: number; readonly draft: ArtifactRow; readonly refusals: Refusals };
+// The open add form of the artifact list: its draft and the reasons the parser gave for it.
+interface ArtifactAdd {
+  readonly draft: ArtifactRow;
+  readonly refusals: Refusals;
+}
+
+// The last refusal of the artifact list: the row, the field (or the removal of the row) and the parser's reason.
+interface ArtifactRefusal {
+  readonly position: number;
+  readonly target: ArtifactField | 'removal';
+  readonly reason: string;
+}
 
 const EMPTY_ARGUMENT: ArgumentRow = { id: '', required: false, hint: '' };
 const EMPTY_ARTIFACT: ArtifactRow = { label: '', template: '' };
-const ARTIFACT_FIELDS: readonly ArtifactField[] = ['label', 'template'];
 
 // The help text under an artifact's template (F-11 screen 10).
 export const TEMPLATE_HELP_TEXT =
@@ -146,11 +154,6 @@ function artifactAt(pipelineState: Pipeline, flowId: string, position: number): 
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${position}`);
   }
   return { label: artifact.label, template: artifact.template };
-}
-
-// The first line of a template, shown in grey under the label of an artifact row.
-function firstLine(template: string): string {
-  return template.split('\n')[0] ?? '';
 }
 
 function refusalFor(field: ArtifactField, reason: string): Refusals {
@@ -510,8 +513,8 @@ interface ArtifactFormProps {
   readonly onCancel: () => void;
 }
 
-// The form of an artifact, for Add and for Edit: a Label field, a Template field, Save and Cancel. A refused
-// value shows its reason beneath its field; the form keeps what was typed for an add.
+// The add form of an artifact (AC-025): a Label field, a Template field with its help text, Save and Cancel. A
+// refused value shows its reason beneath its field; the form keeps what was typed.
 function ArtifactForm({ label, draft, refusals, onDraftChange, onSave, onCancel }: ArtifactFormProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
@@ -525,6 +528,7 @@ function ArtifactForm({ label, draft, refusals, onDraftChange, onSave, onCancel 
       <TextField
         id={labelId}
         value={draft.label}
+        error={refusals.label !== undefined}
         onChange={(event) => {
           onDraftChange({ ...draft, label: event.target.value });
         }}
@@ -543,6 +547,7 @@ function ArtifactForm({ label, draft, refusals, onDraftChange, onSave, onCancel 
         multiline
         minRows={4}
         value={draft.template}
+        error={refusals.template !== undefined}
         onChange={(event) => {
           onDraftChange({ ...draft, template: event.target.value });
         }}
@@ -568,59 +573,61 @@ function ArtifactForm({ label, draft, refusals, onDraftChange, onSave, onCancel 
   );
 }
 
-// The outcome artifact list of a flow (F-11 AC-025): a title with + in it, then one row per artifact with its
-// bold label, the first line of its template in grey, and Edit and Remove. Edit opens the form in place of the
-// row; Add opens an empty form after the list. Save applies the changed fields through the parser; a refused
-// field shows the reason and returns to the saved value, and the other fields that the parser accepts are saved.
+// The outcome artifact list of a flow (F-11 AC-025; screens 03 and 10). A title with + in it, then one group per
+// artifact as the screens draw it: a Label field with its minus on the right, then the Template box with its help
+// text beneath. Editing is in place: a field is checked by the parser when it loses focus (or Enter in the label).
+// A refused value shows its reason beneath its field and the field returns to the saved value. + opens an add form
+// (Label, Template, Save and Cancel) after the list; it is closed until + is pressed.
 export function ArtifactRows({ flowId, pipelineState, rules, onChange }: ArtifactListProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
-  const [mode, setMode] = useState<ArtifactMode>({ kind: 'closed' });
-  const [rowRefusal, setRowRefusal] = useState<{ readonly position: number; readonly reason: string } | undefined>(
-    undefined,
-  );
+  const [adding, setAdding] = useState<ArtifactAdd | undefined>(undefined);
+  const [refused, setRefused] = useState<ArtifactRefusal | undefined>(undefined);
+  // Bumped on each refusal and each removal. A field is keyed by it, so it is drawn again from the saved values.
+  const [version, setVersion] = useState(0);
   const artifacts = flowOf(pipelineState, flowId).artifacts;
+
+  function refuse(next: ArtifactRefusal) {
+    setRefused(next);
+    setVersion((current) => current + 1);
+  }
+
+  // The reason of a refused field or of a removal, when it is the one the list last refused at this position.
+  function reasonAt(position: number, target: ArtifactRefusal['target']): string | undefined {
+    return refused !== undefined && refused.position === position && refused.target === target ? refused.reason : undefined;
+  }
+
+  // Sends one field to the parser. An unchanged value is not sent.
+  function commitField(position: number, field: ArtifactField, value: string) {
+    if (value === artifactAt(pipelineState, flowId, position)[field]) return;
+    const result = editFlowArtifact(pipelineState, rules, flowId, position, { field, value });
+    if (result.ok) {
+      onChange(result.pipeline);
+      setRefused(undefined);
+      return;
+    }
+    refuse({ position, target: field, reason: result.reason });
+  }
 
   function saveAdd(draft: ArtifactRow) {
     const result = addFlowArtifact(pipelineState, rules, flowId, draft);
     if (result.ok) {
       onChange(result.pipeline);
-      setMode({ kind: 'closed' });
+      setAdding(undefined);
       return;
     }
-    setMode({ kind: 'add', draft, refusals: refusalFor(result.field, result.reason) });
-  }
-
-  function saveEdit(position: number, draft: ArtifactRow) {
-    const saved = artifactAt(pipelineState, flowId, position);
-    let current = pipelineState;
-    const refusals: Refusals = {};
-    for (const field of ARTIFACT_FIELDS) {
-      if (draft[field] === saved[field]) continue;
-      const result = editFlowArtifact(current, rules, flowId, position, { field, value: draft[field] });
-      if (result.ok) {
-        current = result.pipeline;
-      } else {
-        refusals[field] = result.reason;
-      }
-    }
-    if (current !== pipelineState) onChange(current);
-    if (Object.keys(refusals).length === 0) {
-      setMode({ kind: 'closed' });
-      return;
-    }
-    setMode({ kind: 'edit', position, draft: artifactAt(current, flowId, position), refusals });
+    setAdding({ draft, refusals: refusalFor(result.field, result.reason) });
   }
 
   function removeArtifact(position: number) {
     const result = removeFlowArtifact(pipelineState, rules, flowId, position);
     if (result.ok) {
       onChange(result.pipeline);
-      setRowRefusal(undefined);
-      setMode({ kind: 'closed' });
+      setRefused(undefined);
+      setVersion((current) => current + 1);
       return;
     }
-    setRowRefusal({ position, reason: result.reason });
+    refuse({ position, target: 'removal', reason: result.reason });
   }
 
   return (
@@ -633,8 +640,8 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
           variant="outlined"
           aria-label="Add artifact"
           onClick={() => {
-            setRowRefusal(undefined);
-            setMode({ kind: 'add', draft: EMPTY_ARTIFACT, refusals: {} });
+            setRefused(undefined);
+            setAdding({ draft: EMPTY_ARTIFACT, refusals: {} });
           }}
           sx={styles.addButton}
         >
@@ -643,78 +650,93 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
       </Box>
 
       {artifacts.map((artifact, position) => {
-        if (mode.kind === 'edit' && mode.position === position) {
-          return (
-            <ArtifactForm
-              key={position}
-              label={`Artifact ${position + 1}`}
-              draft={mode.draft}
-              refusals={mode.refusals}
-              onDraftChange={(draft) => {
-                setMode({ ...mode, draft });
+        const labelId = `${idBase}-label-${position}`;
+        const templateId = `${idBase}-template-${position}`;
+        const labelRefusal = reasonAt(position, 'label');
+        const templateRefusal = reasonAt(position, 'template');
+        const removalRefusal = reasonAt(position, 'removal');
+        return (
+          <Box key={position} role="group" aria-label={`Artifact ${position + 1}`} sx={styles.artifact}>
+            <Typography component="label" htmlFor={labelId} sx={styles.fieldLabel}>
+              Label
+            </Typography>
+            <Box sx={styles.rowLine}>
+              <TextField
+                id={labelId}
+                key={`label-${version}`}
+                defaultValue={artifact.label}
+                error={labelRefusal !== undefined}
+                onBlur={(event) => {
+                  commitField(position, 'label', event.target.value);
+                }}
+                sx={styles.input}
+                slotProps={{
+                  htmlInput: {
+                    'aria-describedby': describedBy(labelRefusal !== undefined, `${labelId}-refusal`),
+                    // Enter ends the edit of the one-line label, as losing focus does. Enter that ends an IME
+                    // composition is not an edit end.
+                    onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => {
+                      if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
+                    },
+                  },
+                }}
+              />
+              <Button
+                variant="outlined"
+                aria-label={`Remove artifact ${position + 1}`}
+                onClick={() => {
+                  removeArtifact(position);
+                }}
+                sx={styles.minusButton}
+              >
+                −
+              </Button>
+            </Box>
+            {labelRefusal === undefined ? null : <Refusal id={`${labelId}-refusal`} reason={labelRefusal} />}
+
+            <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
+              Template
+            </Typography>
+            <TextField
+              id={templateId}
+              key={`template-${version}`}
+              multiline
+              minRows={3}
+              defaultValue={artifact.template}
+              error={templateRefusal !== undefined}
+              onBlur={(event) => {
+                commitField(position, 'template', event.target.value);
               }}
-              onSave={() => {
-                saveEdit(position, mode.draft);
-              }}
-              onCancel={() => {
-                setMode({ kind: 'closed' });
+              sx={styles.multilineInput}
+              slotProps={{
+                htmlInput: { 'aria-describedby': describedBy(templateRefusal !== undefined, `${templateId}-refusal`) },
               }}
             />
-          );
-        }
-        const shownRefusal = rowRefusal !== undefined && rowRefusal.position === position;
-        return (
-          <Box key={position} role="group" aria-label={`Artifact ${position + 1}`} sx={styles.row}>
-            <Box sx={styles.nameLine}>
-              <Typography component="p" sx={styles.artifactLabel}>
-                {artifact.label}
-              </Typography>
-              <Box sx={styles.linkRow}>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    setRowRefusal(undefined);
-                    setMode({ kind: 'edit', position, draft: artifactAt(pipelineState, flowId, position), refusals: {} });
-                  }}
-                  sx={styles.linkButton}
-                >
-                  Edit
-                </Button>
-                <Button
-                  variant="text"
-                  onClick={() => {
-                    removeArtifact(position);
-                  }}
-                  sx={styles.linkButton}
-                >
-                  Remove
-                </Button>
-              </Box>
-            </Box>
-            <Typography component="p" sx={styles.artifactTemplate}>
-              {firstLine(artifact.template)}
+            {templateRefusal === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={templateRefusal} />}
+            <Typography component="p" sx={styles.helpText}>
+              {TEMPLATE_HELP_TEXT}
             </Typography>
-            {shownRefusal ? <Refusal id={`${idBase}-artifact-${position + 1}-refusal`} reason={rowRefusal.reason} /> : null}
+            {removalRefusal === undefined ? null : <Refusal id={`${idBase}-removal-${position}`} reason={removalRefusal} />}
           </Box>
         );
       })}
 
-      {mode.kind === 'add' ? (
+      {adding === undefined ? null : (
         <ArtifactForm
           label="New artifact"
-          draft={mode.draft}
-          refusals={mode.refusals}
+          draft={adding.draft}
+          refusals={adding.refusals}
           onDraftChange={(draft) => {
-            setMode({ kind: 'add', draft, refusals: mode.refusals });
+            setAdding({ draft, refusals: adding.refusals });
           }}
           onSave={() => {
-            saveAdd(mode.draft);
+            saveAdd(adding.draft);
           }}
           onCancel={() => {
-            setMode({ kind: 'closed' });
+            setAdding(undefined);
           }}
         />
-      ) : null}
+      )}
     </Box>
   );
 }

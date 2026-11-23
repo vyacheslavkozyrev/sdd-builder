@@ -358,26 +358,45 @@ describe('F-11 AC-026 rule tag rows', () => {
 });
 
 describe('F-11 AC-025 outcome artifacts', () => {
-  it('F-11 AC-025 shows each artifact as a bold label, the first line of its template in grey, and Edit and Remove', () => {
+  // The group of one artifact row, and the Label field and Template box inside it (screen 03).
+  function artifactGroup(position: number) {
+    return within(screen.getByRole('group', { name: `Artifact ${position}` }));
+  }
+
+  function labelField(position: number): HTMLInputElement {
+    return artifactGroup(position).getByLabelText('Label') as HTMLInputElement;
+  }
+
+  function templateField(position: number): HTMLTextAreaElement {
+    return artifactGroup(position).getByLabelText('Template') as HTMLTextAreaElement;
+  }
+
+  // The add form, open after + (screen 03 draws no add form; it is closed until + is pressed).
+  function addGroup() {
+    return within(screen.getByRole('group', { name: 'New artifact' }));
+  }
+
+  it('F-11 AC-025 shows each artifact as a Label field with its label and a minus, then the Template box with its help text beneath', () => {
     renderArtifacts(basePipeline());
-    const row = within(screen.getByRole('group', { name: 'Artifact 1' }));
-    expect(row.getByText('plan.md')).toBeTruthy();
-    expect(row.getByText('Task list, in order')).toBeTruthy();
-    expect(row.queryByText('Second line')).toBeNull();
-    expect(row.getByRole('button', { name: 'Edit' })).toBeTruthy();
-    expect(row.getByRole('button', { name: 'Remove' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
+    expect(labelField(1).value).toBe('plan.md');
+    expect(templateField(1).value).toBe('Task list, in order\nSecond line');
+    expect(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' })).toBeTruthy();
+    expect(artifactGroup(1).getByText(TEMPLATE_HELP_TEXT)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Edit' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
   });
 
   it('F-11 AC-025 + opens an empty form with Label and Template, and Save appends the artifact', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    expect(screen.getByLabelText('Label')).toHaveProperty('value', '');
-    expect(screen.getByLabelText('Template')).toHaveProperty('value', '');
-    expect(screen.getByText(TEMPLATE_HELP_TEXT)).toBeTruthy();
+    expect(addGroup().getByLabelText('Label')).toHaveProperty('value', '');
+    expect(addGroup().getByLabelText('Template')).toHaveProperty('value', '');
+    expect(addGroup().getByText(TEMPLATE_HELP_TEXT)).toBeTruthy();
 
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: 'notes.md' } });
-    fireEvent.change(screen.getByLabelText('Template'), { target: { value: 'Line one\nLine two' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'Line one\nLine two' } });
+    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
 
     expect(reported(onChange).flows[0]?.artifacts).toEqual([
       { label: 'plan.md', template: 'Task list, in order\nSecond line' },
@@ -385,97 +404,142 @@ describe('F-11 AC-025 outcome artifacts', () => {
     ]);
   });
 
+  it('F-11 AC-025 Cancel closes the add form and adds nothing', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    fireEvent.click(addGroup().getByRole('button', { name: 'Cancel' }));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
+  });
+
   it('F-11 AC-025 refuses a blank label on add, keeps the typed values and shows the reason beneath the label field', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: '   ' } });
-    fireEvent.change(screen.getByLabelText('Template'), { target: { value: 'kept text' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: '   ' } });
+    fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'kept text' } });
+    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
 
     const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: '   ', template: 'kept text' });
     if (result.ok) throw new Error('the parser accepted a blank label');
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(result.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Template')).toHaveProperty('value', 'kept text');
+    expect(addGroup().getByText(result.reason)).toBeTruthy();
+    expect(addGroup().getByLabelText('Label').getAttribute('aria-invalid')).toBe('true');
+    expect(addGroup().getByLabelText('Template')).toHaveProperty('value', 'kept text');
   });
 
   it('F-11 AC-025 refuses a template of 5001 characters on add and shows the reason beneath the template field', () => {
     const { onChange } = renderArtifacts(basePipeline());
     const longTemplate = 'x'.repeat(5001);
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: 'notes.md' } });
-    fireEvent.change(screen.getByLabelText('Template'), { target: { value: longTemplate } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: longTemplate } });
+    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
 
     const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'notes.md', template: longTemplate });
     if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(result.reason)).toBeTruthy();
+    expect(addGroup().getByText(result.reason)).toBeTruthy();
   });
 
   it('F-11 AC-025 accepts a template of exactly 5000 characters on add', () => {
     const { onChange } = renderArtifacts(basePipeline());
     const template = 'x'.repeat(5000);
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: 'notes.md' } });
-    fireEvent.change(screen.getByLabelText('Template'), { target: { value: template } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: template } });
+    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
 
     expect(reported(onChange).flows[0]?.artifacts[1]?.template).toBe(template);
   });
 
-  it('F-11 AC-025 on Edit, a refused label keeps the saved label and the accepted template is still saved', () => {
+  it('F-11 AC-025 a changed label is sent to the parser when the field loses focus', () => {
     const { onChange } = renderArtifacts(basePipeline());
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Edit' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: '' } });
-    fireEvent.change(screen.getByLabelText('Template'), { target: { value: 'New first line' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
-    if (result.ok) throw new Error('the parser accepted a blank label');
-    expect(reported(onChange).flows[0]?.artifacts[0]).toEqual({ label: 'plan.md', template: 'New first line' });
-    expect(screen.getByText(result.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Label')).toHaveProperty('value', 'plan.md');
-  });
-
-  it('F-11 AC-025 Edit opens the saved values in the form, and Save applies a changed label', () => {
-    const { onChange } = renderArtifacts(basePipeline());
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Edit' }));
-    expect(screen.getByLabelText('Label')).toHaveProperty('value', 'plan.md');
-    expect(screen.getByLabelText('Template')).toHaveProperty('value', 'Task list, in order\nSecond line');
-
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: 'design.md' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    fireEvent.change(labelField(1), { target: { value: 'design.md' } });
+    fireEvent.blur(labelField(1));
 
     expect(reported(onChange).flows[0]?.artifacts[0]).toEqual({ label: 'design.md', template: 'Task list, in order\nSecond line' });
   });
 
-  it('F-11 AC-025 a refused label on Edit keeps the saved label, shows the reason beneath the field, and keeps the form open', () => {
+  it('F-11 AC-025 Enter in the label field sends a changed label to the parser', () => {
     const { onChange } = renderArtifacts(basePipeline());
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Edit' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: '' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    labelField(1).focus();
+    fireEvent.change(labelField(1), { target: { value: 'design.md' } });
+    fireEvent.keyDown(labelField(1), { key: 'Enter' });
+
+    expect(reported(onChange).flows[0]?.artifacts[0]?.label).toBe('design.md');
+  });
+
+  it('F-11 AC-025 Enter that ends an IME composition in the label field does not send the label to the parser', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    labelField(1).focus();
+    fireEvent.change(labelField(1), { target: { value: 'design.md' } });
+    fireEvent.keyDown(labelField(1), { key: 'Enter', isComposing: true });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(labelField(1).value).toBe('design.md');
+  });
+
+  it('F-11 AC-025 a changed template is sent to the parser when its box loses focus', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.change(templateField(1), { target: { value: 'New first line\nSecond' } });
+    fireEvent.blur(templateField(1));
+
+    expect(reported(onChange).flows[0]?.artifacts[0]).toEqual({ label: 'plan.md', template: 'New first line\nSecond' });
+  });
+
+  it('F-11 AC-025 a field that is left unchanged is not sent to the parser', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.blur(labelField(1));
+    fireEvent.blur(templateField(1));
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-11 AC-025 a refused label keeps the saved label, shows the reason beneath the field, and marks the field as refused', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.change(labelField(1), { target: { value: '' } });
+    fireEvent.blur(labelField(1));
 
     const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(result.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Label')).toHaveProperty('value', 'plan.md');
-    expect(screen.getByRole('group', { name: 'Artifact 1' })).toBeTruthy();
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+    expect(labelField(1).value).toBe('plan.md');
+    expect(labelField(1).getAttribute('aria-invalid')).toBe('true');
+    expect(templateField(1).value).toBe('Task list, in order\nSecond line');
   });
 
-  it('F-11 AC-025 Cancel closes the form and keeps the saved values', () => {
+  it('F-11 AC-025 a refused template keeps the saved template, shows the reason beneath its box, and keeps the label', () => {
     const { onChange } = renderArtifacts(basePipeline());
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Edit' }));
-    fireEvent.change(screen.getByLabelText('Label'), { target: { value: 'changed.md' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    const longTemplate = 'x'.repeat(5001);
+    fireEvent.change(templateField(1), { target: { value: longTemplate } });
+    fireEvent.blur(templateField(1));
 
+    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'template', value: longTemplate });
+    if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByLabelText('Label')).toBeNull();
-    expect(within(screen.getByRole('group', { name: 'Artifact 1' })).getByText('plan.md')).toBeTruthy();
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+    expect(templateField(1).value).toBe('Task list, in order\nSecond line');
+    expect(labelField(1).value).toBe('plan.md');
   });
 
-  it('F-11 AC-025 Remove deletes the artifact on its own row', () => {
+  it('F-11 AC-025 a refusal clears when the field is later accepted', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    const refusal = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    if (refusal.ok) throw new Error('the parser accepted a blank label');
+    fireEvent.change(labelField(1), { target: { value: '' } });
+    fireEvent.blur(labelField(1));
+    expect(artifactGroup(1).getByText(refusal.reason)).toBeTruthy();
+
+    fireEvent.change(labelField(1), { target: { value: 'design.md' } });
+    fireEvent.blur(labelField(1));
+
+    expect(reported(onChange).flows[0]?.artifacts[0]?.label).toBe('design.md');
+    expect(artifactGroup(1).queryByText(refusal.reason)).toBeNull();
+  });
+
+  it('F-11 AC-025 the minus removes the artifact on its own row', () => {
     const pipelineState = pipelineOf({
       ...flow('plan', 'Plan'),
       artifacts: [
@@ -484,7 +548,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
       ],
     });
     const { onChange } = renderArtifacts(pipelineState);
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Remove' }));
+    fireEvent.click(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' }));
 
     expect(reported(onChange).flows[0]?.artifacts).toEqual([{ label: 'notes.md', template: '' }]);
   });
@@ -495,13 +559,13 @@ describe('F-11 AC-025 outcome artifacts', () => {
       blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' }],
     });
     const { onChange } = renderArtifacts(pipelineState);
-    fireEvent.click(within(screen.getByRole('group', { name: 'Artifact 1' })).getByRole('button', { name: 'Remove' }));
+    fireEvent.click(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' }));
 
     const result = removeFlowArtifact(pipelineState, RULES, 'plan', 0);
     if (result.ok) throw new Error('the parser accepted the removal of an artifact an End block names');
     expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'Artifact 1' })).getByText(result.reason)).toBeTruthy();
-    expect(within(screen.getByRole('group', { name: 'Artifact 1' })).getByText('plan.md')).toBeTruthy();
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+    expect(labelField(1).value).toBe('plan.md');
   });
 });
 

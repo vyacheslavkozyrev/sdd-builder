@@ -19,20 +19,15 @@ export interface RowEditorStyles {
   readonly rowLine: StyleObject;
   // A saved argument row: a field as screens 01 and 07 draw it, with its id and "· required" text; it opens the form.
   readonly argumentField: StyleObject;
-  // A text field and a dropdown in a row or a form; the multi-line template field is taller.
+  // A text field and a dropdown in a row or a form; the multi-line template field is taller. A field with a
+  // refused value (MUI error state) takes the light red fill of screen 10 from the palette.
   readonly input: StyleObject;
   readonly multilineInput: StyleObject;
   readonly select: StyleObject;
   readonly checkbox: StyleObject;
   readonly checkboxLabel: StyleObject;
-  // The name line of an artifact row: the bold label at the left, the Edit and Remove links at the right.
-  readonly nameLine: StyleObject;
-  // The bold label of an artifact row and the first line of its template in grey.
-  readonly artifactLabel: StyleObject;
-  readonly artifactTemplate: StyleObject;
-  // The Edit and Remove links of an artifact row.
-  readonly linkButton: StyleObject;
-  readonly linkRow: StyleObject;
+  // One artifact as screen 03 draws it: a Label field with its minus, then the Template box and its help text.
+  readonly artifact: StyleObject;
   // The form that holds an artifact's Label and Template, and its Save and Cancel buttons.
   readonly form: StyleObject;
   readonly formActions: StyleObject;
@@ -50,6 +45,12 @@ const FIELD_HEIGHT = 34;
 
 export function getRowEditorStyles(theme: Theme): RowEditorStyles {
   const common = getCommonStyles(theme);
+  // A field with a refused value (MUI error state) takes the light red fill of screen 10 from the palette.
+  const refusedField: StyleObject = {
+    '& .MuiOutlinedInput-root.Mui-error': {
+      bgcolor: theme.palette.error.light,
+    },
+  };
   const input: StyleObject = {
     flex: 1,
     minWidth: 0,
@@ -64,6 +65,7 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       height: '100%',
       py: 0,
     },
+    ...refusedField,
   };
   return {
     list: {
@@ -120,6 +122,7 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
         boxSizing: 'border-box',
         py: '8px',
       },
+      ...refusedField,
     },
     select: {
       ...input,
@@ -140,35 +143,12 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       lineHeight: '20px',
       color: theme.palette.text.primary,
     },
-    nameLine: {
+    artifact: {
+      boxSizing: 'border-box',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '8px',
+      flexDirection: 'column',
+      gap: '4px',
       minWidth: 0,
-    },
-    artifactLabel: {
-      m: 0,
-      minWidth: 0,
-      fontSize: 12,
-      fontWeight: 500,
-      lineHeight: '20px',
-      color: theme.palette.text.primary,
-    },
-    artifactTemplate: common.secondaryText,
-    linkButton: {
-      minWidth: 0,
-      p: 0,
-      fontSize: 12,
-      fontWeight: 500,
-      lineHeight: '20px',
-      color: theme.palette.primary.main,
-      textTransform: 'none',
-    },
-    linkRow: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
     },
     form: {
       boxSizing: 'border-box',

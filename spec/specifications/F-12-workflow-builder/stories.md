@@ -129,7 +129,7 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 
 - [ ] AC-035 `[auto]`: The End panel has Outcome, a choice of `done` or `stopped`, required. A new End starts with `done`.
 - [ ] AC-036 `[auto]`: The End panel has Produced artifact: one of the outcome artifact labels of its flow, required. "none" is not offered. With no outcome artifacts on the flow, the field is empty and reads "Add an outcome artifact on the flow panel first."
-- [ ] AC-037 `[auto]`: An outcome artifact that an End names cannot be removed or relabelled on the flow panel. The refusal names the End block (F-11 flow panel, parser rule).
+- [ ] AC-037 `[auto]`: Removing an outcome artifact that an End names moves that End to the flow's first remaining outcome; renaming the artifact renames the End's reference to it. Removing the flow's only outcome is refused with the parser's reason and the End keeps the artifact (F-11 amendments of 2026-11-22 and 2026-11-23).
 - [ ] AC-038 `[auto]`: A flow may hold more than one End block. Each End has its own outcome and produced artifact.
 
 ### US-007: Delete blocks

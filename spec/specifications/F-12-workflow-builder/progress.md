@@ -69,6 +69,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment — 2026-11-23 (AC-037 follows F-11)
+**Changed**: `stories.md` AC-037 and `plan.md` T009: removing an outcome artifact that an End names moves the End to the first remaining outcome; renaming renames the reference; the sole outcome is refused with the parser's reason (option a, confirmed by the user).
+**Reason**: T009 found that the F-11 amendments of 2026-11-22 and 2026-11-23 differ from AC-037 as first written.
+**Impact**: T009 resumes; no task is re-run.
+
 ### Amendment — 2026-11-23 (T007 size waiver, T008 wording, T025 core check)
 **Changed**: `plan.md` adds T025 [Core] (the parser refuses a reads or writes label that no flow lists as an outcome artifact, with a core test). T007 and T008 committed as one task each under a one-off waiver of the 400-line size guard (625 and 432 changed lines; the user accepted both). The unset round-limit text for a return (AC-017) is "Returns to <name>, round limit not set" (confirmed by the user).
 **Reason**: the core parser did not check that reads and writes labels name an outcome artifact (AC-026); the user chose the core check; T008 needed the wording.

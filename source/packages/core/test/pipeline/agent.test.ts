@@ -177,7 +177,7 @@ describe('F-02 AC-050 AC-051 AC-071 a list field that is not a list is refused a
   });
 });
 
-describe('F-02 AC-053 an agent body is at most 1,000 code points and model takes the four values', () => {
+describe('F-02 AC-053 and F-12 AC-028 an agent body is not blank and at most 1,000 code points; model takes the four values', () => {
   it('accepts a body of exactly 1,000 code points and refuses 1,001 at the path of body', () => {
     expect(acceptedWith({ body: 'x'.repeat(1000) }).body).toHaveLength(1000);
     refusedAt({ ...validAgent, body: 'x'.repeat(1001) }, `${AGENT}.body`);
@@ -185,6 +185,14 @@ describe('F-02 AC-053 an agent body is at most 1,000 code points and model takes
 
   it.each(['haiku', 'sonnet', 'opus', 'inherit'])('accepts the model %s', (model) => {
     expect(acceptedWith({ model }).model).toBe(model);
+  });
+
+  it.each([[''], ['   '], ['\n\t']])('refuses a blank body %j at the path of body (F-12 AC-028)', (body) => {
+    refusedAt({ ...validAgent, body }, `${AGENT}.body`);
+  });
+
+  it('accepts an agent with no body (F-12 AC-028)', () => {
+    expect(readA(validAgent).block).not.toHaveProperty('body');
   });
 
   it('accepts an agent with no model', () => {

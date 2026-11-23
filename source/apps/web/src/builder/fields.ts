@@ -111,7 +111,7 @@ function isUnder(path: string, placePath: string): boolean {
 // The parser's problem for an edit, or undefined when the edit is accepted. The problems the saved pipeline
 // already had are left out, so an edit is refused only for what it causes. A problem at the edited value
 // (`placePath`, or under it) is the problem when there is one; otherwise the first new problem is.
-function refusalProblemOf(
+export function refusalProblemOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   holder: Holder,

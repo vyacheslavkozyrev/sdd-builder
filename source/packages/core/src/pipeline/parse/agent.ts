@@ -18,14 +18,16 @@ import { readLabels, readRuleTags, readTools } from './lists.js';
 // `ruleTags` and `body` are optional; no other key is allowed. An unknown key is refused at the path
 // of that key; a missing required key is refused at the path of the agent. `name` is an id, unique
 // across agents (AC-048, checked later). `description` is non-blank text of up to 1,000 code points.
-// `body` is text of up to 1,000 code points. `next` names a block, and is checked later (AC-054).
+// `body` is non-blank text of up to 1,000 code points (F-12 AC-028). `next` names a block, and is checked
+// later (AC-054).
 // An optional key that is present but refused makes the agent incomplete, and it is left out.
 
 const REQUIRED_KEYS: readonly string[] = ['id', 'kind', 'name', 'description', 'arguments', 'next'];
 const OPTIONAL_KEYS: readonly string[] = ['model', 'tools', 'reads', 'writes', 'ruleTags', 'body'];
 const AGENT_KEYS: readonly string[] = [...REQUIRED_KEYS, ...OPTIONAL_KEYS];
 
-const readBody: Reader<string> = (value, path, problems) => readText(value, path, { max: 1000 }, problems);
+const readBody: Reader<string> = (value, path, problems) =>
+  readText(value, path, { max: 1000, nonBlank: true }, problems);
 
 export function readAgent(
   value: unknown,

@@ -29,7 +29,8 @@ export interface FlowPanelStyles {
   readonly field: StyleObject;
   readonly multilineField: StyleObject;
   readonly select: StyleObject;
-  // The counter row under the body field: the count at the right.
+  // The count under the body field, at the right: it is the body group's third line, 8 px under the box, so its
+  // baseline sits 20 px below the box (screen 03).
   readonly counter: StyleObject;
   // The reason a field's value was refused, in red beneath the field (F-11 screen 07).
   readonly refusal: StyleObject;
@@ -115,7 +116,7 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
     },
     counter: {
       ...common.secondaryText,
-      mt: '4px',
+      lineHeight: '16px',
       textAlign: 'right',
     },
     refusal: {

@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import type { KeyboardEvent } from 'react';
+import type { FocusEventHandler, KeyboardEvent, ReactNode } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography, useTheme } from '@mui/material';
 import type { pipeline as core } from '@sddbuilder/core';
 import {
@@ -66,10 +66,10 @@ interface RowRefusal {
 
 type RuleTagValue = core.RuleTag;
 
-// The reasons of an artifact form, one for each field the parser refused.
+// The reasons of an artifact group, one for each field the parser refused.
 type Refusals = Partial<Record<ArtifactField, string>>;
 
-// The open add form of the artifact list: its draft and the reasons the parser gave for it.
+// The open new group of the artifact list: its draft and the reasons the parser gave for it.
 interface ArtifactAdd {
   readonly draft: ArtifactRow;
   readonly refusals: Refusals;
@@ -534,86 +534,75 @@ export function RuleTagRows({ target, pipelineState, rules, onChange }: TargetLi
   );
 }
 
-interface ArtifactFormProps {
+// One artifact group as screen 03 draws it: a Label field with its minus and the refusal beneath it, then the
+// Template box with its refusal and its help text beneath. The saved rows and the new group share this shape.
+interface ArtifactGroupProps {
   readonly label: string;
-  readonly draft: ArtifactRow;
-  readonly refusals: Refusals;
-  readonly onDraftChange: (draft: ArtifactRow) => void;
-  readonly onSave: () => void;
-  readonly onCancel: () => void;
+  readonly labelId: string;
+  readonly templateId: string;
+  readonly labelField: ReactNode;
+  readonly minus: ReactNode;
+  readonly labelReason: ReactNode;
+  readonly templateField: ReactNode;
+  readonly templateReason: ReactNode;
+  readonly onBlur?: FocusEventHandler<HTMLDivElement>;
 }
 
-// The add form of an artifact (AC-025): a Label field, a Template field with its help text, Save and Cancel. A
-// refused value shows its reason beneath its field; the form keeps what was typed.
-function ArtifactForm({ label, draft, refusals, onDraftChange, onSave, onCancel }: ArtifactFormProps) {
+function ArtifactGroup({
+  label,
+  labelId,
+  templateId,
+  labelField,
+  minus,
+  labelReason,
+  templateField,
+  templateReason,
+  onBlur,
+}: ArtifactGroupProps) {
   const styles = getRowEditorStyles(useTheme());
-  const idBase = useId();
-  const labelId = `${idBase}-label`;
-  const templateId = `${idBase}-template`;
   return (
-    <Box role="group" aria-label={label} sx={styles.form}>
-      <Typography component="label" htmlFor={labelId} sx={styles.fieldLabel}>
-        Label
-      </Typography>
-      <TextField
-        id={labelId}
-        value={draft.label}
-        error={refusals.label !== undefined}
-        onChange={(event) => {
-          onDraftChange({ ...draft, label: event.target.value });
-        }}
-        sx={styles.input}
-        slotProps={{
-          htmlInput: { 'aria-describedby': describedBy(refusals.label !== undefined, `${labelId}-refusal`) },
-        }}
-      />
-      {refusals.label === undefined ? null : <Refusal id={`${labelId}-refusal`} reason={refusals.label} />}
-
-      <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
-        Template
-      </Typography>
-      <TextField
-        id={templateId}
-        multiline
-        minRows={4}
-        value={draft.template}
-        error={refusals.template !== undefined}
-        onChange={(event) => {
-          onDraftChange({ ...draft, template: event.target.value });
-        }}
-        sx={styles.multilineInput}
-        slotProps={{
-          htmlInput: { 'aria-describedby': describedBy(refusals.template !== undefined, `${templateId}-refusal`) },
-        }}
-      />
-      {refusals.template === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={refusals.template} />}
-      <Typography component="p" sx={styles.helpText}>
-        {TEMPLATE_HELP_TEXT}
-      </Typography>
-
-      <Box sx={styles.formActions}>
-        <Button variant="outlined" onClick={onCancel} sx={styles.cancelButton}>
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={onSave} sx={styles.saveButton}>
-          Save
-        </Button>
+    <Box role="group" aria-label={label} sx={styles.artifact} onBlur={onBlur}>
+      <Box sx={styles.artifactPart}>
+        <Typography component="label" htmlFor={labelId} sx={styles.fieldLabel}>
+          Label
+        </Typography>
+        <Box sx={styles.row}>
+          <Box sx={styles.rowLine}>
+            {labelField}
+            {minus}
+          </Box>
+          {labelReason}
+        </Box>
+      </Box>
+      <Box sx={styles.artifactPart}>
+        <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
+          Template
+        </Typography>
+        {templateField}
+        {templateReason}
+        <Typography component="p" sx={styles.helpText}>
+          {TEMPLATE_HELP_TEXT}
+        </Typography>
       </Box>
     </Box>
   );
 }
 
 // The outcome artifact list of a flow (F-11 AC-025; screens 03 and 10). A title with + in it, then one group per
-// artifact as the screens draw it: a Label field with its minus on the right, then the Template box with its help
+// artifact as the screens draw it: a Label field with its minus on the right, then the Template box and its help
 // text beneath. Editing is in place: a field is checked by the parser when it loses focus (or Enter in the label).
-// A refused value shows its reason beneath its field and the field returns to the saved value. + opens an add form
-// (Label, Template, Save and Cancel) after the list; it is closed until + is pressed.
+// A refused value shows its reason beneath its field and the field returns to the saved value. The section has no
+// border. + adds one inline group after the list, with a Label field, a Template box and the help text, and no Cancel
+// or Save. The new group is saved through the parser when focus leaves it (or Enter in its label); a blank label is
+// discarded on blur, and a refused value keeps the group with its reason. The group is closed until + is pressed.
 export function ArtifactRows({ flowId, pipelineState, rules, onChange }: ArtifactListProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
   const [adding, setAdding] = useState<ArtifactAdd | undefined>(undefined);
   const [refused, setRefused] = useState<ArtifactRefusal | undefined>(undefined);
   const artifacts = flowOf(pipelineState, flowId).artifacts;
+  const newLabelId = `${idBase}-new-label`;
+  const newTemplateId = `${idBase}-new-template`;
 
   // Each refusal draws the refused field again from the saved value. Only that field is redrawn, so the other rows
   // and the field the user moved to keep their focus.
@@ -638,7 +627,12 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
     refuse(position, field, result.reason);
   }
 
-  function saveAdd(draft: ArtifactRow) {
+  // Sends the new group to the parser. A blank label discards the group; a refused value keeps it with the reason.
+  function commitNew(draft: ArtifactRow) {
+    if (draft.label.trim() === '') {
+      setAdding(undefined);
+      return;
+    }
     const result = addFlowArtifact(pipelineState, rules, flowId, draft);
     if (result.ok) {
       onChange(result.pipeline);
@@ -669,7 +663,7 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
           aria-label="Add artifact"
           onClick={() => {
             setRefused(undefined);
-            setAdding({ draft: EMPTY_ARTIFACT, refusals: {} });
+            setAdding((current) => current ?? { draft: EMPTY_ARTIFACT, refusals: {} });
           }}
           sx={styles.addButton}
         >
@@ -683,12 +677,16 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
         const labelRefusal = refusalAt(position, 'label');
         const templateRefusal = refusalAt(position, 'template');
         const removalRefusal = refusalAt(position, 'removal');
+        // A removal refusal is drawn beneath the row it belongs to, where a label refusal is drawn too.
+        const rowReason = labelRefusal ?? removalRefusal;
+        const rowReasonId = labelRefusal === undefined ? `${idBase}-removal-${position}` : `${labelId}-refusal`;
         return (
-          <Box key={position} role="group" aria-label={`Artifact ${position + 1}`} sx={styles.artifact}>
-            <Typography component="label" htmlFor={labelId} sx={styles.fieldLabel}>
-              Label
-            </Typography>
-            <Box sx={styles.rowLine}>
+          <ArtifactGroup
+            key={position}
+            label={`Artifact ${position + 1}`}
+            labelId={labelId}
+            templateId={templateId}
+            labelField={
               <TextField
                 id={labelId}
                 // Keyed by the saved label, so a row that moves up after a removal shows its own label; and by the
@@ -707,6 +705,8 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                   },
                 }}
               />
+            }
+            minus={
               <Button
                 variant="outlined"
                 aria-label={`Remove artifact ${position + 1}`}
@@ -717,50 +717,104 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
               >
                 −
               </Button>
-            </Box>
-            {labelRefusal === undefined ? null : <Refusal id={`${labelId}-refusal`} reason={labelRefusal.reason} />}
-
-            <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
-              Template
-            </Typography>
-            <TextField
-              id={templateId}
-              key={`${artifact.template}-${templateRefusal?.attempt ?? 0}`}
-              multiline
-              minRows={3}
-              defaultValue={artifact.template}
-              error={templateRefusal !== undefined}
-              onBlur={(event) => {
-                commitField(position, 'template', event.target.value);
-              }}
-              sx={styles.multilineInput}
-              slotProps={{
-                htmlInput: { 'aria-describedby': describedBy(templateRefusal !== undefined, `${templateId}-refusal`) },
-              }}
-            />
-            {templateRefusal === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={templateRefusal.reason} />}
-            <Typography component="p" sx={styles.helpText}>
-              {TEMPLATE_HELP_TEXT}
-            </Typography>
-            {removalRefusal === undefined ? null : <Refusal id={`${idBase}-removal-${position}`} reason={removalRefusal.reason} />}
-          </Box>
+            }
+            labelReason={rowReason === undefined ? null : <Refusal id={rowReasonId} reason={rowReason.reason} />}
+            templateField={
+              <TextField
+                id={templateId}
+                key={`${artifact.template}-${templateRefusal?.attempt ?? 0}`}
+                multiline
+                minRows={3}
+                defaultValue={artifact.template}
+                error={templateRefusal !== undefined}
+                onBlur={(event) => {
+                  commitField(position, 'template', event.target.value);
+                }}
+                sx={styles.multilineInput}
+                slotProps={{
+                  htmlInput: { 'aria-describedby': describedBy(templateRefusal !== undefined, `${templateId}-refusal`) },
+                }}
+              />
+            }
+            templateReason={
+              templateRefusal === undefined ? null : <Refusal id={`${templateId}-refusal`} reason={templateRefusal.reason} />
+            }
+          />
         );
       })}
 
       {adding === undefined ? null : (
-        <ArtifactForm
+        <ArtifactGroup
           label="New artifact"
-          draft={adding.draft}
-          refusals={adding.refusals}
-          onDraftChange={(draft) => {
-            setAdding({ draft, refusals: adding.refusals });
+          labelId={newLabelId}
+          templateId={newTemplateId}
+          // The group is saved when focus leaves it, not when Tab moves it into its own Template box or minus.
+          onBlur={(event) => {
+            const next = event.relatedTarget;
+            if (next instanceof Node && event.currentTarget.contains(next)) return;
+            commitNew(adding.draft);
           }}
-          onSave={() => {
-            saveAdd(adding.draft);
-          }}
-          onCancel={() => {
-            setAdding(undefined);
-          }}
+          labelField={
+            <TextField
+              id={newLabelId}
+              value={adding.draft.label}
+              error={adding.refusals.label !== undefined}
+              onChange={(event) => {
+                const label = event.target.value;
+                setAdding((current) => (current === undefined ? current : { ...current, draft: { ...current.draft, label } }));
+              }}
+              sx={styles.input}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy(adding.refusals.label !== undefined, `${newLabelId}-refusal`),
+                  onKeyDown: endOnEnter,
+                },
+              }}
+            />
+          }
+          minus={
+            <Button
+              variant="outlined"
+              aria-label="Discard new artifact"
+              // The press keeps the focus in the group, so the group is discarded and not saved on blur.
+              onMouseDown={(event) => {
+                event.preventDefault();
+              }}
+              onClick={() => {
+                setAdding(undefined);
+              }}
+              sx={styles.minusButton}
+            >
+              −
+            </Button>
+          }
+          labelReason={
+            adding.refusals.label === undefined ? null : <Refusal id={`${newLabelId}-refusal`} reason={adding.refusals.label} />
+          }
+          templateField={
+            <TextField
+              id={newTemplateId}
+              multiline
+              minRows={3}
+              value={adding.draft.template}
+              error={adding.refusals.template !== undefined}
+              onChange={(event) => {
+                const template = event.target.value;
+                setAdding((current) => (current === undefined ? current : { ...current, draft: { ...current.draft, template } }));
+              }}
+              sx={styles.multilineInput}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy(adding.refusals.template !== undefined, `${newTemplateId}-refusal`),
+                },
+              }}
+            />
+          }
+          templateReason={
+            adding.refusals.template === undefined ? null : (
+              <Refusal id={`${newTemplateId}-refusal`} reason={adding.refusals.template} />
+            )
+          }
         />
       )}
     </Box>

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ArgumentRows, ArtifactRows, RuleTagRows, TEMPLATE_HELP_TEXT } from '../src/builder/RowEditors.js';
 import type { ListTarget } from '../src/builder/RowEditors.js';
 import { FlowPanel } from '../src/builder/FlowPanel.js';
+import { PipelinePanel } from '../src/builder/PipelinePanel.js';
 import {
   addFlowArgument,
   addFlowArtifact,
@@ -476,7 +477,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     return artifactGroup(position).getByLabelText('Template') as HTMLTextAreaElement;
   }
 
-  // The add form, open after + (screen 03 draws no add form; it is closed until + is pressed).
+  // The new group, open after + (screen 03 draws no new group; it is closed until + is pressed).
   function addGroup() {
     return within(screen.getByRole('group', { name: 'New artifact' }));
   }
@@ -492,70 +493,117 @@ describe('F-11 AC-025 outcome artifacts', () => {
     expect(screen.queryByRole('button', { name: 'Remove' })).toBeNull();
   });
 
-  it('F-11 AC-025 + opens an empty form with Label and Template, and Save appends the artifact', () => {
-    const { onChange } = renderArtifacts(basePipeline());
+  it('F-11 AC-025 + opens an inline group with a Label field, a Template box and its help text, and no Save or Cancel', () => {
+    renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
     expect(addGroup().getByLabelText('Label')).toHaveProperty('value', '');
     expect(addGroup().getByLabelText('Template')).toHaveProperty('value', '');
     expect(addGroup().getByText(TEMPLATE_HELP_TEXT)).toBeTruthy();
+    expect(addGroup().getByRole('button', { name: 'Discard new artifact' })).toBeTruthy();
+    expect(addGroup().queryByRole('button', { name: 'Save' })).toBeNull();
+    expect(addGroup().queryByRole('button', { name: 'Cancel' })).toBeNull();
+  });
 
+  it('F-11 AC-025 the new group is saved through the parser when focus leaves it, and the list is closed again', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
     fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'Line one\nLine two' } });
-    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
+    fireEvent.blur(addGroup().getByLabelText('Template'));
 
     expect(reported(onChange).flows[0]?.artifacts).toEqual([
       { label: 'plan.md', template: 'Task list, in order\nSecond line' },
       { label: 'notes.md', template: 'Line one\nLine two' },
     ]);
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
   });
 
-  it('F-11 AC-025 Cancel closes the add form and adds nothing', () => {
+  it('F-11 AC-025 Tab from the new label into its template keeps the group open and saves nothing', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    fireEvent.click(addGroup().getByRole('button', { name: 'Cancel' }));
+    const template = addGroup().getByLabelText('Template');
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    fireEvent.blur(addGroup().getByLabelText('Label'), { relatedTarget: template });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(addGroup().getByLabelText('Label')).toHaveProperty('value', 'notes.md');
+  });
+
+  it('F-11 AC-025 Enter in the new label saves the group with the label typed', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    const label = addGroup().getByLabelText('Label');
+    label.focus();
+    fireEvent.change(label, { target: { value: 'notes.md' } });
+    fireEvent.keyDown(label, { key: 'Enter' });
+
+    expect(reported(onChange).flows[0]?.artifacts[1]).toEqual({ label: 'notes.md', template: '' });
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
+  });
+
+  it('F-11 AC-025 a blank new label is discarded on blur and nothing is saved', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: '   ' } });
+    fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'kept text' } });
+    fireEvent.blur(addGroup().getByLabelText('Template'));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
   });
 
-  it('F-11 AC-025 refuses a blank label on add, keeps the typed values and shows the reason beneath the label field', () => {
+  it('F-11 AC-025 a new label the parser refuses keeps the group, the typed values and the reason beneath the label field', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: '   ' } });
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'plan.md' } });
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'kept text' } });
-    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
+    fireEvent.blur(addGroup().getByLabelText('Template'));
 
-    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: '   ', template: 'kept text' });
-    if (result.ok) throw new Error('the parser accepted a blank label');
+    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'plan.md', template: 'kept text' });
+    if (result.ok) throw new Error('the parser accepted a repeated label');
     expect(onChange).not.toHaveBeenCalled();
     expect(addGroup().getByText(result.reason)).toBeTruthy();
     expect(addGroup().getByLabelText('Label').getAttribute('aria-invalid')).toBe('true');
+    expect(addGroup().getByLabelText('Label')).toHaveProperty('value', 'plan.md');
     expect(addGroup().getByLabelText('Template')).toHaveProperty('value', 'kept text');
   });
 
-  it('F-11 AC-025 refuses a template of 5001 characters on add and shows the reason beneath the template field', () => {
+  it('F-11 AC-025 a new template of 5001 characters is refused on save and the reason shows beneath its box', () => {
     const { onChange } = renderArtifacts(basePipeline());
     const longTemplate = 'x'.repeat(5001);
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
     fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: longTemplate } });
-    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
+    fireEvent.blur(addGroup().getByLabelText('Template'));
 
     const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'notes.md', template: longTemplate });
     if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
     expect(onChange).not.toHaveBeenCalled();
     expect(addGroup().getByText(result.reason)).toBeTruthy();
+    expect(addGroup().getByLabelText('Label')).toHaveProperty('value', 'notes.md');
   });
 
-  it('F-11 AC-025 accepts a template of exactly 5000 characters on add', () => {
+  it('F-11 AC-025 accepts a template of exactly 5000 characters on save', () => {
     const { onChange } = renderArtifacts(basePipeline());
     const template = 'x'.repeat(5000);
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
     fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: template } });
-    fireEvent.click(addGroup().getByRole('button', { name: 'Save' }));
+    fireEvent.blur(addGroup().getByLabelText('Template'));
 
     expect(reported(onChange).flows[0]?.artifacts[1]?.template).toBe(template);
+  });
+
+  it('F-11 AC-025 the discard minus removes the new group without saving, and its press keeps the focus in the group', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    const minus = addGroup().getByRole('button', { name: 'Discard new artifact' });
+    expect(fireEvent.mouseDown(minus)).toBe(false);
+    fireEvent.click(minus);
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
   });
 
   it('F-11 AC-025 a changed label is sent to the parser when the field loses focus', () => {
@@ -725,6 +773,24 @@ describe('F-11 AC-025 outcome artifacts', () => {
     expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
     expect(labelField(1).value).toBe('plan.md');
   });
+
+  it('F-11 AC-025 removing an artifact an End names saves the removal and moves the End to the first remaining artifact', () => {
+    const pipelineState = pipelineOf({
+      ...flow('plan', 'Plan'),
+      artifacts: [
+        { label: 'plan.md', template: '' },
+        { label: 'notes.md', template: '' },
+      ],
+      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'notes.md' }],
+    });
+    const { onChange } = renderArtifacts(pipelineState);
+    fireEvent.click(artifactGroup(2).getByRole('button', { name: 'Remove artifact 2' }));
+
+    expect(reported(onChange).flows[0]?.artifacts).toEqual([{ label: 'plan.md', template: '' }]);
+    expect(reported(onChange).flows[0]?.blocks).toEqual([
+      { index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    ]);
+  });
 });
 
 describe('F-11 AC-024 AC-026 the flow panel shows the list editors in its slots', () => {
@@ -746,5 +812,34 @@ describe('F-11 AC-024 AC-026 the flow panel shows the list editors in its slots'
     expect(screen.getByRole('group', { name: 'Argument 1' })).toBeTruthy();
     expect(screen.getByRole('group', { name: 'Artifact 1' })).toBeTruthy();
     expect(screen.getByRole('group', { name: 'Rule tag 1' })).toBeTruthy();
+  });
+});
+
+describe('F-11 AC-019 the body counter sits under its box, in the body group', () => {
+  it('F-11 AC-019 the flow panel draws the counter as the last line of the body group, under the box', () => {
+    const pipelineState = basePipeline();
+    render(
+      <FlowPanel
+        pipelineState={pipelineState}
+        rules={RULES}
+        flow={pipelineState.flows[0] as Flow}
+        onChange={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+    const body = document.getElementById('flow-body');
+    const counter = document.getElementById('flow-body-counter');
+    expect(counter?.parentElement?.contains(body)).toBe(true);
+    expect(counter?.previousElementSibling?.contains(body)).toBe(true);
+    expect(counter?.nextElementSibling).toBeNull();
+  });
+
+  it('F-11 AC-019 the pipeline panel draws the counter the same way, under the body box', () => {
+    render(<PipelinePanel pipelineState={basePipeline()} rules={RULES} onChange={vi.fn()} />);
+    const body = document.getElementById('pipeline-body');
+    const counter = document.getElementById('pipeline-body-counter');
+    expect(counter?.parentElement?.contains(body)).toBe(true);
+    expect(counter?.previousElementSibling?.contains(body)).toBe(true);
+    expect(counter?.nextElementSibling).toBeNull();
   });
 });

@@ -195,10 +195,10 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
             sx={styles.multilineField}
             slotProps={{ htmlInput: { 'aria-describedby': describedBy('body', 'flow-body-counter') } }}
           />
+          <Typography id="flow-body-counter" component="p" sx={styles.counter}>
+            {bodyCounterText(body)}
+          </Typography>
         </Box>
-        <Typography id="flow-body-counter" component="p" sx={styles.counter}>
-          {bodyCounterText(body)}
-        </Typography>
         {refusal('body')}
 
         <ArtifactRows

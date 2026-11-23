@@ -245,6 +245,69 @@ describe('F-11 AC-025 flow artifacts: remove deletes one row and keeps the other
     expect(result.ok && artifactsOf(result.pipeline, 'plan')).toEqual([{ label: 'plan.md', template: 'the plan' }]);
   });
 
+  it('F-11 AC-025 removes the first artifact of specify, named by its End, and the End names the remaining artifact', () => {
+    const specifyFlow: Flow = {
+      ...flow('specify', [
+        { label: 'stories.md', template: 'the stories' },
+        { label: 'design.md', template: 'the design' },
+      ]),
+      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'stories.md' }],
+    };
+    const saved = pipelineOf({ ...specifyFlow, next: 'build' }, flow('build'));
+    const result = removeFlowArtifact(saved, RULES, 'specify', 0);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(artifactsOf(result.pipeline, 'specify')).toEqual([{ label: 'design.md', template: 'the design' }]);
+    expect(result.pipeline.flows[0]?.blocks).toEqual([
+      { index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'design.md' },
+    ]);
+    expect(artifactsOf(saved, 'specify')[0]?.label).toBe('stories.md');
+  });
+
+  it('F-11 AC-025 refuses the removal of the only artifact of a flow that an End names, with the parser reason', () => {
+    const planFlow: Flow = {
+      ...flow('plan'),
+      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' }],
+    };
+    const saved = pipelineOf({ ...planFlow, next: 'build' }, flow('build'));
+    const result = removeFlowArtifact(saved, RULES, 'plan', 0);
+    expect(result).toEqual({ ok: false, reason: 'must name an artifact of this flow, got plan.md' });
+    expect(artifactsOf(saved, 'plan')).toEqual([{ label: 'plan.md', template: 'output.md' }]);
+    expect(saved.flows[0]?.blocks).toEqual(planFlow.blocks);
+  });
+
+  it('F-11 AC-025 removing an artifact that no End names leaves the ends and the other artifacts unchanged', () => {
+    const planFlow: Flow = {
+      ...flow('plan', [
+        { label: 'plan.md', template: 'the plan' },
+        { label: 'spec.md', template: 'the spec' },
+      ]),
+      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' }],
+    };
+    const saved = pipelineOf({ ...planFlow, next: 'build' }, flow('build'));
+    const result = removeFlowArtifact(saved, RULES, 'plan', 1);
+    expect(result.ok && result.pipeline.flows[0]?.blocks).toEqual(planFlow.blocks);
+    expect(result.ok && artifactsOf(result.pipeline, 'plan')).toEqual([{ label: 'plan.md', template: 'the plan' }]);
+  });
+
+  it('F-11 AC-025 removing the second artifact, named by an End, moves the End to the first remaining artifact', () => {
+    const planFlow: Flow = {
+      ...flow('plan', [
+        { label: 'plan.md', template: 'the plan' },
+        { label: 'spec.md', template: 'the spec' },
+      ]),
+      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'spec.md' }],
+    };
+    const saved = pipelineOf({ ...planFlow, next: 'build' }, flow('build'));
+    const result = removeFlowArtifact(saved, RULES, 'plan', 1);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(artifactsOf(result.pipeline, 'plan')).toEqual([{ label: 'plan.md', template: 'the plan' }]);
+    expect(result.pipeline.flows[0]?.blocks).toEqual([
+      { index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    ]);
+  });
+
   it('throws for a row the flow does not have', () => {
     expect(() => removeFlowArtifact(linkedPipeline(), RULES, 'plan', 3)).toThrow(
       'F-11: the flow "plan" has no artifact row 3',

@@ -486,6 +486,27 @@ describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only 
     });
   });
 
+  it('F-11 AC-025 AC-045 the outcome artifacts have no border: a Label part, then a Template part 16 px below it, as screen 03 draws them', () => {
+    const rows = getRowEditorStyles(theme);
+    expect(rows.artifact).not.toHaveProperty('border');
+    expect(rows.artifact).toMatchObject({ gap: '16px' });
+    // Within a part the label sits 8 px above its field (its baseline 12 px above), and the help text 8 px below the box.
+    expect(rows.artifactPart).toMatchObject({ gap: '8px' });
+    expect(rows.helpText).toMatchObject({ lineHeight: '16px' });
+    // The Template box is 80 px: the outlined root's padding is removed, and the text is 5 px above its first line.
+    expect(rows.multilineInput).toMatchObject({ '& .MuiInputBase-root': { p: 0 } });
+    expect(rows.multilineInput).toMatchObject({
+      '& .MuiOutlinedInput-input': expect.objectContaining({ padding: '5px 12px 15px', lineHeight: '20px' }),
+    });
+  });
+
+  it('F-11 AC-019 AC-045 the body counter is 8 px under the body box, inside the body group, so its baseline is 20 px below the box', () => {
+    const panel = getFlowPanelStyles(theme);
+    expect(panel.counter).not.toHaveProperty('mt');
+    expect(panel.counter).toMatchObject({ lineHeight: '16px', textAlign: 'right' });
+    expect(panel.group).toMatchObject({ gap: '8px' });
+  });
+
   it('F-11 AC-019 AC-045 an argument row is a 40 px field with a 28 px minus, and rows are 8 px apart', () => {
     const rows = getRowEditorStyles(theme);
     expect(rows.list).toMatchObject({ gap: '8px' });

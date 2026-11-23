@@ -56,12 +56,6 @@ describe('F-11 AC-006 layout follow-up: button captions do not wrap', () => {
     expect(styles.confirm).not.toHaveProperty('width');
   });
 
-  it('F-11 AC-006 layout follow-up: the Save and Cancel of a form do not wrap', () => {
-    const styles = getRowEditorStyles(theme);
-    expect(styles.saveButton).toMatchObject({ whiteSpace: 'nowrap' });
-    expect(styles.cancelButton).toMatchObject({ whiteSpace: 'nowrap' });
-  });
-
   it('F-11 AC-006 layout follow-up: the plus and minus controls keep a 28 px minimum and do not wrap', () => {
     const styles = getRowEditorStyles(theme);
     expect(styles.addButton).toMatchObject({ whiteSpace: 'nowrap', minWidth: 28, height: 28 });

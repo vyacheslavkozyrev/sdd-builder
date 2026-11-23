@@ -508,9 +508,37 @@ export function editFlowArtifact(
   return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts }) };
 }
 
-// Removes the artifact at `rowPosition` of the flow `flowId` (AC-025). An artifact that an End block of the
-// flow names is not removed: the parser reports that end, and the reason is its message. The artifacts after
-// the removed one keep their order.
+// The blocks with each End block that named `removedLabel` set to `replacement` (AC-025, amendment 2026-11-22).
+// The copy the parser checks and the saved flow both take their blocks from here, so the two cannot differ.
+function endsMoved<B extends { readonly kind: string; readonly producedArtifact?: string }>(
+  blocks: readonly B[],
+  removedLabel: string,
+  replacement: string,
+): B[] {
+  return blocks.map((block) =>
+    block.kind === 'end' && block.producedArtifact === removedLabel ? { ...block, producedArtifact: replacement } : block,
+  );
+}
+
+// The change that removes the artifact named `removedLabel` from the flow. Each End block of the flow that named
+// it is set to the first remaining artifact. When no artifact remains, the ends are left as they are, so the
+// parser refuses the removal with its own reason.
+function removalChange(kept: readonly Artifact[], removedLabel: string): DocumentChange {
+  return (document) => {
+    const replacement = kept[0]?.label;
+    const blocks = document.blocks as { readonly kind: string; readonly producedArtifact?: string }[];
+    return {
+      ...document,
+      artifacts: kept.map(artifactDocument),
+      blocks: replacement === undefined ? blocks : endsMoved(blocks, removedLabel, replacement),
+    };
+  };
+}
+
+// Removes the artifact at `rowPosition` of the flow `flowId` (AC-025). An artifact that an End block of the flow
+// names can be removed when the flow has another artifact: each such End block is moved to the first remaining
+// artifact (amendment 2026-11-22). When it is the flow's only artifact, the parser refuses the removal and the
+// reason is its message. The artifacts after the removed one keep their order.
 export function removeFlowArtifact(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -519,7 +547,8 @@ export function removeFlowArtifact(
 ): RowResult {
   const position = positionOf(pipelineState, flowId);
   const flow = flowIn(pipelineState, position);
-  if (flow.artifacts[rowPosition] === undefined) {
+  const removed = flow.artifacts[rowPosition];
+  if (removed === undefined) {
     throw new Error(`F-11: the flow "${flowId}" has no artifact row ${rowPosition}`);
   }
   const kept = flow.artifacts.filter((_item, index) => index !== rowPosition);
@@ -527,10 +556,12 @@ export function removeFlowArtifact(
     pipelineState,
     rules,
     position,
-    (document) => ({ ...document, artifacts: kept.map(artifactDocument) }),
+    removalChange(kept, removed.label),
     `${holderPath(position)}.artifacts`,
   );
   if (reason !== undefined) return { ok: false, reason };
 
-  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts: kept }) };
+  const replacement = kept[0]?.label;
+  const blocks = replacement === undefined ? flow.blocks : endsMoved(flow.blocks, removed.label, replacement);
+  return { ok: true, pipeline: withFlow(pipelineState, position, { ...flow, artifacts: kept, blocks }) };
 }

@@ -201,10 +201,10 @@ export function PipelinePanel({ pipelineState, rules, onChange }: PipelinePanelP
             sx={styles.multilineField}
             slotProps={{ htmlInput: { 'aria-describedby': describedBy('body', 'pipeline-body-counter') } }}
           />
+          <Typography id="pipeline-body-counter" component="p" sx={styles.counter}>
+            {bodyCounterText(body)}
+          </Typography>
         </Box>
-        <Typography id="pipeline-body-counter" component="p" sx={styles.counter}>
-          {bodyCounterText(body)}
-        </Typography>
         {refusal('body')}
       </Box>
 

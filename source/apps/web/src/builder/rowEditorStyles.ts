@@ -7,7 +7,7 @@ import type { StyleObject } from '../styles/common.js';
 // the title, the plus and minus buttons and the field surfaces are the shared shapes of common.ts.
 
 export interface RowEditorStyles {
-  // One list: its title row, then its rows, then its add form.
+  // One list: its title row, then its rows, then its new row or group.
   readonly list: StyleObject;
   // The title row: the list's title at the left, the + button at the right.
   readonly titleRow: StyleObject;
@@ -26,14 +26,11 @@ export interface RowEditorStyles {
   readonly input: StyleObject;
   readonly multilineInput: StyleObject;
   readonly select: StyleObject;
-  // One artifact as screen 03 draws it: a Label field with its minus, then the Template box and its help text.
+  // One artifact as screen 03 draws it: a Label part, then a Template part, 16 px apart (no border).
   readonly artifact: StyleObject;
-  // The form that holds an artifact's Label and Template, and its Save and Cancel buttons.
-  readonly form: StyleObject;
-  readonly formActions: StyleObject;
-  readonly saveButton: StyleObject;
-  readonly cancelButton: StyleObject;
-  // The help text beneath a template field, in grey.
+  // One part of an artifact: its label and its field (8 px apart, so the label's baseline is 12 px above the field).
+  readonly artifactPart: StyleObject;
+  // The help text beneath a template box, in grey, on the 16 px lines of screen 03.
   readonly helpText: StyleObject;
   // The reason of a refused value, in red beneath the field or row it belongs to.
   readonly refusal: StyleObject;
@@ -108,13 +105,18 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       p: '4px',
     },
     input,
+    // The Template box is 80 px as screen 03 draws it: three 20 px lines and 20 px of padding (5 px above the first
+    // line, 12 px in from the left), with the outlined root's own padding removed, as the body box has it.
     multilineInput: {
       width: '100%',
       ...common.formField,
+      '& .MuiInputBase-root': {
+        p: 0,
+      },
       '& .MuiOutlinedInput-input': {
         ...common.fieldText,
         boxSizing: 'border-box',
-        py: '8px',
+        padding: '5px 12px 15px',
       },
       ...refusedField,
     },
@@ -131,37 +133,20 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: '4px',
+      gap: '16px',
       minWidth: 0,
     },
-    form: {
+    artifactPart: {
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
       gap: '8px',
-      p: '12px',
-      borderRadius: '8px',
-      border: `1px solid ${theme.palette.divider}`,
-      bgcolor: theme.palette.background.paper,
+      minWidth: 0,
     },
-    formActions: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '8px',
+    helpText: {
+      ...common.secondaryText,
+      lineHeight: '16px',
     },
-    saveButton: {
-      whiteSpace: 'nowrap',
-      minWidth: 64,
-      height: 32,
-      borderRadius: '8px',
-      textTransform: 'none',
-      boxShadow: 'none',
-    },
-    cancelButton: {
-      ...common.outlineButton,
-      height: 32,
-    },
-    helpText: common.secondaryText,
     refusal: {
       ...common.secondaryText,
       color: theme.palette.error.main,

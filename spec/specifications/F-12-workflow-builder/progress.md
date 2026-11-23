@@ -63,6 +63,11 @@ _Criteria coverage matrix and manual checklist outcome._
 
 ## Amendments
 
+### Amendment — 2026-11-23 (T006: Agent body rule and name-clash wording)
+**Changed**: `plan.md` T006 and "Core untouched". Core `readBody` for an Agent becomes non-blank (the flow body and the schema already require it). The name clash keeps the parser's check; the web app maps that problem, by its path, to "Another Agent already has this name." (both decisions confirmed by the user).
+**Reason**: T006 stopped: the parser accepted a blank Agent body (AC-028), and the parser's name-clash message differed from AC-023.
+**Impact**: T006 resumes with the core change and its test; no task is re-run.
+
 ### Amendment — 2026-11-23 (AC-017 refusal wording)
 **Changed**: `stories.md` AC-017: the refusal "Only an Agent can be returned to." for a false output that links to an earlier block which is not an Agent (wording confirmed by the user).
 **Reason**: T004 needs this refusal; the stories had no wording for it, so the task stopped.

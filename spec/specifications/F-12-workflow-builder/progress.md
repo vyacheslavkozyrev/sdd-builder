@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | 🔄 In Progress | | 10 of 24 tasks committed |
+| Build    | 🔄 In Progress | | 11 of 24 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -48,6 +48,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | Condition fields: description through the parser (AC-030); true route text (AC-031); false route text (AC-032); round limit as an integer 1 to 5, refusal "A return allows 1 to 5 rounds." (AC-033); the field only for a return (AC-034) (`source/apps/web/src/builder/blockCondition.ts`). Unset round limit: "Returns to <name>, round limit not set" (AC-017, confirmed). One-off size exception: 432 changed lines, accepted by the user | 0 blockers, 0 warnings; 2 suggestions fixed (exact parser reasons in tests; unused type removed) | task check passed: api 45, web 1290, core 1215 |
 | T009 | End fields: outcome (`done` or `stopped`, a new End starts `done`), produced artifact (a label of the flow's outcomes, required, empty-flow text), refusals through the parser; AC-037 as amended: removing an artifact moves the End, renaming renames its reference, the sole outcome is refused (F-11 behaviour, reused) (`source/apps/web/src/builder/blockEnd.ts`) | 0 blockers; 2 warnings fixed (a test that could pass for any reason; the outcome refusal path untested) | task check passed: api 45, web 1306, core 1215 |
 | T010 | Delete block (logic): `arrowsRemovedBy` (the confirmation count), `deleteRefusal` (Start and last End), `deleteBlock` (removes the block and its arrows, clears the routes that pointed to it, nothing rewired) (`source/apps/web/src/builder/deleteBlock.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (test gaps: an arrow that starts and ends at the block; a Condition with both routes to it) | task check passed: api 45, web 1325, core 1215 |
+| T011 | Block structure marks (logic): findings on a block (`pipeline.flows.<n>.blocks.<m>...`), on the arrow of a route, or on the flow; a route with no arrow falls back to its block; blocked flows; no disabled control (`source/apps/web/src/builder/marks.ts`, `MarkViews.tsx` placement keys) | 0 blockers, 0 warnings; 2 suggestions fixed (import style; test for an Agent with an empty next). Open for the user, core: a Condition blank-description rule and a "no route out" wording (see Deferred Findings) | task check passed: api 45, web 1341, core 1215 |
 
 ---
 
@@ -59,6 +60,9 @@ _Review suggestions intentionally not applied, with the reason._
 
 - T004 review note (not a finding): AC-018's first half (a drag that starts at an input point starts no link) is a canvas concern. `linkBlocks` takes an output name, so an input point cannot start a link in the logic; the drag handling is checked in T015 or T016.
 - T005 review (SUGGESTION, `source/apps/web/src/builder/blockLink.ts` `repointBlockTarget` and `repointBlockSource`): a return is judged on the layout after the dragged arrow is cleared, not on the layout on screen before the drag. Both readings are defensible (a free block placed after an End looks like a return on screen but gives a valid forward link once wired). Kept as implemented; the stories do not say which layout applies. Confirm at Verify.
+
+- T011 gap 1 (AC-046, known, reported to the user for a decision): the core analyzer has no rule for a Condition with a blank description, so a Condition with a blank description is not marked as blocked and has no test in the AC-046 table. Not fixed here: `source/packages/core` is out of scope for T011.
+- T011 gap 2 (AC-046, known, reported to the user for a decision): the core analyzer has no "no route out" rule. Checked on 2026-11-23: an Agent with an empty `next` does get a blocker from the existing link check, at `pipeline.flows.<n>.blocks.<m>.next`, with the message "must name a block of this flow, got ''"; the wording is not "No route out" and the marks show it on the block (test `F-12 AC-045`). The AC-046 table's "no route out" case passes on that blocker. Not fixed here, since the analyzer is in core.
 
 ---
 

@@ -27,6 +27,10 @@ function placementKey(placement: Placement): string {
       return `flow:${placement.flowId}`;
     case 'arrow':
       return `arrow:${placement.source}`;
+    case 'block':
+      return `block:${placement.flowId}:${placement.blockId}`;
+    case 'block-arrow':
+      return `block-arrow:${placement.flowId}:${placement.fromId}:${placement.output}`;
     case 'none':
       return 'none';
   }

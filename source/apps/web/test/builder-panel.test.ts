@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { pipeline as model } from '@sddbuilder/core';
 import type { Pipeline } from '../src/builder/connect.js';
-import { afterDeleteFlow, panelFor } from '../src/builder/panel.js';
-import type { PanelState, Selection } from '../src/builder/panel.js';
+import { afterDeleteBlock, afterDeleteFlow, blockPanelFor, panelFor } from '../src/builder/panel.js';
+import type { BlockSelection, PanelState, Selection } from '../src/builder/panel.js';
+import type { Block } from '../src/builder/blocks.js';
 import type { Tab } from '../src/builder/model.js';
 
 type Flow = model.Flow;
@@ -122,5 +123,118 @@ describe('F-11 AC-031 a confirmed delete clears the selection and moves the open
     const result: PanelState = afterDeleteFlow();
     expect(result.tab.kind).toBe('pipeline');
     expect(result.selection.kind).toBe('pipeline');
+  });
+});
+
+// A flow with blocks: Start, the Planner Agent, a Condition whose false route returns to the Agent
+// with a round limit of 3, and the End. The arrows are Start to Planner, Planner to the Condition,
+// the Condition's true route to the End and its false route back to the Planner.
+const START: Block = { index: 0, id: 'start', kind: 'start', next: 'plan' };
+const PLANNER: Block = {
+  index: 1,
+  id: 'plan',
+  kind: 'agent',
+  name: 'Planner',
+  description: 'Plans the work.',
+  arguments: [],
+  next: 'check',
+};
+const CHECK: Block = {
+  index: 2,
+  id: 'check',
+  kind: 'condition',
+  description: 'Is the plan ready?',
+  true: { to: 'done' },
+  false: { to: 'plan', roundLimit: 3 },
+};
+const DONE: Block = { index: 3, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' };
+const blocked: Flow = { ...flow('build', undefined, 'Build'), blocks: [START, PLANNER, CHECK, DONE] };
+
+const noSelection: BlockSelection = { kind: 'none' };
+const blockSelection = (blockId: string): BlockSelection => ({ kind: 'block', blockId });
+const blockArrowSelection = (fromId: string, output: 'next' | 'true' | 'false'): BlockSelection => ({
+  kind: 'blockArrow',
+  fromId,
+  output,
+});
+
+describe('F-12 AC-011 selecting a block opens the panel of its kind', () => {
+  it('F-12 AC-011 a selected Start gives the Start panel with that block', () => {
+    expect(blockPanelFor(blocked, blockSelection('start'))).toEqual({ kind: 'start', block: START });
+  });
+
+  it('F-12 AC-011 a selected Agent gives the Agent panel with that block', () => {
+    expect(blockPanelFor(blocked, blockSelection('plan'))).toEqual({ kind: 'agent', block: PLANNER });
+  });
+
+  it('F-12 AC-011 a selected Condition gives the Condition panel with that block', () => {
+    expect(blockPanelFor(blocked, blockSelection('check'))).toEqual({ kind: 'condition', block: CHECK });
+  });
+
+  it('F-12 AC-011 a selected End gives the End panel with that block', () => {
+    expect(blockPanelFor(blocked, blockSelection('done'))).toEqual({ kind: 'end', block: DONE });
+  });
+
+  it('F-12 AC-011 a block id that the flow does not have throws', () => {
+    expect(() => blockPanelFor(blocked, blockSelection('missing'))).toThrow(/has no block "missing"/);
+  });
+
+  it('F-12 AC-011 a block id is looked up in the flow given, so a block of another flow is not found', () => {
+    expect(() => blockPanelFor(flow('ship'), blockSelection('plan'))).toThrow(/has no block "plan"/);
+  });
+});
+
+describe('F-12 AC-011 selecting an arrow of a block opens the arrow panel with its two names', () => {
+  it('F-12 AC-011 the arrow from the Agent gives its source and target names', () => {
+    expect(blockPanelFor(blocked, blockArrowSelection('plan', 'next'))).toEqual({
+      kind: 'blockArrow',
+      arrow: { source: 'Planner', target: 'Condition: Is the plan ready?' },
+    });
+  });
+
+  it('F-12 AC-011 the false arrow of a Condition gives the return to the Agent', () => {
+    expect(blockPanelFor(blocked, blockArrowSelection('check', 'false'))).toEqual({
+      kind: 'blockArrow',
+      arrow: { source: 'Condition: Is the plan ready?', target: 'Planner' },
+    });
+  });
+
+  it('F-12 AC-011 an arrow the block does not have throws', () => {
+    expect(() => blockPanelFor(blocked, blockArrowSelection('done', 'next'))).toThrow(
+      /has no next arrow from block done/,
+    );
+  });
+
+  it('F-12 AC-011 a Condition with no false arrow has no false arrow to select', () => {
+    const noReturn: Flow = {
+      ...blocked,
+      blocks: [START, PLANNER, { ...CHECK, false: { stop: true } }, DONE],
+    };
+    expect(() => blockPanelFor(noReturn, blockArrowSelection('check', 'false'))).toThrow(
+      /has no false arrow from block check/,
+    );
+  });
+});
+
+describe('F-12 AC-011 nothing selected on a flow tab shows the flow panel', () => {
+  it('F-12 AC-011 the none selection gives the flow panel with that flow', () => {
+    expect(blockPanelFor(blocked, noSelection)).toEqual({ kind: 'flow', flow: blocked });
+  });
+
+  it('F-12 AC-011 selecting a block or an arrow does not change the flow', () => {
+    const before = structuredClone(blocked);
+    blockPanelFor(blocked, blockSelection('check'));
+    blockPanelFor(blocked, blockArrowSelection('check', 'false'));
+    expect(blocked).toEqual(before);
+  });
+});
+
+describe('F-12 AC-044 a confirmed block delete keeps the flow tab and empties the selection', () => {
+  it('F-12 AC-044 the state after a block delete is the same flow tab with nothing selected', () => {
+    expect(afterDeleteBlock('build')).toEqual({ tab: { kind: 'flow', id: 'build' }, selection: noSelection });
+  });
+
+  it('F-12 AC-044 the tab after a block delete is a flow tab, not the Pipeline tab', () => {
+    expect(afterDeleteBlock('build').tab.kind).toBe('flow');
   });
 });

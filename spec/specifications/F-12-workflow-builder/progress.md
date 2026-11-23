@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | 🔄 In Progress | | 11 of 24 tasks committed |
+| Build    | 🔄 In Progress | | 12 of 24 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -49,12 +49,15 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T009 | End fields: outcome (`done` or `stopped`, a new End starts `done`), produced artifact (a label of the flow's outcomes, required, empty-flow text), refusals through the parser; AC-037 as amended: removing an artifact moves the End, renaming renames its reference, the sole outcome is refused (F-11 behaviour, reused) (`source/apps/web/src/builder/blockEnd.ts`) | 0 blockers; 2 warnings fixed (a test that could pass for any reason; the outcome refusal path untested) | task check passed: api 45, web 1306, core 1215 |
 | T010 | Delete block (logic): `arrowsRemovedBy` (the confirmation count), `deleteRefusal` (Start and last End), `deleteBlock` (removes the block and its arrows, clears the routes that pointed to it, nothing rewired) (`source/apps/web/src/builder/deleteBlock.ts`) | 0 blockers, 0 warnings; 2 suggestions fixed (test gaps: an arrow that starts and ends at the block; a Condition with both routes to it) | task check passed: api 45, web 1325, core 1215 |
 | T011 | Block structure marks (logic): findings on a block (`pipeline.flows.<n>.blocks.<m>...`), on the arrow of a route, or on the flow; a route with no arrow falls back to its block; blocked flows; no disabled control (`source/apps/web/src/builder/marks.ts`, `MarkViews.tsx` placement keys) | 0 blockers, 0 warnings; 2 suggestions fixed (import style; test for an Agent with an empty next). Open for the user, core: a Condition blank-description rule and a "no route out" wording (see Deferred Findings) | task check passed: api 45, web 1341, core 1215 |
+| T012 | Selection and panel choice for blocks: `blockPanelFor` and `BlockSelection` (flow panel when nothing is selected; Start, Agent, Condition or End panel by kind; block-arrow panel with source and target), `afterDeleteBlock` (tab kept, selection empty) (`source/apps/web/src/builder/panel.ts`) | 0 blockers; 1 warning fixed (a test that could not fail); 3 suggestions fixed. Plan deviation: `blockPanelFor` instead of `panelFor` (Amendment 2026-11-23) | task check passed: api 45, web 1355, core 1215 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T012 review note (plan deviation, not a defect): the plan line names `panelFor` as the function that returns the Start, Agent, Condition and End panels. The build adds `blockPanelFor` and a `BlockSelection` type, and leaves `panelFor` and `Selection` as they were, because changing `Selection` would break the exhaustive switch in `source/apps/web/src/wizard/PipelineStep.tsx`, which is outside T012. AC-011 and AC-044 are met and tested. Plan amendment needed: the T012 line and the later wiring tasks (T013, T017 to T021) name `blockPanelFor` and `BlockSelection`.
 
 - Open decision (T007, AC-026): the core parser checks that reads and writes labels are not duplicated but not that they name an outcome artifact of a flow. The web layer refuses such a label; the API and JSON load would accept it. Proposed: a core check with a core test (a small [Core] task after T007b). Decided by the user: the core check is task T025 (Amendment 2026-11-23).
 
@@ -78,6 +81,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `stories.md` AC-037 and `plan.md` T009: removing an outcome artifact that an End names moves the End to the first remaining outcome; renaming renames the reference; the sole outcome is refused with the parser's reason (option a, confirmed by the user).
 **Reason**: T009 found that the F-11 amendments of 2026-11-22 and 2026-11-23 differ from AC-037 as first written.
 **Impact**: T009 resumes; no task is re-run.
+
+### Amendment — 2026-11-23 (T012 panel interface)
+**Changed**: `plan.md` T012: the block panels are `blockPanelFor` with `BlockSelection`; `panelFor` and `Selection` stay for the Pipeline tab. T013, T017 to T021 and T023 use `blockPanelFor`.
+**Reason**: changing `Selection` would break the exhaustive switch in `src/wizard/PipelineStep.tsx`, which is outside T012.
+**Impact**: none on behaviour; no task is re-run.
 
 ### Amendment — 2026-11-23 (T007 size waiver, T008 wording, T025 core check)
 **Changed**: `plan.md` adds T025 [Core] (the parser refuses a reads or writes label that no flow lists as an outcome artifact, with a core test). T007 and T008 committed as one task each under a one-off waiver of the 400-line size guard (625 and 432 changed lines; the user accepted both). The unset round-limit text for a return (AC-017) is "Returns to <name>, round limit not set" (confirmed by the user).

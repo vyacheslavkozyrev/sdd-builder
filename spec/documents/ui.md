@@ -104,10 +104,20 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 - An edit that is refused keeps the saved value and shows the reason beneath the field (or the row). An add form shows what was typed.
 
 ### 3.3 Flow tab (F-12)
-- The flow tab holds the flow's **blocks only**. Approval, checks and artifacts are on the flow's panel, not here (`architecture.md` §6 decision 38).
-- Toolbox: **Start**, **Agent**, **End**. Start is disabled when the flow has one, with the reason shown. The Connection tool is not on this tab.
-- Blocks run in order. The Start is first and the End last. The tab is built in F-12; until then it shows the placeholder of screen 06.
-- **Move up** and **Move down** for the selected block. Delete asks first.
+- The flow tab holds the flow's **blocks only**. Approval and artifacts are on the flow's panel, not here (`architecture.md` §6 decision 38). A check is a Condition block on this tab.
+- **Toolbox:** a floating card at the top right of the canvas with four icon buttons, **Agent**, **Condition**, **Start** and **End**, each named by a tooltip. There is no Link, Move, Connection or Delete-flow control. **Start** is disabled while the flow has one, with the reason "This flow already has a Start block." shown beside the toolbox.
+- **Adding:** a press adds one block of that kind to the flow and selects it; its panel opens. A new block's id is `block-N`. A new block has no arrows. A flow with no blocks shows "No blocks yet." on the canvas.
+- **Arrows** are made by dragging from an output point (the right point of a block) to an input point (the left point) of another block of the same flow; there is no Link button. Outputs: Start one, Agent one, Condition two (true and false), End none. Inputs: Agent, Condition and End one each; Start none. A refused drop keeps the arrow as it was and shows its reason in the message band. Selecting an arrow opens its panel: the source and target, read-only, and **Delete connection**, which asks first and removes only that arrow.
+- **Order:** the canvas places the blocks in the order of their arrows, from Start, and places the **End** after every other block. The order comes from the arrows: there are no Move up or Move down buttons.
+- **Routes:** an Agent's output and a Condition's true output link only to a later block. A Condition's false output can link to a later block, or return to an earlier Agent: a return is drawn dashed and labelled "up to N rounds". An output with no arrow means "No arrow yet" for an Agent or a true output, and "Stop the flow and ask the user" for a false output.
+- **Delete block:** every block's panel has **Delete block**. It asks first and names the block and the number of arrows that will be removed. A confirmed delete removes the block and its arrows; a block that routed to it has that route cleared, and no arrow is rewired. The flow's Start cannot be deleted, and neither can its last End; each has its Delete control disabled with the reason (§4).
+- **Switching tabs** keeps each flow's blocks and arrows, and the flow's own blocks never change when another flow is edited.
+- **Structure marks:** a finding on a block or an arrow is shown on it, and the block's panel lists its findings. Marks never block an edit (§3.4).
+- **Open points** (stated, not decided; see F-12 `progress.md`, "Open for approval" and the Task Log):
+  - The reason for the last End's disabled Delete control: the stories (AC-043) say it is shown beside the control; the build shows it beneath the button.
+  - Selection on a tab switch (AC-049): the stories say each flow keeps its own selection; the build clears the selection each time the tab changes.
+  - The subtitle of the block-arrow panel ("An arrow only points one block to another.") is new wording, not in the stories or the approved screens.
+  - The colour of a blocker on the canvas: amber, as a warning is, or red, as a blocker on a flow box is on the Pipeline tab.
 
 ### 3.4 Structure marks
 - A **blocker on a flow** (for example a flow with no link, `architecture.md` §12) is shown as a red border and light red background on the flow's box. Its message is listed in the **error panel** (below). Blockers disable no control: editing, Delete flow, Delete connection, **+** and the drags stay available.
@@ -122,9 +132,10 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 
 | Item | Added on | Properties | Generated as |
 |---|---|---|---|
-| **Start** | Flow tab only (one per flow) | none | — |
-| **Agent** | Flow tab | name (file-safe, unique in the project); description; arguments (what the agent works on, and the loop it runs in, as text); restrictions; model (`haiku`, `sonnet`, `opus`, `inherit`); body (at most **1000 characters**) | `.claude/agents/<name>.md` |
-| **End** | Flow tab only (one or more) | outcome (`done` or `stopped`); produced artifact (optional; how it relates to the flow's outcome artifacts is for F-12 to settle) | The last step of the flow's command |
+| **Start** | Flow tab only (one per flow) | none. Delete block is disabled with "A flow keeps its Start block." | — |
+| **Agent** | Flow tab | name (file-safe; unique among the Agent names of the pipeline; a clash is refused "Another Agent already has this name."); description (required, not blank, at most **1000 characters**); arguments (rows as on the flow panel: id, required flag, hint); model (`haiku`, `sonnet`, `opus`, `inherit`); tools (rows, each removed with its minus); reads and writes (labels of the outcome artifacts of the pipeline's flows, each listed once); rule tags (rules of the project); body (required, not blank, at most **1000 characters**) | `.claude/agents/<name>.md` |
+| **Condition** | Flow tab only (a check) | description (required, not blank, at most **1000 characters**); true route, read-only: "Next: <block>" or "No arrow yet"; false route, as text: "Stop the flow and ask the user" (no arrow, the default), "Goes to <block>" (a later block) or "Returns to <block>, up to N rounds" (an earlier Agent); round limit (an integer from 1 to 5, required, shown only for a return) | The check and its two routes in the flow's command |
+| **End** | Flow tab only (one or more) | outcome (`done` or `stopped`, required; a new End starts with `done`); produced artifact (required: one of the flow's outcome artifacts; "none" is not offered; with no outcome artifact the field reads "Add an outcome artifact on the flow panel first."). Delete block is disabled on the flow's last End with "A flow keeps at least one End block." | The last step of the flow's command |
 | **Flow** | Pipeline tab, with **+** | id (file-safe, fixed); name (required, non-blank, unique); description (optional, at most 1000 characters); arguments (optional; id, required flag, hint); model; body (required, at most **1000 characters**); outcome artifacts; rule tags; Human approval. No next-flow field: `next` is set by dragging (§3.2) | `.claude/commands/<id>.md` |
 | **Outcome artifact** | Flow panel | label (one line, required, non-blank); template (several lines, may be empty, at most 5000 characters) | The hand-over named in the flow's command |
 | **Human approval** | Flow panel (a checkbox) | on or off. On: the process stops for a person at the end of the flow | A human-approval step at the end of the flow's command |
@@ -132,7 +143,7 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 | **Pipeline** | Pipeline tab (properties panel) | name; description (optional, at most 1000 characters); arguments (id, required flag, hint; `feature-id` in the default pipeline); model; tools; rule tags; body (optional, at most **1000 characters**) | `.claude/commands/pipeline.md` |
 
 - Every block and every flow is checked and generated. There is no switch-off (`architecture.md` decision 34).
-- A block's **arguments** explain it in text, including the loop it runs in (for example "for each task in `plan.md`").
+- An Agent's **arguments** are rows, as on the flow panel: an id, a required flag and a hint. The hint can say the loop the agent runs in (for example "for each task in `plan.md`").
 - Approval is no longer a block: it is a checkbox on the flow (owner decision, 2026-11-18; `architecture.md` decision 38).
 - Check is not a flow property at all. There is no checks list on the flow panel (owner decision, 2026-11-19 and 2026-11-20). A check is a Condition block on the flow tab, built in F-12 (`architecture.md` decision 40).
 
@@ -140,7 +151,7 @@ The screens are in `spec/design/features/F-11-pipeline-builder/` (10 screens, nu
 
 ## 5. Interaction rules
 - **Selection:** one item at a time. Its properties show in the right panel.
-- **Adding a flow:** only with **+** on the tab row. **Adding a block:** a block is added after the selected block, or before the End when nothing is selected. The End stays last.
+- **Adding a flow:** only with **+** on the tab row. **Adding a block:** the toolbox adds the block to the flow and selects it; the canvas then places the End last (§3.3).
 - **Setting a next flow:** only by dragging a connection point onto another flow. There is no button path (owner decision, 2026-11-18; this replaces the button path of the earlier rules).
 - **Refusals** are shown inline and keep the previous value. A link refused for a second outgoing arrow, a loop or a self-link is refused with its reason on the canvas, and nothing is added.
 - **Delete** always asks for confirmation.

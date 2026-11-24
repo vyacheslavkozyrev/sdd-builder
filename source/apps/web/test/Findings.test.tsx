@@ -32,10 +32,10 @@ function result(overrides: {
   };
 }
 
-function view(state: AnalysisState, configKey = KEY) {
+function view(state: AnalysisState, configKey = KEY, stale = false) {
   return render(
     <ThemeProvider theme={theme}>
-      <Findings state={state} configKey={configKey} />
+      <Findings state={state} configKey={configKey} stale={stale} />
     </ThemeProvider>,
   );
 }
@@ -231,5 +231,46 @@ describe('F-13 AC-016 a green analysis shows the no blocker and no warning line'
   it('shows no green line when a blocker or a warning is present', () => {
     view(analysisResult(KEY, result({ findings: [finding('warning', 'Rules', 'Empty.')] })));
     expect(screen.queryByText(/no blocker and no warning/)).toBeNull();
+  });
+});
+
+describe('F-13 AC-001 and AC-002 the line before any analysis', () => {
+  it('says no analysis has run when the state is not run', () => {
+    view({ kind: 'not-run' });
+    expect(screen.getByText('No analysis has run on this brief yet.')).toBeTruthy();
+    expect(rows()).toHaveLength(0);
+  });
+});
+
+describe('F-13 AC-006 the view shows nothing under the button while the request is pending', () => {
+  it('shows neither the no-run line nor any row while pending', () => {
+    view(startAnalysis(KEY));
+    expect(screen.queryByText('No analysis has run on this brief yet.')).toBeNull();
+    expect(rows()).toHaveLength(0);
+  });
+});
+
+describe('F-13 AC-018 and AC-019 an analysis on another configuration is out of date', () => {
+  const STALE_NOTE = 'The project changed since the last analysis. Analyze again.';
+
+  it('shows the note and the earlier findings as not current, with no result line', () => {
+    view(analysisResult(KEY, result({ findings: [finding('info', 'Flow · verify', 'A flow has approval.')] })), 'later', true);
+    expect(screen.getByRole('status').textContent).toBe(STALE_NOTE);
+    expect(screen.getByText('Earlier result (not current)')).toBeTruthy();
+    expect(screen.queryByText('Findings')).toBeNull();
+    expect(screen.getByText('A flow has approval.')).toBeTruthy();
+    expect(screen.queryByText(/^Result:/)).toBeNull();
+  });
+
+  it('shows the note above an error from the earlier configuration', () => {
+    view(analysisError(KEY, 429, null), 'later', true);
+    expect(screen.getByRole('status').textContent).toBe(STALE_NOTE);
+    expect(screen.getByRole('alert').textContent).toContain('Analysis could not run (429)');
+  });
+
+  it('shows no note when the result is on the current configuration', () => {
+    view(analysisResult(KEY, result({ findings: [] })), KEY, false);
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.getByText('Findings')).toBeTruthy();
   });
 });

@@ -5,10 +5,13 @@ import { getFindingsStyles } from './findingsStyles.js';
 import { errorMessage, problemLines, type FailedOutcome } from './reply.js';
 
 // The findings of the last analysis, the review note, the error box and the result line (F-13 AC-007 to AC-011,
-// AC-016; screens 03, 04, 05, 07, 09 and 11). It shows what the analysis state holds and nothing else: no request
-// is sent here. The text is plain: a message holding markup is shown as typed (React escapes it).
+// AC-016, AC-018, AC-019; screens 01 to 05, 07, 09, 10 and 11). It shows what the analysis state holds and nothing
+// else: no request is sent here. The text is plain: a message holding markup is shown as typed (React escapes it).
 
+const NOT_RUN = 'No analysis has run on this brief yet.';
 const REVIEW_NOT_FINISHED = 'The analysis did not finish. Analyze again.';
+const STALE_NOTE = 'The project changed since the last analysis. Analyze again.';
+const EARLIER_RESULT = 'Earlier result (not current)';
 const GREEN_RESULT ='Result: no blocker and no warning. You can generate the project.';
 const WARNING_RESULT = 'Result: a warning is present. Fix it, then Analyze again to generate.';
 
@@ -71,17 +74,32 @@ function failedOutcome(status: number | null, body: unknown): FailedOutcome {
 export interface FindingsProps {
   readonly state: AnalysisState;
   readonly configKey: string;
+  // True when the analysis ran on another configuration (AC-018, AC-019). Its findings are then shown as not current.
+  readonly stale: boolean;
 }
 
-export function Findings({ state, configKey }: FindingsProps) {
+export function Findings({ state, configKey, stale }: FindingsProps) {
   const styles = getFindingsStyles(useTheme());
 
-  if (state.kind === 'not-run' || state.kind === 'pending') return null;
+  if (state.kind === 'pending') return null;
+
+  if (state.kind === 'not-run') {
+    return <Typography component="p" sx={styles.empty}>{NOT_RUN}</Typography>;
+  }
+
+  const staleNote = (
+    <Box role="status" sx={styles.staleNote}>
+      <Typography component="p" sx={styles.staleNoteText}>
+        {STALE_NOTE}
+      </Typography>
+    </Box>
+  );
 
   if (state.kind === 'error') {
     const lines = problemLines(state.body);
     return (
       <Box sx={styles.root}>
+        {stale ? staleNote : null}
         <Box role="alert" sx={styles.note}>
           <Typography component="p" sx={styles.noteText}>
             {errorMessage(failedOutcome(state.status, state.body))}
@@ -97,18 +115,19 @@ export function Findings({ state, configKey }: FindingsProps) {
   }
 
   const { result } = state;
-  const line = resultLine(state, configKey);
+  const line = stale ? null : resultLine(state, configKey);
+  const reviewNote = (
+    <Box role="alert" sx={styles.note}>
+      <Typography component="p" sx={styles.noteText}>
+        {REVIEW_NOT_FINISHED}
+      </Typography>
+    </Box>
+  );
   return (
     <Box sx={styles.root}>
-      {result.review.status === 'ok' ? null : (
-        <Box role="alert" sx={styles.note}>
-          <Typography component="p" sx={styles.noteText}>
-            {REVIEW_NOT_FINISHED}
-          </Typography>
-        </Box>
-      )}
-      <Typography component="p" sx={styles.label}>
-        Findings
+      {stale ? staleNote : result.review.status === 'ok' ? null : reviewNote}
+      <Typography component="p" sx={styles.label(stale)}>
+        {stale ? EARLIER_RESULT : 'Findings'}
       </Typography>
       <Box component="ul" sx={styles.list}>
         {allFindings(result).map((finding, index) => (
@@ -117,11 +136,11 @@ export function Findings({ state, configKey }: FindingsProps) {
               <Box component="span" sx={styles.pills[finding.severity]}>
                 {SEVERITY_LABELS[finding.severity]}
               </Box>
-              <Typography component="p" sx={styles.subject}>
+              <Typography component="p" sx={styles.subject(stale)}>
                 {finding.subject}
               </Typography>
             </Box>
-            <Typography component="p" sx={styles.message}>
+            <Typography component="p" sx={styles.message(stale)}>
               {finding.message}
             </Typography>
           </Box>

@@ -41,7 +41,7 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
   };
   return {
     root: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: 0 },
-    heading: { m: 0, fontSize: 14, fontWeight: 500, lineHeight: '20px', color: theme.palette.text.primary },
+    heading: common.columnHeading,
     count: { ...common.secondaryText, mt: '4px' },
     panel,
     list: { m: 0, p: 0, listStyle: 'none' },

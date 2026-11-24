@@ -8,6 +8,7 @@ import { theme } from '../src/theme.js';
 afterEach(cleanup);
 
 interface Handlers {
+  pending?: boolean;
   onTickedChange?: (v: boolean) => void;
   onAnalyze?: () => void;
 }
@@ -17,6 +18,7 @@ function notice(ticked: boolean, handlers: Handlers = {}) {
     <ThemeProvider theme={theme}>
       <PrivacyNotice
         ticked={ticked}
+        pending={handlers.pending ?? false}
         onTickedChange={handlers.onTickedChange ?? (() => {})}
         onAnalyze={handlers.onAnalyze ?? (() => {})}
       />
@@ -104,5 +106,14 @@ describe('F-13 AC-004 the notice states the provider and that nothing is stored'
       screen.getByText('Analyze sends the brief and the pipeline to the model provider for review.'),
     ).toBeTruthy();
     expect(screen.getByText('The server does not store or log the brief.')).toBeTruthy();
+  });
+});
+
+describe('F-13 AC-006 Analyze is disabled and shows progress while the request is pending', () => {
+  it('disables Analyze and marks it busy while pending', () => {
+    renderNotice(true, { pending: true });
+    expect(analyzeButton().disabled).toBe(true);
+    expect(analyzeButton().getAttribute('aria-busy')).toBe('true');
+    expect(screen.getByRole('button', { name: 'Analyze' })).toBeTruthy();
   });
 });

@@ -17,6 +17,8 @@ export interface CommonStyles {
   readonly outlineButton: StyleObject;
   // Small secondary text, such as the footer note.
   readonly secondaryText: StyleObject;
+  // The heading of a column of step 4 (F-13 screens 01 and 08): 14 px, medium weight, primary text.
+  readonly columnHeading: StyleObject;
   // The label above a text field: 12 px, medium weight, primary text, 8 px above the field.
   readonly fieldLabel: StyleObject;
   // The outline and fill of a text field: white, 8 px radius, the grey border of the approved screens.
@@ -146,6 +148,7 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       lineHeight: '20px',
       color: theme.palette.text.secondary,
     },
+    columnHeading: { m: 0, fontSize: 14, fontWeight: 500, lineHeight: '20px', color: theme.palette.text.primary },
     fieldLabel,
     groupLabel: { ...fieldLabel, mb: 0 },
     formField: {

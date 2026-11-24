@@ -7,6 +7,14 @@ import { getCommonStyles } from '../styles/common.js';
 // The shared secondary text shape is in common.ts.
 
 export interface AnalyzeStepStyles {
+  // The two columns of the step, 24 px apart: the Analyze column (540 px) and the project preview (360 px).
+  readonly columns: SxProps<Theme>;
+  readonly analyzeColumn: SxProps<Theme>;
+  readonly previewColumn: SxProps<Theme>;
+  readonly heading: SxProps<Theme>;
+  readonly subheading: SxProps<Theme>;
+  // The progress mark inside Analyze while the request is pending.
+  readonly spinner: SxProps<Theme>;
   readonly notice: SxProps<Theme>;
   readonly noticeTitle: SxProps<Theme>;
   readonly noticeText: SxProps<Theme>;
@@ -21,6 +29,12 @@ export interface AnalyzeStepStyles {
 export function getAnalyzeStepStyles(theme: Theme): AnalyzeStepStyles {
   const common = getCommonStyles(theme);
   return {
+    columns: { boxSizing: 'border-box', display: 'flex', alignItems: 'flex-start', gap: '24px', minWidth: 0 },
+    analyzeColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 540, flexShrink: 0 },
+    previewColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 360, flexShrink: 0 },
+    heading: common.columnHeading,
+    subheading: { ...common.secondaryText, mt: '4px', mb: '14px' },
+    spinner: { color: 'inherit' },
     // The grey box of the privacy notice, 92 px high, with its two lines of text (screen 01, y 100 to 192).
     notice: {
       boxSizing: 'border-box',

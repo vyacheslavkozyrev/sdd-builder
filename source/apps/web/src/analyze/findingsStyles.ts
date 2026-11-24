@@ -1,5 +1,5 @@
 import type { SxProps, Theme } from '@mui/material/styles';
-import { getCommonStyles } from '../styles/common.js';
+import { getCommonStyles, type StyleObject } from '../styles/common.js';
 import type { FindingSeverity } from './analysisState.js';
 
 // Style getter for the findings view (.claude/rules/web-styling.md). It takes the theme and returns the style objects
@@ -14,17 +14,23 @@ export interface FindingsStyles {
   readonly noteText: SxProps<Theme>;
   // The problem lines of a 422 inside the error box (screen 09).
   readonly noteDetail: SxProps<Theme>;
-  // The "Findings" label above the rows: 12 px, medium weight, primary text.
-  readonly label: SxProps<Theme>;
+  // The label above the rows: "Findings" (12 px, medium weight, primary text), or "Earlier result (not current)" in
+  // secondary text when the analysis is out of date (screen 10). The rows' text is greyed the same way.
+  readonly label: (stale: boolean) => SxProps<Theme>;
   readonly list: SxProps<Theme>;
   readonly row: SxProps<Theme>;
   readonly rowHead: SxProps<Theme>;
   // The severity pill: a 20 px high text pill with its own fill, one per severity (the word carries the meaning).
   readonly pills: Record<FindingSeverity, SxProps<Theme>>;
-  readonly subject: SxProps<Theme>;
-  readonly message: SxProps<Theme>;
+  readonly subject: (stale: boolean) => SxProps<Theme>;
+  readonly message: (stale: boolean) => SxProps<Theme>;
   // The result line under the rows: secondary text, or the success text on a green result.
   readonly result: (green: boolean) => SxProps<Theme>;
+  // The line that says no analysis has run yet (F-13 screens 01 and 02): secondary text under the Analyze button.
+  readonly empty: SxProps<Theme>;
+  // The amber note of an out-of-date analysis (F-13 screen 10), in the same amber as the warning boxes.
+  readonly staleNote: SxProps<Theme>;
+  readonly staleNoteText: SxProps<Theme>;
 }
 
 export function getFindingsStyles(theme: Theme): FindingsStyles {
@@ -43,6 +49,32 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
     fontWeight: 500,
     lineHeight: '20px',
   };
+  const labelShape: StyleObject = {
+    m: 0,
+    mb: '8px',
+    fontSize: 12,
+    fontWeight: 500,
+    lineHeight: '16px',
+    color: theme.palette.text.primary,
+  };
+  const earlierLabel: StyleObject = { ...common.secondaryText, mb: '8px' };
+  const subjectShape: StyleObject = {
+    m: 0,
+    minWidth: 0,
+    fontSize: 12,
+    fontWeight: 500,
+    lineHeight: '20px',
+    color: theme.palette.text.primary,
+    overflowWrap: 'anywhere',
+  };
+  const messageShape: StyleObject = {
+    m: 0,
+    fontSize: 13,
+    lineHeight: '18px',
+    color: theme.palette.text.primary,
+    overflowWrap: 'anywhere',
+  };
+  const greyed: StyleObject = { color: theme.palette.text.secondary };
   return {
     root: {
       boxSizing: 'border-box',
@@ -76,14 +108,7 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
       lineHeight: '18px',
       color: theme.palette.text.secondary,
     },
-    label: {
-      m: 0,
-      mb: '8px',
-      fontSize: 12,
-      fontWeight: 500,
-      lineHeight: '16px',
-      color: theme.palette.text.primary,
-    },
+    label: (stale) => (stale ? earlierLabel : labelShape),
     list: {
       display: 'flex',
       flexDirection: 'column',
@@ -116,26 +141,22 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
       warning: { ...pill, color: theme.palette.warning.dark, bgcolor: theme.palette.warning.light },
       info: { ...pill, color: theme.palette.text.secondary, bgcolor: theme.palette.background.default },
     },
-    subject: {
-      m: 0,
-      minWidth: 0,
-      fontSize: 12,
-      fontWeight: 500,
-      lineHeight: '20px',
-      color: theme.palette.text.primary,
-      overflowWrap: 'anywhere',
-    },
-    message: {
-      m: 0,
-      fontSize: 13,
-      lineHeight: '18px',
-      color: theme.palette.text.primary,
-      overflowWrap: 'anywhere',
-    },
+    subject: (stale) => (stale ? { ...subjectShape, ...greyed } : subjectShape),
+    message: (stale) => (stale ? { ...messageShape, ...greyed } : messageShape),
     result: (green) => ({
       ...common.secondaryText,
       mt: '16px',
       color: green ? theme.palette.success.dark : theme.palette.text.secondary,
     }),
+    empty: { ...common.secondaryText, mt: '20px' },
+    staleNote: {
+      ...common.warningBox,
+      minHeight: 44,
+      px: '16px',
+      py: '12px',
+      mb: '14px',
+      justifyContent: 'center',
+    },
+    staleNoteText: { ...common.warningText, m: 0, lineHeight: '16px', fontWeight: 400 },
   };
 }

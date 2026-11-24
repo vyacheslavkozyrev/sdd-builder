@@ -65,6 +65,9 @@ export function drawingOf(
       position: { x: box.x, y: 0 },
       width: flowBoxWidth,
       height: flowBoxHeight,
+      // The measured size is known, so React Flow keeps a box's handle bounds when a drag replaces the node object;
+      // without it the arrows of a dragged box are not drawn until the box is measured again.
+      measured: { width: flowBoxWidth, height: flowBoxHeight },
       data: {
         flowId: flow.id,
         name: flow.name,

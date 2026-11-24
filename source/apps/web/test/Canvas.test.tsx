@@ -4,8 +4,9 @@ import { ThemeProvider } from '@mui/material/styles';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import type { Connection, Edge, ReactFlow as ReactFlowComponent } from '@xyflow/react';
 import type { pipeline as model } from '@sddbuilder/core';
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Canvas } from '../src/builder/Canvas.js';
+import { flowBoxHeight, flowBoxWidth } from '../src/builder/drawing.js';
 import type { Pipeline } from '../src/builder/model.js';
 import type { Selection } from '../src/builder/panel.js';
 import { theme } from '../src/theme.js';
@@ -464,5 +465,72 @@ describe('F-11 AC-005 boxes are dragged on the canvas and the pipeline is not ch
     expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
       'translate(110px,0px)',
     );
+  });
+});
+
+// React Flow draws an arrow only when both of its boxes are measured. This block lets the boxes measure at
+// their drawn size after mount, as a browser does, so the arrows can be counted.
+describe('F-11 AC-005 the arrows of a dragged box stay drawn', () => {
+  beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(flowBoxWidth);
+    vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(flowBoxHeight);
+    // React Flow reads the viewport zoom from the transform matrix when it measures; jsdom has no
+    // DOMMatrixReadOnly, and the canvas zoom is fixed at 1.
+    vi.stubGlobal(
+      'DOMMatrixReadOnly',
+      class {
+        readonly m22 = 1;
+      },
+    );
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        private readonly callback: ResizeObserverCallback;
+
+        constructor(callback: ResizeObserverCallback) {
+          this.callback = callback;
+        }
+
+        observe(target: Element): void {
+          queueMicrotask(() => {
+            this.callback([{ target } as unknown as ResizeObserverEntry], this as unknown as ResizeObserver);
+          });
+        }
+
+        unobserve(): void {}
+
+        disconnect(): void {}
+      },
+    );
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  function arrowCount(): number {
+    return document.querySelectorAll('.react-flow__edge').length;
+  }
+
+  it('F-11 AC-005 keeps every arrow drawn while a box is dragged and after it is dropped', async () => {
+    renderCanvas(
+      pipelineOf(
+        flow('specify', { next: 'ux' }),
+        flow('ux', { next: 'plan' }),
+        flow('plan', { next: 'build' }),
+        flow('build'),
+      ),
+    );
+    await act(async () => {});
+    expect(arrowCount()).toBe(3);
+    act(() => {
+      flowProps().onNodesChange?.([{ type: 'position', id: 'ux', position: { x: 150, y: 40 }, dragging: true }]);
+    });
+    expect(arrowCount()).toBe(3);
+    act(() => {
+      flowProps().onNodesChange?.([{ type: 'position', id: 'ux', position: { x: 160, y: 40 }, dragging: false }]);
+    });
+    expect(arrowCount()).toBe(3);
   });
 });

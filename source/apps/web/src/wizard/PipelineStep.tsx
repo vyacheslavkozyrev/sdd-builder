@@ -342,11 +342,6 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
         {tabs}
         <Box sx={styles.body}>
           <Box sx={styles.flowColumn}>
-            {marks.findings.length > 0 && (
-              <Box sx={styles.flowErrors}>
-                <ErrorPanel findings={marks.findings} />
-              </Box>
-            )}
             <Box sx={styles.flowCanvas}>
               <BlockCanvas
                 flow={flow}

@@ -1,15 +1,24 @@
-import { useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { PointerEvent } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import type { AddBlockResult } from './blocks.js';
 import type { OutputName } from './blockArrows.js';
 import { blockDrawingOf } from './blockDrawing.js';
-import type { ArrowShape, BlockDrawing, BlockShape, PortShape, Point, TextMark } from './blockDrawing.js';
-import { dragPreview, settleDrop } from './blockDrag.js';
+import type {
+  ArrowShape,
+  BlockDrawing,
+  BlockShape,
+  DrawingSize,
+  PortShape,
+  Point,
+  TextMark,
+} from './blockDrawing.js';
+import { dragPreview, movedCentre, pastSlop, settleDrop } from './blockDrag.js';
 import type { Drop, DragState } from './blockDrag.js';
 import { getBlockCanvasStyles } from './blockCanvasStyles.js';
-import type { BlockInk } from './blockCanvasStyles.js';
+import type { BlockCanvasStyles, BlockInk } from './blockCanvasStyles.js';
 import { blockLayout, countLine } from './blockLayout.js';
+import { ErrorPanel } from './ErrorPanel.js';
 import { arrowKey, markedItems } from './MarkViews.js';
 import type { MarkedItems } from './MarkViews.js';
 import { getMarkViewsStyles } from './markViewsStyles.js';
@@ -21,7 +30,9 @@ import type { BlockSelection } from './panel.js';
 import { Toolbox } from './Toolbox.js';
 
 // The canvas of a flow on the flow tab (F-12 AC-006 to AC-019, screen 01): a white card with the flow's name and
-// the count line, the blocks and their arrows, the toolbox at the top right, the footer hint, and the message band.
+// the count line, the blocks and their arrows, the toolbox at the top right with the error panel under it, the
+// footer hint, and the message band. A press on a block and a drag moves the block on the canvas; the new place is
+// view state, kept while the flow tab is open, and the model keeps its automatic layout.
 // The blocks are drawn as the approved screen draws them (Start and End circles, Agent boxes, Condition diamonds,
 // dashed returns with their round limit). A click selects the block or the arrow, or clears the selection on the
 // empty canvas. A drag from an output point links the block (linkBlocks); a drag from an end of the selected arrow
@@ -30,7 +41,7 @@ import { Toolbox } from './Toolbox.js';
 
 export interface BlockCanvasProps {
   readonly flow: Flow;
-  // The block or arrow selected on the flow tab; the selected one is drawn on the tint (AC-007).
+  // The block or arrow selected on the flow tab; the selected one is drawn with the primary outline (AC-007).
   readonly selection: BlockSelection;
   // Called with the selection a click makes: a block, an arrow, or none on the empty canvas.
   readonly onSelect: (selection: BlockSelection) => void;
@@ -44,6 +55,14 @@ export interface BlockCanvasProps {
   readonly marks?: StructureMarks;
 }
 
+// A block pressed on the canvas: the press point, and whether the pointer has gone past the slop, so that a press
+// that does not move stays a click.
+interface BlockMove {
+  readonly block: BlockShape;
+  readonly grab: Point;
+  readonly moved: boolean;
+}
+
 const emptyText = 'No blocks yet.';
 const hintText =
   'Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.';
@@ -55,12 +74,38 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
   const styles = getBlockCanvasStyles(useTheme());
   const markStyles = getMarkViewsStyles(useTheme());
   const layout = blockLayout(flow);
-  const drawing = blockDrawingOf(flow, selection);
   const marked = markedItems(marks, flow.id);
   // The drag in progress and the pointer's place in the drawing; the reason of the last refused drop.
   const [drag, setDrag] = useState<DragState | null>(null);
   const [pointer, setPointer] = useState<Point | null>(null);
   const [refusal, setRefusal] = useState<string | null>(null);
+  // The blocks moved on each flow tab, by flow id and block id, and the block being pressed or moved.
+  const [dragged, setDragged] = useState<Readonly<Record<string, Readonly<Record<string, Point>>>>>({});
+  const [move, setMove] = useState<BlockMove | null>(null);
+  const places = dragged[flow.id] ?? {};
+  // The canvas area the drawing fills: measured on the stage, and kept up to date as the card is resized. Where
+  // ResizeObserver is missing (jsdom), the area is read once and stays at zero, so the drawing keeps its natural size.
+  const [stage, setStage] = useState<HTMLDivElement | null>(null);
+  const [area, setArea] = useState<DrawingSize>({ width: 0, height: 0 });
+  useEffect(() => {
+    if (stage === null) {
+      return undefined;
+    }
+    const measure = (): void => {
+      const next = { width: stage.clientWidth, height: stage.clientHeight };
+      setArea((current) =>
+        current.width === next.width && current.height === next.height ? current : next,
+      );
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [stage]);
+  const drawing = blockDrawingOf(flow, selection, places, area);
   // A drag ends with a click on the drawing, which is not a selection; the flag lets that one click pass.
   const afterDrag = useRef(false);
 
@@ -77,6 +122,15 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
     setDrag(null);
     setPointer(null);
   };
+  // The block follows the pointer from the place it was pressed at, kept inside the drawing (AC-012 view state).
+  const moveBlock = (current: BlockMove, at: Point): void => {
+    if (!current.moved && !pastSlop(current.grab, at)) {
+      return;
+    }
+    setMove({ ...current, moved: true });
+    const centre = movedCentre({ x: current.block.cx, y: current.block.cy }, current.grab, at, current.block, drawing);
+    setDragged((all) => ({ ...all, [flow.id]: { ...all[flow.id], [current.block.blockId]: centre } }));
+  };
   const settle = (target: Drop, current: DragState): void => {
     endDrag();
     const result = settleDrop(flow, current, target);
@@ -92,6 +146,10 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
   };
   const gestures: DrawingGestures = {
     onClear: () => pick({ kind: 'none' }),
+    onBlockDown: (block, at) => {
+      afterDrag.current = false;
+      setMove({ block, grab: at, moved: false });
+    },
     onPortDown: (blockId, output) => {
       afterDrag.current = false;
       setPointer(null);
@@ -115,17 +173,28 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
       if (drag !== null) {
         setPointer(at);
       }
+      if (move !== null) {
+        moveBlock(move, at);
+      }
     },
     onRelease: () => {
       if (drag !== null) {
         afterDrag.current = true;
         endDrag();
       }
+      if (move !== null) {
+        // A block that was moved is not clicked: the click that ends the move does not select it.
+        if (move.moved) {
+          afterDrag.current = true;
+        }
+        setMove(null);
+      }
     },
     onLeave: () => {
       if (drag !== null) {
         endDrag();
       }
+      setMove(null);
     },
   };
   const preview = drag !== null && pointer !== null ? dragPreview(drawing, drag, pointer) : null;
@@ -135,15 +204,17 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
         <Box sx={styles.empty}>{emptyText}</Box>
       ) : (
         <Box sx={styles.scroll}>
-          <DrawingView
-            drawing={drawing}
-            ink={styles.ink}
-            markInks={markStyles.ink}
-            marked={marked}
-            preview={preview}
-            onSelect={pick}
-            gestures={gestures}
-          />
+          <Box ref={setStage} sx={styles.stage}>
+            <DrawingView
+              drawing={drawing}
+              styles={styles}
+              markInks={markStyles.ink}
+              marked={marked}
+              preview={preview}
+              onSelect={pick}
+              gestures={gestures}
+            />
+          </Box>
         </Box>
       )}
       <Box sx={styles.heading}>
@@ -155,6 +226,11 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
         </Typography>
       </Box>
       <Toolbox flow={flow} onAdd={onAdd} />
+      {marks.findings.length > 0 && (
+        <Box sx={styles.errors}>
+          <ErrorPanel findings={marks.findings} />
+        </Box>
+      )}
       <MessageBand refusal={refusal} />
       <Typography component="p" sx={styles.hint}>
         {hintText}
@@ -174,11 +250,13 @@ interface DrawingGestures {
   readonly onMove: (at: Point) => void;
   readonly onRelease: () => void;
   readonly onLeave: () => void;
+  // A press on a block's body, at the point the pointer went down; it starts a move, not a link (AC-012 view state).
+  readonly onBlockDown: (block: BlockShape, at: Point) => void;
 }
 
 interface DrawingViewProps {
   readonly drawing: BlockDrawing;
-  readonly ink: BlockInk;
+  readonly styles: BlockCanvasStyles;
   // The red and amber of the structure marks, and the blocks and arrows of the flow that carry one.
   readonly markInks: MarkInks;
   readonly marked: MarkedItems;
@@ -188,27 +266,44 @@ interface DrawingViewProps {
   readonly gestures: DrawingGestures;
 }
 
-// The point of a pointer in the drawing's own pixels: the svg's box, so the scroll of its container is counted.
-function pointerIn(event: ReactPointerEvent<SVGSVGElement>): Point {
-  const box = event.currentTarget.getBoundingClientRect();
+// The point of a pointer in the drawing's own units. The drawing is drawn at its own size, so one pixel is one
+// drawing unit, and the point is the pointer's offset from the svg's box. The event may come from the svg or from an
+// element inside it.
+function pointerIn(event: {
+  readonly clientX: number;
+  readonly clientY: number;
+  readonly currentTarget: Element;
+}): Point {
+  const box = (event.currentTarget.closest('svg') ?? event.currentTarget).getBoundingClientRect();
   return { x: event.clientX - box.left, y: event.clientY - box.top };
 }
 
 // The SVG of the blocks and arrows. A release that no point or block took ends the drag without a change.
-function DrawingView({ drawing, ink, markInks, marked, preview, onSelect, gestures }: DrawingViewProps) {
+function DrawingView({ drawing, styles, markInks, marked, preview, onSelect, gestures }: DrawingViewProps) {
+  const ink = styles.ink;
   const selected = drawing.arrows.find((arrow) => arrow.selected);
   return (
-    <svg
+    <Box
+      component="svg"
       width={drawing.width}
       height={drawing.height}
+      sx={styles.drawing}
       onClick={gestures.onClear}
-      onPointerMove={(event) => gestures.onMove(pointerIn(event))}
+      onPointerMove={(event: PointerEvent<SVGSVGElement>) => gestures.onMove(pointerIn(event))}
       onPointerUp={gestures.onRelease}
       onPointerLeave={gestures.onLeave}
     >
       <defs>
-        <marker id="block-arrowhead" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
-          <path d="M0,0 L8,4 L0,8 z" fill={ink.line} />
+        <marker
+          id="block-arrowhead"
+          markerWidth={12.5}
+          markerHeight={12.5}
+          viewBox="-10 -10 20 20"
+          refX={0}
+          refY={0}
+          orient="auto"
+        >
+          <polyline points="-5,-4 0,0 -5,4 -5,-4" fill={ink.line} stroke={ink.line} strokeLinejoin="round" />
         </marker>
         <marker id="block-arrowhead-accent" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
           <path d="M0,0 L8,4 L0,8 z" fill={ink.accent} />
@@ -248,7 +343,7 @@ function DrawingView({ drawing, ink, markInks, marked, preview, onSelect, gestur
           pointerEvents="none"
         />
       )}
-    </svg>
+    </Box>
   );
 }
 
@@ -301,7 +396,8 @@ function Handle({
   );
 }
 
-// An arrow: a return is dashed and in the primary colour, a selected arrow is the primary colour at 2.5 px.
+// An arrow: a return is dashed and in the primary colour, a selected arrow is the primary colour at 2.5 px, and a
+// normal arrow is 1 px with React Flow's default closed arrowhead (the same size and shape as F-11).
 // A wide transparent line under it takes the click, so the arrow is easy to hit.
 function ArrowView({
   arrow,
@@ -329,7 +425,7 @@ function ArrowView({
         points={points}
         fill="none"
         stroke={stroke}
-        strokeWidth={arrow.selected ? 2.5 : 1.5}
+        strokeWidth={arrow.selected ? 2.5 : arrow.isReturn ? 1.5 : 1}
         strokeDasharray={arrow.isReturn ? '6 4' : undefined}
         markerEnd={accent ? 'url(#block-arrowhead-accent)' : 'url(#block-arrowhead)'}
       />
@@ -392,8 +488,8 @@ function MarkText({
   );
 }
 
-// The outline and fill of a block: the tint with the primary outline when selected (AC-007), otherwise the
-// outline of its kind as the approved screen draws it.
+// The outline and fill of a block: the primary outline when selected (AC-007), otherwise the outline of its kind as
+// the approved screen draws it.
 interface Frame {
   readonly fill: string;
   readonly stroke: string;
@@ -401,8 +497,9 @@ interface Frame {
 }
 
 function frameOf(block: BlockShape, ink: BlockInk): Frame {
+  // A selected block has the primary outline at 2 px on the paper, as a selected flow box on the Pipeline tab (F-11).
   if (block.selected) {
-    return { fill: ink.tint, stroke: ink.accent, strokeWidth: 2.5 };
+    return { fill: ink.paper, stroke: ink.accent, strokeWidth: 2 };
   }
   switch (block.kind) {
     case 'start':
@@ -442,6 +539,7 @@ function BlockView({
       role="button"
       aria-label={block.accessibleName}
       onClick={select}
+      onPointerDown={(event) => gestures.onBlockDown(block, pointerIn(event))}
       onPointerUp={(event) => gestures.onDrop({ blockId: block.blockId, output: null }, event)}
     >
       <BlockBody block={block} ink={ink} />
@@ -474,7 +572,15 @@ function PortView({
       stroke={ink.line}
       strokeWidth={1.5}
       data-port={port.role}
-      onPointerDown={output === null ? undefined : () => gestures.onPortDown(port.blockId, output)}
+      onPointerDown={
+        output === null
+          ? undefined
+          : (event) => {
+              // A press on a point starts a link, not a move of the block the point belongs to.
+              event.stopPropagation();
+              gestures.onPortDown(port.blockId, output);
+            }
+      }
       onPointerUp={(event) => gestures.onDrop({ blockId: port.blockId, output }, event)}
     />
   );

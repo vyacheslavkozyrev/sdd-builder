@@ -5,7 +5,7 @@ import type { Finding, PlacedFinding } from './marks.js';
 
 // The error panel of the Pipeline tab (F-11 AC-035 notification part, AC-036). Every blocker and every
 // warning of the pipeline is collected here, with one counter: "11 errors" and "2 warnings". The panel is
-// closed by default and sits in the canvas card's header, so it covers no canvas box while closed. A click
+// closed by default and sits in the canvas card, so it covers no canvas box while closed. A click
 // opens the full list: each finding with its kind, its path and its message. The findings that name no
 // drawn item are listed in the section "Not on a drawn item", inside the same panel. Nothing is drawn when
 // there is no finding.

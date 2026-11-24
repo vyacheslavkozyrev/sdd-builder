@@ -86,10 +86,13 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
       '& .MuiInputBase-root': {
         height: FIELD_HEIGHT,
       },
+      // The select element fills the field, and its text clears the chevron on the right, so a value is not cut off.
       '& .MuiNativeSelect-select': {
         boxSizing: 'border-box',
+        height: '100%',
         py: 0,
-        px: 2,
+        pl: 2,
+        pr: 5,
         fontSize: 13,
         lineHeight: `${FIELD_HEIGHT}px`,
         color: theme.palette.text.primary,

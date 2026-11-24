@@ -324,3 +324,92 @@ describe('F-12 AC-007 (logic) cutText', () => {
     expect(cutText('ab😀cd', 4)).toBe('ab😀…');
   });
 });
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) a dragged block keeps its dragged centre', () => {
+  it('draws the dragged block at its centre, and its arrows start and end on it', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 200, y: 300 } });
+    const planner = drawing.blocks.find((block) => block.blockId === 'b2');
+    expect({ cx: planner?.cx, cy: planner?.cy }).toEqual({ cx: 200, cy: 300 });
+    const into = drawing.arrows.find((arrow) => arrow.fromId === 'b1');
+    const out = drawing.arrows.find((arrow) => arrow.fromId === 'b2' && arrow.output === 'next');
+    expect(into?.points[into.points.length - 1]).toEqual({ x: 130, y: 300 });
+    expect(out?.points[0]).toEqual({ x: 270, y: 300 });
+  });
+
+  it('keeps the width of the layout and the other blocks on the main line', () => {
+    const plain = blockDrawingOf(loopFlow);
+    const dragged = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 200, y: 300 } });
+    expect(dragged.width).toBe(plain.width);
+    expect(dragged.blocks.find((block) => block.blockId === 'b4')).toEqual(plain.blocks.find((block) => block.blockId === 'b4'));
+  });
+
+  it('moves the return label and the caption of a Condition with the Condition', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b3: { x: 400, y: 200 } });
+    const condition = drawing.blocks.find((block) => block.blockId === 'b3');
+    const back = drawing.arrows.find((arrow) => arrow.fromId === 'b3' && arrow.output === 'false');
+    expect(condition?.captionY).toBe(250);
+    expect(back?.branch?.y).toBe(146);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) the blocks spread across the measured canvas area', () => {
+  // The natural drawing of loopFlow is 420 px wide and 560 px high; its gaps are 28 px.
+  const natural = blockDrawingOf(loopFlow);
+  const naturalGap = 28;
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) takes the measured width and shares the extra width by the gaps', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, {}, { width: 1000, height: 560 });
+    expect(drawing.width).toBe(1000);
+    const edges = drawing.blocks.map((block) => ({ left: block.cx - block.halfWidth, right: block.cx + block.halfWidth }));
+    expect(edges[0]?.left).toBe(24);
+    expect(edges[edges.length - 1]?.right).toBeCloseTo(976, 9);
+    const pitch = naturalGap + (1000 - natural.width) / 3;
+    for (let index = 1; index < edges.length; index += 1) {
+      expect((edges[index]?.left ?? NaN) - (edges[index - 1]?.right ?? NaN)).toBeCloseTo(pitch, 9);
+    }
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) keeps the block sizes and keeps the End last', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, {}, { width: 1000, height: 900 });
+    expect(drawing.blocks.map((block) => [block.halfWidth, block.halfHeight])).toEqual(
+      natural.blocks.map((block) => [block.halfWidth, block.halfHeight]),
+    );
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4']);
+    const cxs = drawing.blocks.map((block) => block.cx);
+    expect([...cxs].sort((a, b) => a - b)).toEqual(cxs);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) centres a lone block in a wider area', () => {
+    const lone: Flow = { ...emptyFlow, blocks: [{ index: 0, id: 'b1', kind: 'start', next: '' }] };
+    const drawing = blockDrawingOf(lone, { kind: 'none' }, {}, { width: 1000, height: 560 });
+    expect(drawing.blocks[0]?.cx).toBe(500);
+    expect(drawing.width).toBe(1000);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) is never smaller than the natural size, and keeps the natural layout', () => {
+    const small = blockDrawingOf(loopFlow, { kind: 'none' }, {}, { width: 100, height: 100 });
+    expect(small).toEqual(natural);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) grows the height and moves the main line and lanes with it', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, {}, { width: 0, height: 900 });
+    const scale = 900 / drawingHeight;
+    expect(drawing.height).toBe(900);
+    expect(drawing.blocks.map((block) => block.cy)).toEqual(natural.blocks.map(() => 420 * scale));
+    const back = drawing.arrows.find((arrow) => arrow.isReturn);
+    expect(back?.points[1]?.y).toBeCloseTo(320 * scale, 9);
+    const forwardFalse = drawing.blocks.find((block) => block.blockId === 'b3');
+    expect(forwardFalse?.captionY).toBeCloseTo(420 * scale + 50, 9);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) keeps the natural height when the area is shorter', () => {
+    expect(blockDrawingOf(loopFlow, { kind: 'none' }, {}, { width: 0, height: 300 }).height).toBe(drawingHeight);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) keeps a dragged block inside the drawing when the area has shrunk', () => {
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 5000, y: 5000 } });
+    const planner = drawing.blocks.find((block) => block.blockId === 'b2');
+    expect(planner?.cx).toBe(drawing.width - (planner?.halfWidth ?? NaN));
+    expect(planner?.cy).toBe(drawing.height - (planner?.halfHeight ?? NaN));
+  });
+});

@@ -33,6 +33,33 @@ export function settleDrop(flow: Flow, drag: DragState, drop: Drop): LinkResult 
   }
 }
 
+// A block moves only after its pointer has gone this far (in canvas pixels), so a press that does not move is a
+// click and still selects the block (AC-011). Dragged positions are view state; the model keeps the layout.
+const moveSlop = 3;
+
+export function pastSlop(grab: Point, pointer: Point): boolean {
+  return Math.abs(pointer.x - grab.x) > moveSlop || Math.abs(pointer.y - grab.y) > moveSlop;
+}
+
+// The centre a block takes while its pointer moves from `grab` to `pointer`: the block's centre at the press plus
+// the pointer's move, kept inside the drawing so the block cannot leave the canvas.
+export function movedCentre(
+  origin: Point,
+  grab: Point,
+  pointer: Point,
+  size: { readonly halfWidth: number; readonly halfHeight: number },
+  bounds: { readonly width: number; readonly height: number },
+): Point {
+  return {
+    x: clamp(origin.x + pointer.x - grab.x, size.halfWidth, bounds.width - size.halfWidth),
+    y: clamp(origin.y + pointer.y - grab.y, size.halfHeight, bounds.height - size.halfHeight),
+  };
+}
+
+function clamp(value: number, low: number, high: number): number {
+  return Math.min(Math.max(value, low), high);
+}
+
 // The line a drag draws while it moves (AC-012): from the fixed end to the pointer. A new link is drawn from its
 // output point; a dragged end is drawn from the end that stays where it is. A drag of a block's output point
 // that is not in the drawing is a programmer error and throws.

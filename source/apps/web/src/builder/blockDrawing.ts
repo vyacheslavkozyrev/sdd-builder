@@ -82,14 +82,35 @@ export interface BlockDrawing {
   readonly ports: readonly PortShape[];
 }
 
-// The height of the drawing area in canvas pixels: the lanes above and below the line, and the labels.
+// The natural height of the drawing in canvas pixels: the lanes above and below the line, and the labels. A taller
+// canvas area makes the drawing taller (F-12 device fix); this is the least it takes.
 export const drawingHeight = 560;
 
-// The main line: the y of the centre of every block (screen 01 draws it at 420 px in its card).
+// The size the drawing fills: the measured area of the canvas. The drawing is never smaller than the flow's natural
+// size, so a flow that does not fit scrolls (F-12 device fix).
+export interface DrawingSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+// The main line: the y of the centre of every block at the natural height (screen 01 draws it at 420 px in its card).
 const mainY = 420;
 // The lane a return runs along, above the line, and the lane a forward false branch runs along, below it.
 const laneAbove = 320;
 const laneBelow = 520;
+
+// The main line and the two lanes at a drawing height. They scale with the height, so the rows spread out as the
+// canvas grows; at the natural height they sit where the screen draws them.
+interface Lanes {
+  readonly line: number;
+  readonly above: number;
+  readonly below: number;
+}
+
+function lanesOf(height: number): Lanes {
+  const scale = height / drawingHeight;
+  return { line: mainY * scale, above: laneAbove * scale, below: laneBelow * scale };
+}
 // The left inset of the first block and the gap between two neighbours.
 const originX = 24;
 const gap = 28;
@@ -114,6 +135,7 @@ export function cutText(text: string, limit: number): string {
 interface Placed {
   readonly block: Block;
   readonly cx: number;
+  readonly cy: number;
   readonly halfWidth: number;
   readonly halfHeight: number;
 }
@@ -132,51 +154,76 @@ function halfSize(kind: BlockKind): { readonly halfWidth: number; readonly halfH
   }
 }
 
-// The blocks in layout order, each after the one before it with a gap. The width is the right edge
-// of the last block plus the left inset; a flow with no blocks has no width.
-function placeBlocks(flow: Flow): { readonly places: readonly Placed[]; readonly width: number } {
+// The blocks in layout order, each after the one before it. The natural pitch is the gap; when the target width is
+// wider than the natural width, the extra width is shared by the gaps between the blocks, and a lone block is
+// centred. A block the user dragged keeps its dragged centre, kept inside the drawing when the area has shrunk since
+// the drag; the others sit on the main line. A flow with no blocks has no width.
+function placeBlocks(
+  flow: Flow,
+  dragged: Readonly<Record<string, Point>>,
+  lanes: Lanes,
+  target: DrawingSize,
+  height: number,
+): { readonly places: readonly Placed[]; readonly width: number } {
   const byId = new Map(flow.blocks.map((block) => [block.id, block] as const));
-  let cursor = originX;
-  const places = blockLayout(flow).places.map((place): Placed => {
+  const sized = blockLayout(flow).places.map((place) => {
     const block = byId.get(place.blockId);
     if (block === undefined) {
       throw new Error(`F-12: layout names block ${place.blockId}, which is not in flow ${flow.id}`);
     }
-    const size = halfSize(block.kind);
-    const cx = cursor + size.halfWidth;
-    cursor += 2 * size.halfWidth + gap;
-    return { block, cx, ...size };
+    return { block, size: halfSize(block.kind) };
   });
-  return { places, width: places.length === 0 ? 0 : cursor - gap + originX };
+  if (sized.length === 0) {
+    return { places: [], width: 0 };
+  }
+  const naturalWidth =
+    2 * originX + sized.reduce((total, { size }) => total + 2 * size.halfWidth, 0) + gap * (sized.length - 1);
+  const width = Math.max(naturalWidth, target.width);
+  const extra = width - naturalWidth;
+  const pitch = sized.length > 1 ? gap + extra / (sized.length - 1) : gap;
+  let cursor = originX + (sized.length === 1 ? extra / 2 : 0);
+  const places = sized.map(({ block, size }): Placed => {
+    const at = dragged[block.id];
+    const cx = at === undefined ? cursor + size.halfWidth : within(at.x, size.halfWidth, width - size.halfWidth);
+    const cy = at === undefined ? lanes.line : within(at.y, size.halfHeight, height - size.halfHeight);
+    cursor += 2 * size.halfWidth + pitch;
+    return { block, cx, cy, ...size };
+  });
+  return { places, width };
+}
+
+// The value kept between the low and the high limit (a dragged centre stays on the drawing).
+function within(value: number, low: number, high: number): number {
+  return Math.min(Math.max(value, low), high);
 }
 
 // The point on one side of a placed block: the middle of a side, or the top and bottom vertices.
 function anchor(placed: Placed, side: Side): Point {
   switch (side) {
     case 'left':
-      return { x: placed.cx - placed.halfWidth, y: mainY };
+      return { x: placed.cx - placed.halfWidth, y: placed.cy };
     case 'right':
-      return { x: placed.cx + placed.halfWidth, y: mainY };
+      return { x: placed.cx + placed.halfWidth, y: placed.cy };
     case 'top':
-      return { x: placed.cx, y: mainY - placed.halfHeight };
+      return { x: placed.cx, y: placed.cy - placed.halfHeight };
     case 'bottom':
-      return { x: placed.cx, y: mainY + placed.halfHeight };
+      return { x: placed.cx, y: placed.cy + placed.halfHeight };
   }
 }
 
 // The route of an arrow: a return goes from the top of its source over the lane above to the top of its
 // target; a false branch that goes forward goes from the bottom under the lane below; any other arrow is
 // straight from the right side of its source to the left side of its target (AC-008).
-function routeOf(arrow: BlockArrow, from: Placed, to: Placed): readonly Point[] {
+function routeOf(arrow: BlockArrow, from: Placed, to: Placed, lanes: Lanes): readonly Point[] {
   if (arrow.isReturn) {
     const start = anchor(from, 'top');
     const end = anchor(to, 'top');
-    return [start, { x: start.x, y: laneAbove }, { x: end.x, y: laneAbove }, end];
+    return [start, { x: start.x, y: lanes.above }, { x: end.x, y: lanes.above }, end];
   }
   if (arrow.output === 'false') {
     const start = anchor(from, 'bottom');
     const end = anchor(to, 'bottom');
-    return [start, { x: start.x, y: laneBelow }, { x: end.x, y: laneBelow }, end];
+    return [start, { x: start.x, y: lanes.below }, { x: end.x, y: lanes.below }, end];
   }
   return [anchor(from, 'right'), anchor(to, 'left')];
 }
@@ -189,17 +236,17 @@ function branchMark(arrow: BlockArrow, from: Placed, route: readonly Point[]): T
   }
   const text = arrow.branchLabel;
   if (arrow.isReturn) {
-    return { text, x: from.cx + 8, y: mainY - 54, anchor: 'start' };
+    return { text, x: from.cx + 8, y: from.cy - 54, anchor: 'start' };
   }
   if (arrow.output === 'false') {
-    return { text, x: from.cx + 6, y: mainY + 52, anchor: 'start' };
+    return { text, x: from.cx + 6, y: from.cy + 52, anchor: 'start' };
   }
   const first = route[0];
   const last = route[route.length - 1];
   if (first === undefined || last === undefined) {
     throw new Error(`F-12: arrow from ${arrow.fromId} has no route`);
   }
-  return { text, x: (first.x + last.x) / 2, y: mainY - 6, anchor: 'middle' };
+  return { text, x: (first.x + last.x) / 2, y: first.y - 6, anchor: 'middle' };
 }
 
 // The points of a block (AC-013): its input point on the left side, when its kind has one, and an output point
@@ -219,7 +266,7 @@ function portsOf(placed: Placed, arrows: readonly ArrowShape[]): readonly PortSh
 }
 
 // The round limit of a return, above its lane (AC-008). A return with no limit set has no label.
-function roundsMark(arrow: BlockArrow, route: readonly Point[]): TextMark | null {
+function roundsMark(arrow: BlockArrow, route: readonly Point[], lanes: Lanes): TextMark | null {
   if (arrow.roundsLabel === null) {
     return null;
   }
@@ -228,7 +275,7 @@ function roundsMark(arrow: BlockArrow, route: readonly Point[]): TextMark | null
   if (first === undefined || last === undefined) {
     throw new Error(`F-12: arrow from ${arrow.fromId} has no route`);
   }
-  return { text: arrow.roundsLabel, x: (first.x + last.x) / 2, y: laneAbove - 8, anchor: 'middle' };
+  return { text: arrow.roundsLabel, x: (first.x + last.x) / 2, y: lanes.above - 8, anchor: 'middle' };
 }
 
 // The name a block has for a screen reader, which tells it apart from the toolbox buttons of the same kind.
@@ -259,11 +306,11 @@ function captionOf(block: Block): string {
 
 // The y of a caption (AC-007, amended 2026-11-23): a Condition's description sits above its diamond, except
 // when either of its routes returns to an earlier Agent, then below it; the circles keep theirs above.
-function captionYOf(block: Block, hasReturn: boolean): number {
+function captionYOf(block: Block, cy: number, hasReturn: boolean): number {
   if (block.kind === 'condition') {
-    return hasReturn ? mainY + 50 : mainY - 50;
+    return hasReturn ? cy + 50 : cy - 50;
   }
-  return mainY - 30;
+  return cy - 30;
 }
 
 // The x and anchor of a caption (AC-007, T015 option 1). A Condition with a return on one output and a forward
@@ -291,9 +338,19 @@ function placedOf(byId: ReadonlyMap<string, Placed>, blockId: string): Placed {
 }
 
 // The drawing of a flow for its canvas. A selected block is the one the selection names; a selected arrow
-// is the arrow of the block and output it names (AC-007, AC-008). A flow with no blocks has no drawing.
-export function blockDrawingOf(flow: Flow, selection: BlockSelection = { kind: 'none' }): BlockDrawing {
-  const { places, width } = placeBlocks(flow);
+// is the arrow of the block and output it names (AC-007, AC-008). `dragged` gives the centre of each block the
+// user moved; the arrows, labels and captions follow the blocks. `target` is the measured area of the canvas: the
+// blocks keep their size and spread across it, and the drawing is never smaller than its natural size (F-12 device
+// fix). A flow with no blocks has no drawing.
+export function blockDrawingOf(
+  flow: Flow,
+  selection: BlockSelection = { kind: 'none' },
+  dragged: Readonly<Record<string, Point>> = {},
+  target: DrawingSize = { width: 0, height: 0 },
+): BlockDrawing {
+  const height = Math.max(drawingHeight, target.height);
+  const lanes = lanesOf(height);
+  const { places, width } = placeBlocks(flow, dragged, lanes, target, height);
   const byId = new Map(places.map((placed) => [placed.block.id, placed] as const));
   const selectedBlockId = selection.kind === 'block' ? selection.blockId : null;
   const selectedArrow = selection.kind === 'blockArrow' ? selection : null;
@@ -310,12 +367,12 @@ export function blockDrawingOf(flow: Flow, selection: BlockSelection = { kind: '
       kind: block.kind,
       selected: block.id === selectedBlockId,
       cx: placed.cx,
-      cy: mainY,
+      cy: placed.cy,
       halfWidth: placed.halfWidth,
       halfHeight: placed.halfHeight,
       caption: captionOf(block),
       captionX: captionX.x,
-      captionY: captionYOf(block, returns > 0),
+      captionY: captionYOf(block, placed.cy, returns > 0),
       captionAnchor: captionX.anchor,
       name: block.kind === 'agent' ? cutText(blockName(block), nameLimit) : '',
       summary: block.kind === 'agent' ? cutText(block.description, summaryLimit) : '',
@@ -325,7 +382,7 @@ export function blockDrawingOf(flow: Flow, selection: BlockSelection = { kind: '
   const arrows = arrowList.map((arrow): ArrowShape => {
     const from = placedOf(byId, arrow.fromId);
     const to = placedOf(byId, arrow.toId);
-    const points = routeOf(arrow, from, to);
+    const points = routeOf(arrow, from, to, lanes);
     const outputName = arrow.output === 'next' ? 'Arrow' : `${arrow.output} arrow`;
     return {
       fromId: arrow.fromId,
@@ -336,10 +393,10 @@ export function blockDrawingOf(flow: Flow, selection: BlockSelection = { kind: '
       selected:
         selectedArrow !== null && selectedArrow.fromId === arrow.fromId && selectedArrow.output === arrow.output,
       branch: branchMark(arrow, from, points),
-      rounds: roundsMark(arrow, points),
+      rounds: roundsMark(arrow, points, lanes),
       accessibleName: `${outputName} from ${blockName(from.block)}`,
     };
   });
   const ports = places.flatMap((placed) => portsOf(placed, arrows));
-  return { width, height: drawingHeight, blocks, arrows, ports };
+  return { width, height, blocks, arrows, ports };
 }

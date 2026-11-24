@@ -1,11 +1,13 @@
 // @vitest-environment jsdom
 import { ThemeProvider } from '@mui/material/styles';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BlockCanvas } from '../src/builder/BlockCanvas.js';
+import { blockDrawingOf } from '../src/builder/blockDrawing.js';
 import type { Flow } from '../src/builder/model.js';
 import type { BlockSelection } from '../src/builder/panel.js';
+import type { StructureMarks } from '../src/builder/marks.js';
 import { theme } from '../src/theme.js';
 
 // The canvas is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
@@ -478,5 +480,273 @@ describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end'
     fireEvent.pointerUp(portOf(groupOf('Start block'), 'next'));
     expect(bandText()).toBe('Refused · This block already has an arrow from this point.');
     expect(onChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style matches F-11', () => {
+  it('F-12 AC-007 (UI) draws a selected block with a 2 px primary outline on the paper', () => {
+    renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const frame = groupOf('Agent block: planner').querySelector('rect');
+    expect(frame?.getAttribute('stroke')).toBe(theme.palette.primary.main);
+    expect(frame?.getAttribute('stroke-width')).toBe('2');
+    expect(frame?.getAttribute('fill')).toBe(theme.palette.background.paper);
+  });
+
+  it('F-12 AC-008 (UI) draws a selected arrow in the primary colour at 2.5 px', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas
+        flow={loopFlow}
+        selection={{ kind: 'blockArrow', fromId: 'block-2', output: 'next' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+      />,
+    );
+    const selected = container.querySelector('polyline[stroke-width="2.5"]');
+    expect(selected?.getAttribute('stroke')).toBe(theme.palette.primary.main);
+  });
+
+  it('F-12 AC-008 (UI) draws a normal arrow at 1 px with a closed 12.5 px arrowhead in the stroke colour', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const normal = container.querySelector('polyline[marker-end="url(#block-arrowhead)"]');
+    expect(normal?.getAttribute('stroke-width')).toBe('1');
+    expect(normal?.getAttribute('stroke')).toBe(theme.palette.text.secondary);
+    const marker = container.querySelector('marker#block-arrowhead');
+    expect(marker?.getAttribute('markerWidth')).toBe('12.5');
+    expect(marker?.getAttribute('markerHeight')).toBe('12.5');
+    expect(marker?.getAttribute('viewBox')).toBe('-10 -10 20 20');
+    expect(marker?.querySelector('polyline')?.getAttribute('points')).toBe('-5,-4 0,0 -5,4 -5,-4');
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) the drawing keeps its own size in the canvas card', () => {
+  it('draws the svg at the drawing width and height, without a viewBox that scales it', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const drawing = drawingOf(container);
+    const own = blockDrawingOf(loopFlow);
+    expect(drawing.getAttribute('width')).toBe(String(own.width));
+    expect(drawing.getAttribute('height')).toBe(String(own.height));
+    expect(drawing.hasAttribute('viewBox')).toBe(false);
+  });
+
+  it('reads a drag at the natural size, offset by the svg box', () => {
+    const onChange = vi.fn();
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={onChange} />,
+    );
+    const own = blockDrawingOf(loopFlow);
+    // The svg sits 10 px right and 20 px down in the page, and one pixel is one drawing unit.
+    vi.spyOn(drawingOf(container), 'getBoundingClientRect').mockReturnValue({
+      left: 10,
+      top: 20,
+      width: own.width,
+      height: own.height,
+      right: 10 + own.width,
+      bottom: 20 + own.height,
+      x: 10,
+      y: 20,
+      toJSON: () => ({}),
+    } as DOMRect);
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 210, clientY: 860 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 250, clientY: 860 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 250, clientY: 860 });
+    expect(plannerX()).toBe(before + 40);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) a block can be dragged on the canvas', () => {
+  it('moves the block with its pointer, keeps the place while the flow tab stays open, and does not change the flow', () => {
+    const onChange = vi.fn();
+    const { container, rerender } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={onChange} />,
+    );
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 140, clientY: 420 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 140, clientY: 420 });
+    expect(plannerX()).toBe(before + 40);
+    expect(onChange).not.toHaveBeenCalled();
+    rerender(
+      <ThemeProvider theme={theme}>
+        <BlockCanvas
+          flow={loopFlow}
+          selection={{ kind: 'block', blockId: 'block-2' }}
+          onSelect={vi.fn()}
+          onAdd={vi.fn()}
+          onChange={onChange}
+        />
+      </ThemeProvider>,
+    );
+    expect(plannerX()).toBe(before + 40);
+  });
+
+  it('keeps the moved place of each flow tab when another flow tab is moved', () => {
+    const other: Flow = { ...loopFlow, id: 'other-flow' };
+    const { container, rerender } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 140, clientY: 420 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 140, clientY: 420 });
+    const showFlow = (flow: Flow) => (
+      <ThemeProvider theme={theme}>
+        <BlockCanvas flow={flow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />
+      </ThemeProvider>
+    );
+    rerender(showFlow(other));
+    expect(plannerX()).toBe(before);
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 160, clientY: 420 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 160, clientY: 420 });
+    expect(plannerX()).toBe(before + 60);
+    rerender(showFlow(loopFlow));
+    expect(plannerX()).toBe(before + 40);
+  });
+
+  it('does not select the block that a move ends on', () => {
+    const onSelect = vi.fn();
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 140, clientY: 420 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 140, clientY: 420 });
+    fireEvent.click(groupOf('Agent block: planner'));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('still selects a block that is pressed and released without a move', () => {
+    const onSelect = vi.fn();
+    renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerUp(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.click(groupOf('Agent block: planner'));
+    expect(onSelect).toHaveBeenCalledWith({ kind: 'block', blockId: 'block-2' });
+  });
+
+  it('starts a link, not a move, when the press is on a connection point', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 160, clientY: 420 });
+    expect(previewOf(container)).not.toBeNull();
+    expect(plannerX()).toBe(before);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) the error panel sits in the flow canvas card', () => {
+  const blocker: StructureMarks = {
+    findings: [
+      {
+        finding: { severity: 'blocker', rule: 'test-rule', path: 'pipeline.flows.0', message: 'plan is not connected.' },
+        placement: { kind: 'flow', flowId: 'plan' },
+      },
+    ],
+    blockedFlowIds: ['plan'],
+  };
+
+  it('shows the error counter inside the canvas card, under the toolbox', () => {
+    renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} marks={blocker} />,
+    );
+    const card = screen.getByRole('region', { name: 'Flow canvas' });
+    expect(within(card).getByRole('button', { name: '1 error' })).not.toBeNull();
+  });
+
+  it('shows no error counter when the flow has no finding', () => {
+    renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    expect(screen.queryByRole('button', { name: '1 error' })).toBeNull();
+  });
+});
+
+// The canvas area is measured on the stage: the test gives the stage a size through the client size getters, and a
+// fake ResizeObserver that keeps the callback, so a resize can be replayed.
+describe('F-12 (no criterion: Verify device fix 2026-11-23) the drawing fills the measured canvas area', () => {
+  let width = 900;
+  let height = 700;
+  let resized: Array<() => void> = [];
+
+  beforeEach(() => {
+    width = 900;
+    height = 700;
+    resized = [];
+    class FakeResizeObserver {
+      constructor(callback: () => void) {
+        resized.push(callback);
+      }
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+    vi.spyOn(Element.prototype, 'clientWidth', 'get').mockImplementation(() => width);
+    vi.spyOn(Element.prototype, 'clientHeight', 'get').mockImplementation(() => height);
+    globalThis.ResizeObserver = FakeResizeObserver as unknown as typeof ResizeObserver;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    Reflect.deleteProperty(globalThis, 'ResizeObserver');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) draws the svg at the measured area, without scaling it', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const drawing = drawingOf(container);
+    expect(drawing.getAttribute('width')).toBe('900');
+    expect(drawing.getAttribute('height')).toBe('700');
+    expect(drawing.hasAttribute('viewBox')).toBe(false);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) follows a resize of the canvas area', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    width = 1200;
+    height = 800;
+    act(() => {
+      for (const callback of resized) callback();
+    });
+    expect(drawingOf(container).getAttribute('width')).toBe('1200');
+    expect(drawingOf(container).getAttribute('height')).toBe('800');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-23) never draws the flow smaller than its natural size', () => {
+    width = 100;
+    height = 100;
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const natural = blockDrawingOf(loopFlow);
+    expect(drawingOf(container).getAttribute('width')).toBe(String(natural.width));
+    expect(drawingOf(container).getAttribute('height')).toBe(String(natural.height));
+  });
+
+  it('F-12 AC-009 (UI) keeps the End circle last in the drawing across the spread width', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={endLastFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const blocks = blockDrawingOf(endLastFlow, { kind: 'none' }, {}, { width: 900, height: 700 }).blocks;
+    expect(blocks[blocks.length - 1]?.kind).toBe('end');
+    expect(drawingOf(container).querySelector('[aria-label="End block"]')).not.toBeNull();
+    expect(drawingOf(container).getAttribute('width')).toBe('900');
   });
 });

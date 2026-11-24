@@ -72,6 +72,18 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 _Review suggestions intentionally not applied, with the reason._
 
+- Verify device fix (2026-11-23), open point for the user: the marked-arrow arrowhead colour. A marked normal arrow is drawn in its mark's colour, but its arrowhead keeps the line colour (`BlockCanvas.tsx`, `block-arrowhead` marker). Left as is; the user confirms on the device.
+
+- Verify device fix (2026-11-23), open point for the user: the dragged blocks keep their place while the flow tab is open (`BlockCanvas.tsx`, `dragged` state, view only). A place is kept by block id, so a block removed and re-added with the same id on the same tab takes the old place. The places live in the canvas component's state, so they are lost when the canvas unmounts. Confirm on the device that this is wanted.
+
+- Verify device fix (2026-11-23), open point for the user: the error panel placement under the toolbox inside the flow card (`BlockCanvas.tsx`, `blockCanvasStyles.ts` `errors`). The user confirms it on the device.
+
+- Verify device fix (2026-11-23), open point for the user: the shared select shape (`flowPanelStyles.ts` `select`, used by `blockPanelStyles.ts`) changes the F-11 dropdowns too: the value is no longer cut off by the chevron (right padding 5). The F-11 dropdowns need the same check on the device.
+
+- Verify device fix (2026-11-23), suggestion, not applied: the selected arrow and the return arrow keep the old 8x8 accent arrowhead (`block-arrowhead-accent`), not the closed 12.5 px arrowhead of a normal arrow. The stories ask for a normal arrow only (AC-008), so the accent shape is kept until the user asks for it.
+
+- Verify device fix (2026-11-23), suggestion, not applied: the device-fix tests carry "no criterion: Verify device fix 2026-11-23" rather than a story criterion. The drawing criteria they check are AC-007 and AC-008 (`[device]`), which stay on the manual checklist; the QA rule asks for a criterion ID only where a test proves one.
+
 - T015 (not a finding, for the user): a caption shifted left for a Condition with a return on one output can run across a forward route of a Condition immediately to its left, when the two sit side by side. Fixing it needs a narrower caption (text measurement or wrapping), a drawing decision outside T015. Recorded for later.
 
 - T012 review note (plan deviation, not a defect): the plan line names `panelFor` as the function that returns the Start, Agent, Condition and End panels. The build adds `blockPanelFor` and a `BlockSelection` type, and leaves `panelFor` and `Selection` as they were, because changing `Selection` would break the exhaustive switch in `source/apps/web/src/wizard/PipelineStep.tsx`, which is outside T012. AC-011 and AC-044 are met and tested. Plan amendment needed: the T012 line and the later wiring tasks (T013, T017 to T021) name `blockPanelFor` and `BlockSelection`.
@@ -129,6 +141,11 @@ _Review suggestions intentionally not applied, with the reason._
 - T027 SUGGESTION (`source/apps/web/src/builder/blockArrows.ts`, `flowArrows`, line 89): a return is any arrow whose target is at or before the source in the layout, so a hand-edited saved flow with a backward Agent next or a backward true route is drawn dashed. The link rules refuse such links (AC-016, AC-017), so this only shows for a loaded config, and core has no return rule to catch it. Deferred: a core return check is outside F-12 T027 scope.
 - T025 SUGGESTION (`source/packages/core/src/pipeline/analyze/agent-labels.ts`, `blockPath`): it repeats the helper of the other analyzer rule files (`outputs.ts`, `condition.ts`, `text.ts`, and others). Deferred: sharing it changes files outside T025, and the repeated shape is the analyzer's existing pattern.
 - T023 review note (not a defect): the drag and repoint wiring (`blockDragged`, `blockArrowDeleted` drag path, `onChange` of `BlockCanvas`) is not driven by a test in `PipelineStep.test.tsx`; jsdom does not run the pointer gesture. The drop rules are tested in `BlockCanvas.test.tsx` and the store is checked through `onChange`. Goes on the Verify manual checklist (AC-012 `[device]`, drag from an output point to a block, with the step 3 flow tab).
+
+- Verify device fix (2026-11-23), open point: a dragged block keeps its dragged place while its flow tab is open, and the place is not reset by the automatic layout. This differs from F-11, where a moved box is laid out again. Confirm with the user.
+- Verify device fix (2026-11-23), open point: a block dragged far from its main line may make a return route run through the wrong side of the block, because the return is routed from the block's sides and not re-planned for the new place. Not changed in this fix.
+- Verify device fix (2026-11-23), open point: the error panel sits inside the flow card under the toolbox (`blockCanvasStyles.ts`, `errors`, top 68 px). Placement inside the card is the user's to confirm on a device.
+- Verify device fix (2026-11-23), open point: the shared select shape in `flowPanelStyles.ts` (height 100%, right padding 5) now also applies to the F-11 dropdowns, and the End panel takes it through `blockPanelStyles.ts`. The F-11 dropdowns change through this shape; their look is to be checked on a device.
 
 ## Test Results
 

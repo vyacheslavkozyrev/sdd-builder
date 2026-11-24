@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { blockDrawingOf } from '../src/builder/blockDrawing.js';
-import { dragPreview, settleDrop } from '../src/builder/blockDrag.js';
+import { dragPreview, movedCentre, pastSlop, settleDrop } from '../src/builder/blockDrag.js';
 import type { DragState } from '../src/builder/blockDrag.js';
 import type { Flow } from '../src/builder/model.js';
 import type { Block } from '../src/builder/blockLink.js';
@@ -293,5 +293,31 @@ describe('F-12 AC-013 connection points by kind', () => {
     const port = drawing.ports.find((candidate) => candidate.blockId === 'block-3' && candidate.role === 'false');
     expect(arrow?.isReturn).toBe(true);
     expect({ x: port?.x, y: port?.y }).toEqual(arrow?.points[0]);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-23) a block moves only past the slop and inside the drawing', () => {
+  it('does not count a pointer move of 3 px or less on both axes', () => {
+    expect(pastSlop({ x: 10, y: 10 }, { x: 13, y: 7 })).toBe(false);
+  });
+
+  it('counts a pointer move beyond 3 px on either axis', () => {
+    expect(pastSlop({ x: 10, y: 10 }, { x: 14, y: 10 })).toBe(true);
+    expect(pastSlop({ x: 10, y: 10 }, { x: 10, y: 6 })).toBe(true);
+  });
+
+  it('moves the centre by the pointer move from the press', () => {
+    const size = { halfWidth: 70, halfHeight: 36 };
+    const bounds = { width: 1000, height: 560 };
+    expect(movedCentre({ x: 100, y: 420 }, { x: 10, y: 10 }, { x: 50, y: 0 }, size, bounds)).toEqual({ x: 140, y: 410 });
+  });
+
+  it('keeps the block inside the drawing on every side', () => {
+    const size = { halfWidth: 70, halfHeight: 36 };
+    const bounds = { width: 1000, height: 560 };
+    const origin = { x: 100, y: 420 };
+    const grab = { x: 0, y: 0 };
+    expect(movedCentre(origin, grab, { x: -900, y: -900 }, size, bounds)).toEqual({ x: 70, y: 36 });
+    expect(movedCentre(origin, grab, { x: 900, y: 900 }, size, bounds)).toEqual({ x: 930, y: 524 });
   });
 });

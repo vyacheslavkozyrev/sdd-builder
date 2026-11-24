@@ -32,10 +32,9 @@ export interface PipelineStepStyles {
   readonly propertiesTitle: StyleObject;
   readonly propertiesSubtitle: StyleObject;
   readonly propertiesBody: StyleObject;
-  // The flow tab (F-12 screen 01): the column on the left holds the error panel's row, when there is a finding,
-  // and the block canvas card, which fills the rest of the column.
+  // The flow tab (F-12 screen 01): the column on the left holds the block canvas card, which fills it. The error
+  // panel sits inside that card, so the column has no row of its own.
   readonly flowColumn: StyleObject;
-  readonly flowErrors: StyleObject;
   readonly flowCanvas: StyleObject;
 }
 
@@ -140,11 +139,6 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
       display: 'flex',
       flexDirection: 'column',
       gap: '12px',
-    },
-    flowErrors: {
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
     },
     flowCanvas: {
       flex: 1,

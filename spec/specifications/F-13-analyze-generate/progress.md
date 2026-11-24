@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
-| Build    | 🔄 In Progress | 2026-11-24 | 8 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-24 | 9 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -33,6 +33,7 @@ None
 | T006 | Templates for the browser: `loadGenerationTemplates` from Vite raw imports of `source/templates`, with `baseEntries` and `layoutText` exported for tests | 0 blockers, 1 warning fixed (error paths of the manifest and the layout lookup had no tests), 1 suggestion fixed (determinism test compared two calls of a pure loader, removed), 1 suggestion deferred (see Deferred Findings) | task check passed: api 45, web 1814, core 1217 |
 | T007 | File tree: `projectTree` from core's `listFiles` (folders first, rule files marked), refused and shared rule ids get no file; core exports `listFiles` and its types (amendment 2026-11-24) | 1 blocker fixed (two rule blocks with one id made `listFiles` throw in the preview; shared ids now get no file, test added), 1 warning fixed (F-04 AC-034 test did not reach `listFiles` as a function), 2 suggestions deferred (see Deferred Findings) | task check passed: api 45, web 1825, core 1217 |
 | T008 | Privacy notice and its checkbox (view): the notice with the owner-worded text, the unticked checkbox, Analyze disabled with its reason until ticked | 0 blockers, 0 warnings, 2 suggestions fixed (reason linked to the button; test wrapper extracted) | task check passed: api 45, web 1832, core 1217 |
+| T009 | Findings and results (view): findings in server order (structural, then review), plain text; review note for failed or skipped; error box with every 422 problem line; the result lines and the green line | 0 blockers, 0 warnings, 1 suggestion fixed (`GREEN_RESULT`, `REVIEW_NOT_FINISHED`, `allFindings` no longer exported); 1 suggestion and 3 owner decisions deferred. Size guard overridden by the owner (one commit for T009, 515 insertions) | task check passed: api 45, web 1851, core 1217 |
 
 ---
 
@@ -45,6 +46,10 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/apps/web/src/analyze/tree.ts` (T007) — SUGGESTION: `sortLevel` compares names with `<`, while the screens say code-point order (core's `compareCodePoints` is not exported). Not applied: exporting it widens core's namespace, which F-04 AC-034 forbids; the paths are ASCII file-safe names, so the orders are the same today.
 - `source/apps/web/src/analyze/tree.ts:5` (T007) — SUGGESTION: `GenerationTemplates` is derived from `pipeline.listFiles`, as in T006. Not applied for the same reason as T006 (core does not export the type).
 - Follow-up for AC-021 wording (T007, no change to stories): AC-021 says "plan order", but the screens (`screens.md` §The file tree) list folders first, then files, each group in code-point order, and `listFiles` returns one flat list sorted by path. Neither matches "plan order" literally. The tree follows the screens (`projectTree` regroups the `listFiles` list), and plan T007 says "its order". Needs a documented wording follow-up in F-13 `stories.md` AC-021 (for example "folders first on each level, then files, each group in code-point order") by the owner; stories were not changed in this task.
+- `source/apps/web/src/analyze/Findings.tsx` (T009) — SUGGESTION: `Findings` lists the findings of an out-of-date result (another configuration) with no mark; only the result line is hidden. Not applied: plan T009 does not cover the out-of-date note (screen 10); screens.md §Open points 4 asks the owner whether to keep the earlier result greyed or hide it. Revisit with T011 (out-of-date state) and the owner's answer.
+- Owner decision, screen 05 colour (T009, reported to the owner, wording not changed): `screens.md` line 28 and the screen 05 description say "Amber note"; `05-analysis-failed.svg` and the code draw the review note in the red error box (#FEF3F2 fill, #BB241A text, `theme.palette.error`). Kept as drawn; the owner decides which the screen should show.
+- Owner decision, green result line (T009, reported, wording not changed): the text matches screen 04 and the colour matches its #107569 (`theme.palette.success.dark`). The owner decides whether the green stays on this colour, since `screens.md` line 28 says "success green" without a value.
+- Owner decision, non-green result lines (T009, reported, wording not changed): the warning line matches screen 11 exactly, and the blocker and review-failed lines follow screens 03 and 05. Lines no screen draws: "Result: 2 blockers. Fix the blocker, then Analyze again." (plural count), and "Result: no finding. The analysis did not finish, so Generate stays off." (a review that did not finish with no structural finding; the word "no finding" is not an approved phrase).
 
 ---
 

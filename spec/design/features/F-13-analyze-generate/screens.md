@@ -8,17 +8,15 @@ Scope: step 4 of the wizard only. The left panel, footer note and caption come f
 
 ## Layout grid
 
-Each SVG is 1280 × 800 (the reference size; no screen needed more height). Redrawn 2026-11-24 to match the app as rendered (option 1 of the owner's choice).
+Each SVG is 1280 × 800 (the reference size; no screen needed more height).
 
 - **Left panel** x 0–260, as F-08 screen 04: wordmark, **New project**, the stepper with Project, Technical details and Workflow done and **Analyze and generate** current (step 4), **Prev** enabled at x 24–124 and **Next** disabled at x 136–236, y 728–768.
-- **Content card** x 284–1256, y 24–728, white, 12 px radius. The content has no inner padding: it starts at the card's left edge, as rendered.
-- **Two columns**, 24 px apart:
-  - **Analyze** column x 284–822 (538 px): heading baseline y 39; subheading y 62; privacy notice box y 82–174; checkbox row y 189–205; **Analyze** button x 284–404, y 222–262; the note (44 px, error or amber) at y 282–326, or the 92 px error box of screen 09; **Findings** label at y 300 (or 348 under a note); finding rows 56 px high, 8 px apart, starting 8 px below the label.
-  - **Project preview** column x 846–1204 (358 px): heading baseline y 39; subheading y 62; the tree panel y 70–494 (scrolls); **Show full tree** y 506–542; **Generate and download** y 566–606 (screen 08: pending label and progress bar at y 614); its reason at y 627; the note "Contents are written by the model when you generate." at y 656.
+- **Content card** x 284–1256, y 24–728, white, 12 px radius. Inside it, 24 px padding: content x 308–1232, y 48–704.
+- **Two columns** inside the card, 24 px apart:
+  - **Analyze** column x 308–848 (540 px): heading at y 66; privacy notice at y 100–192; checkbox row at y 208; **Analyze** button x 308–428, y 240–280; the status note (amber, 44 px) at y 300–344 or the error (red, 44 px) at y 300–344; **Findings** label at y 320 (or 366 when a note sits above); finding rows 56 px high, 8 px apart.
+  - **Project preview** column x 872–1232 (360 px): heading at y 66; the tree panel y 104–528 (scrolls); **Show full tree** x 872–1232, y 544–580; **Generate and download** y 604–644 (screen 08: pending label, progress line at y 654–658); its reason line at y 664; the note "Contents are written by the model when you generate." at y 684.
 - **Footer note** inside the grey area, baseline y 766: "The work is not saved. It is lost when the browser is refreshed."; caption at x 1256, anchored right: "F-13 · screen N · step 4 of 4 · 1280 × 800".
-- **Dialog** (screen 06) centred on the content area (x 470–1070, y 110–690), dimming the whole screen, left panel and footer included.
-
----
+- **Dialog** (screen 06) centred on the content area (x 470–1070, y 110–690, centre x 770), dimming the whole screen, left panel and footer included.
 
 ## Screens
 
@@ -30,7 +28,7 @@ Each SVG is 1280 × 800 (the reference size; no screen needed more height). Redr
 | 04 | `04-analysis-info-only.svg` | Only info findings | Two info rows; result "no blocker and no warning" in success green; Generate enabled (primary) |
 | 05 | `05-analysis-failed.svg` | Analysis failed (an error) | Amber note "The analysis did not finish. Analyze again."; one structural info finding kept; Generate disabled, reason "Analysis failed. Analyze again to generate." |
 | 06 | `06-project-files-expanded.svg` | Full file list | Dialog "Project files" over the step: the full tree (31 rows) in a scrollable panel, rule files marked; Close |
-| 07 | `07-analysis-error-500.svg` | Service error | Red text "Analysis could not run (500): the service returned an error. Try again later."; checkbox still ticked; Analyze enabled; Generate disabled, reason "Run Analyze first"; the preview lists 21 files as the app renders them |
+| 07 | `07-analysis-error-429.svg` | Service error | Red text "Analysis could not run (429): too many requests. Try again later."; checkbox still ticked; Analyze enabled; Generate disabled, reason "Run Analyze first" |
 | 08 | `08-generate-pending.svg` | Generate pending | Generate and download reads "Writing the files with the model…" with a progress line under it; Analyze, the checkbox and Show full tree disabled; the file list still visible |
 | 09 | `09-analysis-422-problems.svg` | Configuration over a limit (422) | Error "Analysis could not run (422): the configuration is over a limit." with one line per problem (idea, architecture, rules); Analyze enabled; values kept |
 | 10 | `10-analysis-out-of-date.svg` | Analysis out of date | Amber note "The project changed since the last analysis. Analyze again."; earlier finding shown as not current; Generate and download disabled, reason Run Analyze first |
@@ -38,20 +36,21 @@ Each SVG is 1280 × 800 (the reference size; no screen needed more height). Redr
 
 ## The file tree (preview)
 
-The tree is the generated project for the default pipeline, as the app renders it on 2026-11-24 with no rule blocks: 21 files. It is computed in the browser; the sample in every screen is this list.
+The tree is the generated project for the default pipeline, with the user's rule files. It is computed in the browser; the sample lists 23 files:
 
 - `.claude/agents/`: commit, complete, implement, plan, review, specify, test, ux, verify (one per Agent block).
 - `.claude/commands/`: build, complete, pipeline, plan, specify, ux, verify (`pipeline.md` and one per flow).
+- `.claude/rules/`: general.md, typescript.md (sample rule files, marked "rule").
+- `CLAUDE.md`.
 - `spec/documents/process.md`.
 - `spec/specifications/F-00-template/`: plan.md, progress.md, stories.md.
-- `CLAUDE.md`.
 
-Folders come first on each level, then files, each group in code-point order (the tree of `source/apps/web/src/analyze/tree.ts`). Rule files are marked "rule" when rule blocks exist; the screens draw none. Files are shown in monospace.
+Folders are listed first in code-point order, as the generator sorts the files (`architecture.md` §3; `source/templates/README.md`). Files are shown in monospace.
 
 ## Decisions these screens take
 
 1. **Two columns on the step.** Analyze (the privacy notice, the checkbox, Analyze and the findings) is on the left; the project preview (tree, expand, Generate and download) is on the right. Both sit in one card, so the step fits 800 px without scrolling. The order follows the flow: privacy, then analysis, then generation. The right column stays at the same place in every state.
-2. **Disabled controls keep a visible reason beside them** (AC of `ui.md` §2 and the F-11 rule). Analyze gives "Tick the box to analyse"; Generate gives "Run Analyze first", "Fix the blocker to generate" or "Analysis failed. Analyze again to generate." (changed 2026-11-24: this is the reason drawn on screen 05 and in the plan; the earlier sentence "The review did not run. Analyze again later." is withdrawn). The reason is grey text, so it does not look like an error.
+2. **Disabled controls keep a visible reason beside them** (AC of `ui.md` §2 and the F-11 rule). Analyze gives "Tick the box to analyse"; Generate gives "Run Analyze first", "Fix the blocker to generate" or "Analysis failed. Analyze again to generate.". The reason is grey text, so it does not look like an error.
 3. **Green means "run and no blocker or warning"** (`ui.md` §2, D8). A failed analysis is an error (owner decision, architecture decision 41): Generate stays disabled even when the structural checks are clean, and the note asks the user to Analyze again (screen 05). The line "Result: no blocker and no warning" appears only on a complete analysis.
 4. **Severity has a text pill and a colour.** Blocker: red text (#BB241A) on #FEF3F2. Warning: amber text (#B84D05) on #FFFAEA. Info: grey text (#636B74) on #F0F4F8. The word carries the meaning, so colour is not the only cue.
 5. **The privacy notice is a grey box, not amber.** Amber is kept for warnings and for the review note on screen 05, so the notice does not look like a finding.
@@ -63,11 +62,11 @@ Folders come first on each level, then files, each group in code-point order (th
 
 ## Open points
 
-1. **Privacy notice wording.** Decided 2026-11-24 (owner): the notice says "the model provider", as AC-004 requires. Screens 01, 02, 07 and 09 to 11 carry the wording "Analyze sends the brief and the pipeline to the model provider for review." The server does not store or log the brief.
-2. **File-tree contents.** Decided 2026-11-24: the sample is the app's 21-file tree with no rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
+1. **Privacy notice wording.** `ui.md` §4 and `architecture.md` §4 say the brief is sent to the model provider and not stored or logged by the server. The draft says "Analyze sends the brief and the pipeline to the model for review. The server does not store or log the brief." The pipeline config is also sent, so the notice names it. Owner to confirm the wording and whether the provider's name should appear.
+2. **File-tree contents.** The sample lists the default pipeline's 9 agents, 7 commands and 2 sample rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
 4. **Analysis out of date.** Drawn as screen 10: the note "The project changed since the last analysis. Analyze again.", the earlier result shown as not current, and Generate disabled with the reason Run Analyze first. Owner to confirm: keep the earlier result visible (greyed), or hide it.
 5. **Analyze while pending.** `ui.md` §2 says Analyze is disabled while the request is pending. No pending screen is drawn for Analyze; only Generate has one (screen 08). A spinner or a text for Analyze is not decided.
-6. **Error wording for other codes.** Drawn: 500 (screen 07, the pattern for every error reply and the network failure, and the 404 shown during the device check) and 422 (screen 09, one line per problem). The 429 wording is no longer drawn; it is covered by the automated test for AC-012. Not yet drawn or written: 400, 500, 502 and the network failure sentence. Owner to confirm the sentences.
+6. **Error wording for other codes.** Drawn: 429 (screen 07, the pattern for every error reply and the network failure, and the 404 shown during the device check) and 422 (screen 09, one line per problem). Not yet drawn or written: 400, 500, 502 and the network failure sentence. Owner to confirm the sentences.
 7. **Preview on a blank or invalid brief.** The structural blockers show in Findings only; the tree is still drawn. Owner to confirm the tree is shown even when a blocker exists (the draft says yes).
 8. **Caption and screen count.** Eight screens are drawn; the caption uses "screen N" as F-11 does.
 9. **Generate pending and the contents.** Screen 08 shows the file list while the model writes the contents. The wording "Writing the files with the model…" and the note "Contents are written by the model when you generate." are drafts. Owner to confirm, and whether the list should show each file as it is written.
@@ -102,7 +101,7 @@ Folders come first on each level, then files, each group in code-point order (th
 | AC-009 | 05 (failed review: error note, structural finding kept, Generate disabled) |
 | AC-010, AC-013, AC-028, AC-031 | 07 (error pattern: text, values kept; the 404 shown during the device check uses this pattern) |
 | AC-011, AC-029 | 09 (422, one line per problem) |
-| AC-012 | not drawn since the 2026-11-24 render; the 429 wording is an automated test (owner to decide whether to draw it again) |
+| AC-012 | 07 (429 wording and status) |
 | AC-014 | no separate state; a new result replaces 03, 04, 05 or 11 |
 | AC-015, AC-016 | 04 (green, result line, Generate enabled) |
 | AC-017 | 01 (Run Analyze first, Tick the box), 03 (Fix the blocker), 11 (Fix the warning), 05 (Analysis failed), 07 (error, Run Analyze first) |
@@ -122,7 +121,3 @@ Folders come first on each level, then files, each group in code-point order (th
 - Visual review (`visual` agent): skipped at the owner's request on 2026-11-24, for the same reason.
 - XML: all 11 SVGs pass `xmllint --noout`.
 - Coverage: the story coverage table above lists every criterion of `stories.md`.
-
-## Render alignment (2026-11-24)
-
-Screen 07 was redrawn to match the app as rendered: the 500 error text, the 21-file tree of the default project (no rule files, folders first on each level, CLAUDE.md after spec/). Screens 01 to 06 and 08 to 11 carry the same 21-file tree (2026-11-24), and screen 06 lists it in full.

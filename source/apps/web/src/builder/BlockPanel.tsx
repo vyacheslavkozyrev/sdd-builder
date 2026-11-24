@@ -1,7 +1,18 @@
 import { useState } from 'react';
 import { Box, TextField, Typography, useTheme } from '@mui/material';
+import { codePointCount } from '../wizard/project.js';
 import { bodyCounterText } from './FlowPanel.js';
 import { AgentLabelRows, AgentToolRows } from './AgentRows.js';
+import { blockName } from './blockArrows.js';
+import {
+  editConditionDescription,
+  falseRouteOf,
+  falseRouteText,
+  setConditionRoundLimit,
+  trueRouteText,
+  type ConditionBlock,
+  type ConditionFieldResult,
+} from './blockCondition.js';
 import { setAgentModel } from './blockAgentFields.js';
 import { editAgentField, type AgentBlock, type AgentField } from './blockFields.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
@@ -9,10 +20,11 @@ import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
 import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 
-// The block panels of the flow tab (F-12 AC-022 to AC-028). This file holds the Agent panel, as screen 02
+// The block panels of the flow tab (F-12 AC-022 to AC-034). This file holds the Agent panel, as screen 02
 // draws it: a title "Agent: <name>", the subtitle "Agent block in the <flow> flow", then Name, Description,
 // Arguments, Model, Tools, Reads, Writes, Rule tags and Body with its counter, in the order of AC-022. The
-// Delete control comes in T021.
+// Delete control comes in T021. It also holds the Condition panel (`ConditionPanel`), as screens 03 and 04
+// draw it.
 //
 // Each edit goes through the parser (blockFields.ts and blockAgentFields.ts). An accepted edit is reported to
 // the caller as the new pipeline. A refused edit keeps the saved value in the field and shows its reason
@@ -238,6 +250,163 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange }: Agen
           </Typography>
         </Box>
         {refusal('body')}
+      </Box>
+    </Box>
+  );
+}
+
+// The description limit of a Condition, in characters (AC-030).
+const DESCRIPTION_LIMIT = 1000;
+
+type ConditionTextField = 'description' | 'roundLimit';
+
+// What the Condition panel holds beyond the saved pipeline: the text as typed, and the refusal of each field.
+// The state belongs to one block; another block starts with none.
+interface ConditionEdits {
+  readonly target: string;
+  readonly drafts: Partial<Record<ConditionTextField, string | undefined>>;
+  readonly refusals: Partial<Record<ConditionTextField, string | undefined>>;
+}
+
+export interface ConditionPanelProps {
+  readonly pipelineState: Pipeline;
+  readonly rules: readonly Rule[];
+  readonly flow: Flow;
+  readonly block: ConditionBlock;
+  readonly onChange: (pipelineState: Pipeline) => void;
+}
+
+function emptyConditionEdits(target: string): ConditionEdits {
+  return { target, drafts: {}, refusals: {} };
+}
+
+// The Condition panel (AC-030 to AC-034). Its title names the check: an end check when its true route goes
+// to End, otherwise a pre-check. The subtitle names the block its true route leads to. The false route is
+// text set by its arrow (AC-032); the round limit is a field only for a return (AC-034).
+export function ConditionPanel({ pipelineState, rules, flow, block, onChange }: ConditionPanelProps) {
+  const styles = getBlockPanelStyles(useTheme());
+  const target = `${flow.id}/${block.id}`;
+  const [edits, setEdits] = useState<ConditionEdits>(() => emptyConditionEdits(target));
+  const state = edits.target === target ? edits : emptyConditionEdits(target);
+
+  const trueTo = 'stop' in block.true ? undefined : block.true.to;
+  const trueTarget = trueTo === undefined ? undefined : flow.blocks.find((item) => item.id === trueTo);
+  const kind = trueTarget?.kind === 'end' ? 'end check' : 'pre-check';
+  const route = falseRouteOf(flow, block);
+  const shownDescription = state.drafts.description ?? block.description;
+  const shownRoundLimit =
+    state.drafts.roundLimit ?? (route.kind === 'return' && route.roundLimit !== null ? String(route.roundLimit) : '');
+
+  // Settles one edit: an accepted edit reports the new pipeline; a refused one records its reason and drops
+  // the draft, so the saved value shows again.
+  function settle(field: ConditionTextField, result: ConditionFieldResult, typed: string) {
+    const drafts = { ...state.drafts };
+    drafts[field] = result.ok ? typed : undefined;
+    const refusals = { ...state.refusals };
+    refusals[field] = result.ok ? undefined : result.reason;
+    if (result.ok) {
+      onChange(result.pipeline);
+    }
+    setEdits({ target, drafts, refusals });
+  }
+
+  const refusal = (field: ConditionTextField) => {
+    const reason = state.refusals[field];
+    return reason === undefined ? null : (
+      <Typography id={`block-condition-${field}-refusal`} component="p" sx={styles.refusal}>
+        {reason}
+      </Typography>
+    );
+  };
+
+  const describedBy = (field: ConditionTextField, ...extra: string[]): string | undefined => {
+    const ids = state.refusals[field] === undefined ? extra : [...extra, `block-condition-${field}-refusal`];
+    return ids.length === 0 ? undefined : ids.join(' ');
+  };
+
+  return (
+    <Box sx={styles.root}>
+      <Box sx={styles.header}>
+        <Typography component="h2" sx={styles.title}>
+          {`Condition: ${kind}`}
+        </Typography>
+        <Typography component="p" sx={styles.subtitle}>
+          {trueTarget === undefined ? 'Check on the arrow' : `Check on the arrow before ${blockName(trueTarget)}`}
+        </Typography>
+      </Box>
+
+      <Box sx={styles.scroll}>
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="block-condition-description" sx={styles.fieldLabel}>
+            What it checks
+          </Typography>
+          <TextField
+            id="block-condition-description"
+            value={shownDescription}
+            onChange={(event) => {
+              const value = event.target.value;
+              settle(
+                'description',
+                editConditionDescription(pipelineState, rules, flow.id, block.id, value),
+                value,
+              );
+            }}
+            sx={styles.field}
+            slotProps={{
+              htmlInput: { 'aria-describedby': describedBy('description', 'block-condition-description-counter') },
+            }}
+          />
+          <Typography id="block-condition-description-counter" component="p" sx={styles.counter}>
+            {`${codePointCount(shownDescription)} / ${DESCRIPTION_LIMIT} characters`}
+          </Typography>
+        </Box>
+        {refusal('description')}
+
+        <Box sx={styles.group}>
+          <Typography component="p" sx={styles.fieldLabel}>
+            True goes to
+          </Typography>
+          <Typography component="p" sx={styles.routeText}>
+            {trueRouteText(flow, block)}
+          </Typography>
+        </Box>
+
+        <Box sx={styles.group}>
+          <Typography component="p" sx={styles.fieldLabel}>
+            False goes to
+          </Typography>
+          <Typography component="p" sx={styles.routeText}>
+            {falseRouteText(flow, block)}
+          </Typography>
+        </Box>
+
+        {route.kind === 'return' ? (
+          <Box sx={styles.group}>
+            <Typography component="label" htmlFor="block-condition-round-limit" sx={styles.fieldLabel}>
+              Round limit
+            </Typography>
+            <Box sx={styles.roundRow}>
+              <TextField
+                id="block-condition-round-limit"
+                value={shownRoundLimit}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  settle(
+                    'roundLimit',
+                    setConditionRoundLimit(pipelineState, rules, flow.id, block.id, value),
+                    value,
+                  );
+                }}
+                sx={styles.roundField}
+                slotProps={{ htmlInput: { 'aria-describedby': describedBy('roundLimit') } }}
+              />
+              <Typography component="span" sx={styles.roundUnit}>
+                rounds
+              </Typography>
+            </Box>
+            {refusal('roundLimit')}
+          </Box>
+        ) : null}
       </Box>
     </Box>
   );

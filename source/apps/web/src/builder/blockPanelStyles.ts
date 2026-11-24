@@ -1,6 +1,7 @@
 import type { Theme } from '@mui/material/styles';
-import { getCommonStyles } from '../styles/common.js';
+import { FIELD_HEIGHT, getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
+import { getConnectionPanelStyles } from './connectionPanelStyles.js';
 import { getFlowPanelStyles } from './flowPanelStyles.js';
 import type { FlowPanelStyles } from './flowPanelStyles.js';
 
@@ -15,6 +16,12 @@ export interface BlockPanelStyles extends FlowPanelStyles {
   readonly title: StyleObject;
   // The subtitle, "Agent block in the <flow> flow": the shared secondaryText shape of common.ts.
   readonly subtitle: StyleObject;
+  // The read-only route texts of a Condition: the grey box of the connection panel, grown to fit a long text.
+  readonly routeText: StyleObject;
+  // The round limit row: the field of 96 px and the word "rounds" beside it.
+  readonly roundRow: StyleObject;
+  readonly roundField: StyleObject;
+  readonly roundUnit: StyleObject;
 }
 
 export function getBlockPanelStyles(theme: Theme): BlockPanelStyles {
@@ -31,5 +38,22 @@ export function getBlockPanelStyles(theme: Theme): BlockPanelStyles {
     },
     title: common.sectionTitle,
     subtitle: common.secondaryText,
+    routeText: {
+      ...getConnectionPanelStyles(theme).readOnly,
+      height: 'auto',
+      minHeight: FIELD_HEIGHT,
+      py: '8px',
+      boxSizing: 'border-box',
+    },
+    roundRow: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    },
+    roundField: {
+      ...getFlowPanelStyles(theme).field,
+      width: '96px',
+    },
+    roundUnit: common.secondaryText,
   };
 }

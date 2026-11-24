@@ -23,6 +23,10 @@ export interface CanvasStyles {
   };
   // The selected arrow (AC-042): the primary colour with a 2.5 px stroke, and its arrowhead in the same colour.
   readonly selectedArrow: { readonly style: CSSProperties; readonly markerColor: string };
+  // The React Flow handles (connection points) of a flow box: the library's size, or the selected size (device fix
+  // 2026-11-24): 14 px with a 2 px paper ring, the size of the selected arrow ends on the Map canvas
+  // (BlockCanvas ArrowEnd: radius 6 with a 2 px paper stroke).
+  readonly handle: { readonly normal: CSSProperties; readonly selected: CSSProperties };
   // The flow's name in its box: bold, one line, cut with an ellipsis.
   readonly flowName: StyleObject;
   // The block count under the name: small, secondary text.
@@ -87,6 +91,14 @@ export function getCanvasStyles(theme: Theme): CanvasStyles {
     selectedArrow: {
       style: { stroke: theme.palette.primary.main, strokeWidth: 2.5 },
       markerColor: theme.palette.primary.main,
+    },
+    handle: {
+      normal: {},
+      selected: {
+        width: '14px',
+        height: '14px',
+        border: `2px solid ${theme.palette.background.paper}`,
+      },
     },
     flowName: {
       display: 'block',

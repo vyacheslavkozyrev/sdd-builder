@@ -534,3 +534,31 @@ describe('F-11 AC-005 the arrows of a dragged box stay drawn', () => {
     expect(arrowCount()).toBe(3);
   });
 });
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) the connection points of a selected box are larger', () => {
+  it('F-11 Verify device fix 2026-11-24 draws both points of the selected box at 14 px with a 2 px paper ring', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
+      selection: { kind: 'flow', id: 'plan' },
+    });
+    for (const side of ['left', 'right']) {
+      const handle = boxOf('plan').querySelector<HTMLElement>(`.react-flow__handle-${side}`);
+      expect(handle).not.toBeNull();
+      const style = getComputedStyle(handle as HTMLElement);
+      expect(style.width).toBe('14px');
+      expect(style.height).toBe('14px');
+      expect(style.borderTopWidth).toBe('2px');
+      expect(style.borderTopColor).toBe(rgbOf(theme.palette.background.paper));
+    }
+  });
+
+  it('F-11 Verify device fix 2026-11-24 keeps the library size on the points of a box that is not selected', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
+      selection: { kind: 'flow', id: 'plan' },
+    });
+    const handle = boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-right');
+    expect(handle).not.toBeNull();
+    expect(handle?.style.width).toBe('');
+    expect(handle?.style.height).toBe('');
+    expect(handle?.style.borderTopWidth).toBe('');
+  });
+});

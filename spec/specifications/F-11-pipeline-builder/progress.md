@@ -139,6 +139,8 @@ _Otherwise none for the 2026-11-20 build._
 
 ---
 
+- Device fix 2026-11-24 (selected arrow) `source/apps/web/src/builder/Canvas.tsx` (device check, WARNING, unresolved, owner decision): the device check asked for the selected arrow's source and target flows to show larger connection points. In F-11 the arrow ends are invisible updaters and the flows have no visible handles on a selected arrow, so this part is not applied. The selected box's points are applied (14 px with a 2 px paper ring, `canvasStyles.ts` `handle.selected`). Owner to decide whether the arrow ends should show handles.
+
 ## Test Results
 
 Verify run 2026-11-21 (verify mode, test agent). Checks: `source/scripts/task-check.sh` passed (typecheck clean; api 45, web 988, core 1211 tests, all passing). F-11 tests: 488 results, 488 passing, 0 failing, 0 gaps among [auto] criteria. Test names carry "F-11 AC-###"; no F-11 test name lacks a criterion ID, and none names an ID outside 001 to 045.

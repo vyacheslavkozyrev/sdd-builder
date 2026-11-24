@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
-| Build    | ✅ Complete | 2026-11-24 | 14 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-24 | 14 of 15 tasks committed |
 | Verify   | 🔄 In Progress | 2026-11-24 | AWAITING CONFIRMATION: 29 of 31 `[auto]` criteria pass (task check: api 45, web 1895, core 1217). AC-030 and AC-031 `[device]` pending in `checklist.md` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -131,6 +131,11 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+### Amendment — 2026-11-24 (layout)
+**Changed**: plan T015 added: the implemented step is changed to match the approved screens (1280 × 800); the screens stay as approved. The owner's render showed the preview column not right-aligned and the spacing wrong.
+**Reason**: the approved screens are the reference, not the running app.
+**Impact**: T015 only; AC-030 (device) is checked again after T015.
 
 ### Amendment — 2026-11-24
 **Changed**: `source/packages/core/src/pipeline/index.ts` exports `listFiles` and its types `ListedFile` and `FileSource`; the namespace test (`source/packages/core/test/pipeline/namespace.test.ts`, F-02 AC-089 and F-04 AC-034) takes `listFiles` out of its forbidden list and into the approved list; F-04 `stories.md` AC-034 wording is updated to match; plan T007 covers the export. The plan's "no change to `source/packages/core`" line is superseded for this one export.

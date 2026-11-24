@@ -67,7 +67,51 @@ text{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1
 
 <!-- Content card: x 284-1256, y 24-728, 12 px radius -->
 <rect x="284" y="24" width="972" height="704" rx="12" class="card" filter="url(#sh)"/>
-<text x="308" y="66" class="h2">Analyze</text><text x="308" y="86" class="muted">Checks the brief and the pipeline. Run it again after each change.</text><rect x="308" y="100" width="540" height="92" rx="8" fill="#F0F4F8" stroke="#DDE7EE"/><text x="324" y="122" class="b12">Privacy notice</text><text x="324" y="142">Analyze sends the brief and the pipeline to the model provider for review.</text><text x="324" y="160">The server does not store or log the brief.</text><g><title>Privacy notice checkbox: ticked</title><rect x="308" y="208" width="16" height="16" rx="3" fill="#635BFF" stroke="#635BFF" stroke-width="1.5"/><path class="check" d="M312.5 216.5 L315 219 L319.5 213.5"/></g><text x="336" y="221" style="font-size:11px">I have read the notice. Send the brief for review.</text><g><title>Analyze: runs the review</title><rect class="btnP" x="308" y="240" width="120" height="40" rx="8"/><text class="btnText" x="368" y="265" text-anchor="middle">Analyze</text></g><text x="308" y="320" class="b12">Findings</text><g><title>Blocker: Brief · Idea</title><rect class="row" x="308" y="332" width="540" height="56" rx="8"/><rect x="320" y="342" width="76" height="20" rx="10" fill="#FEF3F2"/><text class="pill" x="358" y="356" text-anchor="middle" style="fill:#BB241A">Blocker</text><text x="408" y="356" class="b12">Brief · Idea</text><text x="320" y="376">The idea is blank. Describe the project in step 1.</text></g><g><title>Warning: Technical details · Rules</title><rect class="row" x="308" y="396" width="540" height="56" rx="8"/><rect x="320" y="406" width="76" height="20" rx="10" fill="#FFFAEA"/><text class="pill" x="358" y="420" text-anchor="middle" style="fill:#B84D05">Warning</text><text x="408" y="420" class="b12">Technical details · Rules</text><text x="320" y="440">The rules list is empty. Add a rule block if you need one.</text></g><g><title>Info: Flow · verify</title><rect class="row" x="308" y="460" width="540" height="56" rx="8"/><rect x="320" y="470" width="76" height="20" rx="10" fill="#F0F4F8"/><text class="pill" x="358" y="484" text-anchor="middle" style="fill:#636B74">Info</text><text x="408" y="484" class="b12">Flow · verify</text><text x="320" y="504">Human approval is on and the flow has no check.</text></g><text x="308" y="544" class="muted">Result: 1 blocker, 1 warning and 1 info. Fix the blocker, then Analyze again.</text><text x="872" y="66" class="h2">Project preview</text><text x="872" y="86" class="muted">21 files, in the order the project writes them.</text><clipPath id="clipCol"><rect x="872" y="104" width="360" height="424" rx="8"/></clipPath><rect class="panel" x="872" y="104" width="360" height="424" rx="8"/><g clip-path="url(#clipCol)"><text x="888" y="124" class="tree dir">.claude/</text><text x="904" y="144" class="tree dir">agents/</text><text x="920" y="164" class="tree">commit.md</text><text x="920" y="184" class="tree">complete.md</text><text x="920" y="204" class="tree">implement.md</text><text x="920" y="224" class="tree">plan.md</text><text x="920" y="244" class="tree">review.md</text><text x="920" y="264" class="tree">specify.md</text><text x="920" y="284" class="tree">test.md</text><text x="920" y="304" class="tree">ux.md</text><text x="920" y="324" class="tree">verify.md</text><text x="904" y="344" class="tree dir">commands/</text><text x="920" y="364" class="tree">build.md</text><text x="920" y="384" class="tree">complete.md</text><text x="920" y="404" class="tree">pipeline.md</text><text x="920" y="424" class="tree">plan.md</text><text x="920" y="444" class="tree">specify.md</text><text x="920" y="464" class="tree">ux.md</text><text x="920" y="484" class="tree">verify.md</text><text x="888" y="504" class="tree dir">spec/</text><text x="904" y="524" class="tree dir">documents/</text><text x="920" y="544" class="tree">process.md</text><text x="904" y="564" class="tree dir">specifications/</text><text x="920" y="584" class="tree dir">F-00-template/</text><text x="936" y="604" class="tree">plan.md</text><text x="936" y="624" class="tree">progress.md</text><text x="936" y="644" class="tree">stories.md</text><text x="888" y="664" class="tree">CLAUDE.md</text></g><rect class="thumb" x="1224" y="112" width="4" height="320" rx="2"/><g><title>Show full tree: opens the full file list</title><rect class="btn" x="872" y="544" width="360" height="36" rx="8"/><text class="btnDark" x="1052" y="566.5" text-anchor="middle">Show full tree</text></g><g><title>Generate and download: disabled</title><rect class="btnOff" x="872" y="604" width="360" height="40" rx="8"/><text class="disText" x="1052" y="629" text-anchor="middle">Generate and download</text></g><text x="872" y="664" class="muted">Fix the blocker to generate</text><text x="872" y="684" class="muted">Contents are written by the model when you generate.</text>
+<text x="284" y="39" class="h2">Analyze</text>
+<text x="284" y="62" class="muted">Checks the brief and the pipeline. Run it again after each change.</text>
+<rect x="284" y="82" width="538" height="92" rx="8" fill="#F0F4F8" stroke="#DDE7EE" stroke-width="1"/>
+<text x="300" y="110" class="b12">Privacy notice</text>
+<text x="300" y="131">Analyze sends the brief and the pipeline to the model provider for review.</text>
+<text x="300" y="150">The server does not store or log the brief.</text>
+<rect x="284" y="189" width="16" height="16" rx="3" fill="#635BFF" stroke="#635BFF" stroke-width="1"/>
+<path class="check" d="M288.5 197.5 L291 200 L295.5 194.5"/>
+<text x="306" y="202">I have read the notice. Send the brief for review.</text>
+<rect x="284" y="222" width="120" height="40" rx="8" class="btnP"/>
+<text x="344" y="247" class="btnText" text-anchor="middle">Analyze</text>
+<text x="284" y="300" class="h2">Findings</text>
+<g>
+<rect x="284" y="308" width="538" height="56" rx="8" class="row"/>
+<rect x="300" y="316" width="76" height="20" rx="10" fill="#FEF3F2"/>
+<text x="338" y="330" class="pill" text-anchor="middle" style="fill:#BB241A">Blocker</text>
+<text x="388" y="330" class="b12">Brief · Idea</text>
+<text x="300" y="352">The idea is blank. Describe the project in step 1.</text>
+</g>
+<g>
+<rect x="284" y="372" width="538" height="56" rx="8" class="row"/>
+<rect x="300" y="380" width="76" height="20" rx="10" fill="#FFFAEA"/>
+<text x="338" y="394" class="pill" text-anchor="middle" style="fill:#B84D05">Warning</text>
+<text x="388" y="394" class="b12">Technical details · Rules</text>
+<text x="300" y="416">The rules list is empty. Add a rule block if you need one.</text>
+</g>
+<g>
+<rect x="284" y="436" width="538" height="56" rx="8" class="row"/>
+<rect x="300" y="444" width="76" height="20" rx="10" fill="#F0F4F8"/>
+<text x="338" y="458" class="pill" text-anchor="middle" style="fill:#636B74">Info</text>
+<text x="388" y="458" class="b12">Flow · verify</text>
+<text x="300" y="480">Human approval is on and the flow has no check.</text>
+</g>
+<text x="284" y="516">Result: 1 blocker, 1 warning and 1 info. Fix the blocker, then Analyze again.</text>
+<text x="846" y="39" class="h2">Project preview</text>
+<text x="846" y="62" class="muted">21 files, in the order the project writes them.</text>
+<clipPath id="clipCol"><rect x="846" y="70" width="358" height="424" rx="8"/></clipPath>
+<rect class="panel" x="846" y="70" width="358" height="424" rx="8"/>
+<g clip-path="url(#clipCol)"><text x="862" y="90" class="tree dir">.claude/</text><text x="878" y="110" class="tree dir">agents/</text><text x="894" y="130" class="tree">commit.md</text><text x="894" y="150" class="tree">complete.md</text><text x="894" y="170" class="tree">implement.md</text><text x="894" y="190" class="tree">plan.md</text><text x="894" y="210" class="tree">review.md</text><text x="894" y="230" class="tree">specify.md</text><text x="894" y="250" class="tree">test.md</text><text x="894" y="270" class="tree">ux.md</text><text x="894" y="290" class="tree">verify.md</text><text x="878" y="310" class="tree dir">commands/</text><text x="894" y="330" class="tree">build.md</text><text x="894" y="350" class="tree">complete.md</text><text x="894" y="370" class="tree">pipeline.md</text><text x="894" y="390" class="tree">plan.md</text><text x="894" y="410" class="tree">specify.md</text><text x="894" y="430" class="tree">ux.md</text><text x="894" y="450" class="tree">verify.md</text><text x="862" y="470" class="tree dir">spec/</text><text x="878" y="490" class="tree dir">documents/</text><text x="894" y="510" class="tree">process.md</text><text x="878" y="530" class="tree dir">specifications/</text><text x="894" y="550" class="tree dir">F-00-template/</text><text x="910" y="570" class="tree">plan.md</text><text x="910" y="590" class="tree">progress.md</text><text x="910" y="610" class="tree">stories.md</text><text x="862" y="630" class="tree">CLAUDE.md</text></g>
+<rect class="thumb" x="1196" y="78" width="4" height="320" rx="2"/>
+<g><title>Show full tree</title><rect x="846" y="506" width="358" height="36" rx="8" class="btn"/><text x="1025.0" y="528" class="btnDark" text-anchor="middle">Show full tree</text></g>
+<rect x="846" y="566" width="358" height="40" rx="8" class="btnOff"/>
+<text x="1025.0" y="591" class="disText" text-anchor="middle">Generate and download</text>
+<text x="846" y="627" class="muted">Fix the blocker to generate</text>
+<text x="846" y="656" class="muted">Contents are written by the model when you generate.</text>
 <!-- Footer note and caption: inside the grey area, 24 px below the card -->
 <text x="284" y="766" class="muted">The work is not saved. It is lost when the browser is refreshed.</text>
 <text x="1256" y="766" class="caption" text-anchor="end">F-13 · screen 3 · step 4 of 4 · 1280 × 800</text>

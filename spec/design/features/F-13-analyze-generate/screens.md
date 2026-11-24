@@ -8,15 +8,17 @@ Scope: step 4 of the wizard only. The left panel, footer note and caption come f
 
 ## Layout grid
 
-Each SVG is 1280 × 800 (the reference size; no screen needed more height).
+Each SVG is 1280 × 800 (the reference size; no screen needed more height). Redrawn 2026-11-24 to match the app as rendered (option 1 of the owner's choice).
 
 - **Left panel** x 0–260, as F-08 screen 04: wordmark, **New project**, the stepper with Project, Technical details and Workflow done and **Analyze and generate** current (step 4), **Prev** enabled at x 24–124 and **Next** disabled at x 136–236, y 728–768.
-- **Content card** x 284–1256, y 24–728, white, 12 px radius. Inside it, 24 px padding: content x 308–1232, y 48–704.
-- **Two columns** inside the card, 24 px apart:
-  - **Analyze** column x 308–848 (540 px): heading at y 66; privacy notice at y 100–192; checkbox row at y 208; **Analyze** button x 308–428, y 240–280; the status note (amber, 44 px) at y 300–344 or the error (red, 44 px) at y 300–344; **Findings** label at y 320 (or 366 when a note sits above); finding rows 56 px high, 8 px apart.
-  - **Project preview** column x 872–1232 (360 px): heading at y 66; the tree panel y 104–528 (scrolls); **Show full tree** x 872–1232, y 544–580; **Generate and download** y 604–644 (screen 08: pending label, progress line at y 654–658); its reason line at y 664; the note "Contents are written by the model when you generate." at y 684.
+- **Content card** x 284–1256, y 24–728, white, 12 px radius. The content has no inner padding: it starts at the card's left edge, as rendered.
+- **Two columns**, 24 px apart:
+  - **Analyze** column x 284–822 (538 px): heading baseline y 39; subheading y 62; privacy notice box y 82–174; checkbox row y 189–205; **Analyze** button x 284–404, y 222–262; the note (44 px, error or amber) at y 282–326, or the 92 px error box of screen 09; **Findings** label at y 300 (or 348 under a note); finding rows 56 px high, 8 px apart, starting 8 px below the label.
+  - **Project preview** column x 846–1204 (358 px): heading baseline y 39; subheading y 62; the tree panel y 70–494 (scrolls); **Show full tree** y 506–542; **Generate and download** y 566–606 (screen 08: pending label and progress bar at y 614); its reason at y 627; the note "Contents are written by the model when you generate." at y 656.
 - **Footer note** inside the grey area, baseline y 766: "The work is not saved. It is lost when the browser is refreshed."; caption at x 1256, anchored right: "F-13 · screen N · step 4 of 4 · 1280 × 800".
-- **Dialog** (screen 06) centred on the content area (x 470–1070, y 110–690, centre x 770), dimming the whole screen, left panel and footer included.
+- **Dialog** (screen 06) centred on the content area (x 470–1070, y 110–690), dimming the whole screen, left panel and footer included.
+
+---
 
 ## Screens
 

@@ -29,21 +29,33 @@ export interface AnalyzeStepStyles {
 export function getAnalyzeStepStyles(theme: Theme): AnalyzeStepStyles {
   const common = getCommonStyles(theme);
   return {
-    columns: { boxSizing: 'border-box', display: 'flex', alignItems: 'flex-start', gap: '24px', minWidth: 0 },
+    // The card's 24 px padding; the preview is pinned to the right edge of the content (1232 px on the approved screens).
+    columns: {
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-between',
+      gap: '24px',
+      minWidth: 0,
+      p: '24px',
+    },
     analyzeColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 540, flexShrink: 0 },
     previewColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 360, flexShrink: 0 },
-    heading: common.columnHeading,
-    subheading: { ...common.secondaryText, mt: '4px', mb: '14px' },
+    // The heading's line is 24 px: its baseline sits at y 66 and the subheading's at y 86 (F-13 screens 01 to 11).
+    heading: { ...common.columnHeading, lineHeight: '24px' },
+    subheading: { ...common.secondaryText, mb: '8px' },
     spinner: { color: 'inherit' },
-    // The grey box of the privacy notice, 92 px high, with its two lines of text (screen 01, y 100 to 192).
+    // The grey box of the privacy notice, 92 px high, with its two lines of text (screen 01, y 100 to 192): the text
+    // starts 8 px below the top edge, not centred.
     notice: {
       boxSizing: 'border-box',
       width: '100%',
       height: 92,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       px: '16px',
+      pt: '8px',
       borderRadius: '8px',
       border: `1px solid ${theme.palette.divider}`,
       bgcolor: theme.palette.background.default,

@@ -34,10 +34,12 @@ export interface CommonStyles {
   // The text of an amber note: 12 px, medium weight, the dark amber text colour.
   readonly warningText: StyleObject;
   // The red box of a review note and of an error (F-13 screens 05, 07 and 09): a pale red fill, 8 px radius, 44 px high
-  // at least, its lines centred. A component sets its own margin.
+  // at least, its lines centred with 9 px above and below. A component sets its own margin.
   readonly errorNote: StyleObject;
   // The line of a red box: 11 px, the dark red text colour.
   readonly errorNoteText: StyleObject;
+  // The line of a red box that has problem lines under it: 4 px above the first problem line (F-13 screen 09).
+  readonly errorNoteHead: StyleObject;
   // A problem line under the error line of a red box: 12 px, secondary text.
   readonly errorNoteDetail: StyleObject;
   // The title of a section of a step (Stack, Rule blocks): 14 px, semibold, primary text.
@@ -131,6 +133,12 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       color: theme.palette.text.disabled,
     },
   };
+  const errorNoteText: StyleObject = {
+    m: 0,
+    fontSize: 11,
+    lineHeight: '16px',
+    color: theme.palette.error.dark,
+  };
   const fieldLabel: StyleObject = {
     display: 'block',
     m: 0,
@@ -202,19 +210,14 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
-      gap: '4px',
       minHeight: 44,
       px: '16px',
-      py: '12px',
+      py: '9px',
       borderRadius: '8px',
       bgcolor: theme.palette.error.light,
     },
-    errorNoteText: {
-      m: 0,
-      fontSize: 11,
-      lineHeight: '16px',
-      color: theme.palette.error.dark,
-    },
+    errorNoteText,
+    errorNoteHead: { ...errorNoteText, mb: '4px' },
     errorNoteDetail: {
       m: 0,
       fontSize: 12,

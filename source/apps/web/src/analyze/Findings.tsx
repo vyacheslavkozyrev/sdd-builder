@@ -84,7 +84,13 @@ export function Findings({ state, configKey, stale }: FindingsProps) {
   if (state.kind === 'pending') return null;
 
   if (state.kind === 'not-run') {
-    return <Typography component="p" sx={styles.empty}>{NOT_RUN}</Typography>;
+    return (
+      <Box sx={styles.root}>
+        <Typography component="p" sx={styles.empty}>
+          {NOT_RUN}
+        </Typography>
+      </Box>
+    );
   }
 
   const staleNote = (
@@ -101,7 +107,7 @@ export function Findings({ state, configKey, stale }: FindingsProps) {
       <Box sx={styles.root}>
         {stale ? staleNote : null}
         <Box role="alert" sx={styles.note}>
-          <Typography component="p" sx={styles.noteText}>
+          <Typography component="p" sx={styles.noteText(lines.length > 0)}>
             {errorMessage(failedOutcome(state.status, state.body))}
           </Typography>
           {lines.map((line, index) => (
@@ -118,7 +124,7 @@ export function Findings({ state, configKey, stale }: FindingsProps) {
   const line = stale ? null : resultLine(state, configKey);
   const reviewNote = (
     <Box role="alert" sx={styles.note}>
-      <Typography component="p" sx={styles.noteText}>
+      <Typography component="p" sx={styles.noteText(false)}>
         {REVIEW_NOT_FINISHED}
       </Typography>
     </Box>

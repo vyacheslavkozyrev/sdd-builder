@@ -11,7 +11,8 @@ export interface FindingsStyles {
   readonly root: SxProps<Theme>;
   // The red box of a review note (screen 05) and of an error (screens 07 and 09). A line in it sits 16 px inside.
   readonly note: SxProps<Theme>;
-  readonly noteText: SxProps<Theme>;
+  // The line of the box: with problem lines under it (screen 09) it has 4 px below it, otherwise it stands alone.
+  readonly noteText: (detailed: boolean) => SxProps<Theme>;
   // The problem lines of a 422 inside the error box (screen 09).
   readonly noteDetail: SxProps<Theme>;
   // The label above the rows: "Findings" (12 px, medium weight, primary text), or "Earlier result (not current)" in
@@ -51,13 +52,16 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
   };
   const labelShape: StyleObject = {
     m: 0,
-    mb: '8px',
+    mt: '6px',
+    mb: '10px',
     fontSize: 12,
     fontWeight: 500,
     lineHeight: '16px',
     color: theme.palette.text.primary,
   };
-  const earlierLabel: StyleObject = { ...common.secondaryText, mb: '8px' };
+  // The label sits 6 px under the note (or under the top of the column) and 10 px above the rows (F-13 screens 03 to 05
+  // and 11). The stale label is in secondary text (20 px line) and 4 px above the rows (F-13 screen 10).
+  const earlierLabel: StyleObject = { ...common.secondaryText, mt: '6px', mb: '4px' };
   const subjectShape: StyleObject = {
     m: 0,
     minWidth: 0,
@@ -83,8 +87,9 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
       minWidth: 0,
       mt: '20px',
     },
-    note: { ...common.errorNote, mb: '14px' },
-    noteText: common.errorNoteText,
+    // A note sits 2 px above the label, so the label is 8 px under it (screens 05 and 10).
+    note: { ...common.errorNote, mb: '2px' },
+    noteText: (detailed) => (detailed ? common.errorNoteHead : common.errorNoteText),
     noteDetail: common.errorNoteDetail,
     label: (stale) => (stale ? earlierLabel : labelShape),
     list: {
@@ -99,11 +104,11 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
       boxSizing: 'border-box',
       display: 'flex',
       flexDirection: 'column',
-      gap: '4px',
       minHeight: 56,
       m: 0,
-      px: '12px',
-      py: '10px',
+      px: '11px',
+      pt: '9px',
+      pb: 0,
       borderRadius: '8px',
       border: `1px solid ${theme.palette.divider}`,
       bgcolor: theme.palette.background.paper,
@@ -123,16 +128,16 @@ export function getFindingsStyles(theme: Theme): FindingsStyles {
     message: (stale) => (stale ? { ...messageShape, ...greyed } : messageShape),
     result: (green) => ({
       ...common.secondaryText,
-      mt: '16px',
+      mt: '14px',
       color: green ? theme.palette.success.dark : theme.palette.text.secondary,
     }),
-    empty: { ...common.secondaryText, mt: '20px' },
+    empty: { ...common.secondaryText, mt: '6px' },
     staleNote: {
       ...common.warningBox,
       minHeight: 44,
       px: '16px',
       py: '12px',
-      mb: '14px',
+      mb: '2px',
       justifyContent: 'center',
     },
     staleNoteText: { ...common.warningText, m: 0, lineHeight: '16px', fontWeight: 400 },

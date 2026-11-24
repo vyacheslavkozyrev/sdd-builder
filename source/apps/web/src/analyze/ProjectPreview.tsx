@@ -30,6 +30,7 @@ export function ProjectPreview({ tree, state, configKey, generation, onGenerate 
   const pending = generation.kind === 'pending';
   const enabled = isGreen(state, configKey) && !pending;
   const reason = generateDisabledReason(state, configKey);
+  const failureLines = generation.kind === 'error' ? problemLines(generation.failure.body) : [];
   return (
     <Box sx={styles.root}>
       <Typography component="h2" sx={styles.heading}>
@@ -47,18 +48,20 @@ export function ProjectPreview({ tree, state, configKey, generation, onGenerate 
       <Button variant="contained" disableElevation disabled={!enabled} onClick={onGenerate} sx={styles.generate}>
         {pending ? PENDING_LABEL : 'Generate and download'}
       </Button>
-      {pending ? <LinearProgress aria-label={PENDING_LABEL} sx={styles.progress} /> : null}
-      {reason === null || pending ? null : (
-        <Typography component="p" sx={styles.reason}>
-          {reason}
-        </Typography>
-      )}
+      <Box sx={styles.status}>
+        {pending ? <LinearProgress aria-label={PENDING_LABEL} sx={styles.progress} /> : null}
+        {reason === null || pending ? null : (
+          <Typography component="p" sx={styles.reason}>
+            {reason}
+          </Typography>
+        )}
+      </Box>
       {generation.kind === 'error' ? (
         <Box role="alert" sx={styles.error}>
-          <Typography component="p" sx={styles.errorText}>
+          <Typography component="p" sx={styles.errorText(failureLines.length > 0)}>
             {errorMessage(generation.failure)}
           </Typography>
-          {problemLines(generation.failure.body).map((line, index) => (
+          {failureLines.map((line, index) => (
             <Typography key={index} component="p" sx={styles.errorDetail}>
               {line}
             </Typography>

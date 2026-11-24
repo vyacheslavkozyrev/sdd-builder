@@ -17,12 +17,16 @@ export interface ProjectPreviewStyles {
   readonly tag: StyleObject;
   readonly fullTree: StyleObject;
   readonly generate: StyleObject;
+  // The 28 px line under Generate: the reason, or the progress line while the files are written. It keeps the note
+  // at the same place in every state (F-13 screens 01 to 11).
+  readonly status: StyleObject;
   // The progress line under Generate while the files are written (F-13 screen 08): 4 px high, primary on the divider.
   readonly progress: StyleObject;
   readonly reason: StyleObject;
   // The red box of a generate error (the pattern of screens 07 and 09) and its lines.
   readonly error: StyleObject;
-  readonly errorText: StyleObject;
+  // The line of the error box: with problem lines under it, it has 4 px below it.
+  readonly errorText: (detailed: boolean) => StyleObject;
   readonly errorDetail: StyleObject;
   readonly note: StyleObject;
   readonly dialogPaper: StyleObject;
@@ -39,16 +43,17 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
     boxSizing: 'border-box',
     height: 424,
     overflowY: 'auto',
-    px: '16px',
-    py: '8px',
+    px: '15px',
+    py: '5px',
     borderRadius: '8px',
     border: `1px solid ${theme.palette.divider}`,
     bgcolor: theme.palette.background.paper,
   };
   return {
     root: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: 0 },
-    heading: common.columnHeading,
-    count: { ...common.secondaryText, mt: '4px' },
+    // The heading's line is 24 px: its baseline sits at y 66 and the count's at y 86 (F-13 screens 01 to 11).
+    heading: { ...common.columnHeading, lineHeight: '24px' },
+    count: { ...common.secondaryText, mb: '12px' },
     panel,
     list: { m: 0, p: 0, listStyle: 'none' },
     row: (depth, folder) => ({
@@ -83,18 +88,19 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
     },
     fullTree: { ...common.outlineButton, width: '100%', height: 36, mt: '16px' },
     generate: { ...common.primaryButton, width: '100%', mt: '24px' },
+    status: { boxSizing: 'border-box', flexShrink: 0, height: 28 },
     progress: {
-      mt: '12px',
+      mt: '10px',
       height: 4,
       borderRadius: '2px',
       bgcolor: theme.palette.divider,
       '& .MuiLinearProgress-bar': { borderRadius: '2px', bgcolor: theme.palette.primary.main },
     },
-    reason: { ...common.secondaryText, mt: '8px' },
-    error: { ...common.errorNote, mt: '8px' },
-    errorText: common.errorNoteText,
+    reason: { ...common.secondaryText, lineHeight: '16px', mt: '8px' },
+    error: { ...common.errorNote, mt: '8px', mb: '8px' },
+    errorText: (detailed) => (detailed ? common.errorNoteHead : common.errorNoteText),
     errorDetail: common.errorNoteDetail,
-    note: { ...common.secondaryText, mt: '8px' },
+    note: { ...common.secondaryText, lineHeight: '16px' },
     dialogPaper: {
       boxSizing: 'border-box',
       width: 600,

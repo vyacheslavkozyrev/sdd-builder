@@ -28,7 +28,7 @@ These points come from documents that disagree. The stories follow the reading s
 
 ## Current Task
 
-Device-check fixes (2026-11-24): End blocks last on the canvas, non-End blocks inserted before the first End, indexes renumbered by position (`blocks.ts`, `fields.ts`); the read-only name box grows to fit its text (`connectionPanelStyles.ts`); tests `builder-end-routes.test.ts` (new), `builder-blocks`, `builder-marks`, `connectionPanelStyles`, `ConnectionPanel`. Reviewed in 1 round: 0 blockers, 0 warnings; 1 suggestion fixed (the two `it.each` labels in `builder-end-routes.test.ts` named the creation order, which does not change the flow; now "End added first" and "End added last"); 4 suggestions and open points deferred (see Deferred Findings, 2026-11-24). Task check passed: api 45, web 1655, core 1231. Staged, not committed.
+Owner rule change (2026-11-24, device check): "later" and "earlier" between blocks of a flow are the arrow order from Start (End counted as a block; unreached blocks follow in list order); a return goes only to an earlier Agent (AC-016, AC-017). Core `flowArrowOrder` (`source/packages/core/src/pipeline/flow-order.ts`) is read by the check (`check/block-links.ts`), the web drawing and link rules (`blockArrows.ts` `isReturnRoute`, `blockLink.ts`) and the layout (`blockLayout.ts`). Reviewed in 1 round: 0 blockers; 2 warnings fixed (a second copy of the arrow walk in `blockLayout.ts` replaced by `flowArrowOrder`; tests labelled "no criterion" renamed to F-12 AC-008, AC-016, AC-017). 0 suggestions fixed. Two owner-accepted flags open for the device check (see Deferred Findings, 2026-11-24). Task check passed: api 45, web 1661, core 1240. Staged, not committed.
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
@@ -153,6 +153,14 @@ _Review suggestions intentionally not applied, with the reason._
 - Device fix (2026-11-24) review, suggestion, deferred: `addBlock(flow, 'start')` on a flow that has blocks but no Start places the Start before the first End, so it may sit after other blocks. Not reachable from the UI: a new flow starts empty and the Start cannot be deleted (AC-042). `blocks.ts`, `addBlock`.
 - Device fix (2026-11-24) review, suggestion, deferred: `renumber` is exported from `fields.ts` and imported by `blocks.ts`. A shared list helper would sit better in its own module; moving it touches the F-12 fields file set, so it waits for a tidy-up task.
 - Device fix (2026-11-24) review, open point for the user: the new tests carry "(no criterion: Verify device fix 2026-11-24)" because a device fix has no `stories.md` criterion (qa.md asks for a criterion ID). Confirm whether a criterion should be added for the End order and the read-only box.
+
+- Owner rule (2026-11-24), open for the device check, accepted as the owner's rule: the End counts as a block in the arrow order, so a return can point to an End the canvas draws to the right of its source (the canvas keeps the End last, `blockLayout.ts`), and a return is drawn dashed for it (`flow-order.ts`, `blockArrows.ts`). Confirm on the device that this reads correctly.
+
+- Owner rule (2026-11-24), open for the device check, accepted as the owner's rule: a block no arrow reaches follows in list order, so an arrow from it back into the reached part is a loop, and the analyzer reports it as a block-link finding (`check/block-links.ts`; the reachability finding is already reported). Confirm on the device that the finding is wanted.
+
+- Suggestion (2026-11-24), not applied: `blockArrows.ts` `isReturnRoute` computes `flowArrowOrder` once per call, so `flowArrows` recomputes it per arrow. The flows are small; a single order per flow would be simpler if the canvas grows.
+
+- Suggestion (2026-11-24), not applied: `stories.md` AC-016 and AC-017 repeat the same arrow-order sentence. Kept as written so each criterion reads on its own; merge if the owner prefers one definition.
 
 ## Test Results
 

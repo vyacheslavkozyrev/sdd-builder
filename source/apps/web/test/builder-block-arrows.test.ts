@@ -143,10 +143,21 @@ describe('F-12 AC-008 return arrows', () => {
     }
   });
 
-  it('F-12 AC-008 an arrow into an End is never a return, even when the End is listed before its source', () => {
-    // The End is placed last, so the Condition's false route to it runs forward (AC-017).
-    const flow = flowWith([end('e1'), start('s1', ''), condition('c1', { to: '' }, { to: 'e1' })]);
+  it('F-12 AC-008 an arrow into an End runs forward when the End comes after its source in the arrow order', () => {
+    const flow = flowWith([start('s1', 'c1'), condition('c1', { to: '' }, { to: 'e1' }), end('e1')]);
     expect(arrowFrom(flowArrows(flow), 'c1', 'false')).toMatchObject({ toId: 'e1', isReturn: false, roundLimit: null });
+  });
+
+  it('F-12 AC-008 an arrow into an End is a return when the End comes before its source in the arrow order', () => {
+    // c1 reaches the End e1 first in the arrow order; c2, reached by c1's false route after e1, routes back to e1,
+    // which is earlier, so c2's false route is a return.
+    const flow = flowWith([
+      start('s1', 'c1'),
+      condition('c1', { to: 'e1' }, { to: 'c2' }),
+      condition('c2', { to: '' }, { to: 'e1' }),
+      end('e1'),
+    ]);
+    expect(arrowFrom(flowArrows(flow), 'c2', 'false')).toMatchObject({ toId: 'e1', isReturn: true, roundLimit: null });
   });
 
   it('F-12 AC-008 treats a link to the source block itself as a return', () => {

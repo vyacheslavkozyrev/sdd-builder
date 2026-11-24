@@ -47,6 +47,7 @@ const PIPELINE_VALUES = [
   'checkReview',
   'configProblems',
   'defaultPipeline',
+  'flowArrowOrder',
   'parseProjectConfig',
   'planGeneration',
 ];

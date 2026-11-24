@@ -192,6 +192,7 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
 - **Connected flows:** a flow has an incoming or an outgoing `next`, unless the pipeline has one flow; the first flow is the one no other `next` points to (decision 39; reachability).
 - **Blocks of a flow:** exactly one Start and at least one End (F-12, owner decision 2026-11-23; `analyze/start-end.ts`); every block is reachable from Start; every block except End has a route out; a route names a block of the same flow.
 - **Returns:** a route back to an earlier Agent is only allowed from a Condition and carries a `roundLimit` of 1 to 5. An Agent's or a Start's `next` names a later block of its flow: a `next` that names the block itself or an earlier block is refused (owner, 2026-11-19).
+- **Later and earlier:** "later" and "earlier" are the arrow order from Start (owner, 2026-11-24): the walk from Start over `next`, `true` and `false`, breadth-first, each block once, with the End counted as a block; a block no arrow reaches follows in list order. An earlier block may be any block kind; a return goes only to an earlier Agent. The checks compare positions in this order, not the position in the file (`flowArrowOrder` in `source/packages/core`).
 - **End:** `producedArtifact` is the label of one of the flow's artifacts.
 - **Deleting a block** removes its arrows; the blocks that pointed to it lose that route or `next`.
 - **Checks are conditions:** a Condition's `description` is required and non-blank.

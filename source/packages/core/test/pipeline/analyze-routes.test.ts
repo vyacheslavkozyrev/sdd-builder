@@ -84,7 +84,22 @@ function afterEnd(routes: Routes): ProjectConfig {
   );
 }
 
+// The condition `check` at index 3. The End `early` is listed before it but reached first in the arrow order (from
+// the condition `first`), so the End is earlier than `check` (F-12 order).
+function endReachedFirst(routes: Routes): ProjectConfig {
+  return pipelineOf(
+    flowOf(0, 'build', [
+      start('start', 'first'),
+      condition('first', { true: { to: 'early' }, false: { to: 'check' } }),
+      end('early'),
+      condition('check', routes),
+      end('end'),
+    ]),
+  );
+}
+
 const TRUE_TO = 'pipeline.flows.0.blocks.2.true.to';
+const CHECK_TRUE_TO = 'pipeline.flows.0.blocks.3.true.to';
 const FALSE_TO = 'pipeline.flows.0.blocks.2.false.to';
 const CONDITION = 'pipeline.flows.0.blocks.2';
 const START_NEXT = 'pipeline.flows.0.blocks.0.next';
@@ -176,8 +191,8 @@ const routeCases: Array<[string, ProjectConfig, Expected[]]> = [
   ],
   [
     'F-03 AC-017 a route to an earlier end gives a blocker at the to path, without a roundLimit',
-    afterEnd({ true: { to: 'early' }, false: STOP }),
-    [{ path: TRUE_TO, message: SAME_FLOW_LATER('early') }],
+    endReachedFirst({ true: { to: 'early' }, false: STOP }),
+    [{ path: CHECK_TRUE_TO, message: SAME_FLOW_LATER('early') }],
   ],
   [
     'F-03 AC-017 a route to an earlier end gives a blocker at the to path, with a roundLimit',

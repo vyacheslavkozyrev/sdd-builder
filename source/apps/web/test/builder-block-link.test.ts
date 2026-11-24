@@ -177,9 +177,14 @@ describe('F-12 AC-017 a false route returns to an earlier Agent only', () => {
     expect(reason(linkBlocks(flow, 'c2', 'false', 'c1'))).toBe('Only an Agent can be returned to.');
   });
 
-  it('accepts a false route to an End that is listed before the Condition, since an End is never a return', () => {
-    const flow = flowWith([end('e1'), start('s1', ''), condition('c1', { to: '' }, { stop: true })]);
+  it('accepts a false route to an End that comes after the Condition in the arrow order', () => {
+    const flow = flowWith([start('s1', 'c1'), condition('c1', { to: '' }, { stop: true }), end('e1')]);
     expect(blockOf(flowOf(linkBlocks(flow, 'c1', 'false', 'e1')), 'c1')).toMatchObject({ false: { to: 'e1' } });
+  });
+
+  it('F-12 AC-017 refuses a false route to an End the arrow order reaches before the Condition', () => {
+    const flow = flowWith([start('s1', 'c1'), condition('c1', { to: 'e1' }, { to: 'c2' }), condition('c2', { to: '' }, { stop: true }), end('e1')]);
+    expect(reason(linkBlocks(flow, 'c2', 'false', 'e1'))).toBe('Only an Agent can be returned to.');
   });
 
   it('refuses a false route to an earlier Condition', () => {

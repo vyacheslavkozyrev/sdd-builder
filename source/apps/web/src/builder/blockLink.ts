@@ -4,8 +4,7 @@
 // function: it returns a new flow or a refusal, and never changes its input. No React and no I/O.
 
 import type { pipeline as model } from '@sddbuilder/core';
-import { blockLayout } from './blockLayout.js';
-import { flowArrows, hasInput, outputsOf, type BlockArrow, type OutputName } from './blockArrows.js';
+import { flowArrows, hasInput, isReturnRoute, outputsOf, type BlockArrow, type OutputName } from './blockArrows.js';
 
 export type Flow = model.Flow;
 export type Block = model.Block;
@@ -39,7 +38,7 @@ export function linkBlocks(flow: Flow, fromId: string, output: OutputName, targe
     return refuse('A Start has no input point.');
   }
 
-  const isReturn = isEarlier(flow, targetId, fromId);
+  const isReturn = isReturnRoute(flow, fromId, targetId);
   if (isReturn && (output === 'true' || source.kind === 'agent')) {
     return refuse('Only a false route can return to an earlier Agent.');
   }
@@ -61,18 +60,6 @@ function findBlock(flow: Flow, blockId: string): Block {
     throw new Error(`flow ${flow.id} has no block ${blockId}`);
   }
   return found;
-}
-
-// A target at the same column or earlier in the layout is an earlier block, as the arrows count
-// a return (blockArrows.ts). The layout places every block of the flow, so both ids have a column.
-function isEarlier(flow: Flow, targetId: string, sourceId: string): boolean {
-  const column = new Map(blockLayout(flow).places.map((place) => [place.blockId, place.column] as const));
-  const targetColumn = column.get(targetId);
-  const sourceColumn = column.get(sourceId);
-  if (targetColumn === undefined || sourceColumn === undefined) {
-    throw new Error(`block ${targetId} or ${sourceId} has no place in the layout`);
-  }
-  return targetColumn <= sourceColumn;
 }
 
 // The block with the output's route set to the target. A forward route and a return carry no

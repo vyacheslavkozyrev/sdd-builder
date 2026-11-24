@@ -85,11 +85,13 @@ describe('F-02 AC-046 a start next that names another flow or no block is refuse
         flow('build', [start('s2', 'b2'), agent('b2', 'e2'), agent('b', 'e2'), end('e2')]),
       ),
     );
+    // The Agent `b` is no arrow's target, so it follows the End `e2` in the arrow order: its next is a loop.
     expect(result).toEqual([
       {
         path: 'pipeline.flows.0.blocks.0.next',
         message: 'must name a block of this flow, got b, which is a block of another flow',
       },
+      { path: 'pipeline.flows.1.blocks.2.next', message: 'must name a later block of this flow; a return needs a condition with roundLimit' },
     ]);
   });
 
@@ -175,11 +177,9 @@ describe('F-02 AC-054 a next names a later block of the same flow, so a loop is 
     expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([]);
   });
 
-  it('refuses a start whose next names an earlier block of the flow, at the path of next', () => {
+  it('accepts a start whose next names an agent listed before the start, since the arrow order from Start decides', () => {
     const blocks = [agent('a', 'e'), start('s', 'a'), end('e')];
-    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
-      { path: 'pipeline.flows.0.blocks.1.next', message: LOOP },
-    ]);
+    expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([]);
   });
 });
 
@@ -288,8 +288,11 @@ describe('F-02 AC-061 a round-limited route that names a block other than an ear
       agent('b', 'e'),
       end('e'),
     ];
+    // The End is reached from the condition's true route first, so it is earlier than `b` in the arrow order
+    // and the Agent `b`'s next to the End is a return that no plain route may make (F-12 order).
     expect(checkBlockLinks(config(flow('plan', blocks)))).toEqual([
       { path: 'pipeline.flows.0.blocks.2.false.to', message: `${REFUSED}, got b` },
+      { path: 'pipeline.flows.0.blocks.3.next', message: 'must name a later block of this flow; a return needs a condition with roundLimit' },
     ]);
   });
 

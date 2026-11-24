@@ -1,11 +1,11 @@
 // The output and input points and the arrows of a flow on the Map tab (F-12 AC-008, AC-011, AC-013).
 // Outputs by kind: Start and Agent have one (next), Condition has two (true, false), End has none.
 // Inputs: every block but Start has one. An arrow runs from an output to the input of its target.
-// An arrow to a block at the same place or earlier in the layout is a return: drawn dashed, with
-// its round limit when one is set. Pure functions: no React and no I/O.
+// An arrow to a block at the same place or earlier in the arrow order of the flow (from Start, the End counted as a
+// block) is a return: drawn dashed, with its round limit when one is set. The order is core's, the one the analyzer
+// reads (flowArrowOrder), so the drawing, the link rules and the analyzer agree. Pure functions: no React and no I/O.
 
-import type { pipeline as model } from '@sddbuilder/core';
-import { blockLayout } from './blockLayout.js';
+import { pipeline as model } from '@sddbuilder/core';
 
 export type Flow = model.Flow;
 export type Block = model.Block;
@@ -66,18 +66,22 @@ function targetOf(block: Block, output: OutputName): { toId: string; roundLimit:
   return { toId: route.to, roundLimit: 'roundLimit' in route ? route.roundLimit : null };
 }
 
-// The arrows of the flow, in block list order and then output order. A return is an arrow whose
-// target is at the same column or earlier in the block layout (AC-008); its round limit is kept
-// only for a return.
+// Whether an arrow from the block `fromId` to the block `toId` is a return: the target is the source itself or a
+// block before it in the arrow order of the flow (AC-008). The link rule and the drawing both use this, so an arrow
+// the analyzer calls a return is drawn dashed and offers its round limit. An unknown id is a programmer error and throws.
+export function isReturnRoute(flow: Flow, fromId: string, toId: string): boolean {
+  const order = model.flowArrowOrder(flow);
+  const from = order.indexOf(fromId);
+  const to = order.indexOf(toId);
+  if (from === -1 || to === -1) {
+    throw new Error(`block ${fromId} or ${toId} is not a block of flow ${flow.id}`);
+  }
+  return to <= from;
+}
+
+// The arrows of the flow, in block list order and then output order. A return is an arrow whose target is at the
+// same position or earlier in the arrow order (AC-008); its round limit is kept only for a return.
 export function flowArrows(flow: Flow): readonly BlockArrow[] {
-  const column = new Map(blockLayout(flow).places.map((place) => [place.blockId, place.column] as const));
-  const columnOf = (blockId: string): number => {
-    const found = column.get(blockId);
-    if (found === undefined) {
-      throw new Error(`block ${blockId} has no place in the layout`);
-    }
-    return found;
-  };
   const ids = new Set(flow.blocks.map((block) => block.id));
   const arrows: BlockArrow[] = [];
   for (const block of flow.blocks) {
@@ -86,7 +90,7 @@ export function flowArrows(flow: Flow): readonly BlockArrow[] {
       if (target === null || !ids.has(target.toId)) {
         continue;
       }
-      const isReturn = columnOf(target.toId) <= columnOf(block.id);
+      const isReturn = isReturnRoute(flow, block.id, target.toId);
       const roundLimit = isReturn ? target.roundLimit : null;
       arrows.push({
         fromId: block.id,

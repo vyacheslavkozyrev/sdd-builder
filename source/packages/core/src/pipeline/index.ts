@@ -7,6 +7,7 @@ export { analyzeStructure } from './analyze/index.js';
 export { analyzeBrief } from './analyze/brief.js';
 export type { Finding, ReviewEntry, ReviewResult, Severity } from './analyze/index.js';
 export { checkReview } from './analyze/index.js';
+export { flowArrowOrder } from './flow-order.js';
 export { configProblems } from './generate/refuse.js';
 export { planGeneration } from './generate/plan.js';
 export { checkReply } from './generate/reply-check.js';

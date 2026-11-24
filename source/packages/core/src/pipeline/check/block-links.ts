@@ -1,3 +1,4 @@
+import { flowArrowOrder } from '../flow-order.js';
 import { childPath, ROOT_PATH } from './primitives.js';
 import type { Block, ConditionBlock, Flow, Problem, ProjectConfig, Route } from '../model.js';
 
@@ -6,13 +7,26 @@ import type { Block, ConditionBlock, Flow, Problem, ProjectConfig, Route } from 
 // a condition or the end of the same flow. Both name a later block: a loop (the block itself or an
 // earlier one) is refused, and a return is only a condition's false route with a roundLimit (AC-054, AC-060).
 // A route `to` names a block of the same flow: a plain route (`{to}`) names a later block of the flow,
-// and a route with a `roundLimit` names an earlier agent of the flow (a return). A reference to a block
+// and a route with a `roundLimit` names an earlier agent of the flow (a return). "Later" and "earlier" are the
+// arrow order from Start, with the End counted as a block (flowArrowOrder), not the list order. A reference to a block
 // of another flow, or to an id that is no block, is refused at the path of the reference. Returns the
 // problems in document order; an empty list means every reference is valid. Routes that did not parse
 // are not seen here.
 
 const PIPELINE_PATH = childPath(ROOT_PATH, 'pipeline');
 const FLOWS_PATH = childPath(PIPELINE_PATH, 'flows');
+
+// The position of each block in the arrow order of its flow: "later" and "earlier" compare these positions.
+function positionsOf(flow: Flow): ReadonlyMap<string, number> {
+  return new Map(flowArrowOrder(flow).map((id, position) => [id, position] as const));
+}
+
+// The position of a block of the flow. A block that is not in the flow is a programmer error and throws.
+function positionOf(positions: ReadonlyMap<string, number>, blockId: string): number {
+  const position = positions.get(blockId);
+  if (position === undefined) throw new Error(`block ${blockId} has no position in the flow order`);
+  return position;
+}
 
 // The ids of the blocks of every flow, so a reference to another flow is told apart from an id that is no block.
 function blockIdsOfPipeline(flows: readonly Flow[]): ReadonlySet<string> {
@@ -32,6 +46,7 @@ function checkStartOrAgentNext(
   block: Block,
   blockPath: string,
   pipelineIds: ReadonlySet<string>,
+  positions: ReadonlyMap<string, number>,
   problems: Problem[],
 ): void {
   if (block.kind !== 'start' && block.kind !== 'agent') return;
@@ -55,7 +70,7 @@ function checkStartOrAgentNext(
     });
     return;
   }
-  if (target.index <= block.index) {
+  if (positionOf(positions, target.id) <= positionOf(positions, block.id)) {
     problems.push({
       path,
       message: 'must name a later block of this flow; a return needs a condition with roundLimit',
@@ -69,6 +84,7 @@ function checkRoute(
   route: Route | undefined,
   routePath: string,
   pipelineIds: ReadonlySet<string>,
+  positions: ReadonlyMap<string, number>,
   problems: Problem[],
 ): void {
   // A partial model may have no route: it is skipped here, and the analysis reports the missing output.
@@ -82,7 +98,7 @@ function checkRoute(
   }
 
   if ('roundLimit' in route) {
-    if (target.kind !== 'agent' || target.index >= condition.index) {
+    if (target.kind !== 'agent' || positionOf(positions, target.id) >= positionOf(positions, condition.id)) {
       problems.push({
         path: toPath,
         message: `must name an earlier agent of this flow for a return with a roundLimit, got ${route.to}`,
@@ -91,7 +107,7 @@ function checkRoute(
     return;
   }
 
-  if (target.index > condition.index) return;
+  if (positionOf(positions, target.id) > positionOf(positions, condition.id)) return;
   const message =
     target.kind === 'agent'
       ? `must name a later block of this flow: a return to the earlier agent ${route.to} needs a roundLimit`
@@ -106,12 +122,13 @@ export function checkBlockLinks(config: Pick<ProjectConfig, 'pipeline'>): Proble
 
   flows.forEach((flow) => {
     const blocksPath = childPath(childPath(FLOWS_PATH, String(flow.index)), 'blocks');
+    const positions = positionsOf(flow);
     flow.blocks.forEach((block) => {
       const blockPath = childPath(blocksPath, String(block.index));
-      checkStartOrAgentNext(flow, block, blockPath, pipelineIds, problems);
+      checkStartOrAgentNext(flow, block, blockPath, pipelineIds, positions, problems);
       if (block.kind !== 'condition') return;
-      checkRoute(flow, block, block.true, childPath(blockPath, 'true'), pipelineIds, problems);
-      checkRoute(flow, block, block.false, childPath(blockPath, 'false'), pipelineIds, problems);
+      checkRoute(flow, block, block.true, childPath(blockPath, 'true'), pipelineIds, positions, problems);
+      checkRoute(flow, block, block.false, childPath(blockPath, 'false'), pipelineIds, positions, problems);
     });
   });
 

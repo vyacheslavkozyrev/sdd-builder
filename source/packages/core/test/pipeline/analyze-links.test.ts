@@ -185,7 +185,8 @@ const crossFlowCases: Array<[string, ProjectConfig, Expected[]]> = [
   [
     'F-03 AC-014 a start next that names the end of its own flow gives a blocker at the next path (F-02 kind rule)',
     pipelineOf(flow(0, 'build', undefined, startNext('build-end'))),
-    [START_NEXT_0_0],
+    // The Agent is no arrow's target, so it follows the End in the arrow order: its next names an earlier block.
+    [START_NEXT_0_0, { rule: 'block-link', path: 'pipeline.flows.0.blocks.1.next' }],
   ],
   [
     'F-03 AC-014 a valid config has no link finding',

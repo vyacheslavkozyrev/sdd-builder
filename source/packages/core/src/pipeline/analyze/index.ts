@@ -6,6 +6,7 @@ import { conditionRule } from './condition.js';
 import { reuseRule } from './reuse.js';
 import { linksRule } from './links.js';
 import { outputsRule } from './outputs.js';
+import { agentLabelsRule } from './agent-labels.js';
 import { routesRule } from './routes.js';
 import { reachRules } from './reach.js';
 
@@ -24,6 +25,7 @@ const RULE_MODULES: readonly RuleModule[] = [
   reuseRule,
   linksRule,
   outputsRule,
+  agentLabelsRule,
   routesRule,
   reachRules,
 ];

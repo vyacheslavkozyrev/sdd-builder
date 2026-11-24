@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | 🔄 In Progress | | 26 of 27 tasks committed (T025 is open: the core check for reads and writes labels) |
+| Build    | ✅ Complete | | 27 of 27 tasks committed |
 | Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -64,6 +64,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T024 | Docs: `features.md` F-12 scope line, `ui.md` §3.3 and §4 (toolbox, block rules, Agent properties without restrictions as the stories have them), `pipeline-schema.md` §3 (at least one End). Open points stated, not decided: AC-043 wording, AC-049 selection, the arrow subtitle, the blocker colour | 0 code changes; `git diff --check` clean | no tests (docs only) |
 | T026 | Core: a Condition's blank description is refused by the structural checks at its path (`pipeline.flows.<n>.blocks.<m>.description`, rule `condition-description`) (`source/packages/core/src/pipeline/analyze/condition.ts`, `index.ts`) | 0 blockers, 0 warnings; 1 suggestion fixed (a constant name); 1 deferred (a shared path helper with text.ts). The parser already refuses a blank description, so the rule fires only on unparsed configs | task check passed: api 45, web 1581, core 1220 |
 | T027 | End last on the canvas (Amendment 2026-11-23, AC-009): End blocks after every other block, by a stable partition (`blockLayout.ts`) | 0 blockers; 2 warnings fixed (a test that passed on the old layout; no test for an arrow into an End); 2 suggestions fixed; 1 deferred (a hand-edited backward route is drawn as a return; core has no return rule). Consequence, confirmed in review: an arrow into an End is never a return | task check passed: api 45, web 1587, core 1220 |
+| T025 | Core: an Agent's reads or writes label that no flow lists as an outcome artifact is a blocker at its path (`analyze/agent-labels.ts`, registered in `analyze/index.ts`) | 0 blockers, 0 warnings; 1 suggestion deferred (a shared path helper). The plan's file list was amended to the analyze/ rule | task check passed: api 45, web 1587, core 1231 |
 
 ---
 
@@ -126,6 +127,7 @@ _Review suggestions intentionally not applied, with the reason._
 - T026 SUGGESTION (`source/packages/core/src/pipeline/analyze/condition.ts`, `blockPath` and `flowPath`): they repeat the helpers of `text.ts`. Deferred: sharing them changes `text.ts`, which is outside T026.
 - T026 review note (not a defect): the parser already refuses a blank Condition description (`parse/condition.ts`, `readText` with `nonBlank`, F-02 AC-057), so `parseProjectConfig` never passes a blank one on to the analyzer. The analyzer rule therefore fires only on a config that was not parsed, as the T026 rationale intends. Results for every parsed config are unchanged; `task-check.sh` passed on the whole workspace.
 - T027 SUGGESTION (`source/apps/web/src/builder/blockArrows.ts`, `flowArrows`, line 89): a return is any arrow whose target is at or before the source in the layout, so a hand-edited saved flow with a backward Agent next or a backward true route is drawn dashed. The link rules refuse such links (AC-016, AC-017), so this only shows for a loaded config, and core has no return rule to catch it. Deferred: a core return check is outside F-12 T027 scope.
+- T025 SUGGESTION (`source/packages/core/src/pipeline/analyze/agent-labels.ts`, `blockPath`): it repeats the helper of the other analyzer rule files (`outputs.ts`, `condition.ts`, `text.ts`, and others). Deferred: sharing it changes files outside T025, and the repeated shape is the analyzer's existing pattern.
 - T023 review note (not a defect): the drag and repoint wiring (`blockDragged`, `blockArrowDeleted` drag path, `onChange` of `BlockCanvas`) is not driven by a test in `PipelineStep.test.tsx`; jsdom does not run the pointer gesture. The drop rules are tested in `BlockCanvas.test.tsx` and the store is checked through `onChange`. Goes on the Verify manual checklist (AC-012 `[device]`, drag from an output point to a block, with the step 3 flow tab).
 
 ## Test Results
@@ -165,6 +167,11 @@ _Criteria coverage matrix and manual checklist outcome._
 **Changed**: `stories.md` AC-017: the refusal "Only an Agent can be returned to." for a false output that links to an earlier block which is not an Agent (wording confirmed by the user).
 **Reason**: T004 needs this refusal; the stories had no wording for it, so the task stopped.
 **Impact**: T004 resumes; no task is re-run.
+
+### Amendment — 2026-11-23 (T025: file list of the reads and writes rule)
+**Changed**: `plan.md` T025 file list. The rule is an analyzer rule in `source/packages/core/src/pipeline/analyze/agent-labels.ts`, registered in `analyze/index.ts`, with its test `analyze-agent-labels.test.ts`; `check/` and `parse/agent.ts` are not changed.
+**Reason**: the parser reads one block at a time and cannot see the flows' outcome artifacts, so the check needs the whole config, as the other cross-block analyzer rules have.
+**Impact**: T025 is reviewed as built; no task is re-run.
 
 ```
 ### Amendment — YYYY-MM-DD

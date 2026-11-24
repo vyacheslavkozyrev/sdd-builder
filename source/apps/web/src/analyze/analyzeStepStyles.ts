@@ -8,6 +8,7 @@ import { getCommonStyles } from '../styles/common.js';
 
 export interface AnalyzeStepStyles {
   // The two columns of the step, 24 px apart: the Analyze column (540 px) and the project preview (360 px).
+  readonly stepRoot: SxProps<Theme>;
   readonly columns: SxProps<Theme>;
   readonly analyzeColumn: SxProps<Theme>;
   readonly previewColumn: SxProps<Theme>;
@@ -31,17 +32,21 @@ export function getAnalyzeStepStyles(theme: Theme): AnalyzeStepStyles {
   return {
     // The card's 24 px padding. The Analyze column takes the spare width, so the gap to the preview stays 24 px and the
     // preview is pinned to the right edge of the content (1232 px on the approved screens).
+    // The step fills the card's height; the columns stretch to it, so the preview's tree takes the free space.
+    stepRoot: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 },
     columns: {
       boxSizing: 'border-box',
       display: 'flex',
-      alignItems: 'flex-start',
+      flex: '1 1 auto',
+      minHeight: 0,
+      alignItems: 'stretch',
       justifyContent: 'flex-start',
       gap: '24px',
       minWidth: 0,
       p: '24px',
     },
     analyzeColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', flexGrow: 1, flexShrink: 1, minWidth: 540 },
-    previewColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 360, flexShrink: 0 },
+    previewColumn: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', width: 360, flexShrink: 0, minHeight: 0 },
     // The heading's line is 24 px: its baseline sits at y 66 and the subheading's at y 86 (F-13 screens 01 to 11).
     heading: { ...common.sectionTitle, lineHeight: '24px' },
     subheading: { ...common.secondaryText, mb: '8px' },

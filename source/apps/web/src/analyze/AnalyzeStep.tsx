@@ -99,6 +99,7 @@ export function AnalyzeStep({ values, templates, fetchFn = browserFetch, save = 
   }
 
   return (
+    <Box sx={styles.stepRoot}>
     <Box sx={styles.columns}>
       <Box sx={styles.analyzeColumn}>
         <Typography component="h2" sx={styles.heading}>
@@ -129,6 +130,7 @@ export function AnalyzeStep({ values, templates, fetchFn = browserFetch, save = 
           }}
         />
       </Box>
+    </Box>
     </Box>
   );
 }

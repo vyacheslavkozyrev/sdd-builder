@@ -41,7 +41,9 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
   const common = getCommonStyles(theme);
   const panel: StyleObject = {
     boxSizing: 'border-box',
-    height: 424,
+    // The tree takes the free height of the preview column, above the buttons (the approved screens draw 424 px).
+    flex: '1 1 0',
+    minHeight: 0,
     overflowY: 'auto',
     px: '15px',
     py: '5px',
@@ -50,7 +52,7 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
     bgcolor: theme.palette.background.paper,
   };
   return {
-    root: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: 0 },
+    root: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: 0, flex: '1 1 auto', minHeight: 0 },
     // The heading's line is 24 px: its baseline sits at y 66 and the count's at y 86 (F-13 screens 01 to 11).
     heading: { ...common.sectionTitle, lineHeight: '24px' },
     count: { ...common.secondaryText, mb: '12px' },

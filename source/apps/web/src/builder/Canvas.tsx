@@ -67,21 +67,28 @@ function dropOnHandle(flow: string, handle: string | null): DropTarget {
 }
 
 // A flow box: the name and the block count, with the left and the right connection points. The points of a
-// selected box are drawn larger (device fix 2026-11-24).
+// selected box, and the two ends of a selected arrow, are drawn larger (device fix 2026-11-24).
 function FlowBox({ data }: NodeProps<FlowBoxNode>) {
   const styles = getCanvasStyles(useTheme());
-  const handle = styles.handle[data.selected ? 'selected' : 'normal'];
+  const leftHandleStyle = styles.handle[data.selected || data.targetOfSelectedArrow ? 'selected' : 'normal'];
+  const rightHandleStyle = styles.handle[data.selected || data.sourceOfSelectedArrow ? 'selected' : 'normal'];
   return (
     <Box sx={styles.flowBox[boxStateOf(data)]}>
       {/* A link starts only at a right point (AC-013); a drag that starts at a left point is not a link. */}
-      <Handle type="target" position={Position.Left} id={leftHandle} isConnectableStart={false} style={handle} />
+      <Handle
+        type="target"
+        position={Position.Left}
+        id={leftHandle}
+        isConnectableStart={false}
+        style={leftHandleStyle}
+      />
       <Box component="span" sx={styles.flowName}>
         {data.name}
       </Box>
       <Box component="span" sx={styles.flowCount}>
         {blockLabel(data.blockCount)}
       </Box>
-      <Handle type="source" position={Position.Right} id={rightHandle} style={handle} />
+      <Handle type="source" position={Position.Right} id={rightHandle} style={rightHandleStyle} />
     </Box>
   );
 }

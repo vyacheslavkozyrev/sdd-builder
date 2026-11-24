@@ -562,3 +562,41 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) the connection point
     expect(handle?.style.borderTopWidth).toBe('');
   });
 });
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) the two ends of a selected arrow are larger', () => {
+  it('F-11 Verify device fix 2026-11-24 draws the source point and the target point of the selected arrow at 14 px', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')), {
+      selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    });
+    const ends = [
+      boxOf('plan').querySelector<HTMLElement>('.react-flow__handle-right'),
+      boxOf('build').querySelector<HTMLElement>('.react-flow__handle-left'),
+    ];
+    for (const handle of ends) {
+      expect(handle).not.toBeNull();
+      const style = getComputedStyle(handle as HTMLElement);
+      expect(style.width).toBe('14px');
+      expect(style.height).toBe('14px');
+      expect(style.borderTopWidth).toBe('2px');
+      expect(style.borderTopColor).toBe(rgbOf(theme.palette.background.paper));
+    }
+  });
+
+  it('F-11 Verify device fix 2026-11-24 keeps the library size on the other points of the boxes', () => {
+    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')), {
+      selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    });
+    const others = [
+      boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-right'),
+      boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-left'),
+      boxOf('plan').querySelector<HTMLElement>('.react-flow__handle-left'),
+      boxOf('build').querySelector<HTMLElement>('.react-flow__handle-right'),
+    ];
+    for (const handle of others) {
+      expect(handle).not.toBeNull();
+      expect(handle?.style.width).toBe('');
+      expect(handle?.style.height).toBe('');
+      expect(handle?.style.borderTopWidth).toBe('');
+    }
+  });
+});

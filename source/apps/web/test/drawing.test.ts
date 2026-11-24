@@ -64,8 +64,24 @@ describe('F-11 AC-006 boxes in pipeline order', () => {
       [],
     );
     expect(drawing.nodes.map((node) => node.data)).toEqual([
-      { flowId: 'specify', name: 'Specify it', blockCount: 3, blocked: false, selected: false },
-      { flowId: 'plan', name: 'plan', blockCount: 0, blocked: false, selected: false },
+      {
+        flowId: 'specify',
+        name: 'Specify it',
+        blockCount: 3,
+        blocked: false,
+        selected: false,
+        sourceOfSelectedArrow: false,
+        targetOfSelectedArrow: false,
+      },
+      {
+        flowId: 'plan',
+        name: 'plan',
+        blockCount: 0,
+        blocked: false,
+        selected: false,
+        sourceOfSelectedArrow: false,
+        targetOfSelectedArrow: false,
+      },
     ]);
   });
 
@@ -73,6 +89,32 @@ describe('F-11 AC-006 boxes in pipeline order', () => {
     const drawing = drawingOf(pipelineOf(flow('specify')), []);
     expect(drawing.nodes[0]).toMatchObject({ draggable: true, selectable: false });
     expect(drawing.nodes[0]).not.toHaveProperty('connectable');
+  });
+});
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) the ends of a selected arrow', () => {
+  it('F-11 Verify device fix 2026-11-24 marks the source of the selected arrow and its target, and no other box', () => {
+    const drawing = drawingOf(
+      pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')),
+      [],
+      { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    );
+    expect(drawing.nodes.map((node) => [node.data.sourceOfSelectedArrow, node.data.targetOfSelectedArrow])).toEqual([
+      [false, false],
+      [true, false],
+      [false, true],
+    ]);
+  });
+
+  it('F-11 Verify device fix 2026-11-24 marks no end when nothing or a box is selected', () => {
+    const pipeline = pipelineOf(flow('specify', { next: 'plan' }), flow('plan'));
+    const flows = [{ kind: 'pipeline' as const }, { kind: 'flow' as const, id: 'plan' }];
+    for (const selection of flows) {
+      const drawing = drawingOf(pipeline, [], selection);
+      expect(drawing.nodes.some((node) => node.data.sourceOfSelectedArrow || node.data.targetOfSelectedArrow)).toBe(
+        false,
+      );
+    }
   });
 });
 

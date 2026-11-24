@@ -19,6 +19,10 @@ export type FlowBoxData = {
   readonly blockCount: number;
   readonly blocked: boolean;
   readonly selected: boolean;
+  // The right point is the source of the selected arrow, or the left point is its target (device fix 2026-11-24):
+  // those two points are drawn in the selected size, the ends of the selected arrow.
+  readonly sourceOfSelectedArrow: boolean;
+  readonly targetOfSelectedArrow: boolean;
 };
 
 // The data an arrow carries: whether it is the selected arrow (AC-042).
@@ -74,6 +78,8 @@ export function drawingOf(
         blockCount: flow.blocks.length,
         blocked: blocked.has(flow.id),
         selected: flow.id === selectedFlowId,
+        sourceOfSelectedArrow: selectedArrow?.source === flow.id,
+        targetOfSelectedArrow: selectedArrow?.target === flow.id,
       },
       draggable: true,
       selectable: false,

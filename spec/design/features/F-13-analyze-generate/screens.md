@@ -36,16 +36,15 @@ Each SVG is 1280 × 800 (the reference size; no screen needed more height).
 
 ## The file tree (preview)
 
-The tree is the generated project for the default pipeline, with the user's rule files. It is computed in the browser; the sample lists 23 files:
+The tree is the generated project for the default pipeline, as the app renders it on 2026-11-24 with no rule blocks: 21 files. It is computed in the browser; the sample in every screen is this list.
 
 - `.claude/agents/`: commit, complete, implement, plan, review, specify, test, ux, verify (one per Agent block).
 - `.claude/commands/`: build, complete, pipeline, plan, specify, ux, verify (`pipeline.md` and one per flow).
-- `.claude/rules/`: general.md, typescript.md (sample rule files, marked "rule").
-- `CLAUDE.md`.
 - `spec/documents/process.md`.
 - `spec/specifications/F-00-template/`: plan.md, progress.md, stories.md.
+- `CLAUDE.md`.
 
-Folders are listed first in code-point order, as the generator sorts the files (`architecture.md` §3; `source/templates/README.md`). Files are shown in monospace.
+Folders come first on each level, then files, each group in code-point order (the tree of `source/apps/web/src/analyze/tree.ts`). Rule files are marked "rule" when rule blocks exist; the screens draw none. Files are shown in monospace.
 
 ## Decisions these screens take
 
@@ -63,7 +62,7 @@ Folders are listed first in code-point order, as the generator sorts the files (
 ## Open points
 
 1. **Privacy notice wording.** Decided 2026-11-24 (owner): the notice says "the model provider", as AC-004 requires. Screens 01, 02, 07 and 09 to 11 carry the wording "Analyze sends the brief and the pipeline to the model provider for review." The server does not store or log the brief.
-2. **File-tree contents.** The sample lists the default pipeline's 9 agents, 7 commands and 2 sample rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
+2. **File-tree contents.** Decided 2026-11-24: the sample is the app's 21-file tree with no rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
 4. **Analysis out of date.** Drawn as screen 10: the note "The project changed since the last analysis. Analyze again.", the earlier result shown as not current, and Generate disabled with the reason Run Analyze first. Owner to confirm: keep the earlier result visible (greyed), or hide it.
 5. **Analyze while pending.** `ui.md` §2 says Analyze is disabled while the request is pending. No pending screen is drawn for Analyze; only Generate has one (screen 08). A spinner or a text for Analyze is not decided.
 6. **Error wording for other codes.** Drawn: 500 (screen 07, the pattern for every error reply and the network failure, and the 404 shown during the device check) and 422 (screen 09, one line per problem). The 429 wording is no longer drawn; it is covered by the automated test for AC-012. Not yet drawn or written: 400, 500, 502 and the network failure sentence. Owner to confirm the sentences.
@@ -124,4 +123,4 @@ Folders are listed first in code-point order, as the generator sorts the files (
 
 ## Render alignment (2026-11-24)
 
-Screen 07 was redrawn to match the app as rendered: the 500 error text, the 21-file tree of the default project (no rule files, folders first on each level, CLAUDE.md after spec/). Screens 01 to 06 and 08 to 11 still show the 23-file sample tree with two rule files; they match the app once the same change is applied to them.
+Screen 07 was redrawn to match the app as rendered: the 500 error text, the 21-file tree of the default project (no rule files, folders first on each level, CLAUDE.md after spec/). Screens 01 to 06 and 08 to 11 carry the same 21-file tree (2026-11-24), and screen 06 lists it in full.

@@ -62,7 +62,7 @@ Folders are listed first in code-point order, as the generator sorts the files (
 
 ## Open points
 
-1. **Privacy notice wording.** `ui.md` §4 and `architecture.md` §4 say the brief is sent to the model provider and not stored or logged by the server. The draft says "Analyze sends the brief and the pipeline to the model for review. The server does not store or log the brief." The pipeline config is also sent, so the notice names it. Owner to confirm the wording and whether the provider's name should appear.
+1. **Privacy notice wording.** Decided 2026-11-24 (owner): the notice says "the model provider", as AC-004 requires. Screens 01, 02, 07 and 09 to 11 carry the wording "Analyze sends the brief and the pipeline to the model provider for review." The server does not store or log the brief.
 2. **File-tree contents.** The sample lists the default pipeline's 9 agents, 7 commands and 2 sample rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
 4. **Analysis out of date.** Drawn as screen 10: the note "The project changed since the last analysis. Analyze again.", the earlier result shown as not current, and Generate disabled with the reason Run Analyze first. Owner to confirm: keep the earlier result visible (greyed), or hide it.
 5. **Analyze while pending.** `ui.md` §2 says Analyze is disabled while the request is pending. No pending screen is drawn for Analyze; only Generate has one (screen 08). A spinner or a text for Analyze is not decided.

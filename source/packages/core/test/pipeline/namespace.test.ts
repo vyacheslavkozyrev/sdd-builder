@@ -48,10 +48,12 @@ const PIPELINE_VALUES = [
   'configProblems',
   'defaultPipeline',
   'flowArrowOrder',
+  'listFiles',
   'parseProjectConfig',
   'planGeneration',
 ];
 const ANALYSIS_TYPES = ['Finding', 'ReviewEntry', 'ReviewResult', 'Severity'];
+const GENERATE_TYPES = ['FileSource', 'ListedFile'];
 const MODEL_TYPES = [
   'AgentBlock',
   'Argument',
@@ -70,7 +72,7 @@ const MODEL_TYPES = [
   'Stack',
   'StartBlock',
 ];
-const PIPELINE_TYPES = [...MODEL_TYPES, ...ANALYSIS_TYPES];
+const PIPELINE_TYPES = [...MODEL_TYPES, ...ANALYSIS_TYPES, ...GENERATE_TYPES];
 
 describe('F-02 AC-089 the core namespace exposes the pipeline module and nothing else of it', () => {
   const indexFile = join(pipelineDir, 'index.ts');
@@ -86,7 +88,7 @@ describe('F-02 AC-089 the core namespace exposes the pipeline module and nothing
     expect(core.pipeline.defaultPipeline).toBeDefined();
   });
 
-  it('names no export of the pipeline index beyond the parser, the default, the analysis and the model types', () => {
+  it('names no export of the pipeline index beyond the parser, the default, the analysis, the file list and the model types', () => {
     expect(exportedNames(indexFile)).toEqual([...PIPELINE_VALUES, ...PIPELINE_TYPES].sort());
   });
 
@@ -94,6 +96,7 @@ describe('F-02 AC-089 the core namespace exposes the pipeline module and nothing
     const typeOnly = exportDeclarations(indexFile).filter((declaration) => declaration.isTypeOnly);
     expect(typeOnly.map((declaration) => (declaration.moduleSpecifier as ts.StringLiteral).text)).toEqual([
       './analyze/index.js',
+      './generate/file-list.js',
       './model.js',
     ]);
     expect(typeOnly.flatMap(namesOf).sort()).toEqual([...PIPELINE_TYPES].sort());
@@ -105,12 +108,13 @@ describe('F-02 AC-089 the core namespace exposes the pipeline module and nothing
     expect(Object.keys(core.pipeline).sort()).toEqual([...PIPELINE_VALUES]);
   });
 
-  it('F-04 AC-034 reaches configProblems, planGeneration and checkReply as pipeline namespace functions and adds no other generator name', () => {
+  it('F-04 AC-034 reaches configProblems, planGeneration, checkReply and listFiles as pipeline namespace functions and adds no other generator name', () => {
     expect(typeof core.pipeline.configProblems).toBe('function');
     expect(typeof core.pipeline.planGeneration).toBe('function');
     expect(typeof core.pipeline.checkReply).toBe('function');
+    expect(typeof core.pipeline.listFiles).toBe('function');
     expect(Object.keys(core.pipeline).sort()).toEqual([...PIPELINE_VALUES]);
-    const generatorNames = ['GenerationError', 'renderLayout', 'listFiles', 'walkFlow', 'headingsOf', 'blockersOf'];
+    const generatorNames = ['GenerationError', 'renderLayout', 'walkFlow', 'headingsOf', 'blockersOf'];
     for (const name of generatorNames) {
       expect(Object.keys(core.pipeline)).not.toContain(name);
     }

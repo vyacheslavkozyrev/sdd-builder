@@ -125,7 +125,7 @@ Every automated test names the feature and criterion it covers (`F-04 AC-003`).
 
 #### Acceptance Criteria
 
-- AC-034 `[auto]`: `configProblems`, `planGeneration` and `checkReply` are reached as `pipeline.configProblems`, `pipeline.planGeneration` and `pipeline.checkReply`; F-04 adds no other name to the `pipeline` namespace.
+- AC-034 `[auto]`: `configProblems`, `planGeneration`, `checkReply` and `listFiles` (with its types `ListedFile` and `FileSource`, F-13 amendment of 2026-11-24) are reached as `pipeline.configProblems`, `pipeline.planGeneration`, `pipeline.checkReply` and `pipeline.listFiles`; F-04 adds no other name to the `pipeline` namespace.
 - AC-035 `[auto]`: the generator modules of `core` import no `fs`, `http`, `process`, `window` or model client, and read no template file; the templates come in as data (checked by a purity test over the source of the generator folder).
 - AC-036 `[auto]`: planning with the same fixture templates given as data returns the same plan in two test runs, with no file on disk changed between them.
 

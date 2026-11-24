@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
-| Build    | 🔄 In Progress | 2026-11-24 | 9 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-24 | 10 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ None
 | T007 | File tree: `projectTree` from core's `listFiles` (folders first, rule files marked), refused and shared rule ids get no file; core exports `listFiles` and its types (amendment 2026-11-24) | 1 blocker fixed (two rule blocks with one id made `listFiles` throw in the preview; shared ids now get no file, test added), 1 warning fixed (F-04 AC-034 test did not reach `listFiles` as a function), 2 suggestions deferred (see Deferred Findings) | task check passed: api 45, web 1825, core 1217 |
 | T008 | Privacy notice and its checkbox (view): the notice with the owner-worded text, the unticked checkbox, Analyze disabled with its reason until ticked | 0 blockers, 0 warnings, 2 suggestions fixed (reason linked to the button; test wrapper extracted) | task check passed: api 45, web 1832, core 1217 |
 | T009 | Findings and results (view): findings in server order (structural, then review), plain text; review note for failed or skipped; error box with every 422 problem line; the result lines and the green line | 0 blockers, 0 warnings, 1 suggestion fixed (`GREEN_RESULT`, `REVIEW_NOT_FINISHED`, `allFindings` no longer exported); 1 suggestion and 3 owner decisions deferred. Size guard overridden by the owner (one commit for T009, 515 insertions) | task check passed: api 45, web 1851, core 1217 |
+| T010 | Project preview (view): tree in a scrolling panel with the rule tag, Show full tree opening the dialog with Close, Generate and download disabled with its reason (no request until T012) | 0 blockers, 0 warnings, 2 suggestions fixed (test cast of the style object replaced by `toMatchObject`; tree rows keyed by path, not index), 2 suggestions deferred (see Deferred Findings) | task check passed: api 45, web 1861, core 1217 |
 
 ---
 
@@ -50,6 +51,9 @@ _Review suggestions intentionally not applied, with the reason._
 - Owner decision, screen 05 colour (T009, reported to the owner, wording not changed): `screens.md` line 28 and the screen 05 description say "Amber note"; `05-analysis-failed.svg` and the code draw the review note in the red error box (#FEF3F2 fill, #BB241A text, `theme.palette.error`). Kept as drawn; the owner decides which the screen should show.
 - Owner decision, green result line (T009, reported, wording not changed): the text matches screen 04 and the colour matches its #107569 (`theme.palette.success.dark`). The owner decides whether the green stays on this colour, since `screens.md` line 28 says "success green" without a value.
 - Owner decision, non-green result lines (T009, reported, wording not changed): the warning line matches screen 11 exactly, and the blocker and review-failed lines follow screens 03 and 05. Lines no screen draws: "Result: 2 blockers. Fix the blocker, then Analyze again." (plural count), and "Result: no finding. The analysis did not finish, so Generate stays off." (a review that did not finish with no structural finding; the word "no finding" is not an approved phrase).
+- `source/apps/web/src/analyze/ProjectTreeList.tsx:17` (T010) — SUGGESTION: the pure helpers `treeRows`, `countFiles` and `fileCountText` are exported from a component module. Not applied: the plan's T010 file line does not name a helper module, and a new file would sit outside the task's listed files. Move them to a pure module next to `tree.ts` when the next task touches the list.
+- `source/apps/web/test/ProjectPreview.test.tsx` (T010, AC-023) — SUGGESTION: the scrolling-panel check reads the `overflowY` value of the getter, not the rendered panel, because jsdom does not lay out the page. Not applied: no layout check is possible in the MVP test setup (no browser tests, qa.md). The getter is the only source of that value.
+- Expected state, not a finding (T010): Generate and download is always disabled, including on a green result, because its action is wired in T012 (the component comment says so). AC-025 is covered for every disabled case; the enabled case is T012's.
 
 ---
 

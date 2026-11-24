@@ -10,7 +10,8 @@ export const cardShadow = '0 1px 4px rgba(50, 56, 62, 0.12)';
 
 export const theme = createTheme({
   palette: {
-    primary: { main: '#635BFF' },
+    // The pale violet fill of the rule tag in the project preview (F-13 screens 01 and 06).
+    primary: { main: '#635BFF', light: '#ECF0FF' },
     // Done steps of the wizard stepper (F-08): kepple 500 for the node, kepple 600 for the label.
     success: { main: '#15B79F', dark: '#107569' },
     background: { default: '#F0F4F8', paper: '#FFFFFF' },

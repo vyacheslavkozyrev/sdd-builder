@@ -75,27 +75,8 @@ export function getAnalyzeStepStyles(theme: Theme): AnalyzeStepStyles {
       gap: '16px',
       mt: '16px',
     },
-    // The 120 x 40 primary button. Disabled, it takes the grey fill and the grey text of the screen.
-    analyzeButton: {
-      boxSizing: 'border-box',
-      flexShrink: 0,
-      width: 120,
-      height: 40,
-      borderRadius: '8px',
-      border: `1px solid ${theme.palette.divider}`,
-      fontSize: 14,
-      fontWeight: 500,
-      textTransform: 'none',
-      whiteSpace: 'nowrap',
-      boxShadow: 'none',
-      bgcolor: theme.palette.primary.main,
-      color: theme.palette.background.paper,
-      '&:hover': { bgcolor: theme.palette.primary.dark, boxShadow: 'none' },
-      '&.Mui-disabled': {
-        bgcolor: theme.palette.background.default,
-        color: theme.palette.text.disabled,
-      },
-    },
+    // The 120 x 40 primary button (the shape is shared in common.ts).
+    analyzeButton: { ...common.primaryButton, flexShrink: 0, width: 120 },
     reason: { ...common.secondaryText },
   };
 }

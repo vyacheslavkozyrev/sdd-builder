@@ -50,6 +50,9 @@ export interface CommonStyles {
   // The danger button (F-11 screens 03 and 04): a red fill with white text, 8 px radius, no size.
   // The caption does not wrap; the width comes from the caption.
   readonly dangerButton: StyleObject;
+  // The primary button (F-13 screens 01 to 08): a 40 px primary fill with white text and an 8 px radius. Disabled, it
+  // takes the grey fill and grey text of the screens. The caption does not wrap; the width comes from the caller.
+  readonly primaryButton: StyleObject;
   // The footer of a properties panel: fixed under the scrolling fields, with a space above.
   readonly panelFooter: StyleObject;
   // The root column of a properties panel: fills its place and may shrink inside its parent.
@@ -100,6 +103,24 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     bgcolor: theme.palette.error.main,
     color: theme.palette.background.paper,
     '&:hover': { bgcolor: theme.palette.error.dark },
+  };
+  const primaryButton: StyleObject = {
+    ...captionNoWrap,
+    boxSizing: 'border-box',
+    height: 40,
+    borderRadius: '8px',
+    border: `1px solid ${theme.palette.divider}`,
+    fontSize: 14,
+    fontWeight: 500,
+    textTransform: 'none',
+    boxShadow: 'none',
+    bgcolor: theme.palette.primary.main,
+    color: theme.palette.background.paper,
+    '&:hover': { bgcolor: theme.palette.primary.dark, boxShadow: 'none' },
+    '&.Mui-disabled': {
+      bgcolor: theme.palette.background.default,
+      color: theme.palette.text.disabled,
+    },
   };
   const fieldLabel: StyleObject = {
     display: 'block',
@@ -227,6 +248,7 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       height: DIALOG_BUTTON_HEIGHT,
     },
     dangerButton,
+    primaryButton,
     panelFooter: {
       flexShrink: 0,
       display: 'flex',

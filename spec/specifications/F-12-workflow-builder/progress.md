@@ -8,8 +8,8 @@
 | Specify  | ✅ Complete | 2026-11-23 | 9 stories, 53 criteria: 50 `[auto]`, 3 `[device]`; approved by the user with the readings under "Open for approval" as written. Decisions taken in the questions: Condition blocks in F-12; no Move up or Move down (order from the arrows); arrows drawn by dragging between points, as on the Pipeline tab; a flow keeps its Start and at least one End |
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
-| Build    | ✅ Complete | | 27 of 27 tasks committed |
-| Verify   | ⏳ Pending  | 2026-11-23 | AWAITING CONFIRMATION: 50 `[auto]` criteria covered, no gaps; 3 `[device]` criteria in `checklist.md`; matrix under Test Results |
+| Build    | ✅ Complete | 2026-11-24 | 27 of 27 tasks committed, plus the device-check fixes of 2026-11-24 (one commit each) |
+| Verify   | ✅ Complete | 2026-11-24 | 50 of 50 `[auto]` criteria have passing tests (the 2026-11-23 run; later changes are covered by the full task check: api 45, web 1698, core 1217). The three `[device]` criteria (AC-007, AC-008, AC-012) were checked by the user on the device in the 2026-11-24 sessions, with the device-check fixes committed. Open points the user accepted as they are are listed in the feature's Deferred Findings. |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

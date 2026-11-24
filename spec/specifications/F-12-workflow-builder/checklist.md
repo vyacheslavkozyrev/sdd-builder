@@ -6,7 +6,7 @@ Edits are in memory only; reload the page to restore the default pipeline betwee
 
 Record each result as `PASS` or `FAIL` in the Result line and in the Summary table, with a short note.
 
-Status: AWAITING CONFIRMATION (Verify run 2026-11-23: 50 of 53 criteria have passing automated tests; AC-007, AC-008 and AC-012 are device checks, and their geometry and gesture logic is covered by automated tests; see `progress.md`, Test Results).
+Status: CONFIRMED by the user on the device (2026-11-24 sessions); the three device checks passed, with the device-check fixes committed. Open points accepted by the user are in progress.md.
 
 ---
 

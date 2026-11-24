@@ -2,6 +2,7 @@ import type { ProjectConfig } from '../model.js';
 import type { Finding, PositionedFinding, Position } from './finding.js';
 import { startAndEndRule } from './start-end.js';
 import { identityAndTextRule } from './text.js';
+import { conditionRule } from './condition.js';
 import { reuseRule } from './reuse.js';
 import { linksRule } from './links.js';
 import { outputsRule } from './outputs.js';
@@ -19,6 +20,7 @@ export type RuleModule = (config: ProjectConfig) => PositionedFinding[];
 const RULE_MODULES: readonly RuleModule[] = [
   startAndEndRule,
   identityAndTextRule,
+  conditionRule,
   reuseRule,
   linksRule,
   outputsRule,

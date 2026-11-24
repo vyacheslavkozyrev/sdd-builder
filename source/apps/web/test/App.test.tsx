@@ -107,16 +107,17 @@ describe('F-09 AC-012 step 1 body in the centre area', () => {
   });
 });
 
-describe('F-08 AC-013 step body in the centre area on step 4', () => {
-  it('F-08 AC-013 renders the step body placeholder line in the centre area on step 4', () => {
+describe('F-13 AC-001 step body in the centre area on step 4', () => {
+  it('F-13 AC-001 renders the privacy notice in the centre area on step 4', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-    expect(screen.getByText(PLACEHOLDER_LINE)).toBeTruthy();
+    expect(screen.getByText('Privacy notice')).toBeTruthy();
+    expect(screen.queryByText(PLACEHOLDER_LINE)).toBeNull();
   });
 
-  it('F-08 AC-013 negative case: the centre area shows no step title, step counter or input on step 4', () => {
+  it('F-13 AC-001 negative case: the centre area shows no step counter or text input on step 4', () => {
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
@@ -125,8 +126,8 @@ describe('F-08 AC-013 step body in the centre area on step 4', () => {
     expect(main).not.toBeNull();
     const text = main?.textContent ?? '';
     expect(text).not.toMatch(/Step \d/);
-    TITLES.forEach((title) => expect(text).not.toContain(title));
-    expect(main?.querySelector('input')).toBeNull();
+    expect(text).not.toContain('Analyze and generate');
+    expect(main?.querySelector('input:not([type="checkbox"])')).toBeNull();
     expect(main?.querySelector('textarea')).toBeNull();
   });
 });
@@ -427,7 +428,7 @@ describe('F-10 AC-021 each wizard step shows its own body through the app', () =
     { label: 'Project', clicks: 0, shows: 'Project: current step', present: 'id="project-name"' },
     { label: 'Technical details', clicks: 1, shows: 'Technical details: current step', present: 'id="technical-language"' },
     { label: 'Workflow', clicks: 2, shows: 'Workflow: current step', present: 'aria-label="Pipeline tabs"' },
-    { label: 'Analyze and generate', clicks: 3, shows: 'Analyze and generate: current step', present: PLACEHOLDER_LINE },
+    { label: 'Analyze and generate', clicks: 3, shows: 'Analyze and generate: current step', present: 'Privacy notice' },
   ])('F-10 AC-021 step $label shows its own body', ({ clicks, shows, present }) => {
     const { container } = render(<App />);
     clickNextNTimes(clicks);

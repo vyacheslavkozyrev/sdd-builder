@@ -91,7 +91,7 @@ Every automated test names the feature and criterion it covers (`F-08 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-013 `[auto]`: each step body shows the line `The content of this step is added in a later feature.` and no step title or step counter (the stepper names the step, AC-001), and shows no input field (negative case: F-08 adds no field).
+- [ ] AC-013 `[auto]`: each step body shows the line `The content of this step is added in a later feature.` and no step title or step counter (the stepper names the step, AC-001), and shows no input field (negative case: F-08 adds no field). Superseded on step 4 by F-13 AC-001 (the placeholder is replaced by the analyze and generate step, 2026-11-24).
 - [ ] AC-014 `[auto]`: the stepper is a Material UI stepper (class `MuiStepper-root`), and the Prev and Next controls are Material UI buttons (class `MuiButton-root`).
 - [ ] AC-015 `[device]`: at a window of 1280 × 800 the left panel shows the logo, New project (secondary button), the vertical stepper and Prev and Next at its foot; the step body is visible in the content area beside the panel, with no vertical page scroll.
 

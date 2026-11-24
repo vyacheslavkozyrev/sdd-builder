@@ -28,7 +28,7 @@ These points come from documents that disagree. The stories follow the reading s
 
 ## Current Task
 
-None.
+Verify device fix (2026-11-24) — reviewed: 0 blockers; 4 warnings fixed (the pan ends when the pointer leaves the drawing, now captured; a cancelled pointer left the pan set, now ended; a block-press test asserted only a positive x; straight-arrow drag tests could not fail with no drag, now assert the move); 4 suggestions fixed (Arrowhead comment "10 by 8" is "5 by 8"; a canvas-area comment moved to its own describe; a test named AC-008 that is `[device]`, renamed; the Arrowhead polyline wrapped). Task check passed: api 45, web 1638, core 1231. Staged, not committed.
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
@@ -145,6 +145,8 @@ _Review suggestions intentionally not applied, with the reason._
 - Verify device fix (2026-11-23), open point: a dragged block keeps its dragged place while its flow tab is open, and the place is not reset by the automatic layout. This differs from F-11, where a moved box is laid out again. Confirm with the user.
 - Verify device fix (2026-11-23), open point: a block dragged far from its main line may make a return route run through the wrong side of the block, because the return is routed from the block's sides and not re-planned for the new place. Not changed in this fix.
 - Verify device fix (2026-11-23), open point: the error panel sits inside the flow card under the toolbox (`blockCanvasStyles.ts`, `errors`, top 68 px). Placement inside the card is the user's to confirm on a device.
+- Verify device fix (2026-11-24), open point for the user, BLOCKING the device check: the curve the user saw is not reproduced in the code. The F-12 drawing draws only straight polylines (a forward arrow is two points, a return is an orthogonal run of four points); no path or curve command exists under `source/apps/web/src/builder`. The Pipeline tab (`Canvas.tsx`, F-11) sets no edge type, so React Flow's default curved edges apply there; that may be the curve seen, but this is not confirmed. The device check must give the exact step (tab, block, gesture) or a screenshot before any change is made.
+- Verify device fix (2026-11-24), suggestion, not applied: the drawing sets no `touch-action` (`BlockCanvas.tsx`, the drawing svg). On touch, the browser may take the press for its own scroll and send a pointer cancel, which now ends the pan. Setting `touch-action` needs a style in `blockCanvasStyles.ts`, outside the two staged files. Confirm the touch behaviour on the device.
 - Verify device fix (2026-11-23), open point: the shared select shape in `flowPanelStyles.ts` (height 100%, right padding 5) now also applies to the F-11 dropdowns, and the End panel takes it through `blockPanelStyles.ts`. The F-11 dropdowns change through this shape; their look is to be checked on a device.
 
 ## Test Results

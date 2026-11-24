@@ -519,7 +519,24 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style m
     expect(marker?.getAttribute('markerWidth')).toBe('12.5');
     expect(marker?.getAttribute('markerHeight')).toBe('12.5');
     expect(marker?.getAttribute('viewBox')).toBe('-10 -10 20 20');
+    expect(marker?.getAttribute('markerUnits')).toBe('strokeWidth');
+    expect(marker?.getAttribute('orient')).toBe('auto-start-reverse');
     expect(marker?.querySelector('polyline')?.getAttribute('points')).toBe('-5,-4 0,0 -5,4 -5,-4');
+    expect(marker?.querySelector('polyline')?.getAttribute('stroke-linecap')).toBe('round');
+  });
+
+  it('draws the return and selected arrowheads with the same closed shape as the normal one', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const normal = container.querySelector('marker#block-arrowhead');
+    const accent = container.querySelector('marker#block-arrowhead-accent');
+    for (const attribute of ['markerWidth', 'markerHeight', 'viewBox', 'refX', 'refY', 'markerUnits', 'orient']) {
+      expect(accent?.getAttribute(attribute)).toBe(normal?.getAttribute(attribute));
+    }
+    expect(accent?.querySelector('polyline')?.getAttribute('points')).toBe(normal?.querySelector('polyline')?.getAttribute('points'));
+    expect(accent?.querySelector('polyline')?.getAttribute('fill')).toBe(theme.palette.primary.main);
+    expect(container.querySelector('marker path')).toBeNull();
   });
 });
 
@@ -674,6 +691,178 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the error panel sits
       <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     expect(screen.queryByRole('button', { name: '1 error' })).toBeNull();
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) a press on the empty drawing pans it', () => {
+  // The scroll container of the drawing is the element around its stage. jsdom does not scroll or capture pointers, so
+  // the offsets are set here and the drawing's capture is a mock.
+  function scrollBoxOf(container: HTMLElement): HTMLElement {
+    const drawing = drawingOf(container);
+    const scroll = drawing.parentElement?.parentElement;
+    if (scroll === null || scroll === undefined) {
+      throw new Error('the drawing has no scroll container');
+    }
+    Object.defineProperty(scroll, 'scrollLeft', { value: 0, writable: true, configurable: true });
+    Object.defineProperty(scroll, 'scrollTop', { value: 0, writable: true, configurable: true });
+    Object.defineProperty(drawing, 'setPointerCapture', { value: vi.fn(), configurable: true });
+    return scroll;
+  }
+
+  it('scrolls the drawing by the pointer move when the press is on the empty drawing', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const scroll = scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 250, clientY: 280 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 250, clientY: 280 });
+    expect(scroll.scrollLeft).toBe(50);
+    expect(scroll.scrollTop).toBe(20);
+  });
+
+  it('does not scroll for a press that stays inside the slop', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const scroll = scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 302, clientY: 301 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 302, clientY: 301 });
+    expect(scroll.scrollLeft).toBe(0);
+    expect(scroll.scrollTop).toBe(0);
+  });
+
+  it('clears the selection on a press without movement', () => {
+    const onSelect = vi.fn();
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.click(drawingOf(container));
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'none' });
+  });
+
+  it('keeps the selection after a pan: the click that ends the pan does not clear it', () => {
+    const onSelect = vi.fn();
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 260, clientY: 300 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 260, clientY: 300 });
+    fireEvent.click(drawingOf(container));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('does not pan when the press is on a block: the block moves and the drawing stays', () => {
+    const onChange = vi.fn();
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={onChange} />,
+    );
+    const scroll = scrollBoxOf(container);
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 140, clientY: 420 });
+    fireEvent.pointerUp(drawingOf(container), { clientX: 140, clientY: 420 });
+    expect(plannerX()).toBe(before + 40);
+    expect(scroll.scrollLeft).toBe(0);
+    expect(drawingOf(container).setPointerCapture).not.toHaveBeenCalled();
+  });
+
+  it('captures the pointer on a press on the empty drawing, so the pan goes on past the drawing', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const scroll = scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    expect(drawingOf(container).setPointerCapture).toHaveBeenCalledTimes(1);
+    fireEvent.pointerMove(drawingOf(container), { clientX: 200, clientY: 300 });
+    expect(scroll.scrollLeft).toBe(100);
+  });
+
+  it('ends the pan when the browser cancels the pointer, so a later move does not scroll', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const scroll = scrollBoxOf(container);
+    fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 250, clientY: 300 });
+    fireEvent.pointerCancel(drawingOf(container));
+    fireEvent.pointerMove(drawingOf(container), { clientX: 100, clientY: 300 });
+    expect(scroll.scrollLeft).toBe(50);
+  });
+
+  it('does not pan when the press is on a connection point: the link starts', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const scroll = scrollBoxOf(container);
+    fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 160, clientY: 420 });
+    expect(previewOf(container)).not.toBeNull();
+    expect(scroll.scrollLeft).toBe(0);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows stay straight while a block is dragged', () => {
+  // Each arrow is drawn as a polyline of straight segments, never a curve: a forward arrow is one segment (two points),
+  // a return (dashed) is four points whose segments run across or down, so it has no diagonal or curved part.
+  function expectStraightArrows(container: HTMLElement): void {
+    const arrows = Array.from(container.querySelectorAll('polyline[marker-end]'));
+    expect(arrows.length).toBeGreaterThan(0);
+    for (const arrow of arrows) {
+      const points = (arrow.getAttribute('points') ?? '').trim().split(' ').map((point) => point.split(',').map(Number));
+      const returns = arrow.getAttribute('stroke-dasharray') !== null;
+      expect(points).toHaveLength(returns ? 4 : 2);
+      if (!returns) {
+        continue;
+      }
+      for (let index = 1; index < points.length; index += 1) {
+        const before = points[index - 1];
+        const after = points[index];
+        expect(before?.[0] === after?.[0] || before?.[1] === after?.[1]).toBe(true);
+      }
+    }
+  }
+
+  it('keeps every arrow a straight route after an Agent block is dragged', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const before = groupOf('Agent block: planner').innerHTML;
+    fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 100, clientY: 520 });
+    expect(groupOf('Agent block: planner').innerHTML).not.toBe(before);
+    expectStraightArrows(container);
+    fireEvent.pointerUp(drawingOf(container), { clientX: 100, clientY: 520 });
+    expectStraightArrows(container);
+  });
+
+  it('keeps the return arrow an orthogonal route after the Condition it leaves is dragged', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    const before = groupOf('Condition block: The reviewer approves').innerHTML;
+    fireEvent.pointerDown(groupOf('Condition block: The reviewer approves'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 100, clientY: 380 });
+    expect(groupOf('Condition block: The reviewer approves').innerHTML).not.toBe(before);
+    fireEvent.pointerUp(drawingOf(container), { clientX: 100, clientY: 380 });
+    expectStraightArrows(container);
+  });
+
+  it('draws the link preview as a straight two-point line while a link is dragged', () => {
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 160, clientY: 300 });
+    const points = previewOf(container)?.getAttribute('points')?.trim().split(' ') ?? [];
+    expect(points).toHaveLength(2);
   });
 });
 

@@ -63,6 +63,15 @@ interface BlockMove {
   readonly moved: boolean;
 }
 
+// A press on the empty drawing: the pointer's place in the page, the scroll place of the drawing when it went down,
+// and whether the pointer has moved, which pans the drawing (F-12 device fix 2026-11-24).
+interface Pan {
+  readonly start: Point;
+  readonly left: number;
+  readonly top: number;
+  readonly moved: boolean;
+}
+
 const emptyText = 'No blocks yet.';
 const hintText =
   'Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.';
@@ -82,6 +91,9 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
   // The blocks moved on each flow tab, by flow id and block id, and the block being pressed or moved.
   const [dragged, setDragged] = useState<Readonly<Record<string, Readonly<Record<string, Point>>>>>({});
   const [move, setMove] = useState<BlockMove | null>(null);
+  // The scroll area of the drawing, and the press on the empty drawing that pans it.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const pan = useRef<Pan | null>(null);
   const places = dragged[flow.id] ?? {};
   // The canvas area the drawing fills: measured on the stage, and kept up to date as the card is resized. Where
   // ResizeObserver is missing (jsdom), the area is read once and stays at zero, so the drawing keeps its natural size.
@@ -131,6 +143,19 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
     const centre = movedCentre({ x: current.block.cx, y: current.block.cy }, current.grab, at, current.block, drawing);
     setDragged((all) => ({ ...all, [flow.id]: { ...all[flow.id], [current.block.blockId]: centre } }));
   };
+  // The drawing scrolls by the pointer's move from where the press went down, once the pointer has gone past the slop.
+  const panDrawing = (current: Pan, at: Point): void => {
+    if (!current.moved && !pastSlop(current.start, at)) {
+      return;
+    }
+    pan.current = { ...current, moved: true };
+    const box = scrollRef.current;
+    if (box === null) {
+      return;
+    }
+    box.scrollLeft = current.left - (at.x - current.start.x);
+    box.scrollTop = current.top - (at.y - current.start.y);
+  };
   const settle = (target: Drop, current: DragState): void => {
     endDrag();
     const result = settleDrop(flow, current, target);
@@ -146,6 +171,13 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
   };
   const gestures: DrawingGestures = {
     onClear: () => pick({ kind: 'none' }),
+    onBackgroundDown: (at) => {
+      afterDrag.current = false;
+      const box = scrollRef.current;
+      if (box !== null) {
+        pan.current = { start: at, left: box.scrollLeft, top: box.scrollTop, moved: false };
+      }
+    },
     onBlockDown: (block, at) => {
       afterDrag.current = false;
       setMove({ block, grab: at, moved: false });
@@ -169,12 +201,15 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
       afterDrag.current = true;
       settle(target, drag);
     },
-    onMove: (at) => {
+    onMove: (at, client) => {
       if (drag !== null) {
         setPointer(at);
       }
       if (move !== null) {
         moveBlock(move, at);
+      }
+      if (pan.current !== null) {
+        panDrawing(pan.current, client);
       }
     },
     onRelease: () => {
@@ -189,12 +224,20 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
         }
         setMove(null);
       }
+      if (pan.current !== null) {
+        // A drawing that was panned is not clicked: the click that ends the pan does not clear the selection.
+        if (pan.current.moved) {
+          afterDrag.current = true;
+        }
+        pan.current = null;
+      }
     },
     onLeave: () => {
       if (drag !== null) {
         endDrag();
       }
       setMove(null);
+      pan.current = null;
     },
   };
   const preview = drag !== null && pointer !== null ? dragPreview(drawing, drag, pointer) : null;
@@ -203,7 +246,7 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
       {flow.blocks.length === 0 ? (
         <Box sx={styles.empty}>{emptyText}</Box>
       ) : (
-        <Box sx={styles.scroll}>
+        <Box ref={scrollRef} sx={styles.scroll}>
           <Box ref={setStage} sx={styles.stage}>
             <DrawingView
               drawing={drawing}
@@ -247,9 +290,12 @@ interface DrawingGestures {
   readonly onHandleDown: (arrow: ArrowShape, end: 'source' | 'target') => void;
   // A release over a point or a block. `event` is the release, which a drop stops so the drawing does not end the drag.
   readonly onDrop: (target: Drop, event: { readonly stopPropagation: () => void }) => void;
-  readonly onMove: (at: Point) => void;
+  // A pointer move: `at` is in the drawing's units, `client` in the page (the pan moves the scroll by the page move).
+  readonly onMove: (at: Point, client: Point) => void;
   readonly onRelease: () => void;
   readonly onLeave: () => void;
+  // A press on the empty drawing (the svg itself), at the page point it went down; it starts a pan (F-12 device fix).
+  readonly onBackgroundDown: (client: Point) => void;
   // A press on a block's body, at the point the pointer went down; it starts a move, not a link (AC-012 view state).
   readonly onBlockDown: (block: BlockShape, at: Point) => void;
 }
@@ -289,25 +335,23 @@ function DrawingView({ drawing, styles, markInks, marked, preview, onSelect, ges
       height={drawing.height}
       sx={styles.drawing}
       onClick={gestures.onClear}
-      onPointerMove={(event: PointerEvent<SVGSVGElement>) => gestures.onMove(pointerIn(event))}
+      onPointerDown={(event: PointerEvent<SVGSVGElement>) => {
+        if (event.target === event.currentTarget) {
+          // The pan keeps its moves when the pointer leaves the drawing, until the press is released.
+          event.currentTarget.setPointerCapture(event.pointerId);
+          gestures.onBackgroundDown({ x: event.clientX, y: event.clientY });
+        }
+      }}
+      onPointerMove={(event: PointerEvent<SVGSVGElement>) =>
+        gestures.onMove(pointerIn(event), { x: event.clientX, y: event.clientY })
+      }
       onPointerUp={gestures.onRelease}
       onPointerLeave={gestures.onLeave}
+      onPointerCancel={gestures.onLeave}
     >
       <defs>
-        <marker
-          id="block-arrowhead"
-          markerWidth={12.5}
-          markerHeight={12.5}
-          viewBox="-10 -10 20 20"
-          refX={0}
-          refY={0}
-          orient="auto"
-        >
-          <polyline points="-5,-4 0,0 -5,4 -5,-4" fill={ink.line} stroke={ink.line} strokeLinejoin="round" />
-        </marker>
-        <marker id="block-arrowhead-accent" markerWidth={8} markerHeight={8} refX={7} refY={4} orient="auto">
-          <path d="M0,0 L8,4 L0,8 z" fill={ink.accent} />
-        </marker>
+        <Arrowhead id="block-arrowhead" color={ink.line} />
+        <Arrowhead id="block-arrowhead-accent" color={ink.accent} />
       </defs>
       {drawing.arrows.map((arrow) => {
         const key = arrowKey(arrow.fromId, arrow.output);
@@ -393,6 +437,31 @@ function Handle({
       data-handle={end}
       onPointerDown={onDown}
     />
+  );
+}
+
+// A closed arrowhead with React Flow's geometry (F-11): 12.5 units, a 20 by 20 view box, a triangle of 5 by 8 units
+// with round caps, scaled with the stroke it ends, as React Flow scales it.
+function Arrowhead({ id, color }: { readonly id: string; readonly color: string }) {
+  return (
+    <marker
+      id={id}
+      markerWidth={12.5}
+      markerHeight={12.5}
+      markerUnits="strokeWidth"
+      viewBox="-10 -10 20 20"
+      refX={0}
+      refY={0}
+      orient="auto-start-reverse"
+    >
+      <polyline
+        points="-5,-4 0,0 -5,4 -5,-4"
+        fill={color}
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </marker>
   );
 }
 

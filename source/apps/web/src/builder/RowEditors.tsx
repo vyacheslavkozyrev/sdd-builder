@@ -236,7 +236,7 @@ interface ArgumentRefusal {
 }
 
 // Enter ends the edit of a one-line field, as losing focus does. Enter that ends an IME composition is not an edit end.
-function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
+export function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
   if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
 }
 

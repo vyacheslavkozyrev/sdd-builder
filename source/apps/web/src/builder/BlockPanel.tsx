@@ -34,7 +34,7 @@ import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
 import type { Finding } from './marks.js';
 import { getMarkViewsStyles } from './markViewsStyles.js';
-import { ArgumentRows, RuleTagRows } from './RowEditors.js';
+import { ArgumentRows, endOnEnter, RuleTagRows } from './RowEditors.js';
 
 type StartBlock = core.StartBlock;
 
@@ -147,6 +147,27 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
     settle(field, editAgentField(pipelineState, rules, flow.id, block.id, { field, value }), value);
   }
 
+  // A blank name is held while it is typed: it is the step before the next name, so it is refused only when it
+  // is committed (focus leaves the field, or Enter). Any other name is checked as it is typed.
+  function editName(value: string) {
+    if (value.trim() === '') {
+      setEdits({
+        target,
+        drafts: { ...state.drafts, name: value },
+        refusals: { ...state.refusals, name: undefined },
+      });
+      return;
+    }
+    editText('name', value);
+  }
+
+  // Commits a held blank name: the parser refuses it with its reason, and the saved name shows again.
+  function commitName() {
+    const held = state.drafts.name;
+    if (held === undefined || held.trim() !== '') return;
+    settle('name', editAgentField(pipelineState, rules, flow.id, block.id, { field: 'name', value: held }), held);
+  }
+
   function editModel(value: string) {
     settle('model', setAgentModel(pipelineState, rules, flow.id, block.id, value === '' ? undefined : value));
   }
@@ -181,7 +202,7 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
       </Box>
 
       <Box sx={styles.scroll}>
-        <Box sx={styles.group}>
+        <Box sx={styles.agentGroup}>
           <Typography component="label" htmlFor="block-agent-name" sx={styles.fieldLabel}>
             Name
           </Typography>
@@ -189,15 +210,16 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
             id="block-agent-name"
             value={shownText('name')}
             onChange={(event) => {
-              editText('name', event.target.value);
+              editName(event.target.value);
             }}
+            onBlur={commitName}
             sx={styles.field}
-            slotProps={{ htmlInput: { 'aria-describedby': describedBy('name') } }}
+            slotProps={{ htmlInput: { 'aria-describedby': describedBy('name'), onKeyDown: endOnEnter } }}
           />
         </Box>
         {refusal('name')}
 
-        <Box sx={styles.group}>
+        <Box sx={styles.agentGroup}>
           <Typography component="label" htmlFor="block-agent-description" sx={styles.fieldLabel}>
             Description
           </Typography>

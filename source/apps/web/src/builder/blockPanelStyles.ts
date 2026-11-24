@@ -12,6 +12,9 @@ import type { FlowPanelStyles } from './flowPanelStyles.js';
 export interface BlockPanelStyles extends FlowPanelStyles {
   // The title and subtitle above the fields: a column with 4 px between the two lines, 16 px in from the sides.
   readonly header: StyleObject;
+  // One Agent field group, Name or Description: the shared group with 16 px between its label and its field
+  // (Verify device fix 2026-11-24). The other panels keep the 8 px group they take from the flow panel.
+  readonly agentGroup: StyleObject;
   // The title, "Agent: <name>": the shared sectionTitle shape of common.ts.
   readonly title: StyleObject;
   // The subtitle, "Agent block in the <flow> flow": the shared secondaryText shape of common.ts.
@@ -47,6 +50,10 @@ export function getBlockPanelStyles(theme: Theme): BlockPanelStyles {
       minHeight: FIELD_HEIGHT,
       py: '8px',
       boxSizing: 'border-box',
+    },
+    agentGroup: {
+      ...getFlowPanelStyles(theme).group,
+      gap: '16px',
     },
     roundRow: {
       display: 'flex',

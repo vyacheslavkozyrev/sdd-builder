@@ -178,6 +178,80 @@ describe('F-12 AC-023 Agent name', () => {
   });
 });
 
+describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) accepts a one-character name typed and committed by blur', () => {
+    const { onChange } = renderPanel(planPipeline());
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 's' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const saved = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(agentOf(saved, 'planner').name).toBe('s');
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) accepts a one-character name committed by Enter', () => {
+    const { onChange } = renderPanel(planPipeline());
+    const input = screen.getByLabelText('Name');
+
+    input.focus();
+    fireEvent.change(input, { target: { value: 's' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) holds a blank name while typing without a refusal', () => {
+    const { onChange } = renderPanel(planPipeline());
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) refuses a blank name only when committed, and keeps the saved name', () => {
+    const pipelineState = planPipeline();
+    const { onChange } = renderPanel(pipelineState);
+    const reason = parserReason(pipelineState, { field: 'name', value: '' });
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) types a one-character name after clearing the field', () => {
+    const { onChange } = renderPanel(planPipeline());
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.change(input, { target: { value: 's' } });
+    fireEvent.blur(input);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name gap', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) puts 16 px between the Name label and its field', () => {
+    renderPanel(planPipeline());
+    const group = screen.getByText('Name', { selector: 'label' }).parentElement;
+
+    expect(group).not.toBeNull();
+    expect(getComputedStyle(group as HTMLElement).getPropertyValue('gap')).toBe('16px');
+  });
+});
+
 describe('F-12 AC-024 Agent description', () => {
   it('F-12 AC-024 refuses a blank description with its reason and keeps the saved value', () => {
     const pipelineState = planPipeline();

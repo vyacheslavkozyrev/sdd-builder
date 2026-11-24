@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
+import type { pipeline as core } from '@sddbuilder/core';
 import { codePointCount } from '../wizard/project.js';
 import { bodyCounterText } from './FlowPanel.js';
 import { AgentLabelRows, AgentToolRows } from './AgentRows.js';
-import { blockName } from './blockArrows.js';
+import { blockName, type Block } from './blockArrows.js';
+import { ConfirmDialog } from './ConfirmDialog.js';
 import {
   editConditionDescription,
   falseRouteOf,
@@ -26,17 +28,20 @@ import {
   type EndOutcome,
 } from './blockEnd.js';
 import { editAgentField, type AgentBlock, type AgentField } from './blockFields.js';
-import { deleteRefusal } from './deleteBlock.js';
+import { arrowsRemovedBy, deleteBlock, deleteRefusal } from './deleteBlock.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
 import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
 import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 
+type StartBlock = core.StartBlock;
+
 // The block panels of the flow tab (F-12 AC-022 to AC-034). This file holds the Agent panel, as screen 02
 // draws it: a title "Agent: <name>", the subtitle "Agent block in the <flow> flow", then Name, Description,
-// Arguments, Model, Tools, Reads, Writes, Rule tags and Body with its counter, in the order of AC-022. The
-// Delete control comes in T021. It also holds the Condition panel (`ConditionPanel`), as screens 03 and 04
-// draw it. It also holds the End panel (`EndPanel`), as screen 01 draws it.
+// Arguments, Model, Tools, Reads, Writes, Rule tags and Body with its counter, in the order of AC-022. It also
+// holds the Condition panel (`ConditionPanel`), as screens 03 and 04 draw it, the End panel (`EndPanel`), as screen
+// 01 draws it, and the Start panel (`StartPanel`), built as the Agent panel. Every block panel ends with the Delete
+// block control (`DeleteBlockFooter`), as screen 05 shows it.
 //
 // Each edit goes through the parser (blockFields.ts and blockAgentFields.ts). An accepted edit is reported to
 // the caller as the new pipeline. A refused edit keeps the saved value in the field and shows its reason
@@ -263,6 +268,8 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange }: Agen
         </Box>
         {refusal('body')}
       </Box>
+
+      <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
     </Box>
   );
 }
@@ -420,6 +427,39 @@ export function ConditionPanel({ pipelineState, rules, flow, block, onChange }: 
           </Box>
         ) : null}
       </Box>
+
+      <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
+    </Box>
+  );
+}
+
+export interface StartPanelProps {
+  readonly pipelineState: Pipeline;
+  readonly flow: Flow;
+  readonly block: StartBlock;
+  readonly onChange: (pipelineState: Pipeline) => void;
+}
+
+// The Start panel (F-12 AC-011, AC-042). It has no field: the title, the subtitle, and the Delete block control,
+// disabled with "A flow keeps its Start block." because a flow keeps its Start. The empty scroll area pushes the
+// footer to the foot of the panel.
+export function StartPanel({ pipelineState, flow, block, onChange }: StartPanelProps) {
+  const styles = getBlockPanelStyles(useTheme());
+
+  return (
+    <Box sx={styles.root}>
+      <Box sx={styles.header}>
+        <Typography component="h2" sx={styles.title}>
+          Start
+        </Typography>
+        <Typography component="p" sx={styles.subtitle}>
+          {`Start block in the ${flow.name} flow`}
+        </Typography>
+      </Box>
+
+      <Box sx={styles.scroll} />
+
+      <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
     </Box>
   );
 }
@@ -445,7 +485,7 @@ function emptyEndEdits(target: string): EndEdits {
 
 // The End panel (AC-035, AC-036, AC-043), as screen 01 draws it: the title "End", the subtitle, Outcome and
 // Produced artifact, then the Delete block control at the foot. Delete is disabled on the flow's last End, with
-// its reason shown under it; the delete itself is wired in T021.
+// its reason shown under it.
 export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPanelProps) {
   const styles = getBlockPanelStyles(useTheme());
   const target = `${flow.id}/${block.id}`;
@@ -454,7 +494,6 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPan
 
   const choices = producedArtifactChoices(flow);
   const artifactNote = producedArtifactNote(flow);
-  const deleteReason = deleteRefusal(flow, block.id);
 
   // Settles one edit: an accepted edit reports the new pipeline and clears the field's refusal; a refused one
   // records its reason, and the saved value stays in the select.
@@ -478,17 +517,6 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPan
 
   const describedBy = (field: EndField): string | undefined =>
     state.refusals[field] === undefined ? undefined : `block-end-${field}-refusal`;
-
-  const deleteButton = (
-    <Button
-      variant="contained"
-      disabled={deleteReason !== null}
-      aria-describedby={deleteReason === null ? undefined : 'block-end-delete-refusal'}
-      sx={styles.deleteButton}
-    >
-      Delete block
-    </Button>
-  );
 
   return (
     <Box sx={styles.root}>
@@ -565,7 +593,55 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPan
         {refusal('producedArtifact')}
       </Box>
 
-      {deleteReason === null ? (
+      <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
+    </Box>
+  );
+}
+
+// The number of arrows as the confirmation names them (AC-039).
+function arrowCountText(count: number): string {
+  return count === 1 ? '1 arrow' : `${count} arrows`;
+}
+
+// The pipeline with the flow of the same id replaced by `flow`; every other flow is kept.
+function withFlow(pipelineState: Pipeline, flow: Flow): Pipeline {
+  return { ...pipelineState, flows: pipelineState.flows.map((item) => (item.id === flow.id ? flow : item)) };
+}
+
+interface DeleteBlockFooterProps {
+  readonly pipelineState: Pipeline;
+  readonly flow: Flow;
+  readonly block: Block;
+  readonly onChange: (pipelineState: Pipeline) => void;
+}
+
+// The Delete block control at the foot of a block panel (F-12 AC-039 to AC-043), as screen 05 draws it. It is
+// disabled with its reason when the block is the flow's Start or its last End. Pressing it asks first: the
+// confirmation names the block and the arrows that go with it. Cancel changes nothing; Delete removes the block and
+// its arrows through deleteBlock, and the other blocks keep their properties.
+function DeleteBlockFooter({ pipelineState, flow, block, onChange }: DeleteBlockFooterProps) {
+  const styles = getBlockPanelStyles(useTheme());
+  const [confirming, setConfirming] = useState(false);
+  const reason = deleteRefusal(flow, block.id);
+  const arrows = arrowCountText(arrowsRemovedBy(flow, block.id));
+
+  const deleteButton = (
+    <Button
+      variant="contained"
+      disabled={reason !== null}
+      aria-describedby={reason === null ? undefined : 'block-delete-refusal'}
+      onClick={() => {
+        setConfirming(true);
+      }}
+      sx={styles.deleteButton}
+    >
+      Delete block
+    </Button>
+  );
+
+  return (
+    <>
+      {reason === null ? (
         <Box sx={styles.footer}>
           {deleteButton}
           <Typography component="p" sx={styles.footerNote}>
@@ -575,11 +651,30 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPan
       ) : (
         <Box sx={styles.stackedFooter}>
           {deleteButton}
-          <Typography id="block-end-delete-refusal" component="p" sx={styles.footerNote}>
-            {deleteReason}
+          <Typography id="block-delete-refusal" component="p" sx={styles.footerNote}>
+            {reason}
           </Typography>
         </Box>
       )}
-    </Box>
+
+      <ConfirmDialog
+        open={confirming}
+        title={`Delete block '${blockName(block)}'?`}
+        text={`${arrows} will be removed. Routes that pointed to this block are cleared, not rewired.`}
+        confirmLabel="Delete"
+        onCancel={() => {
+          setConfirming(false);
+        }}
+        onConfirm={() => {
+          setConfirming(false);
+          const result = deleteBlock(flow, block.id);
+          if (!result.ok) {
+            // The control is disabled for a refused block, so a refusal here is a programmer error.
+            throw new Error(`F-12: ${result.reason}`);
+          }
+          onChange(withFlow(pipelineState, result.flow));
+        }}
+      />
+    </>
   );
 }

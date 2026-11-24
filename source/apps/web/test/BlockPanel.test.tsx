@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { editAgentField } from '../src/builder/blockFields.js';
-import { AgentPanel, ConditionPanel, EndPanel } from '../src/builder/BlockPanel.js';
+import { AgentPanel, ConditionPanel, EndPanel, StartPanel } from '../src/builder/BlockPanel.js';
 import { editConditionDescription, setConditionRoundLimit } from '../src/builder/blockCondition.js';
 import { editEndArtifact } from '../src/builder/blockEnd.js';
 import type { Pipeline } from '../src/builder/fields.js';
@@ -695,7 +695,7 @@ describe('F-12 AC-043 End delete control', () => {
     const button = screen.getByRole('button', { name: 'Delete block' });
     expect(button).toHaveProperty('disabled', true);
     expect(screen.getByText('A flow keeps at least one End block.')).toBeTruthy();
-    expect(button.getAttribute('aria-describedby')).toBe('block-end-delete-refusal');
+    expect(button.getAttribute('aria-describedby')).toBe('block-delete-refusal');
   });
 
   it('F-12 AC-043 enables Delete block on an End when the flow has another End, and shows no reason', () => {
@@ -713,5 +713,110 @@ describe('F-12 AC-043 End delete control', () => {
     expect(screen.getByText('Asks first')).toBeTruthy();
     expect(screen.queryByText('A flow keeps at least one End block.')).toBeNull();
     expect(button.getAttribute('aria-describedby')).toBeNull();
+  });
+});
+
+describe('F-12 AC-039 Delete block confirmation', () => {
+  it('F-12 AC-039 names the block and its arrows, and asks first', () => {
+    const { onChange } = renderPanel(planPipeline());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+
+    const dialog = screen.getByRole('dialog', { name: "Delete block 'planner'?" });
+    expect(within(dialog).getByText(/^2 arrows will be removed\./)).toBeTruthy();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-12 AC-039 Cancel keeps the block and its arrows', async () => {
+    const { onChange } = renderPanel(planPipeline());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-12 AC-039 uses the singular for one arrow', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      blocks: [
+        { index: 0, id: 'start', kind: 'start', next: 'done' },
+        { index: 1, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+        { index: 2, id: 'stopped', kind: 'end', outcome: 'stopped', producedArtifact: 'plan.md' },
+      ],
+    }));
+    renderEnd(pipelineState, 'done');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+
+    expect(screen.getByText(/^1 arrow will be removed\./)).toBeTruthy();
+  });
+
+  it('F-12 AC-040 Confirm removes the block and its arrows, clears the route to it and keeps the other blocks', () => {
+    const pipelineState = planPipeline();
+    const { onChange } = renderPanel(pipelineState);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+
+    const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
+    expect(blocks.map((block) => block.id)).toEqual(['start', 'reviewer', 'done']);
+    expect(blocks[0]).toEqual({ ...pipelineState.flows[0]?.blocks[0], next: '' });
+    expect(blocks[1]).toEqual(pipelineState.flows[0]?.blocks[2]);
+  });
+
+  it('F-12 AC-039 names a Condition by its description and counts its three arrows', () => {
+    renderCondition(conditionPipeline(), 'check');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+
+    expect(screen.getByRole('dialog', { name: "Delete block 'Condition: The reviewer approves'?" })).toBeTruthy();
+    expect(screen.getByText(/^3 arrows will be removed/)).toBeTruthy();
+  });
+
+  it('F-12 AC-040 Confirm on a Condition clears the routes that pointed to it', () => {
+    const pipelineState = conditionPipeline();
+    const { onChange } = renderCondition(pipelineState, 'check');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+
+    const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
+    expect(blocks.map((block) => block.id)).toEqual(['start', 'pre', 'planner', 'done']);
+    expect(blocks[2]).toEqual({ ...pipelineState.flows[0]?.blocks[2], next: '' });
+  });
+
+  it('F-12 AC-040 Confirm on an End deletes it when the flow has another End', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      blocks: [
+        ...flow.blocks,
+        { index: 4, id: 'stopped', kind: 'end', outcome: 'stopped', producedArtifact: 'plan.md' },
+      ],
+    }));
+    const { onChange } = renderEnd(pipelineState, 'stopped');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+
+    const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
+    expect(blocks.map((block) => block.id)).toEqual(['start', 'planner', 'reviewer', 'done']);
+  });
+});
+
+describe('F-12 AC-042 Start panel', () => {
+  it('F-12 AC-042 shows the title, the subtitle and a disabled Delete block with its reason', () => {
+    const pipelineState = planPipeline();
+    const flow = pipelineState.flows[0];
+    const block = flow?.blocks[0];
+    if (flow === undefined || block?.kind !== 'start') throw new Error('no Start in the test pipeline');
+    const onChange = vi.fn();
+    render(<StartPanel pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />);
+
+    expect(screen.getByRole('heading', { name: 'Start' })).toBeTruthy();
+    expect(screen.getByText('Start block in the Plan flow')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Delete block' })).toHaveProperty('disabled', true);
+    expect(screen.getByText('A flow keeps its Start block.')).toBeTruthy();
   });
 });

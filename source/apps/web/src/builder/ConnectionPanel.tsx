@@ -6,26 +6,31 @@ import { ConfirmDialog } from './ConfirmDialog.js';
 import { getConnectionPanelStyles } from './connectionPanelStyles.js';
 import { arrowPanel } from './panel.js';
 import type { Pipeline } from './fields.js';
+import { arrowPanel as blockArrowPanel, type BlockArrow } from './blockArrows.js';
+import { removeBlockArrow } from './blockLink.js';
+import type { Flow } from './model.js';
 
-// The connection panel of the Pipeline tab (F-11 AC-017, AC-018, screen 02). It shows the source and the
-// target of the selected arrow as read-only names: there is no field that changes them, and an arrow is
-// repointed only by a drag on the canvas (AC-016). Its footer holds Delete connection, which asks first
-// (AC-018). Only Confirm removes the link, through removeConnection: the source's next flow is cleared and
-// the target flow and every other field stay as they are. Cancel keeps the arrow.
+// The connection panels of the F-11 Pipeline tab (F-11 AC-017, AC-018, screen 02) and of a flow tab (F-12 AC-021).
+// They show the source and the target of the selected arrow as read-only names: there is no field that changes
+// them, and an arrow is repointed only by a drag on the canvas (AC-016). Their footer holds Delete connection,
+// which asks first (AC-018). Only Confirm removes the link: the pipeline's link through removeConnection, a block
+// arrow through removeBlockArrow, which clears the route and leaves the other arrows as they are. Cancel keeps the arrow.
 
 // The note under the read-only names: where the artifacts and the approval of the connection are edited.
 const SOURCE_NOTE = "Artifacts and approval are in the source flow's panel.";
 
-export interface ConnectionPanelProps {
-  readonly pipelineState: Pipeline;
-  readonly arrow: Arrow;
-  readonly onDelete: (pipelineState: Pipeline) => void;
+interface ArrowDeleteViewProps {
+  readonly sourceName: string;
+  readonly targetName: string;
+  readonly note?: string;
+  readonly onConfirm: () => void;
 }
 
-export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPanelProps) {
+// The fields and the footer shared by both connection panels: the source and target names read-only, an optional
+// note, and Delete connection, which asks first. Only Confirm calls `onConfirm`.
+function ArrowDeleteView({ sourceName, targetName, note, onConfirm }: ArrowDeleteViewProps) {
   const styles = getConnectionPanelStyles(useTheme());
   const [confirming, setConfirming] = useState(false);
-  const names = arrowPanel(pipelineState, arrow);
   const sourceLabelId = useId();
   const targetLabelId = useId();
 
@@ -37,7 +42,7 @@ export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPa
             Source · read only
           </Typography>
           <Box aria-labelledby={sourceLabelId} sx={styles.readOnly}>
-            {names.sourceName}
+            {sourceName}
           </Box>
         </Box>
 
@@ -46,13 +51,15 @@ export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPa
             Target · read only
           </Typography>
           <Box aria-labelledby={targetLabelId} sx={styles.readOnly}>
-            {names.targetName}
+            {targetName}
           </Box>
         </Box>
 
-        <Typography component="p" sx={styles.note}>
-          {SOURCE_NOTE}
-        </Typography>
+        {note === undefined ? null : (
+          <Typography component="p" sx={styles.note}>
+            {note}
+          </Typography>
+        )}
       </Box>
 
       <Box sx={styles.footer}>
@@ -77,14 +84,58 @@ export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPa
         }}
         onConfirm={() => {
           setConfirming(false);
-          const result = removeConnection(pipelineState, arrow.source);
-          if (!result.ok) {
-            // The arrow was checked by arrowPanel above, so a refusal here is a programmer error.
-            throw new Error(`F-11: ${result.reason}`);
-          }
-          onDelete(result.pipeline);
+          onConfirm();
         }}
       />
     </Box>
+  );
+}
+
+export interface ConnectionPanelProps {
+  readonly pipelineState: Pipeline;
+  readonly arrow: Arrow;
+  readonly onDelete: (pipelineState: Pipeline) => void;
+}
+
+export function ConnectionPanel({ pipelineState, arrow, onDelete }: ConnectionPanelProps) {
+  const names = arrowPanel(pipelineState, arrow);
+
+  return (
+    <ArrowDeleteView
+      sourceName={names.sourceName}
+      targetName={names.targetName}
+      note={SOURCE_NOTE}
+      onConfirm={() => {
+        const result = removeConnection(pipelineState, arrow.source);
+        if (!result.ok) {
+          // The arrow was checked by arrowPanel above, so a refusal here is a programmer error.
+          throw new Error(`F-11: ${result.reason}`);
+        }
+        onDelete(result.pipeline);
+      }}
+    />
+  );
+}
+
+export interface BlockArrowPanelProps {
+  readonly flow: Flow;
+  readonly arrow: BlockArrow;
+  readonly onDelete: (flow: Flow) => void;
+}
+
+// The panel of an arrow between two blocks of a flow (F-12 AC-021): the names of its blocks, read-only, and Delete
+// connection. Confirm clears the route of the arrow's output through removeBlockArrow and reports the new flow; the
+// blocks keep their properties and no other arrow changes. The arrow's panel has no note.
+export function BlockArrowPanel({ flow, arrow, onDelete }: BlockArrowPanelProps) {
+  const names = blockArrowPanel(flow, arrow);
+
+  return (
+    <ArrowDeleteView
+      sourceName={names.source}
+      targetName={names.target}
+      onConfirm={() => {
+        onDelete(removeBlockArrow(flow, arrow.fromId, arrow.output));
+      }}
+    />
   );
 }

@@ -2,7 +2,8 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ConnectionPanel } from '../src/builder/ConnectionPanel.js';
+import { BlockArrowPanel, ConnectionPanel } from '../src/builder/ConnectionPanel.js';
+import { flowArrows } from '../src/builder/blockArrows.js';
 import type { Arrow } from '../src/builder/connect.js';
 import type { Pipeline } from '../src/builder/fields.js';
 
@@ -126,5 +127,68 @@ describe('F-11 AC-018 delete connection asks first', () => {
     expect(next.flows[0]).not.toHaveProperty('next');
     expect(next.flows[1]).toEqual(pipelineState.flows[1]);
     expect(next.flows[2]).toEqual(pipelineState.flows[2]);
+  });
+});
+
+// A flow of blocks: start to the planner Agent, which goes to End.
+function blockFlow(): core.Flow {
+  return {
+    ...flow('plan', 'Plan'),
+    blocks: [
+      { index: 0, id: 'start', kind: 'start', next: 'planner' },
+      {
+        index: 1,
+        id: 'planner',
+        kind: 'agent',
+        name: 'planner',
+        description: 'Plans.',
+        arguments: [],
+        next: 'done',
+        body: 'Plan.',
+      },
+      { index: 2, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    ],
+  };
+}
+
+function renderBlockArrow(flowState: core.Flow = blockFlow()) {
+  const onDelete = vi.fn();
+  const arrow = flowArrows(flowState).find((item) => item.fromId === 'start');
+  if (arrow === undefined) throw new Error('no arrow from start in the test flow');
+  render(<BlockArrowPanel flow={flowState} arrow={arrow} onDelete={onDelete} />);
+  return { onDelete };
+}
+
+describe('F-12 AC-021 block arrow connection panel', () => {
+  it('F-12 AC-021 shows the block names of the arrow, read-only', () => {
+    renderBlockArrow();
+
+    expect(screen.getByLabelText('Source · read only').textContent).toBe('Start');
+    expect(screen.getByLabelText('Target · read only').textContent).toBe('planner');
+    expect(screen.queryByText("Artifacts and approval are in the source flow's panel.")).toBeNull();
+  });
+
+  it('F-12 AC-021 asks first and changes nothing when Cancel is pressed', async () => {
+    const { onDelete } = renderBlockArrow();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete connection' }));
+    expect(screen.getByRole('dialog', { name: 'Delete connection?' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('F-12 AC-021 Confirm clears the source route and keeps the blocks and the other arrows', async () => {
+    const flowState = blockFlow();
+    const { onDelete } = renderBlockArrow(flowState);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete connection' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete connection' }));
+
+    const next = onDelete.mock.calls[0]?.[0] as core.Flow;
+    expect(next.blocks[0]).toEqual({ ...flowState.blocks[0], next: '' });
+    expect(next.blocks.slice(1)).toEqual(flowState.blocks.slice(1));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });

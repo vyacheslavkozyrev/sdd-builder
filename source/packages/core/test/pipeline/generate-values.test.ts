@@ -202,20 +202,6 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
     expect(agentValues(agent({ tools: [] }))['agentTools']).toBe('');
   });
 
-  it('gives the reads and writes lines with their paths, empty when the block names none', () => {
-    const bare = agentValues(agent());
-    expect(bare['agentReads']).toBe('');
-    expect(bare['agentWrites']).toBe('');
-
-    const set = agentValues(agent({ reads: ['spec/a.md'], writes: ['spec/b.md', 'spec/c.md'] }));
-    expect(set['agentReads']).toBe('\n\n## Reads\n- `spec/a.md`');
-    expect(set['agentWrites']).toBe('\n\n## Writes\n- `spec/b.md`\n- `spec/c.md`');
-
-    const emptyLists = agentValues(agent({ reads: [], writes: [] }));
-    expect(emptyLists['agentReads']).toBe('');
-    expect(emptyLists['agentWrites']).toBe('');
-  });
-
   it('keeps the description on one line so a frontmatter layout cannot gain a line', () => {
     const values = agentValues(agent({ description: '\nDrafts\nthe text.\nmodel: opus\n' }));
     expect(values['agentDescription']).toBe('"Drafts the text. model: opus"');
@@ -379,35 +365,6 @@ describe('F-05 AC-022 the agent rule tags are one comma-separated list in their 
   it('F-05 AC-022 writes none when the block has no tags or an empty list', () => {
     expect(agentValues(agent())['agentRuleTags']).toBe('none');
     expect(agentValues(agent({ ruleTags: [] }))['agentRuleTags']).toBe('none');
-  });
-});
-
-describe('F-05 AC-021 the Reads and Writes sections list one artifact label per line, in order', () => {
-  it('F-05 AC-021 gives a Reads section with one label per line in the block order', () => {
-    const values = agentValues(agent({ reads: ['stories.md', 'plan.md', 'screens.md'] }));
-    expect(values['agentReads']).toBe('\n\n## Reads\n- `stories.md`\n- `plan.md`\n- `screens.md`');
-  });
-
-  it('F-05 AC-021 gives a Writes section with one label per line in the block order', () => {
-    const values = agentValues(agent({ writes: ['plan.md', 'stories.md'] }));
-    expect(values['agentWrites']).toBe('\n\n## Writes\n- `plan.md`\n- `stories.md`');
-  });
-
-  it('F-05 AC-021 leaves out a section whose list is empty or absent', () => {
-    expect(agentValues(agent())['agentReads']).toBe('');
-    expect(agentValues(agent({ reads: [] }))['agentReads']).toBe('');
-    expect(agentValues(agent({ writes: [] }))['agentWrites']).toBe('');
-  });
-
-  it('F-05 AC-021 writes the Reads and Writes sections one after the other, each with its own heading', () => {
-    const values = agentValues(agent({ reads: ['stories.md'], writes: ['plan.md'] }));
-    const sections = `${values['agentReads'] ?? ''}${values['agentWrites'] ?? ''}`;
-    expect(sections).toBe('\n\n## Reads\n- `stories.md`\n\n## Writes\n- `plan.md`');
-  });
-
-  it('F-05 AC-021 leaves out the Writes section when only reads is set', () => {
-    const values = agentValues(agent({ reads: ['stories.md'] }));
-    expect(values['agentWrites']).toBe('');
   });
 });
 

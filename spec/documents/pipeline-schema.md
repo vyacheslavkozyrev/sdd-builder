@@ -129,8 +129,6 @@ Status: final draft for owner approval (2026-11-19). It replaces the connection 
         "arguments": { "type": "array", "items": { "$ref": "#/$defs/argument" } },
         "model": { "$ref": "#/$defs/model" },
         "tools": { "type": "array", "items": { "type": "string", "maxLength": 100 } },
-        "reads": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" }, "description": "Artifact labels the agent reads; no duplicates." },
-        "writes": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/text" }, "description": "Artifact labels the agent writes; no duplicates." },
         "ruleTags": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/id" }, "description": "Rules of the project (rules) that apply to the agent." },
         "body": { "$ref": "#/$defs/body" },
         "next": { "$ref": "#/$defs/id", "description": "The next block: an Agent, a Condition or the End." }
@@ -246,7 +244,7 @@ Decided:
 - Toolbox: a floating panel with icon buttons, top-right of the canvas.
 - Length limits confirmed: templates 5000, descriptions 1000, argument hints 100.
 - Rule tags on flows and the pipeline are kept (optional), and agents have rule tags too.
-- Agents have `reads` and `writes` (lists of artifact labels, no duplicates).
+- Agents have no `reads` or `writes` (amended 2026-11-24: removed, with the Reads and Writes sections of the agent file). Agents have `tools`, and the builder lists each tool once.
 - End's `producedArtifact` is the label of one of the flow's artifacts; "none" is not allowed.
 - Each flow has at most one incoming `next`.
 - Deleting a block removes its arrows; no rewiring.

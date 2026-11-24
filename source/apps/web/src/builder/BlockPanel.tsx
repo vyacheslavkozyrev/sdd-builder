@@ -3,7 +3,7 @@ import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 import type { pipeline as core } from '@sddbuilder/core';
 import { codePointCount } from '../wizard/project.js';
 import { bodyCounterText } from './FlowPanel.js';
-import { AgentLabelRows, AgentToolRows } from './AgentRows.js';
+import { AgentToolRows } from './AgentRows.js';
 import { blockName, type Block } from './blockArrows.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
 import {
@@ -304,26 +304,6 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
 
         <AgentToolRows
           key={`${target}-tools`}
-          flowId={flow.id}
-          blockId={block.id}
-          pipelineState={pipelineState}
-          rules={rules}
-          onChange={onChange}
-        />
-
-        <AgentLabelRows
-          key={`${target}-reads`}
-          list="reads"
-          flowId={flow.id}
-          blockId={block.id}
-          pipelineState={pipelineState}
-          rules={rules}
-          onChange={onChange}
-        />
-
-        <AgentLabelRows
-          key={`${target}-writes`}
-          list="writes"
           flowId={flow.id}
           blockId={block.id}
           pipelineState={pipelineState}

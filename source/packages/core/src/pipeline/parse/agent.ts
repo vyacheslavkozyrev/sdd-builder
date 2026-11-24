@@ -11,11 +11,11 @@ import {
 } from '../check/primitives.js';
 import type { AgentBlock } from '../model.js';
 import { readArguments } from './argument.js';
-import { readLabels, readRuleTags, readTools } from './lists.js';
+import { readRuleTags, readTools } from './lists.js';
 
 // The Agent block of a flow (pipeline-schema.md §2, `blockAgent`; AC-047 to AC-055). An agent requires
-// `id`, `kind`, `name`, `description`, `arguments` and `next`; `model`, `tools`, `reads`, `writes`,
-// `ruleTags` and `body` are optional; no other key is allowed. An unknown key is refused at the path
+// `id`, `kind`, `name`, `description`, `arguments` and `next`; `model`, `tools`, `ruleTags` and `body` are
+// optional; no other key is allowed (`reads` and `writes` were removed, amended 2026-11-24). An unknown key is refused at the path
 // of that key; a missing required key is refused at the path of the agent. `name` is an id, unique
 // across agents (AC-048, checked later). `description` is non-blank text of up to 1,000 code points.
 // `body` is non-blank text of up to 1,000 code points (F-12 AC-028). `next` names a block, and is checked
@@ -23,7 +23,7 @@ import { readLabels, readRuleTags, readTools } from './lists.js';
 // An optional key that is present but refused makes the agent incomplete, and it is left out.
 
 const REQUIRED_KEYS: readonly string[] = ['id', 'kind', 'name', 'description', 'arguments', 'next'];
-const OPTIONAL_KEYS: readonly string[] = ['model', 'tools', 'reads', 'writes', 'ruleTags', 'body'];
+const OPTIONAL_KEYS: readonly string[] = ['model', 'tools', 'ruleTags', 'body'];
 const AGENT_KEYS: readonly string[] = [...REQUIRED_KEYS, ...OPTIONAL_KEYS];
 
 const readBody: Reader<string> = (value, path, problems) =>
@@ -76,8 +76,6 @@ export function readAgent(
   };
   const model = optional('model', readModel);
   const tools = optional('tools', readTools);
-  const reads = optional('reads', readLabels);
-  const writes = optional('writes', readLabels);
   const ruleTags = optional('ruleTags', readRuleTags);
   const body = optional('body', readBody);
 
@@ -101,8 +99,6 @@ export function readAgent(
     next,
     ...(model === undefined ? {} : { model }),
     ...(tools === undefined ? {} : { tools }),
-    ...(reads === undefined ? {} : { reads }),
-    ...(writes === undefined ? {} : { writes }),
     ...(ruleTags === undefined ? {} : { ruleTags }),
     ...(body === undefined ? {} : { body }),
   };

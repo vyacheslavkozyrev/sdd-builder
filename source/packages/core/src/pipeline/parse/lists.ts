@@ -8,7 +8,7 @@ import {
 import type { RuleTag } from '../model.js';
 
 // The text and tag lists of an Agent, and of the pipeline and a flow where they recur (pipeline-schema.md
-// §2; AC-050, AC-051, AC-071 to AC-073). Each list is read item by item: an invalid item is refused at
+// §2; AC-050, AC-071 to AC-073). Each list is read item by item: an invalid item is refused at
 // its own path and left out of the result, the others are kept. A list that is absent is accepted, and
 // an empty list is accepted. `unique` lists refuse a repeated item at the path of the second entry.
 // Each kept item keeps its document index, so a later check can report at the same place in the file.
@@ -56,17 +56,6 @@ export function readTools(value: unknown, path: string, problems: ProblemCollect
     problems,
     (item, itemPath, itemProblems) => readText(item, itemPath, { max: 100 }, itemProblems),
     false,
-  )?.map((entry) => entry.value);
-}
-
-// `reads` and `writes`: artifact labels, non-blank text of up to 1,000 code points, no repeats (AC-051).
-export function readLabels(value: unknown, path: string, problems: ProblemCollector): string[] | undefined {
-  return readStringList(
-    value,
-    path,
-    problems,
-    (item, itemPath, itemProblems) => readText(item, itemPath, { max: 1000, nonBlank: true }, itemProblems),
-    true,
   )?.map((entry) => entry.value);
 }
 

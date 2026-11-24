@@ -88,15 +88,15 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 **I want to** name and describe each Agent block and give it its instructions
 **So that** the generated agent file carries what the step needs
 
-**Requirements:** Agent properties (ui.md §4); agent reads, writes and rule tags (pipeline-schema.md §6)
+**Requirements:** Agent properties (ui.md §4); agent tools and rule tags (pipeline-schema.md §6; reads and writes removed, amended 2026-11-24)
 
 #### Acceptance Criteria
 
-- [ ] AC-022 `[auto]`: The Agent panel has, in this order: Name, Description, Arguments (rows of id, required and hint, as on the flow panel), Model, Tools, Reads, Writes, Rule tags, Body. Each row or field is saved through the parser, as on the Pipeline tab.
+- [ ] AC-022 `[auto]` (amended 2026-11-24): The Agent panel has, in this order: Name, Description, Arguments (rows of id, required and hint, as on the flow panel), Model, Tools, Rule tags, Body. It has no Reads or Writes list. Each row or field is saved through the parser, as on the Pipeline tab.
 - [ ] AC-023 `[auto]`: Name is file-safe and unique among the Agent names of the pipeline. A name that clashes with another Agent is refused with the reason "Another Agent already has this name." and the saved name stays.
 - [ ] AC-024 `[auto]`: Description is required, not blank, and at most 1000 characters. A blank or longer value is refused with its reason beneath the field, and the saved value stays.
 - [ ] AC-025 `[auto]`: Model accepts only `haiku`, `sonnet`, `opus` and `inherit`. Any other value is refused.
-- [ ] AC-026 `[auto]`: Reads and Writes take artifact labels from the outcome artifacts of the flows of the pipeline. A label that is not one of them is refused; a label listed twice is refused.
+- [ ] AC-026 `[auto]` (amended 2026-11-24): Tools is the one list of tools of the Agent, and each tool is listed once. A tool the Agent already lists is refused with the reason "repeats <tool>; each tool must be listed once", and the saved tools stay. A blank tool adds nothing; a tool of more than 100 characters is refused with its reason.
 - [ ] AC-027 `[auto]`: Rule tags name only rules of the project; an unknown rule is refused with its reason.
 - [ ] AC-028 `[auto]`: Body is required, not blank, and at most 1000 code points; the counter shows the count. A blank body and a 1001-code-point body are both refused with their reasons.
 - [ ] AC-029 `[auto]`: Editing an Agent's properties never changes its arrows or any other block.
@@ -193,7 +193,7 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 | Linking by dragging between points | AC-012, AC-013, AC-014, AC-015, AC-016, AC-017, AC-018, AC-019 |
 | Empty output means no route or stop | AC-020 |
 | Delete connection | AC-021 |
-| Agent properties (name, description, arguments, model, tools, reads, writes, rule tags, body) | AC-022, AC-023, AC-024, AC-025, AC-026, AC-027, AC-028, AC-029 |
+| Agent properties (name, description, arguments, model, tools, rule tags, body) | AC-022, AC-023, AC-024, AC-025, AC-026, AC-027, AC-028, AC-029 |
 | Custom agents are Agent blocks | AC-022, AC-023 |
 | Condition: description, true and false routes, round limit | AC-030, AC-031, AC-032, AC-033, AC-034 |
 | End: outcome and produced artifact; more than one End | AC-035, AC-036, AC-037, AC-038 |

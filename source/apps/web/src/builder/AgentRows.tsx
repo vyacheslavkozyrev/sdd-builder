@@ -1,17 +1,17 @@
 import { useId, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
-import { addAgentLabel, addAgentTool, removeAgentLabel, removeAgentTool } from './blockAgentFields.js';
-import type { AgentListResult, LabelList } from './blockAgentFields.js';
+import { addAgentTool, removeAgentTool } from './blockAgentFields.js';
+import type { AgentListResult } from './blockAgentFields.js';
 import { agentAt } from './blockFields.js';
 import { getRowEditorStyles } from './rowEditorStyles.js';
 import type { Pipeline, Rule } from './fields.js';
 
-// The tool, reads and writes lists of an Agent block on the flow tab (F-12 AC-022, AC-026). All three are compact
-// lists of the same pattern (device fix 2026-11-24): a title with + in it, then one row per item with its minus.
-// The + opens a line for a new value; the line is saved when focus leaves it or Enter is pressed, through the
-// functions of blockAgentFields.ts, which check the value. A refused value keeps the saved list and shows its
-// reason beneath the list. The argument and rule tag lists are the row editors of RowEditors.tsx with the Agent target.
+// The tool list of an Agent block on the flow tab (F-12 AC-022; the reads and writes lists were removed, device fix
+// 2026-11-24). It is a compact list: a title with + in it, then one row per tool with its minus. The + opens a line
+// for a new value; the line is saved when focus leaves it or Enter is pressed, through the functions of
+// blockAgentFields.ts, which check the value. A refused value keeps the saved list and shows its reason beneath the
+// list. The argument and rule tag lists are the row editors of RowEditors.tsx with the Agent target.
 
 export interface AgentListProps {
   readonly flowId: string;
@@ -22,7 +22,7 @@ export interface AgentListProps {
 }
 
 interface TextListProps {
-  // The list's title, and the name of one of its items ("Tool", "Reads label") for the labels.
+  // The list's title, and the name of one of its items ("Tool").
   readonly title: string;
   readonly name: string;
   readonly values: readonly string[];
@@ -177,30 +177,6 @@ export function AgentToolRows({ flowId, blockId, pipelineState, rules, onChange 
       values={tools}
       add={(text) => addAgentTool(pipelineState, rules, flowId, blockId, text)}
       remove={(position) => removeAgentTool(pipelineState, flowId, blockId, position)}
-      onChange={onChange}
-    />
-  );
-}
-
-// The reads or writes labels of the Agent (AC-026): one row per label, each with its minus, laid out as the tools.
-// A label is added through +; the parser and the artifact check refuse a label that is not an outcome artifact, or
-// a label the list already has.
-export function AgentLabelRows({
-  list,
-  flowId,
-  blockId,
-  pipelineState,
-  rules,
-  onChange,
-}: AgentListProps & { readonly list: LabelList }) {
-  const labels = agentAt(pipelineState, flowId, blockId).agent[list] ?? [];
-  return (
-    <AgentTextList
-      title={list === 'reads' ? 'Reads' : 'Writes'}
-      name={list === 'reads' ? 'Reads label' : 'Writes label'}
-      values={labels}
-      add={(text) => addAgentLabel(pipelineState, rules, flowId, blockId, list, text)}
-      remove={(position) => removeAgentLabel(pipelineState, flowId, blockId, list, position)}
       onChange={onChange}
     />
   );

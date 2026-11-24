@@ -148,7 +148,7 @@ Abuse and cost settings (F-13, decision 12): environment variables `SDDBUILDER_R
 
 26. **Agent blocks and the pipeline carry model, tools and body (F-06 amendment 4, 2026-11-16).** An Agent block takes an optional model (`haiku`, `sonnet`, `opus`, `inherit`), an optional list of tool names and an optional body. The pipeline takes the same three, and its description and rule tags. The parser checks their shape; the generator writes them into the agent file frontmatter and body, and into the pipeline command. The body length cap (4,000 characters) is an entry check in the builder (F-06 AC-030), not a parse rule. Before this decision the fields were in the block table of ui.md §4 but not in the model.
 
-27. **Agent blocks carry reads and writes (F-06 amendment 9, 2026-11-16).** An Agent block takes optional `reads` and `writes` lists of artifact names (non-blank text, no duplicates). The parser checks them; the Agent panel shows them. They are the artifacts an agent reads and writes, as the block table of ui.md §4 lists. Before this decision the fields were in the block table of ui.md §4 but not in the model.
+27. **Agent blocks carry reads and writes (F-06 amendment 9, 2026-11-16); removed (amended 2026-11-24).** The 2026-11-16 decision gave an Agent block optional `reads` and `writes` lists of artifact names, checked by the parser and shown on the Agent panel. Amended 2026-11-24 (owner decision): both are removed from the model, the parser, the schema, the analyzer and the generator, and the Agent panel has no Reads or Writes list. Tools are the one list of an Agent: the builder refuses a tool the Agent already lists, with the reason "repeats <tool>; each tool must be listed once"; the parser still accepts repeats. A saved project with `reads` or `writes` is refused as an unknown key; there is no migration, and the schema version stays at 2.
 
 28. **Text limits (2026-11-16).** Every body text is at most 1,000 characters: a rule block's description, an Agent body, a flow body and the pipeline body. The idea and the architecture text are at most 5,000 characters, counted in code points. This supersedes the 8,000-character idea limit (F-05 AC-008) and the 4,000-character Agent body cap (F-06 AC-030). Decided for Agent bodies too (`ui.md` D2).
 
@@ -194,7 +194,7 @@ type Block = Start | Agent | Approval | Check | End;
 interface Start    { id: Id; kind: "start"; connectedTo?: BlockLink }
 interface Agent    { id: Id; kind: "agent"; name: Id; description: string; arguments: string;
                      restrictions?: string; model?: Model; tools?: string[];
-                     reads?: string[]; writes?: string[]; ruleTags?: Id[];
+                     ruleTags?: Id[];   // reads and writes removed (decision 27, amended 2026-11-24)
                      body?: string; connectedTo?: BlockLink }   // name: file-safe, unique among agents
 interface Approval { id: Id; kind: "approval"; description: string; connectedTo?: BlockLink }
 interface Check   { id: Id; kind: "check"; description: string; type: "checks" | "diff size";

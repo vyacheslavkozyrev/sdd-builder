@@ -1,9 +1,9 @@
 // The list and choice fields of an Agent block on the flow tab (F-12 AC-022, AC-025 to AC-027): argument rows,
-// tools, model, reads and writes, and rule tags. Each edit is applied to a copy of the pipeline and the parser
-// (`parseProjectConfig` in core) decides, for the row or field that changed; a refused edit keeps the saved
-// value and returns the reason beneath that list. The one rule the parser does not hold is that a reads or
-// writes label names an outcome artifact of a flow, so it is checked here before the parser. Only the edited
-// Agent changes (AC-029). Pure functions: no React and no I/O.
+// tools, model and rule tags. Each edit is applied to a copy of the pipeline and the parser (`parseProjectConfig`
+// in core) decides, for the row or field that changed; a refused edit keeps the saved value and returns the reason
+// beneath that list. The one rule the parser does not hold is that a tool is listed once, so it is checked here
+// before the parser (device fix 2026-11-24). Only the edited Agent changes (AC-029). Pure functions: no React and
+// no I/O.
 
 import type { pipeline as model } from '@sddbuilder/core';
 import { agentAt, withAgent, type AgentLocation } from './blockFields.js';
@@ -13,19 +13,11 @@ export type AgentBlock = model.AgentBlock;
 type RuleTag = model.RuleTag;
 
 // The Agent lists and choices this module edits. A refusal names the one that was refused.
-export type AgentListField = 'arguments' | 'model' | 'tools' | 'reads' | 'writes' | 'ruleTags';
-
-// The two lists of artifact labels.
-export type LabelList = 'reads' | 'writes';
+export type AgentListField = 'arguments' | 'model' | 'tools' | 'ruleTags';
 
 export type AgentListResult =
   | { readonly ok: true; readonly pipeline: Pipeline }
   | { readonly ok: false; readonly field: AgentListField; readonly reason: string };
-
-// The labels of the outcome artifacts of every flow of the pipeline, each once, in document order (AC-026).
-export function artifactLabelsOf(pipelineState: Pipeline): string[] {
-  return [...new Set(pipelineState.flows.flatMap((flow) => flow.artifacts.map((artifact) => artifact.label)))];
-}
 
 // The argument row as the document holds it: its position is not a document key.
 function argumentDocument(row: Argument | ArgumentRow): Record<string, unknown> {
@@ -83,11 +75,6 @@ function checkRow(count: number, rowPosition: number, owner: string, noun: strin
   if (!Number.isInteger(rowPosition) || rowPosition < 0 || rowPosition >= count) {
     throw new Error(`F-12: ${owner} has no ${noun} at position ${rowPosition}`);
   }
-}
-
-// The reads or writes list of the Agent, with `labels` set in its place.
-function withLabels(agent: AgentBlock, list: LabelList, labels: readonly string[]): AgentBlock {
-  return list === 'reads' ? { ...agent, reads: labels } : { ...agent, writes: labels };
 }
 
 // The Agent with its model set; an undefined model unsets it. The parser has accepted the model before this is
@@ -172,7 +159,8 @@ export function setAgentModel(
 }
 
 // Appends a tool to the Agent (AC-022). The text is trimmed; a blank tool adds nothing, as on the pipeline's
-// tools. The parser checks the rest: a tool of at most 100 characters.
+// tools. A tool the Agent already lists is refused, with the reason "repeats <tool>; each tool must be listed
+// once" (device fix 2026-11-24). The parser checks the rest: a tool of at most 100 characters.
 export function addAgentTool(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -184,6 +172,9 @@ export function addAgentTool(
   const tool = text.trim();
   if (tool === '') return { ok: true, pipeline: pipelineState };
   const tools = location.agent.tools ?? [];
+  if (tools.includes(tool)) {
+    return { ok: false, field: 'tools', reason: `repeats ${tool}; each tool must be listed once` };
+  }
   const next = [...tools, tool];
   return commit(pipelineState, rules, location, 'tools', next, tools.length, () => ({
     ...location.agent,
@@ -200,50 +191,6 @@ export function removeAgentTool(pipelineState: Pipeline, flowId: string, blockId
     ...location.agent,
     tools: tools.filter((_tool, index) => index !== position),
   });
-}
-
-// Adds an artifact label to the Agent's reads or writes (AC-026). A label that is not an outcome artifact of a
-// flow is refused here; a label listed twice is refused by the parser, at the row of the second entry.
-export function addAgentLabel(
-  pipelineState: Pipeline,
-  rules: readonly Rule[],
-  flowId: string,
-  blockId: string,
-  list: LabelList,
-  label: string,
-): AgentListResult {
-  const location = agentAt(pipelineState, flowId, blockId);
-  const text = label.trim();
-  if (!artifactLabelsOf(pipelineState).includes(text)) {
-    return { ok: false, field: list, reason: `must name an outcome artifact of a flow, got ${text}` };
-  }
-  const labels = location.agent[list] ?? [];
-  const next = [...labels, text];
-  return commit(pipelineState, rules, location, list, next, labels.length, () =>
-    withLabels(location.agent, list, next),
-  );
-}
-
-// Removes the label at `position` of the Agent's reads or writes (AC-026).
-export function removeAgentLabel(
-  pipelineState: Pipeline,
-  flowId: string,
-  blockId: string,
-  list: LabelList,
-  position: number,
-): Pipeline {
-  const location = agentAt(pipelineState, flowId, blockId);
-  const labels = location.agent[list] ?? [];
-  checkRow(labels.length, position, `the Agent "${blockId}" of the flow "${flowId}"`, `${list} label`);
-  return withAgent(
-    pipelineState,
-    location,
-    withLabels(
-      location.agent,
-      list,
-      labels.filter((_label, index) => index !== position),
-    ),
-  );
 }
 
 // Adds the rule tag `ruleId` to the Agent (AC-027). The parser refuses a rule that the project does not have,

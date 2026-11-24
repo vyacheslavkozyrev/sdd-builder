@@ -142,35 +142,21 @@ describe('F-02 AC-050 an agent tools list holds text items of at most 100 code p
   });
 });
 
-describe('F-02 AC-051 agent reads and writes are non-blank labels with no repeats', () => {
-  it('accepts a label list and the same label in reads and in writes', () => {
-    const block = acceptedWith({ reads: ['plan.md'], writes: ['plan.md'] });
-    expect(block.reads).toEqual(['plan.md']);
-    expect(block.writes).toEqual(['plan.md']);
-  });
-
-  it.each([[''], ['  ']])('refuses the label %j at the path of the item', (label) => {
-    itemProblemAt({ ...validAgent, reads: [label] }, `${AGENT}.reads.0`);
-  });
-
-  it('refuses a label listed twice at the path of the second item', () => {
-    expect(readA({ ...validAgent, writes: ['plan.md', 'plan.md'] })).toEqual({
-      block: { ...validAgent, index: 1, writes: ['plan.md'] },
-      problems: [{ path: `${AGENT}.writes.1`, message: expect.stringContaining('repeats plan.md') }],
+describe('F-02 AC-051 amended 2026-11-24: an agent has no reads or writes, and those keys are refused as unknown keys', () => {
+  it.each([
+    ['reads', ['plan.md']],
+    ['writes', ['plan.md']],
+  ])('refuses the key %s at its own path and leaves the agent out', (key, value) => {
+    expect(readA({ ...validAgent, [key]: value })).toEqual({
+      block: undefined,
+      problems: [{ path: `${AGENT}.${key}`, message: `has an unknown key ${key}` }],
     });
-  });
-
-  it('accepts a label of exactly 1,000 code points and refuses 1,001 at the path of the item', () => {
-    expect(acceptedWith({ reads: ['x'.repeat(1000)] }).reads).toEqual(['x'.repeat(1000)]);
-    itemProblemAt({ ...validAgent, reads: ['x'.repeat(1001)] }, `${AGENT}.reads.0`);
   });
 });
 
-describe('F-02 AC-050 AC-051 AC-071 a list field that is not a list is refused at its path', () => {
+describe('F-02 AC-050 AC-071 a list field that is not a list is refused at its path', () => {
   it.each([
     ['tools', 'Read'],
-    ['reads', 'plan.md'],
-    ['writes', 1],
     ['ruleTags', 'style'],
   ])('refuses %s set to %j at the path of the key', (key, value) => {
     refusedAt({ ...validAgent, [key]: value }, `${AGENT}.${key}`);

@@ -18,7 +18,7 @@ const PIPELINE_POSITION: Position = { flow: -1, block: -1, slot: -1 };
 const PIPELINE_LEVEL_PATH = /^(?:rules\.\d+\.id|pipeline\.arguments\.\d+\.id|pipeline\.ruleTags\.\d+)$/;
 const FLOW_KEYS = 'id|name|body|description|next|model|approval|artifacts|arguments|ruleTags';
 const BLOCK_KEYS =
-  'id|kind|name|description|next|model|tools|reads|writes|body|outcome|producedArtifact|arguments|ruleTags';
+  'id|kind|name|description|next|model|tools|body|outcome|producedArtifact|arguments|ruleTags';
 const FLOW_PATH = new RegExp(`^pipeline\\.flows\\.(\\d+)\\.(?:${FLOW_KEYS})(?:\\.|$)`);
 const BLOCK_PATH = new RegExp(`^pipeline\\.flows\\.(\\d+)\\.blocks\\.(\\d+)\\.(?:${BLOCK_KEYS})(?:\\.|$)`);
 

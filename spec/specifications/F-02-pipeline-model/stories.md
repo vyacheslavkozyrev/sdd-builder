@@ -185,9 +185,9 @@ This feature is an enabler: the stories are written for the developer who builds
 
 **As a** developer
 **I want to** each agent to have a safe unique name, a description, its arguments, its artifacts, its rules and its next block
-**So that** the generator writes one agent file per agent, with the artifacts it reads and writes and the rules it follows
+**So that** the generator writes one agent file per agent, with the tools it uses and the rules it follows
 
-**Requirements:** agent name is file-safe and unique among the agents of the pipeline (decision 18); reads and writes are artifact labels, non-blank, no duplicates (decision 27); rule tags name rules, no duplicates (decisions 21, 26); body at most 1,000 code points (decision 28)
+**Requirements:** agent name is file-safe and unique among the agents of the pipeline (decision 18); reads and writes are removed (decision 27, amended 2026-11-24); rule tags name rules, no duplicates (decisions 21, 26); body at most 1,000 code points (decision 28)
 
 #### Acceptance Criteria
 
@@ -195,7 +195,7 @@ This feature is an enabler: the stories are written for the developer who builds
 - [ ] AC-048 `[auto]`: An agent `name` follows the id rule of AC-016 (for example `review` is accepted; `Review Agent` and `review_agent` are refused with the path of `name`). Two agents with the same name anywhere in the pipeline, even in different flows, are refused with the path of the second `name`.
 - [ ] AC-049 `[auto]`: An agent `description` is text that is not blank and at most 1,000 code points. The empty string, `"   "` and 1,001 code points are each refused with the path of `description`.
 - [ ] AC-050 `[auto]`: An agent `tools` list is accepted as a list of text items of up to 100 code points, and the empty list is accepted. A non-text item, and a text item over 100 code points, are refused with the path of the item.
-- [ ] AC-051 `[auto]`: An agent `reads` and `writes` list hold non-blank text items: `["plan.md"]` is accepted; `[""]` and `["  "]` are refused with the path of the item. The same label twice in one list is refused with the path of the second item. The same label in `reads` and in `writes` is accepted.
+- [ ] AC-051 `[auto]` (amended 2026-11-24): An agent has no `reads` and no `writes`. Either key is an unknown key: it is refused with the path of the key, and the agent is left out. A saved project that has either key is refused the same way; no migration is made, and the schema version stays at 2.
 - [ ] AC-052 `[auto]`: An agent `ruleTags` list holds rule ids. A tag that names no rule of `rules` is refused with the path of the tag; a tag listed twice is refused with the path of the second entry.
 - [ ] AC-053 `[auto]`: An agent `body` of 1,000 code points is accepted; 1,001 is refused with the path of `body`. An agent `model` takes the four values of AC-030, and `model` may be absent.
 - [ ] AC-054 `[auto]`: An agent `next` names a later block of the same flow, and that block is an agent, a condition or an end block; it is accepted. A `next` that names the agent itself, an earlier block of the flow (owner, 2026-11-19: a return is allowed only through a condition's false route with a roundLimit, AC-060), the start block, a block of another flow, or an id that is no block, is refused with the path of `next`. The message names the rule, e.g. "must name a later block of this flow; a return needs a condition with roundLimit".
@@ -319,7 +319,7 @@ This feature is an enabler: the stories are written for the developer who builds
 | Length limits count code points (decision 28; owner, 2026-11-19) | AC-029, AC-037, AC-038, AC-088 |
 | Block kinds start, agent, condition, end only; at least two blocks (decision 38; schema §2) | AC-040, AC-041, AC-042 |
 | Start: `next` to an agent or a condition of the same flow (schema §2) | AC-044, AC-045, AC-046 |
-| Agent: name, description, arguments, model, tools, reads, writes, rule tags, body, next (decisions 18, 21, 26, 27, 28) | AC-047, AC-048, AC-049, AC-050, AC-051, AC-052, AC-053, AC-054, AC-055 |
+| Agent: name, description, arguments, model, tools, rule tags, body, next (decisions 18, 21, 26, 28; decision 27 amended 2026-11-24) | AC-047, AC-048, AC-049, AC-050, AC-051, AC-052, AC-053, AC-054, AC-055 |
 | Condition: description required; routes `{to}`, `{to, roundLimit}`, `{stop: true}`; round limit 1 to 5 (decisions 25, 40) | AC-056, AC-057, AC-058, AC-059, AC-060, AC-061, AC-062 |
 | End: outcome `done` or `stopped`; `producedArtifact` is an artifact label of the flow (§6) | AC-063, AC-064, AC-065 |
 | Rules: id, title, text; limits; unique ids; rule tags name rules (decisions 20, 21) | AC-066, AC-067, AC-068, AC-069, AC-070, AC-071, AC-072, AC-073 |

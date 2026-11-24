@@ -69,10 +69,10 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 ### US-003: Each agent has a file with frontmatter and a body
 
 **As a** developer who downloads the framework
-**I want to** get one agent file per Agent block, with the frontmatter Claude Code reads and the artifacts the agent reads and writes
-**So that** Claude Code can run each agent with the model and tools the block sets, on the artifacts it names
+**I want to** get one agent file per Agent block, with the frontmatter Claude Code reads and the tools the agent may use
+**So that** Claude Code can run each agent with the model and tools the block sets, and the rules it follows
 
-**Requirements:** F-05 scope (agent files with frontmatter and body); decision 26 (model, tools and body on Agent blocks); decision 27 (reads and writes); decision 18 (agent names are unique and file-safe)
+**Requirements:** F-05 scope (agent files with frontmatter and body); decision 26 (model, tools and body on Agent blocks); decision 27 (reads and writes; amended 2026-11-24: removed); decision 18 (agent names are unique and file-safe)
 
 #### Acceptance Criteria
 
@@ -81,7 +81,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 - [ ] AC-018 `[auto]`: The frontmatter holds `model` only when the block sets one, and the value is written as given (`haiku`, `sonnet`, `opus` or `inherit`). A block with no model has no `model` key, not an empty one.
 - [ ] AC-019 `[auto]`: The frontmatter holds `tools` only when the block lists tools, written as one comma-separated list in the block's order and quoted when YAML would break. A block with no tools has no `tools` key.
 - [ ] AC-020 `[auto]`: The body is written under an Instructions heading when the block has body text; a block with no body or a blank body has no Instructions section.
-- [ ] AC-021 `[auto]`: The Reads and Writes sections list the block's artifact labels, one per line in their order; a section is left out when its list is empty.
+- [ ] AC-021 `[auto]` (amended 2026-11-24): The agent file has no Reads or Writes section, whatever the block's tools and rules are; its Arguments section is followed by Rule tags.
 - [ ] AC-022 `[auto]`: The rule tags of the block are written as a comma-separated list, and `none` when the block has no tags.
 - [ ] AC-023 `[auto]`: A body text that contains a `{{...}}` placeholder is written as typed; the placeholder is not filled a second time.
 
@@ -154,7 +154,7 @@ Every automated test names the feature and criterion it covers (`F-05 AC-003`).
 |---|---|
 | Pipeline command (F-05 scope) | AC-001, AC-002, AC-003, AC-004, AC-005 |
 | One command per flow (F-05 scope) | AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-012, AC-013, AC-014, AC-015 |
-| Agent files with frontmatter and body (F-05 scope; decisions 26 and 27) | AC-016, AC-017, AC-018, AC-019, AC-020, AC-021, AC-022, AC-023 |
+| Agent files with frontmatter and body (F-05 scope; decision 26; decision 27 amended 2026-11-24) | AC-016, AC-017, AC-018, AC-019, AC-020, AC-021, AC-022, AC-023 |
 | Rule files (F-05 scope; decision 20) | AC-024, AC-025 |
 | Base files of the layout (F-05 scope) | AC-026, AC-027, AC-028, AC-029 |
 | process.md with a Mermaid diagram (F-05 scope; §10) | AC-030, AC-031, AC-032, AC-033, AC-034, AC-035 |

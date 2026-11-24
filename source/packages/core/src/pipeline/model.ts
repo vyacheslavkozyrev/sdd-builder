@@ -60,8 +60,6 @@ export interface AgentBlock {
   readonly arguments: readonly Argument[];
   readonly model?: Model;
   readonly tools?: readonly string[];
-  readonly reads?: readonly string[];
-  readonly writes?: readonly string[];
   readonly ruleTags?: readonly RuleTag[];
   readonly body?: string;
   readonly next: string;

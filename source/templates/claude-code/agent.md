@@ -9,7 +9,7 @@ description: {{agentDescription}}{{agentModel}}{{agentTools}}
 
 {{agentPurpose}}{{agentBody}}
 
-## Arguments{{agentArguments}}{{agentReads}}{{agentWrites}}
+## Arguments{{agentArguments}}
 
 ## Rule tags
 

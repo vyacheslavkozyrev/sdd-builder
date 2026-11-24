@@ -2,13 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { pipeline as model } from '@sddbuilder/core';
 import {
   addAgentArgument,
-  addAgentLabel,
   addAgentRuleTag,
   addAgentTool,
-  artifactLabelsOf,
   editAgentArgument,
   removeAgentArgument,
-  removeAgentLabel,
   removeAgentRuleTag,
   removeAgentTool,
   setAgentModel,
@@ -39,7 +36,6 @@ function savedPipeline(): Pipeline {
       next: 'write',
       model: 'sonnet',
       tools: ['Read'],
-      reads: ['plan.md'],
     },
     {
       index: 2,
@@ -50,7 +46,6 @@ function savedPipeline(): Pipeline {
       arguments: [],
       next: 'done',
       body: 'Write the code for the plan.',
-      writes: ['plan.md'],
     },
     { index: 3, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ];
@@ -196,6 +191,19 @@ describe('F-12 AC-022 Agent tools', () => {
     expect(agentOf(saved, 'review').tools).toEqual(['Read']);
   });
 
+  it('F-12 (no criterion: Verify device fix 2026-11-24) refuses a tool the Agent already lists, with the reason, and keeps the saved tools', () => {
+    const saved = savedPipeline();
+    const refused = refusedOf(addAgentTool(saved, RULES, 'plan', 'review', '  Read  '));
+    expect(refused.field).toBe('tools');
+    expect(refused.reason).toBe('repeats Read; each tool must be listed once');
+    expect(agentOf(saved, 'review').tools).toEqual(['Read']);
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) accepts a tool that another Agent lists', () => {
+    const next = acceptedOf(addAgentTool(savedPipeline(), RULES, 'plan', 'write', 'Read'));
+    expect(agentOf(next, 'write').tools).toEqual(['Read']);
+  });
+
   it('F-12 AC-022 removes the tool at the position and keeps the others in order', () => {
     const withTwo = acceptedOf(addAgentTool(savedPipeline(), RULES, 'plan', 'review', 'Edit'));
     const next = removeAgentTool(withTwo, 'plan', 'review', 0);
@@ -224,70 +232,6 @@ describe('F-12 AC-025 Agent model', () => {
   it('F-12 AC-025 unsets the model when the value is undefined', () => {
     const next = acceptedOf(setAgentModel(savedPipeline(), RULES, 'plan', 'review', undefined));
     expect(agentOf(next, 'review')).not.toHaveProperty('model');
-  });
-});
-
-describe('F-12 AC-026 Agent reads and writes', () => {
-  it('F-12 AC-026 adds a label that is an outcome artifact of the plan flow', () => {
-    const next = acceptedOf(addAgentLabel(savedPipeline(), RULES, 'plan', 'review', 'writes', 'plan.md'));
-    expect(agentOf(next, 'review').writes).toEqual(['plan.md']);
-  });
-
-  it('F-12 AC-026 accepts a label that is an outcome artifact of another flow of the pipeline', () => {
-    const next = acceptedOf(addAgentLabel(savedPipeline(), RULES, 'plan', 'review', 'reads', 'code.md'));
-    expect(agentOf(next, 'review').reads).toEqual(['plan.md', 'code.md']);
-  });
-
-  it('F-12 AC-026 refuses a label that no flow lists as an outcome artifact, with the reason', () => {
-    const saved = savedPipeline();
-    const refused = refusedOf(addAgentLabel(saved, RULES, 'plan', 'review', 'reads', 'notes.md'));
-    expect(refused.field).toBe('reads');
-    expect(refused.reason).toBe('must name an outcome artifact of a flow, got notes.md');
-    expect(agentOf(saved, 'review').reads).toEqual(['plan.md']);
-  });
-
-  it('F-12 AC-026 refuses a label that is listed twice and keeps the saved list', () => {
-    const saved = savedPipeline();
-    const refused = refusedOf(addAgentLabel(saved, RULES, 'plan', 'review', 'reads', 'plan.md'));
-    expect(refused.field).toBe('reads');
-    expect(refused.reason).toBe('repeats plan.md; each entry must be listed once');
-    expect(agentOf(saved, 'review').reads).toEqual(['plan.md']);
-  });
-
-  it('F-12 AC-026 refuses a writes label that no flow lists as an outcome artifact, and keeps the saved list', () => {
-    const saved = savedPipeline();
-    const refused = refusedOf(addAgentLabel(saved, RULES, 'plan', 'write', 'writes', 'notes.md'));
-    expect(refused.field).toBe('writes');
-    expect(refused.reason).toBe('must name an outcome artifact of a flow, got notes.md');
-    expect(agentOf(saved, 'write').writes).toEqual(['plan.md']);
-  });
-
-  it('F-12 AC-026 refuses a writes label that the Agent already lists', () => {
-    const saved = savedPipeline();
-    const refused = refusedOf(addAgentLabel(saved, RULES, 'plan', 'write', 'writes', 'plan.md'));
-    expect(refused.field).toBe('writes');
-    expect(refused.reason).toBe('repeats plan.md; each entry must be listed once');
-  });
-
-  it('F-12 AC-026 removes a label from the writes list', () => {
-    const next = removeAgentLabel(savedPipeline(), 'plan', 'write', 'writes', 0);
-    expect(agentOf(next, 'write').writes).toEqual([]);
-  });
-
-  it('F-12 AC-026 throws when the label to remove is not there', () => {
-    expect(() => removeAgentLabel(savedPipeline(), 'plan', 'review', 'reads', 1)).toThrow(
-      /has no reads label at position 1/,
-    );
-  });
-
-  it('F-12 AC-026 lists the outcome artifacts of every flow once, in document order', () => {
-    const saved = savedPipeline();
-    expect(artifactLabelsOf(saved)).toEqual(['plan.md', 'code.md']);
-    const doubled: Pipeline = {
-      ...saved,
-      flows: saved.flows.map((flow) => ({ ...flow, artifacts: [{ label: 'plan.md', template: 'output.md' }] })),
-    };
-    expect(artifactLabelsOf(doubled)).toEqual(['plan.md']);
   });
 });
 

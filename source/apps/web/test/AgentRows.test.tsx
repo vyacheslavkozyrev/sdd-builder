@@ -2,12 +2,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  addAgentArgument,
-  addAgentLabel,
-  addAgentRuleTag,
-  addAgentTool,
-} from '../src/builder/blockAgentFields.js';
+import { addAgentArgument, addAgentRuleTag, addAgentTool } from '../src/builder/blockAgentFields.js';
 import { AgentPanel } from '../src/builder/BlockPanel.js';
 import type { Pipeline, Rule } from '../src/builder/fields.js';
 
@@ -27,8 +22,8 @@ const RULES: readonly Rule[] = [
   { index: 1, id: 'plain-words', title: 'Plain words', text: 'Use plain words in the text.' },
 ];
 
-// The plan flow has two outcome artifacts; the planner reads and writes them and has one argument, one tool and
-// one rule tag, so each list starts with a saved value.
+// The plan flow has two outcome artifacts; the planner has one argument, one tool and one rule tag, so each list
+// starts with a saved value.
 function pipelineWithLists(): Pipeline {
   const blocks: Block[] = [
     { index: 0, id: 'start', kind: 'start', next: 'planner' },
@@ -40,8 +35,6 @@ function pipelineWithLists(): Pipeline {
       description: 'Writes the plan from the brief.',
       arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'feature-id' }],
       tools: ['Read'],
-      reads: ['plan.md'],
-      writes: ['plan.md'],
       ruleTags: [{ index: 0, ruleId: 'no-secrets' }],
       next: 'done',
       body: 'Reads the brief and writes plan.md.',
@@ -223,6 +216,21 @@ describe('F-12 AC-022 Agent tools', () => {
     expect(screen.getByLabelText('Tool 1 text')).toHaveProperty('value', 'Read');
   });
 
+  it('F-12 (no criterion: Verify device fix 2026-11-24) a repeated tool shows the reason beneath the list and keeps the saved tools', () => {
+    const pipelineState = pipelineWithLists();
+    const { onChange } = renderPanel(pipelineState);
+    const reason = reasonOf(addAgentTool(pipelineState, RULES, 'plan', 'planner', 'Read'));
+    expect(reason).toBe('repeats Read; each tool must be listed once');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add tool' }));
+    typeAndLeave(screen.getByLabelText('New tool text'), 'Read');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Tool 1 text')).toHaveProperty('value', 'Read');
+    expect(screen.queryByRole('group', { name: 'Tool 2' })).toBeNull();
+  });
+
   it('F-12 AC-022 the minus of a tool removes it and keeps the others', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
@@ -234,105 +242,21 @@ describe('F-12 AC-022 Agent tools', () => {
   });
 });
 
-describe('F-12 AC-026 Agent reads and writes', () => {
-  it('F-12 AC-026 shows each saved label as a row with a minus, under the titles Reads and Writes', () => {
+describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent panel has no reads or writes', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows no Reads or Writes list, and the Tools list keeps its layout', () => {
     renderPanel(pipelineWithLists());
 
-    expect(screen.getByText('Reads')).toBeTruthy();
-    expect(screen.getByText('Writes')).toBeTruthy();
-    const row = screen.getByRole('group', { name: 'Reads label 1' });
-    expect(within(row).getByLabelText('Reads label 1 text')).toHaveProperty('value', 'plan.md');
-    expect(within(row).getByRole('button', { name: 'Remove reads label 1' })).toBeTruthy();
-  });
+    expect(screen.queryByText('Reads')).toBeNull();
+    expect(screen.queryByText('Writes')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add reads label' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Add writes label' })).toBeNull();
 
-  it('F-12 AC-026 adds an outcome artifact label to writes through + and Enter, and saves it', () => {
-    const { onChange } = renderPanel(pipelineWithLists());
-
-    fireEvent.click(screen.getByRole('button', { name: 'Add writes label' }));
-    const input = screen.getByLabelText('New writes label text');
-    fireEvent.change(input, { target: { value: 'notes.md' } });
-    input.focus();
-    fireEvent.keyDown(input, { key: 'Enter' });
-
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).writes).toEqual(['plan.md', 'notes.md']);
-  });
-
-  it('F-12 AC-026 refuses a label that is not an outcome artifact, with its reason, and keeps the list', () => {
-    const pipelineState = pipelineWithLists();
-    const { onChange } = renderPanel(pipelineState);
-    const reason = reasonOf(addAgentLabel(pipelineState, RULES, 'plan', 'planner', 'reads', 'secret.md'));
-
-    fireEvent.click(screen.getByRole('button', { name: 'Add reads label' }));
-    typeAndLeave(screen.getByLabelText('New reads label text'), 'secret.md');
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByRole('group', { name: 'Reads label 1' })).toBeTruthy();
-    expect(screen.queryByRole('group', { name: 'Reads label 2' })).toBeNull();
-  });
-
-  it('F-12 AC-026 refuses a label the list already has, with the parser reason', () => {
-    const pipelineState = pipelineWithLists();
-    const { onChange } = renderPanel(pipelineState);
-    const reason = reasonOf(addAgentLabel(pipelineState, RULES, 'plan', 'planner', 'writes', 'plan.md'));
-
-    fireEvent.click(screen.getByRole('button', { name: 'Add writes label' }));
-    typeAndLeave(screen.getByLabelText('New writes label text'), 'plan.md');
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
-  });
-
-  it('F-12 AC-026 the minus of a label row removes that label and keeps the others', () => {
-    const { onChange } = renderPanel(pipelineWithLists());
-
-    fireEvent.click(screen.getByRole('button', { name: 'Remove writes label 1' }));
-
-    expect(onChange).toHaveBeenCalledTimes(1);
-    expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).writes).toEqual([]);
-    expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).reads).toEqual(['plan.md']);
-  });
-});
-
-describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent list layout', () => {
-  it('F-12 (no criterion: Verify device fix 2026-11-24) Reads and Writes have the Tools list layout', () => {
-    renderPanel(pipelineWithLists());
-
-    const lists = [
-      { title: 'Tools', add: 'Add tool' },
-      { title: 'Reads', add: 'Add reads label' },
-      { title: 'Writes', add: 'Add writes label' },
-    ].map((list) => {
-      const titleElement = screen.getByText(list.title);
-      const titleRow = titleElement.parentElement;
-      if (titleRow === null) throw new Error(`no title row for ${list.title}`);
-      return { ...list, tag: titleElement.tagName, titleRow };
-    });
-
-    // Each list has the same title element, and its + sits in the title row beside it.
-    expect(new Set(lists.map((list) => list.tag)).size).toBe(1);
-    for (const list of lists) {
-      expect(within(list.titleRow).getByRole('button', { name: list.add })).toBeTruthy();
-    }
-
-    // Each item is a row with a read-only field and a minus, as a tool is; no item is a chip.
-    const rows = [
-      { group: 'Tool 1', text: 'Tool 1 text', remove: 'Remove tool 1' },
-      { group: 'Reads label 1', text: 'Reads label 1 text', remove: 'Remove reads label 1' },
-      { group: 'Writes label 1', text: 'Writes label 1 text', remove: 'Remove writes label 1' },
-    ];
-    for (const row of rows) {
-      const group = screen.getByRole('group', { name: row.group });
-      expect(within(group).getByLabelText(row.text)).toHaveProperty('readOnly', true);
-      expect(within(group).getByRole('button', { name: row.remove })).toBeTruthy();
-    }
-
-    // The lists keep the order of AC-022: Tools, Reads, Writes, then Rule tags.
-    const order = Array.from(document.querySelectorAll('p')).map((element) => element.textContent);
-    expect(order.indexOf('Tools')).toBeLessThan(order.indexOf('Reads'));
-    expect(order.indexOf('Reads')).toBeLessThan(order.indexOf('Writes'));
-    expect(order.indexOf('Writes')).toBeLessThan(order.indexOf('Rule tags'));
+    const titleRow = screen.getByText('Tools').parentElement;
+    if (titleRow === null) throw new Error('no title row for Tools');
+    expect(within(titleRow).getByRole('button', { name: 'Add tool' })).toBeTruthy();
+    const row = screen.getByRole('group', { name: 'Tool 1' });
+    expect(within(row).getByLabelText('Tool 1 text')).toHaveProperty('readOnly', true);
+    expect(within(row).getByRole('button', { name: 'Remove tool 1' })).toBeTruthy();
   });
 });
 
@@ -389,20 +313,10 @@ describe('F-12 AC-027 Agent rule tags', () => {
 });
 
 describe('F-12 AC-022 Agent panel order', () => {
-  it('F-12 AC-022 lists the Agent fields in order: Name, Description, Arguments, Model, Tools, Reads, Writes, Rule tags, Body', () => {
+  it('F-12 AC-022 lists the Agent fields in order: Name, Description, Arguments, Model, Tools, Rule tags, Body', () => {
     renderPanel(pipelineWithLists());
 
-    const wanted = [
-      'Name',
-      'Description',
-      'Arguments',
-      'Model',
-      'Tools',
-      'Reads',
-      'Writes',
-      'Rule tags',
-      'Body · required',
-    ];
+    const wanted = ['Name', 'Description', 'Arguments', 'Model', 'Tools', 'Rule tags', 'Body · required'];
     const shown = Array.from(document.querySelectorAll('label, p'))
       .map((element) => element.textContent)
       .filter((text): text is string => wanted.includes(text ?? ''));

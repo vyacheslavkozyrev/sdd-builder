@@ -134,15 +134,8 @@ describe('F-05 layouts: the agent file layout', () => {
     expect(render(agentOf({ body: '  \n \n' })).includes('## Instructions')).toBe(false);
   });
 
-  it('F-05 AC-021 writes the Reads and Writes artifacts as one label per line, in their order, under their headings', () => {
-    const text = render(agentOf({ reads: ['spec/plan.md', 'spec/stories.md'], writes: ['src/review.md'] }));
-    expect(text).toContain(
-      '## Arguments\nNo arguments\n\n## Reads\n- `spec/plan.md`\n- `spec/stories.md`\n\n## Writes\n- `src/review.md`\n\n## Rule tags',
-    );
-  });
-
-  it('F-05 AC-021 leaves out the Reads and Writes sections when their lists are empty or absent', () => {
-    const text = render(agentOf({ reads: [], writes: [] }));
+  it('F-05 AC-021 amended 2026-11-24 writes no Reads or Writes section: the Arguments section is followed by Rule tags', () => {
+    const text = render(agentOf({ tools: ['Read', 'Write'] }));
     expect(text.includes('## Reads')).toBe(false);
     expect(text.includes('## Writes')).toBe(false);
     expect(text).toContain('## Arguments\nNo arguments\n\n## Rule tags');

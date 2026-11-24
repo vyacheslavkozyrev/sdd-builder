@@ -1,20 +1,10 @@
 import type { AgentBlock } from '../model.js';
-import {
-  argumentsText,
-  bodyText,
-  inlineText,
-  linesOf,
-  quotedText,
-  ruleTagsText,
-  yamlToolsText,
-} from './values-text.js';
+import { argumentsText, bodyText, inlineText, quotedText, ruleTagsText, yamlToolsText } from './values-text.js';
 
 // The values of an agent file layout (F-04, AC-003). `agentName` is inline. `agentDescription` is the description as a
 // quoted YAML string (F-05, AC-017), and `agentPurpose` the same description as plain inline text for the Purpose
-// section, so it shows no quotes. `agentModel` and `agentTools` are the optional frontmatter lines. `agentReads` and
-// `agentWrites` are the optional Reads and Writes sections of the body, each a level 2 heading with one artifact label
-// per line in the block's order (F-05, AC-021); each starts with its own blank line and is '' when the block's list is
-// empty or absent. `agentTools` is quoted when YAML would break on a tool name (F-05, AC-019). `agentBody` is the
+// section, so it shows no quotes. `agentModel` and `agentTools` are the optional frontmatter lines. `agentTools` is
+// quoted when YAML would break on a tool name (F-05, AC-019). `agentBody` is the
 // Instructions section, its heading and the paragraph of the block's body, and '' when the body is blank
 // (F-05, AC-020). `agentArguments` is one line per argument, `No arguments` when there are none, as in the flow and
 // pipeline layouts (F-05, AC-008 and AC-001). `agentRuleTags` is the block's rule tags as one
@@ -28,8 +18,6 @@ export function agentValues(agent: AgentBlock): Record<string, string> {
     agentModel: agent.model === undefined ? '' : `\nmodel: ${agent.model}`,
     agentTools:
       agent.tools === undefined || agent.tools.length === 0 ? '' : `\ntools: ${yamlToolsText(agent.tools)}`,
-    agentReads: artifactSection('Reads', agent.reads),
-    agentWrites: artifactSection('Writes', agent.writes),
     agentBody: instructionsText(agent.body ?? ''),
     agentArguments: argumentsText(agent.arguments),
     agentRuleTags: ruleTagsText(agent.ruleTags),
@@ -41,11 +29,4 @@ export function agentValues(agent: AgentBlock): Record<string, string> {
 function instructionsText(body: string): string {
   const text = bodyText(body);
   return text === '' ? '' : `\n\n## Instructions${text}`;
-}
-
-// A Reads or Writes section: a level 2 heading and one artifact label per line, '' when the list is empty or absent
-// (F-05, AC-021).
-function artifactSection(heading: string, labels: readonly string[] | undefined): string {
-  if (labels === undefined || labels.length === 0) return '';
-  return `\n\n## ${heading}${linesOf(labels.map((label) => `- \`${inlineText(label)}\``))}`;
 }

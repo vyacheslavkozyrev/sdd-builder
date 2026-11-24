@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
-| Build    | 🔄 In Progress | 2026-11-24 | 11 of 14 tasks committed |
+| Build    | 🔄 In Progress | 2026-11-24 | 12 of 14 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,12 +36,21 @@ None
 | T009 | Findings and results (view): findings in server order (structural, then review), plain text; review note for failed or skipped; error box with every 422 problem line; the result lines and the green line | 0 blockers, 0 warnings, 1 suggestion fixed (`GREEN_RESULT`, `REVIEW_NOT_FINISHED`, `allFindings` no longer exported); 1 suggestion and 3 owner decisions deferred. Size guard overridden by the owner (one commit for T009, 515 insertions) | task check passed: api 45, web 1851, core 1217 |
 | T010 | Project preview (view): tree in a scrolling panel with the rule tag, Show full tree opening the dialog with Close, Generate and download disabled with its reason (no request until T012) | 0 blockers, 0 warnings, 2 suggestions fixed (test cast of the style object replaced by `toMatchObject`; tree rows keyed by path, not index), 2 suggestions deferred (see Deferred Findings) | task check passed: api 45, web 1861, core 1217 |
 | T011 | Analyze action (AnalyzeStep): one request guarded by the tick and an in-flight flag, pending state, stored result with its key, out-of-date and not-run states | 0 blockers, 0 warnings, 2 suggestions fixed (AC-014 test reused a consumed response; pending test relabelled AC-006); 1 suggestion deferred (guard not reachable in tests) | task check passed: api 45, web 1878, core 1217 |
+| T012 | Generate action and download (AnalyzeStep, `postFile`, `generate.ts`, `download.ts`): one POST /generate with the Analyze configuration, pending lock, zip saved as `sddbuilder-project.zip`, error text and 422 lines | 0 blockers, 2 warnings fixed (a 2xx reply counted as the zip without the `application/zip` media type; a throwing save left the step locked), 1 suggestion fixed (AC-028 test asserts the ticked box and enabled Analyze); 4 suggestions and 3 owner decisions deferred (see Deferred Findings). Size guard overridden by the owner (one commit for T012) | task check passed: api 45, web 1899, core 1217 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- `source/apps/web/src/analyze/ProjectPreview.tsx` (T012, owner decision) — the generate error box sits in the preview column; no approved screen draws an error there (screens 07 and 09 draw it in the Analyze column). Kept as built; the owner confirms the placement.
+- `source/apps/web/src/analyze/errorMessage` (T012, owner decision, wording not changed) — a failed Generate reads "Analysis could not run (…)". This is the approved pattern of screens 07 and 09, but the sentence names Analysis, not generation. Kept as approved; the owner confirms the prefix for Generate.
+- Plan deviation (T012, owner-approved, recorded here): `source/apps/web/src/analyze/request.ts` (`postFile`), `generate.ts`, `PrivacyNotice.tsx` (`locked`), `ProjectPreview.tsx` and `common.ts` (error box shape) changed outside the T012 file line, which names `download.ts` and the test only. The `locked` prop matches screen 08 (checkbox, Analyze and Show full tree disabled). A plan amendment to list them is pending.
+- `source/apps/web/src/analyze/AnalyzeStep.tsx:generate` (T012) — SUGGESTION: a throw from `save` now rethrows after the step unlocks, and no test covers it, because the rejection would fail the test run. Covering it needs a handled path, not a silent catch.
+- `source/apps/web/src/analyze/Findings.tsx` and `ProjectPreview.tsx` (T012) — SUGGESTION: a generate error stays visible after a new Analyze or a configuration change. AC-028 does not say when it clears; owner decision.
+- `source/apps/web/src/analyze/request.ts:postFile` (T012) — SUGGESTION: the browser fetch to /generate has no timeout, so a stalled connection leaves the step locked. Same as the T004 item; the server bounds the call at 300 s.
+- `source/apps/web/src/analyze/reply.ts:problemLines` (T012) — SUGGESTION: lines are shown verbatim. AC-029 expects `<path>: <reason>`; the 422 body shape comes from F-15, so check it when F-15 lands.
 
 - `source/apps/web/src/analyze/request.ts:26` (T004) — SUGGESTION: `postJson` sets no client-side timeout, so a hung `/analyze` keeps the state pending. Not applied: plan T004 fixes the signature `postJson(path, body, fetchFn)` and AC-010 sets no timeout; the LLM call timeout belongs to the API (F-14). Revisit with T011 or F-14.
 - `source/apps/web/src/analyze/templates.ts:7` (T006) — SUGGESTION: the `GenerationTemplates` type is derived with `Parameters<typeof pipeline.planGeneration>[1]` because core's pipeline index does not export it. Not applied: exporting it changes core's public surface, which belongs to F-04; the derived type is a reference, not a redeclaration.

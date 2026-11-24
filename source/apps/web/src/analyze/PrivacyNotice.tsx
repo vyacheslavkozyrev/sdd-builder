@@ -5,7 +5,8 @@ import { getAnalyzeStepStyles } from './analyzeStepStyles.js';
 // pipeline go to the model provider and that the server does not store or log the brief. The checkbox is
 // unticked when the step opens; Analyze is disabled until it is ticked. The tick is held by the step (AnalyzeStep),
 // so this component only shows it and reports changes. While the analysis is pending, Analyze shows a progress mark and
-// is disabled (AC-006); the step's action refuses a second run as well.
+// is disabled (AC-006); the step's action refuses a second run as well. While the files are written (`locked`, screen 08),
+// the checkbox and Analyze are disabled without the progress mark.
 
 export const PRIVACY_CHECKBOX_LABEL = 'I have read the notice. Send the brief for review.';
 export const ANALYZE_REASON = 'Tick the box to analyse';
@@ -14,11 +15,12 @@ const ANALYZE_REASON_ID = 'analyze-reason';
 export interface PrivacyNoticeProps {
   readonly ticked: boolean;
   readonly pending: boolean;
+  readonly locked: boolean;
   readonly onTickedChange: (ticked: boolean) => void;
   readonly onAnalyze: () => void;
 }
 
-export function PrivacyNotice({ ticked, pending, onTickedChange, onAnalyze }: PrivacyNoticeProps) {
+export function PrivacyNotice({ ticked, pending, locked, onTickedChange, onAnalyze }: PrivacyNoticeProps) {
   const styles = getAnalyzeStepStyles(useTheme());
   return (
     <>
@@ -38,6 +40,7 @@ export function PrivacyNotice({ ticked, pending, onTickedChange, onAnalyze }: Pr
         control={
           <Checkbox
             checked={ticked}
+            disabled={locked}
             onChange={(event) => {
               onTickedChange(event.target.checked);
             }}
@@ -50,7 +53,7 @@ export function PrivacyNotice({ ticked, pending, onTickedChange, onAnalyze }: Pr
         <Button
           variant="contained"
           disableElevation
-          disabled={!ticked || pending}
+          disabled={!ticked || pending || locked}
           onClick={onAnalyze}
           aria-busy={pending}
           aria-describedby={ticked ? undefined : ANALYZE_REASON_ID}

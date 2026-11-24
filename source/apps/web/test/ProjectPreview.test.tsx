@@ -43,7 +43,7 @@ const TREE: TreeNode[] = [
 function view(state: AnalysisState, tree: TreeNode[] = TREE) {
   return render(
     <ThemeProvider theme={theme}>
-      <ProjectPreview tree={tree} state={state} configKey={KEY} />
+      <ProjectPreview tree={tree} state={state} configKey={KEY} generation={{ kind: 'idle' }} onGenerate={() => {}} />
     </ThemeProvider>,
   );
 }

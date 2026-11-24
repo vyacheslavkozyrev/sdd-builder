@@ -19,6 +19,7 @@ function notice(ticked: boolean, handlers: Handlers = {}) {
       <PrivacyNotice
         ticked={ticked}
         pending={handlers.pending ?? false}
+        locked={false}
         onTickedChange={handlers.onTickedChange ?? (() => {})}
         onAnalyze={handlers.onAnalyze ?? (() => {})}
       />

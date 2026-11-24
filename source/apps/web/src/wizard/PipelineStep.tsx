@@ -1,12 +1,20 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
+import { AgentPanel, ConditionPanel, EndPanel, StartPanel } from '../builder/BlockPanel.js';
+import { BlockArrowPanel, ConnectionPanel } from '../builder/ConnectionPanel.js';
+import { BlockCanvas } from '../builder/BlockCanvas.js';
 import { Canvas } from '../builder/Canvas.js';
-import { ConnectionPanel } from '../builder/ConnectionPanel.js';
+import type { BlockSelection } from '../builder/panel.js';
+import { afterDeleteBlock, blockPanelFor } from '../builder/panel.js';
+import { flowArrows } from '../builder/blockArrows.js';
+import type { BlockArrow, OutputName } from '../builder/blockArrows.js';
+import type { AddBlockResult } from '../builder/blocks.js';
 import type { Rule } from '../builder/fields.js';
 import { ErrorPanel } from '../builder/ErrorPanel.js';
 import { FlowPanel } from '../builder/FlowPanel.js';
 import { canvasLayout } from '../builder/layout.js';
-import { WarningNote, warningsAt } from '../builder/MarkViews.js';
+import { findingsOfBlock, WarningNote, warningsAt } from '../builder/MarkViews.js';
 import { structureMarks } from '../builder/marks.js';
 import type { StructureMarks } from '../builder/marks.js';
 import { addFlow } from '../builder/model.js';
@@ -19,10 +27,12 @@ import { ruleId, ruleIdProblem } from './technical.js';
 import type { RuleValues, WizardValues } from './state.js';
 import { getPipelineStepStyles } from './pipelineStepStyles.js';
 
-// The Workflow step (F-11 AC-002, AC-031, screen 01): the pipeline builder in step 3. The open tab and the
-// selection are held here (PanelState). The pipeline is the wizard's value and every change is reported to
-// the caller, which stores it (set-pipeline). The Pipeline tab shows the canvas, the structure marks and the
-// properties card of the selection; a flow tab shows the flow's name and a note, with no block (AC-002).
+// The Workflow step (F-11 AC-002, AC-031, screen 01; F-12 AC-011, AC-044, AC-049, AC-051): the pipeline builder in
+// step 3. The open tab and the selection are held here (PanelState). The pipeline is the wizard's value and every
+// change is reported to the caller, which stores it (set-pipeline). The Pipeline tab shows the canvas, the structure
+// marks and the properties card of the selection. A flow tab shows the flow's block canvas, with its toolbox, and the
+// panel of the selected block or arrow (BlockSelection). Switching tabs clears the block selection, as the
+// Pipeline selection is cleared.
 
 // The canvas starts its boxes 24 px in from its left edge (its defaultViewport) and at its top edge; a box is
 // 76 px high, and the warning notes under a box sit 12 px below it.
@@ -33,6 +43,7 @@ const NOTE_TOP = BOX_HEIGHT + NOTE_GAP;
 
 const PIPELINE_SELECTION: Selection = { kind: 'pipeline' };
 const INITIAL_PANEL: PanelState = { tab: { kind: 'pipeline' }, selection: PIPELINE_SELECTION };
+const NO_BLOCK_SELECTION: BlockSelection = { kind: 'none' };
 
 // The rules the builder can tag (F-11 AC-026): the rule blocks of the Technical details step with a valid id,
 // each id offered once (the first block with it). A block whose id is refused or repeated is not offered;
@@ -58,12 +69,47 @@ function flowNamed(pipelineState: Pipeline, flowId: string): Flow {
   return flow;
 }
 
+// The pipeline with one flow replaced by the given flow, found by id (F-12 AC-050: the parser has accepted it).
+function withFlow(pipelineState: Pipeline, flow: Flow): Pipeline {
+  return { ...pipelineState, flows: pipelineState.flows.map((item) => (item.id === flow.id ? flow : item)) };
+}
+
+// The arrow of the flow that leaves one output of a block. The arrow panel takes the arrow itself (AC-021).
+function arrowFrom(flow: Flow, fromId: string, output: OutputName): BlockArrow {
+  const arrow = flowArrows(flow).find((candidate) => candidate.fromId === fromId && candidate.output === output);
+  if (arrow === undefined) {
+    throw new Error(`F-12: flow ${flow.id} has no ${output} arrow from block ${fromId}`);
+  }
+  return arrow;
+}
+
+// Whether the block selection still names a block or an arrow of the flow. A confirmed block delete removes the
+// selected item, so the selection is then cleared and no panel names a block that is gone (AC-044).
+function stillInFlow(flow: Flow, selection: BlockSelection): boolean {
+  switch (selection.kind) {
+    case 'none':
+      return true;
+    case 'block':
+      return flow.blocks.some((block) => block.id === selection.blockId);
+    case 'blockArrow':
+      return flowArrows(flow).some(
+        (arrow) => arrow.fromId === selection.fromId && arrow.output === selection.output,
+      );
+  }
+}
+
 // The warnings beside one flow box: the warnings on the box, then those on its outgoing arrow.
 function warningsBeside(marks: StructureMarks, flowId: string) {
   return [
     ...warningsAt(marks, { kind: 'flow', flowId }),
     ...warningsAt(marks, { kind: 'arrow', source: flowId }),
   ];
+}
+
+// The title and subtitle of the properties card. A block's panel draws its own title, so no header is given.
+interface PropertiesHeader {
+  readonly title: string;
+  readonly subtitle: string;
 }
 
 export interface PipelineStepProps {
@@ -75,6 +121,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   const styles = getPipelineStepStyles(useTheme());
   const pipelineState = values.pipeline;
   const [panel, setPanel] = useState<PanelState>(INITIAL_PANEL);
+  const [blockSelection, setBlockSelection] = useState<BlockSelection>(NO_BLOCK_SELECTION);
   const rules = useMemo(() => builderRules(values.rules), [values.rules]);
   const marks = useMemo(() => structureMarks(pipelineState, rules), [pipelineState, rules]);
   const blockedFlowIds = useMemo(() => marks.blockedFlowIds, [marks]);
@@ -83,6 +130,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
 
   const selectTab = (next: Tab) => {
     setPanel({ tab: next, selection: PIPELINE_SELECTION });
+    setBlockSelection(NO_BLOCK_SELECTION);
   };
 
   // + appends a flow and opens its tab (AC-003).
@@ -90,6 +138,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     const added = addFlow(pipelineState);
     onPipelineChange(added.pipeline);
     setPanel({ tab: { kind: 'flow', id: added.flowId }, selection: PIPELINE_SELECTION });
+    setBlockSelection(NO_BLOCK_SELECTION);
   };
 
   // A drag or repoint on the canvas clears the selection: a repointed arrow may no longer be the one selected.
@@ -106,6 +155,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   const deleteFlowDone = (next: Pipeline) => {
     onPipelineChange(next);
     setPanel(afterDeleteFlow());
+    setBlockSelection(NO_BLOCK_SELECTION);
   };
 
   // Confirmed Delete connection: the new pipeline is applied and the selection cleared; the tab stays open.
@@ -114,22 +164,187 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     setPanel((current) => ({ tab: current.tab, selection: PIPELINE_SELECTION }));
   };
 
+  // A change made in a flow's panel: the new pipeline is applied. The block selection stays unless the change
+  // removed the selected block or arrow (a confirmed Delete block), in which case it is cleared (AC-044).
+  const flowChanged = (next: Pipeline, flowId: string) => {
+    onPipelineChange(next);
+    const edited = flowNamed(next, flowId);
+    setBlockSelection((current) => (stillInFlow(edited, current) ? current : afterDeleteBlock(flowId).selection));
+  };
+
+  // A block added from the toolbox is stored and selected, so its panel opens (AC-002).
+  const blockAdded = (result: AddBlockResult) => {
+    onPipelineChange(withFlow(pipelineState, result.flow));
+    setBlockSelection({ kind: 'block', blockId: result.blockId });
+  };
+
+  // A drag accepted on the flow canvas is stored; the selection is cleared, as on the Pipeline tab.
+  const blockDragged = (flow: Flow) => {
+    onPipelineChange(withFlow(pipelineState, flow));
+    setBlockSelection(NO_BLOCK_SELECTION);
+  };
+
+  // Confirmed Delete connection on a block arrow (AC-021): the new flow is stored and the selection cleared.
+  const blockArrowDeleted = (flow: Flow) => {
+    onPipelineChange(withFlow(pipelineState, flow));
+    setBlockSelection(NO_BLOCK_SELECTION);
+  };
+
   const tabs = (
     <PipelineTabs pipelineState={pipelineState} openTab={tab} onSelectTab={selectTab} onAddFlow={addFlowTab} />
   );
 
+  const propertiesCard = (header: PropertiesHeader | null, body: ReactNode) => (
+    <Box component="section" aria-label="Properties" sx={styles.propertiesCard}>
+      {header !== null && (
+        <Box sx={styles.propertiesHeader}>
+          <Typography component="h2" sx={styles.propertiesTitle}>
+            {header.title}
+          </Typography>
+          <Typography component="p" sx={styles.propertiesSubtitle}>
+            {header.subtitle}
+          </Typography>
+        </Box>
+      )}
+      <Box sx={styles.propertiesBody}>{body}</Box>
+    </Box>
+  );
+
   if (tab.kind === 'flow') {
     const flow = flowNamed(pipelineState, tab.id);
+    const shown = blockPanelFor(flow, blockSelection);
+    const findingsFor = (blockId: string) => findingsOfBlock(marks, flow.id, blockId);
+    const flowHeader = (): PropertiesHeader => ({
+      title: `Flow: ${flow.name}`,
+      subtitle: `Generates .claude/commands/${flow.name}.md`,
+    });
+    const panelOf = (): { readonly header: PropertiesHeader | null; readonly body: ReactNode } => {
+      switch (shown.kind) {
+        case 'flow':
+          return {
+            header: flowHeader(),
+            body: (
+              <FlowPanel
+                key={flow.id}
+                pipelineState={pipelineState}
+                rules={rules}
+                flow={flow}
+                onChange={(next) => {
+                  flowChanged(next, flow.id);
+                }}
+                onDelete={deleteFlowDone}
+              />
+            ),
+          };
+        case 'start':
+          return {
+            header: null,
+            body: (
+              <StartPanel
+                key={shown.block.id}
+                pipelineState={pipelineState}
+                flow={flow}
+                block={shown.block}
+                onChange={(next) => {
+                  flowChanged(next, flow.id);
+                }}
+                findings={findingsFor(shown.block.id)}
+              />
+            ),
+          };
+        case 'agent':
+          return {
+            header: null,
+            body: (
+              <AgentPanel
+                key={shown.block.id}
+                pipelineState={pipelineState}
+                rules={rules}
+                flow={flow}
+                block={shown.block}
+                onChange={(next) => {
+                  flowChanged(next, flow.id);
+                }}
+                findings={findingsFor(shown.block.id)}
+              />
+            ),
+          };
+        case 'condition':
+          return {
+            header: null,
+            body: (
+              <ConditionPanel
+                key={shown.block.id}
+                pipelineState={pipelineState}
+                rules={rules}
+                flow={flow}
+                block={shown.block}
+                onChange={(next) => {
+                  flowChanged(next, flow.id);
+                }}
+                findings={findingsFor(shown.block.id)}
+              />
+            ),
+          };
+        case 'end':
+          return {
+            header: null,
+            body: (
+              <EndPanel
+                key={shown.block.id}
+                pipelineState={pipelineState}
+                rules={rules}
+                flow={flow}
+                block={shown.block}
+                onChange={(next) => {
+                  flowChanged(next, flow.id);
+                }}
+                findings={findingsFor(shown.block.id)}
+              />
+            ),
+          };
+        case 'blockArrow': {
+          if (blockSelection.kind !== 'blockArrow') {
+            throw new Error('F-12: the arrow panel is shown without an arrow selection');
+          }
+          const arrow = arrowFrom(flow, blockSelection.fromId, blockSelection.output);
+          return {
+            header: { title: 'Connection', subtitle: 'An arrow only points one block to another.' },
+            body: (
+              <BlockArrowPanel
+                key={`${arrow.fromId}:${arrow.output}`}
+                flow={flow}
+                arrow={arrow}
+                onDelete={blockArrowDeleted}
+              />
+            ),
+          };
+        }
+      }
+    };
+    const properties = panelOf();
     return (
       <Box sx={styles.root}>
         {tabs}
-        <Box sx={styles.flowTab}>
-          <Typography component="h2" sx={styles.flowTabName}>
-            {flow.name}
-          </Typography>
-          <Typography component="p" sx={styles.flowTabNote}>
-            The blocks of this flow are built in a later step.
-          </Typography>
+        <Box sx={styles.body}>
+          <Box sx={styles.flowColumn}>
+            {marks.findings.length > 0 && (
+              <Box sx={styles.flowErrors}>
+                <ErrorPanel findings={marks.findings} />
+              </Box>
+            )}
+            <Box sx={styles.flowCanvas}>
+              <BlockCanvas
+                flow={flow}
+                selection={blockSelection}
+                onSelect={setBlockSelection}
+                onAdd={blockAdded}
+                onChange={blockDragged}
+                marks={marks}
+              />
+            </Box>
+          </Box>
+          {propertiesCard(properties.header, properties.body)}
         </Box>
       </Box>
     );
@@ -210,17 +425,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
             })}
           </Box>
         </Box>
-        <Box component="section" aria-label="Properties" sx={styles.propertiesCard}>
-          <Box sx={styles.propertiesHeader}>
-            <Typography component="h2" sx={styles.propertiesTitle}>
-              {properties.title}
-            </Typography>
-            <Typography component="p" sx={styles.propertiesSubtitle}>
-              {properties.subtitle}
-            </Typography>
-          </Box>
-          <Box sx={styles.propertiesBody}>{properties.body}</Box>
-        </Box>
+        {propertiesCard({ title: properties.title, subtitle: properties.subtitle }, properties.body)}
       </Box>
     </Box>
   );

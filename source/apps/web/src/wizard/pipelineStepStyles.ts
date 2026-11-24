@@ -2,8 +2,8 @@ import type { Theme } from '@mui/material/styles';
 import { getCommonStyles } from '../styles/common.js';
 import type { StyleObject } from '../styles/common.js';
 
-// Style getters for the Workflow step (F-11 screen 01): the tab row above, the canvas card on the left
-// and the properties card on the right (272 px). The cards are white with the shared card shape, and the
+// Style getters for the Workflow step (F-11 screen 01, F-12 screen 01): the tab row above, the canvas card on
+// the left and the properties card on the right (272 px). The cards are white with the shared card shape, and the
 // colours come from the theme's palette only (.claude/rules/web-styling.md).
 
 export interface PipelineStepStyles {
@@ -32,10 +32,11 @@ export interface PipelineStepStyles {
   readonly propertiesTitle: StyleObject;
   readonly propertiesSubtitle: StyleObject;
   readonly propertiesBody: StyleObject;
-  // The flow tab (F-11 screen 06): the card spans the content area, with the flow's name and the note.
-  readonly flowTab: StyleObject;
-  readonly flowTabName: StyleObject;
-  readonly flowTabNote: StyleObject;
+  // The flow tab (F-12 screen 01): the column on the left holds the error panel's row, when there is a finding,
+  // and the block canvas card, which fills the rest of the column.
+  readonly flowColumn: StyleObject;
+  readonly flowErrors: StyleObject;
+  readonly flowCanvas: StyleObject;
 }
 
 const PROPERTIES_WIDTH = 272;
@@ -132,25 +133,24 @@ export function getPipelineStepStyles(theme: Theme): PipelineStepStyles {
       display: 'flex',
       flexDirection: 'column',
     },
-    flowTab: {
-      ...common.card,
+    flowColumn: {
+      flex: 1,
+      minWidth: 0,
+      minHeight: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '12px',
+    },
+    flowErrors: {
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    },
+    flowCanvas: {
       flex: 1,
       minHeight: 0,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px',
-      p: 3,
     },
-    flowTabName: {
-      m: 0,
-      fontSize: 16,
-      fontWeight: 500,
-      lineHeight: '24px',
-      color: theme.palette.text.primary,
-      textAlign: 'center',
-    },
-    flowTabNote: { ...common.secondaryText, textAlign: 'center' },
   };
 }

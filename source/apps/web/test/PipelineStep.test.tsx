@@ -117,6 +117,13 @@ function withoutNext(values: WizardValues, flowId: string): WizardValues {
   return { ...values, pipeline: { ...pipeline, flows } };
 }
 
+// The default pipeline with `flowId`'s blocks emptied, so a test can start from a flow with no blocks.
+function withoutBlocks(values: WizardValues, flowId: string): WizardValues {
+  const pipeline = defaultPipelineValue();
+  const flows = pipeline.flows.map((flow) => (flow.id === flowId ? { ...flow, blocks: [] } : flow));
+  return { ...values, pipeline: { ...pipeline, flows } };
+}
+
 function tabNamed(name: string): HTMLElement {
   return screen.getByRole('tab', { name });
 }
@@ -134,20 +141,19 @@ describe('F-11 AC-002 the Pipeline tab shows the canvas and the flow tab shows i
     expect(screen.getByText('Flows in pipeline order, left to right. Select a flow to edit its artifacts and Human approval.')).toBeTruthy();
   });
 
-  it('F-11 AC-002 a flow tab shows the flow name and the note that its blocks are built in a later step', () => {
+  it('F-11 AC-002 a flow tab shows the flow name and its block canvas, with no placeholder', () => {
     renderStep();
     fireEvent.click(tabNamed('Specify'));
     expect(tabNamed('Specify').getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('heading', { name: 'Specify' })).toBeTruthy();
-    expect(screen.getByText('The blocks of this flow are built in a later step.')).toBeTruthy();
+    expect(screen.getByLabelText('Flow canvas')).toBeTruthy();
+    expect(screen.queryByText('The blocks of this flow are built in a later step.')).toBeNull();
   });
 
-  it('F-11 AC-002 negative case: a flow tab shows no block and no canvas', () => {
+  it('F-11 AC-002 negative case: a flow tab shows no Pipeline canvas', () => {
     renderStep();
     fireEvent.click(tabNamed('Specify'));
     expect(screen.queryByLabelText('Pipeline canvas')).toBeNull();
-    expect(screen.queryByText(/\d+ blocks?$/)).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Properties' })).toBeNull();
   });
 
   it('F-11 AC-002 returning to the Pipeline tab shows the canvas again', () => {
@@ -155,6 +161,160 @@ describe('F-11 AC-002 the Pipeline tab shows the canvas and the flow tab shows i
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(tabNamed('Pipeline'));
     expect(screen.getByLabelText('Pipeline canvas')).toBeTruthy();
+  });
+});
+
+describe('F-12 AC-051 the flow tab shows the block canvas in place of the F-11 placeholder', () => {
+  it('F-12 AC-051 UI the default pipeline\'s flow shows its blocks, with the toolbox and the flow panel', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    expect(screen.getByRole('button', { name: 'Start block' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Agent block: specify' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'End block' })).toBeTruthy();
+    expect(screen.getByRole('toolbar', { name: 'Add a block' })).toBeTruthy();
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+  });
+
+  it('F-12 AC-051 negative case: a flow with no blocks shows the empty text and no block', () => {
+    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'specify'));
+    fireEvent.click(tabNamed('Specify'));
+    expect(screen.getByText('No blocks yet.')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Start block' })).toBeNull();
+  });
+});
+
+describe('F-12 AC-011 selecting a block or an arrow drives the properties card', () => {
+  it('F-12 AC-011 a selected Agent block shows its Agent panel', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: specify' })).toBeTruthy();
+  });
+
+  it('F-12 AC-011 a selected arrow shows the Connection panel with its two block names', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrow from Start' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Connection' })).toBeTruthy();
+    expect(within(propertiesCard()).getByText('An arrow only points one block to another.')).toBeTruthy();
+    expect(within(propertiesCard()).getByText('Start')).toBeTruthy();
+    expect(within(propertiesCard()).getByText('specify')).toBeTruthy();
+  });
+
+  it('F-12 AC-011 negative case: a click on the empty canvas returns the panel to the flow', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(screen.getByLabelText('Flow canvas').querySelector('svg') as SVGSVGElement);
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+  });
+
+  it('F-12 AC-011 a block added from the toolbox is selected and its panel opens', () => {
+    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'specify'));
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Start' })).toBeTruthy();
+    expect(within(propertiesCard()).getByText('A flow keeps its Start block.')).toBeTruthy();
+    expect(within(propertiesCard()).queryByRole('heading', { name: 'Flow: Specify' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Start block' })).toBeTruthy();
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.blocks.map((block) => block.kind)).toEqual([
+      'start',
+    ]);
+  });
+
+  it('F-12 AC-045 a finding on an Agent block is listed in its panel', () => {
+    extraMarks.findings = [
+      {
+        finding: { severity: 'warning', rule: 'test', path: 'pipeline.flows.0.blocks.1.body', message: 'Body is thin.' },
+        placement: { kind: 'block', flowId: 'specify', blockId: 'specify-agent' },
+      },
+    ];
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByRole('region', { name: 'Structure marks' }).textContent).toContain('Body is thin.');
+  });
+
+  it('F-12 AC-011 an edit to the selected Agent keeps its panel open', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Name'), { target: { value: 'drafter' } });
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: drafter' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Agent block: drafter' })).toBeTruthy();
+  });
+});
+
+describe('F-12 AC-021 a confirmed Delete connection on a block arrow removes the arrow and clears the selection', () => {
+  it('F-12 AC-021 Delete connection on the Start arrow removes it, keeps the flow tab and returns the panel to the flow', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrow from Start' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete connection' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete connection' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByRole('button', { name: 'Arrow from Start' })).toBeNull();
+    expect(tabNamed('Specify').getAttribute('aria-selected')).toBe('true');
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Agent block: specify' })).toBeTruthy();
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.blocks.map((block) => block.id)).toContain(
+      'specify-agent',
+    );
+  });
+
+  it('F-12 AC-021 negative case: Cancel keeps the arrow and its panel', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrow from Start' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete connection' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.getByRole('button', { name: 'Arrow from Start' })).toBeTruthy();
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Connection' })).toBeTruthy();
+    expect(lastPipelineChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('F-12 AC-044 a block delete keeps the flow tab and clears the selection', () => {
+  it('F-12 AC-044 a confirmed Delete block removes the block, keeps the flow tab and returns the panel to the flow', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(tabNamed('Specify').getAttribute('aria-selected')).toBe('true');
+    expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+  });
+
+  it('F-12 AC-044 negative case: Cancel keeps the block and its panel', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.getByRole('button', { name: 'Agent block: specify' })).toBeTruthy();
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: specify' })).toBeTruthy();
+  });
+});
+
+describe('F-12 AC-049 the flow tab keeps each flow\'s blocks when the user switches tabs', () => {
+  it('F-12 AC-049 the blocks of a flow are still there after the Pipeline tab is shown and the flow is reopened', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(tabNamed('Pipeline'));
+    fireEvent.click(tabNamed('Specify'));
+    expect(screen.getByRole('button', { name: 'Agent block: specify' })).toBeTruthy();
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+  });
+
+  it('F-12 AC-049 negative case: a flow tab does not show the blocks of another flow', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Plan'));
+    expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Agent block: plan' })).toBeTruthy();
   });
 });
 

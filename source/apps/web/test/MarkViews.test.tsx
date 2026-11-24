@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import type { ReactElement } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
-import { WarningNote, warningsAt } from '../src/builder/MarkViews.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { findingsOfBlock, markedItems, WarningNote, warningsAt } from '../src/builder/MarkViews.js';
+import { ErrorPanel } from '../src/builder/ErrorPanel.js';
+import { AgentPanel } from '../src/builder/BlockPanel.js';
+import { BlockCanvas } from '../src/builder/BlockCanvas.js';
+import type { Flow } from '../src/builder/model.js';
 import { structureMarks } from '../src/builder/marks.js';
 import type { Finding, Placement, StructureMarks } from '../src/builder/marks.js';
 import { theme } from '../src/theme.js';
@@ -31,7 +35,9 @@ function finding(severity: Finding['severity'], path: string, message: string): 
 }
 
 // Marks with the given findings, each placed where its placement says. No blocked flow is needed here.
-function marksOf(...entries: ReadonlyArray<{ readonly finding: Finding; readonly placement: Placement }>): StructureMarks {
+function marksOf(
+  ...entries: ReadonlyArray<{ readonly finding: Finding; readonly placement: Placement }>
+): StructureMarks {
   return { findings: entries, blockedFlowIds: [] };
 }
 
@@ -111,5 +117,229 @@ describe('F-11 AC-036 findings with no drawn item under the canvas', () => {
     expect(marks.findings.length).toBeGreaterThan(0);
     expect(marks.findings.every((entry) => entry.finding.path !== '')).toBe(true);
     expect(marks.findings.every((entry) => entry.placement.kind === 'none')).toBe(true);
+  });
+});
+
+// The F-12 marks on the flow tab. The flow is start, planner, end; the planner's arrow runs to the End.
+const planFlow: Flow = {
+  index: 0,
+  id: 'plan',
+  name: 'plan',
+  arguments: [],
+  body: '',
+  artifacts: [],
+  approval: false,
+  blocks: [
+    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+    {
+      index: 1,
+      id: 'block-2',
+      kind: 'agent',
+      name: 'planner',
+      description: 'Writes the plan',
+      arguments: [],
+      next: 'block-3',
+    },
+    { index: 2, id: 'block-3', kind: 'end', outcome: 'done', producedArtifact: '' },
+  ],
+};
+
+const onPlannerBlock: Placement = { kind: 'block', flowId: 'plan', blockId: 'block-2' };
+const onPlannerArrow: Placement = { kind: 'block-arrow', flowId: 'plan', fromId: 'block-2', output: 'next' };
+const onEndBlock: Placement = { kind: 'block', flowId: 'plan', blockId: 'block-3' };
+const otherFlowBlock: Placement = { kind: 'block', flowId: 'build', blockId: 'block-2' };
+type AgentBlock = Extract<Flow['blocks'][number], { kind: 'agent' }>;
+const planner = planFlow.blocks[1] as AgentBlock;
+const plannerState = { name: 'Demo', description: 'A demo pipeline.', arguments: [], flows: [planFlow] };
+
+describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', () => {
+  it('F-12 AC-045 (UI) lists the blocks and arrows of one flow that carry a finding', () => {
+    const marks = marksOf(
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1', 'on the planner'), placement: onPlannerBlock },
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1.next', 'on its arrow'), placement: onPlannerArrow },
+      { finding: finding('warning', 'pipeline.flows.1.blocks.1', 'on another flow'), placement: otherFlowBlock },
+      { finding: finding('warning', 'pipeline.name', 'on no item'), placement: onNothing },
+    );
+    const items = markedItems(marks, 'plan');
+    expect([...items.blocks]).toEqual(['block-2']);
+    expect([...items.arrows]).toEqual(['block-2.next']);
+    expect([...markedItems(marks, 'build').blocks]).toEqual(['block-2']);
+    expect(markedItems(marks, 'verify').blocks.size).toBe(0);
+  });
+
+  it('F-12 AC-045 (UI) draws an amber badge on the marked block and on its arrow, and none on the others', () => {
+    const marks = marksOf(
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1', 'on the planner'), placement: onPlannerBlock },
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1.next', 'on its arrow'), placement: onPlannerArrow },
+    );
+    const { container } = renderWithTheme(
+      <BlockCanvas
+        flow={planFlow}
+        selection={{ kind: 'none' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+        marks={marks}
+      />,
+    );
+    expect(screen.getAllByText('!')).toHaveLength(2);
+    const amberArrows = container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`);
+    expect(amberArrows).toHaveLength(1);
+  });
+
+  it('F-12 AC-045 (UI) draws no mark on a flow whose findings are on no drawn item', () => {
+    const marks = marksOf({ finding: finding('blocker', 'pipeline.name', 'a name is required'), placement: onNothing });
+    renderWithTheme(
+      <BlockCanvas
+        flow={planFlow}
+        selection={{ kind: 'none' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+        marks={marks}
+      />,
+    );
+    expect(screen.queryAllByText('!')).toHaveLength(0);
+  });
+
+  it('F-12 AC-045 (UI) lists the findings of a block and its arrows in its panel, in the analyzer order', () => {
+    const marks = marksOf(
+      {
+        finding: finding('warning', 'pipeline.flows.0.blocks.1.next', 'arrow of the planner'),
+        placement: onPlannerArrow,
+      },
+      {
+        finding: finding('blocker', 'pipeline.flows.0.blocks.1', 'the planner has no body'),
+        placement: onPlannerBlock,
+      },
+      { finding: finding('warning', 'pipeline.flows.0.blocks.2', 'on the end'), placement: onEndBlock },
+    );
+    const findings = findingsOfBlock(marks, 'plan', 'block-2');
+    expect(findings.map((item) => item.message)).toEqual(['arrow of the planner', 'the planner has no body']);
+    expect(findingsOfBlock(marks, 'plan', 'block-3').map((item) => item.message)).toEqual(['on the end']);
+    expect(findingsOfBlock(marks, 'build', 'block-2')).toEqual([]);
+  });
+
+  it("F-12 AC-045 (UI) shows the block's findings in its panel as a list, with the kind and the message", () => {
+    const marks = marksOf({
+      finding: finding('blocker', 'pipeline.flows.0.blocks.1', 'the planner has no body'),
+      placement: onPlannerBlock,
+    });
+    renderWithTheme(
+      <AgentPanel
+        pipelineState={plannerState}
+        rules={[]}
+        flow={planFlow}
+        block={planner}
+        onChange={vi.fn()}
+        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+      />,
+    );
+    const list = screen.getByRole('region', { name: 'Structure marks' });
+    expect(within(list).getByText('Blocker')).toBeTruthy();
+    expect(within(list).getByText('the planner has no body')).toBeTruthy();
+  });
+
+  it('F-12 AC-045 (UI) shows no findings list for a block with no finding', () => {
+    const marks = marksOf({
+      finding: finding('warning', 'pipeline.flows.0.blocks.2', 'on the end'),
+      placement: onEndBlock,
+    });
+    renderWithTheme(
+      <AgentPanel
+        pipelineState={plannerState}
+        rules={[]}
+        flow={planFlow}
+        block={planner}
+        onChange={vi.fn()}
+        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+      />,
+    );
+    expect(screen.queryByRole('region', { name: 'Structure marks' })).toBeNull();
+  });
+});
+
+describe('F-12 AC-047 (UI) a new unlinked block is marked, not refused', () => {
+  it('F-12 AC-047 (UI) marks the unlinked block and keeps its Name field editable', () => {
+    const unlinked: Flow = {
+      ...planFlow,
+      blocks: [
+        { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+        {
+          index: 1,
+          id: 'block-2',
+          kind: 'agent',
+          name: 'planner',
+          description: 'Writes the plan',
+          arguments: [],
+          next: '',
+        },
+        { index: 2, id: 'block-3', kind: 'end', outcome: 'done', producedArtifact: '' },
+      ],
+    };
+    const state = { ...plannerState, flows: [unlinked] };
+    const marks = structureMarks(state, []);
+    expect(markedItems(marks, 'plan').blocks.has('block-2')).toBe(true);
+    renderWithTheme(
+      <BlockCanvas
+        flow={unlinked}
+        selection={{ kind: 'none' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+        marks={marks}
+      />,
+    );
+    // Two blocks are marked: the unlinked one (no route out) and the End it cuts off from Start.
+    expect(screen.getAllByText('!')).toHaveLength(2);
+    renderWithTheme(
+      <AgentPanel
+        pipelineState={state}
+        rules={[]}
+        flow={unlinked}
+        block={unlinked.blocks[1] as AgentBlock}
+        onChange={vi.fn()}
+        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+      />,
+    );
+    const list = screen.getByRole('region', { name: 'Structure marks' });
+    expect(within(list).getByText(/^must name a block of this flow/)).toBeTruthy();
+    expect((screen.getByLabelText('Name') as HTMLInputElement).disabled).toBe(false);
+  });
+});
+
+describe('F-12 AC-048 (UI) marks are read-only', () => {
+  it("F-12 AC-048 (UI) adds no control to the list of a block's findings", () => {
+    const marks = marksOf({
+      finding: finding('warning', 'pipeline.flows.0.blocks.1.next', 'arrow of the planner'),
+      placement: onPlannerArrow,
+    });
+    renderWithTheme(
+      <AgentPanel
+        pipelineState={plannerState}
+        rules={[]}
+        flow={planFlow}
+        block={planner}
+        onChange={vi.fn()}
+        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+      />,
+    );
+    const list = screen.getByRole('region', { name: 'Structure marks' });
+    expect(within(list).queryAllByRole('button')).toHaveLength(0);
+    expect(within(list).queryAllByRole('textbox')).toHaveLength(0);
+    expect(within(list).getByText('arrow of the planner')).toBeTruthy();
+  });
+});
+
+describe('F-12 AC-045 (UI) findings with no drawn item stay in the error panel', () => {
+  it('F-12 AC-045 (UI) lists a finding with no drawn item under "Not on a drawn item"', () => {
+    const marks = marksOf(
+      { finding: finding('blocker', 'pipeline.name', 'a name is required'), placement: onNothing },
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1', 'on the planner'), placement: onPlannerBlock },
+    );
+    renderWithTheme(<ErrorPanel findings={marks.findings} />);
+    fireEvent.click(screen.getByRole('button', { name: '1 error · 1 warning' }));
+    expect(screen.getByText('Not on a drawn item')).toBeTruthy();
+    expect(screen.getByText('a name is required')).toBeTruthy();
   });
 });

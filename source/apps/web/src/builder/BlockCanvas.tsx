@@ -10,6 +10,11 @@ import type { Drop, DragState } from './blockDrag.js';
 import { getBlockCanvasStyles } from './blockCanvasStyles.js';
 import type { BlockInk } from './blockCanvasStyles.js';
 import { blockLayout, countLine } from './blockLayout.js';
+import { arrowKey, markedItems } from './MarkViews.js';
+import type { MarkedItems } from './MarkViews.js';
+import { getMarkViewsStyles } from './markViewsStyles.js';
+import type { MarkInk } from './markViewsStyles.js';
+import type { StructureMarks } from './marks.js';
 import { MessageBand } from './MessageBand.js';
 import type { Flow } from './model.js';
 import type { BlockSelection } from './panel.js';
@@ -33,18 +38,24 @@ export interface BlockCanvasProps {
   readonly onAdd: (result: AddBlockResult) => void;
   // Called with the flow after a drag or repoint is accepted. Never called for a refused drop.
   readonly onChange: (flow: Flow) => void;
+  // The structure marks of the pipeline; the blocks and arrows of this flow that carry one are drawn marked (AC-045).
+  // None when not given.
+  readonly marks?: StructureMarks;
 }
 
 const emptyText = 'No blocks yet.';
 const hintText =
   'Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.';
+const noMarks: StructureMarks = { findings: [], blockedFlowIds: [] };
 
 // The flow tab's canvas card: the heading, the drawing (or the empty text), the toolbox, the footer hint and the
 // message band. The drawing is placed before the heading and the toolbox, so they paint above it.
-export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange }: BlockCanvasProps) {
+export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks = noMarks }: BlockCanvasProps) {
   const styles = getBlockCanvasStyles(useTheme());
+  const markStyles = getMarkViewsStyles(useTheme());
   const layout = blockLayout(flow);
   const drawing = blockDrawingOf(flow, selection);
+  const marked = markedItems(marks, flow.id);
   // The drag in progress and the pointer's place in the drawing; the reason of the last refused drop.
   const [drag, setDrag] = useState<DragState | null>(null);
   const [pointer, setPointer] = useState<Point | null>(null);
@@ -126,6 +137,8 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange }: Bloc
           <DrawingView
             drawing={drawing}
             ink={styles.ink}
+            markInk={markStyles.ink}
+            marked={marked}
             preview={preview}
             onSelect={pick}
             gestures={gestures}
@@ -165,6 +178,9 @@ interface DrawingGestures {
 interface DrawingViewProps {
   readonly drawing: BlockDrawing;
   readonly ink: BlockInk;
+  // The amber of the structure marks, and the blocks and arrows of the flow that carry one.
+  readonly markInk: MarkInk;
+  readonly marked: MarkedItems;
   // The line a drag draws while it moves, or null when no drag is moving.
   readonly preview: readonly Point[] | null;
   readonly onSelect: (selection: BlockSelection) => void;
@@ -178,7 +194,7 @@ function pointerIn(event: ReactPointerEvent<SVGSVGElement>): Point {
 }
 
 // The SVG of the blocks and arrows. A release that no point or block took ends the drag without a change.
-function DrawingView({ drawing, ink, preview, onSelect, gestures }: DrawingViewProps) {
+function DrawingView({ drawing, ink, markInk, marked, preview, onSelect, gestures }: DrawingViewProps) {
   const selected = drawing.arrows.find((arrow) => arrow.selected);
   return (
     <svg
@@ -198,13 +214,22 @@ function DrawingView({ drawing, ink, preview, onSelect, gestures }: DrawingViewP
         </marker>
       </defs>
       {drawing.arrows.map((arrow) => (
-        <ArrowView key={`${arrow.fromId}.${arrow.output}`} arrow={arrow} ink={ink} onSelect={onSelect} />
+        <ArrowView
+          key={arrowKey(arrow.fromId, arrow.output)}
+          arrow={arrow}
+          ink={ink}
+          marked={marked.arrows.has(arrowKey(arrow.fromId, arrow.output))}
+          markInk={markInk}
+          onSelect={onSelect}
+        />
       ))}
       {drawing.blocks.map((block) => (
         <BlockView
           key={block.blockId}
           block={block}
           ink={ink}
+          marked={marked.blocks.has(block.blockId)}
+          markInk={markInk}
           ports={drawing.ports.filter((port) => port.blockId === block.blockId)}
           onSelect={onSelect}
           gestures={gestures}
@@ -279,14 +304,20 @@ function Handle({
 function ArrowView({
   arrow,
   ink,
+  marked,
+  markInk,
   onSelect,
 }: {
   readonly arrow: ArrowShape;
   readonly ink: BlockInk;
+  readonly marked: boolean;
+  readonly markInk: MarkInk;
   readonly onSelect: (selection: BlockSelection) => void;
 }) {
   const points = arrow.points.map((point) => `${point.x},${point.y}`).join(' ');
   const accent = arrow.selected || arrow.isReturn;
+  // A marked arrow is drawn in the amber, unless it is the selected one, which keeps the primary colour.
+  const stroke = marked && !arrow.selected ? markInk.line : accent ? ink.accent : ink.line;
   const select = (event: { stopPropagation: () => void }) => {
     event.stopPropagation();
     onSelect({ kind: 'blockArrow', fromId: arrow.fromId, output: arrow.output });
@@ -297,11 +328,12 @@ function ArrowView({
       <polyline
         points={points}
         fill="none"
-        stroke={accent ? ink.accent : ink.line}
+        stroke={stroke}
         strokeWidth={arrow.selected ? 2.5 : 1.5}
         strokeDasharray={arrow.isReturn ? '6 4' : undefined}
         markerEnd={accent ? 'url(#block-arrowhead-accent)' : 'url(#block-arrowhead)'}
       />
+      {marked && <MarkBadge at={arrowMarkPoint(arrow)} ink={markInk} />}
       {arrow.branch !== null && (
         <MarkText
           mark={arrow.branch}
@@ -310,6 +342,29 @@ function ArrowView({
         />
       )}
       {arrow.rounds !== null && <MarkText mark={arrow.rounds} fill={ink.muted} fontWeight={400} />}
+    </g>
+  );
+}
+
+// The point a mark on an arrow sits at: the middle of its route, between the two points at its middle.
+function arrowMarkPoint(arrow: ArrowShape): Point {
+  const before = arrow.points[Math.floor((arrow.points.length - 1) / 2)];
+  const after = arrow.points[Math.ceil((arrow.points.length - 1) / 2)];
+  if (before === undefined || after === undefined) {
+    throw new Error(`F-12: arrow from ${arrow.fromId} has no route`);
+  }
+  return { x: (before.x + after.x) / 2, y: (before.y + after.y) / 2 };
+}
+
+// The amber mark of a finding (F-12 AC-045): a small badge in the F-11 amber, drawn over the item it names. It
+// takes no pointer, so a click still reaches the block or the arrow under it, and it adds no control (AC-048).
+function MarkBadge({ at, ink }: { readonly at: Point; readonly ink: MarkInk }) {
+  return (
+    <g pointerEvents="none">
+      <circle cx={at.x} cy={at.y} r={7} fill={ink.fill} stroke={ink.line} strokeWidth={1.5} />
+      <text x={at.x} y={at.y + 4} textAnchor="middle" fontSize={11} fontWeight={600} fill={ink.text}>
+        !
+      </text>
     </g>
   );
 }
@@ -359,12 +414,16 @@ function frameOf(block: BlockShape, ink: BlockInk): Frame {
 function BlockView({
   block,
   ink,
+  marked,
+  markInk,
   ports,
   onSelect,
   gestures,
 }: {
   readonly block: BlockShape;
   readonly ink: BlockInk;
+  readonly marked: boolean;
+  readonly markInk: MarkInk;
   readonly ports: readonly PortShape[];
   readonly onSelect: (selection: BlockSelection) => void;
   readonly gestures: DrawingGestures;
@@ -381,6 +440,7 @@ function BlockView({
       onPointerUp={(event) => gestures.onDrop({ blockId: block.blockId, output: null }, event)}
     >
       <BlockBody block={block} ink={ink} />
+      {marked && <MarkBadge at={{ x: block.cx + block.halfWidth, y: block.cy - block.halfHeight }} ink={markInk} />}
       {ports.map((port) => (
         <PortView key={port.role} port={port} ink={ink} gestures={gestures} />
       ))}

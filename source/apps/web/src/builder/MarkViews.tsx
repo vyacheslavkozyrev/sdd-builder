@@ -20,6 +20,49 @@ export function warningsAt(marks: StructureMarks, placement: Placement): readonl
     .map((entry) => entry.finding);
 }
 
+// The blocks and arrows of one flow that carry a finding, for the amber marks on the flow tab (F-12 AC-045).
+// A block is named by its id, and an arrow by its source block and output, as the canvas draws them. A finding
+// with no drawn item is not here: it is listed in the error panel.
+export interface MarkedItems {
+  readonly blocks: ReadonlySet<string>;
+  readonly arrows: ReadonlySet<string>;
+}
+
+export function markedItems(marks: StructureMarks, flowId: string): MarkedItems {
+  const blocks = new Set<string>();
+  const arrows = new Set<string>();
+  for (const { placement } of marks.findings) {
+    if (placement.kind === 'block' && placement.flowId === flowId) {
+      blocks.add(placement.blockId);
+    }
+    if (placement.kind === 'block-arrow' && placement.flowId === flowId) {
+      arrows.add(arrowKey(placement.fromId, placement.output));
+    }
+  }
+  return { blocks, arrows };
+}
+
+// The key of a block's arrow in `MarkedItems.arrows`.
+export function arrowKey(fromId: string, output: string): string {
+  return `${fromId}.${output}`;
+}
+
+// The findings a block carries, in the analyzer's order: those on the block and those on its outgoing arrows
+// (F-12 AC-045). Shown in the block's panel as a read-only list (AC-048).
+export function findingsOfBlock(marks: StructureMarks, flowId: string, blockId: string): readonly Finding[] {
+  return marks.findings
+    .filter(({ placement }) => {
+      if (placement.kind === 'block') {
+        return placement.flowId === flowId && placement.blockId === blockId;
+      }
+      if (placement.kind === 'block-arrow') {
+        return placement.flowId === flowId && placement.fromId === blockId;
+      }
+      return false;
+    })
+    .map((entry) => entry.finding);
+}
+
 // A key that is the same for two placements of the same item and differs for every other item.
 function placementKey(placement: Placement): string {
   switch (placement.kind) {

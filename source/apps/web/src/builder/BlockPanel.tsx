@@ -32,6 +32,8 @@ import { arrowsRemovedBy, deleteBlock, deleteRefusal } from './deleteBlock.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
 import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
+import type { Finding } from './marks.js';
+import { getMarkViewsStyles } from './markViewsStyles.js';
 import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 
 type StartBlock = core.StartBlock;
@@ -52,6 +54,37 @@ type StartBlock = core.StartBlock;
 
 // The models offered by the model field (AC-025). The blank option unsets the model.
 const MODELS: readonly Model[] = ['haiku', 'sonnet', 'opus', 'inherit'];
+
+// The findings of a block when the caller gives none: the list of a block without a mark is empty.
+const noFindings: readonly Finding[] = [];
+
+// The read-only list of a block's structure marks (F-12 AC-045, AC-048): each finding with its kind and its
+// message, in the analyzer's order. It holds no control. Nothing is drawn when the block has no finding.
+function BlockFindings({ findings }: { readonly findings: readonly Finding[] }) {
+  const styles = getMarkViewsStyles(useTheme());
+  if (findings.length === 0) {
+    return null;
+  }
+  return (
+    <Box component="section" aria-label="Structure marks" sx={styles.findings}>
+      <Box component="h3" sx={styles.findingsTitle}>
+        Structure marks
+      </Box>
+      <Box component="ul" sx={styles.findingsList}>
+        {findings.map((finding, index) => (
+          <Box component="li" key={`${finding.path}-${index}`} sx={styles.findingItem}>
+            <Box component="span" sx={styles.findingKind[finding.severity]}>
+              {finding.severity === 'blocker' ? 'Blocker' : 'Warning'}
+            </Box>
+            <Box component="span" sx={styles.findingMessage}>
+              {finding.message}
+            </Box>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
 
 type TextFieldName = AgentField;
 type FieldName = TextFieldName | 'model';
@@ -75,6 +108,8 @@ export interface AgentPanelProps {
   readonly flow: Flow;
   readonly block: AgentBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
+  // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
+  readonly findings?: readonly Finding[];
 }
 
 function emptyState(target: string): EditState {
@@ -85,7 +120,7 @@ function isTextField(field: FieldName): field is TextFieldName {
   return field === 'name' || field === 'description' || field === 'body';
 }
 
-export function AgentPanel({ pipelineState, rules, flow, block, onChange }: AgentPanelProps) {
+export function AgentPanel({ pipelineState, rules, flow, block, onChange, findings = noFindings }: AgentPanelProps) {
   const styles = getBlockPanelStyles(useTheme());
   const target = `${flow.id}/${block.id}`;
   const [edits, setEdits] = useState<EditState>(() => emptyState(target));
@@ -267,6 +302,7 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange }: Agen
           </Typography>
         </Box>
         {refusal('body')}
+        <BlockFindings findings={findings} />
       </Box>
 
       <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
@@ -293,6 +329,8 @@ export interface ConditionPanelProps {
   readonly flow: Flow;
   readonly block: ConditionBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
+  // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
+  readonly findings?: readonly Finding[];
 }
 
 function emptyConditionEdits(target: string): ConditionEdits {
@@ -302,7 +340,14 @@ function emptyConditionEdits(target: string): ConditionEdits {
 // The Condition panel (AC-030 to AC-034). Its title names the check: an end check when its true route goes
 // to End, otherwise a pre-check. The subtitle names the block its true route leads to. The false route is
 // text set by its arrow (AC-032); the round limit is a field only for a return (AC-034).
-export function ConditionPanel({ pipelineState, rules, flow, block, onChange }: ConditionPanelProps) {
+export function ConditionPanel({
+  pipelineState,
+  rules,
+  flow,
+  block,
+  onChange,
+  findings = noFindings,
+}: ConditionPanelProps) {
   const styles = getBlockPanelStyles(useTheme());
   const target = `${flow.id}/${block.id}`;
   const [edits, setEdits] = useState<ConditionEdits>(() => emptyConditionEdits(target));
@@ -426,6 +471,7 @@ export function ConditionPanel({ pipelineState, rules, flow, block, onChange }: 
             {refusal('roundLimit')}
           </Box>
         ) : null}
+        <BlockFindings findings={findings} />
       </Box>
 
       <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
@@ -438,12 +484,14 @@ export interface StartPanelProps {
   readonly flow: Flow;
   readonly block: StartBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
+  // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
+  readonly findings?: readonly Finding[];
 }
 
 // The Start panel (F-12 AC-011, AC-042). It has no field: the title, the subtitle, and the Delete block control,
 // disabled with "A flow keeps its Start block." because a flow keeps its Start. The empty scroll area pushes the
 // footer to the foot of the panel.
-export function StartPanel({ pipelineState, flow, block, onChange }: StartPanelProps) {
+export function StartPanel({ pipelineState, flow, block, onChange, findings = noFindings }: StartPanelProps) {
   const styles = getBlockPanelStyles(useTheme());
 
   return (
@@ -457,7 +505,9 @@ export function StartPanel({ pipelineState, flow, block, onChange }: StartPanelP
         </Typography>
       </Box>
 
-      <Box sx={styles.scroll} />
+      <Box sx={styles.scroll}>
+        <BlockFindings findings={findings} />
+      </Box>
 
       <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />
     </Box>
@@ -470,6 +520,8 @@ export interface EndPanelProps {
   readonly flow: Flow;
   readonly block: EndBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
+  // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
+  readonly findings?: readonly Finding[];
 }
 
 // What the End panel holds beyond the saved pipeline: the reason of each refused field. The state belongs to
@@ -486,7 +538,7 @@ function emptyEndEdits(target: string): EndEdits {
 // The End panel (AC-035, AC-036, AC-043), as screen 01 draws it: the title "End", the subtitle, Outcome and
 // Produced artifact, then the Delete block control at the foot. Delete is disabled on the flow's last End, with
 // its reason shown under it.
-export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPanelProps) {
+export function EndPanel({ pipelineState, rules, flow, block, onChange, findings = noFindings }: EndPanelProps) {
   const styles = getBlockPanelStyles(useTheme());
   const target = `${flow.id}/${block.id}`;
   const [edits, setEdits] = useState<EndEdits>(() => emptyEndEdits(target));
@@ -591,6 +643,7 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPan
           )}
         </Box>
         {refusal('producedArtifact')}
+        <BlockFindings findings={findings} />
       </Box>
 
       <DeleteBlockFooter pipelineState={pipelineState} flow={flow} block={block} onChange={onChange} />

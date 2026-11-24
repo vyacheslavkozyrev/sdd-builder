@@ -316,6 +316,52 @@ describe('F-12 AC-049 the flow tab keeps each flow\'s blocks when the user switc
     expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Agent block: plan' })).toBeTruthy();
   });
+
+  it('F-12 AC-049 each flow keeps its own block selection when the user switches tabs', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(tabNamed('Pipeline'));
+    fireEvent.click(tabNamed('Plan'));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Plan' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: plan' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: plan' })).toBeTruthy();
+    fireEvent.click(tabNamed('Specify'));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: specify' })).toBeTruthy();
+    fireEvent.click(tabNamed('Pipeline'));
+    fireEvent.click(tabNamed('Plan'));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: plan' })).toBeTruthy();
+  });
+
+  it('F-12 AC-049 a block arrow selected on one flow tab is still selected when that tab is shown again', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Arrow from Start' }));
+    fireEvent.click(tabNamed('Plan'));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Plan' })).toBeTruthy();
+    fireEvent.click(tabNamed('Pipeline'));
+    fireEvent.click(tabNamed('Specify'));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Connection' })).toBeTruthy();
+    expect(within(propertiesCard()).getByText('An arrow only points one block to another.')).toBeTruthy();
+  });
+
+  it('F-12 AC-049 a deleted flow drops its block selection, so a new flow with the same id starts with none', async () => {
+    renderStep();
+    fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: /^Agent/ })).toBeTruthy();
+    fireEvent.click(tabNamed('Pipeline'));
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'flow-1' } as Parameters<NodeClick>[1]);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(lastValues.pipeline.flows.map((flow) => flow.id)).not.toContain('flow-1');
+    fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
+    expect(lastValues.pipeline.flows.map((flow) => flow.id).at(-1)).toBe('flow-1');
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: flow-1' })).toBeTruthy();
+  });
 });
 
 describe('F-11 AC-031 after a confirmed delete the selection is cleared and the tab moves to Pipeline', () => {

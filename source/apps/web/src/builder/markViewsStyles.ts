@@ -8,12 +8,16 @@ import type { Finding } from './marks.js';
 // Colours come from the theme's palette only; the amber note shapes come from getCommonStyles. The list of
 // findings is styled by the error panel's getter (builderStyles.ts), and the block's list by this one.
 
-// The amber of a structure mark on the canvas (F-11 legend, "Warning"): the outline, the fill and the text.
+// The ink of a structure mark on the canvas: the outline, the fill and the text of its badge.
 export interface MarkInk {
   readonly line: string;
   readonly fill: string;
   readonly text: string;
 }
+
+// The ink of each severity: the amber of a warning (F-11 legend, "Warning"), the red of a blocker (the error
+// colour of F-11's flow box).
+export type MarkInks = Record<Finding['severity'], MarkInk>;
 
 export interface MarkViewsStyles {
   // A warning beside its flow box or arrow: the amber note box (F-11 legend, "Warning").
@@ -21,7 +25,7 @@ export interface MarkViewsStyles {
   // The text of a warning note.
   readonly noteText: StyleObject;
   // The colours of a mark drawn on a block or an arrow of the flow tab (F-12 AC-045).
-  readonly ink: MarkInk;
+  readonly ink: MarkInks;
   // The read-only list of a block's findings in its panel (F-12 AC-045, AC-048): a column under the fields.
   readonly findings: StyleObject;
   // The heading of the list, as a field label.
@@ -47,9 +51,16 @@ export function getMarkViewsStyles(theme: Theme): MarkViewsStyles {
       lineHeight: '16px',
     },
     ink: {
-      line: theme.palette.warning.main,
-      fill: theme.palette.warning.light,
-      text: theme.palette.warning.dark,
+      warning: {
+        line: theme.palette.warning.main,
+        fill: theme.palette.warning.light,
+        text: theme.palette.warning.dark,
+      },
+      blocker: {
+        line: theme.palette.error.main,
+        fill: theme.palette.error.light,
+        text: theme.palette.error.dark,
+      },
     },
     findings: {
       boxSizing: 'border-box',

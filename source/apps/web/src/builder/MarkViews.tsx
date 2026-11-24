@@ -20,26 +20,35 @@ export function warningsAt(marks: StructureMarks, placement: Placement): readonl
     .map((entry) => entry.finding);
 }
 
-// The blocks and arrows of one flow that carry a finding, for the amber marks on the flow tab (F-12 AC-045).
-// A block is named by its id, and an arrow by its source block and output, as the canvas draws them. A finding
-// with no drawn item is not here: it is listed in the error panel.
+// The blocks and arrows of one flow that carry a finding, for the marks on the flow tab (F-12 AC-045). A block is
+// named by its id, and an arrow by its source block and output, as the canvas draws them. A finding with no drawn
+// item is not here: it is listed in the error panel. The blocker sets are the marked items that carry a blocker;
+// the others carry only warnings.
 export interface MarkedItems {
   readonly blocks: ReadonlySet<string>;
   readonly arrows: ReadonlySet<string>;
+  readonly blockerBlocks: ReadonlySet<string>;
+  readonly blockerArrows: ReadonlySet<string>;
 }
 
 export function markedItems(marks: StructureMarks, flowId: string): MarkedItems {
   const blocks = new Set<string>();
   const arrows = new Set<string>();
-  for (const { placement } of marks.findings) {
+  const blockerBlocks = new Set<string>();
+  const blockerArrows = new Set<string>();
+  for (const { finding, placement } of marks.findings) {
+    const blocker = finding.severity === 'blocker';
     if (placement.kind === 'block' && placement.flowId === flowId) {
       blocks.add(placement.blockId);
+      if (blocker) blockerBlocks.add(placement.blockId);
     }
     if (placement.kind === 'block-arrow' && placement.flowId === flowId) {
-      arrows.add(arrowKey(placement.fromId, placement.output));
+      const key = arrowKey(placement.fromId, placement.output);
+      arrows.add(key);
+      if (blocker) blockerArrows.add(key);
     }
   }
-  return { blocks, arrows };
+  return { blocks, arrows, blockerBlocks, blockerArrows };
 }
 
 // The key of a block's arrow in `MarkedItems.arrows`.

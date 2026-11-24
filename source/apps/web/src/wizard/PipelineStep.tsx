@@ -31,8 +31,8 @@ import { getPipelineStepStyles } from './pipelineStepStyles.js';
 // step 3. The open tab and the selection are held here (PanelState). The pipeline is the wizard's value and every
 // change is reported to the caller, which stores it (set-pipeline). The Pipeline tab shows the canvas, the structure
 // marks and the properties card of the selection. A flow tab shows the flow's block canvas, with its toolbox, and the
-// panel of the selected block or arrow (BlockSelection). Switching tabs clears the block selection, as the
-// Pipeline selection is cleared.
+// panel of the selected block or arrow (BlockSelection). Each flow keeps its own block selection (AC-049), so
+// switching tabs does not clear it.
 
 // The canvas starts its boxes 24 px in from its left edge (its defaultViewport) and at its top edge; a box is
 // 76 px high, and the warning notes under a box sit 12 px below it.
@@ -44,6 +44,9 @@ const NOTE_TOP = BOX_HEIGHT + NOTE_GAP;
 const PIPELINE_SELECTION: Selection = { kind: 'pipeline' };
 const INITIAL_PANEL: PanelState = { tab: { kind: 'pipeline' }, selection: PIPELINE_SELECTION };
 const NO_BLOCK_SELECTION: BlockSelection = { kind: 'none' };
+
+// The block selection of each flow, by flow id (F-12 AC-049). A flow with no entry has no selection.
+type BlockSelections = Readonly<Record<string, BlockSelection>>;
 
 // The rules the builder can tag (F-11 AC-026): the rule blocks of the Technical details step with a valid id,
 // each id offered once (the first block with it). A block whose id is refused or repeated is not offered;
@@ -121,16 +124,22 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   const styles = getPipelineStepStyles(useTheme());
   const pipelineState = values.pipeline;
   const [panel, setPanel] = useState<PanelState>(INITIAL_PANEL);
-  const [blockSelection, setBlockSelection] = useState<BlockSelection>(NO_BLOCK_SELECTION);
+  const [blockSelections, setBlockSelections] = useState<BlockSelections>({});
   const rules = useMemo(() => builderRules(values.rules), [values.rules]);
   const marks = useMemo(() => structureMarks(pipelineState, rules), [pipelineState, rules]);
   const blockedFlowIds = useMemo(() => marks.blockedFlowIds, [marks]);
   const boxes = useMemo(() => canvasLayout(pipelineState).boxes, [pipelineState]);
   const { tab, selection } = panel;
+  // The block selection of the open flow tab; the Pipeline tab has none.
+  const blockSelection = tab.kind === 'flow' ? (blockSelections[tab.id] ?? NO_BLOCK_SELECTION) : NO_BLOCK_SELECTION;
+
+  // Sets the block selection of one flow, and leaves the other flows' selections as they are (AC-049).
+  const selectBlockIn = (flowId: string, next: BlockSelection) => {
+    setBlockSelections((current) => ({ ...current, [flowId]: next }));
+  };
 
   const selectTab = (next: Tab) => {
     setPanel({ tab: next, selection: PIPELINE_SELECTION });
-    setBlockSelection(NO_BLOCK_SELECTION);
   };
 
   // + appends a flow and opens its tab (AC-003).
@@ -138,7 +147,6 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     const added = addFlow(pipelineState);
     onPipelineChange(added.pipeline);
     setPanel({ tab: { kind: 'flow', id: added.flowId }, selection: PIPELINE_SELECTION });
-    setBlockSelection(NO_BLOCK_SELECTION);
   };
 
   // A drag or repoint on the canvas clears the selection: a repointed arrow may no longer be the one selected.
@@ -152,10 +160,13 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   };
 
   // Confirmed Delete flow: the new pipeline is applied and the selection cleared, the tab moves to Pipeline (AC-031).
+  // The selections of a deleted flow are dropped, so a flow that later takes its id starts with none.
   const deleteFlowDone = (next: Pipeline) => {
     onPipelineChange(next);
     setPanel(afterDeleteFlow());
-    setBlockSelection(NO_BLOCK_SELECTION);
+    setBlockSelections((current) =>
+      Object.fromEntries(Object.entries(current).filter(([flowId]) => next.flows.some((flow) => flow.id === flowId))),
+    );
   };
 
   // Confirmed Delete connection: the new pipeline is applied and the selection cleared; the tab stays open.
@@ -169,25 +180,28 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
   const flowChanged = (next: Pipeline, flowId: string) => {
     onPipelineChange(next);
     const edited = flowNamed(next, flowId);
-    setBlockSelection((current) => (stillInFlow(edited, current) ? current : afterDeleteBlock(flowId).selection));
+    setBlockSelections((current) => {
+      const selected = current[flowId] ?? NO_BLOCK_SELECTION;
+      return { ...current, [flowId]: stillInFlow(edited, selected) ? selected : afterDeleteBlock(flowId).selection };
+    });
   };
 
   // A block added from the toolbox is stored and selected, so its panel opens (AC-002).
   const blockAdded = (result: AddBlockResult) => {
     onPipelineChange(withFlow(pipelineState, result.flow));
-    setBlockSelection({ kind: 'block', blockId: result.blockId });
+    selectBlockIn(result.flow.id, { kind: 'block', blockId: result.blockId });
   };
 
-  // A drag accepted on the flow canvas is stored; the selection is cleared, as on the Pipeline tab.
+  // A drag accepted on the flow canvas is stored; the selection of that flow is cleared.
   const blockDragged = (flow: Flow) => {
     onPipelineChange(withFlow(pipelineState, flow));
-    setBlockSelection(NO_BLOCK_SELECTION);
+    selectBlockIn(flow.id, NO_BLOCK_SELECTION);
   };
 
-  // Confirmed Delete connection on a block arrow (AC-021): the new flow is stored and the selection cleared.
+  // Confirmed Delete connection on a block arrow (AC-021): the new flow is stored and its selection cleared.
   const blockArrowDeleted = (flow: Flow) => {
     onPipelineChange(withFlow(pipelineState, flow));
-    setBlockSelection(NO_BLOCK_SELECTION);
+    selectBlockIn(flow.id, NO_BLOCK_SELECTION);
   };
 
   const tabs = (
@@ -337,7 +351,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
               <BlockCanvas
                 flow={flow}
                 selection={blockSelection}
-                onSelect={setBlockSelection}
+                onSelect={(next) => selectBlockIn(flow.id, next)}
                 onAdd={blockAdded}
                 onChange={blockDragged}
                 marks={marks}

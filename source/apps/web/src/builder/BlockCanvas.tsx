@@ -13,7 +13,7 @@ import { blockLayout, countLine } from './blockLayout.js';
 import { arrowKey, markedItems } from './MarkViews.js';
 import type { MarkedItems } from './MarkViews.js';
 import { getMarkViewsStyles } from './markViewsStyles.js';
-import type { MarkInk } from './markViewsStyles.js';
+import type { MarkInk, MarkInks } from './markViewsStyles.js';
 import type { StructureMarks } from './marks.js';
 import { MessageBand } from './MessageBand.js';
 import type { Flow } from './model.js';
@@ -38,7 +38,8 @@ export interface BlockCanvasProps {
   readonly onAdd: (result: AddBlockResult) => void;
   // Called with the flow after a drag or repoint is accepted. Never called for a refused drop.
   readonly onChange: (flow: Flow) => void;
-  // The structure marks of the pipeline; the blocks and arrows of this flow that carry one are drawn marked (AC-045).
+  // The structure marks of the pipeline; the blocks and arrows of this flow that carry one are drawn marked (AC-045),
+  // in the red of a blocker and the amber of a warning.
   // None when not given.
   readonly marks?: StructureMarks;
 }
@@ -137,7 +138,7 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
           <DrawingView
             drawing={drawing}
             ink={styles.ink}
-            markInk={markStyles.ink}
+            markInks={markStyles.ink}
             marked={marked}
             preview={preview}
             onSelect={pick}
@@ -178,8 +179,8 @@ interface DrawingGestures {
 interface DrawingViewProps {
   readonly drawing: BlockDrawing;
   readonly ink: BlockInk;
-  // The amber of the structure marks, and the blocks and arrows of the flow that carry one.
-  readonly markInk: MarkInk;
+  // The red and amber of the structure marks, and the blocks and arrows of the flow that carry one.
+  readonly markInks: MarkInks;
   readonly marked: MarkedItems;
   // The line a drag draws while it moves, or null when no drag is moving.
   readonly preview: readonly Point[] | null;
@@ -194,7 +195,7 @@ function pointerIn(event: ReactPointerEvent<SVGSVGElement>): Point {
 }
 
 // The SVG of the blocks and arrows. A release that no point or block took ends the drag without a change.
-function DrawingView({ drawing, ink, markInk, marked, preview, onSelect, gestures }: DrawingViewProps) {
+function DrawingView({ drawing, ink, markInks, marked, preview, onSelect, gestures }: DrawingViewProps) {
   const selected = drawing.arrows.find((arrow) => arrow.selected);
   return (
     <svg
@@ -213,23 +214,24 @@ function DrawingView({ drawing, ink, markInk, marked, preview, onSelect, gesture
           <path d="M0,0 L8,4 L0,8 z" fill={ink.accent} />
         </marker>
       </defs>
-      {drawing.arrows.map((arrow) => (
-        <ArrowView
-          key={arrowKey(arrow.fromId, arrow.output)}
-          arrow={arrow}
-          ink={ink}
-          marked={marked.arrows.has(arrowKey(arrow.fromId, arrow.output))}
-          markInk={markInk}
-          onSelect={onSelect}
-        />
-      ))}
+      {drawing.arrows.map((arrow) => {
+        const key = arrowKey(arrow.fromId, arrow.output);
+        return (
+          <ArrowView
+            key={key}
+            arrow={arrow}
+            ink={ink}
+            mark={markOf(markInks, marked.arrows.has(key), marked.blockerArrows.has(key))}
+            onSelect={onSelect}
+          />
+        );
+      })}
       {drawing.blocks.map((block) => (
         <BlockView
           key={block.blockId}
           block={block}
           ink={ink}
-          marked={marked.blocks.has(block.blockId)}
-          markInk={markInk}
+          mark={markOf(markInks, marked.blocks.has(block.blockId), marked.blockerBlocks.has(block.blockId))}
           ports={drawing.ports.filter((port) => port.blockId === block.blockId)}
           onSelect={onSelect}
           gestures={gestures}
@@ -304,20 +306,18 @@ function Handle({
 function ArrowView({
   arrow,
   ink,
-  marked,
-  markInk,
+  mark,
   onSelect,
 }: {
   readonly arrow: ArrowShape;
   readonly ink: BlockInk;
-  readonly marked: boolean;
-  readonly markInk: MarkInk;
+  readonly mark: MarkInk | null;
   readonly onSelect: (selection: BlockSelection) => void;
 }) {
   const points = arrow.points.map((point) => `${point.x},${point.y}`).join(' ');
   const accent = arrow.selected || arrow.isReturn;
-  // A marked arrow is drawn in the amber, unless it is the selected one, which keeps the primary colour.
-  const stroke = marked && !arrow.selected ? markInk.line : accent ? ink.accent : ink.line;
+  // A marked arrow is drawn in its mark's colour, unless it is the selected one, which keeps the primary colour.
+  const stroke = mark !== null && !arrow.selected ? mark.line : accent ? ink.accent : ink.line;
   const select = (event: { stopPropagation: () => void }) => {
     event.stopPropagation();
     onSelect({ kind: 'blockArrow', fromId: arrow.fromId, output: arrow.output });
@@ -333,7 +333,7 @@ function ArrowView({
         strokeDasharray={arrow.isReturn ? '6 4' : undefined}
         markerEnd={accent ? 'url(#block-arrowhead-accent)' : 'url(#block-arrowhead)'}
       />
-      {marked && <MarkBadge at={arrowMarkPoint(arrow)} ink={markInk} />}
+      {mark !== null && <MarkBadge at={arrowMarkPoint(arrow)} ink={mark} />}
       {arrow.branch !== null && (
         <MarkText
           mark={arrow.branch}
@@ -356,7 +356,14 @@ function arrowMarkPoint(arrow: ArrowShape): Point {
   return { x: (before.x + after.x) / 2, y: (before.y + after.y) / 2 };
 }
 
-// The amber mark of a finding (F-12 AC-045): a small badge in the F-11 amber, drawn over the item it names. It
+// The ink of a marked item: its blocker red when it carries a blocker, otherwise the warning amber; null when the
+// item carries no mark (F-12 AC-045).
+function markOf(inks: MarkInks, marked: boolean, blocker: boolean): MarkInk | null {
+  if (!marked) return null;
+  return blocker ? inks.blocker : inks.warning;
+}
+
+// The mark of a finding (F-12 AC-045): a small badge in the colour of its severity, drawn over the item it names. It
 // takes no pointer, so a click still reaches the block or the arrow under it, and it adds no control (AC-048).
 function MarkBadge({ at, ink }: { readonly at: Point; readonly ink: MarkInk }) {
   return (
@@ -414,16 +421,14 @@ function frameOf(block: BlockShape, ink: BlockInk): Frame {
 function BlockView({
   block,
   ink,
-  marked,
-  markInk,
+  mark,
   ports,
   onSelect,
   gestures,
 }: {
   readonly block: BlockShape;
   readonly ink: BlockInk;
-  readonly marked: boolean;
-  readonly markInk: MarkInk;
+  readonly mark: MarkInk | null;
   readonly ports: readonly PortShape[];
   readonly onSelect: (selection: BlockSelection) => void;
   readonly gestures: DrawingGestures;
@@ -440,7 +445,7 @@ function BlockView({
       onPointerUp={(event) => gestures.onDrop({ blockId: block.blockId, output: null }, event)}
     >
       <BlockBody block={block} ink={ink} />
-      {marked && <MarkBadge at={{ x: block.cx + block.halfWidth, y: block.cy - block.halfHeight }} ink={markInk} />}
+      {mark !== null && <MarkBadge at={{ x: block.cx + block.halfWidth, y: block.cy - block.halfHeight }} ink={mark} />}
       {ports.map((port) => (
         <PortView key={port.role} port={port} ink={ink} gestures={gestures} />
       ))}

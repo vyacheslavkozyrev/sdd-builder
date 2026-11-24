@@ -187,6 +187,48 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
     expect(amberArrows).toHaveLength(1);
   });
 
+  it('F-12 AC-045 (UI) draws a red mark on a block with a blocker and an amber one on an arrow with a warning', () => {
+    const marks = marksOf(
+      { finding: finding('blocker', 'pipeline.flows.0.blocks.1', 'the planner is cut off'), placement: onPlannerBlock },
+      { finding: finding('warning', 'pipeline.flows.0.blocks.1.next', 'on its arrow'), placement: onPlannerArrow },
+    );
+    const { container } = renderWithTheme(
+      <BlockCanvas
+        flow={planFlow}
+        selection={{ kind: 'none' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+        marks={marks}
+      />,
+    );
+    expect(screen.getAllByText('!')).toHaveLength(2);
+    expect(container.querySelectorAll(`circle[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.error.main}"]`)).toHaveLength(0);
+    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`circle[stroke="${theme.palette.warning.main}"]`)).toHaveLength(1);
+  });
+
+  it('F-12 AC-045 (UI) draws the stroke of an arrow with a blocker in red', () => {
+    const marks = marksOf({
+      finding: finding('blocker', 'pipeline.flows.0.blocks.1.next', 'a dead end'),
+      placement: onPlannerArrow,
+    });
+    const { container } = renderWithTheme(
+      <BlockCanvas
+        flow={planFlow}
+        selection={{ kind: 'none' }}
+        onSelect={vi.fn()}
+        onAdd={vi.fn()}
+        onChange={vi.fn()}
+        marks={marks}
+      />,
+    );
+    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`)).toHaveLength(0);
+    expect(container.querySelectorAll(`circle[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
+  });
+
   it('F-12 AC-045 (UI) draws no mark on a flow whose findings are on no drawn item', () => {
     const marks = marksOf({ finding: finding('blocker', 'pipeline.name', 'a name is required'), placement: onNothing });
     renderWithTheme(

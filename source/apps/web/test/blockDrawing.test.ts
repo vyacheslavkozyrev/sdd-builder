@@ -66,7 +66,7 @@ describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input
     expect(blockDrawingOf(loopFlow, selection)).toEqual(blockDrawingOf(loopFlow, selection));
   });
 
-  it('F-12 AC-009 (data) puts an unreached block after the chain, in list order', () => {
+  it('F-12 AC-009 (data) puts an unreached block after the chain and before the End, in list order', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
@@ -75,8 +75,26 @@ describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input
       ],
     };
     const drawing = blockDrawingOf(flow);
-    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4', 'b5']);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b5', 'b4']);
     expect(drawing.blocks[4]?.cx).toBeGreaterThan(drawing.blocks[3]?.cx ?? Infinity);
+  });
+
+  it('F-12 AC-009 (data) draws the End circle last, after an open Agent, so no arrow runs through it', () => {
+    // start -> planner -> End, with the reviewer open. The planner's arrow to the reviewer would pass
+    // the End if the End were drawn before the reviewer; the End's place must be right of the reviewer's.
+    const flow: Flow = {
+      ...emptyFlow,
+      blocks: [
+        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
+        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b4' },
+        { index: 2, id: 'b3', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
+        { index: 3, id: 'b4', kind: 'end', outcome: 'done', producedArtifact: '' },
+      ],
+    };
+    const drawing = blockDrawingOf(flow);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4']);
+    const [, , reviewer, end] = drawing.blocks;
+    expect(end?.cx).toBeGreaterThan(reviewer?.cx ?? Infinity);
   });
 });
 

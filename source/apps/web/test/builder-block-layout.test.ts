@@ -88,14 +88,40 @@ describe('F-12 AC-009 block order on the canvas', () => {
     expect(order(blocks)).toEqual(['block-1', 'block-2', 'block-3', 'block-4']);
   });
 
-  it('F-12 AC-009 places blocks not reached from Start after the chain, in list order', () => {
+  it('F-12 AC-009 places blocks not reached from Start after the chain, in list order, and the End last', () => {
     const blocks = [
       agent('block-5', ''),
       start('block-1', 'block-2'),
       end('block-2', 1),
       agent('block-4', ''),
     ];
-    expect(order(blocks)).toEqual(['block-1', 'block-2', 'block-5', 'block-4']);
+    expect(order(blocks)).toEqual(['block-1', 'block-5', 'block-4', 'block-2']);
+  });
+
+  it('F-12 AC-009 places the End after the blocks an arrow reaches past it, so no arrow runs through it', () => {
+    // start -> planner -> End; the reviewer is open, so the planner's arrow to the reviewer would pass the End.
+    const blocks = [
+      start('block-1', 'block-2'),
+      agent('block-2', 'block-4', 1),
+      end('block-4', 2),
+      agent('block-3', '', 3),
+    ];
+    expect(order(blocks)).toEqual(['block-1', 'block-2', 'block-3', 'block-4']);
+  });
+
+  it('F-12 AC-009 keeps the order of several End blocks among themselves, after every other block', () => {
+    // Arrow order: block-1, block-2, then the Condition's true End block-5 and false End block-3;
+    // the unreached End block-4 follows in list order. The unreached Agent block-6 is listed before
+    // the Ends, so it must still come before every End, reached or not.
+    const blocks = [
+      end('block-4', 0),
+      agent('block-6', '', 1),
+      start('block-1', 'block-2'),
+      condition('block-2', 'block-5', { to: 'block-3' }, 2),
+      end('block-3', 3),
+      end('block-5', 4),
+    ];
+    expect(order(blocks)).toEqual(['block-1', 'block-2', 'block-6', 'block-5', 'block-3', 'block-4']);
   });
 
   it('F-12 AC-009 skips an arrow to a block that is not in the flow', () => {

@@ -189,6 +189,28 @@ describe('F-12 AC-011 (UI) clicks select a block, an arrow or nothing', () => {
   });
 });
 
+// start -> planner -> End, the reviewer open: the End is drawn after the reviewer, so the planner's arrow to the reviewer
+// does not run through it (F-12 AC-009, amended 2026-11-23).
+const endLastFlow: Flow = {
+  ...emptyFlow,
+  blocks: [
+    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+    { index: 1, id: 'block-2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'block-4' },
+    { index: 2, id: 'block-3', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
+    { index: 3, id: 'block-4', kind: 'end', outcome: 'done', producedArtifact: '' },
+  ],
+};
+
+describe('F-12 AC-009 (UI) the End block is drawn last', () => {
+  it('F-12 AC-009 (UI) draws the End circle after every other block of the flow', () => {
+    renderWithTheme(<BlockCanvas flow={endLastFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />);
+    const blockNames = screen
+      .getAllByRole('button', { name: /block/ })
+      .map((group) => group.getAttribute('aria-label'));
+    expect(blockNames).toEqual(['Start block', 'Agent block: planner', 'Agent block: reviewer', 'End block']);
+  });
+});
+
 describe('F-12 AC-002 (UI) the toolbox adds a block on this canvas', () => {
   it('F-12 AC-002 (UI) passes the result of a toolbox press to onAdd', () => {
     const onAdd = vi.fn();

@@ -1,7 +1,7 @@
 // The block layout of a flow on the Map tab (F-12 AC-006, AC-009, AC-010).
 // Blocks are placed in the order of their arrows, starting from Start; blocks that Start does not
-// reach follow in list order. The same flow always gives the same columns. A pure function: no
-// React and no I/O. The canvas maps a column to a horizontal position.
+// reach follow in list order; the End blocks come last. The same flow always gives the same
+// columns. A pure function: no React and no I/O. The canvas maps a column to a horizontal position.
 
 import type { pipeline as model } from '@sddbuilder/core';
 
@@ -68,8 +68,9 @@ function arrowOrder(flow: Flow): string[] {
 }
 
 // The columns of the flow's blocks: arrow order from Start first, then the unreached blocks in
-// list order (AC-009). A flow with no blocks gives no places (AC-006). The counts are the number of
-// Agents and of Conditions in the flow (AC-010).
+// list order (AC-009). The End blocks take the last columns, after every other block, in the same
+// order (AC-009, amended 2026-11-23). A flow with no blocks gives no places (AC-006). The counts are
+// the number of Agents and of Conditions in the flow (AC-010).
 export function blockLayout(flow: Flow): BlockLayout {
   const reached = arrowOrder(flow);
   const placed = new Set(reached);
@@ -77,7 +78,10 @@ export function blockLayout(flow: Flow): BlockLayout {
     ...reached,
     ...flow.blocks.map((block) => block.id).filter((id) => !placed.has(id)),
   ];
-  const places = ordered.map((blockId, column): BlockPlace => ({ blockId, column }));
+  const kindOf = new Map(flow.blocks.map((block) => [block.id, block.kind] as const));
+  const isEnd = (id: string): boolean => kindOf.get(id) === 'end';
+  const laid = [...ordered.filter((id) => !isEnd(id)), ...ordered.filter(isEnd)];
+  const places = laid.map((blockId, column): BlockPlace => ({ blockId, column }));
   return {
     places,
     agents: flow.blocks.filter((block) => block.kind === 'agent').length,

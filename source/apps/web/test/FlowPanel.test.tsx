@@ -510,3 +510,53 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and bo
     expect(screen.queryByText(reason)).toBeNull();
   });
 });
+
+// The control box of a field: the box its TextField sits in. A field's reason is drawn inside that box.
+function controlBoxOf(input: HTMLElement): HTMLElement {
+  const box = input.closest('.MuiTextField-root')?.parentElement;
+  if (box === null || box === undefined) throw new Error('the field has no control box');
+  return box;
+}
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its field box', () => {
+  it('F-11 (no criterion: Verify device fix 2026-11-24) draws the empty-name error inside the name control box, 4 px under the field', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+
+    const control = controlBoxOf(input);
+    expect(screen.getByText(reason).parentElement).toBe(control);
+    expect(control.contains(input)).toBe(true);
+    expect(getComputedStyle(control).getPropertyValue('gap')).toBe('4px');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) draws the empty-body error inside the body control box, and the counter stays under the box', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Body · required');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+
+    const control = controlBoxOf(input);
+    expect(screen.getByText(reason).parentElement).toBe(control);
+    expect(control.nextElementSibling).toBe(document.getElementById('flow-body-counter'));
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) keeps the optional description error outside the control boxes', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'description', value: 'x'.repeat(1001) });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Description');
+
+    fireEvent.change(input, { target: { value: 'x'.repeat(1001) } });
+    fireEvent.blur(input);
+
+    expect(screen.getByText(reason).parentElement).not.toBe(controlBoxOf(input));
+  });
+});

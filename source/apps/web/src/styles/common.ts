@@ -70,6 +70,9 @@ export interface CommonStyles {
   readonly fieldGroup: StyleObject;
   // The label of a field inside a field group: the group's gap is the 8 px, so the label has no margin of its own.
   readonly groupLabel: StyleObject;
+  // A field and the reason it was refused, one column with 4 px between them (device fix 2026-11-24), so the reason
+  // sits directly under its field. It is a child of a field group, so the group's gap separates the label from it.
+  readonly control: StyleObject;
 }
 
 // The height of a single-line field: screens 01, 03 and 05 draw each field 40 px high, with its text centred.
@@ -269,6 +272,12 @@ export function getCommonStyles(theme: Theme): CommonStyles {
       display: 'flex',
       flexDirection: 'column',
       gap: '8px',
+      minWidth: 0,
+    },
+    control: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
       minWidth: 0,
     },
   };

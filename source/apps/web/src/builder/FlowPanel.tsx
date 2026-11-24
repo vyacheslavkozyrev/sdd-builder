@@ -133,6 +133,16 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
     );
   };
 
+  // The reason of a required field, inside its control box, 4 px under the field (device fix 2026-11-24).
+  const controlRefusal = (field: RequiredTextField) => {
+    const reason = state.refusals[field];
+    return reason === undefined ? null : (
+      <Typography id={`flow-${field}-refusal`} component="p" sx={styles.controlRefusal}>
+        {reason}
+      </Typography>
+    );
+  };
+
   const body = shownText('body');
 
   return (
@@ -142,24 +152,26 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
           <Typography component="label" htmlFor="flow-name" sx={styles.fieldLabel}>
             Name
           </Typography>
-          <TextField
-            id="flow-name"
-            value={shownText('name')}
-            onChange={(event) => {
-              editText('name', event.target.value);
-            }}
-            sx={styles.field}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('name'),
-                onKeyUp: keyUpText((text) => {
-                  checkRequired('name', text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="flow-name"
+              value={shownText('name')}
+              onChange={(event) => {
+                editText('name', event.target.value);
+              }}
+              sx={styles.field}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('name'),
+                  onKeyUp: keyUpText((text) => {
+                    checkRequired('name', text);
+                  }),
+                },
+              }}
+            />
+            {controlRefusal('name')}
+          </Box>
         </Box>
-        {refusal('name')}
 
         <Box sx={styles.group}>
           <Typography component="label" htmlFor="flow-description" sx={styles.fieldLabel}>
@@ -213,29 +225,31 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
           <Typography component="label" htmlFor="flow-body" sx={styles.fieldLabel}>
             Body · required
           </Typography>
-          <TextField
-            id="flow-body"
-            multiline
-            minRows={3}
-            value={body}
-            onChange={(event) => {
-              editText('body', event.target.value);
-            }}
-            sx={styles.multilineField}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('body', 'flow-body-counter'),
-                onKeyUp: keyUpText((text) => {
-                  checkRequired('body', text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="flow-body"
+              multiline
+              minRows={3}
+              value={body}
+              onChange={(event) => {
+                editText('body', event.target.value);
+              }}
+              sx={styles.multilineField}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('body', 'flow-body-counter'),
+                  onKeyUp: keyUpText((text) => {
+                    checkRequired('body', text);
+                  }),
+                },
+              }}
+            />
+            {controlRefusal('body')}
+          </Box>
           <Typography id="flow-body-counter" component="p" sx={styles.counter}>
             {bodyCounterText(body)}
           </Typography>
         </Box>
-        {refusal('body')}
 
         <ArtifactRows
           key={`${flow.id}-artifacts`}

@@ -192,10 +192,11 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
     return ids.length === 0 ? undefined : ids.join(' ');
   };
 
+  // Every Agent field's refusal sits in its field's control box, 4 px under the field (device fix 2026-11-24).
   const refusal = (field: FieldName) => {
     const reason = state.refusals[field];
     return reason === undefined ? null : (
-      <Typography id={`block-agent-${field}-refusal`} component="p" sx={styles.refusal}>
+      <Typography id={`block-agent-${field}-refusal`} component="p" sx={styles.controlRefusal}>
         {reason}
       </Typography>
     );
@@ -219,49 +220,53 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
           <Typography component="label" htmlFor="block-agent-name" sx={styles.fieldLabel}>
             Name
           </Typography>
-          <TextField
-            id="block-agent-name"
-            value={shownText('name')}
-            onChange={(event) => {
-              editName(event.target.value);
-            }}
-            onBlur={commitName}
-            sx={styles.field}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('name'),
-                onKeyDown: endOnEnter,
-                onKeyUp: keyUpText((text) => {
-                  checkText('name', text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="block-agent-name"
+              value={shownText('name')}
+              onChange={(event) => {
+                editName(event.target.value);
+              }}
+              onBlur={commitName}
+              sx={styles.field}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('name'),
+                  onKeyDown: endOnEnter,
+                  onKeyUp: keyUpText((text) => {
+                    checkText('name', text);
+                  }),
+                },
+              }}
+            />
+            {refusal('name')}
+          </Box>
         </Box>
-        {refusal('name')}
 
         <Box sx={styles.agentGroup}>
           <Typography component="label" htmlFor="block-agent-description" sx={styles.fieldLabel}>
             Description
           </Typography>
-          <TextField
-            id="block-agent-description"
-            value={shownText('description')}
-            onChange={(event) => {
-              editText('description', event.target.value);
-            }}
-            sx={styles.field}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('description'),
-                onKeyUp: keyUpText((text) => {
-                  checkText('description', text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="block-agent-description"
+              value={shownText('description')}
+              onChange={(event) => {
+                editText('description', event.target.value);
+              }}
+              sx={styles.field}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('description'),
+                  onKeyUp: keyUpText((text) => {
+                    checkText('description', text);
+                  }),
+                },
+              }}
+            />
+            {refusal('description')}
+          </Box>
         </Box>
-        {refusal('description')}
 
         <ArgumentRows
           key={`${target}-arguments`}
@@ -275,25 +280,27 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
           <Typography component="label" htmlFor="block-agent-model" sx={styles.fieldLabel}>
             Model
           </Typography>
-          <TextField
-            id="block-agent-model"
-            select
-            value={block.model ?? ''}
-            onChange={(event) => {
-              editModel(event.target.value);
-            }}
-            sx={styles.select}
-            slotProps={{ select: { native: true }, htmlInput: { 'aria-describedby': describedBy('model') } }}
-          >
-            <option value="" />
-            {MODELS.map((model) => (
-              <option key={model} value={model}>
-                {model}
-              </option>
-            ))}
-          </TextField>
+          <Box sx={styles.control}>
+            <TextField
+              id="block-agent-model"
+              select
+              value={block.model ?? ''}
+              onChange={(event) => {
+                editModel(event.target.value);
+              }}
+              sx={styles.select}
+              slotProps={{ select: { native: true }, htmlInput: { 'aria-describedby': describedBy('model') } }}
+            >
+              <option value="" />
+              {MODELS.map((model) => (
+                <option key={model} value={model}>
+                  {model}
+                </option>
+              ))}
+            </TextField>
+            {refusal('model')}
+          </Box>
         </Box>
-        {refusal('model')}
 
         <AgentToolRows
           key={`${target}-tools`}
@@ -336,29 +343,31 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
           <Typography component="label" htmlFor="block-agent-body" sx={styles.fieldLabel}>
             Body · required
           </Typography>
-          <TextField
-            id="block-agent-body"
-            multiline
-            minRows={3}
-            value={body}
-            onChange={(event) => {
-              editText('body', event.target.value);
-            }}
-            sx={styles.multilineField}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('body', 'block-agent-body-counter'),
-                onKeyUp: keyUpText((text) => {
-                  checkText('body', text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="block-agent-body"
+              multiline
+              minRows={3}
+              value={body}
+              onChange={(event) => {
+                editText('body', event.target.value);
+              }}
+              sx={styles.multilineField}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('body', 'block-agent-body-counter'),
+                  onKeyUp: keyUpText((text) => {
+                    checkText('body', text);
+                  }),
+                },
+              }}
+            />
+            {refusal('body')}
+          </Box>
           <Typography id="block-agent-body-counter" component="p" sx={styles.counter}>
             {bodyCounterText(body)}
           </Typography>
         </Box>
-        {refusal('body')}
         <BlockFindings findings={findings} />
       </Box>
 
@@ -445,10 +454,11 @@ export function ConditionPanel({
     setEdits({ target, drafts: state.drafts, refusals });
   }
 
+  // The refusal of a Condition field sits in its field's control box, 4 px under the field (device fix 2026-11-24).
   const refusal = (field: ConditionTextField) => {
     const reason = state.refusals[field];
     return reason === undefined ? null : (
-      <Typography id={`block-condition-${field}-refusal`} component="p" sx={styles.refusal}>
+      <Typography id={`block-condition-${field}-refusal`} component="p" sx={styles.controlRefusal}>
         {reason}
       </Typography>
     );
@@ -475,32 +485,34 @@ export function ConditionPanel({
           <Typography component="label" htmlFor="block-condition-description" sx={styles.fieldLabel}>
             What it checks
           </Typography>
-          <TextField
-            id="block-condition-description"
-            value={shownDescription}
-            onChange={(event) => {
-              const value = event.target.value;
-              settle(
-                'description',
-                editConditionDescription(pipelineState, rules, flow.id, block.id, value),
-                value,
-              );
-            }}
-            sx={styles.field}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('description', 'block-condition-description-counter'),
-                onKeyUp: keyUpText((text) => {
-                  checkDescription(text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="block-condition-description"
+              value={shownDescription}
+              onChange={(event) => {
+                const value = event.target.value;
+                settle(
+                  'description',
+                  editConditionDescription(pipelineState, rules, flow.id, block.id, value),
+                  value,
+                );
+              }}
+              sx={styles.field}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('description', 'block-condition-description-counter'),
+                  onKeyUp: keyUpText((text) => {
+                    checkDescription(text);
+                  }),
+                },
+              }}
+            />
+            {refusal('description')}
+          </Box>
           <Typography id="block-condition-description-counter" component="p" sx={styles.counter}>
             {`${codePointCount(shownDescription)} / ${DESCRIPTION_LIMIT} characters`}
           </Typography>
         </Box>
-        {refusal('description')}
 
         <Box sx={styles.group}>
           <Typography component="p" sx={styles.fieldLabel}>
@@ -525,26 +537,28 @@ export function ConditionPanel({
             <Typography component="label" htmlFor="block-condition-round-limit" sx={styles.fieldLabel}>
               Round limit
             </Typography>
-            <Box sx={styles.roundRow}>
-              <TextField
-                id="block-condition-round-limit"
-                value={shownRoundLimit}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  settle(
-                    'roundLimit',
-                    setConditionRoundLimit(pipelineState, rules, flow.id, block.id, value),
-                    value,
-                  );
-                }}
-                sx={styles.roundField}
-                slotProps={{ htmlInput: { 'aria-describedby': describedBy('roundLimit') } }}
-              />
-              <Typography component="span" sx={styles.roundUnit}>
-                rounds
-              </Typography>
+            <Box sx={styles.control}>
+              <Box sx={styles.roundRow}>
+                <TextField
+                  id="block-condition-round-limit"
+                  value={shownRoundLimit}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    settle(
+                      'roundLimit',
+                      setConditionRoundLimit(pipelineState, rules, flow.id, block.id, value),
+                      value,
+                    );
+                  }}
+                  sx={styles.roundField}
+                  slotProps={{ htmlInput: { 'aria-describedby': describedBy('roundLimit') } }}
+                />
+                <Typography component="span" sx={styles.roundUnit}>
+                  rounds
+                </Typography>
+              </Box>
+              {refusal('roundLimit')}
             </Box>
-            {refusal('roundLimit')}
           </Box>
         ) : null}
         <BlockFindings findings={findings} />

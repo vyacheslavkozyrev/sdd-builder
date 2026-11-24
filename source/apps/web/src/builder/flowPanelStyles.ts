@@ -29,8 +29,12 @@ export interface FlowPanelStyles {
   // The count under the body field, at the right: it is the body group's third line, 8 px under the box, so its
   // baseline sits 20 px below the box (screen 03).
   readonly counter: StyleObject;
-  // The reason a field's value was refused, in red beneath the field (F-11 screen 07).
+  // The reason an optional field's value was refused, in red, as a line of its own after the field's group (F-11 screen 07).
   readonly refusal: StyleObject;
+  // A field and its reason in one control box (the shared control shape): the reason sits 4 px under its field.
+  readonly control: StyleObject;
+  // The reason of a refused required field, inside its control box: the box's 4 px gap is the only space above it.
+  readonly controlRefusal: StyleObject;
   // The Human approval checkbox row and its label.
   readonly approval: StyleObject;
   readonly approvalLabel: StyleObject;
@@ -106,6 +110,11 @@ export function getFlowPanelStyles(theme: Theme): FlowPanelStyles {
     refusal: {
       ...common.secondaryText,
       mt: '4px',
+      color: theme.palette.error.main,
+    },
+    control: common.control,
+    controlRefusal: {
+      ...common.secondaryText,
       color: theme.palette.error.main,
     },
     approval: {

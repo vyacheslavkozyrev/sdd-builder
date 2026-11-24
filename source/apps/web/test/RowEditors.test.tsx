@@ -1006,3 +1006,54 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
     expect(labelField(1).value).toBe('');
   });
 });
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its field box', () => {
+  it('F-11 (no criterion: Verify device fix 2026-11-24) draws a refused argument id inside its argument row, 4 px under the line', () => {
+    const pipelineState = withArguments({ id: 'brief', required: false, hint: '' }, { id: 'topic', required: false, hint: '' });
+    renderArguments(pipelineState);
+    const input = screen.getByLabelText('Argument 1 id');
+    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+
+    const row = screen.getByRole('group', { name: 'Argument 1' });
+    expect(within(row).getByText(reason).parentElement).toBe(row);
+    expect(row.contains(input)).toBe(true);
+    expect(getComputedStyle(row).getPropertyValue('gap')).toBe('4px');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) draws a refused artifact label inside its row, 4 px under the label', () => {
+    renderArtifacts(basePipeline());
+    const group = screen.getByRole('group', { name: 'Artifact 1' });
+    const label = within(group).getByLabelText('Label') as HTMLInputElement;
+    const reason = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    if (reason.ok) throw new Error('the parser accepted a blank label');
+
+    fireEvent.change(label, { target: { value: '' } });
+    fireEvent.keyUp(label, { key: 'Backspace' });
+
+    const row = within(group).getByText(reason.reason).parentElement as HTMLElement;
+    expect(row.contains(label)).toBe(true);
+    expect(getComputedStyle(row).getPropertyValue('gap')).toBe('4px');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) draws a refused template inside its control box, 4 px under the box, with the help text after it', () => {
+    renderArtifacts(basePipeline());
+    const group = within(screen.getByRole('group', { name: 'Artifact 1' }));
+    const template = group.getByLabelText('Template') as HTMLTextAreaElement;
+    const longTemplate = 'x'.repeat(5001);
+    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'template', value: longTemplate });
+    if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
+
+    fireEvent.change(template, { target: { value: longTemplate } });
+    fireEvent.blur(template);
+
+    // The reason's parent is the control box: it holds the template field, and the help text follows the box.
+    const control = group.getByText(result.reason).parentElement as HTMLElement;
+    // The field is drawn again after the refusal, so the template is queried again rather than the element kept above.
+    expect(control.contains(group.getByLabelText('Template'))).toBe(true);
+    expect(control.nextElementSibling?.textContent).toBe(TEMPLATE_HELP_TEXT);
+    expect(getComputedStyle(control).getPropertyValue('gap')).toBe('4px');
+  });
+});

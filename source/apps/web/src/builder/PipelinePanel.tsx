@@ -121,6 +121,16 @@ export function PipelinePanel({ pipelineState, rules, onChange }: PipelinePanelP
     );
   };
 
+  // The reason of the required name, inside its control box, 4 px under the field (device fix 2026-11-24).
+  const controlRefusal = () => {
+    const reason = state.refusals.name;
+    return reason === undefined ? null : (
+      <Typography id="pipeline-name-refusal" component="p" sx={styles.controlRefusal}>
+        {reason}
+      </Typography>
+    );
+  };
+
   const body = shownText('body');
 
   return (
@@ -130,24 +140,26 @@ export function PipelinePanel({ pipelineState, rules, onChange }: PipelinePanelP
           <Typography component="label" htmlFor="pipeline-name" sx={styles.fieldLabel}>
             Name
           </Typography>
-          <TextField
-            id="pipeline-name"
-            value={shownText('name')}
-            onChange={(event) => {
-              editText('name', event.target.value);
-            }}
-            sx={styles.field}
-            slotProps={{
-              htmlInput: {
-                'aria-describedby': describedBy('name'),
-                onKeyUp: keyUpText((text) => {
-                  checkName(text);
-                }),
-              },
-            }}
-          />
+          <Box sx={styles.control}>
+            <TextField
+              id="pipeline-name"
+              value={shownText('name')}
+              onChange={(event) => {
+                editText('name', event.target.value);
+              }}
+              sx={styles.field}
+              slotProps={{
+                htmlInput: {
+                  'aria-describedby': describedBy('name'),
+                  onKeyUp: keyUpText((text) => {
+                    checkName(text);
+                  }),
+                },
+              }}
+            />
+            {controlRefusal()}
+          </Box>
         </Box>
-        {refusal('name')}
 
         <Box sx={styles.group}>
           <Typography component="label" htmlFor="pipeline-description" sx={styles.fieldLabel}>

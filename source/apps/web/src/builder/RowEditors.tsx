@@ -690,8 +690,10 @@ function ArtifactGroup({
         <Typography component="label" htmlFor={templateId} sx={styles.fieldLabel}>
           Template
         </Typography>
-        {templateField}
-        {templateReason}
+        <Box sx={styles.control}>
+          {templateField}
+          {templateReason}
+        </Box>
         <Typography component="p" sx={styles.helpText}>
           {TEMPLATE_HELP_TEXT}
         </Typography>

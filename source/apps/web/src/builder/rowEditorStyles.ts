@@ -34,6 +34,8 @@ export interface RowEditorStyles {
   readonly helpText: StyleObject;
   // The reason of a refused value, in red beneath the field or row it belongs to.
   readonly refusal: StyleObject;
+  // A template field and its reason in one control box: the reason sits 4 px under the box (device fix 2026-11-24).
+  readonly control: StyleObject;
   // The label above a field inside a form.
   readonly fieldLabel: StyleObject;
 }
@@ -151,6 +153,7 @@ export function getRowEditorStyles(theme: Theme): RowEditorStyles {
       ...common.secondaryText,
       color: theme.palette.error.main,
     },
+    control: common.control,
     fieldLabel: {
       ...common.fieldLabel,
       mb: 0,

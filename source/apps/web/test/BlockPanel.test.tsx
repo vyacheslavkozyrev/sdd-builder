@@ -1022,3 +1022,57 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) required Agent text 
     expect(screen.queryByText(result.reason)).toBeNull();
   });
 });
+
+// The control box of a field: the box its TextField sits in. A field's reason is drawn inside that box.
+function controlBoxOf(input: HTMLElement): HTMLElement {
+  const box = input.closest('.MuiTextField-root')?.parentElement;
+  if (box === null || box === undefined) throw new Error('the field has no control box');
+  return box;
+}
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) error inside its field box', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) draws the empty Agent name error inside the name control box, 4 px under the field', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'name', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.blur(input);
+
+    const control = controlBoxOf(input);
+    expect(screen.getByText(reason).parentElement).toBe(control);
+    expect(getComputedStyle(control).getPropertyValue('gap')).toBe('4px');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) draws the empty Agent body error inside the body control box, and the counter stays under the box', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'body', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Body · required');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+
+    const control = controlBoxOf(input);
+    expect(screen.getByText(reason).parentElement).toBe(control);
+    expect(control.nextElementSibling).toBe(document.getElementById('block-agent-body-counter'));
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) draws a refused round limit inside its control box, beneath the rounds row', () => {
+    const pipelineState = conditionPipeline();
+    renderCondition(pipelineState, 'check');
+    const input = screen.getByLabelText('Round limit');
+    const result = setConditionRoundLimit(pipelineState, [], 'plan', 'check', '0');
+    if (result.ok) throw new Error('the parser accepted the round limit "0"');
+
+    fireEvent.change(input, { target: { value: '0' } });
+
+    const roundRow = controlBoxOf(input);
+    const control = roundRow.parentElement;
+    if (control === null) throw new Error('the round limit has no control box');
+    expect(screen.getByText(result.reason).parentElement).toBe(control);
+    expect(control.firstElementChild).toBe(roundRow);
+    expect(getComputedStyle(control).getPropertyValue('gap')).toBe('4px');
+  });
+});

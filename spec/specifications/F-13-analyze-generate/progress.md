@@ -6,7 +6,7 @@
 | -------- | ---------- | ---- | ----- |
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
-| UX       | ⏳ Pending  |      | Screens (SVG) approved by the user before Plan and Build; ➖ Not needed when the feature has no user interface |
+| UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
 | Build    | ⏳ Pending  |      | 0 of N tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |

@@ -2,7 +2,7 @@
 
 Feature entry: `spec/documents/features.md` → F-13. Rules: `spec/documents/ui.md` §1.3, §2 (step 4) and §6. Model: `spec/documents/architecture.md` §3 (the generated file tree) and §4 (the analysis result and its statuses).
 
-Status: 8 screens (`01-` to `08-` in this folder, with `index.html`). Revised 2026-11-19 for owner decision (architecture decision 41): a failed analysis is an error; generation writes the file contents with the model. Drawn for owner review; not yet approved. Wireframes in SVG; the wording is a first draft.
+Status: 11 screens (`01-` to `11-` in this folder, with `index.html`). Revised 2026-11-19 for owner decision (architecture decision 41): a failed analysis is an error; generation writes the file contents with the model. Drawn for owner review; not yet approved. Wireframes in SVG; the wording is a first draft. Revised 2026-11-24 to the F-13 stories (specification of 2026-11-24): screens 09 (422 problem list), 10 (out of date) and 11 (warning only) added.
 
 Scope: step 4 of the wizard only. The left panel, footer note and caption come from the approved frame (F-07, F-08 screen 04). No code, no request, no data.
 
@@ -30,6 +30,9 @@ Each SVG is 1280 × 800 (the reference size; no screen needed more height).
 | 06 | `06-project-files-expanded.svg` | Full file list | Dialog "Project files" over the step: the full tree (31 rows) in a scrollable panel, rule files marked; Close |
 | 07 | `07-analysis-error-429.svg` | Service error | Red text "Analysis could not run (429): too many requests. Try again later."; checkbox still ticked; Analyze enabled; Generate disabled, reason "Run Analyze first" |
 | 08 | `08-generate-pending.svg` | Generate pending | Generate and download reads "Writing the files with the model…" with a progress line under it; Analyze, the checkbox and Show full tree disabled; the file list still visible |
+| 09 | `09-analysis-422-problems.svg` | Configuration over a limit (422) | Error "Analysis could not run (422): the configuration is over a limit." with one line per problem (idea, architecture, rules); Analyze enabled; values kept |
+| 10 | `10-analysis-out-of-date.svg` | Analysis out of date | Amber note "The project changed since the last analysis. Analyze again."; earlier finding shown as not current; Generate and download disabled, reason Run Analyze first |
+| 11 | `11-analysis-warning-only.svg` | Warning only | Finding row "Warning · Technical details · Rules" with its message; result line says a warning is present; Generate and download disabled, reason "Fix the warning to generate" |
 
 ## The file tree (preview)
 
@@ -61,9 +64,9 @@ Folders are listed first in code-point order, as the generator sorts the files (
 
 1. **Privacy notice wording.** `ui.md` §4 and `architecture.md` §4 say the brief is sent to the model provider and not stored or logged by the server. The draft says "Analyze sends the brief and the pipeline to the model for review. The server does not store or log the brief." The pipeline config is also sent, so the notice names it. Owner to confirm the wording and whether the provider's name should appear.
 2. **File-tree contents.** The sample lists the default pipeline's 9 agents, 7 commands and 2 sample rule files. The owner should confirm: (a) the agent names; (b) whether `spec/` shows the F-00 template folder or the spec folder only; (c) whether `.claude/rules/` shows the sample names or the user's own; (d) whether the tree shows the file count in the heading (drawn as "23 files").
-4. **Analysis out of date.** `features.md` F-13 says any change makes the analysis out of date. The screens do not draw that state (for example a note "The brief changed since the last analysis" and Generate disabled). It needs a state screen before build, or a decision that Generate goes off silently. Open for the owner.
+4. **Analysis out of date.** Drawn as screen 10: the note "The project changed since the last analysis. Analyze again.", the earlier result shown as not current, and Generate disabled with the reason Run Analyze first. Owner to confirm: keep the earlier result visible (greyed), or hide it.
 5. **Analyze while pending.** `ui.md` §2 says Analyze is disabled while the request is pending. No pending screen is drawn for Analyze; only Generate has one (screen 08). A spinner or a text for Analyze is not decided.
-6. **Error wording for other codes.** Only 429 is drawn. The draft text for 400, 422, 500, 502 and a network failure is not written; 422 lists every problem (`ui.md` §2). Owner to confirm the sentences, or write them as the 422 list screen in a later revision.
+6. **Error wording for other codes.** Drawn: 429 (screen 07, the pattern for every error reply and the network failure, and the 404 shown during the device check) and 422 (screen 09, one line per problem). Not yet drawn or written: 400, 500, 502 and the network failure sentence. Owner to confirm the sentences.
 7. **Preview on a blank or invalid brief.** The structural blockers show in Findings only; the tree is still drawn. Owner to confirm the tree is shown even when a blocker exists (the draft says yes).
 8. **Caption and screen count.** Eight screens are drawn; the caption uses "screen N" as F-11 does.
 9. **Generate pending and the contents.** Screen 08 shows the file list while the model writes the contents. The wording "Writing the files with the model…" and the note "Contents are written by the model when you generate." are drafts. Owner to confirm, and whether the list should show each file as it is written.
@@ -85,3 +88,36 @@ Folders are listed first in code-point order, as the generator sorts the files (
 - Inline error text (screens 05 and 07) is 11 px, #BB241A, in the error box; it was 13 px.
 - Danger colour #BB241A (redOrange 700) for the Blocker text.
 - Screen 06 (project files) stays a list dialog, 600 px wide, one Close button; its size is unchanged.
+
+## Story coverage (criteria of `stories.md`)
+
+| Criterion | Screen(s) or how it is shown |
+|---|---|
+| AC-001, AC-002, AC-004 | 01 (unticked, Analyze disabled, notice text); 02 (ticked, Analyze enabled) |
+| AC-003 | 01 (Analyze disabled with its reason; no request is sent while unticked) |
+| AC-005 | 02 (Analyze enabled, the request it sends is the configuration; not visible otherwise) |
+| AC-006 | 08 (Analyze disabled while a request is pending; the same disabled control) |
+| AC-007, AC-008 | 03, 04 (severity, subject, message; structural then review order) |
+| AC-009 | 05 (failed review: error note, structural finding kept, Generate disabled) |
+| AC-010, AC-013, AC-028, AC-031 | 07 (error pattern: text, values kept; the 404 shown during the device check uses this pattern) |
+| AC-011, AC-029 | 09 (422, one line per problem) |
+| AC-012 | 07 (429 wording and status) |
+| AC-014 | no separate state; a new result replaces 03, 04, 05 or 11 |
+| AC-015, AC-016 | 04 (green, result line, Generate enabled) |
+| AC-017 | 01 (Run Analyze first, Tick the box), 03 (Fix the blocker), 11 (Fix the warning), 05 (Analysis failed), 07 (error, Run Analyze first) |
+| AC-018, AC-019 | 10 (out of date) |
+| AC-020 | the footer note on every screen (nothing is saved) |
+| AC-021, AC-022, AC-024 | the tree on every screen (rule files tagged on 07 and 06); AC-024 has no separate state |
+| AC-023 | 06 (full list in the dialog); 01 (Show full tree control) |
+| AC-025 | 03, 04 (Generate enabled only on 04) |
+| AC-026 | 08 (pending) |
+| AC-027 | no visual state; the saved file name is an automated test |
+| AC-030 | device: all screens at 1280 × 800; 04 is the reference |
+| AC-031 | device: the 07 pattern in a running browser |
+
+## Reviews
+
+- Usability review (`usability` agent): skipped at the owner's request on 2026-11-24. The screens were rendered and checked by the owner. A run that had started was stopped before it changed any file.
+- Visual review (`visual` agent): skipped at the owner's request on 2026-11-24, for the same reason.
+- XML: all 11 SVGs pass `xmllint --noout`.
+- Coverage: the story coverage table above lists every criterion of `stories.md`.

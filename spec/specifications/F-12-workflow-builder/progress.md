@@ -28,7 +28,7 @@ These points come from documents that disagree. The stories follow the reading s
 
 ## Current Task
 
-Curved arrows (2026-11-24) — reviewed: 0 blockers; 2 warnings fixed (the return-arrow test matched any number, now asserts the exact curve with its peak on the upper lane; the new curve tests carried `AC-008`, which is `[device]`, now tagged as a device fix with no criterion); 1 suggestion fixed (a test named "loops" that is a flat overshoot, renamed). Drag preview stays a straight line (accepted by the user; to mention). Task check passed: api 45, web 1644, core 1231. Staged, not committed.
+Connection points (2026-11-24) — reviewed: 0 blockers; 1 warning fixed (no test proved that a press on an output point leaves its block in place; added `F-12 AC-013 (UI)` test that fails if the press reaches the block's move handler); 0 suggestions. Points are the F-11 handles (6 px dot, 1 px paper ring, transparent 6 px hit area); arrow ends and input-point behaviour unchanged. Task check passed: api 45, web 1646, core 1231. Staged, not committed.
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 

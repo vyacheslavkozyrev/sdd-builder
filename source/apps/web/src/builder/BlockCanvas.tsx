@@ -619,6 +619,13 @@ function BlockView({
   );
 }
 
+// The visible connection point is the F-11 handle: a 6 px dot in the accent colour with a 1 px ring in the paper
+// colour (React Flow's handle, border-box). The circle sits on the centre line of the ring, so its radius is 2.5 and
+// its stroke 1. The hit area is a transparent circle of 6 px radius around it, so the point is easy to press.
+const portRadius = 2.5;
+const portRingWidth = 1;
+const portHitRadius = 6;
+
 // A connection point (AC-013). An output point starts a link; an input point does not (AC-018). A release over
 // either lands on its block, and an output point also names its output, which only an arrow's source end uses.
 function PortView({
@@ -632,13 +639,7 @@ function PortView({
 }) {
   const output = port.role === 'input' ? null : port.role;
   return (
-    <circle
-      cx={port.x}
-      cy={port.y}
-      r={5}
-      fill={ink.paper}
-      stroke={ink.line}
-      strokeWidth={1.5}
+    <g
       data-port={port.role}
       onPointerDown={
         output === null
@@ -650,7 +651,18 @@ function PortView({
             }
       }
       onPointerUp={(event) => gestures.onDrop({ blockId: port.blockId, output }, event)}
-    />
+    >
+      <circle cx={port.x} cy={port.y} r={portHitRadius} fill="none" pointerEvents="all" />
+      <circle
+        cx={port.x}
+        cy={port.y}
+        r={portRadius}
+        fill={ink.accent}
+        stroke={ink.paper}
+        strokeWidth={portRingWidth}
+        pointerEvents="none"
+      />
+    </g>
   );
 }
 

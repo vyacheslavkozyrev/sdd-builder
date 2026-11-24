@@ -296,6 +296,31 @@ describe('F-12 AC-013 (UI) connection points by kind', () => {
   });
 });
 
+describe('F-12 AC-013 (UI) connection points look like the F-11 handles', () => {
+  it('F-12 AC-013 (UI) draws a 2.5 px accent dot with a 1 px paper ring, and a transparent 6 px hit area around it', () => {
+    renderWithTheme(<BlockCanvas flow={dragFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />);
+    const [hit, dot] = Array.from(portOf(groupOf('Agent block: planner'), 'next').querySelectorAll('circle'));
+    expect(hit?.getAttribute('r')).toBe('6');
+    expect(hit?.getAttribute('fill')).toBe('none');
+    expect(hit?.getAttribute('pointer-events')).toBe('all');
+    expect(dot?.getAttribute('r')).toBe('2.5');
+    expect(dot?.getAttribute('fill')).toBe(theme.palette.primary.main);
+    expect(dot?.getAttribute('stroke')).toBe(theme.palette.background.paper);
+    expect(dot?.getAttribute('stroke-width')).toBe('1');
+    expect(dot?.getAttribute('pointer-events')).toBe('none');
+  });
+
+  it('F-12 AC-013 (UI) a press on an output point starts a link and does not move its block', () => {
+    const { container } = renderWithTheme(<BlockCanvas flow={dragFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />);
+    const plannerX = () => Number(groupOf('Agent block: planner').querySelector('rect')?.getAttribute('x'));
+    const before = plannerX();
+    fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'), { clientX: 100, clientY: 420 });
+    fireEvent.pointerMove(drawingOf(container), { clientX: 140, clientY: 420 });
+    expect(previewOf(container)).not.toBeNull();
+    expect(plannerX()).toBe(before);
+  });
+});
+
 describe('F-12 AC-012 (UI) a drag from an output point to an input point links the blocks', () => {
   it('F-12 AC-012 (UI) shows the arrow while the drag moves, and links the blocks on the drop', () => {
     const onChange = vi.fn();

@@ -3,8 +3,9 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { editAgentField } from '../src/builder/blockFields.js';
-import { AgentPanel, ConditionPanel } from '../src/builder/BlockPanel.js';
+import { AgentPanel, ConditionPanel, EndPanel } from '../src/builder/BlockPanel.js';
 import { editConditionDescription, setConditionRoundLimit } from '../src/builder/blockCondition.js';
+import { editEndArtifact } from '../src/builder/blockEnd.js';
 import type { Pipeline } from '../src/builder/fields.js';
 
 // The Agent panel is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
@@ -557,5 +558,160 @@ describe('F-12 AC-033 and AC-034 round limit', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
     expect(conditionOf(saved, 'check').false).toEqual({ to: 'planner', roundLimit: 5 });
+  });
+});
+
+// The plan flow of planPipeline with its flow changed: its artifacts or its blocks.
+function flowWith(change: (flow: Flow) => Flow): Pipeline {
+  const base = planPipeline();
+  const flow = base.flows[0];
+  if (flow === undefined) throw new Error('no plan flow in the test pipeline');
+  return { ...base, flows: [change(flow)] };
+}
+
+function endOf(pipelineState: Pipeline, blockId: string): core.EndBlock {
+  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const block = flow?.blocks.find((item) => item.id === blockId);
+  if (block === undefined || block.kind !== 'end') throw new Error(`no End ${blockId} in the test pipeline`);
+  return block;
+}
+
+function renderEnd(pipelineState: Pipeline, blockId = 'done') {
+  const onChange = vi.fn();
+  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  if (flow === undefined) throw new Error('no plan flow in the test pipeline');
+  render(
+    <EndPanel
+      pipelineState={pipelineState}
+      rules={[]}
+      flow={flow}
+      block={endOf(pipelineState, blockId)}
+      onChange={onChange}
+    />,
+  );
+  return { onChange };
+}
+
+function optionValues(label: string): string[] {
+  return Array.from(screen.getByLabelText(label).querySelectorAll('option')).map((option) => option.value);
+}
+
+describe('F-12 AC-035 End outcome', () => {
+  it('F-12 AC-035 shows the title, the subtitle and the fields Outcome and Produced artifact in order', () => {
+    renderEnd(planPipeline());
+
+    expect(screen.getByText('End')).toBeTruthy();
+    expect(screen.getByText("The flow's exit, last on the canvas")).toBeTruthy();
+    const labels = Array.from(document.querySelectorAll('label')).map((label) => label.textContent);
+    expect(labels).toEqual(['Outcome', 'Produced artifact']);
+  });
+
+  it('F-12 AC-035 offers only done and stopped as the outcome, and shows the saved outcome', () => {
+    renderEnd(planPipeline());
+
+    expect(optionValues('Outcome')).toEqual(['done', 'stopped']);
+    expect(screen.getByLabelText('Outcome')).toHaveProperty('value', 'done');
+  });
+
+  it('F-12 AC-035 saves a chosen outcome through the parser', () => {
+    const { onChange } = renderEnd(planPipeline());
+
+    fireEvent.change(screen.getByLabelText('Outcome'), { target: { value: 'stopped' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const saved = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(endOf(saved, 'done').outcome).toBe('stopped');
+    expect(endOf(saved, 'done').producedArtifact).toBe('plan.md');
+  });
+});
+
+describe('F-12 AC-036 End produced artifact', () => {
+  it('F-12 AC-036 offers the outcome artifact labels of the flow, and no "none"', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      artifacts: [
+        { label: 'plan.md', template: 'output.md' },
+        { label: 'notes.md', template: 'output.md' },
+      ],
+    }));
+    renderEnd(pipelineState);
+
+    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
+  });
+
+  it('F-12 AC-036 saves a chosen artifact label through the parser', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      artifacts: [
+        { label: 'plan.md', template: 'output.md' },
+        { label: 'notes.md', template: 'output.md' },
+      ],
+    }));
+    const { onChange } = renderEnd(pipelineState);
+
+    fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: 'notes.md' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const saved = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(endOf(saved, 'done').producedArtifact).toBe('notes.md');
+  });
+
+  it('F-12 AC-036 refuses an empty produced artifact with the parser reason, and keeps the saved one', () => {
+    const pipelineState = planPipeline();
+    const refused = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    if (refused.ok) throw new Error('the parser accepted an empty produced artifact');
+    const { onChange } = renderEnd(pipelineState);
+
+    // A value that no option carries leaves the select with the empty value, as a refused choice would.
+    fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: '' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(refused.reason)).toBeTruthy();
+    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBe(
+      'block-end-producedArtifact-refusal',
+    );
+    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'plan.md');
+  });
+
+  it('F-12 AC-036 shows the empty text in place of the choices when the flow has no outcome artifacts', () => {
+    renderEnd(
+      flowWith((flow) => ({
+        ...flow,
+        artifacts: [],
+      })),
+    );
+
+    expect(screen.getByText('Add an outcome artifact on the flow panel first.')).toBeTruthy();
+    expect(screen.queryByLabelText('Produced artifact')).toBeNull();
+    const labels = Array.from(document.querySelectorAll('label')).map((label) => label.textContent);
+    expect(labels).toEqual(['Outcome']);
+  });
+});
+
+describe('F-12 AC-043 End delete control', () => {
+  it('F-12 AC-043 disables Delete block on the last End and shows its reason under the button', () => {
+    renderEnd(planPipeline());
+
+    const button = screen.getByRole('button', { name: 'Delete block' });
+    expect(button).toHaveProperty('disabled', true);
+    expect(screen.getByText('A flow keeps at least one End block.')).toBeTruthy();
+    expect(button.getAttribute('aria-describedby')).toBe('block-end-delete-refusal');
+  });
+
+  it('F-12 AC-043 enables Delete block on an End when the flow has another End, and shows no reason', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      blocks: [
+        ...flow.blocks,
+        { index: 4, id: 'stopped', kind: 'end', outcome: 'stopped', producedArtifact: 'plan.md' },
+      ],
+    }));
+    renderEnd(pipelineState, 'stopped');
+
+    const button = screen.getByRole('button', { name: 'Delete block' });
+    expect(button).toHaveProperty('disabled', false);
+    expect(screen.getByText('Asks first')).toBeTruthy();
+    expect(screen.queryByText('A flow keeps at least one End block.')).toBeNull();
+    expect(button.getAttribute('aria-describedby')).toBeNull();
   });
 });

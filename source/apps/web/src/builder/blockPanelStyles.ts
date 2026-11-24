@@ -22,6 +22,9 @@ export interface BlockPanelStyles extends FlowPanelStyles {
   readonly roundRow: StyleObject;
   readonly roundField: StyleObject;
   readonly roundUnit: StyleObject;
+  // The footer of an End panel when its Delete block is disabled: the same footer, stacked, so the reason sits
+  // under the disabled button (the reason is too long to sit beside it in 224 px).
+  readonly stackedFooter: StyleObject;
 }
 
 export function getBlockPanelStyles(theme: Theme): BlockPanelStyles {
@@ -55,5 +58,10 @@ export function getBlockPanelStyles(theme: Theme): BlockPanelStyles {
       width: '96px',
     },
     roundUnit: common.secondaryText,
+    stackedFooter: {
+      ...getFlowPanelStyles(theme).footer,
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
   };
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, TextField, Typography, useTheme } from '@mui/material';
+import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 import { codePointCount } from '../wizard/project.js';
 import { bodyCounterText } from './FlowPanel.js';
 import { AgentLabelRows, AgentToolRows } from './AgentRows.js';
@@ -14,7 +14,19 @@ import {
   type ConditionFieldResult,
 } from './blockCondition.js';
 import { setAgentModel } from './blockAgentFields.js';
+import {
+  editEndArtifact,
+  editEndOutcome,
+  END_OUTCOMES,
+  producedArtifactChoices,
+  producedArtifactNote,
+  type EndBlock,
+  type EndField,
+  type EndFieldResult,
+  type EndOutcome,
+} from './blockEnd.js';
 import { editAgentField, type AgentBlock, type AgentField } from './blockFields.js';
+import { deleteRefusal } from './deleteBlock.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
 import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
@@ -24,7 +36,7 @@ import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 // draws it: a title "Agent: <name>", the subtitle "Agent block in the <flow> flow", then Name, Description,
 // Arguments, Model, Tools, Reads, Writes, Rule tags and Body with its counter, in the order of AC-022. The
 // Delete control comes in T021. It also holds the Condition panel (`ConditionPanel`), as screens 03 and 04
-// draw it.
+// draw it. It also holds the End panel (`EndPanel`), as screen 01 draws it.
 //
 // Each edit goes through the parser (blockFields.ts and blockAgentFields.ts). An accepted edit is reported to
 // the caller as the new pipeline. A refused edit keeps the saved value in the field and shows its reason
@@ -408,6 +420,166 @@ export function ConditionPanel({ pipelineState, rules, flow, block, onChange }: 
           </Box>
         ) : null}
       </Box>
+    </Box>
+  );
+}
+
+export interface EndPanelProps {
+  readonly pipelineState: Pipeline;
+  readonly rules: readonly Rule[];
+  readonly flow: Flow;
+  readonly block: EndBlock;
+  readonly onChange: (pipelineState: Pipeline) => void;
+}
+
+// What the End panel holds beyond the saved pipeline: the reason of each refused field. The state belongs to
+// one block; another block starts with none.
+interface EndEdits {
+  readonly target: string;
+  readonly refusals: Partial<Record<EndField, string | undefined>>;
+}
+
+function emptyEndEdits(target: string): EndEdits {
+  return { target, refusals: {} };
+}
+
+// The End panel (AC-035, AC-036, AC-043), as screen 01 draws it: the title "End", the subtitle, Outcome and
+// Produced artifact, then the Delete block control at the foot. Delete is disabled on the flow's last End, with
+// its reason shown under it; the delete itself is wired in T021.
+export function EndPanel({ pipelineState, rules, flow, block, onChange }: EndPanelProps) {
+  const styles = getBlockPanelStyles(useTheme());
+  const target = `${flow.id}/${block.id}`;
+  const [edits, setEdits] = useState<EndEdits>(() => emptyEndEdits(target));
+  const state = edits.target === target ? edits : emptyEndEdits(target);
+
+  const choices = producedArtifactChoices(flow);
+  const artifactNote = producedArtifactNote(flow);
+  const deleteReason = deleteRefusal(flow, block.id);
+
+  // Settles one edit: an accepted edit reports the new pipeline and clears the field's refusal; a refused one
+  // records its reason, and the saved value stays in the select.
+  function settle(field: EndField, result: EndFieldResult) {
+    const refusals = { ...state.refusals };
+    refusals[field] = result.ok ? undefined : result.reason;
+    if (result.ok) {
+      onChange(result.pipeline);
+    }
+    setEdits({ target, refusals });
+  }
+
+  const refusal = (field: EndField) => {
+    const reason = state.refusals[field];
+    return reason === undefined ? null : (
+      <Typography id={`block-end-${field}-refusal`} component="p" sx={styles.refusal}>
+        {reason}
+      </Typography>
+    );
+  };
+
+  const describedBy = (field: EndField): string | undefined =>
+    state.refusals[field] === undefined ? undefined : `block-end-${field}-refusal`;
+
+  const deleteButton = (
+    <Button
+      variant="contained"
+      disabled={deleteReason !== null}
+      aria-describedby={deleteReason === null ? undefined : 'block-end-delete-refusal'}
+      sx={styles.deleteButton}
+    >
+      Delete block
+    </Button>
+  );
+
+  return (
+    <Box sx={styles.root}>
+      <Box sx={styles.header}>
+        <Typography component="h2" sx={styles.title}>
+          End
+        </Typography>
+        <Typography component="p" sx={styles.subtitle}>
+          The flow's exit, last on the canvas
+        </Typography>
+      </Box>
+
+      <Box sx={styles.scroll}>
+        <Box sx={styles.group}>
+          <Typography component="label" htmlFor="block-end-outcome" sx={styles.fieldLabel}>
+            Outcome
+          </Typography>
+          <TextField
+            id="block-end-outcome"
+            select
+            value={block.outcome}
+            onChange={(event) => {
+              const outcome = END_OUTCOMES.find((item) => item === event.target.value);
+              if (outcome !== undefined) {
+                settle('outcome', editEndOutcome(pipelineState, rules, flow.id, block.id, outcome));
+              }
+            }}
+            sx={styles.select}
+            slotProps={{ select: { native: true }, htmlInput: { 'aria-describedby': describedBy('outcome') } }}
+          >
+            {END_OUTCOMES.map((outcome: EndOutcome) => (
+              <option key={outcome} value={outcome}>
+                {outcome}
+              </option>
+            ))}
+          </TextField>
+        </Box>
+        {refusal('outcome')}
+
+        <Box sx={styles.group}>
+          <Typography
+            component={artifactNote === undefined ? 'label' : 'p'}
+            htmlFor={artifactNote === undefined ? 'block-end-artifact' : undefined}
+            sx={styles.fieldLabel}
+          >
+            Produced artifact
+          </Typography>
+          {artifactNote === undefined ? (
+            <TextField
+              id="block-end-artifact"
+              select
+              value={block.producedArtifact}
+              onChange={(event) => {
+                settle('producedArtifact', editEndArtifact(pipelineState, rules, flow.id, block.id, event.target.value));
+              }}
+              sx={styles.select}
+              slotProps={{
+                select: { native: true },
+                htmlInput: { 'aria-describedby': describedBy('producedArtifact') },
+              }}
+            >
+              {choices.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </TextField>
+          ) : (
+            <Typography component="p" sx={styles.routeText}>
+              {artifactNote}
+            </Typography>
+          )}
+        </Box>
+        {refusal('producedArtifact')}
+      </Box>
+
+      {deleteReason === null ? (
+        <Box sx={styles.footer}>
+          {deleteButton}
+          <Typography component="p" sx={styles.footerNote}>
+            Asks first
+          </Typography>
+        </Box>
+      ) : (
+        <Box sx={styles.stackedFooter}>
+          {deleteButton}
+          <Typography id="block-end-delete-refusal" component="p" sx={styles.footerNote}>
+            {deleteReason}
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 }

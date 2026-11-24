@@ -52,7 +52,7 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
   return {
     root: { boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: 0 },
     // The heading's line is 24 px: its baseline sits at y 66 and the count's at y 86 (F-13 screens 01 to 11).
-    heading: { ...common.columnHeading, lineHeight: '24px' },
+    heading: { ...common.sectionTitle, lineHeight: '24px' },
     count: { ...common.secondaryText, mb: '12px' },
     panel,
     list: { m: 0, p: 0, listStyle: 'none' },

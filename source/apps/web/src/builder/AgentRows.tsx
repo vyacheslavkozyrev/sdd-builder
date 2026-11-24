@@ -4,14 +4,14 @@ import { Box, Button, TextField, Typography, useTheme } from '@mui/material';
 import { addAgentLabel, addAgentTool, removeAgentLabel, removeAgentTool } from './blockAgentFields.js';
 import type { AgentListResult, LabelList } from './blockAgentFields.js';
 import { agentAt } from './blockFields.js';
-import { getAgentRowsStyles } from './agentRowsStyles.js';
+import { getRowEditorStyles } from './rowEditorStyles.js';
 import type { Pipeline, Rule } from './fields.js';
 
-// The tool and artifact label lists of an Agent block on the flow tab (F-12 AC-022, AC-026): tools as rows, and
-// the reads and writes labels as chips, each with its remove control. The + opens a line for a new value; the
-// line is saved when focus leaves it or Enter is pressed, through the functions of blockAgentFields.ts, which
-// check the value. A refused value keeps the saved list and shows its reason beneath the list. The argument and
-// rule tag lists are the row editors of RowEditors.tsx with the Agent target.
+// The tool, reads and writes lists of an Agent block on the flow tab (F-12 AC-022, AC-026). All three are compact
+// lists of the same pattern (device fix 2026-11-24): a title with + in it, then one row per item with its minus.
+// The + opens a line for a new value; the line is saved when focus leaves it or Enter is pressed, through the
+// functions of blockAgentFields.ts, which check the value. A refused value keeps the saved list and shows its
+// reason beneath the list. The argument and rule tag lists are the row editors of RowEditors.tsx with the Agent target.
 
 export interface AgentListProps {
   readonly flowId: string;
@@ -26,8 +26,6 @@ interface TextListProps {
   readonly title: string;
   readonly name: string;
   readonly values: readonly string[];
-  // Reads and writes are chips; tools are rows.
-  readonly chips: boolean;
   readonly add: (text: string) => AgentListResult;
   readonly remove: (position: number) => Pipeline;
   readonly onChange: (pipelineState: Pipeline) => void;
@@ -38,10 +36,10 @@ function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
   if (event.key === 'Enter' && !event.nativeEvent.isComposing) event.currentTarget.blur();
 }
 
-// One list of text values: a title with + in it, then the saved values, then the line for a new value. The
+// One list of text values: a title with + in it, then the saved values as rows, then the line for a new value. The
 // refusal of the last add or remove is shown beneath the list.
-function AgentTextList({ title, name, values, chips, add, remove, onChange }: TextListProps) {
-  const styles = getAgentRowsStyles(useTheme());
+function AgentTextList({ title, name, values, add, remove, onChange }: TextListProps) {
+  const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
   const [adding, setAdding] = useState<string | undefined>(undefined);
   const [refusal, setRefusal] = useState<string | undefined>(undefined);
@@ -90,49 +88,27 @@ function AgentTextList({ title, name, values, chips, add, remove, onChange }: Te
         </Button>
       </Box>
 
-      {chips ? (
-        <Box sx={styles.chips}>
-          {values.map((value, position) => (
-            <Box key={position} role="group" aria-label={`${name} ${position + 1}`} sx={styles.chip}>
-              <Typography component="p" sx={styles.chipText}>
-                {value}
-              </Typography>
-              <Button
-                variant="outlined"
-                aria-label={`Remove ${lowerName} ${position + 1}`}
-                onClick={() => {
-                  removeAt(position);
-                }}
-                sx={styles.minusButton}
-              >
-                −
-              </Button>
-            </Box>
-          ))}
-        </Box>
-      ) : (
-        values.map((value, position) => (
-          <Box key={position} role="group" aria-label={`${name} ${position + 1}`} sx={styles.row}>
-            <Box sx={styles.rowLine}>
-              <TextField
-                value={value}
-                sx={styles.input}
-                slotProps={{ htmlInput: { readOnly: true, 'aria-label': `${name} ${position + 1} text` } }}
-              />
-              <Button
-                variant="outlined"
-                aria-label={`Remove ${lowerName} ${position + 1}`}
-                onClick={() => {
-                  removeAt(position);
-                }}
-                sx={styles.minusButton}
-              >
-                −
-              </Button>
-            </Box>
+      {values.map((value, position) => (
+        <Box key={position} role="group" aria-label={`${name} ${position + 1}`} sx={styles.row}>
+          <Box sx={styles.rowLine}>
+            <TextField
+              value={value}
+              sx={styles.input}
+              slotProps={{ htmlInput: { readOnly: true, 'aria-label': `${name} ${position + 1} text` } }}
+            />
+            <Button
+              variant="outlined"
+              aria-label={`Remove ${lowerName} ${position + 1}`}
+              onClick={() => {
+                removeAt(position);
+              }}
+              sx={styles.minusButton}
+            >
+              −
+            </Button>
           </Box>
-        ))
-      )}
+        </Box>
+      ))}
 
       {adding === undefined ? null : (
         <Box
@@ -199,7 +175,6 @@ export function AgentToolRows({ flowId, blockId, pipelineState, rules, onChange 
       title="Tools"
       name="Tool"
       values={tools}
-      chips={false}
       add={(text) => addAgentTool(pipelineState, rules, flowId, blockId, text)}
       remove={(position) => removeAgentTool(pipelineState, flowId, blockId, position)}
       onChange={onChange}
@@ -207,9 +182,9 @@ export function AgentToolRows({ flowId, blockId, pipelineState, rules, onChange 
   );
 }
 
-// The reads or writes labels of the Agent (AC-026): one chip per label, each with its remove control. A label is
-// added through +; the parser and the artifact check refuse a label that is not an outcome artifact, or a label
-// the list already has.
+// The reads or writes labels of the Agent (AC-026): one row per label, each with its minus, laid out as the tools.
+// A label is added through +; the parser and the artifact check refuse a label that is not an outcome artifact, or
+// a label the list already has.
 export function AgentLabelRows({
   list,
   flowId,
@@ -224,7 +199,6 @@ export function AgentLabelRows({
       title={list === 'reads' ? 'Reads' : 'Writes'}
       name={list === 'reads' ? 'Reads label' : 'Writes label'}
       values={labels}
-      chips
       add={(text) => addAgentLabel(pipelineState, rules, flowId, blockId, list, text)}
       remove={(position) => removeAgentLabel(pipelineState, flowId, blockId, list, position)}
       onChange={onChange}

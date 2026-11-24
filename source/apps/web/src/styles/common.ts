@@ -21,9 +21,6 @@ export interface CommonStyles {
   readonly fieldLabel: StyleObject;
   // The outline and fill of a text field: white, 8 px radius, the grey border of the approved screens.
   readonly formField: StyleObject;
-  // A small value shown as a chip (a label of an Agent's reads or writes): the white fill, the grey border and the
-  // 8 px radius of a field. The chip sets its own size and padding.
-  readonly chipSurface: StyleObject;
   // The red mark that follows a required field's label.
   readonly requiredMark: StyleObject;
   // The text inside a field, set on the input element: 13 px, 20 px line, primary text, 16 px side padding.
@@ -130,11 +127,6 @@ export function getCommonStyles(theme: Theme): CommonStyles {
     },
     fieldLabel,
     groupLabel: { ...fieldLabel, mb: 0 },
-    chipSurface: {
-      bgcolor: theme.palette.background.paper,
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: '8px',
-    },
     formField: {
       '& .MuiOutlinedInput-root': {
         bgcolor: theme.palette.background.paper,

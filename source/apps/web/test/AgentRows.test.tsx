@@ -235,14 +235,14 @@ describe('F-12 AC-022 Agent tools', () => {
 });
 
 describe('F-12 AC-026 Agent reads and writes', () => {
-  it('F-12 AC-026 shows each saved label as a chip with its remove control, under Reads and Writes', () => {
+  it('F-12 AC-026 shows each saved label as a row with a minus, under the titles Reads and Writes', () => {
     renderPanel(pipelineWithLists());
 
     expect(screen.getByText('Reads')).toBeTruthy();
     expect(screen.getByText('Writes')).toBeTruthy();
-    const chip = screen.getByRole('group', { name: 'Reads label 1' });
-    expect(within(chip).getByText('plan.md')).toBeTruthy();
-    expect(within(chip).getByRole('button', { name: 'Remove reads label 1' })).toBeTruthy();
+    const row = screen.getByRole('group', { name: 'Reads label 1' });
+    expect(within(row).getByLabelText('Reads label 1 text')).toHaveProperty('value', 'plan.md');
+    expect(within(row).getByRole('button', { name: 'Remove reads label 1' })).toBeTruthy();
   });
 
   it('F-12 AC-026 adds an outcome artifact label to writes through + and Enter, and saves it', () => {
@@ -284,7 +284,7 @@ describe('F-12 AC-026 Agent reads and writes', () => {
     expect(screen.getByText(reason)).toBeTruthy();
   });
 
-  it('F-12 AC-026 the remove control of a chip removes that label and keeps the others', () => {
+  it('F-12 AC-026 the minus of a label row removes that label and keeps the others', () => {
     const { onChange } = renderPanel(pipelineWithLists());
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove writes label 1' }));
@@ -292,6 +292,47 @@ describe('F-12 AC-026 Agent reads and writes', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).writes).toEqual([]);
     expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).reads).toEqual(['plan.md']);
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent list layout', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) Reads and Writes have the Tools list layout', () => {
+    renderPanel(pipelineWithLists());
+
+    const lists = [
+      { title: 'Tools', add: 'Add tool' },
+      { title: 'Reads', add: 'Add reads label' },
+      { title: 'Writes', add: 'Add writes label' },
+    ].map((list) => {
+      const titleElement = screen.getByText(list.title);
+      const titleRow = titleElement.parentElement;
+      if (titleRow === null) throw new Error(`no title row for ${list.title}`);
+      return { ...list, tag: titleElement.tagName, titleRow };
+    });
+
+    // Each list has the same title element, and its + sits in the title row beside it.
+    expect(new Set(lists.map((list) => list.tag)).size).toBe(1);
+    for (const list of lists) {
+      expect(within(list.titleRow).getByRole('button', { name: list.add })).toBeTruthy();
+    }
+
+    // Each item is a row with a read-only field and a minus, as a tool is; no item is a chip.
+    const rows = [
+      { group: 'Tool 1', text: 'Tool 1 text', remove: 'Remove tool 1' },
+      { group: 'Reads label 1', text: 'Reads label 1 text', remove: 'Remove reads label 1' },
+      { group: 'Writes label 1', text: 'Writes label 1 text', remove: 'Remove writes label 1' },
+    ];
+    for (const row of rows) {
+      const group = screen.getByRole('group', { name: row.group });
+      expect(within(group).getByLabelText(row.text)).toHaveProperty('readOnly', true);
+      expect(within(group).getByRole('button', { name: row.remove })).toBeTruthy();
+    }
+
+    // The lists keep the order of AC-022: Tools, Reads, Writes, then Rule tags.
+    const order = Array.from(document.querySelectorAll('p')).map((element) => element.textContent);
+    expect(order.indexOf('Tools')).toBeLessThan(order.indexOf('Reads'));
+    expect(order.indexOf('Reads')).toBeLessThan(order.indexOf('Writes'));
+    expect(order.indexOf('Writes')).toBeLessThan(order.indexOf('Rule tags'));
   });
 });
 

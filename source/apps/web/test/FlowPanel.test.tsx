@@ -119,7 +119,7 @@ describe('F-11 AC-020 name', () => {
     expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Plan ');
   });
 
-  it('F-11 AC-020 refuses a blank name with the parser reason and keeps the saved name', () => {
+  it('F-11 AC-020 shows the parser reason for a blank name and keeps the field empty under it', () => {
     const pipelineState = twoFlows();
     const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '   ' });
     const { onChange } = renderPanel(pipelineState);
@@ -128,10 +128,10 @@ describe('F-11 AC-020 name', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Plan');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '   ');
   });
 
-  it('F-11 AC-020 refuses a name that another flow has, with the parser reason', () => {
+  it('F-11 AC-020 refuses a name that another flow has with no error shown, and keeps the saved name', () => {
     const pipelineState = twoFlows();
     const reason = parserReason(pipelineState, 'plan', { field: 'name', value: 'Build' });
     const { onChange } = renderPanel(pipelineState);
@@ -139,7 +139,7 @@ describe('F-11 AC-020 name', () => {
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Build' } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Name')).toHaveProperty('value', 'Plan');
   });
 });
@@ -179,7 +179,7 @@ describe('F-11 AC-022 body', () => {
     expect(bodyCounterText('a😀')).toBe('2 / 1000 characters');
   });
 
-  it('F-11 AC-022 refuses a blank body with the parser reason and keeps the saved body', () => {
+  it('F-11 AC-022 shows the parser reason for a blank body and keeps the field empty under it', () => {
     const pipelineState = twoFlows();
     const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
     const { onChange } = renderPanel(pipelineState);
@@ -188,10 +188,10 @@ describe('F-11 AC-022 body', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Do the Plan work.');
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', '');
   });
 
-  it('F-11 AC-022 refuses a body of 1001 characters, keeps the saved body and its counter', () => {
+  it('F-11 AC-022 refuses a body of 1001 characters with no error shown, and keeps the saved body and its counter', () => {
     const pipelineState = twoFlows();
     const longBody = 'b'.repeat(1001);
     const reason = parserReason(pipelineState, 'plan', { field: 'body', value: longBody });
@@ -200,7 +200,7 @@ describe('F-11 AC-022 body', () => {
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: longBody } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Do the Plan work.');
     expect(screen.getByText('17 / 1000 characters')).toBeTruthy();
   });
@@ -441,5 +441,72 @@ describe('F-11 AC-027 changing the model leaves the lists alone', () => {
     expect(listsOf()).toEqual(before);
     expect(before.argumentTitles).toBe(1);
     expect(before.artifactTitles).toBe(1);
+  });
+});
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and body', () => {
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows no error for a saved name that has text', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    renderPanel(pipelineState);
+
+    expect(screen.queryByText(reason)).toBeNull();
+    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-name error on the key press that empties the field', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+
+    expect(screen.getByText(reason).id).toBe('flow-name-refusal');
+    expect(input).toHaveProperty('value', '');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) treats whitespace alone as empty and shows the error', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.keyUp(input, { key: ' ' });
+
+    expect(screen.getByText(reason)).toBeTruthy();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) hides the error once text is typed into the empty name', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(screen.getByText(reason)).toBeTruthy();
+
+    fireEvent.change(input, { target: { value: 'P' } });
+    fireEvent.keyUp(input, { key: 'P' });
+
+    expect(screen.queryByText(reason)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-body error on the key press that empties the body, and hides it once text is typed', () => {
+    const pipelineState = twoFlows();
+    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
+    renderPanel(pipelineState);
+    const body = screen.getByLabelText('Body · required');
+
+    fireEvent.change(body, { target: { value: '' } });
+    fireEvent.keyUp(body, { key: 'Backspace' });
+    expect(screen.getByText(reason).id).toBe('flow-body-refusal');
+
+    fireEvent.change(body, { target: { value: 'x' } });
+    fireEvent.keyUp(body, { key: 'x' });
+    expect(screen.queryByText(reason)).toBeNull();
   });
 });

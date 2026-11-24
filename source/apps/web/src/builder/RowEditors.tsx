@@ -38,6 +38,7 @@ import {
   removePipelineRuleTag,
 } from './pipelineFields.js';
 import { getRowEditorStyles } from './rowEditorStyles.js';
+import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText.js';
 
 // The row and list editors of the builder panels (F-11 AC-024 to AC-026, AC-043). The flow panel, the pipeline
 // panel and the Agent panel of the flow tab (F-12 AC-022, AC-027) use the same editors: an argument list and a
@@ -79,7 +80,7 @@ interface RowRefusal {
 type RuleTagValue = core.RuleTag;
 
 // The reasons of an artifact group, one for each field the parser refused.
-type Refusals = Partial<Record<ArtifactField, string>>;
+type Refusals = Partial<Record<ArtifactField, string | undefined>>;
 
 // The open new group of the artifact list: its draft and the reasons the parser gave for it.
 interface ArtifactAdd {
@@ -88,13 +89,16 @@ interface ArtifactAdd {
 }
 
 // The last refusal of the artifact list: the row, the field (or the removal of the row), the parser's reason and a
-// count that changes on each refusal.
+// count that changes on each refusal. A label refused with text keeps no reason: it reverts with nothing shown.
 interface ArtifactRefusal {
   readonly position: number;
   readonly target: ArtifactField | 'removal';
-  readonly reason: string;
+  readonly reason: string | undefined;
   readonly attempt: number;
 }
+
+// A refusal that shows: it has a reason.
+type ShownRefusal = ArtifactRefusal & { readonly reason: string };
 
 const EMPTY_ARTIFACT: ArtifactRow = { label: '', template: '' };
 
@@ -206,6 +210,28 @@ function refusalFor(field: ArtifactField, reason: string): Refusals {
   return field === 'label' ? { label: reason } : { template: reason };
 }
 
+// The count of the last refusal at `position`, or 0 when the last refusal is for another row. A refusal that keeps a
+// row's text keeps the count, so the row is not drawn again; a refusal that reverts the row counts up.
+function attemptOf(current: { readonly position: number; readonly attempt: number } | undefined, position: number): number {
+  return current !== undefined && current.position === position ? current.attempt : 0;
+}
+
+// The refusal left when a save of the row at `position` is accepted. The row's own refusal is drawn again from the
+// saved values, so a blank text left in it is replaced by the saved one with no error. A refusal of another row stays,
+// since its text is still blank and refused.
+function settledRefusal<
+  T extends { readonly position: number; readonly attempt: number; readonly reason: string | undefined },
+>(current: T | undefined, position: number): T | undefined {
+  if (current === undefined || current.position !== position) return current;
+  return { ...current, reason: undefined, attempt: current.attempt + 1 };
+}
+
+// The refusal left when the row at `position` is removed. A refusal above it stays, since its row keeps its place and
+// its blank text; a refusal at or below it goes, and the rows that move up are drawn from their saved values.
+function removedRefusal<T extends { readonly position: number }>(current: T | undefined, position: number): T | undefined {
+  return current !== undefined && current.position < position ? current : undefined;
+}
+
 // The reason of a refused value, in red beneath its field or row. The id names it for aria-describedby.
 function Refusal({ id, reason }: { readonly id: string; readonly reason: string }) {
   const styles = getRowEditorStyles(useTheme());
@@ -231,7 +257,7 @@ interface NewArgument {
 // The last refusal of a saved row: its position, the parser's reason, and a count that changes on each refusal.
 interface ArgumentRefusal {
   readonly position: number;
-  readonly reason: string;
+  readonly reason: string | undefined;
   readonly attempt: number;
 }
 
@@ -246,7 +272,7 @@ export function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 // refused edit keeps the saved values and shows the reason beneath the row. + adds one line after the list, a text box,
 // a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's id: an
 // accepted line is saved with the id as its hint and the required flag the checkbox shows (a new one starts unrequired).
-// A blank line is discarded on blur; a refused id keeps the line with the reason beneath it.
+// A blank line is discarded on blur. A refused id with text discards the line too, with no error (device fix 2026-11-24).
 export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
@@ -255,47 +281,77 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
   const rows = argumentsOf(pipelineState, target);
   const newRefusalId = `${idBase}-new-refusal`;
 
+  // A blank line is discarded on blur. A line with text is sent to the parser and discarded when the parser refuses it:
+  // a refused text with content reverts to the saved list, with no error (device fix 2026-11-24).
   function commitNew(text: string, required: boolean) {
-    if (text.trim() === '') {
-      setAdding(undefined);
-      return;
+    if (!isEmptyText(text)) {
+      const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
+      if (result.ok) onChange(result.pipeline);
     }
-    const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
-    if (result.ok) {
-      onChange(result.pipeline);
-      setAdding(undefined);
-      return;
-    }
-    setAdding({ text, required, refusal: result.reason });
+    setAdding(undefined);
   }
 
-  // Sends a saved row with the values given. A refused row keeps the saved row and shows the reason beneath it.
-  function saveRow(position: number, row: ArgumentRow) {
+  // The key press check of a new line (device fix 2026-11-24): its error is the parser's reason for an empty id while
+  // the text is empty, and nothing once text is typed.
+  function checkNew(text: string) {
+    setAdding((current) =>
+      current === undefined
+        ? current
+        : {
+            ...current,
+            refusal: emptyReasonOf(text, () =>
+              refusalOf(addArgumentTo(pipelineState, rules, target, { id: '', required: current.required, hint: '' })),
+            ),
+          },
+    );
+  }
+
+  // Sends a saved row with the values given. An accepted row is saved. A refused id with text reverts to the saved id, with
+  // no error. An empty id keeps its text beneath the parser's reason. A refused flag keeps the row and shows its reason.
+  // Only the refused row is drawn again, so the field the user moved to keeps its focus.
+  function saveRow(position: number, row: ArgumentRow, byText: boolean) {
     const result = editArgumentAt(pipelineState, rules, target, position, row);
     if (result.ok) {
       onChange(result.pipeline);
-      setRefused(undefined);
+      setRefused((current) => settledRefusal(current, position));
       return;
     }
-    // Each refusal draws the refused row again from the saved values. Only that row is redrawn, so the field the
-    // user moved to keeps its focus.
-    setRefused((current) => ({ position, reason: result.reason, attempt: (current?.attempt ?? 0) + 1 }));
+    if (!byText) {
+      setRefused((current) => ({ position, reason: result.reason, attempt: attemptOf(current, position) + 1 }));
+      return;
+    }
+    if (isEmptyText(row.id)) {
+      setRefused((current) => ({ position, reason: result.reason, attempt: attemptOf(current, position) }));
+      return;
+    }
+    setRefused((current) => ({ position, reason: undefined, attempt: attemptOf(current, position) + 1 }));
+  }
+
+  // The key press check of a saved id (device fix 2026-11-24). The row keeps its count, so its text is not drawn again.
+  function checkRow(position: number, item: Argument, text: string) {
+    setRefused((current) => ({
+      position,
+      reason: emptyReasonOf(text, () =>
+        refusalOf(editArgumentAt(pipelineState, rules, target, position, { id: '', required: item.required, hint: item.hint })),
+      ),
+      attempt: attemptOf(current, position),
+    }));
   }
 
   // An unchanged id is not sent. The required flag and the hint are kept.
   function commitEdit(position: number, item: Argument, text: string) {
     if (text === item.id) return;
-    saveRow(position, { id: text, required: item.required, hint: item.hint });
+    saveRow(position, { id: text, required: item.required, hint: item.hint }, true);
   }
 
   // The checkbox saves the flag at once, with the saved id and hint.
   function commitRequired(position: number, item: Argument, required: boolean) {
-    saveRow(position, { id: item.id, required, hint: item.hint });
+    saveRow(position, { id: item.id, required, hint: item.hint }, false);
   }
 
   function removeAt(position: number) {
     onChange(removeArgumentAt(pipelineState, target, position));
-    setRefused(undefined);
+    setRefused((current) => removedRefusal(current, position));
   }
 
   return (
@@ -338,6 +394,9 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
                     'aria-label': `Argument ${position + 1} id`,
                     'aria-describedby': describedBy(reason !== undefined, refusalId),
                     onKeyDown: endOnEnter,
+                    onKeyUp: keyUpText((text) => {
+                      checkRow(position, item, text);
+                    }),
                   },
                 }}
               />
@@ -397,6 +456,9 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
                   'aria-label': 'New argument id',
                   'aria-describedby': describedBy(adding.refusal !== undefined, newRefusalId),
                   onKeyDown: endOnEnter,
+                  onKeyUp: keyUpText((text) => {
+                    checkNew(text);
+                  }),
                 },
               }}
             />
@@ -641,10 +703,12 @@ function ArtifactGroup({
 // The outcome artifact list of a flow (F-11 AC-025; screens 03 and 10). A title with + in it, then one group per
 // artifact as the screens draw it: a Label field with its minus on the right, then the Template box and its help
 // text beneath. Editing is in place: a field is checked by the parser when it loses focus (or Enter in the label).
-// A refused value shows its reason beneath its field and the field returns to the saved value. The section has no
-// border. + adds one inline group after the list, with a Label field, a Template box and the help text, and no Cancel
-// or Save. The new group is saved through the parser when focus leaves it (or Enter in its label); a blank label is
-// discarded on blur, and a refused value keeps the group with its reason. The group is closed until + is pressed.
+// A refused value shows its reason beneath its field and the field returns to the saved value; a required label shows
+// the reason only while it is empty (device fix 2026-11-24). The section has no border. + adds one inline group after
+// the list, with a Label field, a Template box and the help text, and no Cancel or Save. The new group is saved through
+// the parser when focus leaves it (or Enter in its label); a blank label is discarded on blur, a refused label with text
+// discards the group too (device fix 2026-11-24), and a refused template keeps the group with its reason. The group is
+// closed until + is pressed.
 export function ArtifactRows({ flowId, pipelineState, rules, onChange }: ArtifactListProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
@@ -661,23 +725,49 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
   }
 
   // The last refusal of a field or of a removal at this position, when it is the one the list last refused.
-  function refusalAt(position: number, target: ArtifactRefusal['target']): ArtifactRefusal | undefined {
-    return refused !== undefined && refused.position === position && refused.target === target ? refused : undefined;
+  // A refusal with no reason shows nothing: it only redraws the field (device fix 2026-11-24).
+  function refusalAt(position: number, target: ArtifactRefusal['target']): ShownRefusal | undefined {
+    if (refused === undefined || refused.position !== position || refused.target !== target) return undefined;
+    return refused.reason === undefined ? undefined : { ...refused, reason: refused.reason };
   }
 
-  // Sends one field to the parser. An unchanged value is not sent.
+  // The key press check of a saved label (device fix 2026-11-24): its error is the parser's reason for an empty label
+  // while the text is empty, and nothing once text is typed. The row keeps its count, so its text is not drawn again.
+  function checkLabel(position: number, text: string) {
+    setRefused((current) => ({
+      position,
+      target: 'label',
+      reason: emptyReasonOf(text, () =>
+        refusalOf(editFlowArtifact(pipelineState, rules, flowId, position, { field: 'label', value: '' })),
+      ),
+      attempt: attemptOf(current, position),
+    }));
+  }
+
+  // Sends one field to the parser. An unchanged value is not sent. A refused empty label keeps its text under the
+  // parser's reason; a refused label with text reverts to the saved label with no error (device fix 2026-11-24).
   function commitField(position: number, field: ArtifactField, value: string) {
     if (value === artifactAt(pipelineState, flowId, position)[field]) return;
     const result = editFlowArtifact(pipelineState, rules, flowId, position, { field, value });
     if (result.ok) {
       onChange(result.pipeline);
-      setRefused(undefined);
+      setRefused((current) => settledRefusal(current, position));
+      return;
+    }
+    if (field === 'label') {
+      setRefused((current) => ({
+        position,
+        target: 'label',
+        reason: isEmptyText(value) ? result.reason : undefined,
+        attempt: isEmptyText(value) ? attemptOf(current, position) : attemptOf(current, position) + 1,
+      }));
       return;
     }
     refuse(position, field, result.reason);
   }
 
-  // Sends the new group to the parser. A blank label discards the group; a refused value keeps it with the reason.
+  // Sends the new group to the parser. A blank label discards the group, and so does a refused label with text, which
+  // reverts to nothing saved (device fix 2026-11-24). A refused template keeps the group with its reason.
   function commitNew(draft: ArtifactRow) {
     if (draft.label.trim() === '') {
       setAdding(undefined);
@@ -689,14 +779,36 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
       setAdding(undefined);
       return;
     }
+    if (result.field === 'label') {
+      setAdding(undefined);
+      return;
+    }
     setAdding({ draft, refusals: refusalFor(result.field, result.reason) });
+  }
+
+  // The key press check of the new group's label (device fix 2026-11-24): its error is the parser's reason for an empty
+  // label while the text is empty, and nothing once text is typed.
+  function checkNewLabel(label: string) {
+    setAdding((current) =>
+      current === undefined
+        ? current
+        : {
+            ...current,
+            refusals: {
+              ...current.refusals,
+              label: emptyReasonOf(label, () =>
+                refusalOf(addFlowArtifact(pipelineState, rules, flowId, { label: '', template: '' })),
+              ),
+            },
+          },
+    );
   }
 
   function removeArtifact(position: number) {
     const result = removeFlowArtifact(pipelineState, rules, flowId, position);
     if (result.ok) {
       onChange(result.pipeline);
-      setRefused(undefined);
+      setRefused((current) => removedRefusal(current, position));
       return;
     }
     refuse(position, 'removal', result.reason);
@@ -712,7 +824,6 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
           variant="outlined"
           aria-label="Add artifact"
           onClick={() => {
-            setRefused(undefined);
             setAdding((current) => current ?? { draft: EMPTY_ARTIFACT, refusals: {} });
           }}
           sx={styles.addButton}
@@ -725,6 +836,7 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
         const labelId = `${idBase}-label-${position}`;
         const templateId = `${idBase}-template-${position}`;
         const labelRefusal = refusalAt(position, 'label');
+        const labelAttempt = refused?.target === 'label' ? attemptOf(refused, position) : 0;
         const templateRefusal = refusalAt(position, 'template');
         const removalRefusal = refusalAt(position, 'removal');
         // A removal refusal is drawn beneath the row it belongs to, where a label refusal is drawn too.
@@ -741,7 +853,7 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                 id={labelId}
                 // Keyed by the saved label, so a row that moves up after a removal shows its own label; and by the
                 // refusal count, so a refused label is drawn again from the saved one.
-                key={`${artifact.label}-${labelRefusal?.attempt ?? 0}`}
+                key={`${artifact.label}-${labelAttempt}`}
                 defaultValue={artifact.label}
                 error={labelRefusal !== undefined}
                 onBlur={(event) => {
@@ -752,6 +864,9 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                   htmlInput: {
                     'aria-describedby': describedBy(labelRefusal !== undefined, `${labelId}-refusal`),
                     onKeyDown: endOnEnter,
+                    onKeyUp: keyUpText((text) => {
+                      checkLabel(position, text);
+                    }),
                   },
                 }}
               />
@@ -818,6 +933,9 @@ export function ArtifactRows({ flowId, pipelineState, rules, onChange }: Artifac
                 htmlInput: {
                   'aria-describedby': describedBy(adding.refusals.label !== undefined, `${newLabelId}-refusal`),
                   onKeyDown: endOnEnter,
+                  onKeyUp: keyUpText((text) => {
+                    checkNewLabel(text);
+                  }),
                 },
               }}
             />

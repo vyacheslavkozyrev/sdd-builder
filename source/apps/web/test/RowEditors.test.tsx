@@ -222,16 +222,15 @@ describe('F-11 AC-024 flow argument rows', () => {
     expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
   });
 
-  it('F-11 AC-024 a refused new id keeps the line with the parser reason beneath it, and the typed text', () => {
+  it('F-11 AC-024 a refused new id is discarded with no error shown, since it reverts to the saved list', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
     commitText(screen.getByLabelText('New argument id'), 'bad id!');
 
     const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: 'bad id!', required: false, hint: 'bad id!' }));
-    const line = within(screen.getByRole('group', { name: 'New argument' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(line.getByText(reason)).toBeTruthy();
-    expect(line.getByLabelText('New argument id')).toHaveProperty('value', 'bad id!');
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByText(reason)).toBeNull();
   });
 
   it('F-11 AC-024 Tab from the new line\'s id to its required box keeps the line open until the box is ticked', () => {
@@ -285,14 +284,14 @@ describe('F-11 AC-024 flow argument rows', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('F-11 AC-024 a refused edit repeats the id of another argument: the saved id returns and the reason shows beneath the row', () => {
+  it('F-11 AC-024 a refused edit repeats the id of another argument: the saved id returns with no error shown', () => {
     const pipelineState = withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' });
     const { onChange } = renderArguments(pipelineState);
     commitText(screen.getByLabelText('Argument 2 id'), 'a');
 
     const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 1, { id: 'a', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'b');
   });
 
@@ -348,7 +347,7 @@ describe('F-11 AC-043 pipeline argument rows', () => {
     expect(next.flows[0]?.arguments[0]?.id).toBe('feature-id');
   });
 
-  it('F-11 AC-043 a new pipeline argument whose id another pipeline argument already has is refused, and the line keeps the reason', () => {
+  it('F-11 AC-043 a new pipeline argument whose id another pipeline argument already has is refused, and the line is discarded with no error', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
@@ -356,10 +355,11 @@ describe('F-11 AC-043 pipeline argument rows', () => {
 
     const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: 'brief' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByText(reason)).toBeNull();
   });
 
-  it('F-11 AC-043 a pipeline argument edit that repeats another id is refused, and the saved id returns with the reason beneath the row', () => {
+  it('F-11 AC-043 a pipeline argument edit that repeats another id is refused, and the saved id returns with no error shown', () => {
     const pipelineState: Pipeline = {
       ...basePipeline(),
       arguments: [
@@ -372,7 +372,7 @@ describe('F-11 AC-043 pipeline argument rows', () => {
 
     const reason = argumentRefusal(editPipelineArgument(pipelineState, RULES, 1, { id: 'brief', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'Argument 2' })).getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
   });
 
@@ -552,7 +552,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
   });
 
-  it('F-11 AC-025 a new label the parser refuses keeps the group, the typed values and the reason beneath the label field', () => {
+  it('F-11 AC-025 a new label the parser refuses is discarded with no error shown, since it reverts to the saved list', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
     fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'plan.md' } });
@@ -562,10 +562,8 @@ describe('F-11 AC-025 outcome artifacts', () => {
     const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'plan.md', template: 'kept text' });
     if (result.ok) throw new Error('the parser accepted a repeated label');
     expect(onChange).not.toHaveBeenCalled();
-    expect(addGroup().getByText(result.reason)).toBeTruthy();
-    expect(addGroup().getByLabelText('Label').getAttribute('aria-invalid')).toBe('true');
-    expect(addGroup().getByLabelText('Label')).toHaveProperty('value', 'plan.md');
-    expect(addGroup().getByLabelText('Template')).toHaveProperty('value', 'kept text');
+    expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
+    expect(screen.queryByText(result.reason)).toBeNull();
   });
 
   it('F-11 AC-025 a new template of 5001 characters is refused on save and the reason shows beneath its box', () => {
@@ -649,7 +647,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('F-11 AC-025 a refused label keeps the saved label, shows the reason beneath the field, and marks the field as refused', () => {
+  it('F-11 AC-025 a blank label keeps the field empty under the parser reason, and marks the field as refused', () => {
     const { onChange } = renderArtifacts(basePipeline());
     fireEvent.change(labelField(1), { target: { value: '' } });
     fireEvent.blur(labelField(1));
@@ -658,7 +656,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     if (result.ok) throw new Error('the parser accepted a blank label');
     expect(onChange).not.toHaveBeenCalled();
     expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
-    expect(labelField(1).value).toBe('plan.md');
+    expect(labelField(1).value).toBe('');
     expect(labelField(1).getAttribute('aria-invalid')).toBe('true');
     expect(templateField(1).value).toBe('Task list, in order\nSecond line');
   });
@@ -736,7 +734,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     refusedTemplate.focus();
 
     expect(artifactGroup(2).getByText(refusal.reason)).toBeTruthy();
-    expect(labelField(2).value).toBe('notes.md');
+    expect(labelField(2).value).toBe('');
     expect(document.activeElement).toBe(refusedTemplate);
     expect(labelField(1)).toBe(firstLabel);
     expect(templateField(1)).toBe(firstTemplate);
@@ -841,5 +839,170 @@ describe('F-11 AC-019 the body counter sits under its box, in the body group', (
     expect(counter?.parentElement?.contains(body)).toBe(true);
     expect(counter?.previousElementSibling?.contains(body)).toBe(true);
     expect(counter?.nextElementSibling).toBeNull();
+  });
+});
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument ids and artifact labels', () => {
+  function artifactGroup(position: number) {
+    return within(screen.getByRole('group', { name: `Artifact ${position}` }));
+  }
+
+  function labelField(position: number): HTMLInputElement {
+    return artifactGroup(position).getByLabelText('Label') as HTMLInputElement;
+  }
+
+  function addGroup() {
+    return within(screen.getByRole('group', { name: 'New artifact' }));
+  }
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-id error on the key press that empties a saved argument id, and hides it once text is typed', () => {
+    const pipelineState = withArguments({ id: 'brief', required: false, hint: '' }, { id: 'topic', required: false, hint: '' });
+    renderArguments(pipelineState);
+    const input = screen.getByLabelText('Argument 1 id');
+    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
+    expect(screen.queryByText(reason)).toBeNull();
+
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.keyUp(input, { key: ' ' });
+    expect(within(screen.getByRole('group', { name: 'Argument 1' })).getByText(reason)).toBeTruthy();
+    expect(input).toHaveProperty('value', '   ');
+
+    fireEvent.change(input, { target: { value: 'b' } });
+    fireEvent.keyUp(input, { key: 'b' });
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-id error on the key press in a new argument line, and hides it once text is typed', () => {
+    renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    const input = screen.getByLabelText('New argument id');
+    const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: '', required: false, hint: '' }));
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
+
+    fireEvent.change(input, { target: { value: 'topic' } });
+    fireEvent.keyUp(input, { key: 't' });
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-label error on the key press that empties a saved label, and hides it once text is typed', () => {
+    renderArtifacts(basePipeline());
+    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    if (result.ok) throw new Error('the parser accepted a blank label');
+
+    fireEvent.change(labelField(1), { target: { value: '' } });
+    fireEvent.keyUp(labelField(1), { key: 'Backspace' });
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+
+    fireEvent.change(labelField(1), { target: { value: 'x' } });
+    fireEvent.keyUp(labelField(1), { key: 'x' });
+    expect(screen.queryByText(result.reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-label error on the key press in a new artifact group, and hides it once text is typed', () => {
+    renderArtifacts(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: '', template: '' });
+    if (result.ok) throw new Error('the parser accepted a blank label');
+
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: '  ' } });
+    fireEvent.keyUp(addGroup().getByLabelText('Label'), { key: ' ' });
+    expect(addGroup().getByText(result.reason)).toBeTruthy();
+
+    fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: 'notes.md' } });
+    fireEvent.keyUp(addGroup().getByLabelText('Label'), { key: 'n' });
+    expect(screen.queryByText(result.reason)).toBeNull();
+  });
+
+  function templateField(position: number): HTMLTextAreaElement {
+    return artifactGroup(position).getByLabelText('Template') as HTMLTextAreaElement;
+  }
+
+  // Leaves argument 1's id empty and blurred, so its error shows and its text stays blank.
+  function blankArgumentOne(pipelineState: Pipeline) {
+    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
+    const input = screen.getByLabelText('Argument 1 id');
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    fireEvent.blur(input);
+    expect(screen.getByText(reason)).toBeTruthy();
+    return reason;
+  }
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id is drawn again from the saved id when its row\'s required box is saved', () => {
+    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+    const { onChange } = renderArguments(pipelineState);
+    const reason = blankArgumentOne(pipelineState);
+
+    fireEvent.click(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('checkbox', { name: 'required' }));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'alpha');
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id keeps its text and its error when another row is saved', () => {
+    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+    const { onChange } = renderArguments(pipelineState);
+    const reason = blankArgumentOne(pipelineState);
+
+    fireEvent.click(within(screen.getByRole('group', { name: 'Argument 2' })).getByRole('checkbox', { name: 'required' }));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', '');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id above a removed row keeps its text and its error', () => {
+    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+    renderArguments(pipelineState);
+    const reason = blankArgumentOne(pipelineState);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove argument 2' }));
+
+    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', '');
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank saved label is drawn again from the saved label when its row\'s template is saved', () => {
+    const { onChange } = renderArtifacts(basePipeline());
+    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    if (result.ok) throw new Error('the parser accepted a blank label');
+    fireEvent.change(labelField(1), { target: { value: '' } });
+    fireEvent.keyUp(labelField(1), { key: 'Backspace' });
+    fireEvent.blur(labelField(1));
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+
+    fireEvent.change(templateField(1), { target: { value: 'Edited template' } });
+    fireEvent.blur(templateField(1));
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(labelField(1).value).toBe('plan.md');
+    expect(screen.queryByText(result.reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank saved label keeps its error when another artifact is removed or a new one is opened', () => {
+    const pipelineState = pipelineOf({
+      ...flow('plan', 'Plan'),
+      artifacts: [
+        { label: 'plan.md', template: '' },
+        { label: 'notes.md', template: '' },
+      ],
+    });
+    renderArtifacts(pipelineState);
+    const result = editFlowArtifact(pipelineState, RULES, 'plan', 0, { field: 'label', value: '' });
+    if (result.ok) throw new Error('the parser accepted a blank label');
+    fireEvent.change(labelField(1), { target: { value: '' } });
+    fireEvent.keyUp(labelField(1), { key: 'Backspace' });
+    fireEvent.blur(labelField(1));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+
+    fireEvent.click(artifactGroup(2).getByRole('button', { name: 'Remove artifact 2' }));
+    expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
+    expect(labelField(1).value).toBe('');
   });
 });

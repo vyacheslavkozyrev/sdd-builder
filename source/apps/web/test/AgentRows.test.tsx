@@ -139,7 +139,7 @@ describe('F-12 AC-022 Agent argument rows', () => {
     ]);
   });
 
-  it('F-12 AC-022 a refused argument id keeps the line and shows the parser reason beneath it', () => {
+  it('F-12 AC-022 a refused argument id is discarded with no error shown, since it reverts to the saved list', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
     const reason = reasonOf(
@@ -150,8 +150,8 @@ describe('F-12 AC-022 Agent argument rows', () => {
     typeAndLeave(screen.getByLabelText('New argument id'), 'Bad Id!');
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('New argument id')).toHaveProperty('value', 'Bad Id!');
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByText(reason)).toBeNull();
   });
 
   it('F-12 AC-022 a blank new argument line is discarded on blur and nothing is saved', () => {

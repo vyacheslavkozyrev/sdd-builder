@@ -107,7 +107,7 @@ describe('F-11 AC-045 pipeline panel fields', () => {
     expect(onChange.mock.calls[0]?.[0]).toMatchObject({ name: 'Renamed' });
   });
 
-  it('F-11 AC-045 refuses a blank name with the parser reason and keeps the saved name', () => {
+  it('F-11 AC-045 shows the parser reason for a blank name and keeps the field empty under it', () => {
     const saved = pipelineState();
     const reason = parserReason(saved, { field: 'name', value: '   ' });
     const { onChange } = renderPanel(saved);
@@ -116,7 +116,7 @@ describe('F-11 AC-045 pipeline panel fields', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason).id).toBe('pipeline-name-refusal');
-    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'SDD process');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '   ');
   });
 
   it('F-11 AC-045 refuses a description longer than 1000 characters and keeps the saved one', () => {
@@ -263,5 +263,30 @@ describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () 
     const next = onChange.mock.calls[0]?.[0] as { arguments: { id: string }[] } | undefined;
     expect(next?.arguments.map((item) => item.id)).toEqual(['feature-id', 'topic']);
     expect(next?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
+  });
+});
+
+describe('F-11 (no criterion: Verify device fix 2026-11-24) required name', () => {
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows no error for a saved name that has text', () => {
+    const saved = pipelineState();
+    const reason = parserReason(saved, { field: 'name', value: '' });
+    renderPanel(saved);
+
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-name error on the key press that empties the name, and hides it once text is typed', () => {
+    const saved = pipelineState();
+    const reason = parserReason(saved, { field: 'name', value: '' });
+    renderPanel(saved);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '  ' } });
+    fireEvent.keyUp(input, { key: ' ' });
+    expect(screen.getByText(reason).id).toBe('pipeline-name-refusal');
+
+    fireEvent.change(input, { target: { value: 'S' } });
+    fireEvent.keyUp(input, { key: 'S' });
+    expect(screen.queryByText(reason)).toBeNull();
   });
 });

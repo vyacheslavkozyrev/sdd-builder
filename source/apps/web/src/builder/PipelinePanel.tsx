@@ -6,6 +6,7 @@ import type { Model, Pipeline, Rule } from './fields.js';
 import { editPipelineField } from './pipelineFields.js';
 import type { PipelineField, PipelineFieldResult } from './pipelineFields.js';
 import { ArgumentRows, RuleTagRows } from './RowEditors.js';
+import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText.js';
 
 // The pipeline panel of the Pipeline tab (F-11 AC-042, AC-043 to AC-045). It is shown when no flow and no
 // arrow is selected, and holds the pipeline's own fields as screen 01 shows them: name, description,
@@ -14,7 +15,8 @@ import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 //
 // Each text, model and tools edit goes through the parser's field rules (pipelineFields.ts, which uses
 // `parseProjectConfig` in core). An accepted edit is reported to the caller as the new pipeline. A refused
-// edit keeps the saved value and shows the parser's reason beneath the field. The argument and rule tag
+// edit keeps the saved value and shows the parser's reason beneath the field; the required name shows it only while
+// it is empty (device fix 2026-11-24). The argument and rule tag
 // lists are the row editors of RowEditors.tsx, the same ones the flow panel uses. The panel has no Delete
 // control: the pipeline cannot be removed.
 
@@ -66,19 +68,33 @@ export function PipelinePanel({ pipelineState, rules, onChange }: PipelinePanelP
     }
   };
 
-  // Settles one edit of `field`. An accepted edit reports the new pipeline and clears the field's refusal;
-  // a refused one records its reason and drops the text draft, so the saved value shows again.
+  // Settles one edit of `field`. An accepted edit reports the new pipeline and clears the field's refusal. A refused
+  // empty text keeps its draft, so the field stays empty under its error; any other refused text drops the draft and
+  // the saved value shows again. The name is required, so it shows a refusal only while its text is empty (device
+  // fix 2026-11-24).
   function settle(field: PipelineField, result: PipelineFieldResult, typed?: string) {
+    const emptyTyped = typed !== undefined && isEmptyText(typed);
     const drafts = { ...state.drafts };
     if (isTextField(field)) {
-      drafts[field] = result.ok ? typed : undefined;
+      drafts[field] = result.ok || emptyTyped ? typed : undefined;
     }
     const refusals = { ...state.refusals };
-    refusals[field] = result.ok ? undefined : result.reason;
+    const hidden = field === 'name' && typed !== undefined && !emptyTyped;
+    refusals[field] = result.ok || hidden ? undefined : result.reason;
     if (result.ok) {
       onChange(result.pipeline);
     }
     setState({ drafts, refusals });
+  }
+
+  // The key press check of the name (device fix 2026-11-24): its error is the parser's reason for an empty value while
+  // the text is empty, and nothing once text is typed.
+  function checkName(text: string) {
+    const refusals = { ...state.refusals };
+    refusals.name = emptyReasonOf(text, () =>
+      refusalOf(editPipelineField(pipelineState, rules, { field: 'name', value: '' })),
+    );
+    setState({ drafts: state.drafts, refusals });
   }
 
   function editText(field: TextFieldName, value: string) {
@@ -121,7 +137,14 @@ export function PipelinePanel({ pipelineState, rules, onChange }: PipelinePanelP
               editText('name', event.target.value);
             }}
             sx={styles.field}
-            slotProps={{ htmlInput: { 'aria-describedby': describedBy('name') } }}
+            slotProps={{
+              htmlInput: {
+                'aria-describedby': describedBy('name'),
+                onKeyUp: keyUpText((text) => {
+                  checkName(text);
+                }),
+              },
+            }}
           />
         </Box>
         {refusal('name')}

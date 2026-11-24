@@ -135,16 +135,16 @@ describe('F-12 AC-023 Agent name', () => {
     expect(agentOf(saved, 'planner').name).toBe('writer');
   });
 
-  it('F-12 AC-023 refuses a name that another Agent has, with its reason, and keeps the saved name', () => {
+  it('F-12 AC-023 refuses a name that another Agent has with no error shown, and keeps the saved name', () => {
     const { onChange } = renderPanel(planPipeline());
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'reviewer' } });
     fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
+    expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
     expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
-    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBe('block-agent-name-refusal');
+    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
   });
 
   it('F-12 AC-023 refuses a name that another Agent has once it is trimmed, and keeps the saved name', () => {
@@ -154,11 +154,11 @@ describe('F-12 AC-023 Agent name', () => {
     fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
+    expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
     expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
   });
 
-  it('F-12 AC-023 refuses a name that is not file-safe with the parser reason', () => {
+  it('F-12 AC-023 refuses a name that is not file-safe with no error shown, and keeps the saved name', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const reason = parserReason(pipelineState, { field: 'name', value: 'plan/ner' });
@@ -167,18 +167,20 @@ describe('F-12 AC-023 Agent name', () => {
     fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
   });
 
-  it('F-12 AC-023 shows the refusal of the name beneath the Name field, not beneath another field', () => {
-    renderPanel(planPipeline());
+  it('F-12 AC-023 shows the refusal of an empty name beneath the Name field, not beneath another field', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'name', value: '' });
+    renderPanel(pipelineState);
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'reviewer' } });
-    fireEvent.blur(screen.getByLabelText('Name'));
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
+    fireEvent.keyUp(screen.getByLabelText('Name'), { key: 'Backspace' });
 
     const refusal = document.getElementById('block-agent-name-refusal');
-    expect(refusal?.textContent).toBe('Another Agent already has this name.');
+    expect(refusal?.textContent).toBe(reason);
     expect(document.getElementById('block-agent-description-refusal')).toBeNull();
   });
 });
@@ -220,7 +222,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
   });
 
-  it('F-12 (no criterion: Verify device fix 2026-11-24) refuses a blank name only when committed, and keeps the saved name', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) refuses a blank name only when committed, and keeps the field empty under the reason', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const reason = parserReason(pipelineState, { field: 'name', value: '' });
@@ -230,7 +232,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
   });
 
   it('F-12 (no criterion: Verify device fix 2026-11-24) types a one-character name after clearing the field', () => {
@@ -256,7 +258,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
   });
 
-  it('F-12 (no criterion: Verify device fix 2026-11-24) shows an empty name committed by blur as the parser refusal, and keeps the saved name', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows an empty name committed by blur as the parser refusal, and keeps the field empty under it', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const reason = parserReason(pipelineState, { field: 'name', value: '' });
@@ -267,23 +269,19 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     expect(onChange).not.toHaveBeenCalled();
     expect(document.getElementById('block-agent-name-refusal')?.textContent).toBe(reason);
     expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBe('block-agent-name-refusal');
-    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
   });
 
-  it('F-12 (no criterion: Verify device fix 2026-11-24) clears a refusal as soon as a valid name is typed after it', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows no error for a refused name with text, and the next valid name is saved', () => {
     const { onChange } = renderPanel(planPipeline());
     const input = screen.getByLabelText('Name');
 
     fireEvent.change(input, { target: { value: 'plan/ner' } });
     fireEvent.blur(input);
-    expect(screen.getByText(/must be an id/)).toBeTruthy();
-
-    fireEvent.change(input, { target: { value: 's' } });
-
     expect(screen.queryByText(/must be an id/)).toBeNull();
     expect(input.getAttribute('aria-describedby')).toBeNull();
-    expect(onChange).not.toHaveBeenCalled();
 
+    fireEvent.change(input, { target: { value: 's' } });
     fireEvent.blur(input);
 
     expect(onChange).toHaveBeenCalledTimes(1);
@@ -296,7 +294,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
 
     fireEvent.change(input, { target: { value: 'reviewer' } });
     fireEvent.blur(input);
-    expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
+    expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
 
     fireEvent.change(input, { target: { value: 'writer' } });
     fireEvent.blur(input);
@@ -328,10 +326,10 @@ describe('F-12 AC-024 Agent description', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Description')).toHaveProperty('value', 'Writes the plan from the brief.');
+    expect(screen.getByLabelText('Description')).toHaveProperty('value', '   ');
   });
 
-  it('F-12 AC-024 refuses a description of 1001 characters and keeps the saved value', () => {
+  it('F-12 AC-024 refuses a description of 1001 characters with no error shown, and keeps the saved value', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const longText = 'd'.repeat(1001);
@@ -340,7 +338,7 @@ describe('F-12 AC-024 Agent description', () => {
     fireEvent.change(screen.getByLabelText('Description'), { target: { value: longText } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Description')).toHaveProperty('value', 'Writes the plan from the brief.');
   });
 
@@ -404,10 +402,10 @@ describe('F-12 AC-028 Agent body', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Reads the brief and writes plan.md.');
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', '');
   });
 
-  it('F-12 AC-028 refuses a body of 1001 code points with its reason and keeps the saved body', () => {
+  it('F-12 AC-028 refuses a body of 1001 code points with no error shown, and keeps the saved body', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const longBody = 'b'.repeat(1001);
@@ -416,7 +414,7 @@ describe('F-12 AC-028 Agent body', () => {
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: longBody } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Reads the brief and writes plan.md.');
     expect(document.getElementById('block-agent-body-counter')?.textContent).toBe('35 / 1000 characters');
   });
@@ -430,7 +428,7 @@ describe('F-12 AC-028 Agent body', () => {
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Reads the brief and writes plan.md.');
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', ' \n\t ');
   });
 
   it('F-12 AC-028 accepts a body of exactly 1000 code points and counts it', () => {
@@ -453,7 +451,7 @@ describe('F-12 AC-028 Agent body', () => {
     expect(document.getElementById('block-agent-body-counter')?.textContent).toBe('1000 / 1000 characters');
   });
 
-  it('F-12 AC-028 refuses 1001 astral code points with its reason and keeps the saved body', () => {
+  it('F-12 AC-028 refuses 1001 astral code points with no error shown, and keeps the saved body', () => {
     const pipelineState = planPipeline();
     const { onChange } = renderPanel(pipelineState);
     const body = '\u{1F600}'.repeat(1001);
@@ -462,7 +460,7 @@ describe('F-12 AC-028 Agent body', () => {
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: body } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(reason)).toBeTruthy();
+    expect(screen.queryByText(reason)).toBeNull();
     expect(document.getElementById('block-agent-body-counter')?.textContent).toBe('35 / 1000 characters');
   });
 });
@@ -958,5 +956,69 @@ describe('F-12 AC-042 Start panel', () => {
     expect(screen.getByText('Start block in the Plan flow')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Delete block' })).toHaveProperty('disabled', true);
     expect(screen.getByText('A flow keeps its Start block.')).toBeTruthy();
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) required Agent text and Condition description', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows the empty-name error on the key press that empties the name, before any commit', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'name', value: '' });
+    const { onChange } = renderPanel(pipelineState);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(document.getElementById('block-agent-name-refusal')?.textContent).toBe(reason);
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.change(input, { target: { value: 's' } });
+    fireEvent.keyUp(input, { key: 's' });
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows the empty-description error on the key press that empties it, and hides it once text is typed', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'description', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Description');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(screen.getByText(reason).id).toBe('block-agent-description-refusal');
+
+    fireEvent.change(input, { target: { value: 'x' } });
+    fireEvent.keyUp(input, { key: 'x' });
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows the empty-body error on the key press that empties it, and hides it once text is typed', () => {
+    const pipelineState = planPipeline();
+    const reason = parserReason(pipelineState, { field: 'body', value: '' });
+    renderPanel(pipelineState);
+    const input = screen.getByLabelText('Body · required');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(screen.getByText(reason).id).toBe('block-agent-body-refusal');
+
+    fireEvent.change(input, { target: { value: 'x' } });
+    fireEvent.keyUp(input, { key: 'x' });
+    expect(screen.queryByText(reason)).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows the empty-description error of a Condition on the key press that empties it, and hides it once text is typed', () => {
+    const pipelineState = conditionPipeline();
+    const result = editConditionDescription(pipelineState, [], 'plan', 'check', '');
+    if (result.ok) throw new Error('the parser accepted a blank description');
+    renderCondition(pipelineState, 'check');
+    const input = screen.getByLabelText('What it checks');
+
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.keyUp(input, { key: 'Backspace' });
+    expect(screen.getByText(result.reason).id).toBe('block-condition-description-refusal');
+
+    fireEvent.change(input, { target: { value: 'x' } });
+    fireEvent.keyUp(input, { key: 'x' });
+    expect(screen.queryByText(result.reason)).toBeNull();
   });
 });

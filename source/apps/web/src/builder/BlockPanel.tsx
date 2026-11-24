@@ -35,6 +35,7 @@ import type { Flow } from './model.js';
 import type { Finding } from './marks.js';
 import { getMarkViewsStyles } from './markViewsStyles.js';
 import { ArgumentRows, endOnEnter, RuleTagRows } from './RowEditors.js';
+import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText.js';
 
 type StartBlock = core.StartBlock;
 
@@ -47,9 +48,9 @@ type StartBlock = core.StartBlock;
 //
 // Each edit goes through the parser (blockFields.ts and blockAgentFields.ts). An accepted edit is reported to
 // the caller as the new pipeline. A refused edit keeps the saved value in the field and shows its reason
-// beneath the field. A text field keeps what was typed while the edit is accepted; a refused text is shown
-// as the saved value again. The drafts belong to the flow and block they were typed for (`target`); another
-// block starts with none.
+// beneath the field. Every text field of the Agent is required (device fix 2026-11-24): a refusal shows only while
+// the text is empty, and a refused text with content is shown as the saved value again, with no error. The drafts
+// belong to the flow and block they were typed for (`target`); another block starts with none.
 // Only the edited Agent changes (AC-029).
 
 // The models offered by the model field (AC-025). The blank option unsets the model.
@@ -128,15 +129,19 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
 
   const shownText = (field: TextFieldName): string => state.drafts[field] ?? block[field] ?? '';
 
-  // Settles one edit of `field`. An accepted edit reports the new pipeline and clears the field's refusal;
-  // a refused one records its reason and drops the text draft, so the saved value shows again.
+  // Settles one edit of `field`. An accepted edit reports the new pipeline and clears the field's refusal. A refused
+  // empty required text keeps its draft under the reason; any other refused text drops the draft, so the saved value shows again.
   function settle(field: FieldName, result: PanelResult, typed?: string) {
+    const emptyTyped = typed !== undefined && isEmptyText(typed);
     const drafts = { ...state.drafts };
     if (isTextField(field)) {
-      drafts[field] = result.ok ? typed : undefined;
+      drafts[field] = result.ok || emptyTyped ? typed : undefined;
     }
+    // Every text field of the Agent is required: a refused text with content shows no error and reverts to the saved
+    // value, and a refused empty text keeps its draft under the parser's reason (device fix 2026-11-24).
     const refusals = { ...state.refusals };
-    refusals[field] = result.ok ? undefined : result.reason;
+    const hidden = isTextField(field) && typed !== undefined && !emptyTyped;
+    refusals[field] = result.ok || hidden ? undefined : result.reason;
     if (result.ok) {
       onChange(result.pipeline);
     }
@@ -164,6 +169,16 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
     const held = state.drafts.name;
     if (held === undefined || held === block.name) return;
     settle('name', editAgentField(pipelineState, rules, flow.id, block.id, { field: 'name', value: held }), held);
+  }
+
+  // The key press check of a required text (device fix 2026-11-24): its error is the parser's reason for an empty value
+  // while the text is empty, and nothing once text is typed.
+  function checkText(field: TextFieldName, text: string) {
+    const refusals = { ...state.refusals };
+    refusals[field] = emptyReasonOf(text, () =>
+      refusalOf(editAgentField(pipelineState, rules, flow.id, block.id, { field, value: '' })),
+    );
+    setEdits({ target, drafts: state.drafts, refusals });
   }
 
   function editModel(value: string) {
@@ -212,7 +227,15 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
             }}
             onBlur={commitName}
             sx={styles.field}
-            slotProps={{ htmlInput: { 'aria-describedby': describedBy('name'), onKeyDown: endOnEnter } }}
+            slotProps={{
+              htmlInput: {
+                'aria-describedby': describedBy('name'),
+                onKeyDown: endOnEnter,
+                onKeyUp: keyUpText((text) => {
+                  checkText('name', text);
+                }),
+              },
+            }}
           />
         </Box>
         {refusal('name')}
@@ -228,7 +251,14 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
               editText('description', event.target.value);
             }}
             sx={styles.field}
-            slotProps={{ htmlInput: { 'aria-describedby': describedBy('description') } }}
+            slotProps={{
+              htmlInput: {
+                'aria-describedby': describedBy('description'),
+                onKeyUp: keyUpText((text) => {
+                  checkText('description', text);
+                }),
+              },
+            }}
           />
         </Box>
         {refusal('description')}
@@ -315,7 +345,14 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
               editText('body', event.target.value);
             }}
             sx={styles.multilineField}
-            slotProps={{ htmlInput: { 'aria-describedby': describedBy('body', 'block-agent-body-counter') } }}
+            slotProps={{
+              htmlInput: {
+                'aria-describedby': describedBy('body', 'block-agent-body-counter'),
+                onKeyUp: keyUpText((text) => {
+                  checkText('body', text);
+                }),
+              },
+            }}
           />
           <Typography id="block-agent-body-counter" component="p" sx={styles.counter}>
             {bodyCounterText(body)}
@@ -384,14 +421,28 @@ export function ConditionPanel({
   // Settles one edit: an accepted edit reports the new pipeline; a refused one records its reason and drops
   // the draft, so the saved value shows again.
   function settle(field: ConditionTextField, result: ConditionFieldResult, typed: string) {
+    // The description is required (device fix 2026-11-24): an empty one keeps its draft under the error, and a refused
+    // text with content reverts with no error. The round limit keeps its own draft rule.
+    const emptyTyped = field === 'description' && isEmptyText(typed);
     const drafts = { ...state.drafts };
-    drafts[field] = result.ok ? typed : undefined;
+    drafts[field] = result.ok || emptyTyped ? typed : undefined;
     const refusals = { ...state.refusals };
-    refusals[field] = result.ok ? undefined : result.reason;
+    const hidden = field === 'description' && !isEmptyText(typed);
+    refusals[field] = result.ok || hidden ? undefined : result.reason;
     if (result.ok) {
       onChange(result.pipeline);
     }
     setEdits({ target, drafts, refusals });
+  }
+
+  // The key press check of the description (device fix 2026-11-24): its error is the parser's reason for an empty value
+  // while the text is empty, and nothing once text is typed.
+  function checkDescription(text: string) {
+    const refusals = { ...state.refusals };
+    refusals.description = emptyReasonOf(text, () =>
+      refusalOf(editConditionDescription(pipelineState, rules, flow.id, block.id, '')),
+    );
+    setEdits({ target, drafts: state.drafts, refusals });
   }
 
   const refusal = (field: ConditionTextField) => {
@@ -437,7 +488,12 @@ export function ConditionPanel({
             }}
             sx={styles.field}
             slotProps={{
-              htmlInput: { 'aria-describedby': describedBy('description', 'block-condition-description-counter') },
+              htmlInput: {
+                'aria-describedby': describedBy('description', 'block-condition-description-counter'),
+                onKeyUp: keyUpText((text) => {
+                  checkDescription(text);
+                }),
+              },
             }}
           />
           <Typography id="block-condition-description-counter" component="p" sx={styles.counter}>

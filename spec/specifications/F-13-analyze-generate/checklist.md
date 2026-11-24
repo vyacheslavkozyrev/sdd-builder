@@ -10,7 +10,7 @@ Edits are in memory only; reload the page to restore the empty step.
 
 Record each result as `PASS` or `FAIL` in the Result line and in the Summary table, with a short note.
 
-Status: PENDING. Waiting for the user's results.
+Status: COMPLETE. Both results PASS (the user, 2026-11-24).
 
 ---
 
@@ -26,7 +26,7 @@ Status: PENDING. Waiting for the user's results.
 8. Untick the checkbox. Expected: Analyze is disabled again.
 9. Compare the positions and spacing with `01-privacy-analyze-disabled.svg` and `02-privacy-ticked.svg`. Record any visible difference in the note (position, colour or wording).
 
-Result: ______ Note: ______
+Result: PASS Note: layout confirmed by the user at 1280 × 800 (2026-11-24).
 
 ---
 
@@ -40,7 +40,7 @@ Result: ______ Note: ______
 6. Press Analyze a second time. Expected: a second request is sent and the same error is shown again, with no change to the values.
 7. Try to press Generate and download. Expected: it does not respond, because it is disabled. Record this as the expected limit of the current server (see the top of this checklist).
 
-Result: ______ Note: ______
+Result: PASS Note: 404 shown as text, values kept, Generate disabled as expected (2026-11-24).
 
 ---
 
@@ -48,5 +48,5 @@ Result: ______ Note: ______
 
 | Criterion | Tag | Result | Note |
 | --------- | --- | ------ | ---- |
-| AC-030 | `[device]` layout and states | | |
-| AC-031 | `[device]` 404 shown as text | | |
+| AC-030 | `[device]` layout and states | PASS | user, 2026-11-24 |
+| AC-031 | `[device]` 404 shown as text | PASS | user, 2026-11-24 |

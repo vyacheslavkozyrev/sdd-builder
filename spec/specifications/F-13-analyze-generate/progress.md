@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
 | Build    | ✅ Complete | 2026-11-24 | 15 of 15 tasks committed (T015 added by amendment) |
-| Verify   | 🔄 In Progress | 2026-11-24 | AWAITING CONFIRMATION: 29 of 31 `[auto]` criteria pass (task check: api 45, web 1895, core 1217). AC-030 and AC-031 `[device]` pending in `checklist.md` |
+| Verify   | ✅ Complete | 2026-11-24 | 31 of 31 criteria: 29 `[auto]` passing; AC-030 and AC-031 `[device]` PASS by the user on the checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 

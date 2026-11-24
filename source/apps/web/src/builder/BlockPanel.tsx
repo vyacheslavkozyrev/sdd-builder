@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { Box, TextField, Typography, useTheme } from '@mui/material';
 import { bodyCounterText } from './FlowPanel.js';
+import { AgentLabelRows, AgentToolRows } from './AgentRows.js';
 import { setAgentModel } from './blockAgentFields.js';
 import { editAgentField, type AgentBlock, type AgentField } from './blockFields.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
 import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
+import { ArgumentRows, RuleTagRows } from './RowEditors.js';
 
 // The block panels of the flow tab (F-12 AC-022 to AC-028). This file holds the Agent panel, as screen 02
 // draws it: a title "Agent: <name>", the subtitle "Agent block in the <flow> flow", then Name, Description,
-// Model and Body with its counter. The argument, tool, reads, writes and rule tag lists come in T018, and
-// the Delete control in T021; the panel keeps the order of AC-022 so they slot in between.
+// Arguments, Model, Tools, Reads, Writes, Rule tags and Body with its counter, in the order of AC-022. The
+// Delete control comes in T021.
 //
 // Each edit goes through the parser (blockFields.ts and blockAgentFields.ts). An accepted edit is reported to
 // the caller as the new pipeline. A refused edit keeps the saved value in the field and shows its reason
@@ -147,6 +149,14 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange }: Agen
         </Box>
         {refusal('description')}
 
+        <ArgumentRows
+          key={`${target}-arguments`}
+          target={{ kind: 'agent', flowId: flow.id, blockId: block.id }}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
+
         <Box sx={styles.group}>
           <Typography component="label" htmlFor="block-agent-model" sx={styles.fieldLabel}>
             Model
@@ -170,6 +180,43 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange }: Agen
           </TextField>
         </Box>
         {refusal('model')}
+
+        <AgentToolRows
+          key={`${target}-tools`}
+          flowId={flow.id}
+          blockId={block.id}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
+
+        <AgentLabelRows
+          key={`${target}-reads`}
+          list="reads"
+          flowId={flow.id}
+          blockId={block.id}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
+
+        <AgentLabelRows
+          key={`${target}-writes`}
+          list="writes"
+          flowId={flow.id}
+          blockId={block.id}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
+
+        <RuleTagRows
+          key={`${target}-rule-tags`}
+          target={{ kind: 'agent', flowId: flow.id, blockId: block.id }}
+          pipelineState={pipelineState}
+          rules={rules}
+          onChange={onChange}
+        />
 
         <Box sx={styles.group}>
           <Typography component="label" htmlFor="block-agent-body" sx={styles.fieldLabel}>

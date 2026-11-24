@@ -23,6 +23,14 @@ import type {
   RowResult,
 } from './fields.js';
 import {
+  addAgentArgument,
+  addAgentRuleTag,
+  editAgentArgument,
+  removeAgentArgument,
+  removeAgentRuleTag,
+} from './blockAgentFields.js';
+import { agentAt } from './blockFields.js';
+import {
   addPipelineArgument,
   addPipelineRuleTag,
   editPipelineArgument,
@@ -31,16 +39,20 @@ import {
 } from './pipelineFields.js';
 import { getRowEditorStyles } from './rowEditorStyles.js';
 
-// The row and list editors of the builder panels (F-11 AC-024 to AC-026, AC-043). The flow panel and the
-// pipeline panel use the same editors: an argument list and a rule tag list take a `target` (the pipeline's
-// own lists, or the lists of one flow); the outcome artifact list belongs to a flow.
+// The row and list editors of the builder panels (F-11 AC-024 to AC-026, AC-043). The flow panel, the pipeline
+// panel and the Agent panel of the flow tab (F-12 AC-022, AC-027) use the same editors: an argument list and a
+// rule tag list take a `target` (the pipeline's own lists, the lists of one flow, or the lists of one Agent); the
+// outcome artifact list belongs to a flow.
 //
 // The editors hold no pipeline value. Each edit calls the parser's functions (fields.ts and pipelineFields.ts),
 // which check a copy of the pipeline (`parseProjectConfig` in core). An accepted edit is reported through
 // `onChange`. A refused edit keeps the saved row and shows the parser's reason beneath the row or the field
 // it belongs to. The only state is the open draft (a new row or an artifact form) and the last refusal.
 
-export type ListTarget = { readonly kind: 'pipeline' } | { readonly kind: 'flow'; readonly flowId: string };
+export type ListTarget =
+  | { readonly kind: 'pipeline' }
+  | { readonly kind: 'flow'; readonly flowId: string }
+  | { readonly kind: 'agent'; readonly flowId: string; readonly blockId: string };
 
 export interface ListProps {
   readonly pipelineState: Pipeline;
@@ -100,18 +112,36 @@ function flowOf(pipelineState: Pipeline, flowId: string): Flow {
 }
 
 function argumentsOf(pipelineState: Pipeline, target: ListTarget): readonly Argument[] {
-  return target.kind === 'pipeline' ? pipelineState.arguments : flowOf(pipelineState, target.flowId).arguments;
+  switch (target.kind) {
+    case 'pipeline':
+      return pipelineState.arguments;
+    case 'flow':
+      return flowOf(pipelineState, target.flowId).arguments;
+    case 'agent':
+      return agentAt(pipelineState, target.flowId, target.blockId).agent.arguments;
+  }
 }
 
 function tagsOf(pipelineState: Pipeline, target: ListTarget): readonly RuleTagValue[] {
-  const tags = target.kind === 'pipeline' ? pipelineState.ruleTags : flowOf(pipelineState, target.flowId).ruleTags;
-  return tags ?? [];
+  switch (target.kind) {
+    case 'pipeline':
+      return pipelineState.ruleTags ?? [];
+    case 'flow':
+      return flowOf(pipelineState, target.flowId).ruleTags ?? [];
+    case 'agent':
+      return agentAt(pipelineState, target.flowId, target.blockId).agent.ruleTags ?? [];
+  }
 }
 
 function addArgumentTo(pipelineState: Pipeline, rules: readonly Rule[], target: ListTarget, row: ArgumentRow): RowResult {
-  return target.kind === 'pipeline'
-    ? addPipelineArgument(pipelineState, rules, row)
-    : addFlowArgument(pipelineState, rules, target.flowId, row);
+  switch (target.kind) {
+    case 'pipeline':
+      return addPipelineArgument(pipelineState, rules, row);
+    case 'flow':
+      return addFlowArgument(pipelineState, rules, target.flowId, row);
+    case 'agent':
+      return addAgentArgument(pipelineState, rules, target.flowId, target.blockId, row);
+  }
 }
 
 function editArgumentAt(
@@ -121,27 +151,47 @@ function editArgumentAt(
   position: number,
   row: ArgumentRow,
 ): RowResult {
-  return target.kind === 'pipeline'
-    ? editPipelineArgument(pipelineState, rules, position, row)
-    : editFlowArgument(pipelineState, rules, target.flowId, position, row);
+  switch (target.kind) {
+    case 'pipeline':
+      return editPipelineArgument(pipelineState, rules, position, row);
+    case 'flow':
+      return editFlowArgument(pipelineState, rules, target.flowId, position, row);
+    case 'agent':
+      return editAgentArgument(pipelineState, rules, target.flowId, target.blockId, position, row);
+  }
 }
 
 function removeArgumentAt(pipelineState: Pipeline, target: ListTarget, position: number): Pipeline {
-  return target.kind === 'pipeline'
-    ? removePipelineArgument(pipelineState, position)
-    : removeFlowArgument(pipelineState, target.flowId, position);
+  switch (target.kind) {
+    case 'pipeline':
+      return removePipelineArgument(pipelineState, position);
+    case 'flow':
+      return removeFlowArgument(pipelineState, target.flowId, position);
+    case 'agent':
+      return removeAgentArgument(pipelineState, target.flowId, target.blockId, position);
+  }
 }
 
 function addRuleTagTo(pipelineState: Pipeline, rules: readonly Rule[], target: ListTarget, ruleId: string): RowResult {
-  return target.kind === 'pipeline'
-    ? addPipelineRuleTag(pipelineState, rules, ruleId)
-    : addFlowRuleTag(pipelineState, rules, target.flowId, ruleId);
+  switch (target.kind) {
+    case 'pipeline':
+      return addPipelineRuleTag(pipelineState, rules, ruleId);
+    case 'flow':
+      return addFlowRuleTag(pipelineState, rules, target.flowId, ruleId);
+    case 'agent':
+      return addAgentRuleTag(pipelineState, rules, target.flowId, target.blockId, ruleId);
+  }
 }
 
 function removeRuleTagAt(pipelineState: Pipeline, target: ListTarget, position: number): Pipeline {
-  return target.kind === 'pipeline'
-    ? removePipelineRuleTag(pipelineState, position)
-    : removeFlowRuleTag(pipelineState, target.flowId, position);
+  switch (target.kind) {
+    case 'pipeline':
+      return removePipelineRuleTag(pipelineState, position);
+    case 'flow':
+      return removeFlowRuleTag(pipelineState, target.flowId, position);
+    case 'agent':
+      return removeAgentRuleTag(pipelineState, target.flowId, target.blockId, position);
+  }
 }
 
 function artifactAt(pipelineState: Pipeline, flowId: string, position: number): ArtifactRow {

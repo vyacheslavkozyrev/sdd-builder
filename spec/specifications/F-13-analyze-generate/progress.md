@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
 | Build    | ✅ Complete | 2026-11-24 | 14 of 14 tasks committed |
-| Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
+| Verify   | 🔄 In Progress | 2026-11-24 | AWAITING CONFIRMATION: 29 of 31 `[auto]` criteria pass (task check: api 45, web 1895, core 1217). AC-030 and AC-031 `[device]` pending in `checklist.md` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -78,6 +78,55 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+**Verify run 2026-11-24.** Preconditions: all 14 tasks ticked and committed (T001 to T014), Current Task None, branch `main`, clean tree. `source/scripts/task-check.sh` passed: typecheck clean (api, web, core); tests api 45 of 45 (6 files), web 1895 of 1895 (83 files), core 1217 of 1217 (59 files); total 3157, none skipped. No `.skip`, `.todo` or `.only` in the test sources.
+
+**Gaps:** none. Every `[auto]` criterion (AC-001 to AC-029, 29 of 31) has at least one passing test whose title carries its F-13 ID. The two `[device]` criteria (AC-030, AC-031) are in `checklist.md`.
+
+**Scope (`features.md`, F-13):** covered by AC-001 to AC-004 (privacy notice), AC-005 to AC-013 (Analyze request, findings, review statuses, errors), AC-014 to AC-020 (green rule, out of date, memory only), AC-021 to AC-024 (file tree and preview), AC-025 to AC-029 (Generate and download), AC-030 and AC-031 (layout and the 404 device check). No scope item is without a criterion.
+
+**Matrix (criterion, tag, covering tests, result)**
+
+| Criterion | Tag | Covering tests (test files) | Result |
+| --- | --- | --- | --- |
+| AC-001 | auto | PrivacyNotice, AnalyzeStep, App, StepBody, Findings | covered |
+| AC-002 | auto | PrivacyNotice | covered |
+| AC-003 | auto | PrivacyNotice, AnalyzeStep | covered |
+| AC-004 | auto | PrivacyNotice | covered |
+| AC-005 | auto | analyze-config, analyze-request, AnalyzeStep | covered |
+| AC-006 | auto | AnalyzeStep, PrivacyNotice, Findings | covered |
+| AC-007 | auto | Findings | covered |
+| AC-008 | auto | Findings | covered |
+| AC-009 | auto | Findings | covered |
+| AC-010 | auto | analyze-reply, analyze-request, AnalyzeStep, Findings | covered |
+| AC-011 | auto | analyze-reply, AnalyzeStep, Findings | covered |
+| AC-012 | auto | analyze-reply | covered |
+| AC-013 | auto | analyze-reply, AnalyzeStep | covered |
+| AC-014 | auto | analyze-state, AnalyzeStep | covered |
+| AC-015 | auto | analyze-state | covered |
+| AC-016 | auto | Findings | covered |
+| AC-017 | auto | analyze-reason | covered |
+| AC-018 | auto | analyze-state, AnalyzeStep, Findings | covered |
+| AC-019 | auto | analyze-state | covered |
+| AC-020 | auto | AnalyzeStep | covered |
+| AC-021 | auto | analyze-templates, analyze-tree | covered |
+| AC-022 | auto | analyze-tree, ProjectPreview | covered |
+| AC-023 | auto | ProjectPreview | covered |
+| AC-024 | auto | analyze-tree | covered |
+| AC-025 | auto | analyze-reason, analyze-generate, ProjectPreview | covered |
+| AC-026 | auto | analyze-generate | covered |
+| AC-027 | auto | analyze-generate | covered |
+| AC-028 | auto | analyze-generate | covered |
+| AC-029 | auto | analyze-generate | covered |
+| AC-030 | device | checklist.md (AC-030) | pending device |
+| AC-031 | device | checklist.md (AC-031) | pending device |
+
+**Checklist:** `spec/specifications/F-13-analyze-generate/checklist.md`, two entries (AC-030, AC-031), results not yet recorded.
+
+**Observations for the owner (not gaps, no change made):**
+- AC-031 names Generate as well as Analyze, but on the current server Generate can never be enabled (no green analysis without `/analyze`), so its 404 path cannot be clicked on device. AC-028 covers it with a fake fetch. The device check of Generate's error path belongs after F-15 and F-16; the checklist records this limit.
+- AC-021 wording: the stories say "plan order", but the tree lists folders first on each level, then files, as the screens draw it (`screens.md` §The file tree). The test proves the folders-first order. The owner should decide whether the stories wording changes (carried from the T007 deferred note).
+- Deferred review items in the Build section (owner decisions on wording and colours, the Generate error prefix, and the stale-error placement) are unchanged and still open for the owner.
 
 ---
 

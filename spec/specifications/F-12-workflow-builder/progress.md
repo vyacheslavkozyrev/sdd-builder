@@ -28,7 +28,7 @@ These points come from documents that disagree. The stories follow the reading s
 
 ## Current Task
 
-Verify device fix (2026-11-24) — reviewed: 0 blockers; 4 warnings fixed (the pan ends when the pointer leaves the drawing, now captured; a cancelled pointer left the pan set, now ended; a block-press test asserted only a positive x; straight-arrow drag tests could not fail with no drag, now assert the move); 4 suggestions fixed (Arrowhead comment "10 by 8" is "5 by 8"; a canvas-area comment moved to its own describe; a test named AC-008 that is `[device]`, renamed; the Arrowhead polyline wrapped). Task check passed: api 45, web 1638, core 1231. Staged, not committed.
+Curved arrows (2026-11-24) — reviewed: 0 blockers; 2 warnings fixed (the return-arrow test matched any number, now asserts the exact curve with its peak on the upper lane; the new curve tests carried `AC-008`, which is `[device]`, now tagged as a device fix with no criterion); 1 suggestion fixed (a test named "loops" that is a flat overshoot, renamed). Drag preview stays a straight line (accepted by the user; to mention). Task check passed: api 45, web 1644, core 1231. Staged, not committed.
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 

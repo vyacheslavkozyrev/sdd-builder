@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { blockDrawingOf, cutText, drawingHeight } from '../src/builder/blockDrawing.js';
+import { blockDrawingOf, cutText, drawingHeight, pathOf } from '../src/builder/blockDrawing.js';
 import type { Flow } from '../src/builder/model.js';
 
 // The drawing is pure geometry, so these tests check its numbers with no DOM.
@@ -411,5 +411,32 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the blocks spread ac
     const planner = drawing.blocks.find((block) => block.blockId === 'b2');
     expect(planner?.cx).toBe(drawing.width - (planner?.halfWidth ?? NaN));
     expect(planner?.cy).toBe(drawing.height - (planner?.halfHeight ?? NaN));
+  });
+});
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows are smooth curves along their routes', () => {
+  it('curves a straight arrow from its source end to its target end, horizontal at both ends', () => {
+    expect(pathOf([{ x: 0, y: 0 }, { x: 100, y: 0 }])).toBe('M0,0 C50,0 50,0 100,0');
+  });
+
+  it('gives a straight arrow whose target lies behind its source the React Flow loop offset', () => {
+    expect(pathOf([{ x: 0, y: 0 }, { x: -100, y: 0 }])).toBe('M0,0 C62.5,0 -162.5,0 -100,0');
+  });
+
+  it('curves a lane route vertically, with its top on the lane', () => {
+    const path = pathOf([{ x: 0, y: 400 }, { x: 0, y: 325 }, { x: 100, y: 325 }, { x: 100, y: 400 }]);
+    expect(path).toBe('M0,400 C0,300 100,300 100,400');
+  });
+
+  it('throws for a route that is neither a straight pair nor a four-point lane route', () => {
+    expect(() => pathOf([{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 20, y: 0 }])).toThrow('F-12');
+  });
+
+  it('gives a return arrow a curve from the top of its source to the top of its target, peaking on the upper lane', () => {
+    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === 'b3' && candidate.output === 'false');
+    // The return from b3 (top at y 390) to b2 (top at y 384), with the upper lane at y 320: the curve's peak is
+    // (390 + 384) / 8 + 3 / 4 * control, so the control sits at (8 * 320 - 390 - 384) / 6.
+    const control = (8 * 320 - 390 - 384) / 6;
+    expect(arrow?.path).toBe(`M294,390 C294,${control} 166,${control} 166,384`);
   });
 });

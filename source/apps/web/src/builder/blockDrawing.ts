@@ -55,7 +55,10 @@ export interface ArrowShape {
   readonly fromId: string;
   readonly output: OutputName;
   readonly toId: string;
+  // The route: the first point is the source end, the last the target end; a lane route has two points on its lane.
   readonly points: readonly Point[];
+  // The curve drawn along the route (F-12 device-check decision 2026-11-24): a smooth cubic bezier through `points`.
+  readonly path: string;
   readonly isReturn: boolean;
   readonly selected: boolean;
   readonly branch: TextMark | null;
@@ -228,6 +231,35 @@ function routeOf(arrow: BlockArrow, from: Placed, to: Placed, lanes: Lanes): rea
   return [anchor(from, 'right'), anchor(to, 'left')];
 }
 
+// The curve of a route (F-12 device-check decision 2026-11-24, as F-11's Pipeline edges): one cubic bezier from the
+// first point to the last. A straight route leaves its source and enters its target horizontally, its control points
+// half the way between them, so its midpoint is the midpoint of the arrow. A lane route (a return or a forward false)
+// leaves and enters vertically, and its control points sit at the height that puts the top of the curve on its lane,
+// so the curve's midpoint is the lane point the round limit and the marks are placed on.
+export function pathOf(points: readonly Point[]): string {
+  const first = points[0];
+  const last = points[points.length - 1];
+  if (first === undefined || last === undefined) {
+    throw new Error('F-12: an arrow has no route');
+  }
+  if (points.length === 2) {
+    const dx = last.x - first.x;
+    // React Flow's offset: half the distance when the target lies ahead, a short loop when it lies behind.
+    const offset = dx >= 0 ? dx / 2 : 6.25 * Math.sqrt(-dx);
+    return curveOf(first, { x: first.x + offset, y: first.y }, { x: last.x - offset, y: last.y }, last);
+  }
+  const lane = points[1];
+  if (points.length !== 4 || lane === undefined) {
+    throw new Error(`F-12: a lane route needs four points, got ${points.length}`);
+  }
+  const controlY = (8 * lane.y - first.y - last.y) / 6;
+  return curveOf(first, { x: first.x, y: controlY }, { x: last.x, y: controlY }, last);
+}
+
+function curveOf(start: Point, firstControl: Point, secondControl: Point, end: Point): string {
+  return `M${start.x},${start.y} C${firstControl.x},${firstControl.y} ${secondControl.x},${secondControl.y} ${end.x},${end.y}`;
+}
+
 // The true or false label of an output (AC-008). A return's label sits above its vertex, a forward false
 // label below it, and a forward true label above the middle of its straight arrow.
 function branchMark(arrow: BlockArrow, from: Placed, route: readonly Point[]): TextMark | null {
@@ -389,6 +421,7 @@ export function blockDrawingOf(
       output: arrow.output,
       toId: arrow.toId,
       points,
+      path: pathOf(points),
       isReturn: arrow.isReturn,
       selected:
         selectedArrow !== null && selectedArrow.fromId === arrow.fromId && selectedArrow.output === arrow.output,

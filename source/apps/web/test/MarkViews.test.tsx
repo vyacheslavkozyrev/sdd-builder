@@ -183,7 +183,7 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
       />,
     );
     expect(screen.getAllByText('!')).toHaveLength(2);
-    const amberArrows = container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`);
+    const amberArrows = container.querySelectorAll(`path[stroke="${theme.palette.warning.main}"]`);
     expect(amberArrows).toHaveLength(1);
   });
 
@@ -204,8 +204,8 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
     );
     expect(screen.getAllByText('!')).toHaveLength(2);
     expect(container.querySelectorAll(`circle[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
-    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.error.main}"]`)).toHaveLength(0);
-    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`path[stroke="${theme.palette.error.main}"]`)).toHaveLength(0);
+    expect(container.querySelectorAll(`path[stroke="${theme.palette.warning.main}"]`)).toHaveLength(1);
     expect(container.querySelectorAll(`circle[stroke="${theme.palette.warning.main}"]`)).toHaveLength(1);
   });
 
@@ -224,8 +224,8 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
         marks={marks}
       />,
     );
-    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
-    expect(container.querySelectorAll(`polyline[stroke="${theme.palette.warning.main}"]`)).toHaveLength(0);
+    expect(container.querySelectorAll(`path[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
+    expect(container.querySelectorAll(`path[stroke="${theme.palette.warning.main}"]`)).toHaveLength(0);
     expect(container.querySelectorAll(`circle[stroke="${theme.palette.error.main}"]`)).toHaveLength(1);
   });
 

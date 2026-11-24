@@ -504,7 +504,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style m
         onChange={vi.fn()}
       />,
     );
-    const selected = container.querySelector('polyline[stroke-width="2.5"]');
+    const selected = container.querySelector('path[stroke-width="2.5"]');
     expect(selected?.getAttribute('stroke')).toBe(theme.palette.primary.main);
   });
 
@@ -512,7 +512,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style m
     const { container } = renderWithTheme(
       <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
-    const normal = container.querySelector('polyline[marker-end="url(#block-arrowhead)"]');
+    const normal = container.querySelector('path[marker-end="url(#block-arrowhead)"]');
     expect(normal?.getAttribute('stroke-width')).toBe('1');
     expect(normal?.getAttribute('stroke')).toBe(theme.palette.text.secondary);
     const marker = container.querySelector('marker#block-arrowhead');
@@ -809,28 +809,19 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) a press on the empty
   });
 });
 
-describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows stay straight while a block is dragged', () => {
-  // Each arrow is drawn as a polyline of straight segments, never a curve: a forward arrow is one segment (two points),
-  // a return (dashed) is four points whose segments run across or down, so it has no diagonal or curved part.
-  function expectStraightArrows(container: HTMLElement): void {
-    const arrows = Array.from(container.querySelectorAll('polyline[marker-end]'));
+describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows stay curved while a block is dragged', () => {
+  // Each arrow is drawn as one smooth cubic curve (as F-11's edges): "M start C control control end", with the same
+  // start and end as the arrow's route. A forward arrow leaves and enters horizontally, a return (dashed) vertically.
+  function expectCurvedArrows(container: HTMLElement): void {
+    const arrows = Array.from(container.querySelectorAll('path[marker-end]'));
     expect(arrows.length).toBeGreaterThan(0);
     for (const arrow of arrows) {
-      const points = (arrow.getAttribute('points') ?? '').trim().split(' ').map((point) => point.split(',').map(Number));
-      const returns = arrow.getAttribute('stroke-dasharray') !== null;
-      expect(points).toHaveLength(returns ? 4 : 2);
-      if (!returns) {
-        continue;
-      }
-      for (let index = 1; index < points.length; index += 1) {
-        const before = points[index - 1];
-        const after = points[index];
-        expect(before?.[0] === after?.[0] || before?.[1] === after?.[1]).toBe(true);
-      }
+      const path = arrow.getAttribute('d') ?? '';
+      expect(path).toMatch(/^M-?[\d.]+,-?[\d.]+ C(-?[\d.]+,-?[\d.]+ ){2}-?[\d.]+,-?[\d.]+$/);
     }
   }
 
-  it('keeps every arrow a straight route after an Agent block is dragged', () => {
+  it('keeps every arrow a curved route after an Agent block is dragged', () => {
     const { container } = renderWithTheme(
       <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
@@ -838,12 +829,12 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows stay straight
     fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
     fireEvent.pointerMove(drawingOf(container), { clientX: 100, clientY: 520 });
     expect(groupOf('Agent block: planner').innerHTML).not.toBe(before);
-    expectStraightArrows(container);
+    expectCurvedArrows(container);
     fireEvent.pointerUp(drawingOf(container), { clientX: 100, clientY: 520 });
-    expectStraightArrows(container);
+    expectCurvedArrows(container);
   });
 
-  it('keeps the return arrow an orthogonal route after the Condition it leaves is dragged', () => {
+  it('keeps the return arrow a curved route after the Condition it leaves is dragged', () => {
     const { container } = renderWithTheme(
       <BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
@@ -852,7 +843,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows stay straight
     fireEvent.pointerMove(drawingOf(container), { clientX: 100, clientY: 380 });
     expect(groupOf('Condition block: The reviewer approves').innerHTML).not.toBe(before);
     fireEvent.pointerUp(drawingOf(container), { clientX: 100, clientY: 380 });
-    expectStraightArrows(container);
+    expectCurvedArrows(container);
   });
 
   it('draws the link preview as a straight two-point line while a link is dragged', () => {

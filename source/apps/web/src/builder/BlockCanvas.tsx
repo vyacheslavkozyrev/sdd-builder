@@ -465,9 +465,9 @@ function Arrowhead({ id, color }: { readonly id: string; readonly color: string 
   );
 }
 
-// An arrow: a return is dashed and in the primary colour, a selected arrow is the primary colour at 2.5 px, and a
-// normal arrow is 1 px with React Flow's default closed arrowhead (the same size and shape as F-11).
-// A wide transparent line under it takes the click, so the arrow is easy to hit.
+// An arrow: a smooth curve (as F-11's edges). A return is dashed and in the primary colour, a selected arrow is the
+// primary colour at 2.5 px, and a normal arrow is 1 px with React Flow's default closed arrowhead (the same size and
+// shape as F-11). A wide transparent curve under it takes the click, so the arrow is easy to hit.
 function ArrowView({
   arrow,
   ink,
@@ -479,7 +479,6 @@ function ArrowView({
   readonly mark: MarkInk | null;
   readonly onSelect: (selection: BlockSelection) => void;
 }) {
-  const points = arrow.points.map((point) => `${point.x},${point.y}`).join(' ');
   const accent = arrow.selected || arrow.isReturn;
   // A marked arrow is drawn in its mark's colour, unless it is the selected one, which keeps the primary colour.
   const stroke = mark !== null && !arrow.selected ? mark.line : accent ? ink.accent : ink.line;
@@ -489,9 +488,9 @@ function ArrowView({
   };
   return (
     <g role="button" aria-label={arrow.accessibleName} onClick={select}>
-      <polyline points={points} fill="none" stroke={ink.line} strokeOpacity={0} strokeWidth={12} />
-      <polyline
-        points={points}
+      <path d={arrow.path} fill="none" stroke={ink.line} strokeOpacity={0} strokeWidth={12} />
+      <path
+        d={arrow.path}
         fill="none"
         stroke={stroke}
         strokeWidth={arrow.selected ? 2.5 : arrow.isReturn ? 1.5 : 1}

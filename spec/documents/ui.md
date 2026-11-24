@@ -58,14 +58,15 @@ See section 3.
 Two areas on the step:
 
 **Analyze block**
-1. **Privacy notice** with a checkbox, above Analyze. Unticked at start. Analyze is disabled until it is ticked; unticking disables Analyze again.
-2. **Analyze** sends the project configuration once. While it is pending, Analyze is disabled.
-3. **Findings** are listed in the order the server returns them. Each shows its severity (`blocker`, `warning`, `info`), its subject and its message, as plain text. A review that is skipped or failed is noted beside the findings; the structural findings are still shown. An error (400, 422, 429, 500, 502 or a network failure) is shown as text and the entered values are kept; a 422 lists every problem.
-4. The analysis is **green** when it has run on the current configuration and finds **no blocker and no warning**. An `info` finding does not stop it.
+1. **Privacy notice** with a checkbox, above Analyze. Unticked at start. Analyze is disabled until it is ticked; unticking disables Analyze again. The notice says that the brief and the pipeline go to the model provider for review, and that the server does not store or log the brief (2026-11-24: the wording says "model provider"; screen 01).
+2. **Analyze** calls `POST /analyze` (F-14) with the project configuration, once per press (2026-11-24). While it is pending, Analyze is disabled.
+3. **Findings** are listed in the order the server returns them. Each shows its severity (`blocker`, `warning`, `info`), its subject and its message, as plain text. A review that is skipped or failed is an **error**, not a pass (2026-11-24, architecture decision 41): the note "The analysis did not finish. Analyze again." is shown beside the findings, the structural findings are still shown, and Generate stays disabled (screen 05). An error reply (400, 422, 429, 500, 502 or a network failure) is shown as text in an error box and the entered values are kept; a 422 lists every problem, one line per problem (screens 07 and 09).
+4. The analysis is **green** when it has run on the current configuration, its review has completed, and it finds **no blocker and no warning**. An `info` finding does not stop it.
+5. **Out of date** (2026-11-24, screen 10): after a change to the configuration, the earlier result is shown as not current, with the note "The project changed since the last analysis. Analyze again." Until Analyze runs again, the analysis is not green.
 
 **Project preview**
 - The file tree of the project: the files the project will get, in plan order. Files that come from rule blocks are marked. The tree is computed in the browser, without a request.
-- One button, **Generate and download**: enabled only when the analysis is green. It generates the project and saves the zip file `sddbuilder-project.zip`.
+- One button, **Generate and download**: enabled only when the analysis is green and current. Its reason is shown beside it when it is disabled: "Run Analyze first", "Fix the blocker to generate", "Fix the warning to generate" or "Analysis failed. Analyze again to generate." (screens 01 to 05, 10 and 11). On press it calls `POST /generate` (F-15) (2026-11-24); while it is pending the button reads "Writing the files with the model…" with a progress line, and Analyze, the checkbox and Show full tree are disabled (screen 08). It saves the zip file `sddbuilder-project.zip`.
 - Any change to a field, a rule block or the pipeline makes the analysis out of date. The button is disabled until Analyze runs again and is green.
 
 ---

@@ -63,15 +63,15 @@ interface BlockMove {
   readonly moved: boolean;
 }
 
-// A press on the empty drawing: the pointer's place in the page, the scroll place of the drawing when it went down,
-// and whether the pointer has moved, which pans the drawing (F-12 device fix 2026-11-24).
+// A press on the empty drawing: the pointer's place in the page, the pan offset of the flow when it went down, and
+// whether the pointer has moved, which pans the drawing (F-12 device fix 2026-11-24).
 interface Pan {
   readonly start: Point;
-  readonly left: number;
-  readonly top: number;
+  readonly origin: Point;
   readonly moved: boolean;
 }
 
+const noOffset: Point = { x: 0, y: 0 };
 const emptyText = 'No blocks yet.';
 const hintText =
   'Arrows run the blocks in order. A dashed arrow is a return: a false branch back to an earlier Agent.';
@@ -91,10 +91,11 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
   // The blocks moved on each flow tab, by flow id and block id, and the block being pressed or moved.
   const [dragged, setDragged] = useState<Readonly<Record<string, Readonly<Record<string, Point>>>>>({});
   const [move, setMove] = useState<BlockMove | null>(null);
-  // The scroll area of the drawing, and the press on the empty drawing that pans it.
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  // The pan offset of the drawing on each flow tab, by flow id, and the press on the empty drawing that pans it.
+  const [panned, setPanned] = useState<Readonly<Record<string, Point>>>({});
   const pan = useRef<Pan | null>(null);
   const places = dragged[flow.id] ?? {};
+  const offset = panned[flow.id] ?? noOffset;
   // The canvas area the drawing fills: measured on the stage, and kept up to date as the card is resized. Where
   // ResizeObserver is missing (jsdom), the area is read once and stays at zero, so the drawing keeps its natural size.
   const [stage, setStage] = useState<HTMLDivElement | null>(null);
@@ -143,18 +144,18 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
     const centre = movedCentre({ x: current.block.cx, y: current.block.cy }, current.grab, at, current.block, drawing);
     setDragged((all) => ({ ...all, [flow.id]: { ...all[flow.id], [current.block.blockId]: centre } }));
   };
-  // The drawing scrolls by the pointer's move from where the press went down, once the pointer has gone past the slop.
+  // The drawing moves with the pointer from where the press went down, once the pointer has gone past the slop. The
+  // offset is kept on this flow tab, and the blocks and arrows keep their places in the drawing.
   const panDrawing = (current: Pan, at: Point): void => {
     if (!current.moved && !pastSlop(current.start, at)) {
       return;
     }
     pan.current = { ...current, moved: true };
-    const box = scrollRef.current;
-    if (box === null) {
-      return;
-    }
-    box.scrollLeft = current.left - (at.x - current.start.x);
-    box.scrollTop = current.top - (at.y - current.start.y);
+    const next = {
+      x: current.origin.x + (at.x - current.start.x),
+      y: current.origin.y + (at.y - current.start.y),
+    };
+    setPanned((all) => ({ ...all, [flow.id]: next }));
   };
   const settle = (target: Drop, current: DragState): void => {
     endDrag();
@@ -173,14 +174,11 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
     onClear: () => pick({ kind: 'none' }),
     onBackgroundDown: (at) => {
       afterDrag.current = false;
-      const box = scrollRef.current;
-      if (box !== null) {
-        pan.current = { start: at, left: box.scrollLeft, top: box.scrollTop, moved: false };
-      }
+      pan.current = { start: at, origin: offset, moved: false };
     },
     onBlockDown: (block, at) => {
       afterDrag.current = false;
-      setMove({ block, grab: at, moved: false });
+      setMove({ block, grab: shifted(at, offset), moved: false });
     },
     onPortDown: (blockId, output) => {
       afterDrag.current = false;
@@ -202,11 +200,13 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
       settle(target, drag);
     },
     onMove: (at, client) => {
+      // The pointer is in the drawing's units: the pan offset is taken off the place inside the svg.
+      const inDrawing = shifted(at, offset);
       if (drag !== null) {
-        setPointer(at);
+        setPointer(inDrawing);
       }
       if (move !== null) {
-        moveBlock(move, at);
+        moveBlock(move, inDrawing);
       }
       if (pan.current !== null) {
         panDrawing(pan.current, client);
@@ -246,10 +246,11 @@ export function BlockCanvas({ flow, selection, onSelect, onAdd, onChange, marks 
       {flow.blocks.length === 0 ? (
         <Box sx={styles.empty}>{emptyText}</Box>
       ) : (
-        <Box ref={scrollRef} sx={styles.scroll}>
+        <Box sx={styles.scroll}>
           <Box ref={setStage} sx={styles.stage}>
             <DrawingView
               drawing={drawing}
+              offset={offset}
               styles={styles}
               markInks={markStyles.ink}
               marked={marked}
@@ -290,7 +291,7 @@ interface DrawingGestures {
   readonly onHandleDown: (arrow: ArrowShape, end: 'source' | 'target') => void;
   // A release over a point or a block. `event` is the release, which a drop stops so the drawing does not end the drag.
   readonly onDrop: (target: Drop, event: { readonly stopPropagation: () => void }) => void;
-  // A pointer move: `at` is in the drawing's units, `client` in the page (the pan moves the scroll by the page move).
+  // A pointer move: `at` is in the svg's box, `client` in the page (the pan moves the drawing by the page move).
   readonly onMove: (at: Point, client: Point) => void;
   readonly onRelease: () => void;
   readonly onLeave: () => void;
@@ -302,6 +303,8 @@ interface DrawingGestures {
 
 interface DrawingViewProps {
   readonly drawing: BlockDrawing;
+  // The pan offset of the flow: the blocks, arrows and their handles are drawn shifted by it.
+  readonly offset: Point;
   readonly styles: BlockCanvasStyles;
   // The red and amber of the structure marks, and the blocks and arrows of the flow that carry one.
   readonly markInks: MarkInks;
@@ -312,9 +315,9 @@ interface DrawingViewProps {
   readonly gestures: DrawingGestures;
 }
 
-// The point of a pointer in the drawing's own units. The drawing is drawn at its own size, so one pixel is one
-// drawing unit, and the point is the pointer's offset from the svg's box. The event may come from the svg or from an
-// element inside it.
+// The point of a pointer in the svg's box, in pixels. The drawing's content is moved by the pan offset inside the svg,
+// so a caller takes the offset off this point to get the drawing's own units. The event may come from the svg or from
+// an element inside it.
 function pointerIn(event: {
   readonly clientX: number;
   readonly clientY: number;
@@ -324,8 +327,14 @@ function pointerIn(event: {
   return { x: event.clientX - box.left, y: event.clientY - box.top };
 }
 
-// The SVG of the blocks and arrows. A release that no point or block took ends the drag without a change.
-function DrawingView({ drawing, styles, markInks, marked, preview, onSelect, gestures }: DrawingViewProps) {
+// A point moved by a shift: the place of a pointer in the drawing's units, or the place of a drawing unit on the svg.
+function shifted(at: Point, shift: Point): Point {
+  return { x: at.x - shift.x, y: at.y - shift.y };
+}
+
+// The SVG of the blocks and arrows. A release that no point or block took ends the drag without a change. The
+// blocks and arrows sit in one group, moved by the pan offset; the svg is the window onto the drawing.
+function DrawingView({ drawing, offset, styles, markInks, marked, preview, onSelect, gestures }: DrawingViewProps) {
   const ink = styles.ink;
   const selected = drawing.arrows.find((arrow) => arrow.selected);
   return (
@@ -353,40 +362,42 @@ function DrawingView({ drawing, styles, markInks, marked, preview, onSelect, ges
         <Arrowhead id="block-arrowhead" color={ink.line} />
         <Arrowhead id="block-arrowhead-accent" color={ink.accent} />
       </defs>
-      {drawing.arrows.map((arrow) => {
-        const key = arrowKey(arrow.fromId, arrow.output);
-        return (
-          <ArrowView
-            key={key}
-            arrow={arrow}
+      <g transform={`translate(${offset.x} ${offset.y})`}>
+        {drawing.arrows.map((arrow) => {
+          const key = arrowKey(arrow.fromId, arrow.output);
+          return (
+            <ArrowView
+              key={key}
+              arrow={arrow}
+              ink={ink}
+              mark={markOf(markInks, marked.arrows.has(key), marked.blockerArrows.has(key))}
+              onSelect={onSelect}
+            />
+          );
+        })}
+        {drawing.blocks.map((block) => (
+          <BlockView
+            key={block.blockId}
+            block={block}
             ink={ink}
-            mark={markOf(markInks, marked.arrows.has(key), marked.blockerArrows.has(key))}
+            mark={markOf(markInks, marked.blocks.has(block.blockId), marked.blockerBlocks.has(block.blockId))}
+            ports={drawing.ports.filter((port) => port.blockId === block.blockId)}
             onSelect={onSelect}
+            gestures={gestures}
           />
-        );
-      })}
-      {drawing.blocks.map((block) => (
-        <BlockView
-          key={block.blockId}
-          block={block}
-          ink={ink}
-          mark={markOf(markInks, marked.blocks.has(block.blockId), marked.blockerBlocks.has(block.blockId))}
-          ports={drawing.ports.filter((port) => port.blockId === block.blockId)}
-          onSelect={onSelect}
-          gestures={gestures}
-        />
-      ))}
-      {selected === undefined ? null : <ArrowEnd arrow={selected} ink={ink} gestures={gestures} />}
-      {preview === null ? null : (
-        <polyline
-          points={preview.map((point) => `${point.x},${point.y}`).join(' ')}
-          fill="none"
-          stroke={ink.accent}
-          strokeWidth={1.5}
-          strokeDasharray="6 4"
-          pointerEvents="none"
-        />
-      )}
+        ))}
+        {selected === undefined ? null : <ArrowEnd arrow={selected} ink={ink} gestures={gestures} />}
+        {preview === null ? null : (
+          <polyline
+            points={preview.map((point) => `${point.x},${point.y}`).join(' ')}
+            fill="none"
+            stroke={ink.accent}
+            strokeWidth={1.5}
+            strokeDasharray="6 4"
+            pointerEvents="none"
+          />
+        )}
+      </g>
     </Box>
   );
 }

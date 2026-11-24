@@ -28,7 +28,7 @@ These points come from documents that disagree. The stories follow the reading s
 
 ## Current Task
 
-Connection points (2026-11-24) — reviewed: 0 blockers; 1 warning fixed (no test proved that a press on an output point leaves its block in place; added `F-12 AC-013 (UI)` test that fails if the press reaches the block's move handler); 0 suggestions. Points are the F-11 handles (6 px dot, 1 px paper ring, transparent 6 px hit area); arrow ends and input-point behaviour unchanged. Task check passed: api 45, web 1646, core 1231. Staged, not committed.
+Whole canvas pan (2026-11-24) — reviewed: 0 blockers; 1 warning fixed (no test proved the link preview is converted by the pan offset while the drawing is panned; added a test that draws the preview from the port to the pointer in drawing units at offset (-50, -20)); 2 suggestions fixed (the `pointerIn` comment still said "the drawing's own units"; the test helper `contentOf` was called only for its capture mock, now `mockCapture`). Pan offset is per flow id, block and link gestures take the offset off the pointer, no colour literals, style rules pass. Accepted limits, not findings: the offset is not clamped; touch may scroll natively. Task check passed: api 45, web 1649, core 1231. Staged, not committed.
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 

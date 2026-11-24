@@ -147,24 +147,22 @@ export function AgentPanel({ pipelineState, rules, flow, block, onChange, findin
     settle(field, editAgentField(pipelineState, rules, flow.id, block.id, { field, value }), value);
   }
 
-  // A blank name is held while it is typed: it is the step before the next name, so it is refused only when it
-  // is committed (focus leaves the field, or Enter). Any other name is checked as it is typed.
+  // The name is checked only when it is committed (focus leaves the field, or Enter). A typed name is held as a
+  // draft until then, and typing clears the field's refusal at once, so a refusal shows only for the value that
+  // was committed.
   function editName(value: string) {
-    if (value.trim() === '') {
-      setEdits({
-        target,
-        drafts: { ...state.drafts, name: value },
-        refusals: { ...state.refusals, name: undefined },
-      });
-      return;
-    }
-    editText('name', value);
+    setEdits({
+      target,
+      drafts: { ...state.drafts, name: value },
+      refusals: { ...state.refusals, name: undefined },
+    });
   }
 
-  // Commits a held blank name: the parser refuses it with its reason, and the saved name shows again.
+  // Commits the held name: the parser accepts it or refuses it with its reason, and a refusal keeps the saved
+  // name showing. A held name equal to the saved one is not sent again.
   function commitName() {
     const held = state.drafts.name;
-    if (held === undefined || held.trim() !== '') return;
+    if (held === undefined || held === block.name) return;
     settle('name', editAgentField(pipelineState, rules, flow.id, block.id, { field: 'name', value: held }), held);
   }
 

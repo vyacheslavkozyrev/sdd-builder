@@ -240,6 +240,7 @@ describe('F-12 AC-011 selecting a block or an arrow drives the properties card',
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.change(within(propertiesCard()).getByLabelText('Name'), { target: { value: 'drafter' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('Name'));
     expect(within(propertiesCard()).getByRole('heading', { name: 'Agent: drafter' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Agent block: drafter' })).toBeTruthy();
   });

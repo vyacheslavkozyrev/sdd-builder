@@ -128,6 +128,7 @@ describe('F-12 AC-023 Agent name', () => {
     const { onChange } = renderPanel(planPipeline());
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: '  writer ' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
@@ -138,6 +139,7 @@ describe('F-12 AC-023 Agent name', () => {
     const { onChange } = renderPanel(planPipeline());
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'reviewer' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
@@ -149,6 +151,7 @@ describe('F-12 AC-023 Agent name', () => {
     const { onChange } = renderPanel(planPipeline());
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: '  reviewer ' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
@@ -161,6 +164,7 @@ describe('F-12 AC-023 Agent name', () => {
     const reason = parserReason(pipelineState, { field: 'name', value: 'plan/ner' });
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'plan/ner' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
@@ -171,6 +175,7 @@ describe('F-12 AC-023 Agent name', () => {
     renderPanel(planPipeline());
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'reviewer' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
 
     const refusal = document.getElementById('block-agent-name-refusal');
     expect(refusal?.textContent).toBe('Another Agent already has this name.');
@@ -239,6 +244,67 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
     expect(screen.queryByText(/must be an id/)).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) does not check a name on each change, only on commit', () => {
+    const { onChange } = renderPanel(planPipeline());
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'plan/ner' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows an empty name committed by blur as the parser refusal, and keeps the saved name', () => {
+    const pipelineState = planPipeline();
+    const { onChange } = renderPanel(pipelineState);
+    const reason = parserReason(pipelineState, { field: 'name', value: '' });
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
+    fireEvent.blur(screen.getByLabelText('Name'));
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(document.getElementById('block-agent-name-refusal')?.textContent).toBe(reason);
+    expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBe('block-agent-name-refusal');
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', 'planner');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) clears a refusal as soon as a valid name is typed after it', () => {
+    const { onChange } = renderPanel(planPipeline());
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: 'plan/ner' } });
+    fireEvent.blur(input);
+    expect(screen.getByText(/must be an id/)).toBeTruthy();
+
+    fireEvent.change(input, { target: { value: 's' } });
+
+    expect(screen.queryByText(/must be an id/)).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+
+    fireEvent.blur(input);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) does not show a refused name after a valid commit', () => {
+    const { onChange } = renderPanel(planPipeline());
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: 'reviewer' } });
+    fireEvent.blur(input);
+    expect(screen.getByText('Another Agent already has this name.')).toBeTruthy();
+
+    fireEvent.change(input, { target: { value: 'writer' } });
+    fireEvent.blur(input);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('writer');
+    expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
+    expect(input.getAttribute('aria-describedby')).toBeNull();
   });
 });
 

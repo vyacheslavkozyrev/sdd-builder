@@ -14,7 +14,8 @@ export interface ConnectionPanelStyles {
   // One label and its read-only box: the shared group (8 px between them).
   readonly group: StyleObject;
   readonly label: StyleObject;
-  // The read-only box that shows a flow's name: FIELD_HEIGHT high, grey, with the outline and text inset of a field.
+  // The read-only box that shows a name: at least FIELD_HEIGHT high and grown to fit its wrapped text, grey,
+  // with the outline and text inset of a field.
   readonly readOnly: StyleObject;
   readonly note: StyleObject;
   readonly footer: StyleObject;
@@ -31,7 +32,10 @@ export function getConnectionPanelStyles(theme: Theme): ConnectionPanelStyles {
     readOnly: {
       display: 'flex',
       alignItems: 'center',
-      height: FIELD_HEIGHT,
+      minHeight: FIELD_HEIGHT,
+      py: 1,
+      whiteSpace: 'normal',
+      overflowWrap: 'anywhere',
       borderRadius: '8px',
       border: `1px solid ${theme.palette.grey[300]}`,
       bgcolor: theme.palette.grey[100],

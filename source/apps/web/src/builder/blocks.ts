@@ -3,6 +3,7 @@
 // React and no I/O. A flow is a value; each rule returns a new one and never changes its input.
 
 import type { pipeline as model } from '@sddbuilder/core';
+import { renumber } from './fields.js';
 
 export type Flow = model.Flow;
 export type Block = model.Block;
@@ -31,23 +32,31 @@ export function nextBlockId(flow: Flow): string {
   return `block-${n}`;
 }
 
-// Appends a blank block of the given kind after the flow's last block (AC-002). Its fields are
-// blank for its kind and it has no arrows: an Agent's and a Start's `next` is empty, a true route
-// is empty (`{to: ''}`) and a false route is `stop`, which is what an empty false output means
-// (AC-020). An End starts `done` with no produced artifact. Its index comes after every index in
-// the flow, so it never repeats one. A second Start is a programmer error and throws, since the
-// toolbox disables Start while the flow has one (AC-003).
+// Adds a blank block of the given kind (AC-002). A non-End block goes before the flow's End blocks, so
+// the Ends stay after every other block in the list (a route from a Condition or an Agent to an End names
+// a later block). An End goes at the end of the list. The blocks are renumbered, so each `index` is again
+// its position in the list. Its fields are blank for its kind and it has no arrows: an Agent's and a
+// Start's `next` is empty, a true route is empty (`{to: ''}`) and a false route is `stop`, which is what an
+// empty false output means (AC-020). An End starts `done` with no produced artifact. A second Start is a
+// programmer error and throws, since the toolbox disables Start while the flow has one (AC-003).
 export function addBlock(flow: Flow, kind: BlockKind): AddBlockResult {
   if (kind === 'start' && !canAddStart(flow)) {
     throw new Error(`flow ${flow.id} already has a Start block`);
   }
   const id = nextBlockId(flow);
-  const index = flow.blocks.reduce((highest, block) => Math.max(highest, block.index), -1) + 1;
-  const block = blankBlock(kind, index, id);
+  const block = blankBlock(kind, 0, id);
+  const at = kind === 'end' ? flow.blocks.length : firstEndPosition(flow);
+  const blocks = [...flow.blocks.slice(0, at), block, ...flow.blocks.slice(at)];
   return {
-    flow: { ...flow, blocks: [...flow.blocks, block] },
+    flow: { ...flow, blocks: renumber(blocks) },
     blockId: id,
   };
+}
+
+// The position of the flow's first End block, or the length of the list when it has none.
+function firstEndPosition(flow: Flow): number {
+  const position = flow.blocks.findIndex((block) => block.kind === 'end');
+  return position === -1 ? flow.blocks.length : position;
 }
 
 function blankBlock(kind: BlockKind, index: number, id: string): Block {

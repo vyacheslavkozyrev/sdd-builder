@@ -41,6 +41,18 @@ describe('F-12 AC-002 adding a block', () => {
     },
   );
 
+  it('F-12 (no criterion: Verify device fix 2026-11-24) puts a non-End block before the flow\'s Ends and an End at the end', () => {
+    const withEnd = flowWith('plan', [startBlock('block-1', 0), endBlock('block-2', 1)]);
+    const condition = addBlock(withEnd, 'condition');
+    expect(condition.flow.blocks.map((block) => block.kind)).toEqual(['start', 'condition', 'end']);
+    expect(condition.flow.blocks.map((block) => block.index)).toEqual([0, 1, 2]);
+    expect(condition.flow.blocks[2]).toEqual({ ...withEnd.blocks[1], index: 2 });
+
+    const end = addBlock(condition.flow, 'end');
+    expect(end.flow.blocks.map((block) => block.kind)).toEqual(['start', 'condition', 'end', 'end']);
+    expect(end.flow.blocks.map((block) => block.index)).toEqual([0, 1, 2, 3]);
+  });
+
   it('F-12 AC-002 adds a Start to an empty flow', () => {
     const result = addBlock(flowWith('plan'), 'start');
     expect(result.flow.blocks).toEqual([{ index: 0, id: 'block-1', kind: 'start', next: '' }]);
@@ -83,11 +95,11 @@ describe('F-12 AC-002 adding a block', () => {
     });
   });
 
-  it('F-12 AC-002 appends after the last block of the flow with the next index', () => {
+  it('F-12 AC-002 adds an Agent before the flow\'s End, and the blocks take their positions as index', () => {
     const before = flowWith('plan', [startBlock('block-1', 0), endBlock('block-2', 4)]);
     const result = addBlock(before, 'agent');
-    expect(result.flow.blocks.map((block) => block.id)).toEqual(['block-1', 'block-2', 'block-3']);
-    expect(result.flow.blocks[2]?.index).toBe(5);
+    expect(result.flow.blocks.map((block) => block.id)).toEqual(['block-1', 'block-3', 'block-2']);
+    expect(result.flow.blocks.map((block) => block.index)).toEqual([0, 1, 2]);
   });
 
   it('F-12 AC-002 does not change the flow it was given', () => {
@@ -135,7 +147,7 @@ describe('F-12 AC-004 block ids', () => {
     }
     const ids = flow.blocks.map((block) => block.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual(['block-1', 'block-2', 'block-3', 'block-4']);
+    expect(ids).toEqual(['block-1', 'block-2', 'block-4', 'block-3']);
   });
 });
 

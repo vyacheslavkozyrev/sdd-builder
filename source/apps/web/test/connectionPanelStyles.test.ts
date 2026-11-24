@@ -29,7 +29,7 @@ describe('F-11 AC-017 connection panel uses the shared panel shapes and the flow
     expect(flowField['& .MuiInputBase-root']).toEqual({ height: FIELD_HEIGHT });
     expect(flowField['& .MuiOutlinedInput-notchedOutline']).toEqual({ borderColor: theme.palette.grey[300] });
     expect(connection.readOnly).toMatchObject({
-      height: flowField['& .MuiInputBase-root']?.height,
+      minHeight: flowField['& .MuiInputBase-root']?.height,
       borderRadius: flowField['& .MuiOutlinedInput-root']?.borderRadius,
       border: `1px solid ${theme.palette.grey[300]}`,
       px: flowField['& .MuiOutlinedInput-input']?.px,
@@ -37,6 +37,12 @@ describe('F-11 AC-017 connection panel uses the shared panel shapes and the flow
       alignItems: 'center',
     });
     expect(connection.readOnly).toMatchObject({ bgcolor: theme.palette.grey[100], lineHeight: '20px' });
+  });
+
+  it('F-12 (no criterion: Verify device fix 2026-11-24) the read-only box grows to fit its text: no fixed height, the text wraps', () => {
+    expect(connection.readOnly).not.toHaveProperty('height');
+    expect(connection.readOnly).toMatchObject({ whiteSpace: 'normal', overflowWrap: 'anywhere' });
+    expect(connection.readOnly).not.toHaveProperty('overflow', 'hidden');
   });
 
   it('F-11 AC-017 the note is the helper text style of the flow panel footer note', () => {

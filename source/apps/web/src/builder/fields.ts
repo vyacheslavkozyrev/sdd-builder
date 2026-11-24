@@ -164,7 +164,7 @@ function withFlow(pipelineState: Pipeline, position: number, flow: Flow): Pipeli
 }
 
 // The list with its positions renumbered, so every row's index is its position again.
-function renumber<T extends { readonly index: number }>(rows: readonly T[]): T[] {
+export function renumber<T extends { readonly index: number }>(rows: readonly T[]): T[] {
   return rows.map((row, index) => ({ ...row, index }));
 }
 

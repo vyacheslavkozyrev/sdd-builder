@@ -395,7 +395,7 @@ describe('F-12 AC-047 a new unlinked block is not refused, and its marks say wha
       (entry) => entry.placement.kind === 'block' && entry.placement.blockId === added.blockId,
     );
     expect(onNew.length).toBeGreaterThan(0);
-    expect(onNew.map((entry) => entry.finding.path)).toContain('pipeline.flows.0.blocks.3.description');
+    expect(onNew.map((entry) => entry.finding.path)).toContain('pipeline.flows.0.blocks.2.description');
     expect(marks.blockedFlowIds).toEqual(['plan']);
     expect(disabledControls()).toEqual([]);
   });

@@ -192,3 +192,23 @@ describe('F-12 AC-021 block arrow connection panel', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });
+
+describe('F-12 (no criterion: Verify device fix 2026-11-24) block arrow panel shows the whole name', () => {
+  it('F-12 (no criterion: Verify device fix 2026-11-24) shows the whole long Condition description in the Source field', () => {
+    const description =
+      'all stories are generated and there is no conflicts with another stories and every story has a reviewed plan';
+    const flowState: core.Flow = {
+      ...blockFlow(),
+      blocks: [
+        { index: 0, id: 'start', kind: 'start', next: 'check' },
+        { index: 1, id: 'check', kind: 'condition', description, true: { to: 'done' }, false: { stop: true } },
+        { index: 2, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+      ],
+    };
+    const arrow = flowArrows(flowState).find((item) => item.fromId === 'check' && item.output === 'true');
+    if (arrow === undefined) throw new Error('no true arrow from the condition in the test flow');
+    render(<BlockArrowPanel flow={flowState} arrow={arrow} onDelete={vi.fn()} />);
+
+    expect(screen.getByLabelText('Source · read only').textContent).toBe(`Condition: ${description}`);
+  });
+});

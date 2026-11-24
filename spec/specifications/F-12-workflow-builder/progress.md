@@ -9,7 +9,7 @@
 | UX       | ✅ Complete | 2026-11-23 | Approved by the user: the six approved screens 01 to 06 in `spec/design/features/F-12-workflow-builder/` (the set of 2026-11-19, restored at the user's request on 2026-11-23 with its `screens.md` and `index.html`). The 14-screen set drawn on 2026-11-23 (commit `ad4bec5`) is not the approved set |
 | Plan     | ✅ Complete | 2026-11-23 | Approved by the user; 24 tasks (T001 to T024), written from the stories and the six approved screens. Differences from the screens (Link icon, Reads, Writes and Rule tags on the Agent panel, the false route as text, the name-clash and delete wording) are listed in `plan.md`, "Differences from the approved screens", and approved with the plan |
 | Build    | ✅ Complete | | 27 of 27 tasks committed |
-| Verify   | ⏳ Pending  | | Criteria coverage and the manual checklist |
+| Verify   | ⏳ Pending  | 2026-11-23 | AWAITING CONFIRMATION: 50 `[auto]` criteria covered, no gaps; 3 `[device]` criteria in `checklist.md`; matrix under Test Results |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
 
@@ -133,6 +133,84 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+**Verify run 2026-11-23.** Preconditions: all 27 tasks ticked and committed (T001 to T027), Current Task None, branch `main`, clean tree. `source/scripts/task-check.sh` passed: typecheck clean; tests api 45 of 45, web 1587 of 1587, core 1231 of 1231 (total 2863, none skipped).
+
+**Gaps:** none. Every `[auto]` criterion (50) has at least one passing test whose name carries its F-12 ID. The three `[device]` criteria (AC-007, AC-008, AC-012) are in `checklist.md`.
+
+**Scope (`features.md`, F-12):** covered by AC-001 to AC-003 (toolbox, four blocks, no Link/Move/Connection), AC-022 to AC-038 (block properties, custom agents, Condition and End), AC-012 to AC-021 (arrows by dragging, delete connection), AC-039 to AC-044 (delete with Start and last End kept). No scope item is without a criterion.
+
+**Thin coverage (passing, but worth strengthening; not gaps by the QA rule):**
+- AC-050: the only test that names it covers Agent field edits. The same rule holds for Condition, End, link and delete edits in the code, but no test names AC-050 for them.
+- AC-052: the test named AC-052 checks that `blocks.ts`, `blockLink.ts` and `blockArrows.ts` are in the scan list. The forbidden-name check itself runs under the F-11 AC-041 name.
+- AC-028: the 1001-character body test uses ASCII; no test proves the "code points" count for characters outside the BMP.
+
+**Open points for the user (not failures):**
+- AC-043 wording: the stories say the last-End reason is shown "beside" the disabled Delete control; it is built under the button (T020, user-accepted).
+- AC-049 selection: the stories keep each flow's selection on tab switch; the build clears the selection on every tab switch (`PipelineStep.tsx` `selectTab`). The blocks and arrows part is covered by tests; the selection part is not met as built.
+- Block-arrow subtitle: "An arrow only points one block to another." is new wording, not in the stories or screens (`PipelineStep.tsx`, `blockArrow` case).
+- Blocker colour: blockers are drawn amber on the block canvas; F-11 draws a blocker in red on the flow box (T022).
+- Agent restrictions in the docs: `ui.md` §4 (Agent row) and `features.md` F-12 line state the description limit and the custom-agent rule; the user to confirm the wording matches AC-022 to AC-028.
+
+**Matrix (criterion, tag, covering tests, result)**
+
+| Criterion | Tag | Covering tests (test files) | Result |
+| --- | --- | --- | --- |
+| AC-001 | auto | Toolbox.test.tsx | covered |
+| AC-002 | auto | builder-blocks, Toolbox, BlockCanvas | covered |
+| AC-003 | auto | builder-blocks, Toolbox | covered |
+| AC-004 | auto | builder-blocks, builder-model | covered |
+| AC-005 | auto | builder-blocks | covered |
+| AC-006 | auto | builder-model, builder-block-layout, blockDrawing, BlockCanvas | covered |
+| AC-007 | device | blockDrawing, BlockCanvas (geometry only) | checklist |
+| AC-008 | device | blockDrawing, BlockCanvas, builder-block-arrows (data only) | checklist |
+| AC-009 | auto | builder-block-layout, blockDrawing, BlockCanvas (End last, amended) | covered |
+| AC-010 | auto | builder-block-layout, BlockCanvas | covered |
+| AC-011 | auto | builder-block-arrows, builder-panel, PipelineStep, BlockCanvas | covered |
+| AC-012 | device | builder-block-drag, builder-block-link, BlockCanvas (rules only) | checklist |
+| AC-013 | auto | builder-block-arrows, builder-block-drag, BlockCanvas | covered |
+| AC-014 | auto | builder-block-link, builder-block-drag, BlockCanvas | covered |
+| AC-015 | auto | builder-block-link, builder-block-drag, BlockCanvas | covered |
+| AC-016 | auto | builder-block-link, builder-block-drag, BlockCanvas | covered |
+| AC-017 | auto | builder-block-link, builder-block-drag (amended refusal, unset limit) | covered |
+| AC-018 | auto | builder-block-link, builder-block-drag, BlockCanvas | covered |
+| AC-019 | auto | builder-block-repoint, builder-block-drag, BlockCanvas | covered |
+| AC-020 | auto | builder-block-arrows, builder-block-repoint | covered |
+| AC-021 | auto | builder-block-repoint, ConnectionPanel, PipelineStep | covered |
+| AC-022 | auto | builder-block-agent, builder-block-fields, BlockPanel, AgentRows | covered |
+| AC-023 | auto | builder-block-fields, BlockPanel | covered |
+| AC-024 | auto | builder-block-fields (1000 and 1001), BlockPanel | covered |
+| AC-025 | auto | builder-block-agent (four accepted, refused values), BlockPanel | covered |
+| AC-026 | auto | analyze-agent-labels (core), builder-block-agent, AgentRows | covered |
+| AC-027 | auto | builder-block-agent, AgentRows | covered |
+| AC-028 | auto | builder-block-fields, BlockPanel, core agent.test.ts | covered (see thin note) |
+| AC-029 | auto | builder-block-agent, builder-block-fields | covered |
+| AC-030 | auto | builder-block-condition, BlockPanel | covered |
+| AC-031 | auto | builder-block-condition, BlockPanel | covered |
+| AC-032 | auto | builder-block-condition, BlockPanel | covered |
+| AC-033 | auto | builder-block-condition (accepted 1 to 5, refused 0, 6, 2.5, blank), BlockPanel | covered |
+| AC-034 | auto | builder-block-condition, BlockPanel | covered |
+| AC-035 | auto | builder-block-end, BlockPanel | covered |
+| AC-036 | auto | builder-block-end, BlockPanel | covered |
+| AC-037 | auto | builder-block-end (amended: move, rename, sole outcome refused) | covered |
+| AC-038 | auto | builder-block-end | covered |
+| AC-039 | auto | builder-delete-block, BlockPanel | covered |
+| AC-040 | auto | builder-delete-block, BlockPanel | covered |
+| AC-041 | auto | builder-delete-block (true, false, Condition, Start or Agent next) | covered |
+| AC-042 | auto | builder-delete-block, BlockPanel | covered |
+| AC-043 | auto | builder-delete-block, BlockPanel (wording open) | covered |
+| AC-044 | auto | builder-delete-block, builder-panel, PipelineStep | covered |
+| AC-045 | auto | builder-marks, MarkViews, PipelineStep | covered |
+| AC-046 | auto | builder-marks (flow blocked, seven cases), analyze-condition (core, amended) | covered |
+| AC-047 | auto | builder-marks, MarkViews | covered |
+| AC-048 | auto | builder-marks, MarkViews | covered |
+| AC-049 | auto | builder-model, PipelineStep (selection clause open) | covered (open point) |
+| AC-050 | auto | builder-block-fields (Agent edits only) | covered (thin) |
+| AC-051 | auto | wizard-pipeline, PipelineStep | covered |
+| AC-052 | auto | wizard-privacy (scan list; see thin note) | covered (thin) |
+| AC-053 | auto | wizard-pipeline | covered |
+
+**Manual checklist:** `spec/specifications/F-12-workflow-builder/checklist.md`, three entries (AC-007, AC-008, AC-012), results pending. Status: AWAITING CONFIRMATION.
 
 ---
 

@@ -59,7 +59,7 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 - [ ] AC-008 `[device]`: An arrow runs from the output point of a block to the input point of its target. A normal arrow is solid. An arrow that goes back to an earlier Agent is dashed and labelled "up to N rounds" with its round limit. The true output of a Condition is labelled "true" and its false output "false".
 - [ ] AC-009 `[auto]`: The canvas places the blocks in the order of their arrows, starting from Start, with the same layout for the same blocks. Blocks not reached from Start follow the chain in list order, after it. The End block is placed after every other block of its flow, as on screen 01 (amended 2026-11-23).
 - [ ] AC-010 `[auto]`: The canvas heading shows the flow's name and a count line "N Agents, N Conditions". With no Agent and no Condition, the count line reads "0 Agents, 0 Conditions".
-- [ ] AC-011 `[auto]`: Selecting a block opens its panel. Selecting an arrow opens the arrow's panel: its source and target are shown read-only, and Delete connection asks first (AC-021).
+- [ ] AC-011 `[auto]`: Selecting a block opens its panel. Selecting an arrow opens the arrow's panel: its source and target are shown read-only, and Delete connection asks first (AC-021). The arrow panel's subtitle is "An arrow only points one block to another." (amended 2026-11-23).
 
 ### US-003: Link blocks by dragging between points
 
@@ -146,7 +146,7 @@ Every automated test names the feature and criterion it covers (`F-12 AC-003`).
 - [ ] AC-040 `[auto]`: A confirmed delete removes the block and all arrows that start or end at it. Other blocks keep their own properties.
 - [ ] AC-041 `[auto]`: A block that another block routed to keeps its own properties and has its route cleared: a true output shows "No arrow yet", a false output shows "Stop the flow and ask the user", a Start or Agent output shows "No arrow yet". No arrow is rewired to another block.
 - [ ] AC-042 `[auto]`: The flow's Start block cannot be deleted. Its Delete control is disabled with the reason "A flow keeps its Start block." shown beside it.
-- [ ] AC-043 `[auto]`: The flow's last End block cannot be deleted. Its Delete control is disabled with the reason "A flow keeps at least one End block." shown beside it.
+- [ ] AC-043 `[auto]`: The flow's last End block cannot be deleted. Its Delete control is disabled with the reason "A flow keeps at least one End block." shown under the control (amended 2026-11-23).
 - [ ] AC-044 `[auto]`: Deleting a block does not delete the flow, the pipeline or any other flow; the flow tab stays on the same flow.
 
 ### US-008: Structure marks on blocks

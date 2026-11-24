@@ -7,8 +7,8 @@
 | Research | ➖ Optional |      |       |
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 7 stories, 27 criteria, all [auto]. Parse refusal is a 400 (owner answer 2026-11-24); input caps are F-17 |
 | UX       | ➖ Not needed |  | No user interface (API only) |
-| Plan     | ⏳ Pending  |      | Approved by the user before any code is written |
-| Build    | ⏳ Pending  |      | 0 of N tasks committed |
+| Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 9 tasks (T001 to T009); 27 criteria, all covered |
+| Build    | 🔄 In Progress |      | 0 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked

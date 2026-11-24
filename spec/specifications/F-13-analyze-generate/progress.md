@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | 5 stories, 31 criteria: 29 `[auto]`, 2 `[device]`; approved by the user. Decision 41 governs (failed or skipped review is an error); F-13 makes the real calls to `/analyze` and `/generate` (404 shown as text until F-14, F-15) |
 | UX       | ✅ Complete | 2026-11-24 | Approved by the user; 11 screens in `spec/design/features/F-13-analyze-generate/`. Usability and visual reviews skipped at the owner's request (2026-11-24) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 14 tasks (T001 to T014), all `[Web]` except the docs task T014 |
-| Build    | 🔄 In Progress | 2026-11-24 | 14 of 15 tasks committed |
+| Build    | ✅ Complete | 2026-11-24 | 15 of 15 tasks committed (T015 added by amendment) |
 | Verify   | 🔄 In Progress | 2026-11-24 | AWAITING CONFIRMATION: 29 of 31 `[auto]` criteria pass (task check: api 45, web 1895, core 1217). AC-030 and AC-031 `[device]` pending in `checklist.md` |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-T015 — implemented
+None
 
 ---
 
@@ -39,6 +39,7 @@ T015 — implemented
 | T012 | Generate action and download (AnalyzeStep, `postFile`, `generate.ts`, `download.ts`): one POST /generate with the Analyze configuration, pending lock, zip saved as `sddbuilder-project.zip`, error text and 422 lines | 0 blockers, 2 warnings fixed (a 2xx reply counted as the zip without the `application/zip` media type; a throwing save left the step locked), 1 suggestion fixed (AC-028 test asserts the ticked box and enabled Analyze); 4 suggestions and 3 owner decisions deferred (see Deferred Findings). Size guard overridden by the owner (one commit for T012) | task check passed: api 45, web 1899, core 1217 |
 | T013 | Wire step 4: `StepBody` shows `AnalyzeStep` in place of the F-08 placeholder; `getStepBodyStyles` and the F-08 AC-013 and AC-015 placeholder tests removed (superseded for step 4 by F-13 AC-001 and the device criteria AC-030); the App test of step 4 renamed to F-13 AC-001 | 0 blockers, 2 warnings fixed (step 4 lost its input, textarea, select and exact step-title negatives, now restored in `StepBody.test.tsx`; F-08 AC-013 in `stories.md` not marked superseded, now annotated), 0 suggestions | task check passed: api 45, web 1895, core 1217 |
 | T014 | Docs: ui.md §2 step 4 (model provider, endpoints, decision 41, out-of-date and pending states), features.md F-13 entry, screens.md decision 2 reason | docs only; no review round needed | task check passed: api 45, web 1895, core 1217 |
+| T015 | Layout to the approved screens (amendment 2026-11-24): columns with 24 px padding and the preview pinned right; screen spacing; status slot under Generate | 0 blockers, 0 warnings (review round 1, read-only precondition note: checklist committed first); remaining differences are owner-facing (see the review report in this session) | task check passed: api 45, web 1895, core 1217 |
 
 ---
 

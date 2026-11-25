@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-None
+T008 — reviewed: 0 blockers, 2 warnings fixed, 1 suggestion fixed
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
@@ -46,6 +46,8 @@ _Review suggestions intentionally not applied, with the reason._
 - `source/apps/api/src/app.ts` `createApp(_deps)` (T002 review, WARNING, fixed by removal; a second WARNING, the vacuous no-call assertions in `test/analyze-route.test.ts`, was fixed the same way): the parameter was unused, which is dead code. `createApp()` takes no arguments now. The plan's `deps` (analysis and log functions) comes back in T003, the first task whose route calls them. Reason: the T002 test's "no analysis call" assertions could never fail while nothing was wired, so they were removed. The no-model-call guarantee for AC-010 and AC-011 is proven when `POST /analyze` is wired in T003.
 - `source/apps/api/src/http/body.ts:4` and `source/packages/core/src/pipeline/parse/lists.ts:41` (T003 review, WARNING, resolved by Amendment 1: the reply promise is narrowed to brief text): the body reader promises that a 400 reply never repeats a value from the body (plan T003), but core's parser messages do echo body values: `lists.ts:41` `repeats <item>`, and in `check/` the messages `got <flow.name>`, `got <tag.ruleId>`, `the id <id>`, `got <route.to>` and similar. The echoed values are ids, names, tags and list items, not idea text, so AC-009 (no brief text) is not broken by them; the plan's wider promise is. Fix needs a change to core's messages (or a sanitised message form), which the plan makes a task of its own. Reason not applied here: changing core is out of this task's scope; proposed as an Amendment. Blocks the T003 outcome until the owner decides.
 - `source/apps/api/test/analyze-route.test.ts` and `source/apps/api/test/analyze-body.test.ts` (T003 review, SUGGESTION): the `fakeDeps()` helper is duplicated. Reason not applied: each test file is self-contained and the duplicate is ten lines; a shared helper can come with T004 when the success cases need it.
+
+- `source/apps/api/src/server.ts` startup (T008 review, SUGGESTION): an EADDRINUSE or other listen error is not caught, so Node prints its own stack and exits. The stack carries the port only, no secret, and a clear message would be a new code path with no criterion behind it. Reason not applied: outside AC-020 to AC-024; can come with a later operations task.
 
 ---
 

@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AnalyzeStep } from '../src/analyze/AnalyzeStep.js';
-import { buildProjectConfig } from '../src/analyze/config.js';
+import { buildRequestBody } from '../src/analyze/config.js';
 import { PROJECT_ZIP_NAME, saveFile, type DownloadSeam } from '../src/analyze/download.js';
 import { generateReply } from '../src/analyze/generate.js';
 import type { FetchFn, RequestFailure } from '../src/analyze/request.js';
@@ -151,7 +151,7 @@ describe('F-13 AC-026 Generate sends one POST /generate with the same configurat
     fireEvent.click(generateButton());
     const generateCalls = pending.calls.filter((call) => call.url === '/generate');
     expect(generateCalls).toHaveLength(1);
-    expect(generateCalls[0]?.body).toEqual(buildProjectConfig(VALUES));
+    expect(generateCalls[0]?.body).toEqual(buildRequestBody(VALUES));
     expect(pending.calls[0]?.body).toEqual(generateCalls[0]?.body);
 
     pending.finish(zipResponse());

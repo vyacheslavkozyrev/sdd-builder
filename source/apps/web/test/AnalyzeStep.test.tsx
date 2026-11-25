@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AnalyzeStep } from '../src/analyze/AnalyzeStep.js';
-import { buildProjectConfig } from '../src/analyze/config.js';
+import { buildRequestBody } from '../src/analyze/config.js';
 import type { FetchFn } from '../src/analyze/request.js';
 import { loadGenerationTemplates } from '../src/analyze/templates.js';
 import { theme } from '../src/theme.js';
@@ -102,7 +102,7 @@ describe('F-13 AC-005 Analyze sends one POST /analyze with the configuration of 
     await screen.findByText('Add a rule block.');
     expect(calls).toHaveLength(1);
     expect(calls[0]?.url).toBe('/analyze');
-    expect(calls[0]?.body).toEqual(buildProjectConfig(VALUES));
+    expect(calls[0]?.body).toEqual(buildRequestBody(VALUES));
   });
 });
 

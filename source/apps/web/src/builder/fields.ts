@@ -54,7 +54,7 @@ export function isModel(value: string): value is Model {
 // The document form of a value. Each row's `index` is its position, not a document key, so it is left out
 // at every level; an unset value is left out too; a rule tag is written as its rule id, which is the form
 // the document holds.
-function toDocument(value: unknown): unknown {
+export function toDocument(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(toDocument);
   if (typeof value !== 'object' || value === null) return value;
   const document: Record<string, unknown> = {};

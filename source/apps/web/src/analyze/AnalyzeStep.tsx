@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { analysisError, analysisResult, configKey, isGreen, isOutOfDate, startAnalysis, type AnalysisState } from './analysisState.js';
-import { buildProjectConfig } from './config.js';
+import { buildProjectConfig, buildRequestBody } from './config.js';
 import { saveFile, PROJECT_ZIP_NAME } from './download.js';
 import { generateReply, type GenerateState } from './generate.js';
 import { Findings } from './Findings.js';
@@ -57,6 +57,7 @@ export function AnalyzeStep({ values, templates, fetchFn = browserFetch, save = 
   const generating = useRef(false);
 
   const config = useMemo(() => buildProjectConfig(values), [values]);
+  const body = useMemo(() => buildRequestBody(values), [values]);
   const key = useMemo(() => configKey(config), [config]);
   const tree = useMemo(() => projectTree(config, templates), [config, templates]);
   const pending = state.kind === 'pending';
@@ -68,7 +69,7 @@ export function AnalyzeStep({ values, templates, fetchFn = browserFetch, save = 
     inFlight.current = true;
     setState(startAnalysis(key));
     try {
-      const outcome = await postJson('/analyze', config, fetchFn);
+      const outcome = await postJson('/analyze', body, fetchFn);
       setState(outcomeState(key, outcome));
     } finally {
       inFlight.current = false;
@@ -82,7 +83,7 @@ export function AnalyzeStep({ values, templates, fetchFn = browserFetch, save = 
     generating.current = true;
     setGeneration(GENERATE_PENDING);
     try {
-      const reply = generateReply(await postFile('/generate', config, fetchFn));
+      const reply = generateReply(await postFile('/generate', body, fetchFn));
       if (reply.kind === 'save') {
         save(reply.blob, PROJECT_ZIP_NAME);
         setGeneration(GENERATE_IDLE);

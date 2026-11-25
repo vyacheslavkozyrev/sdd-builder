@@ -1,4 +1,5 @@
 import type { AgentBlock, Flow, ProjectConfig } from '../model.js';
+import { flowFileName } from './flow-file.js';
 import { flowChain, processDiagram } from './mermaid.js';
 import { flowValues } from './values-flow.js';
 import { inlineText, linesOf } from './values-text.js';
@@ -19,7 +20,7 @@ export function baseValues(config: ProjectConfig): Record<string, string> {
     processFlows: linesOf(flowChain(flows).map(processItem)),
     commandList: linesOf([
       item('`.claude/commands/pipeline.md`', ''),
-      ...flows.map((flow) => item(`\`.claude/commands/${flow.id}.md\``, '')),
+      ...flows.map((flow) => item(`\`.claude/commands/${flowFileName(flow)}.md\``, '')),
     ]),
     agentList: linesOf(
       agents.map((block) => item(`\`.claude/agents/${block.name}.md\``, inlineText(block.description))),

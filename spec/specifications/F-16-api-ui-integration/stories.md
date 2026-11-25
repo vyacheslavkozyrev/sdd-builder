@@ -88,7 +88,7 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 - [ ] AC-012 `[auto]`: the body the analyze step sends for a filled-in wizard state is accepted by `pipeline.parseProjectConfig`.
 - [ ] AC-013 `[auto]`: a command file is named from its flow name: the name in lower case, each run of characters that is not a letter or a digit replaced by one `-`, and the ends trimmed (`Specify` gives `specify.md`; `Review code` gives `review-code.md`).
 - [ ] AC-014 `[auto]`: a flow name that gives an empty file name (no letter or digit) is a blocker: the analysis reports it, and generation refuses it with 422 and no model call.
-- [ ] AC-015 `[auto]`: two flows whose names give the same file name are a blocker: the analysis reports it, and generation refuses it with 422 and no model call.
+- [ ] AC-015 `[auto]`: two flows whose names give the same file name are a blocker: the analysis reports it, and generation refuses it with 422 and no model call. A flow whose file name is `pipeline` is the same blocker, since that file is the pipeline command's file.
 - [ ] AC-016 `[auto]`: the file list, and the command list in `process.md`, name each command file with the same file name.
 
 ---

@@ -1,5 +1,6 @@
 import type { AgentBlock, Flow, ProjectConfig, Rule } from '../model.js';
 import { GenerationError } from './error.js';
+import { flowFileName } from './flow-file.js';
 import { isSafePath } from './paths.js';
 import type { BaseTemplate, GenerationTemplates } from './templates.js';
 
@@ -28,7 +29,7 @@ export function listFiles(config: ProjectConfig, templates: GenerationTemplates)
     })),
     { path: '.claude/commands/pipeline.md', source: { kind: 'pipeline' } },
     ...config.pipeline.flows.map((flow) => ({
-      path: `.claude/commands/${flow.id}.md`,
+      path: `.claude/commands/${flowFileName(flow)}.md`,
       source: { kind: 'flow', flow } as const,
     })),
     ...config.pipeline.flows.flatMap((flow) =>

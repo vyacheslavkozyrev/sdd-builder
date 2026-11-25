@@ -22,14 +22,16 @@ const RULES: readonly Rule[] = [
   { index: 1, id: 'beta', title: 'Beta', text: 'Second rule.' },
 ];
 
-// A flow of the valid fixture with its own id, its own agent name and block ids prefixed by the flow id, so that
-// flows do not share a path or a block id (the analysis requires unique block ids across the pipeline).
+// A flow of the valid fixture with its own id, its own name (so its command file is its id), its own agent name and
+// block ids prefixed by the flow id, so that flows do not share a path or a block id (the analysis requires unique
+// block ids across the pipeline).
 function flowOf(id: string): Flow {
   const flow = validConfig().pipeline.flows[0];
   if (flow === undefined) throw new Error('the fixture has no flow');
   return {
     ...flow,
     id,
+    name: id,
     blocks: flow.blocks.map((block) => {
       const blockId = `${id}-${block.id}`;
       if (block.kind === 'agent') return { ...block, id: blockId, name: `${id}-agent`, next: `${id}-${block.next}` };
@@ -247,7 +249,7 @@ describe('F-04 AC-038 planning renders each base layout with the base values', (
     const plan = planOf(config, templates);
 
     expect(fileAt(plan, 'CLAUDE.md').layout).toBe(
-      'Process:\n- Build (`build`): The process does not stop at the end of this flow.' +
+      'Process:\n- build (`build`): The process does not stop at the end of this flow.' +
         '\nCommands:\n- `.claude/commands/pipeline.md`\n- `.claude/commands/build.md`' +
         '\nAgents:\n- `.claude/agents/build-agent.md`: Builds the project.' +
         '\nRules:\n- `.claude/rules/alpha.md`: Alpha\n- `.claude/rules/beta.md`: Beta',

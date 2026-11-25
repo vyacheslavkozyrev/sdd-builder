@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 4 of 6 tasks committed (T004 to T006 added by Amendment 2026-11-24) |
+| Build    | 🔄 In Progress |      | 5 of 7 tasks committed (T004 to T007 added by Amendment 2026-11-24) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -36,6 +36,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T001 | Dev proxy `dev-proxy.ts`: `devProxy(env)` forwards `^/analyze(\?.*)?$` and `^/generate(\?.*)?$` (anchored: Vite treats a plain key as a prefix) to `http://localhost:<PORT>` with timeouts of 300000 ms; `vite.config.ts` calls it | 0 blockers, 1 warning (PORT differs from the API for blank and invalid values; resolved by owner decision, see T003 and the Amendment), 2 suggestions fixed (comment; exact keys asserted) | task check passed: api 246 of 246, web 1916 of 1916, core 1217 of 1217 |
 | T003 | API PORT rule matches the proxy: `readPort` trims, blank gives 3000, a whole number from 1 to 65535 otherwise, else refused naming PORT | 0 blockers, 0 warnings, 1 suggestion fixed (comment), 1 deferred (the proxy passes a non-numeric PORT through; the API refuses it at start; dev-only) | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 | T004 | Analyze and generate bodies follow the pipeline schema: `buildRequestBody` sends the document form (no `index` at any level; rule tags as ids), the tree and the config key keep the parser-shaped config | 0 blockers, 0 warnings, 1 suggestion fixed (test rename reverted), 1 deferred (analyze imports `toDocument` from the builder) | task check passed: api 251 of 251, web 1921 of 1921, core 1217 of 1217 |
+| T005 | Command files take the flow name: `flowFileName` (`generate/flow-file.ts`: lower-case, NFC, runs of non-letters and non-digits to one `-`); file list and the process list use it; blockers for an empty file name, a clash between flows, and the file name `pipeline` (`analyze/command-file.ts`); flow id kept for links and labels | 0 blockers, 2 warnings fixed (non-ASCII letters; a test that asserted nothing), 1 suggestion fixed; 1 warning resolved by owner decision (web subtitle, T007); AC-015 amended for the pipeline clash | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -49,6 +50,12 @@ _Review suggestions intentionally not applied, with the reason._
 - T001 (WARNING, unresolved, needs an owner decision): `source/apps/web/dev-proxy.ts` and AC-004 assume the API maps a blank `PORT` to 3000. It does not: `readPort` in `source/apps/api/src/settings.ts` throws on `''`, on a space-padded value and on a non-numeric value, so the API refuses to start. The proxy follows the approved AC-004 wording (blank gives 3000, any other value is used as given, trimmed), so the two differ for blank and invalid values. Fixing the proxy to throw would contradict AC-004; changing the API is outside T001. Options: (a) the API treats a blank `PORT` as unset (small change in F-14's `settings.ts`, with a test), or (b) amend AC-004 to say the API rejects a blank PORT. Impact is dev-only and limited to a misconfigured `PORT`.
 
 - T003 (SUGGESTION, deferred, by AC-004 wording): `source/apps/web/dev-proxy.ts` `apiPort` passes a non-numeric or out-of-range PORT through as given (for example `abc` gives `http://localhost:abc`), while the API refuses it at start. AC-004 says "any other value is used as given", and the proxy test pins it. Blank and space-padded values agree with the API. Dev-only; a misconfigured PORT fails at the first request.
+
+- T005 (WARNING, unresolved, needs a plan amendment): `source/apps/web/src/wizard/PipelineStep.tsx` lines 233 and 376 show `Generates .claude/commands/${flow.name}.md`, which is no longer the file name (for example `UX` now gives `ux.md`, pinned by `source/apps/web/test/PipelineStep.test.tsx` line 431). Fix: use `flowFileName(flow)` (export it from `source/packages/core/src/pipeline/index.ts`) and update that test. Outside T005's Core file list and outside the two F-04 expectation changes the owner allowed, so not applied here. The task stays `implemented` until it is resolved.
+
+- T005 (note for the owner, AC-015): the implementer's third blocker (a flow whose file name is `pipeline`, `command-file-clash` in `source/packages/core/src/pipeline/analyze/command-file.ts`) is recorded as part of AC-015's clash rule: two generated command files would share one path. AC-015's text should say so (a flow name that gives `pipeline` clashes with the pipeline command). Stories were not changed in this task.
+
+- T005 (SUGGESTION, deferred): `source/templates/README.md` line 89 says `<flow id>.md`. T006 covers it (plan item), so it is not changed here.
 
 - T004 (SUGGESTION, deferred): `source/apps/web/src/analyze/config.ts` imports `toDocument` from `builder/fields.ts`, so the analyze step reaches into a builder module. Moving it to a neutral web module would touch five more files for a naming change only; revisit with the next change to either module.
 
@@ -96,6 +103,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-24 (T005 review: AC-015 clash, web subtitle)
+**Changed**: stories.md AC-015 also refuses a flow whose file name is `pipeline`; plan.md gains T007 (the pipeline step's subtitle shows the real file name, with the core export and the pinned namespace list).
+**Reason**: T005 review found the clash with the pipeline command file, and a subtitle that still showed the flow name. The owner approved both.
+**Impact**: T007 is a new task; T006 (docs) and T007 follow T005.
+```
 
 ```
 ### Amendment — 2026-11-24 (owner bug report: 400 and file names)

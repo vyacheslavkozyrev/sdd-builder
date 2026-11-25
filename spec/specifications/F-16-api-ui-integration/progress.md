@@ -67,28 +67,34 @@ _Review suggestions intentionally not applied, with the reason._
 
 _Criteria coverage matrix and manual checklist outcome._
 
-Verify run 2026-11-24 (QA, verify mode). Branch `main`, working tree clean at start.
+Verify run 2026-11-24 (QA, verify mode, after the US-004 bug fix: AC-011 to AC-016). Branch `main`, working tree clean at start.
 
-**Preconditions**: branch and clean tree pass. Plan tasks T001, T002 and T003 are ticked and committed (T002 is in git as `7b9329a`). **Not met:** `Current Task` still reads "None" (the T002 commit did not clear it, as the header requires), and the Build row says "2 of 3 tasks committed". Both are stale bookkeeping; the owner or the caller clears them.
+**Preconditions**: branch `main` and clean tree pass. Plan tasks T001 to T007 are ticked and committed (latest `1158dfe`). `Current Task` reads None. Build is complete (7 of 7).
 
-**Check run** (`source/scripts/task-check.sh`, exit 0, no timeouts; log in the session scratchpad):
+**Check run** (`source/scripts/task-check.sh`, exit 0, no timeouts; log at `/private/tmp/claude-501/-Users-vyacheslavkozyrev-Projects-SDDBuilder/66b1aef7-4def-458a-9ec2-b298ecb92676/scratchpad/check.log`):
 
 | Package | Test files | Tests |
 | ------- | ---------- | ----- |
 | api | 17 of 17 | 251 of 251 |
-| web | 84 of 84 | 1916 of 1916 |
-| core | 59 of 59 | 1217 of 1217 |
+| web | 84 of 84 | 1922 of 1922 |
+| core | 60 of 60 | 1254 of 1254 |
 
-Typecheck passed for all workspaces. Total: 3384 tests passed, 0 failed.
+Typecheck passed for all workspaces. Total: 3427 tests passed, 0 failed.
 
-**Acceptance criteria matrix**
+**Acceptance criteria matrix** (F-16 tests counted in the run: 70 cases, all passing: web 27, api 6, core 37)
 
 | Criterion | Tag | Covering tests (file › test name) | Result |
 | --------- | --- | --------------------------------- | ------ |
-| AC-001 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-001 forwards /analyze, /analyze?debug=1, /generate to the API`; `F-16 AC-001 targets http://localhost:<PORT> for env {}, {"PORT":"3000"}, {"PORT":"4100"}` | pass (6 tests) |
-| AC-002 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-002 does not forward /, /generate/x, /analyzer, /analyze/x, /src/main.tsx, /api/analyze`; `F-16 AC-002 negative case: the proxy has entries for /analyze and /generate only` | pass (7 tests) |
+| AC-001 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-001 forwards /analyze to the API`, `... /generate to the API`, `... /analyze?debug=1 to the API`, `... targets http://localhost:<PORT> for env {}`, `... for env {"PORT":"3000"}`, `... for env {"PORT":"4100"}` | pass (6 tests) |
+| AC-002 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-002 does not forward /`, `... /generate/x`, `... /analyzer`, `... /analyze/x`, `... /src/main.tsx`, `... /api/analyze`; `F-16 AC-002 negative case: the proxy has entries for /analyze and /generate only` | pass (7 tests) |
 | AC-003 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-003 sets 300000 ms on ^/analyze(\?.*)?$`; `... on ^/generate(\?.*)?$` | pass (2 tests) |
-| AC-004 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-004 gives the target for PORT unset, empty, only spaces, a port value, a port with surrounding spaces, a value used as given, not validated`; `source/apps/api/test/settings.test.ts` › `F-16 AC-004 PORT matches the dev proxy` (blank, space-only, space-padded 8080, and refusals of 0, 80.5, abc naming PORT) | pass (6 web tests, 6 API tests) |
+| AC-004 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-004 gives the target for PORT unset`, `... empty`, `... only spaces`, `... a port value`, `... a port with surrounding spaces`, `... a value used as given, not validated`; `source/apps/api/test/settings.test.ts` › `F-16 AC-004 PORT matches the dev proxy` (empty, only spaces, 8080 with spaces, refusals of 0, 80.5, abc naming PORT) | pass (6 web, 6 API) |
+| AC-011 | auto | `source/apps/web/test/analyze-config.test.ts` › `F-16 AC-011 has no index key at any level for the default pipeline and two rule blocks`; `... for a filled-in state with arguments, flows and rule tags`; `F-16 AC-011 keeps the list order and the other keys of the configuration` | pass (3 tests) |
+| AC-012 | auto | `source/apps/web/test/analyze-config.test.ts` › `F-16 AC-012 is accepted by parseProjectConfig for a filled-in state, with the same pipeline and rules back`; `... for the default pipeline with no rule blocks` | pass (2 tests) |
+| AC-013 | auto | `source/packages/core/test/pipeline/command-file.test.ts` › `F-16 AC-013 names the command file of the flow name ...` (19 cases: "Specify" to "specify", "Review code" to "review-code", "  Build  ", "!Build!", "a  --  b", "Build 日本", "---" and others); `... names the command file from the name, not from the flow id`; `... keeps the flow id in the content, while the file takes the name` | pass (21 tests) |
+| AC-014 | auto | `source/packages/core/test/pipeline/command-file.test.ts` › `F-16 AC-014 refuses the name "---"` (and "?!", "½ ²", a combining mark only); `... is reported by the refusal gate, so generation refuses the config`; `... leaves a blank name to the flow-name rule only`; `... has no finding for a name with a letter or digit` | pass (7 tests) |
+| AC-015 | auto | `source/packages/core/test/pipeline/command-file.test.ts` › `F-16 AC-015 refuses "Build" and "build!"`, `... "Review code" and "review  code"`, `... "Specify" and "SPECIFY"`; `... is reported by the refusal gate, so generation refuses the config`; `... has no finding for two flows with different file names`; `... has no finding for two names whose non-ASCII letters give different file names`; `... gives the clash for each later flow with the same file name`; `... refuses a flow whose file name is pipeline, the pipeline command file` | pass (8 tests) |
+| AC-016 | auto | `source/packages/core/test/pipeline/command-file.test.ts` › `F-16 AC-016 lists every flow command file under the name its file list path has`; `source/apps/web/test/PipelineStep.test.tsx` › `F-16 AC-016 a flow named "Build Code" shows build-code.md as its command file` | pass (2 tests) |
 | AC-005 | device | Manual checklist item 1 | pending |
 | AC-006 | device | Manual checklist item 2 | pending |
 | AC-007 | device | Manual checklist item 3 | pending |
@@ -96,11 +102,13 @@ Typecheck passed for all workspaces. Total: 3384 tests passed, 0 failed.
 | AC-009 | device | Manual checklist item 5 | pending |
 | AC-010 | device | Manual checklist item 6 | pending |
 
-Gaps: none for the `[auto]` criteria. Failing tests: none.
+Gaps: none for the `[auto]` criteria (AC-001 to AC-004, AC-011 to AC-016). Failing tests: none.
 
-Scope check (`spec/documents/features.md` F-16): "the step sends the configuration, shows findings, generates and downloads" is covered by AC-005 (findings), AC-007 (generate and download) and AC-001 to AC-004 (the calls reach the API). The error text for 400, 422, 429, 500 and 502 is owned by F-13 and no F-16 criterion covers it; AC-009 covers the network case on the checklist.
+Note: AC-014 and AC-015 are proven at the refusal gate (`configProblems` in core, which `generate/plan.ts` calls before any model call). No API test names them directly; the 422 reply shape is F-15's (`generate-route.test.ts`).
 
-**Manual checklist**: `spec/specifications/F-16-api-ui-integration/checklist.md`, 6 items, all pending. Verify is **AWAITING CONFIRMATION** for these items; it is not complete.
+Scope check (`spec/documents/features.md` F-16): "the step sends the configuration, shows findings, generates and downloads" is covered by AC-011 and AC-012 (the request body the step sends), AC-005 and AC-007 (findings, generate and download, on the checklist), and AC-001 to AC-004 (the calls reach the API).
+
+**Manual checklist**: `spec/specifications/F-16-api-ui-integration/checklist.md`, 6 items, all pending, to be run again on the fixed app (the steps are unchanged for the fix). Verify is **AWAITING CONFIRMATION** for these items; it is not complete.
 
 ---
 

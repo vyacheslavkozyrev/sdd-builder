@@ -1,12 +1,14 @@
 // The structure marks of the Pipeline and flow tabs (F-11 AC-033, AC-034, AC-036, AC-037, AC-038;
 // F-12 AC-045, AC-046, AC-047, AC-048). The findings of core's `analyzeStructure` are placed on the drawn
 // item they belong to: a flow box, a flow arrow (by its source flow), a block, a block's arrow, or none.
-// The message is the analyzer's, unchanged: the builder adds no wording of its own. A flow with a blocker
+// The analyzer's message and path are kept; each finding also carries its label, the names the builder shows
+// in their place (problemLabel, F-16 AC-022). A flow with a blocker
 // is marked as a blocker on its box, and blockers disable no control. A pure function of the pipeline and
 // the rules: no React and no I/O.
 
 import { pipeline } from '@sddbuilder/core';
 import { flowArrows, type OutputName } from './blockArrows.js';
+import { problemLabel, type ProblemLabel } from './problemLabel.js';
 
 export type Pipeline = pipeline.Pipeline;
 export type Rule = pipeline.Rule;
@@ -25,6 +27,8 @@ export type Placement =
 export interface PlacedFinding {
   readonly finding: Finding;
   readonly placement: Placement;
+  // The names the builder shows for the finding: its location and its message (F-16 AC-022).
+  readonly label: ProblemLabel;
 }
 
 export interface StructureMarks {
@@ -103,7 +107,11 @@ export function structureMarks(pipelineState: Pipeline, rules: readonly Rule[]):
     }
   }
   return {
-    findings: findings.map((finding) => ({ finding, placement: placementOf(finding, pipelineState) })),
+    findings: findings.map((finding) => ({
+      finding,
+      placement: placementOf(finding, pipelineState),
+      label: problemLabel(finding, pipelineState),
+    })),
     blockedFlowIds: pipelineState.flows.filter((flow) => blockedIndexes.has(flow.index)).map((flow) => flow.id),
   };
 }

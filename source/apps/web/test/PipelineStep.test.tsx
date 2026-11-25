@@ -225,14 +225,22 @@ describe('F-12 AC-011 selecting a block or an arrow drives the properties card',
   it('F-12 AC-045 a finding on an Agent block is listed in its panel', () => {
     extraMarks.findings = [
       {
-        finding: { severity: 'warning', rule: 'test', path: 'pipeline.flows.0.blocks.1.body', message: 'Body is thin.' },
+        finding: {
+          severity: 'warning',
+          rule: 'test',
+          path: 'pipeline.flows.0.blocks.1.body',
+          message: 'pipeline.flows.0.blocks.1.body is thin.',
+        },
         placement: { kind: 'block', flowId: 'specify', blockId: 'specify-agent' },
+        label: { location: 'Specify agent', message: 'The body is thin.' },
       },
     ];
     renderStep();
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).getByRole('region', { name: 'Structure marks' }).textContent).toContain('Body is thin.');
+    const marks = within(propertiesCard()).getByRole('region', { name: 'Structure marks' });
+    expect(marks.textContent).toContain('The body is thin.');
+    expect(marks.textContent).not.toContain('pipeline.flows');
   });
 
   it('F-12 AC-011 an edit to the selected Agent keeps its panel open', () => {
@@ -566,31 +574,46 @@ describe('F-11 AC-035 a warning shows beside the box or arrow it names', () => {
     path,
     message,
   });
+  const named = (location: string, message: string) => ({ location, message });
 
-  it('F-11 AC-035 a warning on a flow box shows beside that box, with the analyzer message', () => {
+  it('F-11 AC-035 a warning on a flow box shows beside that box, with its message named (F-16 AC-022)', () => {
     extraMarks.findings = [
-      { finding: warning('pipeline.flows.1', 'is short'), placement: { kind: 'flow', flowId: 'ux' } },
+      {
+        finding: warning('pipeline.flows.1', 'flow-2 is short'),
+        placement: { kind: 'flow', flowId: 'ux' },
+        label: named('ux', 'Build is short'),
+      },
     ];
     renderStep();
-    expect(screen.getByRole('note').textContent).toBe('Warning · is short');
+    expect(screen.getByRole('note').textContent).toBe('Warning · Build is short');
     expect(screen.queryByRole('region', { name: 'Not on a drawn item' })).toBeNull();
   });
 
-  it('F-11 AC-035 a warning on an arrow shows beside the box it leaves', () => {
+  it('F-11 AC-035 a warning on an arrow shows beside the box it leaves, with its message named (F-16 AC-022)', () => {
     extraMarks.findings = [
-      { finding: warning('pipeline.flows.0.next', 'goes far'), placement: { kind: 'arrow', source: 'specify' } },
+      {
+        finding: warning('pipeline.flows.0.next', 'specify goes far'),
+        placement: { kind: 'arrow', source: 'specify' },
+        label: named('Specify', 'Specify goes far'),
+      },
     ];
     renderStep();
-    expect(screen.getByRole('note').textContent).toBe('Warning · goes far');
+    expect(screen.getByRole('note').textContent).toBe('Warning · Specify goes far');
   });
 
   it('F-11 AC-036 a warning with no drawn item is listed in the error panel and not beside a box', () => {
-    extraMarks.findings = [{ finding: warning('pipeline.name', 'is blank'), placement: { kind: 'none' } }];
+    extraMarks.findings = [
+      {
+        finding: warning('pipeline.name', 'is blank'),
+        placement: { kind: 'none' },
+        label: named('pipeline', 'is blank'),
+      },
+    ];
     renderStep();
     expect(screen.queryByRole('note')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: '1 warning' }));
     const section = screen.getByRole('region', { name: 'Not on a drawn item' });
-    expect(within(section).getByText('pipeline.name')).toBeTruthy();
+    expect(within(section).getByText('pipeline')).toBeTruthy();
     expect(within(section).getByText('is blank')).toBeTruthy();
   });
 });

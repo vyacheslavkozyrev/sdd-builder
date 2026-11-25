@@ -38,7 +38,13 @@ function finding(severity: Finding['severity'], path: string, message: string): 
 function marksOf(
   ...entries: ReadonlyArray<{ readonly finding: Finding; readonly placement: Placement }>
 ): StructureMarks {
-  return { findings: entries, blockedFlowIds: [] };
+  return {
+    findings: entries.map((entry) => ({
+      ...entry,
+      label: { location: entry.finding.path, message: entry.finding.message },
+    })),
+    blockedFlowIds: [],
+  };
 }
 
 const onPlan: Placement = { kind: 'flow', flowId: 'plan' };
@@ -52,7 +58,7 @@ describe('F-11 AC-035 warning beside the item it names', () => {
       { finding: finding('warning', 'pipeline.flows.1', 'on build'), placement: { kind: 'flow', flowId: 'build' } },
       { finding: finding('warning', 'pipeline.flows.0', 'second on plan'), placement: onPlan },
     );
-    expect(warningsAt(marks, onPlan).map((item) => item.message)).toEqual(['first on plan', 'second on plan']);
+    expect(warningsAt(marks, onPlan).map((item) => item.finding.message)).toEqual(['first on plan', 'second on plan']);
   });
 
   it('F-11 AC-035 returns the warnings placed on the arrow that leaves a flow, and no others', () => {
@@ -60,8 +66,8 @@ describe('F-11 AC-035 warning beside the item it names', () => {
       { finding: finding('warning', 'pipeline.flows.0.next', 'arrow warning'), placement: onArrowFromPlan },
       { finding: finding('warning', 'pipeline.flows.0', 'box warning'), placement: onPlan },
     );
-    expect(warningsAt(marks, onArrowFromPlan).map((item) => item.message)).toEqual(['arrow warning']);
-    expect(warningsAt(marks, onPlan).map((item) => item.message)).toEqual(['box warning']);
+    expect(warningsAt(marks, onArrowFromPlan).map((item) => item.finding.message)).toEqual(['arrow warning']);
+    expect(warningsAt(marks, onPlan).map((item) => item.finding.message)).toEqual(['box warning']);
   });
 
   it('F-11 AC-035 leaves a blocker out of the warnings beside an item, since it is drawn red and in the band', () => {
@@ -69,7 +75,7 @@ describe('F-11 AC-035 warning beside the item it names', () => {
       { finding: finding('blocker', 'pipeline.flows.0', 'a blocker on plan'), placement: onPlan },
       { finding: finding('warning', 'pipeline.flows.0', 'a warning on plan'), placement: onPlan },
     );
-    expect(warningsAt(marks, onPlan).map((item) => item.message)).toEqual(['a warning on plan']);
+    expect(warningsAt(marks, onPlan).map((item) => item.finding.message)).toEqual(['a warning on plan']);
   });
 
   it('F-11 AC-035 returns nothing for an item with no placed warning, nor for no item at all', () => {
@@ -257,8 +263,8 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
       { finding: finding('warning', 'pipeline.flows.0.blocks.2', 'on the end'), placement: onEndBlock },
     );
     const findings = findingsOfBlock(marks, 'plan', 'block-2');
-    expect(findings.map((item) => item.message)).toEqual(['arrow of the planner', 'the planner has no body']);
-    expect(findingsOfBlock(marks, 'plan', 'block-3').map((item) => item.message)).toEqual(['on the end']);
+    expect(findings.map((item) => item.finding.message)).toEqual(['arrow of the planner', 'the planner has no body']);
+    expect(findingsOfBlock(marks, 'plan', 'block-3').map((item) => item.finding.message)).toEqual(['on the end']);
     expect(findingsOfBlock(marks, 'build', 'block-2')).toEqual([]);
   });
 

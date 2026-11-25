@@ -6,7 +6,8 @@ import type { Finding, PlacedFinding } from './marks.js';
 // The error panel of the Pipeline tab (F-11 AC-035 notification part, AC-036). Every blocker and every
 // warning of the pipeline is collected here, with one counter: "11 errors" and "2 warnings". The panel is
 // closed by default and sits in the canvas card, so it covers no canvas box while closed. A click
-// opens the full list: each finding with its kind, its path and its message. The findings that name no
+// opens the full list: each finding with its kind, where it is (a flow or block name, or "pipeline") and its
+// message, both named rather than shown as ids and paths (F-16 AC-022). The findings that name no
 // drawn item are listed in the section "Not on a drawn item", inside the same panel. Nothing is drawn when
 // there is no finding.
 
@@ -47,10 +48,10 @@ export function ErrorPanel({ findings }: ErrorPanelProps) {
         {kindLabels[entry.finding.severity]}
       </Box>
       <Box component="span" sx={styles.path}>
-        {entry.finding.path}
+        {entry.label.location}
       </Box>
       <Box component="span" sx={styles.message}>
-        {entry.finding.message}
+        {entry.label.message}
       </Box>
     </Box>
   );

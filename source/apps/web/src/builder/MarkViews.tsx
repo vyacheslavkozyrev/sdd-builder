@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { getMarkViewsStyles } from './markViewsStyles.js';
-import type { Finding, Placement, StructureMarks } from './marks.js';
+import type { Placement, PlacedFinding, StructureMarks } from './marks.js';
 
 // The views of the structure marks on the Pipeline tab (F-11 AC-035 warning part, AC-036). A warning
 // is drawn beside the flow box or arrow it names, in the warning colour. Every blocker and warning is
@@ -10,14 +10,14 @@ import type { Finding, Placement, StructureMarks } from './marks.js';
 
 // The warnings placed on one drawn item, in the analyzer's order. A blocker is not returned here, and
 // nothing is returned for a placement of none: such a finding is listed in the error panel instead (AC-036).
-export function warningsAt(marks: StructureMarks, placement: Placement): readonly Finding[] {
+export function warningsAt(marks: StructureMarks, placement: Placement): readonly PlacedFinding[] {
   if (placement.kind === 'none') {
     return [];
   }
   const key = placementKey(placement);
-  return marks.findings
-    .filter((entry) => entry.finding.severity === 'warning' && placementKey(entry.placement) === key)
-    .map((entry) => entry.finding);
+  return marks.findings.filter(
+    (entry) => entry.finding.severity === 'warning' && placementKey(entry.placement) === key,
+  );
 }
 
 // The blocks and arrows of one flow that carry a finding, for the marks on the flow tab (F-12 AC-045). A block is
@@ -58,18 +58,16 @@ export function arrowKey(fromId: string, output: string): string {
 
 // The findings a block carries, in the analyzer's order: those on the block and those on its outgoing arrows
 // (F-12 AC-045). Shown in the block's panel as a read-only list (AC-048).
-export function findingsOfBlock(marks: StructureMarks, flowId: string, blockId: string): readonly Finding[] {
-  return marks.findings
-    .filter(({ placement }) => {
-      if (placement.kind === 'block') {
-        return placement.flowId === flowId && placement.blockId === blockId;
-      }
-      if (placement.kind === 'block-arrow') {
-        return placement.flowId === flowId && placement.fromId === blockId;
-      }
-      return false;
-    })
-    .map((entry) => entry.finding);
+export function findingsOfBlock(marks: StructureMarks, flowId: string, blockId: string): readonly PlacedFinding[] {
+  return marks.findings.filter(({ placement }) => {
+    if (placement.kind === 'block') {
+      return placement.flowId === flowId && placement.blockId === blockId;
+    }
+    if (placement.kind === 'block-arrow') {
+      return placement.flowId === flowId && placement.fromId === blockId;
+    }
+    return false;
+  });
 }
 
 // A key that is the same for two placements of the same item and differs for every other item.
@@ -89,7 +87,7 @@ function placementKey(placement: Placement): string {
 }
 
 export interface WarningNoteProps {
-  // The analyzer's message, shown unchanged after the "Warning ·" label.
+  // The message shown after the "Warning ·" label: the analyzer's message with the names in place of the ids.
   readonly text: string;
 }
 

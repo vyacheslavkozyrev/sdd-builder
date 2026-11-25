@@ -3,8 +3,11 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { ThemeProvider } from '@mui/material/styles';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { pipeline } from '@sddbuilder/core';
 import { ErrorPanel } from '../src/builder/ErrorPanel.js';
 import type { Finding, PlacedFinding, Placement } from '../src/builder/marks.js';
+import { structureMarks } from '../src/builder/marks.js';
+import { problemLabel } from '../src/builder/problemLabel.js';
 import { theme } from '../src/theme.js';
 
 // The panel is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
@@ -28,8 +31,40 @@ function finding(severity: Finding['severity'], path: string, message: string): 
   return { severity, rule: 'test-rule', path, message };
 }
 
+// The pipeline the findings below point into: flow 0 is "plan", with a Start and an Agent named "Write the plan";
+// flow 1 is "build", with the id "flow-2" and no blocks.
+const planFlow: pipeline.Flow = {
+  index: 0,
+  id: 'plan',
+  name: 'plan',
+  arguments: [],
+  body: 'Plan.',
+  artifacts: [],
+  approval: false,
+  blocks: [
+    { index: 0, id: 'plan-start', kind: 'start', next: 'plan-work' },
+    { index: 1, id: 'plan-work', kind: 'agent', name: 'Write the plan', description: '', arguments: [], next: 'plan-start' },
+  ],
+};
+const buildFlow: pipeline.Flow = {
+  index: 1,
+  id: 'flow-2',
+  name: 'build',
+  arguments: [],
+  body: 'Build.',
+  artifacts: [],
+  approval: false,
+  blocks: [],
+};
+const reviewPipeline: pipeline.Pipeline = {
+  name: 'Demo',
+  description: 'A demo pipeline.',
+  arguments: [],
+  flows: [planFlow, buildFlow],
+};
+
 function entry(item: Finding, placement: Placement): PlacedFinding {
-  return { finding: item, placement };
+  return { finding: item, placement, label: problemLabel(item, reviewPipeline) };
 }
 
 const onNothing: Placement = { kind: 'none' };
@@ -112,11 +147,11 @@ describe('F-11 AC-036 a click opens every item with its kind, its path and its m
     expect(items).toHaveLength(5);
     // The findings drawn on an item come first, in the analyzer's order; the unplaced ones follow in their section.
     expect(items.map((item) => item.textContent)).toEqual([
-      'Blockerpipeline.flows.1flow-2 is not connected.',
-      'Warningpipeline.flows.1.bodyis blank; the generated project will not use it',
-      'Blockerpipeline.flows.0.blocks.1.nextmust point at a block of this flow',
-      'Blockerpipeline.namea name is required',
-      'Warningpipeline.descriptionis short',
+      'Blockerbuildbuild is not connected.',
+      'Warningbuildis blank; the generated project will not use it',
+      'BlockerWrite the planmust point at a block of this flow',
+      'Blockerpipelinea name is required',
+      'Warningpipelineis short',
     ]);
   });
 
@@ -142,9 +177,9 @@ describe('F-11 AC-036 a click opens every item with its kind, its path and its m
     const list = screen.getByRole('region', { name: 'Errors and warnings' });
     const section = within(list).getByRole('region', { name: 'Not on a drawn item' });
     expect(within(section).getAllByRole('listitem').map((item) => item.textContent)).toEqual([
-      'Blockerpipeline.flows.0.blocks.1.nextmust point at a block of this flow',
-      'Blockerpipeline.namea name is required',
-      'Warningpipeline.descriptionis short',
+      'BlockerWrite the planmust point at a block of this flow',
+      'Blockerpipelinea name is required',
+      'Warningpipelineis short',
     ]);
   });
 
@@ -162,5 +197,48 @@ describe('F-11 AC-036 a click opens every item with its kind, its path and its m
     fireEvent.click(screen.getByRole('button', { name: '1 error' }));
     const kind = screen.getByText('Blocker');
     expect(getComputedStyle(kind).color).toBe(rgbOf(theme.palette.error.main));
+  });
+});
+
+describe('F-16 AC-022 the error list names flows and blocks, not paths and ids', () => {
+  // A pipeline with a duplicate block id in "plan", and a flow named "build" with no Start.
+  const duplicate: pipeline.Pipeline = {
+    ...reviewPipeline,
+    flows: [
+      {
+        ...planFlow,
+        blocks: [
+          { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+          {
+            index: 1,
+            id: 'block-1',
+            kind: 'agent',
+            name: 'Write the plan',
+            description: '',
+            arguments: [],
+            next: 'block-1',
+          },
+        ],
+      },
+      buildFlow,
+    ],
+  };
+
+  it('F-16 AC-022 shows a flow with no Start by its name, and a duplicate block id by the names of its blocks', () => {
+    renderWithTheme(<ErrorPanel findings={structureMarks(duplicate, []).findings} />);
+    fireEvent.click(screen.getByRole('button', { name: /error/ }));
+    const list = screen.getByRole('region', { name: 'Errors and warnings' });
+    const texts = within(list).getAllByRole('listitem').map((item) => item.textContent);
+    expect(texts).toContain('Blockerbuildmust have one Start block, got none');
+    expect(texts).toContain('BlockerWrite the planmust be unique: the id Start is already used at Start');
+  });
+
+  it('F-16 AC-022 no raw path or block id appears in any item of the list', () => {
+    renderWithTheme(<ErrorPanel findings={structureMarks(duplicate, []).findings} />);
+    fireEvent.click(screen.getByRole('button', { name: /error/ }));
+    const list = screen.getByRole('region', { name: 'Errors and warnings' });
+    for (const item of within(list).getAllByRole('listitem')) {
+      expect(item.textContent).not.toMatch(/pipeline\.|block-1|flow-2/);
+    }
   });
 });

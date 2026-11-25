@@ -32,7 +32,7 @@ import { arrowsRemovedBy, deleteBlock, deleteRefusal } from './deleteBlock.js';
 import { getBlockPanelStyles } from './blockPanelStyles.js';
 import type { Model, Pipeline, Rule } from './fields.js';
 import type { Flow } from './model.js';
-import type { Finding } from './marks.js';
+import type { PlacedFinding } from './marks.js';
 import { getMarkViewsStyles } from './markViewsStyles.js';
 import { ArgumentRows, endOnEnter, RuleTagRows } from './RowEditors.js';
 import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText.js';
@@ -57,11 +57,11 @@ type StartBlock = core.StartBlock;
 const MODELS: readonly Model[] = ['haiku', 'sonnet', 'opus', 'inherit'];
 
 // The findings of a block when the caller gives none: the list of a block without a mark is empty.
-const noFindings: readonly Finding[] = [];
+const noFindings: readonly PlacedFinding[] = [];
 
 // The read-only list of a block's structure marks (F-12 AC-045, AC-048): each finding with its kind and its
 // message, in the analyzer's order. It holds no control. Nothing is drawn when the block has no finding.
-function BlockFindings({ findings }: { readonly findings: readonly Finding[] }) {
+function BlockFindings({ findings }: { readonly findings: readonly PlacedFinding[] }) {
   const styles = getMarkViewsStyles(useTheme());
   if (findings.length === 0) {
     return null;
@@ -72,13 +72,13 @@ function BlockFindings({ findings }: { readonly findings: readonly Finding[] }) 
         Structure marks
       </Box>
       <Box component="ul" sx={styles.findingsList}>
-        {findings.map((finding, index) => (
-          <Box component="li" key={`${finding.path}-${index}`} sx={styles.findingItem}>
-            <Box component="span" sx={styles.findingKind[finding.severity]}>
-              {finding.severity === 'blocker' ? 'Blocker' : 'Warning'}
+        {findings.map((entry, index) => (
+          <Box component="li" key={`${entry.finding.path}-${index}`} sx={styles.findingItem}>
+            <Box component="span" sx={styles.findingKind[entry.finding.severity]}>
+              {entry.finding.severity === 'blocker' ? 'Blocker' : 'Warning'}
             </Box>
             <Box component="span" sx={styles.findingMessage}>
-              {finding.message}
+              {entry.label.message}
             </Box>
           </Box>
         ))}
@@ -110,7 +110,7 @@ export interface AgentPanelProps {
   readonly block: AgentBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
   // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
-  readonly findings?: readonly Finding[];
+  readonly findings?: readonly PlacedFinding[];
 }
 
 function emptyState(target: string): EditState {
@@ -376,7 +376,7 @@ export interface ConditionPanelProps {
   readonly block: ConditionBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
   // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
-  readonly findings?: readonly Finding[];
+  readonly findings?: readonly PlacedFinding[];
 }
 
 function emptyConditionEdits(target: string): ConditionEdits {
@@ -555,7 +555,7 @@ export interface StartPanelProps {
   readonly block: StartBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
   // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
-  readonly findings?: readonly Finding[];
+  readonly findings?: readonly PlacedFinding[];
 }
 
 // The Start panel (F-12 AC-011, AC-042). It has no field: the title, the subtitle, and the Delete block control,
@@ -591,7 +591,7 @@ export interface EndPanelProps {
   readonly block: EndBlock;
   readonly onChange: (pipelineState: Pipeline) => void;
   // The structure marks of this block and its arrows, listed read-only (F-12 AC-045). None when not given.
-  readonly findings?: readonly Finding[];
+  readonly findings?: readonly PlacedFinding[];
 }
 
 // What the End panel holds beyond the saved pipeline: the reason of each refused field. The state belongs to

@@ -695,6 +695,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the error panel sits
       {
         finding: { severity: 'blocker', rule: 'test-rule', path: 'pipeline.flows.0', message: 'plan is not connected.' },
         placement: { kind: 'flow', flowId: 'plan' },
+        label: { location: 'plan', message: 'plan is not connected.' },
       },
     ],
     blockedFlowIds: ['plan'],

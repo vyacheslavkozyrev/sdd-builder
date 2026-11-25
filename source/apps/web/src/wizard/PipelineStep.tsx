@@ -430,8 +430,8 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
               if (notes.length === 0) return null;
               return (
                 <Box key={box.flowId} sx={styles.noteColumn(VIEWPORT_LEFT + box.x, NOTE_TOP)}>
-                  {notes.map((finding, index) => (
-                    <WarningNote key={`${finding.path}-${index}`} text={finding.message} />
+                  {notes.map((note, index) => (
+                    <WarningNote key={`${note.finding.path}-${index}`} text={note.label.message} />
                   ))}
                 </Box>
               );

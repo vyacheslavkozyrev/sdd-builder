@@ -81,12 +81,12 @@ Base files (base layouts, listed in `source/templates/base/manifest.json`, which
 
 ## Claude Code layout
 
-Each layout file and the path it writes. The paths of the flow, agent and rule files come from the flow ids, agent names and rule ids of the config; the base paths come from `source/templates/base/manifest.json`.
+Each layout file and the path it writes. The command file names come from the flow names (`flowFileName`), the agent and rule paths from the agent names and rule ids of the config; the base paths come from `source/templates/base/manifest.json`.
 
 | Layout file | Output path |
 |---|---|
 | `claude-code/pipeline.md` | `.claude/commands/pipeline.md` |
-| `claude-code/flow.md` | `.claude/commands/<flow id>.md`, one per flow |
+| `claude-code/flow.md` | `.claude/commands/<flow file name>.md`, one per flow (the file name comes from the flow name, not the id) |
 | `claude-code/agent.md` | `.claude/agents/<agent name>.md`, one per Agent block |
 | `claude-code/rule.md` | `.claude/rules/<rule id>.md`, one per rule |
 | `base/CLAUDE.md` | `CLAUDE.md` |

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 5 of 7 tasks committed (T004 to T007 added by Amendment 2026-11-24) |
+| Build    | 🔄 In Progress |      | 6 of 7 tasks committed (T004 to T007 added by Amendment 2026-11-24) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T003 | API PORT rule matches the proxy: `readPort` trims, blank gives 3000, a whole number from 1 to 65535 otherwise, else refused naming PORT | 0 blockers, 0 warnings, 1 suggestion fixed (comment), 1 deferred (the proxy passes a non-numeric PORT through; the API refuses it at start; dev-only) | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 | T004 | Analyze and generate bodies follow the pipeline schema: `buildRequestBody` sends the document form (no `index` at any level; rule tags as ids), the tree and the config key keep the parser-shaped config | 0 blockers, 0 warnings, 1 suggestion fixed (test rename reverted), 1 deferred (analyze imports `toDocument` from the builder) | task check passed: api 251 of 251, web 1921 of 1921, core 1217 of 1217 |
 | T005 | Command files take the flow name: `flowFileName` (`generate/flow-file.ts`: lower-case, NFC, runs of non-letters and non-digits to one `-`); file list and the process list use it; blockers for an empty file name, a clash between flows, and the file name `pipeline` (`analyze/command-file.ts`); flow id kept for links and labels | 0 blockers, 2 warnings fixed (non-ASCII letters; a test that asserted nothing), 1 suggestion fixed; 1 warning resolved by owner decision (web subtitle, T007); AC-015 amended for the pipeline clash | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
+| T006 | Docs: architecture §3 and §12 (command file names from the flow name; the two blockers); `templates/README.md` (the `<flow file name>` placeholder and the naming sentence); the README-table test resolves `<flow file name>` with `flowFileName` | 0 warnings; the README test helper needed the placeholder (fixed in the same task) | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---

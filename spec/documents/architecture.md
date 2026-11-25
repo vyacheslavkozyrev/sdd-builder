@@ -52,7 +52,7 @@ Findings never change the configuration. The user decides what to apply.
 - **Step 1, check:** the structural rules. A configuration that fails them is refused with every problem listed (F-02, `InvalidConfigError`).
 - **Step 2, select:** all flows and blocks, in pipeline order. Each flow's blocks are walked from its Start along `next` links and the `true` (then `false`) routes of conditions; each block is listed once. A flow's approval is a flag of the flow.
 - **Step 3, render base files:** project instructions (`CLAUDE.md`), spec templates, `process.md` (text listing the flows, their blocks and their approvals; the Mermaid view is F-05). The base layouts take the lists `baseValues` builds in code (`processFlows`, `commandList`, `agentList`, `ruleList`); `processDiagram` is F-05's (`source/templates/README.md`).
-- **Step 4, render per flow:** the pipeline command file `pipeline.md` (its arguments, its flows in order, and each flow's approval), and one command file per flow, with its Agent calls in order and its conditions as numbered rules, with their true and false routes and the round limit of each return (a return always carries one).
+- **Step 4, render per flow:** the pipeline command file `pipeline.md` (its arguments, its flows in order, and each flow's approval), and one command file per flow, named from the flow name (`flowFileName`, F-16 AC-013) and not from the flow id, with its Agent calls in order and its conditions as numbered rules, with their true and false routes and the round limit of each return (a return always carries one).
 - **Step 5, write per file (LLM):** the LLM writes the content of each command and agent file, from its description and its template, and the rule files they carry. `core` fixes the file path and the place of each file in the output.
 - **Step 6, check:** `core` checks what the model returned. Every file path must be one `core` expects, no placeholder may be left in the text (step markers wait for F-05), and every path mentioned in a generated file must exist in the output (F-10). The checks a reply must pass are set in F-04 (see below); the retry for a reply that fails them is made by `source/apps/api` (F-07).
 
@@ -327,7 +327,9 @@ The rules marked **(38)** and **(39)** are the rules of the flow model (decision
 - **(39)** A flow requires a name and a body. Its description and arguments are optional. Each outcome artifact requires a one-line, non-blank label; each check requires non-blank text.
 - **(39)** A flow must be connected: it has an incoming or an outgoing `next`, unless the pipeline has one flow. A flow with neither is a blocker at the flow's path.
 - **(38)** Every flow is reachable from the pipeline's first flow along the `next` links. The first flow is the first flow, in pipeline order, that no other flow's `next` points to. A chain that loops stops at a flow already reached. A pipeline with no such flow gives no finding here; the start and link rules report it. (The block rule below is the same idea at the block level, from each flow's Start.)
-- **(38)** A flow whose id is `pipeline` is a blocker (decision 35); ids are unique and file-safe (decision 18).
+- **(38)** A flow whose command file name is `pipeline` is a blocker (decision 35); ids are unique and file-safe (decision 18).
+- **(F-16, AC-014)** A flow whose name gives an empty command file name (no letter or digit) is a blocker at the flow's name. A blank name is already refused by the flow-name rule, so it is not reported twice.
+- **(F-16, AC-015)** Two flows whose names give the same command file name is a blocker at the later flow's name, since one path would be written twice.
 
 **Block model (in use until the parser plan):**
 - The pipeline model has no blocks of its own (decision 30): its Start is the Start of the first flow, in pipeline order. Each flow has exactly one Start and at least one End. The pipeline has at least one flow.
@@ -339,6 +341,6 @@ The rules marked **(38)** and **(39)** are the rules of the flow model (decision
 - A back route (a condition's route with a `roundLimit`) goes to an earlier agent of the same flow; a back route never leaves its flow. The pipeline has no back route: a `next` that leads back to a flow already in the chain is refused (decision 38).
 - Every Agent block has a name that is file-safe and unique in the project, and a description.
 - Argument names are unique.
-- A flow whose id is `pipeline` is a blocker at the flow's path, because its command file would be `.claude/commands/pipeline.md`, the same file as the pipeline command (decision 35).
+- A flow whose command file name is `pipeline` is a blocker at the flow's path, because its command file would be `.claude/commands/pipeline.md`, the same file as the pipeline command (decision 35).
 - A back route (a retry) with no round limit is a blocker at its `to` path, as F-02 already refuses it (owner decision, 2026-11-19). The analysis and the parser then agree.
 - Every block and flow is checked. No block or flow can be switched off (decision 34).

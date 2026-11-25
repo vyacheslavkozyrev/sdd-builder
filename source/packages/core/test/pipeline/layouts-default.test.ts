@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ProjectConfig } from '../../src/pipeline/model.js';
 import { planGeneration, type PlannedFile } from '../../src/pipeline/generate/plan.js';
+import { flowFileName } from '../../src/pipeline/generate/flow-file.js';
 import type { BaseTemplate, GenerationTemplates } from '../../src/pipeline/generate/templates.js';
 import { defaultPipelineConfig, readLayout } from './layouts-loader.js';
 
@@ -86,6 +87,7 @@ function readmePaths(config: ProjectConfig): string[] {
   const section = end === -1 ? rest : rest.slice(0, end);
 
   const flowIds = config.pipeline.flows.map((flow) => flow.id);
+  const flowFileNames = config.pipeline.flows.map((flow) => flowFileName(flow));
   const agentNames = config.pipeline.flows.flatMap((flow) =>
     flow.blocks.flatMap((block) => (block.kind === 'agent' ? [block.name] : [])),
   );
@@ -96,6 +98,7 @@ function readmePaths(config: ProjectConfig): string[] {
     if (match === null) return [];
     const path = match[2] ?? '';
     if (path.includes('<flow id>')) return flowIds.map((id) => path.replace('<flow id>', id));
+    if (path.includes('<flow file name>')) return flowFileNames.map((name) => path.replace('<flow file name>', name));
     if (path.includes('<agent name>')) return agentNames.map((name) => path.replace('<agent name>', name));
     if (path.includes('<rule id>')) return ruleIds.map((id) => path.replace('<rule id>', id));
     return [path];

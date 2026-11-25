@@ -214,14 +214,11 @@ describe('F-12 AC-009 (UI) the End block is drawn last', () => {
 });
 
 describe('F-12 AC-002 (UI) the toolbox adds a block on this canvas', () => {
-  it('F-12 AC-002 (UI) passes the result of a toolbox press to onAdd', () => {
+  it('F-12 AC-002 (UI) passes the kind of a toolbox press to onAdd', () => {
     const onAdd = vi.fn();
     renderWithTheme(<BlockCanvas flow={emptyFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={onAdd} onChange={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Agent' }));
-    expect(onAdd).toHaveBeenCalledWith({
-      flow: { ...emptyFlow, blocks: [{ index: 0, id: 'block-1', kind: 'agent', name: '', description: '', arguments: [], next: '' }] },
-      blockId: 'block-1',
-    });
+    expect(onAdd).toHaveBeenCalledWith('agent');
   });
 });
 

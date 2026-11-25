@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 10 of 11 tasks committed (T011 added by blocker report 2026-11-25) |
+| Build    | ✅ Complete |      | 11 of 11 tasks committed (T011 added by blocker report 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -42,6 +42,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T008 | Every analyze finding in a 200 reply carries `subject` (the path); the web step's parser now accepts the reply | 0 blockers, 0 warnings, 3 suggestions fixed (shared test helper, comment wrap, import); 2 deferred (decision 10 dated record; AC-018 uses a fixed reply by design) | task check passed: api 258 of 258, web 1923 of 1923, core 1254 of 1254 |
 | T009 | A new project and a restart start with an empty pipeline in the UI (`emptyPipelineValue`); the parser is unchanged and refuses that pipeline (AC-019, amended) | 0 blockers, 1 warning fixed (a weakened identity test split out), 2 suggestions fixed, 2 deferred (default has no production caller; no render test of step 3) | task check passed: api 258 of 258, web 1928 of 1928, core 1254 of 1254 |
 | T010 | Blocker: the flow Body field accepts typed text. A refused edit no longer clears the body: edits are scoped to their field, a blank-body flow is checked against a never-saved placeholder in the web (parser unchanged), an over-limit body shows the parser reason under the field (AC-020) | 0 blockers; 2 warnings fixed (over-limit reason hidden by the key press in a new flow; artifact and approval edits on a blank-body flow untested); owner decisions applied | task check passed: api 258 of 258, web 1951 of 1951, core 1254 of 1254 |
+| T011 | Blocker: block ids unique across the pipeline; `nextBlockId` checks every flow, and the toolbox no longer makes ids (AC-021) | 0 blockers, 1 warning fixed (the flow's own ids when the list leaves it out), 2 suggestions fixed (a repeat from an earlier session is marked, not extended; arrow wrapping) | task check passed: api 258 of 258, web 1956 of 1956, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---

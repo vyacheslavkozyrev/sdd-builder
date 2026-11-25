@@ -218,7 +218,7 @@ describe('F-12 AC-053 step 3 keeps the pipeline with its blocks when the user mo
   it('F-12 AC-053 the blocks added on step 3 are the same after next and prev', () => {
     const base = step3WithValues();
     const flows = base.values.pipeline.flows.map((flow) =>
-      flow.id === 'specify' ? addBlock(flow, 'end').flow : flow,
+      flow.id === 'specify' ? addBlock(flow, 'end', base.values.pipeline.flows).flow : flow,
     );
     const onStep3 = wizardReducer(base, {
       type: 'set-pipeline',

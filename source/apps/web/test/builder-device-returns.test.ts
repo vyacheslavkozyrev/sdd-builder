@@ -31,7 +31,7 @@ function blocksOf(pipelineState: Pipeline): readonly Block[] {
 // Adds a block of the kind as the toolbox does and returns the pipeline and the new block id.
 function added(pipelineState: Pipeline, kind: Block['kind']): { pipeline: Pipeline; id: string } {
   const flow = pipelineState.flows[0]!;
-  const result = addBlock(flow, kind);
+  const result = addBlock(flow, kind, pipelineState.flows);
   const next = { ...pipelineState, flows: [{ ...flow, blocks: result.flow.blocks }] } as unknown as Pipeline;
   return { pipeline: next, id: result.blockId };
 }

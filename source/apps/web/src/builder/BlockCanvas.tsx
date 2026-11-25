@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
-import type { AddBlockResult } from './blocks.js';
+import type { BlockKind } from './blocks.js';
 import type { OutputName } from './blockArrows.js';
 import { blockDrawingOf } from './blockDrawing.js';
 import type {
@@ -37,7 +37,8 @@ import { Toolbox } from './Toolbox.js';
 // dashed returns with their round limit). A click selects the block or the arrow, or clears the selection on the
 // empty canvas. A drag from an output point links the block (linkBlocks); a drag from an end of the selected arrow
 // moves that end (repoint). A refused drop shows its reason in the message band and changes nothing. The caller
-// holds the selection and the flow: a changed flow goes to `onChange`, and a toolbox press goes to `onAdd`.
+// holds the selection and the flow: a changed flow goes to `onChange`, and a toolbox press goes to `onAdd`
+// with its kind.
 
 export interface BlockCanvasProps {
   readonly flow: Flow;
@@ -45,8 +46,8 @@ export interface BlockCanvasProps {
   readonly selection: BlockSelection;
   // Called with the selection a click makes: a block, an arrow, or none on the empty canvas.
   readonly onSelect: (selection: BlockSelection) => void;
-  // Called with the result of a toolbox press, so the caller stores the flow and selects the new block (AC-002).
-  readonly onAdd: (result: AddBlockResult) => void;
+  // Called with the kind of a toolbox press, so the caller adds the block, stores the flow and selects it (AC-002).
+  readonly onAdd: (kind: BlockKind) => void;
   // Called with the flow after a drag or repoint is accepted. Never called for a refused drop.
   readonly onChange: (flow: Flow) => void;
   // The structure marks of the pipeline; the blocks and arrows of this flow that carry one are drawn marked (AC-045),

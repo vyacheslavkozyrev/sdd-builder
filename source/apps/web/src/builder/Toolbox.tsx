@@ -1,18 +1,18 @@
 import { Box, IconButton, Tooltip, Typography, useTheme } from '@mui/material';
-import { addBlock, canAddStart } from './blocks.js';
-import type { AddBlockResult, BlockKind } from './blocks.js';
+import { canAddStart } from './blocks.js';
+import type { BlockKind } from './blocks.js';
 import { getToolboxStyles } from './toolboxStyles.js';
 import type { Flow } from './model.js';
 
 // The toolbox of the flow tab (F-12 AC-001, AC-002, AC-003, screen 01). A floating card at the top right
 // of the canvas with four icon buttons, Agent, Condition, Start and End, each named by a tooltip. There is
 // no Link, Move, Connection or Delete-flow control. Start is disabled while the flow has one, and the
-// reason is shown beside the card. A press adds one block of that kind through `addBlock`; the caller
-// stores `result.flow` and selects `result.blockId`, so the new block's panel opens (AC-002).
+// reason is shown beside the card. A press reports the kind; the caller adds the block (`addBlock`, with the
+// ids of every flow of the pipeline), stores the flow and selects the new block, so its panel opens (AC-002).
 
 export interface ToolboxProps {
   readonly flow: Flow;
-  readonly onAdd: (result: AddBlockResult) => void;
+  readonly onAdd: (kind: BlockKind) => void;
 }
 
 // The buttons in the order the approved screen draws them, Link left out (AC-001).
@@ -77,7 +77,7 @@ export function Toolbox({ flow, onAdd }: ToolboxProps) {
                 <IconButton
                   aria-label={name}
                   disabled={disabled}
-                  onClick={() => onAdd(addBlock(flow, kind))}
+                  onClick={() => onAdd(kind)}
                   sx={styles.buttons[kind]}
                 >
                   <ToolIcon kind={kind} />

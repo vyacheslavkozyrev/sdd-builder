@@ -166,7 +166,7 @@ describe('F-12 AC-006 a flow created on the Pipeline tab starts with no blocks',
   });
 
   it('F-12 AC-006 an added flow after a flow with blocks has no blocks of its own', () => {
-    const planned = addBlock(flow('plan'), 'start').flow;
+    const planned = addBlock(flow('plan'), 'start', [flow('plan')]).flow;
     const { pipeline } = addFlow(pipelineOf(planned));
     expect(pipeline.flows[0]?.blocks).toHaveLength(1);
     expect(pipeline.flows[1]?.blocks).toEqual([]);
@@ -175,7 +175,7 @@ describe('F-12 AC-006 a flow created on the Pipeline tab starts with no blocks',
 
 describe('F-12 AC-049 each flow keeps its own blocks', () => {
   it('F-12 AC-049 adding a flow keeps the blocks of every flow before it', () => {
-    const planned = addBlock(flow('plan'), 'start').flow;
+    const planned = addBlock(flow('plan'), 'start', [flow('plan')]).flow;
     const before = pipelineOf(planned, flow('build'));
     const { pipeline } = addFlow(before);
     expect(pipeline.flows[0]?.blocks).toBe(before.flows[0]?.blocks);
@@ -183,10 +183,10 @@ describe('F-12 AC-049 each flow keeps its own blocks', () => {
   });
 
   it('F-12 AC-049 a block added on a flow tab leaves the other flow\'s blocks unchanged', () => {
-    const before = pipelineOf(flow('plan'), addBlock(flow('build'), 'start').flow);
+    const before = pipelineOf(flow('plan'), addBlock(flow('build'), 'start', [flow('build')]).flow);
     const after = {
       ...before,
-      flows: before.flows.map((f) => (f.id === 'plan' ? addBlock(f, 'agent').flow : f)),
+      flows: before.flows.map((f) => (f.id === 'plan' ? addBlock(f, 'agent', before.flows).flow : f)),
     };
     expect(after.flows[0]?.blocks).toHaveLength(1);
     expect(after.flows[1]).toBe(before.flows[1]);
@@ -194,11 +194,11 @@ describe('F-12 AC-049 each flow keeps its own blocks', () => {
   });
 });
 
-describe('F-12 AC-004 block ids are numbered per flow', () => {
-  it('F-12 AC-004 two flows each number their first block block-1 (block ids belong to a flow)', () => {
-    const first = addBlock(flow('plan'), 'start').flow;
-    const second = addBlock(flow('build'), 'start').flow;
+describe('F-16 AC-021 block ids are numbered across the pipeline', () => {
+  it('F-16 AC-021 a second flow does not reuse the block-1 of the first flow', () => {
+    const first = addBlock(flow('plan'), 'start', [flow('plan')]).flow;
+    const second = addBlock(flow('build'), 'start', [first, flow('build')]).flow;
     expect(first.blocks[0]?.id).toBe('block-1');
-    expect(second.blocks[0]?.id).toBe('block-1');
+    expect(second.blocks[0]?.id).toBe('block-2');
   });
 });

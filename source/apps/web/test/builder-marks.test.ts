@@ -388,7 +388,7 @@ describe('F-12 AC-046 a flow with a structural problem in its blocks is marked a
 
 describe('F-12 AC-047 a new unlinked block is not refused, and its marks say what is missing', () => {
   it('shows the findings of a new block on that block and keeps the flow editable', () => {
-    const added = addBlock(flowOf('plan'), 'agent');
+    const added = addBlock(flowOf('plan'), 'agent', [flowOf('plan')]);
     const marks = structureMarks(pipelineOf(added.flow), []);
 
     const onNew = marks.findings.filter(
@@ -396,6 +396,26 @@ describe('F-12 AC-047 a new unlinked block is not refused, and its marks say wha
     );
     expect(onNew.length).toBeGreaterThan(0);
     expect(onNew.map((entry) => entry.finding.path)).toContain('pipeline.flows.0.blocks.2.description');
+    expect(marks.blockedFlowIds).toEqual(['plan']);
+    expect(disabledControls()).toEqual([]);
+  });
+});
+
+describe('F-16 AC-021 a repeat id from an earlier session is not extended and stays marked', () => {
+  it('gives the added block a fresh id and marks the repeated ids on their blocks', () => {
+    const plan: Flow = {
+      ...flowOf('plan'),
+      blocks: [
+        { index: 0, id: 'block-1', kind: 'start', next: '' },
+        { index: 1, id: 'block-1', kind: 'end', outcome: 'done', producedArtifact: '' },
+      ],
+    };
+    const added = addBlock(plan, 'agent', [plan]);
+    expect(added.blockId).toBe('block-2');
+    const marks = structureMarks(pipelineOf(added.flow), []);
+    const repeated = marks.findings.filter((entry) => entry.finding.message.startsWith('must be unique'));
+    expect(repeated.length).toBeGreaterThan(0);
+    expect(repeated.every((entry) => entry.placement.kind === 'block')).toBe(true);
     expect(marks.blockedFlowIds).toEqual(['plan']);
     expect(disabledControls()).toEqual([]);
   });

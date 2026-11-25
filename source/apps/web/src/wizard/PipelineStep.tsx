@@ -10,7 +10,8 @@ import type { BlockSelection } from '../builder/panel.js';
 import { afterDeleteBlock, blockPanelFor } from '../builder/panel.js';
 import { flowArrows } from '../builder/blockArrows.js';
 import type { BlockArrow, OutputName } from '../builder/blockArrows.js';
-import type { AddBlockResult } from '../builder/blocks.js';
+import { addBlock } from '../builder/blocks.js';
+import type { BlockKind } from '../builder/blocks.js';
 import type { Rule } from '../builder/fields.js';
 import { ErrorPanel } from '../builder/ErrorPanel.js';
 import { FlowPanel } from '../builder/FlowPanel.js';
@@ -187,8 +188,10 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     });
   };
 
-  // A block added from the toolbox is stored and selected, so its panel opens (AC-002).
-  const blockAdded = (result: AddBlockResult) => {
+  // A block added from the toolbox is stored and selected, so its panel opens (AC-002). Its id is unique across
+  // every flow of the pipeline (AC-021).
+  const blockAdded = (flow: Flow, kind: BlockKind) => {
+    const result = addBlock(flow, kind, pipelineState.flows);
     onPipelineChange(withFlow(pipelineState, result.flow));
     selectBlockIn(result.flow.id, { kind: 'block', blockId: result.blockId });
   };
@@ -348,7 +351,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
                 flow={flow}
                 selection={blockSelection}
                 onSelect={(next) => selectBlockIn(flow.id, next)}
-                onAdd={blockAdded}
+                onAdd={(kind) => blockAdded(flow, kind)}
                 onChange={blockDragged}
                 marks={marks}
               />

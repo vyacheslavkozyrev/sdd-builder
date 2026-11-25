@@ -74,7 +74,8 @@ describe('F-12 AC-035 End outcome: done or stopped, a new End starts done', () =
   });
 
   it('F-12 AC-035 a new End block starts with the outcome done and no produced artifact', () => {
-    const added = addBlock(flow('plan', [{ label: 'plan.md', template: 'the plan' }]), 'end');
+    const plan = flow('plan', [{ label: 'plan.md', template: 'the plan' }]);
+    const added = addBlock(plan, 'end', [plan]);
     expect(added.flow.blocks).toEqual([{ index: 0, id: added.blockId, kind: 'end', outcome: 'done', producedArtifact: '' }]);
   });
 

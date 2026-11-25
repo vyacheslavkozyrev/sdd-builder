@@ -3,7 +3,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { AddBlockResult } from '../src/builder/blocks.js';
+import type { BlockKind } from '../src/builder/blocks.js';
 import type { Flow } from '../src/builder/model.js';
 import { Toolbox } from '../src/builder/Toolbox.js';
 import { theme } from '../src/theme.js';
@@ -101,34 +101,27 @@ describe('F-12 AC-001 toolbox buttons', () => {
   });
 });
 
-describe('F-12 AC-002 a press adds a block and selects it', () => {
-  it('F-12 AC-002 adds an Agent with no arrows, selected by its id', () => {
-    const onAdd = vi.fn<(result: AddBlockResult) => void>();
+describe('F-12 AC-002 a press reports the kind of block to add', () => {
+  it('F-12 AC-002 reports Agent when the Agent button is pressed', () => {
+    const onAdd = vi.fn<(kind: BlockKind) => void>();
     renderWithTheme(<Toolbox flow={emptyFlow} onAdd={onAdd} />);
     fireEvent.click(screen.getByRole('button', { name: 'Agent' }));
-    expect(onAdd).toHaveBeenCalledTimes(1);
-    const result = onAdd.mock.calls[0]?.[0];
-    expect(result?.blockId).toBe('block-1');
-    expect(result?.flow.blocks).toEqual([
-      { index: 0, id: 'block-1', kind: 'agent', name: '', description: '', arguments: [], next: '' },
-    ]);
+    expect(onAdd.mock.calls).toEqual([['agent']]);
   });
 
-  it('F-12 AC-002 adds a Condition and an End, each a new block of its kind', () => {
-    const onAdd = vi.fn<(result: AddBlockResult) => void>();
+  it('F-12 AC-002 reports a Condition and then an End, in the order pressed', () => {
+    const onAdd = vi.fn<(kind: BlockKind) => void>();
     renderWithTheme(<Toolbox flow={flowWith([startBlock])} onAdd={onAdd} />);
     fireEvent.click(screen.getByRole('button', { name: 'Condition' }));
     fireEvent.click(screen.getByRole('button', { name: 'End' }));
-    const kinds = onAdd.mock.calls.map(([result]) => result.flow.blocks.at(-1)?.kind);
-    expect(kinds).toEqual(['condition', 'end']);
-    expect(onAdd.mock.calls[1]?.[0].blockId).toBe('block-2');
+    expect(onAdd.mock.calls).toEqual([['condition'], ['end']]);
   });
 
-  it('F-12 AC-002 adds a Start to a flow that has none', () => {
-    const onAdd = vi.fn<(result: AddBlockResult) => void>();
+  it('F-12 AC-002 reports a Start when the flow has none', () => {
+    const onAdd = vi.fn<(kind: BlockKind) => void>();
     renderWithTheme(<Toolbox flow={emptyFlow} onAdd={onAdd} />);
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
-    expect(onAdd.mock.calls[0]?.[0].flow.blocks.map((block) => block.kind)).toEqual(['start']);
+    expect(onAdd.mock.calls).toEqual([['start']]);
   });
 });
 

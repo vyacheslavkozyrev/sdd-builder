@@ -24,16 +24,16 @@ function emptyFlow(): Flow {
 // after it. The Condition's true route is linked to the End, and the Start to the Condition. The
 // Condition's description and the End's artifact are set, so the analyzer could only report the route.
 function conditionToEnd(endFirst: boolean): Flow {
-  let flow = addBlock(emptyFlow(), 'start').flow;
+  let flow = addBlock(emptyFlow(), 'start', [emptyFlow()]).flow;
   let condition = '';
   let end = '';
   const addCondition = (): void => {
-    const added = addBlock(flow, 'condition');
+    const added = addBlock(flow, 'condition', [flow]);
     flow = added.flow;
     condition = added.blockId;
   };
   const addEnd = (): void => {
-    const added = addBlock(flow, 'end');
+    const added = addBlock(flow, 'end', [flow]);
     flow = added.flow;
     end = added.blockId;
   };

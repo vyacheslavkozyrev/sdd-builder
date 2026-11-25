@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 7 stories, 27 criteria, all [auto]. Parse refusal is a 400 (owner answer 2026-11-24); input caps are F-17 |
 | UX       | ➖ Not needed |  | No user interface (API only) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 9 tasks (T001 to T009); 27 criteria, all covered |
-| Build    | 🔄 In Progress |      | 7 of 9 tasks committed |
+| Build    | 🔄 In Progress |      | 8 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -17,7 +17,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-T008 — reviewed: 0 blockers, 2 warnings fixed, 1 suggestion fixed
+None
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ------ |
+| T008 | Wiring and the server entry: `wiring.ts` (`buildAnalyzeDeps`: the key reaches the client factory only; no key gives a null model and a startup line naming the key), `server.ts` (reads the environment once, serves on PORT, logs the port); `vite-node` 5.3.0 added as an exact devDependency after the owner's approval (stop, 2026-11-24) and recorded in architecture §5 | 0 blockers, 2 warnings fixed (vite-node pin made exact; vite row said peer, now dependency), 1 suggestion fixed (header comment); 1 suggestion deferred (listen errors not caught) | task check passed: api 103, web 1895, core 1217, exit 0 |
 | T007 | Settings from the environment `src/settings.ts` (`readSettings(env)`): PORT rule, model default, optional key; tests table-driven with plain objects (AC-020 to AC-023 settings part) | 0 blockers, 2 warnings fixed (an empty or blank model falls back to the default; a blank key is treated as absent), 0 suggestions | task check passed: api 98, web 1895, core 1217, exit 0 |
 | T006 | Generic 500: a throw from the analysis is logged as `route=/analyze event=analysis-failed status=500` and answered 500 `{ error: 'Internal error' }` (`app.ts`); tests cover AC-018 and AC-019 | 0 blockers, 0 warnings, 1 suggestion fixed (400 shape asserted exactly) | task check passed: api 80 of 80, web 1895 of 1895, core 1217 of 1217, exit 0 |
 | T005 | Review failures keep the 200 and the structural findings: no model, a throwing model, a non-JSON reply, a valid reply (route tests only; no source change) | 0 blockers, 0 warnings, 0 suggestions | task check passed: api 77 of 77, web 1895 of 1895, core 1217 of 1217, exit 0 |

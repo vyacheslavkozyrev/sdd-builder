@@ -66,7 +66,9 @@ _Criteria coverage matrix and manual checklist outcome._
 
 Manual checklist: none (all 29 criteria are `[auto]`; no `checklist.md` needed).
 
-Result: **1 gap, not complete.** AC-023 default half has no test that names it (see Gaps). Verify stays Pending.
+**Second verify run 2026-11-24** (HEAD `eb2ea8c`, branch `main`, clean tree at start; supersedes the gap result of the first run). `source/scripts/task-check.sh` exits 0, no timeouts: typecheck clean; api 246 of 246 in 17 files, web 1895 of 1895 in 83 files, core 1217 of 1217 in 59 files. Every AC-001 to AC-029 has at least one passing test whose name carries `F-15 AC-0xx`; the AC-023 default cases are now named (T011). The six weaker proofs below were re-checked against the tests and still apply.
+
+Result: **0 gaps, 0 failures.** Manual checklist: none. The matrix is complete; the Verify phase row is left Pending because the owner's 2026-11-24 decision holds full verification until F-16 integration. Marking it complete is the owner's call.
 
 | AC | Covering tests (file: test name) | Status |
 | -- | -------------------------------- | ------ |
@@ -92,7 +94,7 @@ Result: **1 gap, not complete.** AC-023 default half has no test that names it (
 | 020 | generate-call.test.ts: `F-15 AC-020 propagates a thrown provider error after one call and does not retry`; generate-service.test.ts: `F-15 AC-020 gives provider-error after one call when the first call throws, and does not retry` | pass (weaker, see Weaker proofs) |
 | 021 | generate-call.test.ts: `F-15 AC-021 sends max_tokens 32000 and a client timeout of 300 seconds` | pass |
 | 022 | generate-route.test.ts: `F-15 AC-022 a valid configuration with no model answers 503 with no call`; wiring.test.ts: `F-15 AC-022 with no key POST /generate gives 503 with an error and the client factory is never called` | pass |
-| 023 | settings.test.ts: `F-15 AC-023 the generator model is independent of the analyzer model` (value); wiring.test.ts: `F-15 AC-023 every generation call names settings.generatorModel`. The default `claude-opus-5-5` for unset and blank is only in an unnamed `it.each` (`uses the model when SDDBUILDER_GENERATOR_MODEL is %s`) | GAP (naming) |
+| 023 | settings.test.ts: `F-15 AC-023 uses the model when SDDBUILDER_GENERATOR_MODEL is %s` (default `claude-opus-5-5` for unset, empty and spaces; named in T011); `F-15 AC-023 the generator model is independent of the analyzer model` (value); wiring.test.ts: `F-15 AC-023 every generation call names settings.generatorModel` | pass |
 | 024 | wiring.test.ts: `F-15 AC-024 the sentinel key appears in no generate response or log line, even when the provider error carries it` | pass (partial, see Weaker proofs) |
 | 025 | generate-route.test.ts: `F-15 AC-025 %s on /generate answers 405 with Allow: POST, reads no body and makes no model call` (table) | pass |
 | 026 | generate-route.test.ts: `F-15 AC-026 %s %s answers 404 with an error and makes no model call` (table) | pass |
@@ -102,7 +104,7 @@ Result: **1 gap, not complete.** AC-023 default half has no test that names it (
 
 **Gaps**
 
-- AC-023: the default `claude-opus-5-5` (unset, empty, spaces) is proved by passing tests, but none of them carries `F-15 AC-023` in its name. The rule is that every test that proves a criterion names it. Fix: rename the `it.each` title in `settings.test.ts` to carry the ID.
+None. (The first run's AC-023 naming gap is closed by T011.)
 
 **Weaker proofs** (the test passes and names the criterion, but proves less than the criterion says)
 

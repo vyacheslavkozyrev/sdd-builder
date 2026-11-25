@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 15 of 15 tasks committed (T015 added by owner blockers 2026-11-25) |
+| Build    | 🔄 In Progress |      | 15 of 16 tasks committed (T016 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -147,6 +147,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blocker: argument named F-XX dropped silently)
+**Changed**: stories.md gains US-012 (AC-026, R-16-13); plan.md gains T016.
+**Reason**: the argument id must be lowercase; a new line with capitals is refused and dropped with no message. This is the argument loss the owner reported.
+**Impact**: Build reopens for T016; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blockers: pipeline name cannot be typed; arguments still lost)

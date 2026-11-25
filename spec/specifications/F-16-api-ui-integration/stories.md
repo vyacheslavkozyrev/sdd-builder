@@ -193,6 +193,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-012: A refused new argument is shown, not dropped (owner blocker, 2026-11-25)
+
+**As a** user
+**I want to** see why a new argument was not accepted
+**So that** I can correct its name
+
+**Requirements:** R-16-13
+
+#### Acceptance Criteria
+
+- [ ] AC-026 `[auto]`: a new argument line whose name the parser refuses (for example `F-XX`) stays on the line when focus leaves it, with the parser's reason under the line; it is saved only when the parser accepts the name; a blank line is still discarded.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -208,4 +222,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-10 — arguments are kept when the selection changes | AC-023 |
 | R-16-11 — the End block shows its saved artifact | AC-024 |
 | R-16-12 — the pipeline fields can be typed into | AC-025 |
+| R-16-13 — a refused new argument is shown, not dropped | AC-026 |
 | R-16-7 — the flow body accepts typing | AC-020 |

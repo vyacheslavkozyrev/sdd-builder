@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 9 of 9 tasks committed (T004 to T009 added by Amendments 2026-11-24 and 2026-11-25) |
+| Build    | 🔄 In Progress |      | 9 of 10 tasks committed (T010 added by blocker report 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -123,6 +123,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blocker: flow body cannot be typed into)
+**Changed**: plan.md gains T010 (reproduce and fix the flow body input).
+**Reason**: the owner reports the Body field of the flow properties panel cannot be typed into.
+**Impact**: Build reopens for T010; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner decision: empty in the UI, parser unchanged)

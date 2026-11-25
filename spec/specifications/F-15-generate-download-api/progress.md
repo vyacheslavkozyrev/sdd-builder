@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 6 stories, 29 criteria, all [auto]. Limits and input caps are F-17; the generator model is `SDDBUILDER_GENERATOR_MODEL` (default `claude-opus-5-5`) |
 | UX       | ➖ Not needed |  | No user interface (API only) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 10 tasks (T001 to T010); 29 criteria, all covered |
-| Build    | 🔄 In Progress |      | 6 of 10 tasks committed |
+| Build    | 🔄 In Progress |      | 7 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist. Full verification waits for F-16 integration (owner decision 2026-11-24) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -37,6 +37,7 @@ None
 | T004 | Generation prompt `generate/prompt.ts`: `generationRequest(plan)` lists each planned file in plan order (path, rendered layout, description, rule tags) in a fixed-order JSON content; `retryRequest` adds the findings as `<path>: <message>` lines, with a path escaped to one line | 0 blockers, 2 warnings fixed (a reply key with a line break could forge retry lines; no test for it), 1 suggestion fixed (constant for one line); round 2 clean | task check passed: api 175 of 175, web 1895 of 1895, core 1217 of 1217 |
 | T005 | Generation call `generate/anthropic.ts`: `GenerationClient`, `generationCallParams` with `max_tokens` 32000 and timeout 300000 ms (SDK retries left on), `callGeneration` makes one call and does not catch a thrown error | 0 blockers, 0 warnings, 5 suggestions (4 fixed: a test moved to AC-018, the SDK-options test, a single cast, an empty-reply edge case; 1 deferred, see Deferred Findings) | task check passed: api 182 of 182, web 1895 of 1895, core 1217 of 1217 |
 | T006 | Zip `generate/zip.ts`: `buildZip(files)` in the given order, no directory entries, DEFLATE, fixed date 2020-01-01 UTC; rejects an empty text (JSZip would store it uncompressed), an unsafe path (`..`, `.`, empty segment, backslash, absolute, trailing slash) and a duplicate path | 0 blockers, 3 warnings fixed (empty text stored without DEFLATE; no path guard; no test across time zones), 0 suggestions | task check passed: api 201 of 201, web 1895 of 1895, core 1217 of 1217 |
+| T007 | Generation service `generate/service.ts`: `generateProject(config, { templates, model })` returns zip, refused, unavailable, bad-reply or provider-error; one call for the plan; one retry only after a bad reply; no retry for a provider error; findings for keys the model did not plan are neutralised to `(reply)` | 0 blockers in the first review round: 1 blocker fixed (reply keys not in the plan reached `bad-reply` problems and the retry prompt), 2 warnings fixed (AC-010 tag, AC-015 content test); 2 suggestions deferred (core reports unplanned keys itself; the `workspace.test.ts` 5 s `tsc` timeout) | task check passed: api 216 of 216, web 1895 of 1895, core 1217 of 1217 |
 
 ---
 
@@ -60,6 +61,13 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-24 (T007 size exception)
+**Changed**: plan.md T007 line (the service takes no log function; the route logs the outcome; no split of T007)
+**Reason**: the staged T007 change is 407 changed lines, over the 400 guard. The owner approved one commit for T007 as an exception.
+**Impact**: none on T008. T007 commit is one commit.
+```
 
 ```
 ### Amendment — YYYY-MM-DD

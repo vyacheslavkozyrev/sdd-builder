@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createInitialWizardState,
+  emptyPipelineValue,
   wizardReducer,
   type WizardAction,
   type WizardState,
@@ -8,6 +9,11 @@ import {
 } from '../src/wizard/state.js';
 import { isNextEnabled, isPrevEnabled, type StepNumber } from '../src/wizard/steps.js';
 import { valuesWith } from './wizardValues.js';
+
+// The values of a new project: empty fields and the empty pipeline (F-16 AC-019).
+function emptyValues(): WizardValues {
+  return { ...valuesWith('', ''), pipeline: emptyPipelineValue() };
+}
 
 // A values object with a name and an idea, to prove the reducer carries values through.
 function filledValues(): WizardValues {
@@ -19,7 +25,7 @@ function stateWithValue(step: StepNumber): WizardState {
 }
 
 function emptyState(step: StepNumber): WizardState {
-  return { step, values: valuesWith('', '') };
+  return { step, values: emptyValues() };
 }
 
 describe('F-08 AC-006 Next moves forward by exactly one step', () => {
@@ -113,7 +119,7 @@ describe('F-08 AC-012 restart returns to step 1 and clears the values', () => {
 
     it(`F-08 AC-012 restart from step ${step} leaves no value from the earlier project`, () => {
       const after = wizardReducer(stateWithValue(step), { type: 'restart' });
-      expect(after.values).toEqual(valuesWith('', ''));
+      expect(after.values).toEqual(emptyValues());
     });
   }
 
@@ -132,7 +138,7 @@ describe('F-08 AC-012 restart returns to step 1 and clears the values', () => {
 
 describe('F-08 AC-006 initial state is step 1 with empty values', () => {
   it('F-08 AC-006 createInitialWizardState starts on step 1 with no values', () => {
-    expect(createInitialWizardState()).toEqual({ step: 1, values: valuesWith('', '') });
+    expect(createInitialWizardState()).toEqual({ step: 1, values: emptyValues() });
   });
 
   it('F-08 AC-006 createInitialWizardState returns a new object each time', () => {
@@ -145,7 +151,7 @@ describe('F-08 AC-006 reducer does not change the state it is given', () => {
     const start = emptyState(1);
     const after = wizardReducer(start, { type: 'next' });
     expect(after).not.toBe(start);
-    expect(start).toEqual({ step: 1, values: valuesWith('', '') });
+    expect(start).toEqual({ step: 1, values: emptyValues() });
   });
 });
 
@@ -237,7 +243,7 @@ describe('F-09 AC-013 name and idea survive Next, Prev and Next, and a visit to 
     ];
     for (const action of actions) {
       state = wizardReducer(state, action);
-      expect(state.values).toEqual(valuesWith('  Demo ', 'Idea line\n'));
+      expect(state.values).toEqual({ ...valuesWith('  Demo ', 'Idea line\n'), pipeline: emptyPipelineValue() });
     }
     expect(state.step).toBe(1);
   });
@@ -259,7 +265,7 @@ describe('F-09 AC-014 restart clears the name and the idea', () => {
     });
     const after = wizardReducer(typed, { type: 'restart' });
     expect(after.values).not.toEqual(valuesWith('Old', 'Old idea'));
-    expect(after.values).toEqual(valuesWith('', ''));
+    expect(after.values).toEqual(emptyValues());
   });
 });
 
@@ -460,7 +466,7 @@ describe('F-10 AC-023 restart clears every step 2 value, including the rule list
     });
     state = wizardReducer(state, { type: 'add-rule' });
     const after = wizardReducer(state, { type: 'restart' });
-    expect(after.values).toEqual(valuesWith('', ''));
+    expect(after.values).toEqual(emptyValues());
     expect(after.values.rules).toEqual([]);
   });
 });

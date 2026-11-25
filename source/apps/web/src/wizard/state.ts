@@ -18,8 +18,8 @@ type Pipeline = core.Pipeline;
 
 // The values of the wizard. The name and the idea are the project step's (F-09) and are stored as
 // typed: the reducer never trims them. The idea is trimmed only when the configuration is built
-// (project.ts ideaForConfig). The pipeline is the builder's value (F-11): it starts as the default
-// pipeline and each builder change replaces it.
+// (project.ts ideaForConfig). The pipeline is the builder's value (F-11): a new project starts with an
+// empty pipeline (F-16 AC-019) and each builder change replaces it.
 export interface WizardValues {
   readonly name: string;
   readonly idea: string;
@@ -84,8 +84,14 @@ export function defaultPipelineValue(): Pipeline {
   return parsed.config.pipeline;
 }
 
+// A new project starts with an empty pipeline (F-16 AC-019): no flow, no argument, no name or description.
+// The parser refuses it until the user adds a flow and a name, so /analyze answers 422 with those problems.
+export function emptyPipelineValue(): Pipeline {
+  return { name: '', description: '', arguments: [], flows: [] };
+}
+
 function emptyValues(): WizardValues {
-  return { name: '', idea: '', stack: emptyStack(), architecture: '', rules: [], pipeline: defaultPipelineValue() };
+  return { name: '', idea: '', stack: emptyStack(), architecture: '', rules: [], pipeline: emptyPipelineValue() };
 }
 
 export function createInitialWizardState(): WizardState {

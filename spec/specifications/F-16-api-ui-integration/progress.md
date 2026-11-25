@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 8 of 9 tasks committed (T004 to T009 added by Amendments 2026-11-24 and 2026-11-25) |
+| Build    | ✅ Complete |      | 9 of 9 tasks committed (T004 to T009 added by Amendments 2026-11-24 and 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -40,6 +40,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T006 | Docs: architecture §3 and §12 (command file names from the flow name; the two blockers); `templates/README.md` (the `<flow file name>` placeholder and the naming sentence); the README-table test resolves `<flow file name>` with `flowFileName` | 0 warnings; the README test helper needed the placeholder (fixed in the same task) | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
 | T007 | Subtitle shows the real command file name: `PipelineStep.tsx` uses core's `flowFileName` (exported, and pinned in the F-02 namespace test) | 0 blockers, 0 warnings, 1 suggestion fixed (comment wrap) | task check passed: api 251 of 251, web 1922 of 1922, core 1254 of 1254 |
 | T008 | Every analyze finding in a 200 reply carries `subject` (the path); the web step's parser now accepts the reply | 0 blockers, 0 warnings, 3 suggestions fixed (shared test helper, comment wrap, import); 2 deferred (decision 10 dated record; AC-018 uses a fixed reply by design) | task check passed: api 258 of 258, web 1923 of 1923, core 1254 of 1254 |
+| T009 | A new project and a restart start with an empty pipeline in the UI (`emptyPipelineValue`); the parser is unchanged and refuses that pipeline (AC-019, amended) | 0 blockers, 1 warning fixed (a weakened identity test split out), 2 suggestions fixed, 2 deferred (default has no production caller; no render test of step 3) | task check passed: api 258 of 258, web 1928 of 1928, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -65,6 +66,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T008 (SUGGESTION, deferred): `spec/documents/architecture.md` decision 10 (about line 128) describes the analysis result without `subject`. It is a dated decision record (2026-11-12, updated 2026-11-15), so it is left as recorded; a docs pass can add an update note.
 
 - T008 (note, by plan): the AC-018 web test runs `parseAnalysisReply` on a fixed reply written in the test, not on the API's output, because web must not import the API. The API tests pin the shape (AC-017), so the two halves meet at the same shape.
+
+- T009 (SUGGESTION, deferred): `source/apps/web/src/wizard/state.ts` `defaultPipelineValue()` has no production caller after T009 (tests only). Kept because the plan says it stays for any caller that needs the default; remove it if no caller appears by Verify.
+
+- T009 (SUGGESTION, deferred): no UI render test of step 3 with the empty pipeline. AC-019 is `[auto]` and is proven by the state and parser tests; how the empty Workflow step looks is part of the owner's browser check, so it is not added in this task.
 
 ---
 

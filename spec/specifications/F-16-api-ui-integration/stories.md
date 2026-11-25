@@ -123,6 +123,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-007: Block ids are unique across the pipeline (owner blocker, 2026-11-25)
+
+**As a** user
+**I want to** add blocks to any flow without an id clash
+**So that** the pipeline is accepted by the parser
+
+**Requirements:** R-16-8
+
+#### Acceptance Criteria
+
+- [ ] AC-021 `[auto]`: a block added to any flow gets an id that no block of any flow of the pipeline has; ids stay unique after blocks are added to several flows and after a block is removed.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -133,4 +147,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-4 — the analyze request follows the pipeline schema; command files take the flow name | AC-011, AC-012, AC-013, AC-014, AC-015, AC-016 |
 | R-16-5 — the analyze reply has the shape the step reads | AC-017, AC-018 |
 | R-16-6 — a new project starts empty | AC-019 |
+| R-16-8 — block ids are unique across the pipeline | AC-021 |
 | R-16-7 — the flow body accepts typing | AC-020 |

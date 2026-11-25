@@ -28,6 +28,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T010 [Web] Blocker (owner, 2026-11-25): the flow properties Body field cannot be typed into. Reproduce it first with a test that types text into a flow body through `editFlowField` (`source/apps/web/src/builder/fields.ts`) and `FlowPanel.tsx` `editText`/`settle`: a refused edit clears the draft, so the field shows the saved value again. Find which problem refuses the keystroke (`refusalProblemOf` refuses any new problem in the document, not only one at the edited path), fix the root cause, and keep the refusal the parser's own reason. Name the tests `F-16 AC-020`; add the criterion to stories.md under US-006 when the cause is known — covers AC-020 (typing into the flow body is accepted and shown)
 
+- [ ] T011 [Web] Blocker (owner, 2026-11-25): block ids repeat across flows (`build` got `block-1`, `block-3` and so on, which `specify` already had). The parser requires every block id unique in the pipeline. `nextBlockId` in `source/apps/web/src/builder/blocks.ts` checks only the flow's own blocks. Make it check every block of the pipeline (pass the pipeline, or the set of taken ids), so a new block id is unique across all flows; update its callers (`addBlock` and the flow tab code that adds a block); tests name `F-16 AC-021` (a block added to a second flow gets an id no other block of the pipeline has; ids stay unique after adding blocks to several flows and after a removal) — covers AC-021
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

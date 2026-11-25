@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 10 of 10 tasks committed (T010 added by blocker report 2026-11-25) |
+| Build    | 🔄 In Progress |      | 10 of 11 tasks committed (T011 added by blocker report 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -128,6 +128,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blocker: block ids repeat across flows)
+**Changed**: stories.md gains US-007 (AC-021, R-16-8); plan.md gains T011.
+**Reason**: a block added to a second flow reused an id of the first flow (`block-1`), and the parser requires every block id unique in the pipeline.
+**Impact**: Build reopens for T011; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blocker: flow body cannot be typed into)

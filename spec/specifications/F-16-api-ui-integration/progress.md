@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 14 of 14 tasks committed (T014 added by owner blocker 2026-11-25) |
+| Build    | 🔄 In Progress |      | 14 of 15 tasks committed (T015 added by owner blockers 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -146,6 +146,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blockers: pipeline name cannot be typed; arguments still lost)
+**Changed**: stories.md gains US-011 (AC-025, R-16-12); plan.md gains T015.
+**Reason**: the owner reports the pipeline name cannot be typed, and the argument loss of AC-023 is still in the browser after T013.
+**Impact**: Build reopens for T015; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blocker: End artifact shows a value that is not saved)

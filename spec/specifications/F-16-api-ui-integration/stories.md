@@ -179,6 +179,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-011: The pipeline fields can be typed into (owner blocker, 2026-11-25)
+
+**As a** user
+**I want to** type the pipeline name and description
+**So that** the pipeline has the values I enter
+
+**Requirements:** R-16-12
+
+#### Acceptance Criteria
+
+- [ ] AC-025 `[auto]`: the pipeline's Name, Description, Body and Tools accept typed text: each typed character is kept in the field, and an edit the parser refuses only because of a problem at another place in the pipeline does not clear the text the user typed.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -193,4 +207,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-9 — error messages name flows and blocks | AC-022 |
 | R-16-10 — arguments are kept when the selection changes | AC-023 |
 | R-16-11 — the End block shows its saved artifact | AC-024 |
+| R-16-12 — the pipeline fields can be typed into | AC-025 |
 | R-16-7 — the flow body accepts typing | AC-020 |

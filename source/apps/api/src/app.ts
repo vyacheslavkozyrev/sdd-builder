@@ -30,8 +30,9 @@ export function createApp(deps: AppDeps): Hono {
         ? c.json({ error: body.error }, 400)
         : c.json({ error: body.error, problems: body.problems }, 400);
     }
-    // The success reply is built in F-14 T004; until then a valid config is answered as not built yet.
-    return c.json({ error: 'Not implemented' }, 501);
+    // One analysis, one model call at most (AC-017). The reply carries the findings and the review, nothing else.
+    const result = await deps.analyze(body.config);
+    return c.json({ findings: result.findings, review: result.review }, 200);
   });
 
   app.notFound((c) => c.json({ error: 'Not found' }, 404));

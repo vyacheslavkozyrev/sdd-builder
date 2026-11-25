@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 15 of 16 tasks committed (T016 added by owner blocker 2026-11-25) |
+| Build    | ✅ Complete |      | 16 of 16 tasks committed (T016 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -47,6 +47,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T013 | Blocker: arguments kept on selection change; an open new line and an edited saved id are saved when the list unmounts, never into a deleted holder (`RowEditors.tsx`) | 0 blockers; 1 warning fixed (no test for the write order), 3 suggestions fixed; the owner's edited-id case fixed in this task | task check passed: api 258 of 258, web 1989 of 1989, core 1254 of 1254 |
 | T014 | Blocker: the End's Produced artifact control shows the saved value; a blank value shows a placeholder and the required reason, and a stale saved artifact stays shown (AC-024) | 0 blockers, 1 warning fixed (a stale saved artifact was shown as another one) | task check passed: api 258 of 258, web 1995 of 1995, core 1254 of 1254 |
 | T015 | Blockers: the pipeline Name (and every builder edit) states its refusal scope; a keystroke is refused only for a problem at its own path, or a new uniqueness clash (AC-025). The argument loss (AC-023) is not reproduced: owner steps requested | 0 blockers left after review (1 fixed: a repeated artifact label accepted; 1 warning fixed: a misleading round-limit reason; 2 suggestions fixed) | task check passed: api 258 of 258, web 2017 of 2017, core 1254 of 1254 |
+| T016 | Blocker: a new argument's id is generated from the typed name (`F-XX` gives `f-xx`); a refused line stays open with the parser's reason, not dropped (AC-026) | 0 blockers; 2 warnings fixed (ui.md description; digit-start test), 2 suggestions fixed (test names); ASCII-id note deferred for owner confirmation | task check passed: api 258 of 258, web 2024 of 2024, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -84,6 +85,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 (known follow-up named by the owner, deferred; not a finding of this review): refusal reasons still show raw ids and paths: `source/apps/web/src/builder/fields.ts` (lines 80, 500, 544, 619), `blockEnd.ts` (line 84), `blockCondition.ts`, `blockFields.ts` (line 133) and `source/apps/web/src/analyze/Findings.tsx` (line 150). Outside T012's scope; left as the owner asked.
 
 - T012 (SUGGESTION, deferred): `source/packages/core/src/pipeline/check/ids.ts` lines 99 and 108 name an argument id (`the id topic is also used at ...`) as the raw id. An argument has no display name, and AC-022 names flows and blocks only; the path part is named.
+
+- T016 (note for the owner, AC-026): the generated id keeps only `[a-z0-9]` (ASCII), as the owner's T016 rule says and as the parser's id charset requires. `flowFileName` keeps Unicode letters and digits, so the two differ on purpose. AC-026 says "each run of characters that is not a letter or digit", which read literally would keep `é` and give an id the parser refuses (`Café` stays on the line). The owner should confirm the ASCII reading, or amend AC-026 to say `[a-z0-9]`. Impact: names with non-ASCII letters only.
 
 - T012 (SUGGESTION, deferred): `source/apps/web/src/builder/problemLabel.ts` rewrites a quoted pipeline field path to `pipeline` (`pipeline.name is blank` gives `pipeline is blank`), as AC-022 says ("pipeline for a pipeline field"). The field name is lost from the message; a clearer wording needs an owner decision on the text.
 

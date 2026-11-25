@@ -132,19 +132,18 @@ describe('F-12 AC-022 Agent argument rows', () => {
     ]);
   });
 
-  it('F-12 AC-022 a refused argument id is discarded with no error shown, since it reverts to the saved list', () => {
+  it('F-12 AC-022 F-16 AC-026 a new argument name with no letter or digit stays on the line with the parser reason, and nothing is saved', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
     const reason = reasonOf(
-      addAgentArgument(pipelineState, RULES, 'plan', 'planner', { id: 'Bad Id!', required: false, hint: 'Bad Id!' }),
+      addAgentArgument(pipelineState, RULES, 'plan', 'planner', { id: '', required: false, hint: '' }),
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    typeAndLeave(screen.getByLabelText('New argument id'), 'Bad Id!');
+    typeAndLeave(screen.getByLabelText('New argument id'), '!!!');
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByText(reason)).toBeNull();
+    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
   });
 
   it('F-12 AC-022 a blank new argument line is discarded on blur and nothing is saved', () => {

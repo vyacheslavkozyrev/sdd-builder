@@ -203,7 +203,7 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-026 `[auto]`: a new argument line whose name the parser refuses (for example `F-XX`) stays on the line when focus leaves it, with the parser's reason under the line; it is saved only when the parser accepts the name; a blank line is still discarded.
+- [ ] AC-026 `[auto]`: the id of a new argument is generated from the name typed on its line (lower case, each run of characters that is not a letter or digit becomes one hyphen, the ends trimmed; `F-XX` gives `f-xx`, `Route type` gives `route-type`), and the typed name is kept as its hint. A new line whose generated id the parser refuses (no letter or digit at all, a clash with another argument, or a start with a digit) stays on the line when focus leaves it, with the parser's reason under the line; it is saved only when the parser accepts the generated id; a blank line is still discarded.
 
 ---
 

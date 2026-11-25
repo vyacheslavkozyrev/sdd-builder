@@ -849,7 +849,7 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'Bad Id!' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: '!!!' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     expect(within(propertiesCard()).queryByLabelText('Argument 1 id')).toBeNull();

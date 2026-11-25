@@ -222,17 +222,6 @@ describe('F-11 AC-024 flow argument rows', () => {
     expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
   });
 
-  it('F-11 AC-024 a refused new id is discarded with no error shown, since it reverts to the saved list', () => {
-    const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'bad id!');
-
-    const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: 'bad id!', required: false, hint: 'bad id!' }));
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByText(reason)).toBeNull();
-  });
-
   it('F-11 AC-024 Tab from the new line\'s id to its required box keeps the line open until the box is ticked', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
@@ -330,6 +319,95 @@ describe('F-11 AC-024 flow argument rows', () => {
   });
 });
 
+describe('F-16 AC-026 a refused new argument line', () => {
+  function refusalOfNew(text: string): string {
+    return argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: text, required: false, hint: text }));
+  }
+
+  function newLine() {
+    return within(screen.getByRole('group', { name: 'New argument' }));
+  }
+
+  it('F-16 AC-026 a name with capitals is saved with the id generated from it, and the typed name is kept as the hint', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'F-XX');
+
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'f-xx', required: false, hint: 'F-XX' });
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+  });
+
+  it('F-16 AC-026 a name with spaces is saved with its words joined by one hyphen', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), '  Route   type! ');
+
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({
+      index: 1,
+      id: 'route-type',
+      required: false,
+      hint: '  Route   type! ',
+    });
+  });
+
+  it('F-16 AC-026 a name with no letter or digit stays on the line with the parser reason, and nothing is saved', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), '!!!');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(newLine().getByLabelText('New argument id')).toHaveProperty('value', '!!!');
+    expect(newLine().getByText(refusalOfNew(''))).toBeTruthy();
+  });
+
+  it('F-16 AC-026 a name whose generated id starts with a digit stays on the line with the parser reason, and nothing is saved', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), '2nd topic');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(newLine().getByText(refusalOfNew('2nd-topic'))).toBeTruthy();
+  });
+
+  it('F-16 AC-026 a name whose generated id the parser refuses stays on the line with the parser reason, and nothing is saved', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'Feature ID');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(newLine().getByText(refusalOfNew('feature-id'))).toBeTruthy();
+  });
+
+  it('F-16 AC-026 a corrected name typed into the kept line is saved when focus leaves it, and the line closes', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'Feature ID');
+    commitText(screen.getByLabelText('New argument id'), 'Topic');
+
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'Topic' });
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+  });
+
+  it('F-16 AC-026 a blank new line is discarded when focus leaves it, with no message and nothing saved', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), '   ');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByText(refusalOfNew(''))).toBeNull();
+  });
+
+  it('F-16 AC-026 a valid name is saved when focus leaves the new line, as before', () => {
+    const { onChange } = renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+    commitText(screen.getByLabelText('New argument id'), 'topic');
+
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
+    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+  });
+});
+
 describe('F-11 AC-043 pipeline argument rows', () => {
   it('F-11 AC-043 shows the pipeline arguments under the title, with + and a minus on each row', () => {
     renderArguments(basePipeline(), { kind: 'pipeline' });
@@ -347,7 +425,7 @@ describe('F-11 AC-043 pipeline argument rows', () => {
     expect(next.flows[0]?.arguments[0]?.id).toBe('feature-id');
   });
 
-  it('F-11 AC-043 a new pipeline argument whose id another pipeline argument already has is refused, and the line is discarded with no error', () => {
+  it('F-11 AC-043 F-16 AC-026 a new pipeline argument whose id another pipeline argument already has stays on the line with the parser reason, and nothing is saved', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
@@ -355,8 +433,7 @@ describe('F-11 AC-043 pipeline argument rows', () => {
 
     const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: 'brief' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByText(reason)).toBeNull();
+    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
   });
 
   it('F-11 AC-043 a pipeline argument edit that repeats another id is refused, and the saved id returns with no error shown', () => {

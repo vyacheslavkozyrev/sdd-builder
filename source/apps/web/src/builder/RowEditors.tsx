@@ -304,8 +304,27 @@ function withEditedId(
   return result.ok ? result.pipeline : undefined;
 }
 
-// The list with a new line added, or undefined when the line is blank or the parser refuses its id. A refused line is
-// discarded with no error (device fix 2026-11-24).
+// The id of a new argument, generated from the typed name the way the command file name is: lower case, each run of
+// characters that is not a letter or digit becomes one hyphen, and the ends are trimmed. `F-XX` gives `f-xx`.
+function argumentIdOf(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// The parser's answer for a new line: the row it adds, with the typed name as its hint. The parser checks the generated id.
+function addNewLine(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  target: ListTarget,
+  text: string,
+  required: boolean,
+): RowResult {
+  return addArgumentTo(pipelineState, rules, target, { id: argumentIdOf(text), required, hint: text });
+}
+
+// The list with a new line added, or undefined when the line is blank or the parser refuses its generated id.
 function withNewLine(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -314,7 +333,7 @@ function withNewLine(
   required: boolean,
 ): Pipeline | undefined {
   if (isEmptyText(text)) return undefined;
-  const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
+  const result = addNewLine(pipelineState, rules, target, text, required);
   return result.ok ? result.pipeline : undefined;
 }
 
@@ -327,9 +346,10 @@ export function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 // row is a field with its id, a "required" checkbox and a minus. The field is edited in place: its id is checked by
 // the parser when it loses focus (or Enter). The checkbox saves the argument's required flag through the parser. A
 // refused edit keeps the saved values and shows the reason beneath the row. + adds one line after the list, a text box,
-// a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's id: an
-// accepted line is saved with the id as its hint and the required flag the checkbox shows (a new one starts unrequired).
-// A blank line is discarded on blur. A refused id with text discards the line too, with no error (device fix 2026-11-24).
+// a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's name: the
+// id is generated from it, and an accepted line is saved with the typed name as its hint and the required flag the
+// checkbox shows (a new one starts unrequired). A blank line is discarded on blur. A line whose generated id the parser
+// refuses stays open with the parser's reason beneath it, until a corrected name is accepted (F-16 AC-026).
 // A line still open when the list unmounts (another block or flow is selected, or its holder is deleted) is saved as
 // blur would save it, unless its holder is gone. A saved id typed and not yet left is saved the same way, and a refused
 // one is discarded (F-16 AC-023).
@@ -369,12 +389,21 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
     [],
   );
 
-  // A blank line is discarded on blur. A line with text is sent to the parser and discarded when the parser refuses it:
-  // a refused text with content reverts to the saved list, with no error (device fix 2026-11-24).
+  // A blank line is discarded on blur, with no message. A line with text is sent to the parser with its generated id. An
+  // accepted line is saved and closes. A refused line stays open with the parser's reason beneath it, and nothing is saved
+  // (F-16 AC-026).
   function commitNew(text: string, required: boolean) {
-    const next = withNewLine(pipelineState, rules, target, text, required);
-    if (next !== undefined) onChange(next);
-    setAdding(undefined);
+    if (isEmptyText(text)) {
+      setAdding(undefined);
+      return;
+    }
+    const result = addNewLine(pipelineState, rules, target, text, required);
+    if (result.ok) {
+      onChange(result.pipeline);
+      setAdding(undefined);
+      return;
+    }
+    setAdding((current) => (current === undefined ? current : { ...current, refusal: result.reason }));
   }
 
   // The key press check of a new line (device fix 2026-11-24): its error is the parser's reason for an empty id while

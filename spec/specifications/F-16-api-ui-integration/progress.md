@@ -120,6 +120,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ## Amendments
 
 ```
+### Amendment — 2026-11-25 (owner decision: empty in the UI, parser unchanged)
+**Changed**: AC-019 and T009 state that a new project has no flows in the UI and the parser refuses it until a flow and a name are added; no core change.
+**Reason**: the parser refuses an empty pipeline (blank name; at least one flow, F-02 AC-086). The owner chose to keep the parser and start the UI empty.
+**Impact**: T009 re-runs with the amended AC-019.
+```
+
+```
 ### Amendment — 2026-11-25 (owner request: empty pipeline for a new project)
 **Changed**: stories.md gains US-006 (AC-019, R-16-6); plan.md gains T009.
 **Reason**: the owner asked that a new project start with no default pipeline.

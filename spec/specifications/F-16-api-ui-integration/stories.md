@@ -118,7 +118,7 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-019 `[auto]`: a new wizard state has no flows and no arguments in its pipeline, and the empty pipeline is accepted by `pipeline.parseProjectConfig`.
+- [ ] AC-019 `[auto]`: a new wizard state, and a restart, has no flows and no arguments in its pipeline. The parser is unchanged: it refuses such a pipeline (no flow, blank name), so `/analyze` answers 422 with those problems until the user adds a flow and a name.
 
 ---
 

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 11 of 11 tasks committed (T011 added by blocker report 2026-11-25) |
+| Build    | 🔄 In Progress |      | 11 of 12 tasks committed (T012 added by owner request 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -129,6 +129,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner request: error messages name flows and blocks)
+**Changed**: stories.md gains US-008 (AC-022, R-16-9); plan.md gains T012.
+**Reason**: the builder's error list shows paths and block ids (`pipeline.flows.1.blocks.0.id`, `block-1`).
+**Impact**: Build reopens for T012; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blocker: block ids repeat across flows)

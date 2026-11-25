@@ -137,6 +137,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-008: Error messages name flows and blocks (owner request, 2026-11-25)
+
+**As a** user
+**I want to** read the builder's errors by flow and block name
+**So that** I can find the problem without decoding ids
+
+**Requirements:** R-16-9
+
+#### Acceptance Criteria
+
+- [ ] AC-022 `[auto]`: each error or warning in the builder names its location by name: the flow's name, and for a block the block's name (an Agent's name; `Start`; `End`; a Condition's description, or `Condition N` when it has none), or `pipeline` for a pipeline field. A message that quotes a path or an id is shown with the same names, and no raw path or block id (such as `pipeline.flows.1.blocks.0.id` or `block-1`) appears in it.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -148,4 +162,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-5 — the analyze reply has the shape the step reads | AC-017, AC-018 |
 | R-16-6 — a new project starts empty | AC-019 |
 | R-16-8 — block ids are unique across the pipeline | AC-021 |
+| R-16-9 — error messages name flows and blocks | AC-022 |
 | R-16-7 — the flow body accepts typing | AC-020 |

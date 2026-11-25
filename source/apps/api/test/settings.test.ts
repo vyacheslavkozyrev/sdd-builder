@@ -37,13 +37,13 @@ describe('F-14 AC-022 SDDBUILDER_ANALYZER_MODEL', () => {
   });
 });
 
-describe('F-15 AC-023 SDDBUILDER_GENERATOR_MODEL', () => {
+describe('SDDBUILDER_GENERATOR_MODEL', () => {
   it.each([
     ['unset', {}, 'claude-opus-5-5'],
     ['set to a model name', { SDDBUILDER_GENERATOR_MODEL: 'claude-sonnet-5-5' }, 'claude-sonnet-5-5'],
     ['an empty string', { SDDBUILDER_GENERATOR_MODEL: '' }, 'claude-opus-5-5'],
     ['only spaces', { SDDBUILDER_GENERATOR_MODEL: '   ' }, 'claude-opus-5-5'],
-  ])('uses the model when SDDBUILDER_GENERATOR_MODEL is %s', (_label, env: Environment, model) => {
+  ])('F-15 AC-023 uses the model when SDDBUILDER_GENERATOR_MODEL is %s', (_label, env: Environment, model) => {
     expect(readSettings(env).generatorModel).toBe(model);
   });
 

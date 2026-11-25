@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 6 stories, 29 criteria, all [auto]. Limits and input caps are F-17; the generator model is `SDDBUILDER_GENERATOR_MODEL` (default `claude-opus-5-5`) |
 | UX       | ➖ Not needed |  | No user interface (API only) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 10 tasks (T001 to T010); 29 criteria, all covered |
-| Build    | 🔄 In Progress |      | 10 of 11 tasks committed (T011 added by Verify) |
+| Build    | ✅ Complete |      | 11 of 11 tasks committed (T011 added by Verify) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist. Full verification waits for F-16 integration (owner decision 2026-11-24) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ None
 | T008 | Route `/generate` in `app.ts`: 405 with `Allow: POST` before any read; body through `readProjectConfig`; service result mapped to 200 zip, 422, 503, 502 (bad reply and provider error) and 500; one log line per request, `route=/generate event=<name> status=<n>`, no text | 0 blockers, 2 warnings fixed (body read outside the guarded try; a "no body read" test that did not check it), 1 suggestion fixed (table wrapping); the `wiring.ts` placeholder `generate` stays until T009 | task check passed: api 243 of 243, web 1895 of 1895, core 1217 of 1217 |
 | T009 | Wiring and server: `buildDeps` builds review and generation from one client made only when a key is set; no key gives 503 for generation and no review model; the templates load once at startup in `server.ts`; the startup line now names both (`review=off generation=off`) | 0 blockers, 1 warning fixed (a test name that claimed an assertion it did not make), 1 suggestion fixed (type parentheses); the log wording was an owner decision (option 1, applied) | task check passed: api 246 of 246, web 1895 of 1895, core 1217 of 1217 |
 | T010 | Docs: `architecture.md` §3 (a generation reply is one bare JSON object; `max_tokens` is a bad reply), §4 and §5 (`SDDBUILDER_GENERATOR_MODEL`; the fixed generation constants are not environment variables) | 0 warnings; docs only, no test | task check passed: api 246 of 246, web 1895 of 1895, core 1217 of 1217 |
+| T011 | Test naming for AC-023: the default-model `it.each` carries `F-15 AC-023` in its title (describe title shortened so the ID appears once) | 0 blockers, 0 warnings, 1 suggestion fixed (repeated ID in the describe title) | task check passed: api 246 of 246, web 1895 of 1895, core 1217 of 1217 |
 
 ---
 

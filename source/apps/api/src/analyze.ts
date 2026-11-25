@@ -35,7 +35,7 @@ async function runReview(
   try {
     reply = await model.review(request);
   } catch {
-    log('analyze review call threw; review failed');
+    log('route=/analyze event=review-threw status=failed');
     return failedReview();
   }
   if (reply.stopReason === 'max_tokens') return failedReview();
@@ -49,6 +49,6 @@ export async function analyzePipeline(
 ): Promise<AnalysisResult> {
   const findings = [...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)];
   const review = await runReview(config, model, log);
-  log(`analyze review=${review.status}`);
+  log(`route=/analyze event=review status=${review.status}`);
   return { findings, review };
 }

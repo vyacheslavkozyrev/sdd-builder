@@ -17,13 +17,23 @@ export function createApp(deps: AppDeps): Hono {
   // Any method other than POST on /analyze is refused before a route can run.
   app.use('/analyze', async (c, next) => {
     if (c.req.method !== 'POST') {
+      deps.log('route=/analyze event=refused status=405');
       return c.json({ error: 'Method not allowed' }, 405, { Allow: 'POST' });
     }
     await next();
   });
 
   app.post('/analyze', async (c) => {
-    const body = readProjectConfig(await c.req.text());
+    // A body that cannot be read is an unexpected error: logged by its event and status, and answered like a failed
+    // analysis, so that every request on this route writes exactly one log line.
+    let text: string;
+    try {
+      text = await c.req.text();
+    } catch {
+      deps.log('route=/analyze event=body-unreadable status=500');
+      return c.json({ error: 'Internal error' }, 500);
+    }
+    const body = readProjectConfig(text);
     if (!body.ok) {
       deps.log('route=/analyze event=refused status=400');
       return body.problems === null
@@ -35,6 +45,7 @@ export function createApp(deps: AppDeps): Hono {
     // so that no part of the error text reaches the client (AC-018, AC-019).
     try {
       const result = await deps.analyze(body.config);
+      deps.log('route=/analyze event=answered status=200');
       return c.json({ findings: result.findings, review: result.review }, 200);
     } catch {
       deps.log('route=/analyze event=analysis-failed status=500');

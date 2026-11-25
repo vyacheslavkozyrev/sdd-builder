@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { analyzePipeline, type ReviewModel } from '../src/analyze.js';
+import { createApp, type AppDeps } from '../src/app.js';
 
 // A fixed sentinel that stands in for brief content. It must never reach a log line or a file.
 const SENTINEL = 'SENTINEL-IDEA-7f3a91';
@@ -24,6 +25,19 @@ function configFixture(idea: string, name = 'Project'): pipeline.ProjectConfig {
     stack: { language: 'TypeScript', framework: 'React' },
     rules: [],
     pipeline: pipelineFixture,
+  };
+}
+
+// A body the parser accepts, built from the default pipeline, as the route reads it.
+function routeBody(idea: string, name = 'Project'): Record<string, unknown> {
+  return {
+    schemaVersion: 2,
+    name,
+    idea,
+    architecture: 'A single service',
+    stack: { language: 'TypeScript', framework: 'React' },
+    rules: [],
+    pipeline: pipeline.defaultPipeline,
   };
 }
 
@@ -85,7 +99,7 @@ describe('F-06 the analysis keeps no brief content in logs', () => {
   it('F-06 AC-025 the log lines carry the event and the status only', async () => {
     const { lines } = await analyzeLogged(configFixture(SENTINEL), fakeModel({ text: '[]' }));
 
-    expect(lines).toEqual(['analyze review=ok']);
+    expect(lines).toEqual(['route=/analyze event=review status=ok']);
   });
 
   it('F-06 AC-026 a thrown error whose message holds the sentinel leaves it out of the log lines and the result', async () => {
@@ -94,7 +108,7 @@ describe('F-06 the analysis keeps no brief content in logs', () => {
 
     for (const line of lines) expect(line).not.toContain(SENTINEL);
     expect(JSON.stringify(result)).not.toContain(SENTINEL);
-    expect(lines).toContain('analyze review=failed');
+    expect(lines).toContain('route=/analyze event=review status=failed');
   });
 });
 
@@ -129,16 +143,20 @@ function restoreEnv(name: string, value: string | undefined): void {
   else process.env[name] = value;
 }
 
-describe('F-06 the analysis writes no file', () => {
-  let root: string;
+// Gives each test a fresh temp folder that is the cwd, with TMPDIR and HOME pointing at it. The folder is removed
+// afterwards, even when restoring the cwd or the environment fails. Returns a getter for the folder.
+function useTempFolder(): () => string {
+  let root = '';
   let previous: { cwd: string; tmpdir: string | undefined; home: string | undefined };
 
   beforeEach(() => {
-    root = mkdtempSync(join(tmpdir(), 'sddbuilder-f06-privacy-'));
+    root = mkdtempSync(join(tmpdir(), 'sddbuilder-privacy-'));
     previous = { cwd: process.cwd(), tmpdir: process.env['TMPDIR'], home: process.env['HOME'] };
+    process.chdir(root);
+    process.env['TMPDIR'] = root;
+    process.env['HOME'] = root;
   });
 
-  // The folder is removed even when restoring the cwd or the environment fails.
   afterEach(() => {
     try {
       process.chdir(previous.cwd);
@@ -149,15 +167,174 @@ describe('F-06 the analysis writes no file', () => {
     }
   });
 
+  return () => root;
+}
+
+describe('F-06 the analysis writes no file', () => {
+  const folder = useTempFolder();
+
   it('F-06 AC-024 the analysis, run from a temp folder with TMPDIR and HOME set to it, leaves that folder unchanged', async () => {
-    process.chdir(root);
-    process.env['TMPDIR'] = root;
-    process.env['HOME'] = root;
+    const root = folder();
     const before = listTree(root);
 
     await analyzeLogged(configFixture(SENTINEL), fakeModel({ text: '[]' }));
     await analyzeLogged(configFixture(SENTINEL), null);
     await analyzeLogged(configFixture(SENTINEL), fakeModel({ throws: 'timeout' }));
+
+    expect(listTree(root)).toEqual(before);
+  });
+});
+
+// The route requests the privacy cases send. The route runs the real analysis with a fake model unless a case
+// replaces the analysis. Every line the route and the analysis log is collected, in order.
+interface RouteRequest {
+  readonly method?: string;
+  // A stream is made per run: a body that fails while it is read (the stream errors on the first pull).
+  readonly body: string | (() => ReadableStream<Uint8Array>);
+  readonly analyze?: AppDeps['analyze'];
+}
+
+interface RouteRun {
+  readonly status: number;
+  readonly text: string;
+  readonly lines: string[];
+}
+
+async function runRoute(request: RouteRequest): Promise<RouteRun> {
+  const lines: string[] = [];
+  const log = (line: string): void => {
+    lines.push(line);
+  };
+  const model = fakeModel({ text: '[]' });
+  const app = createApp({
+    analyze: request.analyze ?? ((config) => analyzePipeline(config, model, log)),
+    log,
+  });
+  const body = typeof request.body === 'string' ? request.body : request.body();
+  const init = {
+    method: request.method ?? 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+    duplex: 'half',
+  } as RequestInit;
+  const response = await app.request('/analyze', init);
+  return { status: response.status, text: await response.text(), lines };
+}
+
+const sentinelBody = JSON.stringify(routeBody(SENTINEL));
+
+// A body whose read fails with a message that holds the sentinel.
+function unreadableBody(): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    pull(controller) {
+      controller.error(new Error(`read broke near ${SENTINEL}`));
+    },
+  });
+}
+
+const routeCases: { label: string; status: number; request: RouteRequest; lines: string[] }[] = [
+  {
+    label: 'a success (200)',
+    status: 200,
+    request: { body: sentinelBody },
+    lines: ['route=/analyze event=review status=ok', 'route=/analyze event=answered status=200'],
+  },
+  {
+    label: 'a parse refusal (400)',
+    status: 400,
+    request: { body: JSON.stringify({ ...routeBody(SENTINEL), schemaVersion: 1 }) },
+    lines: ['route=/analyze event=refused status=400'],
+  },
+  {
+    label: 'a body that is not JSON (400)',
+    status: 400,
+    request: { body: `{"idea":"${SENTINEL}` },
+    lines: ['route=/analyze event=refused status=400'],
+  },
+  {
+    label: 'a method other than POST (405)',
+    status: 405,
+    request: { method: 'PUT', body: sentinelBody },
+    lines: ['route=/analyze event=refused status=405'],
+  },
+  {
+    label: 'an error thrown by the analysis (500)',
+    status: 500,
+    request: {
+      body: sentinelBody,
+      analyze: async () => {
+        throw new Error(`analysis broke near ${SENTINEL}`);
+      },
+    },
+    lines: ['route=/analyze event=analysis-failed status=500'],
+  },
+  {
+    label: 'a body that cannot be read (500)',
+    status: 500,
+    request: { body: unreadableBody },
+    lines: ['route=/analyze event=body-unreadable status=500'],
+  },
+];
+
+// A log line of the route or the analysis: `route=/analyze event=<name> status=<value>`, and nothing else.
+const LOG_LINE = /^route=\/analyze event=[a-z][a-z-]* status=[a-z0-9]+$/;
+
+function fieldNames(line: string): string[] {
+  return line.split(' ').map((field) => field.slice(0, field.indexOf('=')));
+}
+
+describe('F-14 the route keeps no brief content in logs', () => {
+  it.each(routeCases)('F-14 AC-025 the sentinel idea appears in no log line on $label', async ({ request, status }) => {
+    const run = await runRoute(request);
+
+    expect(run.status).toBe(status);
+    expect(run.lines.length).toBeGreaterThan(0);
+    for (const line of run.lines) expect(line).not.toContain(SENTINEL);
+  });
+
+  it.each(routeCases)('F-14 AC-026 each log line of a request carries the event, route and status only, on $label', async ({
+    request,
+    lines,
+  }) => {
+    const run = await runRoute(request);
+
+    expect(run.lines).toEqual(lines);
+    for (const line of run.lines) {
+      expect(line).toMatch(LOG_LINE);
+      expect(fieldNames(line)).toEqual(['route', 'event', 'status']);
+    }
+  });
+});
+
+describe('F-14 the route answers each request from its own brief only', () => {
+  it('F-14 AC-027 two requests with different briefs each return only their own findings', async () => {
+    const first = routeBody('', 'Project');
+    const second = routeBody('A complete idea for a notes app', 'Notes');
+    const expectedFor = (body: Record<string, unknown>): unknown => {
+      const parsed = pipeline.parseProjectConfig(body);
+      if (!parsed.ok) throw new Error('the fixture must parse');
+      return [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
+    };
+
+    const firstRun = await runRoute({ body: JSON.stringify(first) });
+    const secondRun = await runRoute({ body: JSON.stringify(second) });
+    const again = await runRoute({ body: JSON.stringify(first) });
+
+    expect((JSON.parse(firstRun.text) as { findings: unknown }).findings).toEqual(expectedFor(first));
+    expect((JSON.parse(secondRun.text) as { findings: unknown }).findings).toEqual(expectedFor(second));
+    expect(secondRun.text).not.toEqual(firstRun.text);
+    expect(again.text).toBe(firstRun.text);
+  });
+});
+
+describe('F-14 the route writes no file and keeps no state', () => {
+  const folder = useTempFolder();
+
+  it('F-14 AC-027 every route case, run from a temp folder with TMPDIR and HOME set to it, leaves that folder unchanged', async () => {
+    const root = folder();
+    const before = listTree(root);
+
+    for (const { request } of routeCases) await runRoute(request);
 
     expect(listTree(root)).toEqual(before);
   });

@@ -90,7 +90,7 @@ describe('F-06 review failure keeps the findings', () => {
 
     expect(JSON.stringify(result)).not.toContain('secret brief text in error');
     expect(lines.join('\n')).not.toContain('secret brief text in error');
-    expect(lines.join('\n')).toContain('review=failed');
+    expect(lines.join('\n')).toContain('route=/analyze event=review-threw status=failed');
   });
 
   it('F-06 AC-013 a reply stopped at max_tokens gives a failed review, and the reply is not parsed', async () => {

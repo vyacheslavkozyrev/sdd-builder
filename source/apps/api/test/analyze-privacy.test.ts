@@ -208,6 +208,7 @@ async function runRoute(request: RouteRequest): Promise<RouteRun> {
   const model = fakeModel({ text: '[]' });
   const app = createApp({
     analyze: request.analyze ?? ((config) => analyzePipeline(config, model, log)),
+    generate: async () => ({ kind: 'unavailable' }),
     log,
   });
   const body = typeof request.body === 'string' ? request.body : request.body();

@@ -29,6 +29,7 @@ function fakeDeps(): { deps: AppDeps; calls: { analyze: number } } {
       calls.analyze += 1;
       return result;
     },
+    generate: async () => ({ kind: 'unavailable' }),
     log: () => undefined,
   };
   return { deps, calls };

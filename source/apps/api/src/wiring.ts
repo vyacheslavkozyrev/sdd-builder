@@ -16,6 +16,7 @@ export function buildAnalyzeDeps(
   const model = reviewModel(settings, clientFactory, log);
   return {
     analyze: (config) => analyzePipeline(config, model, log),
+    generate: async () => ({ kind: 'unavailable' }),
     log,
   };
 }

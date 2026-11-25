@@ -1,13 +1,16 @@
-// The HTTP application (F-14 AC-005 to AC-012). It holds the routes and the reply rules. Replies that are not a
-// success carry `{ error }`. The analysis and the log are injected, so tests can count the model calls with a fake.
+// The HTTP application (F-14 AC-005 to AC-012, F-15 AC-001, AC-006 to AC-007, AC-011 to AC-014, AC-019, AC-025 to
+// AC-027, AC-029). It holds the routes and the reply rules. Replies that are not a success carry `{ error }`. The
+// analysis, the generation and the log are injected, so tests can count the model calls with a fake.
 
 import type { pipeline } from '@sddbuilder/core';
 import { Hono } from 'hono';
 import type { AnalysisResult } from './analyze.js';
-import { readProjectConfig } from './http/body.js';
+import { readProjectConfig, type BodyResult } from './http/body.js';
+import type { GenerationResult } from './generate/service.js';
 
 export interface AppDeps {
   readonly analyze: (config: pipeline.ProjectConfig) => Promise<AnalysisResult>;
+  readonly generate: (config: pipeline.ProjectConfig) => Promise<GenerationResult>;
   readonly log: (line: string) => void;
 }
 
@@ -50,6 +53,62 @@ export function createApp(deps: AppDeps): Hono {
     } catch {
       deps.log('route=/analyze event=analysis-failed status=500');
       return c.json({ error: 'Internal error' }, 500);
+    }
+  });
+
+  // Any method other than POST on /generate is refused before the route can read the body (F-15 AC-025).
+  app.use('/generate', async (c, next) => {
+    if (c.req.method !== 'POST') {
+      deps.log('route=/generate event=method-refused status=405');
+      return c.json({ error: 'Method not allowed' }, 405, { Allow: 'POST' });
+    }
+    await next();
+  });
+
+  // Each request writes exactly one log line: its route, its event and its status (F-15 AC-029). The reply carries
+  // the zip or the problems and nothing else; no reply text, brief text or error text reaches the log or the client.
+  app.post('/generate', async (c) => {
+    // A body that cannot be read or parsed without an error of its own is an unexpected error: it is logged and
+    // answered like a failed generation, so that every request on this route writes exactly one log line.
+    let body: BodyResult;
+    try {
+      body = readProjectConfig(await c.req.text());
+    } catch {
+      deps.log('route=/generate event=failed status=500');
+      return c.json({ error: 'Internal error' }, 500);
+    }
+    if (!body.ok) {
+      deps.log('route=/generate event=refused-body status=400');
+      return body.problems === null
+        ? c.json({ error: body.error }, 400)
+        : c.json({ error: body.error, problems: body.problems }, 400);
+    }
+    let result: GenerationResult;
+    try {
+      result = await deps.generate(body.config);
+    } catch {
+      deps.log('route=/generate event=failed status=500');
+      return c.json({ error: 'Internal error' }, 500);
+    }
+    switch (result.kind) {
+      case 'zip':
+        deps.log('route=/generate event=generated status=200');
+        return c.body(new Uint8Array(result.bytes), 200, {
+          'Content-Type': 'application/zip',
+          'Content-Disposition': 'attachment; filename="sddbuilder-project.zip"',
+        });
+      case 'refused':
+        deps.log('route=/generate event=refused status=422');
+        return c.json({ error: 'The project config cannot be generated', problems: result.problems }, 422);
+      case 'unavailable':
+        deps.log('route=/generate event=unavailable status=503');
+        return c.json({ error: 'Generation is not configured' }, 503);
+      case 'bad-reply':
+        deps.log('route=/generate event=bad-reply status=502');
+        return c.json({ error: 'The generated files did not pass the checks', problems: result.problems }, 502);
+      case 'provider-error':
+        deps.log('route=/generate event=provider-error status=502');
+        return c.json({ error: 'Generation failed' }, 502);
     }
   });
 

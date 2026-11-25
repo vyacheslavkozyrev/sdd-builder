@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 6 stories, 29 criteria, all [auto]. Limits and input caps are F-17; the generator model is `SDDBUILDER_GENERATOR_MODEL` (default `claude-opus-5-5`) |
 | UX       | ➖ Not needed |  | No user interface (API only) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 10 tasks (T001 to T010); 29 criteria, all covered |
-| Build    | 🔄 In Progress |      | 7 of 10 tasks committed |
+| Build    | 🔄 In Progress |      | 8 of 10 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist. Full verification waits for F-16 integration (owner decision 2026-11-24) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -38,6 +38,7 @@ None
 | T005 | Generation call `generate/anthropic.ts`: `GenerationClient`, `generationCallParams` with `max_tokens` 32000 and timeout 300000 ms (SDK retries left on), `callGeneration` makes one call and does not catch a thrown error | 0 blockers, 0 warnings, 5 suggestions (4 fixed: a test moved to AC-018, the SDK-options test, a single cast, an empty-reply edge case; 1 deferred, see Deferred Findings) | task check passed: api 182 of 182, web 1895 of 1895, core 1217 of 1217 |
 | T006 | Zip `generate/zip.ts`: `buildZip(files)` in the given order, no directory entries, DEFLATE, fixed date 2020-01-01 UTC; rejects an empty text (JSZip would store it uncompressed), an unsafe path (`..`, `.`, empty segment, backslash, absolute, trailing slash) and a duplicate path | 0 blockers, 3 warnings fixed (empty text stored without DEFLATE; no path guard; no test across time zones), 0 suggestions | task check passed: api 201 of 201, web 1895 of 1895, core 1217 of 1217 |
 | T007 | Generation service `generate/service.ts`: `generateProject(config, { templates, model })` returns zip, refused, unavailable, bad-reply or provider-error; one call for the plan; one retry only after a bad reply; no retry for a provider error; findings for keys the model did not plan are neutralised to `(reply)` | 0 blockers in the first review round: 1 blocker fixed (reply keys not in the plan reached `bad-reply` problems and the retry prompt), 2 warnings fixed (AC-010 tag, AC-015 content test); 2 suggestions deferred (core reports unplanned keys itself; the `workspace.test.ts` 5 s `tsc` timeout) | task check passed: api 216 of 216, web 1895 of 1895, core 1217 of 1217 |
+| T008 | Route `/generate` in `app.ts`: 405 with `Allow: POST` before any read; body through `readProjectConfig`; service result mapped to 200 zip, 422, 503, 502 (bad reply and provider error) and 500; one log line per request, `route=/generate event=<name> status=<n>`, no text | 0 blockers, 2 warnings fixed (body read outside the guarded try; a "no body read" test that did not check it), 1 suggestion fixed (table wrapping); the `wiring.ts` placeholder `generate` stays until T009 | task check passed: api 243 of 243, web 1895 of 1895, core 1217 of 1217 |
 
 ---
 
@@ -61,6 +62,13 @@ _Criteria coverage matrix and manual checklist outcome._
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-24 (T008 size exception)
+**Changed**: none to the plan. T008 staged at 498 changed lines (the route test file is about 380 of them).
+**Reason**: over the 400 guard. The owner approved one commit for T008 as an exception.
+**Impact**: none on T009.
+```
 
 ```
 ### Amendment — 2026-11-24 (T007 size exception)

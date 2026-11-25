@@ -14,6 +14,7 @@ function fakeDeps(): { deps: AppDeps; calls: { analyze: number } } {
       calls.analyze += 1;
       return result;
     },
+    generate: async () => ({ kind: 'unavailable' }),
     log: () => undefined,
   };
   return { deps, calls };
@@ -33,16 +34,6 @@ describe('F-14 route skeleton', () => {
       expect(calls.analyze).toBe(0);
     },
   );
-
-  it('F-14 AC-011 POST /generate answers 404 with a JSON error and makes no model call', async () => {
-    const { deps, calls } = fakeDeps();
-    const response = await createApp(deps).request('/generate', { method: 'POST' });
-
-    expect(response.status).toBe(404);
-    expect(response.headers.get('Content-Type')).toContain('application/json');
-    expect(await response.json()).toEqual({ error: 'Not found' });
-    expect(calls.analyze).toBe(0);
-  });
 
   it.each(['GET', 'POST', 'PUT'])(
     'F-14 AC-011 %s on an unknown path answers 404 with a JSON error and makes no model call',
@@ -99,6 +90,7 @@ function countingModel(answer: { text?: string; throws?: boolean }): { model: Re
 function analysisApp(model: ReviewModel | null): Hono {
   return createApp({
     analyze: (config) => analyzePipeline(config, model, () => {}),
+    generate: async () => ({ kind: 'unavailable' }),
     log: () => undefined,
   });
 }
@@ -154,6 +146,7 @@ describe('F-14 route success', () => {
     };
     const app = createApp({
       analyze: async () => ({ findings: [brief, structural], review: { status: 'failed', findings: [], dropped: 0 } }),
+      generate: async () => ({ kind: 'unavailable' }),
       log: () => undefined,
     });
 
@@ -210,6 +203,7 @@ describe('F-14 route unexpected errors', () => {
       analyze: async () => {
         throw new Error(`analysis broke near ${sentinel}`);
       },
+      generate: async () => ({ kind: 'unavailable' }),
       log: () => undefined,
     });
     const response = await postConfig(app, successConfig());
@@ -229,6 +223,7 @@ describe('F-14 route unexpected errors', () => {
       analyze: async () => {
         throw new Error(sentinel);
       },
+      generate: async () => ({ kind: 'unavailable' }),
       log: (line) => lines.push(line),
     });
     await postConfig(app, successConfig());
@@ -242,6 +237,7 @@ describe('F-14 route unexpected errors', () => {
       analyze: async () => {
         throw new Error('sentinel-analysis-5d07');
       },
+      generate: async () => ({ kind: 'unavailable' }),
       log: () => undefined,
     });
     const response = await postConfig(app, successConfig());

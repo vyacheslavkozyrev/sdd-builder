@@ -108,6 +108,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-006: A new project starts empty (owner request, 2026-11-25)
+
+**As a** user
+**I want to** start a new project with no pipeline
+**So that** I build the process myself rather than edit a default
+
+**Requirements:** R-16-6
+
+#### Acceptance Criteria
+
+- [ ] AC-019 `[auto]`: a new wizard state has no flows and no arguments in its pipeline, and the empty pipeline is accepted by `pipeline.parseProjectConfig`.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -117,3 +131,4 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-3 — the owner's end-to-end check of a generated project | AC-010 |
 | R-16-4 — the analyze request follows the pipeline schema; command files take the flow name | AC-011, AC-012, AC-013, AC-014, AC-015, AC-016 |
 | R-16-5 — the analyze reply has the shape the step reads | AC-017, AC-018 |
+| R-16-6 — a new project starts empty | AC-019 |

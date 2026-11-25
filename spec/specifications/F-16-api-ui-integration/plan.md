@@ -24,6 +24,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T008 [API] The analyze reply carries `subject` on every finding: `source/apps/api/src/analyze.ts` (`analyzePipeline`) maps each structural and brief finding to `{ severity, subject: path, message, rule, path }`, so the reply matches the shape the web step reads (`parseAnalysisReply`, F-13); the review findings already carry `subject`; the F-14 route and analysis tests that pinned the old finding shape change with it (name them in the report); `source/apps/api/test/analyze.test.ts` and `analyze-route.test.ts` get the cases; tests name `F-16 AC-017` and `F-16 AC-018`; the AC-018 test also runs the web parser on the reply (web may import core, and the API test may import the web parser only if the layering allows it: otherwise assert the shape in the API test and leave AC-018 to a web test that uses a fixed reply) — covers AC-017, AC-018
 
+- [ ] T009 [Web] A new project starts with an empty pipeline (owner request 2026-11-25): `source/apps/web/src/wizard/state.ts` `emptyValues()` takes an empty pipeline (no flows, no arguments, no name or description) instead of `defaultPipelineValue()`; `defaultPipelineValue()` stays for any caller that needs the default; `source/apps/web/test/` gains `F-16 AC-019` tests: a new wizard state has zero flows and the empty pipeline parses with `pipeline.parseProjectConfig`; the F-11 test that expected the default pipeline on a new project changes to the empty one (name the change in the report) — covers AC-019
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

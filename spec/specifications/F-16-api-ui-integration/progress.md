@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 8 of 8 tasks committed (T004 to T008 added by Amendments 2026-11-24 and 2026-11-25) |
+| Build    | 🔄 In Progress |      | 8 of 9 tasks committed (T004 to T009 added by Amendments 2026-11-24 and 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -118,6 +118,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner request: empty pipeline for a new project)
+**Changed**: stories.md gains US-006 (AC-019, R-16-6); plan.md gains T009.
+**Reason**: the owner asked that a new project start with no default pipeline.
+**Impact**: Build reopens for T009; the F-11 test for the default pipeline on a new project changes.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner bug report: 200 reply shows an error)

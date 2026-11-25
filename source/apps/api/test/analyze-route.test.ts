@@ -195,3 +195,81 @@ describe('F-14 route success', () => {
     expect(failing.calls.review).toBe(1);
   });
 });
+
+// The structural and brief findings the analysis builds for a config, in the order the route returns them.
+function expectedFindings(config: Record<string, unknown>): pipeline.Finding[] {
+  const parsed = pipeline.parseProjectConfig(config);
+  if (!parsed.ok) throw new Error('the fixture must parse');
+  return [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
+}
+
+describe('F-14 route review failures', () => {
+  it('F-14 AC-013 with no model a valid config answers 200 with a failed review and the findings in full', async () => {
+    const config = successConfig({ idea: '' });
+    const expected = expectedFindings(config);
+    const response = await postConfig(analysisApp(null), config);
+    const reply = (await response.json()) as { findings: unknown; review: unknown };
+
+    expect(response.status).toBe(200);
+    expect(expected.length).toBeGreaterThan(0);
+    expect(reply.findings).toEqual(expected);
+    expect(reply.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
+  });
+
+  it('F-14 AC-014 a model call that throws answers 200 with a failed review and the thrown message in no part of the response', async () => {
+    const secret = 'upstream-detail-7f3a sk-test-token';
+    const model: ReviewModel = {
+      review: async () => {
+        throw new Error(secret);
+      },
+    };
+    const config = successConfig({ idea: '' });
+    const response = await postConfig(analysisApp(model), config);
+    const text = await response.text();
+    const reply = JSON.parse(text) as { findings: unknown; review: unknown };
+
+    expect(response.status).toBe(200);
+    expect(reply.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
+    expect(reply.findings).toEqual(expectedFindings(config));
+    expect(text).not.toContain(secret);
+    expect(text).not.toContain('upstream-detail');
+    expect(text).not.toContain('sk-test-token');
+  });
+
+  it('F-14 AC-015 a model reply that is not JSON answers 200 with a failed review', async () => {
+    const { model, calls } = countingModel({ text: 'Here is my review: looks fine' });
+    const config = successConfig({ idea: '' });
+    const response = await postConfig(analysisApp(model), config);
+    const reply = (await response.json()) as { findings: unknown; review: unknown };
+
+    expect(response.status).toBe(200);
+    expect(calls.review).toBe(1);
+    expect(reply.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
+    expect(reply.findings).toEqual(expectedFindings(config));
+  });
+
+  it('F-14 AC-016 a valid reply answers 200 with an ok review of the entries checkReview keeps, a model blocker as warning', async () => {
+    const reply = [
+      { severity: 'blocker', subject: 'idea', message: 'The idea does not name a user.' },
+      { severity: 'info', subject: 'stack', message: 'Consider a test runner.' },
+      { severity: 'critical', subject: 'stack', message: 'Unknown severity, dropped.' },
+      { severity: 'warning', subject: ' ', message: 'Blank subject, dropped.' },
+    ];
+    const { model } = countingModel({ text: JSON.stringify(reply) });
+    const config = successConfig({ idea: '' });
+    const response = await postConfig(analysisApp(model), config);
+    const body = (await response.json()) as { findings: unknown; review: unknown };
+
+    expect(response.status).toBe(200);
+    expect(body.review).toEqual(pipeline.checkReview(JSON.stringify(reply)));
+    expect(body.review).toEqual({
+      status: 'ok',
+      findings: [
+        { severity: 'warning', subject: 'idea', message: 'The idea does not name a user.' },
+        { severity: 'info', subject: 'stack', message: 'Consider a test runner.' },
+      ],
+      dropped: 2,
+    });
+    expect(body.findings).toEqual(expectedFindings(config));
+  });
+});

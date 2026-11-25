@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 7 stories, 27 criteria, all [auto]. Parse refusal is a 400 (owner answer 2026-11-24); input caps are F-17 |
 | UX       | ➖ Not needed |  | No user interface (API only) |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 9 tasks (T001 to T009); 27 criteria, all covered |
-| Build    | 🔄 In Progress |      | 4 of 9 tasks committed |
+| Build    | 🔄 In Progress |      | 5 of 9 tasks committed |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -27,6 +27,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ------ |
+| T005 | Review failures keep the 200 and the structural findings: no model, a throwing model, a non-JSON reply, a valid reply (route tests only; no source change) | 0 blockers, 0 warnings, 0 suggestions | task check passed: api 77 of 77, web 1895 of 1895, core 1217 of 1217, exit 0 |
 | T004 | Success path: `POST /analyze` answers 200 `{ findings, review }` through `deps.analyze` (`app.ts`); the temporary 501 is removed; tests cover AC-001 to AC-004 and AC-017 | 0 blockers, 1 warning fixed (AC-002 fixture produced no structural findings; a case now injects a reordered analysis), 1 suggestion fixed (line width) | task check passed: api 73 of 73, web 1895 of 1895, core 1217 of 1217, exit 0 |
 | T003 | Body reading and parse refusal: `http/body.ts` (`readProjectConfig`: empty or not JSON gives 400 `{ error }`; a parser refusal gives 400 with `problems` as `<path>: <reason>`); `POST /analyze` reads the body and logs refusals; no-model-call guarantee for AC-010 and AC-011 proven by counting fakes; a valid config gets a temporary 501 until T004 | 1 warning (the reply repeats ids and names from core's messages) resolved by Amendment 1 (the promise is narrowed to brief text; comment and plan updated); 1 test assertion removed (T004 changes it); 1 suggestion deferred | task check passed: api 67 of 67, web 1895 of 1895, core 1217 of 1217, exit 0 |
 | T002 | Route skeleton `src/app.ts` (`createApp()`): 405 with `Allow: POST` for non-POST on `/analyze`, 404 `{ error }` for other paths incl. `/generate` (`test/analyze-route.test.ts`) | 0 blockers, 2 warnings fixed (unused `_deps` removed; vacuous no-call assertions removed), 0 suggestions | task check passed: api 57 of 57, web 1895 of 1895, core 1217 of 1217, exit 0 |

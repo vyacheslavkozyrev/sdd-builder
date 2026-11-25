@@ -826,6 +826,111 @@ describe('F-12 AC-036 End produced artifact', () => {
   });
 });
 
+// The plan flow with two outcome artifacts, and its End `done` with no produced artifact, as a new End starts.
+function blankEndPipeline(): Pipeline {
+  return flowWith((flow) => ({
+    ...flow,
+    artifacts: [
+      { label: 'plan.md', template: 'output.md' },
+      { label: 'notes.md', template: 'output.md' },
+    ],
+    blocks: flow.blocks.map((block) => (block.kind === 'end' ? { ...block, producedArtifact: '' } : block)),
+  }));
+}
+
+describe('F-16 AC-024 End produced artifact placeholder', () => {
+  it('F-16 AC-024 shows the blank placeholder for a new End and saves nothing', () => {
+    const pipelineState = blankEndPipeline();
+    const { onChange } = renderEnd(pipelineState);
+
+    const select = screen.getByLabelText('Produced artifact');
+    expect(optionValues('Produced artifact')).toEqual(['', 'plan.md', 'notes.md']);
+    expect(select.querySelector('option')?.textContent).toBe('Choose an artifact');
+    expect(select).toHaveProperty('value', '');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('F-16 AC-024 saves a picked artifact and shows it in place of the placeholder', () => {
+    const pipelineState = blankEndPipeline();
+    const onChange = vi.fn();
+    const flow = pipelineState.flows.find((item) => item.id === 'plan');
+    if (flow === undefined) throw new Error('no plan flow in the test pipeline');
+    const view = render(
+      <EndPanel
+        pipelineState={pipelineState}
+        rules={[]}
+        flow={flow}
+        block={endOf(pipelineState, 'done')}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: 'notes.md' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const saved = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(endOf(saved, 'done').producedArtifact).toBe('notes.md');
+    const savedFlow = saved.flows.find((item) => item.id === 'plan');
+    if (savedFlow === undefined) throw new Error('no plan flow in the saved pipeline');
+    view.rerender(
+      <EndPanel
+        pipelineState={saved}
+        rules={[]}
+        flow={savedFlow}
+        block={endOf(saved, 'done')}
+        onChange={onChange}
+      />,
+    );
+    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'notes.md');
+    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
+    expect(screen.queryByText('Choose an artifact')).toBeNull();
+  });
+
+  it('F-16 AC-024 shows the required reason under a blank End, with the control described by it', () => {
+    const pipelineState = blankEndPipeline();
+    const required = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    if (required.ok) throw new Error('the parser accepted a blank produced artifact');
+    renderEnd(pipelineState);
+
+    expect(screen.getByText(required.reason)).toBeTruthy();
+    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBe(
+      'block-end-producedArtifact-refusal',
+    );
+  });
+
+  it('F-16 AC-024 refuses the placeholder when it is picked again, and keeps the blank saved value', () => {
+    const pipelineState = blankEndPipeline();
+    const refused = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    if (refused.ok) throw new Error('the parser accepted a blank produced artifact');
+    const { onChange } = renderEnd(pipelineState);
+
+    fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: '' } });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText(refused.reason)).toBeTruthy();
+    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', '');
+  });
+
+  it('F-16 AC-024 shows the saved artifact when the flow no longer has it, not another artifact', () => {
+    const pipelineState = flowWith((flow) => ({
+      ...flow,
+      artifacts: [{ label: 'notes.md', template: 'output.md' }],
+    }));
+    renderEnd(pipelineState);
+
+    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
+    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'plan.md');
+    expect(screen.queryByText('Choose an artifact')).toBeNull();
+  });
+
+  it('F-16 AC-024 shows no placeholder and no reason when the End has a produced artifact', () => {
+    renderEnd(planPipeline());
+
+    expect(screen.queryByText('Choose an artifact')).toBeNull();
+    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBeNull();
+  });
+});
+
 describe('F-12 AC-043 End delete control', () => {
   it('F-12 AC-043 disables Delete block on the last End and shows its reason under the button', () => {
     renderEnd(planPipeline());

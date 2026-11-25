@@ -616,6 +616,22 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
 
   const choices = producedArtifactChoices(flow);
   const artifactNote = producedArtifactNote(flow);
+  // A saved artifact the flow no longer has (the structure check marks it) is kept as the one option, so the control
+  // shows the saved value and never another artifact.
+  const saved = block.producedArtifact;
+  const staleArtifact = !isEmptyText(saved) && !choices.includes(saved) ? saved : undefined;
+  // A blank produced artifact (a new End) shows the required reason under the select while it is blank (AC-024),
+  // the parser's reason for the empty value, as the Body does. The note of a flow with no artifacts stays as it is.
+  const blankArtifactReason =
+    artifactNote === undefined
+      ? emptyReasonOf(block.producedArtifact, () =>
+          refusalOf(editEndArtifact(pipelineState, rules, flow.id, block.id, '')),
+        )
+      : undefined;
+  const reasons: Partial<Record<EndField, string | undefined>> = {
+    ...state.refusals,
+    producedArtifact: state.refusals.producedArtifact ?? blankArtifactReason,
+  };
 
   // Settles one edit: an accepted edit reports the new pipeline and clears the field's refusal; a refused one
   // records its reason, and the saved value stays in the select.
@@ -629,7 +645,7 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
   }
 
   const refusal = (field: EndField) => {
-    const reason = state.refusals[field];
+    const reason = reasons[field];
     return reason === undefined ? null : (
       <Typography id={`block-end-${field}-refusal`} component="p" sx={styles.refusal}>
         {reason}
@@ -638,7 +654,7 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
   };
 
   const describedBy = (field: EndField): string | undefined =>
-    state.refusals[field] === undefined ? undefined : `block-end-${field}-refusal`;
+    reasons[field] === undefined ? undefined : `block-end-${field}-refusal`;
 
   return (
     <Box sx={styles.root}>
@@ -700,6 +716,8 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
                 htmlInput: { 'aria-describedby': describedBy('producedArtifact') },
               }}
             >
+              {isEmptyText(block.producedArtifact) && <option value="">Choose an artifact</option>}
+              {staleArtifact !== undefined && <option value={staleArtifact}>{staleArtifact}</option>}
               {choices.map((label) => (
                 <option key={label} value={label}>
                   {label}

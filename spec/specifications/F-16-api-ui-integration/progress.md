@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 13 of 14 tasks committed (T014 added by owner blocker 2026-11-25) |
+| Build    | ✅ Complete |      | 14 of 14 tasks committed (T014 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -45,6 +45,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T011 | Blocker: block ids unique across the pipeline; `nextBlockId` checks every flow, and the toolbox no longer makes ids (AC-021) | 0 blockers, 1 warning fixed (the flow's own ids when the list leaves it out), 2 suggestions fixed (a repeat from an earlier session is marked, not extended; arrow wrapping) | task check passed: api 258 of 258, web 1956 of 1956, core 1254 of 1254 |
 | T012 | Builder errors and block panels name flows and blocks, not paths and ids (`builder/problemLabel.ts`; AC-022) | 0 blockers, 2 warnings fixed (a path ending in a list index left a fragment; tests that could not fail on a label mix-up), 2 suggestions fixed; 6 deferred (refusal reasons in fields/blockEnd/blockCondition/blockFields and the analyze findings still show raw ids: owner follow-up) | task check passed: api 258 of 258, web 1975 of 1975, core 1254 of 1254 |
 | T013 | Blocker: arguments kept on selection change; an open new line and an edited saved id are saved when the list unmounts, never into a deleted holder (`RowEditors.tsx`) | 0 blockers; 1 warning fixed (no test for the write order), 3 suggestions fixed; the owner's edited-id case fixed in this task | task check passed: api 258 of 258, web 1989 of 1989, core 1254 of 1254 |
+| T014 | Blocker: the End's Produced artifact control shows the saved value; a blank value shows a placeholder and the required reason, and a stale saved artifact stays shown (AC-024) | 0 blockers, 1 warning fixed (a stale saved artifact was shown as another one) | task check passed: api 258 of 258, web 1995 of 1995, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---

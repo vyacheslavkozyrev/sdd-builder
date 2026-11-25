@@ -19,7 +19,25 @@ describe('F-14 AC-021 PORT refusal', () => {
     ['80.5', '80.5'],
     ['abc', 'abc'],
     ['a negative number', '-1'],
-    ['an empty string', ''],
+  ])('refuses PORT set to %s, and the error names PORT only', (_label, value) => {
+    expect(() => readSettings({ PORT: value })).toThrowError(/^Invalid PORT: /);
+    expect(() => readSettings({ PORT: value })).not.toThrowError(/SDDBUILDER_ANALYZER_MODEL|ANTHROPIC_API_KEY/);
+  });
+});
+
+describe('F-16 AC-004 PORT matches the dev proxy', () => {
+  it.each([
+    ['an empty string', { PORT: '' }, 3000],
+    ['only spaces', { PORT: '   ' }, 3000],
+    ['8080 with spaces around it', { PORT: '  8080 ' }, 8080],
+  ])('gives the port the proxy gives when PORT is %s', (_label, env: Environment, port) => {
+    expect(readSettings(env).port).toBe(port);
+  });
+
+  it.each([
+    ['0 with spaces around it', ' 0 '],
+    ['80.5 with spaces around it', ' 80.5 '],
+    ['abc with spaces around it', ' abc '],
   ])('refuses PORT set to %s, and the error names PORT only', (_label, value) => {
     expect(() => readSettings({ PORT: value })).toThrowError(/^Invalid PORT: /);
     expect(() => readSettings({ PORT: value })).not.toThrowError(/SDDBUILDER_ANALYZER_MODEL|ANTHROPIC_API_KEY/);

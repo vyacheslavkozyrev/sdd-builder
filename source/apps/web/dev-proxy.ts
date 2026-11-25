@@ -9,9 +9,10 @@ const FORWARDED_PATHS = ['^/analyze(\\?.*)?$', '^/generate(\\?.*)?$'] as const;
 const PROXY_TIMEOUT_MS = 300_000;
 const DEFAULT_API_PORT = '3000';
 
-// Follows F-16 AC-004: unset or blank gives 3000, any other value is used as given. The API's `readPort`
-// (`apps/api/src/settings.ts`) does not treat a blank PORT as unset and rejects a non-numeric one; the difference is
-// recorded as a deferred finding in the F-16 progress file.
+// Follows F-16 AC-004: unset or blank gives 3000, any other value is trimmed and used as given. The API's `readPort`
+// (`apps/api/src/settings.ts`) gives the same port for unset, blank and space-padded values. The one difference left:
+// the proxy does not check a non-numeric or out-of-range value (AC-004 says "used as given"); the API refuses it.
+// Recorded in the F-16 progress file (Deferred Findings).
 function apiPort(env: Readonly<Record<string, string | undefined>>): string {
   const port = env['PORT']?.trim();
   return port === undefined || port === '' ? DEFAULT_API_PORT : port;

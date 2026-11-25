@@ -16,11 +16,14 @@ const DEFAULT_GENERATOR_MODEL = 'claude-opus-5-5';
 const MIN_PORT = 1;
 const MAX_PORT = 65535;
 
+// Follows F-16 AC-004, the rule the dev proxy follows: a blank PORT (empty, or only spaces) counts as unset.
+// Any other value is trimmed before the check.
 function readPort(value: string | undefined): number {
-  if (value === undefined) {
+  const trimmed = value?.trim() ?? '';
+  if (trimmed === '') {
     return DEFAULT_PORT;
   }
-  const port = /^\d+$/.test(value) ? Number(value) : Number.NaN;
+  const port = /^\d+$/.test(trimmed) ? Number(trimmed) : Number.NaN;
   if (!Number.isInteger(port) || port < MIN_PORT || port > MAX_PORT) {
     throw new Error(`Invalid PORT: expected a whole number from ${MIN_PORT} to ${MAX_PORT}`);
   }

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 1 of 3 tasks committed (T003 added by Amendment) |
+| Build    | 🔄 In Progress |      | 2 of 3 tasks committed (T003 added by Amendment) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -34,6 +34,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | Task | Summary | Review | Tests |
 | ---- | ------- | ------ | ----- |
 | T001 | Dev proxy `dev-proxy.ts`: `devProxy(env)` forwards `^/analyze(\?.*)?$` and `^/generate(\?.*)?$` (anchored: Vite treats a plain key as a prefix) to `http://localhost:<PORT>` with timeouts of 300000 ms; `vite.config.ts` calls it | 0 blockers, 1 warning (PORT differs from the API for blank and invalid values; resolved by owner decision, see T003 and the Amendment), 2 suggestions fixed (comment; exact keys asserted) | task check passed: api 246 of 246, web 1916 of 1916, core 1217 of 1217 |
+| T003 | API PORT rule matches the proxy: `readPort` trims, blank gives 3000, a whole number from 1 to 65535 otherwise, else refused naming PORT | 0 blockers, 0 warnings, 1 suggestion fixed (comment), 1 deferred (the proxy passes a non-numeric PORT through; the API refuses it at start; dev-only) | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
 
@@ -42,6 +43,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 _Review suggestions intentionally not applied, with the reason._
 
 - T001 (WARNING, unresolved, needs an owner decision): `source/apps/web/dev-proxy.ts` and AC-004 assume the API maps a blank `PORT` to 3000. It does not: `readPort` in `source/apps/api/src/settings.ts` throws on `''`, on a space-padded value and on a non-numeric value, so the API refuses to start. The proxy follows the approved AC-004 wording (blank gives 3000, any other value is used as given, trimmed), so the two differ for blank and invalid values. Fixing the proxy to throw would contradict AC-004; changing the API is outside T001. Options: (a) the API treats a blank `PORT` as unset (small change in F-14's `settings.ts`, with a test), or (b) amend AC-004 to say the API rejects a blank PORT. Impact is dev-only and limited to a misconfigured `PORT`.
+
+- T003 (SUGGESTION, deferred, by AC-004 wording): `source/apps/web/dev-proxy.ts` `apiPort` passes a non-numeric or out-of-range PORT through as given (for example `abc` gives `http://localhost:abc`), while the API refuses it at start. AC-004 says "any other value is used as given", and the proxy test pins it. Blank and space-padded values agree with the API. Dev-only; a misconfigured PORT fails at the first request.
 
 ---
 

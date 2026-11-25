@@ -1,7 +1,7 @@
 # User Stories — API and UI integration (F-16)
 
 Feature entry: `spec/documents/features.md` → F-16
-Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project), R-16-4 (the analyze request follows the pipeline schema; command files take the flow name; added 2026-11-24 after the owner's bug report), R-16-5 (the analyze reply has the shape the step reads; added 2026-11-25 after the owner's second bug report).
+Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project), R-16-4 (the analyze request follows the pipeline schema; command files take the flow name; added 2026-11-24 after the owner's bug report), R-16-5 (the analyze reply has the shape the step reads; added 2026-11-25 after the owner's second bug report), R-16-7 (the flow body accepts typing; added 2026-11-25 after the owner's blocker report).
 
 The web app already sends the requests (F-13: `POST /analyze` and `POST /generate` from the analyze step). F-16 connects them to the running API and proves the whole path works. The owner runs the end-to-end check in a browser with a real provider key.
 
@@ -114,11 +114,12 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 **I want to** start a new project with no pipeline
 **So that** I build the process myself rather than edit a default
 
-**Requirements:** R-16-6
+**Requirements:** R-16-6, R-16-7
 
 #### Acceptance Criteria
 
 - [ ] AC-019 `[auto]`: a new wizard state, and a restart, has no flows and no arguments in its pipeline. The parser is unchanged: it refuses such a pipeline (no flow, blank name), so `/analyze` answers 422 with those problems until the user adds a flow and a name.
+- [ ] AC-020 `[auto]`: typing into the flow body is accepted and shown. The body keeps every character typed (a space, a newline, a long text); a refusal shows the parser's reason at the body, and a refused text returns the field to the saved body. This holds for a flow from Add flow with an empty body and for a pipeline with a blank name. The parser still refuses the body itself (blank, over 1000 characters); a problem that the flow's link checks show only once the body has text is not a refusal of the body. An argument, rule tag, artifact or approval edit on a flow whose body is still blank is checked as if the body had text, so an invalid edit is refused with the parser's reason; the saved body stays blank.
 
 ---
 
@@ -132,3 +133,4 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-4 — the analyze request follows the pipeline schema; command files take the flow name | AC-011, AC-012, AC-013, AC-014, AC-015, AC-016 |
 | R-16-5 — the analyze reply has the shape the step reads | AC-017, AC-018 |
 | R-16-6 — a new project starts empty | AC-019 |
+| R-16-7 — the flow body accepts typing | AC-020 |

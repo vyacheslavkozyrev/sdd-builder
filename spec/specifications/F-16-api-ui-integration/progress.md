@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 9 of 10 tasks committed (T010 added by blocker report 2026-11-25) |
+| Build    | ✅ Complete |      | 10 of 10 tasks committed (T010 added by blocker report 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -41,6 +41,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T007 | Subtitle shows the real command file name: `PipelineStep.tsx` uses core's `flowFileName` (exported, and pinned in the F-02 namespace test) | 0 blockers, 0 warnings, 1 suggestion fixed (comment wrap) | task check passed: api 251 of 251, web 1922 of 1922, core 1254 of 1254 |
 | T008 | Every analyze finding in a 200 reply carries `subject` (the path); the web step's parser now accepts the reply | 0 blockers, 0 warnings, 3 suggestions fixed (shared test helper, comment wrap, import); 2 deferred (decision 10 dated record; AC-018 uses a fixed reply by design) | task check passed: api 258 of 258, web 1923 of 1923, core 1254 of 1254 |
 | T009 | A new project and a restart start with an empty pipeline in the UI (`emptyPipelineValue`); the parser is unchanged and refuses that pipeline (AC-019, amended) | 0 blockers, 1 warning fixed (a weakened identity test split out), 2 suggestions fixed, 2 deferred (default has no production caller; no render test of step 3) | task check passed: api 258 of 258, web 1928 of 1928, core 1254 of 1254 |
+| T010 | Blocker: the flow Body field accepts typed text. A refused edit no longer clears the body: edits are scoped to their field, a blank-body flow is checked against a never-saved placeholder in the web (parser unchanged), an over-limit body shows the parser reason under the field (AC-020) | 0 blockers; 2 warnings fixed (over-limit reason hidden by the key press in a new flow; artifact and approval edits on a blank-body flow untested); owner decisions applied | task check passed: api 258 of 258, web 1951 of 1951, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -70,6 +71,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T009 (SUGGESTION, deferred): `source/apps/web/src/wizard/state.ts` `defaultPipelineValue()` has no production caller after T009 (tests only). Kept because the plan says it stays for any caller that needs the default; remove it if no caller appears by Verify.
 
 - T009 (SUGGESTION, deferred): no UI render test of step 3 with the empty pipeline. AC-019 is `[auto]` and is proven by the state and parser tests; how the empty Workflow step looks is part of the owner's browser check, so it is not added in this task.
+
+- T010 (WARNING, resolved 2026-11-25 by the owner, who said the parser is not to change and this is a UI issue): the row edits on a flow whose body is blank were not checked against the parser's cross-checks. The web now checks such a flow with a placeholder body (`checkedDocument` in `fields.ts`); the placeholder is never saved, so the saved body stays blank. Tests: `F-16 AC-020` in `builder-rows.test.ts`. Earlier analysis, kept for the record: The parser drops a flow with a blank body, so its argument ids (`checkIdsUnique`), rule tags (`checkRuleTags`) and End artifacts (`checkEndArtifacts`) are not checked while the body is blank. `addFlowRuleTag` with an unknown rule id and `addFlowArgument` with an id that clashes with a pipeline argument both return ok (reproduced in a probe, removed). After the body is typed the saved pipeline fails the parser; the body edit is accepted, as AC-020 requires, so the problem shows at the row only after the body is typed. `/analyze` still answers 422, so no invalid output is generated. The masking predates T010 (the row functions keep the `'document'` scope). Not fixed: a web-side placeholder body would check a body the user has not typed, and a parser change alters core's flow contract. Options: (a) the parser keeps a blank-body flow's cross-checks (core change with tests), or (b) the row checks use a placeholder body and refuse at the row path only.
+
+- T010 (resolved 2026-11-25 by the owner): a refused body over 1000 characters shows the parser's reason under the Body field, as AC-020 says. The device fix of 2026-11-24 still hides the reason for a name with content only. The FlowPanel tests "refuses a body over the limit ..." and "F-11 AC-022 refuses a body of 1001 characters ..." now assert the reason is shown. The key press check keeps a body's refusal while the text has content.
 
 ---
 

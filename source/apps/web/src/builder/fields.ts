@@ -80,12 +80,33 @@ function problemKey(problem: Problem): string {
   return `${problem.path}\n${problem.message}`;
 }
 
+// The body the parser checks in place of a flow's blank body (F-16 AC-020, owner decision 2026-11-25). The parser
+// drops a flow whose body is blank, and with it that flow's argument, rule tag and artifact checks. While a body is
+// blank, the checks run on a copy in which the body is this placeholder, so an edit of the flow's rows is checked
+// against those checks. The placeholder is never saved: the saved flow keeps its blank body, and a body edit is
+// checked with the text typed.
+const PLACEHOLDER_BODY = 'x';
+
+function isBlankBody(body: unknown): boolean {
+  return typeof body === 'string' && body.trim() === '';
+}
+
+// The pipeline's document for the checks: each flow with a blank body gets the placeholder body.
+function checkedDocument(pipelineState: Pipeline): Record<string, unknown> {
+  const document = toDocument(pipelineState) as Record<string, unknown>;
+  const flows = document.flows as Record<string, unknown>[];
+  return {
+    ...document,
+    flows: flows.map((flow) => (isBlankBody(flow.body) ? { ...flow, body: PLACEHOLDER_BODY } : flow)),
+  };
+}
+
 // A change to the document form of the holder: the pipeline's own document, or one flow's.
 type DocumentChange = (document: Record<string, unknown>) => Record<string, unknown>;
 
 // The pipeline as the document holds it, with `change` applied to the holder's document.
 function documentWith(pipelineState: Pipeline, holder: Holder, change: DocumentChange): unknown {
-  const document = toDocument(pipelineState) as Record<string, unknown>;
+  const document = checkedDocument(pipelineState);
   if (holder === 'pipeline') return change(document);
   const flows = document.flows as Record<string, unknown>[];
   return { ...document, flows: flows.map((flow, index) => (index === holder ? change(flow) : flow)) };
@@ -108,19 +129,27 @@ function isUnder(path: string, placePath: string): boolean {
   return path === placePath || path.startsWith(`${placePath}.`);
 }
 
+// What an edit may be refused for. `'field'`: only a problem at the edited value (`placePath`, or under it).
+// `'document'`: also a new problem at another path, such as a duplicate name, which the parser reports at the
+// other flow. A body, description or model edit cannot cause a problem at another path, so it is refused at its
+// own field only.
+export type RefusalScope = 'field' | 'document';
+
 // The parser's problem for an edit, or undefined when the edit is accepted. The problems the saved pipeline
 // already had are left out, so an edit is refused only for what it causes. A problem at the edited value
-// (`placePath`, or under it) is the problem when there is one; otherwise the first new problem is.
+// (`placePath`, or under it) is the problem when there is one; otherwise the first new problem is (`'document'` only).
 export function refusalProblemOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   holder: Holder,
   change: DocumentChange,
   placePath: string,
+  scope: RefusalScope = 'document',
 ): Problem | undefined {
-  const before = new Set(problemsOf(toDocument(pipelineState), rules).map(problemKey));
+  const before = new Set(problemsOf(checkedDocument(pipelineState), rules).map(problemKey));
   const refusals = problemsOf(documentWith(pipelineState, holder, change), rules).filter(
-    (problem) => isUnder(problem.path, placePath) || !before.has(problemKey(problem)),
+    (problem) =>
+      isUnder(problem.path, placePath) || (scope === 'document' && !before.has(problemKey(problem))),
   );
   return refusals.find((problem) => isUnder(problem.path, placePath)) ?? refusals[0];
 }
@@ -132,8 +161,9 @@ export function refusalOf(
   holder: Holder,
   change: DocumentChange,
   placePath: string,
+  scope: RefusalScope = 'document',
 ): string | undefined {
-  return refusalProblemOf(pipelineState, rules, holder, change, placePath)?.message;
+  return refusalProblemOf(pipelineState, rules, holder, change, placePath, scope)?.message;
 }
 
 // The position of the flow `flowId`, or a programmer error when the pipeline has no such flow.
@@ -225,9 +255,9 @@ function editedFlow(flow: Flow, edit: FlowFieldEdit): Flow {
 
 // Applies one field edit to the flow `flowId`. The name is trimmed first (AC-020); the other values
 // are kept as written. The parser checks the copy. The edit is refused when the copy has a problem at
-// the edited field, or a problem that the saved pipeline did not have (a duplicate name is reported at
-// the other flow, so it is found this way). A flow that is not connected yet is not refused by an edit
-// of its name, because that problem was already there.
+// the edited field. A name is also refused for a problem it causes at another path: a duplicate name is reported
+// at the other flow. The other fields are refused only at their own path. A flow with a blank body is checked
+// with the placeholder body (see `checkedDocument`), so its rows are checked and the saved body stays blank (F-16 AC-020).
 export function editFlowField(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -237,6 +267,7 @@ export function editFlowField(
   const position = positionOf(pipelineState, flowId);
   const flow = flowIn(pipelineState, position);
   const prepared: FlowFieldEdit = edit.field === 'name' ? { field: 'name', value: edit.value.trim() } : edit;
+  const scope: RefusalScope = prepared.field === 'name' ? 'document' : 'field';
 
   const reason = refusalOf(
     pipelineState,
@@ -244,6 +275,7 @@ export function editFlowField(
     position,
     fieldChange(prepared.field, prepared.value),
     `${holderPath(position)}.${prepared.field}`,
+    scope,
   );
   if (reason !== undefined) {
     return { ok: false, field: prepared.field, reason };

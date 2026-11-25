@@ -8,7 +8,7 @@ import type { Flow } from './model.js';
 import { ArgumentRows, ArtifactRows, RuleTagRows } from './RowEditors.js';
 import { ConfirmDialog } from './ConfirmDialog.js';
 import { getFlowPanelStyles } from './flowPanelStyles.js';
-import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText.js';
+import { isEmptyText, keyUpText, refusalOf } from './requiredText.js';
 
 // The flow panel of the Pipeline tab (F-11 AC-019, AC-020 to AC-023, AC-027, AC-028). It shows the
 // fields of the selected flow in this order: name, description, arguments, model, body, outcome
@@ -17,9 +17,10 @@ import { emptyReasonOf, isEmptyText, keyUpText, refusalOf } from './requiredText
 //
 // Each edit goes through the parser's field rules (fields.ts). An accepted edit is reported to the
 // caller as the new pipeline. A refused edit keeps the saved value in the field and shows the parser's reason
-// beneath it. The required name and body (device fix 2026-11-24) show the reason only while they are empty; a
-// refused text with content returns to the saved value with no error. A text field keeps what was typed while the
-// edit is accepted, because a name is trimmed when it is saved.
+// beneath it. The required name (device fix 2026-11-24) shows the reason only while it is empty; a refused name with
+// content returns to the saved value with no error. The body shows the parser's reason for every refusal, the blank
+// reason and the limit (F-16 AC-020), and a refused body returns to the saved value. A text field keeps what was typed
+// while the edit is accepted, because a name is trimmed when it is saved.
 //
 // The footer holds Delete flow (AC-019, AC-029). It asks first; only Confirm removes the flow, through
 // deleteFlow, and reports the new pipeline to `onDelete`. Cancel changes nothing.
@@ -57,12 +58,8 @@ function isTextField(field: FieldName): field is TextFieldName {
   return field === 'name' || field === 'description' || field === 'body';
 }
 
-// The required text fields of the flow (device fix 2026-11-24): the error shows only while the field is empty.
+// The required text fields of the flow: the blank reason is shown beneath the field's control box.
 type RequiredTextField = 'name' | 'body';
-
-function isRequiredField(field: FieldName): field is RequiredTextField {
-  return field === 'name' || field === 'body';
-}
 
 // The counter under the body: the count of the text shown, with the limit, as "n / 1000 characters".
 export function bodyCounterText(body: string): string {
@@ -79,7 +76,8 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
 
   // Settles one edit of `field`. An accepted edit reports the new pipeline and clears the field's refusal. A refused
   // empty text keeps its draft, so the field stays empty under its error; any other refused text drops the draft and
-  // the saved value shows again. A required field shows a refusal only while its text is empty (device fix 2026-11-24).
+  // the saved value shows again. A refused name with content shows no reason (device fix 2026-11-24); a body shows
+  // its reason (F-16 AC-020).
   function settle(field: FieldName, result: RowResult, typed?: string) {
     const emptyTyped = typed !== undefined && isEmptyText(typed);
     const drafts = { ...state.drafts };
@@ -87,7 +85,7 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
       drafts[field] = result.ok || emptyTyped ? typed : undefined;
     }
     const refusals = { ...state.refusals };
-    const hidden = isRequiredField(field) && typed !== undefined && !emptyTyped;
+    const hidden = field === 'name' && typed !== undefined && !emptyTyped;
     refusals[field] = result.ok || hidden ? undefined : result.reason;
     if (result.ok) {
       onChange(result.pipeline);
@@ -95,13 +93,14 @@ export function FlowPanel({ pipelineState, rules, flow, onChange, onDelete }: Fl
     setEdits({ flowId: flow.id, drafts, refusals });
   }
 
-  // The key press check of a required field (device fix 2026-11-24): its error is the parser's reason for an empty
-  // value while the text is empty, and nothing once text is typed.
+  // The key press check of a required field (device fix 2026-11-24): while the text is empty, its error is the
+  // parser's reason for an empty value. Text with content keeps the reason of the last edit, and a reason already
+  // shown is kept too: a refused over-limit body on a blank saved body leaves the field empty, and its reason must
+  // not be replaced by the blank reason (F-16 AC-020).
   function checkRequired(field: RequiredTextField, text: string) {
+    if (!isEmptyText(text) || state.refusals[field] !== undefined) return;
     const refusals = { ...state.refusals };
-    refusals[field] = emptyReasonOf(text, () =>
-      refusalOf(editFlowField(pipelineState, rules, flow.id, { field, value: '' })),
-    );
+    refusals[field] = refusalOf(editFlowField(pipelineState, rules, flow.id, { field, value: '' }));
     setEdits({ flowId: flow.id, drafts: state.drafts, refusals });
   }
 

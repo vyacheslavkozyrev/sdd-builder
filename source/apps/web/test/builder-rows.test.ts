@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { pipeline as core } from '@sddbuilder/core';
 import {
   addFlowArgument,
+  addFlowArtifact,
   addFlowRuleTag,
   editFlowArgument,
   editFlowField,
   removeFlowArgument,
   removeFlowRuleTag,
+  setFlowApproval,
 } from '../src/builder/fields.js';
 import type { ArgumentRow, Pipeline, Rule, RowResult } from '../src/builder/fields.js';
 
@@ -371,5 +373,67 @@ describe('F-11 AC-028 rows and field edits go through the parser with rows prese
     if (!result.ok) return;
     expect(flowOf(result.pipeline, 'plan').arguments).toEqual(flowOf(saved, 'plan').arguments);
     expect(flowOf(result.pipeline, 'plan').ruleTags).toEqual([{ index: 0, ruleId: 'style' }]);
+  });
+});
+
+// F-16 AC-020: a flow of a new project with a blank body (from Add flow). The parser drops a flow with a blank body,
+// so its own rows are checked against a placeholder body while the body is blank; the saved body stays blank.
+function blankBodyPipeline(): Pipeline {
+  const base = linkedPipeline();
+  const planWithArgument: Flow = { ...flowOf(base, 'plan'), arguments: [{ index: 0, id: 'topic', required: false, hint: 'The topic.' }] };
+  const draft: Flow = { ...flow('draft', 'Draft'), index: 2, body: '' };
+  return { ...base, flows: [planWithArgument, flowOf(base, 'build'), draft] };
+}
+
+describe('F-16 AC-020 row edits on a flow with a blank body', () => {
+  it('F-16 AC-020 refuses a rule tag that names no rule of the project, with the parser reason', () => {
+    const result = addFlowRuleTag(blankBodyPipeline(), RULES, 'draft', 'privacy');
+    expect(result).toEqual({ ok: false, reason: 'must name a rule of this project, got privacy' });
+  });
+
+  it('F-16 AC-020 refuses an argument whose id is already used by another flow, with the parser reason', () => {
+    const result = addFlowArgument(blankBodyPipeline(), RULES, 'draft', row('topic'));
+    expect(result).toMatchObject({ ok: false });
+    if (result.ok) return;
+    expect(result.reason).toMatch(/^must be unique: the id topic is /);
+  });
+
+  it('F-16 AC-020 accepts a valid rule tag and keeps the saved body blank', () => {
+    const result = addFlowRuleTag(blankBodyPipeline(), RULES, 'draft', 'style');
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'draft')).toMatchObject({ body: '', ruleTags: [{ index: 0, ruleId: 'style' }] });
+  });
+
+  it('F-16 AC-020 refuses an artifact with a blank label on a flow with a blank body, with the parser reason', () => {
+    const result = addFlowArtifact(blankBodyPipeline(), RULES, 'draft', { label: '', template: 'output.md' });
+    expect(result).toMatchObject({ ok: false });
+    if (result.ok) return;
+    expect(result.reason).toBe('must not be blank');
+  });
+
+  it('F-16 AC-020 accepts a valid artifact on a flow with a blank body and keeps the saved body blank', () => {
+    const result = addFlowArtifact(blankBodyPipeline(), RULES, 'draft', { label: 'notes.md', template: 'output.md' });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'draft')).toMatchObject({ body: '' });
+    expect(flowOf(result.pipeline, 'draft').artifacts).toEqual([
+      { label: 'draft.md', template: 'output.md' },
+      { label: 'notes.md', template: 'output.md' },
+    ]);
+  });
+
+  it('F-16 AC-020 sets Human approval on a flow with a blank body and keeps the saved body blank', () => {
+    const result = setFlowApproval(blankBodyPipeline(), RULES, 'draft', true);
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'draft')).toMatchObject({ body: '', approval: true });
+  });
+
+  it('F-16 AC-020 accepts a valid argument and keeps the saved body blank', () => {
+    const result = addFlowArgument(blankBodyPipeline(), RULES, 'draft', row('depth'));
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'draft')).toMatchObject({ body: '', arguments: [{ index: 0, id: 'depth' }] });
   });
 });

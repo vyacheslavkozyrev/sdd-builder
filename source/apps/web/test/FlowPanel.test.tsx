@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import type { pipeline as core } from '@sddbuilder/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { deleteFlow } from '../src/builder/delete.js';
+import { addFlow } from '../src/builder/model.js';
 import { FlowPanel, bodyCounterText } from '../src/builder/FlowPanel.js';
 import { editFlowField } from '../src/builder/fields.js';
 import type { Pipeline } from '../src/builder/fields.js';
@@ -191,7 +192,7 @@ describe('F-11 AC-022 body', () => {
     expect(screen.getByLabelText('Body · required')).toHaveProperty('value', '');
   });
 
-  it('F-11 AC-022 refuses a body of 1001 characters with no error shown, and keeps the saved body and its counter', () => {
+  it('F-11 AC-022 refuses a body of 1001 characters with the parser reason under the field, and keeps the saved body and its counter', () => {
     const pipelineState = twoFlows();
     const longBody = 'b'.repeat(1001);
     const reason = parserReason(pipelineState, 'plan', { field: 'body', value: longBody });
@@ -200,7 +201,7 @@ describe('F-11 AC-022 body', () => {
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: longBody } });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByText(reason)).toBeNull();
+    expect(screen.getByText(reason).id).toBe('flow-body-refusal');
     expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Do the Plan work.');
     expect(screen.getByText('17 / 1000 characters')).toBeTruthy();
   });
@@ -558,5 +559,143 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
     fireEvent.blur(input);
 
     expect(screen.getByText(reason).parentElement).not.toBe(controlBoxOf(input));
+  });
+});
+
+// F-16 AC-020: a flow with a Start and an End block, as the wizard builds one, in a pipeline with a name.
+function wiredFlow(id: string, name: string, next?: string): Flow {
+  const base: Flow = {
+    index: 0,
+    id,
+    name,
+    description: `The ${name} step.`,
+    arguments: [],
+    body: `Do the ${name} work.`,
+    artifacts: [{ label: `${id}.md`, template: 'output.md' }],
+    approval: false,
+    blocks: [
+      { index: 0, id: 'start', kind: 'start', next: 'end' },
+      { index: 1, id: 'end', kind: 'end', outcome: 'done', producedArtifact: `${id}.md` },
+    ],
+  };
+  return next === undefined ? base : { ...base, next };
+}
+
+function wiredPipeline(name = 'Demo'): Pipeline {
+  const flows = [wiredFlow('plan', 'Plan', 'build'), wiredFlow('build', 'Build')];
+  return { name, description: 'A demo pipeline.', arguments: [], flows: flows.map((item, index) => ({ ...item, index })) };
+}
+
+// The pipeline after Add flow (AC-003): a third flow with a blank body, linked to no other flow.
+function withNewFlow(pipelineState: Pipeline): Pipeline {
+  return addFlow(pipelineState).pipeline;
+}
+
+// Types `value` into the flow body the way the user does, one change event with the whole text.
+function typeBody(value: string) {
+  fireEvent.change(screen.getByLabelText('Body · required'), { target: { value } });
+}
+
+describe('F-16 AC-020 typing into the flow body', () => {
+  it('F-16 AC-020 accepts typing into a saved flow body and shows the typed text', () => {
+    const { onChange } = renderPanel(wiredPipeline());
+
+    typeBody('Do the Plan work, carefully.');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0]?.[0]).toMatchObject({ flows: [{ body: 'Do the Plan work, carefully.' }, expect.anything()] });
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Do the Plan work, carefully.');
+  });
+
+  it('F-16 AC-020 keeps every character typed one at a time, including a space and a newline', () => {
+    const pipelineState = wiredPipeline();
+    const { onChange } = renderPanel(pipelineState);
+    const typed = 'Do the Plan work.\nSecond line';
+
+    let text = '';
+    for (const character of typed) {
+      text += character;
+      typeBody(text);
+      expect(screen.getByLabelText('Body · required')).toHaveProperty('value', text);
+    }
+
+    expect(onChange).toHaveBeenCalledTimes([...typed].length);
+    const last = onChange.mock.calls.at(-1)?.[0] as Pipeline;
+    expect(last.flows[0]?.body).toBe(typed);
+  });
+
+  it('F-16 AC-020 keeps a long text typed into the body, up to the limit', () => {
+    const pipelineState = wiredPipeline();
+    const { onChange } = renderPanel(pipelineState);
+    const long = `Do the Plan work.\n${'x'.repeat(900)}`;
+
+    typeBody(long);
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', long);
+  });
+
+  it('F-16 AC-020 accepts the first text typed into the body of a new flow from Add flow', () => {
+    const pipelineState = withNewFlow(wiredPipeline());
+    const { onChange } = renderPanel(pipelineState, 'flow-1');
+
+    typeBody('a');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const next = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(next.flows.find((item) => item.id === 'flow-1')?.body).toBe('a');
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'a');
+  });
+
+  it('F-16 AC-020 accepts the first text typed into the body when the pipeline name is blank', () => {
+    const pipelineState = withNewFlow(wiredPipeline(''));
+    const { onChange } = renderPanel(pipelineState, 'flow-1');
+
+    typeBody('Write the plan.');
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'Write the plan.');
+  });
+
+  it('F-16 AC-020 refuses a body over the limit, shows the parser reason under the Body field, and returns the field to the saved body', () => {
+    const pipelineState = wiredPipeline();
+    const tooLong = '😀'.repeat(1001);
+    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: tooLong });
+    const { onChange } = renderPanel(pipelineState);
+    const body = screen.getByLabelText('Body · required');
+
+    typeBody(tooLong);
+    fireEvent.keyUp(body, { key: '😀' });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(reason).toBe('must be at most 1000 characters');
+    expect(screen.getByText(reason).id).toBe('flow-body-refusal');
+    expect(screen.getByText(reason).parentElement).toBe(controlBoxOf(body));
+    expect(body).toHaveProperty('value', 'Do the Plan work.');
+  });
+
+  it('F-16 AC-020 keeps the parser reason of an over-limit body typed into a new flow with a blank saved body', () => {
+    const pipelineState = withNewFlow(wiredPipeline());
+    const reason = parserReason(pipelineState, 'flow-1', { field: 'body', value: 'x'.repeat(1001) });
+    const { onChange } = renderPanel(pipelineState, 'flow-1');
+    const body = screen.getByLabelText('Body · required');
+
+    typeBody('x'.repeat(1001));
+    fireEvent.keyUp(body, { key: 'x' });
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(body).toHaveProperty('value', '');
+    expect(screen.getByText(reason).id).toBe('flow-body-refusal');
+  });
+
+  it('F-16 AC-020 shows the parser reason at the body for a blank body and keeps the blank text typed under it', () => {
+    const pipelineState = withNewFlow(wiredPipeline());
+    const { onChange } = renderPanel(pipelineState, 'flow-1');
+
+    typeBody('   ');
+
+    expect(onChange).not.toHaveBeenCalled();
+    expect(screen.getByText('must not be blank')).toBeTruthy();
+    expect(screen.getByLabelText('Body · required')).toHaveProperty('value', '   ');
   });
 });

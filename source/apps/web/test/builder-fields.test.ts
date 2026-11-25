@@ -234,3 +234,48 @@ describe('F-11 AC-028 every flow field edit goes through the parser', () => {
     );
   });
 });
+
+// F-16 AC-020: a flow of a new project, from Add flow, with a blank body and no link yet (the saved body is blank,
+// so the parser drops the flow and reports no link for it until the body has text).
+function newFlowPipeline(): Pipeline {
+  const added: Flow = {
+    index: 2,
+    id: 'flow-1',
+    name: 'flow-1',
+    arguments: [],
+    body: '',
+    artifacts: [],
+    approval: false,
+    blocks: [],
+  };
+  return { ...linkedPipeline(), flows: [...linkedPipeline().flows, added] };
+}
+
+describe('F-16 AC-020 the body refusal is about the body', () => {
+  it('F-16 AC-020 accepts the first character of the body of a new flow that no flow links to yet', () => {
+    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: 'a' });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'flow-1').body).toBe('a');
+  });
+
+  it.each(['a ', 'a\n', 'a\nb', 'x'.repeat(300)])('F-16 AC-020 accepts the body %j typed into a new flow', (value) => {
+    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value });
+    expect(result).toMatchObject({ ok: true });
+  });
+
+  it('F-16 AC-020 keeps the parser reason for a body over the limit', () => {
+    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: 'x'.repeat(1001) });
+    expect(result).toEqual({ ok: false, field: 'body', reason: 'must be at most 1000 characters' });
+  });
+
+  it('F-16 AC-020 refuses a blank body of a new flow with the parser reason at the body', () => {
+    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: ' ' });
+    expect(result).toEqual({ ok: false, field: 'body', reason: 'must not be blank' });
+  });
+
+  it('F-16 AC-020 accepts a description typed into a new flow that no flow links to yet', () => {
+    const result = edit(newFlowPipeline(), 'flow-1', { field: 'description', value: 'Writes the plan.' });
+    expect(result).toMatchObject({ ok: true });
+  });
+});

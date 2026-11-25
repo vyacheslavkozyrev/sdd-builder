@@ -109,3 +109,39 @@ describe('F-13 AC-011 problemLines gives one line per problem of a 422 body', ()
     expect(problemLines(body)).toEqual([]);
   });
 });
+
+// A 200 reply in the shape the API returns now (F-16 AC-017): each finding carries its subject, and a structural
+// finding also keeps its rule and path. Written by hand here, so the web test does not import the API.
+const SHAPED_REPLY = {
+  findings: [
+    {
+      severity: 'blocker',
+      subject: 'pipeline.flows.0.blocks.1',
+      message: 'is not reached',
+      rule: 'block-reach',
+      path: 'pipeline.flows.0.blocks.1',
+    },
+  ],
+  review: {
+    status: 'ok',
+    findings: [{ severity: 'info', subject: 'Stack', message: 'Consider a test runner.' }],
+    dropped: 0,
+  },
+};
+
+describe('F-16 AC-018 parseAnalysisReply reads a 200 reply of the API shape', () => {
+  it('F-16 AC-018 lists every finding of a reply with a structural finding, and does not refuse it', () => {
+    const parsed = parseAnalysisReply(SHAPED_REPLY);
+
+    expect(parsed).not.toBeNull();
+    expect(parsed?.findings).toEqual([
+      { severity: 'blocker', subject: 'pipeline.flows.0.blocks.1', message: 'is not reached' },
+    ]);
+    expect(parsed?.findings).toHaveLength(SHAPED_REPLY.findings.length);
+    expect(parsed?.review).toEqual({
+      status: 'ok',
+      findings: [{ severity: 'info', subject: 'Stack', message: 'Consider a test runner.' }],
+      dropped: 0,
+    });
+  });
+});

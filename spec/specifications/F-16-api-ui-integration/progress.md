@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 7 of 8 tasks committed (T004 to T008 added by Amendments 2026-11-24 and 2026-11-25) |
+| Build    | ✅ Complete |      | 8 of 8 tasks committed (T004 to T008 added by Amendments 2026-11-24 and 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -39,6 +39,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T005 | Command files take the flow name: `flowFileName` (`generate/flow-file.ts`: lower-case, NFC, runs of non-letters and non-digits to one `-`); file list and the process list use it; blockers for an empty file name, a clash between flows, and the file name `pipeline` (`analyze/command-file.ts`); flow id kept for links and labels | 0 blockers, 2 warnings fixed (non-ASCII letters; a test that asserted nothing), 1 suggestion fixed; 1 warning resolved by owner decision (web subtitle, T007); AC-015 amended for the pipeline clash | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
 | T006 | Docs: architecture §3 and §12 (command file names from the flow name; the two blockers); `templates/README.md` (the `<flow file name>` placeholder and the naming sentence); the README-table test resolves `<flow file name>` with `flowFileName` | 0 warnings; the README test helper needed the placeholder (fixed in the same task) | task check passed: api 251 of 251, web 1921 of 1921, core 1254 of 1254 |
 | T007 | Subtitle shows the real command file name: `PipelineStep.tsx` uses core's `flowFileName` (exported, and pinned in the F-02 namespace test) | 0 blockers, 0 warnings, 1 suggestion fixed (comment wrap) | task check passed: api 251 of 251, web 1922 of 1922, core 1254 of 1254 |
+| T008 | Every analyze finding in a 200 reply carries `subject` (the path); the web step's parser now accepts the reply | 0 blockers, 0 warnings, 3 suggestions fixed (shared test helper, comment wrap, import); 2 deferred (decision 10 dated record; AC-018 uses a fixed reply by design) | task check passed: api 258 of 258, web 1923 of 1923, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -60,6 +61,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T005 (SUGGESTION, deferred): `source/templates/README.md` line 89 says `<flow id>.md`. T006 covers it (plan item), so it is not changed here.
 
 - T004 (SUGGESTION, deferred): `source/apps/web/src/analyze/config.ts` imports `toDocument` from `builder/fields.ts`, so the analyze step reaches into a builder module. Moving it to a neutral web module would touch five more files for a naming change only; revisit with the next change to either module.
+
+- T008 (SUGGESTION, deferred): `spec/documents/architecture.md` decision 10 (about line 128) describes the analysis result without `subject`. It is a dated decision record (2026-11-12, updated 2026-11-15), so it is left as recorded; a docs pass can add an update note.
+
+- T008 (note, by plan): the AC-018 web test runs `parseAnalysisReply` on a fixed reply written in the test, not on the API's output, because web must not import the API. The API tests pin the shape (AC-017), so the two halves meet at the same shape.
 
 ---
 

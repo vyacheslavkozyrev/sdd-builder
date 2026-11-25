@@ -12,9 +12,19 @@ export interface ReviewModel {
   review(request: ReviewRequest): Promise<{ readonly text: string; readonly stopReason: string | null }>;
 }
 
+// A structural or brief finding as the reply carries it (F-16 AC-017). `subject` is the finding's path, the field the
+// finding is about, so every finding has the subject the web step reads. `rule` and `path` are kept as they are.
+export interface AnalysisFinding extends pipeline.Finding {
+  readonly subject: string;
+}
+
 export interface AnalysisResult {
-  readonly findings: readonly pipeline.Finding[];
+  readonly findings: readonly AnalysisFinding[];
   readonly review: pipeline.ReviewResult;
+}
+
+function withSubject(finding: pipeline.Finding): AnalysisFinding {
+  return { ...finding, subject: finding.path };
 }
 
 // A fresh failed review on each call, so no caller can change the result of another analysis.
@@ -47,7 +57,7 @@ export async function analyzePipeline(
   model: ReviewModel | null,
   log: (line: string) => void,
 ): Promise<AnalysisResult> {
-  const findings = [...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)];
+  const findings = [...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)].map(withSubject);
   const review = await runReview(config, model, log);
   log(`route=/analyze event=review status=${review.status}`);
   return { findings, review };

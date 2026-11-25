@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { analyzePipeline, type ReviewModel } from '../src/analyze.js';
 import { createApp, type AppDeps } from '../src/app.js';
+import { withSubjects } from './subject.js';
 
 // A fixed sentinel that stands in for brief content. It must never reach a log line or a file.
 const SENTINEL = 'SENTINEL-IDEA-7f3a91';
@@ -121,8 +122,12 @@ describe('F-06 the analysis keeps no state between calls', () => {
     const firstResult = await analyzePipeline(first, model, () => {});
     const secondResult = await analyzePipeline(second, model, () => {});
 
-    expect(firstResult.findings).toEqual([...pipeline.analyzeStructure(first), ...pipeline.analyzeBrief(first)]);
-    expect(secondResult.findings).toEqual([...pipeline.analyzeStructure(second), ...pipeline.analyzeBrief(second)]);
+    expect(firstResult.findings).toEqual(
+      withSubjects([...pipeline.analyzeStructure(first), ...pipeline.analyzeBrief(first)]),
+    );
+    expect(secondResult.findings).toEqual(
+      withSubjects([...pipeline.analyzeStructure(second), ...pipeline.analyzeBrief(second)]),
+    );
     expect(secondResult.findings).not.toEqual(firstResult.findings);
   });
 
@@ -314,7 +319,7 @@ describe('F-14 the route answers each request from its own brief only', () => {
     const expectedFor = (body: Record<string, unknown>): unknown => {
       const parsed = pipeline.parseProjectConfig(body);
       if (!parsed.ok) throw new Error('the fixture must parse');
-      return [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
+      return withSubjects([...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)]);
     };
 
     const firstRun = await runRoute({ body: JSON.stringify(first) });

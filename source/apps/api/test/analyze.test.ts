@@ -2,6 +2,7 @@ import { pipeline } from '@sddbuilder/core';
 import { describe, expect, it } from 'vitest';
 import { analyzePipeline, type ReviewModel } from '../src/analyze.js';
 import type { ReviewRequest } from '../src/review/prompt.js';
+import { withSubjects } from './subject.js';
 
 const pipelineFixture: pipeline.Pipeline = {
   name: 'SDD',
@@ -39,6 +40,11 @@ function fakeModel(answer: { text?: string; stopReason?: string | null; throws?:
 
 const validEntry = { severity: 'warning', subject: 'idea', message: 'The idea is vague.' };
 
+// The findings the analysis returns for a config: the structural ones, then the brief ones, each with its subject.
+function analysisFindings(config: pipeline.ProjectConfig) {
+  return withSubjects([...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)]);
+}
+
 describe('F-06 analysis result', () => {
   it('F-06 AC-019 the result has the findings and a review with status, findings and dropped', async () => {
     const { model } = fakeModel({ text: JSON.stringify([validEntry]) });
@@ -54,12 +60,11 @@ describe('F-06 analysis result', () => {
     const { model } = fakeModel({});
     const result = await analyzePipeline(config, model, () => {});
 
-    const expected = [...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)];
-    expect(result.findings).toEqual(expected);
-    expect(result.findings.slice(0, pipeline.analyzeStructure(config).length)).toEqual(
-      pipeline.analyzeStructure(config),
-    );
-    expect(result.findings.length).toBeGreaterThan(pipeline.analyzeStructure(config).length);
+    const structural = withSubjects(pipeline.analyzeStructure(config));
+    const brief = withSubjects(pipeline.analyzeBrief(config));
+    expect(result.findings).toEqual([...structural, ...brief]);
+    expect(result.findings.slice(0, structural.length)).toEqual(structural);
+    expect(result.findings.length).toBeGreaterThan(structural.length);
   });
 });
 
@@ -68,10 +73,7 @@ describe('F-06 review failure keeps the findings', () => {
     const result = await analyzePipeline(configFixture(), null, () => {});
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
-    expect(result.findings).toEqual([
-      ...pipeline.analyzeStructure(configFixture()),
-      ...pipeline.analyzeBrief(configFixture()),
-    ]);
+    expect(result.findings).toEqual(analysisFindings(configFixture()));
   });
 
   it('F-06 AC-020 a model call that throws gives a failed review and the findings in full', async () => {
@@ -80,7 +82,7 @@ describe('F-06 review failure keeps the findings', () => {
     const result = await analyzePipeline(config, model, () => {});
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
-    expect(result.findings).toEqual([...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)]);
+    expect(result.findings).toEqual(analysisFindings(config));
   });
 
   it('F-06 AC-020 the error text of a thrown model call reaches neither the result nor the log', async () => {
@@ -106,7 +108,7 @@ describe('F-06 review failure keeps the findings', () => {
     const result = await analyzePipeline(config, model, () => {});
 
     expect(result.review).toEqual({ status: 'failed', findings: [], dropped: 0 });
-    expect(result.findings).toEqual([...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)]);
+    expect(result.findings).toEqual(analysisFindings(config));
   });
 
   it('F-06 AC-020 a reply that is JSON but not an array gives a failed review', async () => {
@@ -145,6 +147,68 @@ describe('F-06 valid review replies', () => {
     const result = await analyzePipeline(configFixture(), model, () => {});
 
     expect(result.review).toEqual({ status: 'ok', findings: [], dropped: 2 });
+  });
+});
+
+describe('F-16 AC-017 every finding in the reply has a subject', () => {
+  it('F-16 AC-017 each structural and brief finding has severity, subject, message, rule and path', async () => {
+    const config = configFixture();
+    const { model } = fakeModel({});
+    const result = await analyzePipeline(config, model, () => {});
+
+    expect(pipeline.analyzeStructure(config).length).toBeGreaterThan(0);
+    expect(pipeline.analyzeBrief(config).length).toBeGreaterThan(0);
+    const count = pipeline.analyzeStructure(config).length + pipeline.analyzeBrief(config).length;
+    expect(result.findings).toHaveLength(count);
+    for (const finding of result.findings) {
+      expect(Object.keys(finding).sort()).toEqual(['message', 'path', 'rule', 'severity', 'subject']);
+      expect(typeof finding.message).toBe('string');
+      expect(['blocker', 'warning']).toContain(finding.severity);
+    }
+  });
+
+  it('F-16 AC-017 the subject of each finding is its path', async () => {
+    const config = configFixture();
+    const { model } = fakeModel({});
+    const result = await analyzePipeline(config, model, () => {});
+
+    for (const finding of result.findings) {
+      expect(finding.subject).toBe(finding.path);
+    }
+  });
+
+  it('F-16 AC-017 a brief finding names the brief field it is about as its subject', async () => {
+    const { model } = fakeModel({});
+    const result = await analyzePipeline(configFixture(), model, () => {});
+    const brief = result.findings.filter((finding) => finding.rule.startsWith('brief-'));
+
+    expect(brief.length).toBeGreaterThan(0);
+    expect(brief).toContainEqual({
+      severity: 'blocker',
+      rule: 'brief-name',
+      path: 'name',
+      subject: 'name',
+      message: 'must not be blank',
+    });
+  });
+
+  it('F-16 AC-017 a structural finding keeps its rule, path, severity and message, its path as subject', async () => {
+    const config = configFixture();
+    const { model } = fakeModel({});
+    const result = await analyzePipeline(config, model, () => {});
+    const [first] = pipeline.analyzeStructure(config);
+    if (first === undefined) throw new Error('the fixture must give a structural finding');
+
+    expect(result.findings[0]).toEqual({ ...first, subject: first.path });
+    expect(result.findings[0]?.rule).toBe(first.rule);
+    expect(result.findings[0]?.path).toBe(first.path);
+  });
+
+  it('F-16 AC-017 the review findings keep the subject the model gave them', async () => {
+    const { model } = fakeModel({ text: JSON.stringify([validEntry]) });
+    const result = await analyzePipeline(configFixture(), model, () => {});
+
+    expect(result.review.findings).toEqual([validEntry]);
   });
 });
 

@@ -1,8 +1,9 @@
 import { pipeline } from '@sddbuilder/core';
 import type { Hono } from 'hono';
 import { describe, expect, it } from 'vitest';
-import { analyzePipeline, type AnalysisResult, type ReviewModel } from '../src/analyze.js';
+import { analyzePipeline, type AnalysisFinding, type AnalysisResult, type ReviewModel } from '../src/analyze.js';
 import { createApp, type AppDeps } from '../src/app.js';
+import { withSubjects } from './subject.js';
 
 // An analysis fake that counts its calls and answers with an empty analysis. A request that reaches the model call
 // would show up in the count.
@@ -119,9 +120,7 @@ describe('F-14 route success', () => {
 
   it('F-14 AC-002 the findings are the analyzeStructure then analyzeBrief output of the same config', async () => {
     const config = successConfig({ idea: '' });
-    const parsed = pipeline.parseProjectConfig(config);
-    if (!parsed.ok) throw new Error('the fixture must parse');
-    const expected = [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
+    const expected = expectedFindings(config);
     const { model } = countingModel({ text: '[]' });
 
     const reply = (await (await postConfig(analysisApp(model), config)).json()) as { findings: unknown };
@@ -132,16 +131,18 @@ describe('F-14 route success', () => {
   // A parser-valid config gives no structural finding for this fixture, so the order between the two lists is shown
   // here with an injected analysis: the route must pass its findings on in the order it was given.
   it('F-14 AC-002 the route keeps the order of the analysis findings and does not reorder them', async () => {
-    const brief: pipeline.Finding = {
+    const brief: AnalysisFinding = {
       severity: 'blocker',
       rule: 'brief-idea',
       path: 'idea',
+      subject: 'idea',
       message: 'must not be blank',
     };
-    const structural: pipeline.Finding = {
+    const structural: AnalysisFinding = {
       severity: 'warning',
       rule: 'block-reach',
       path: 'pipeline.flows.0.blocks.1',
+      subject: 'pipeline.flows.0.blocks.1',
       message: 'is not reached',
     };
     const app = createApp({
@@ -190,10 +191,10 @@ describe('F-14 route success', () => {
 });
 
 // The structural and brief findings the analysis builds for a config, in the order the route returns them.
-function expectedFindings(config: Record<string, unknown>): pipeline.Finding[] {
+function expectedFindings(config: Record<string, unknown>): AnalysisFinding[] {
   const parsed = pipeline.parseProjectConfig(config);
   if (!parsed.ok) throw new Error('the fixture must parse');
-  return [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
+  return withSubjects([...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)]);
 }
 
 describe('F-14 route unexpected errors', () => {
@@ -327,5 +328,56 @@ describe('F-14 route review failures', () => {
       dropped: 2,
     });
     expect(body.findings).toEqual(expectedFindings(config));
+  });
+});
+
+// The default pipeline with a block nothing reaches added to its first flow: the analysis gives a structural finding
+// for it. The parser refuses this copy (a duplicate agent name), so the route test gives this typed config to the
+// analysis and sends an ordinary body.
+function orphanConfig(): pipeline.ProjectConfig {
+  const parsed = pipeline.parseProjectConfig(successConfig({ idea: '' }));
+  if (!parsed.ok) throw new Error('the default pipeline must parse');
+  const [first, ...rest] = parsed.config.pipeline.flows;
+  if (first === undefined) throw new Error('the default pipeline has a flow');
+  const [, second] = first.blocks;
+  if (second === undefined) throw new Error('the first flow has a second block');
+  const flows = [{ ...first, blocks: [...first.blocks, { ...second, id: 'orphan-block' }] }, ...rest];
+  return { ...parsed.config, pipeline: { ...parsed.config.pipeline, flows } };
+}
+
+describe('F-16 AC-017 the 200 reply carries a subject on every finding', () => {
+  const config = orphanConfig();
+
+  function orphanApp(): Hono {
+    const { model } = countingModel({ text: '[]' });
+    return createApp({
+      analyze: () => analyzePipeline(config, model, () => {}),
+      generate: async () => ({ kind: 'unavailable' }),
+      log: () => undefined,
+    });
+  }
+
+  it('F-16 AC-017 a structural and a brief finding each have severity, subject, message, rule and path', async () => {
+    const response = await postConfig(orphanApp(), successConfig({ idea: '' }));
+    const reply = (await response.json()) as { findings: Record<string, unknown>[] };
+
+    expect(response.status).toBe(200);
+    const rules = reply.findings.map((finding) => String(finding.rule));
+    expect(rules.some((rule) => rule.startsWith('brief-'))).toBe(true);
+    expect(rules.some((rule) => !rule.startsWith('brief-'))).toBe(true);
+    for (const finding of reply.findings) {
+      expect(Object.keys(finding).sort()).toEqual(['message', 'path', 'rule', 'severity', 'subject']);
+      expect(finding.subject).toBe(finding.path);
+      expect(typeof finding.message).toBe('string');
+    }
+  });
+
+  it('F-16 AC-017 the reply findings are the analysis findings with their subject, in order', async () => {
+    const response = await postConfig(orphanApp(), successConfig({ idea: '' }));
+    const reply = (await response.json()) as { findings: unknown };
+
+    expect(reply.findings).toEqual(
+      withSubjects([...pipeline.analyzeStructure(config), ...pipeline.analyzeBrief(config)]),
+    );
   });
 });

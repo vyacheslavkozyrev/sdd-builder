@@ -1,7 +1,7 @@
 # User Stories — API and UI integration (F-16)
 
 Feature entry: `spec/documents/features.md` → F-16
-Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project), R-16-4 (the analyze request follows the pipeline schema; command files take the flow name; added 2026-11-24 after the owner's bug report).
+Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project), R-16-4 (the analyze request follows the pipeline schema; command files take the flow name; added 2026-11-24 after the owner's bug report), R-16-5 (the analyze reply has the shape the step reads; added 2026-11-25 after the owner's second bug report).
 
 The web app already sends the requests (F-13: `POST /analyze` and `POST /generate` from the analyze step). F-16 connects them to the running API and proves the whole path works. The owner runs the end-to-end check in a browser with a real provider key.
 
@@ -93,6 +93,21 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-005: The analyze reply has the shape the step reads (bug, found by the owner at Verify)
+
+**As a** user
+**I want to** see the findings of a 200 analysis reply
+**So that** a valid analysis is not shown as an error
+
+**Requirements:** R-16-5
+
+#### Acceptance Criteria
+
+- [ ] AC-017 `[auto]`: every finding in a 200 `/analyze` reply, structural and brief findings alike, has `severity`, `subject` (the finding's path, for a structural finding) and `message`, and keeps its `rule` and `path`.
+- [ ] AC-018 `[auto]`: a 200 reply in that shape is read by the web app's reply parser (`parseAnalysisReply`) as an analysis result, with every finding listed (no reply is refused for a structural finding).
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -101,3 +116,4 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-2 — the step shows the real results of a running API | AC-005, AC-006, AC-007, AC-008, AC-009 |
 | R-16-3 — the owner's end-to-end check of a generated project | AC-010 |
 | R-16-4 — the analyze request follows the pipeline schema; command files take the flow name | AC-011, AC-012, AC-013, AC-014, AC-015, AC-016 |
+| R-16-5 — the analyze reply has the shape the step reads | AC-017, AC-018 |

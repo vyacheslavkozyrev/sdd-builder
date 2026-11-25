@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 7 of 7 tasks committed (T004 to T007 added by Amendment 2026-11-24) |
+| Build    | 🔄 In Progress |      | 7 of 8 tasks committed (T004 to T008 added by Amendments 2026-11-24 and 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -113,6 +113,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner bug report: 200 reply shows an error)
+**Changed**: stories.md gains US-005 (AC-017, AC-018, R-16-5); plan.md gains T008 (the API adds `subject` to each finding).
+**Reason**: a 200 reply was shown as an error because the structural findings had `rule` and `path` but no `subject`, which the web parser requires. The owner chose the API side.
+**Impact**: Build reopens for T008; the F-14 route and analysis tests that pinned the old finding shape change with it. Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-24 (T005 review: AC-015 clash, web subtitle)

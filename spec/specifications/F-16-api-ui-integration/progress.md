@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 3 of 3 tasks committed (T003 added by Amendment) |
+| Build    | 🔄 In Progress |      | 3 of 6 tasks committed (T004 to T006 added by Amendment 2026-11-24) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -93,6 +93,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-24 (owner bug report: 400 and file names)
+**Changed**: stories.md gains US-004 (AC-011 to AC-016, R-16-4); plan.md gains T004 to T006.
+**Reason**: the owner's analyze request for a real project returned 400 because the web app sends `index` keys, which `spec/documents/pipeline-schema.md` does not define. The owner also asked that command files take the flow name (`specify.md`, not `flow-1.md`). Approved by the owner.
+**Impact**: Build reopens for T004 to T006. Verify re-runs, and the earlier checklist (AC-005 to AC-010) is run again on the fixed app.
+```
 
 ```
 ### Amendment — 2026-11-24 (PORT rule, owner decision)

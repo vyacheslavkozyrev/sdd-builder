@@ -1,7 +1,7 @@
 # User Stories — API and UI integration (F-16)
 
 Feature entry: `spec/documents/features.md` → F-16
-Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project).
+Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project), R-16-4 (the analyze request follows the pipeline schema; command files take the flow name; added 2026-11-24 after the owner's bug report).
 
 The web app already sends the requests (F-13: `POST /analyze` and `POST /generate` from the analyze step). F-16 connects them to the running API and proves the whole path works. The owner runs the end-to-end check in a browser with a real provider key.
 
@@ -74,6 +74,25 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-004: The analyze request follows the pipeline schema, and command files take the flow name (bug, found by the owner at Verify)
+
+**As a** user
+**I want to** have the analyze and generate requests accepted, and the command files named after my flows
+**So that** the generated project has `specify.md`, not `flow-1.md`
+
+**Requirements:** R-16-4
+
+#### Acceptance Criteria
+
+- [ ] AC-011 `[auto]`: the body the analyze step sends has no `index` key at any level (rules, arguments, flows and blocks), so it matches `spec/documents/pipeline-schema.md`.
+- [ ] AC-012 `[auto]`: the body the analyze step sends for a filled-in wizard state is accepted by `pipeline.parseProjectConfig`.
+- [ ] AC-013 `[auto]`: a command file is named from its flow name: the name in lower case, each run of characters that is not a letter or a digit replaced by one `-`, and the ends trimmed (`Specify` gives `specify.md`; `Review code` gives `review-code.md`).
+- [ ] AC-014 `[auto]`: a flow name that gives an empty file name (no letter or digit) is a blocker: the analysis reports it, and generation refuses it with 422 and no model call.
+- [ ] AC-015 `[auto]`: two flows whose names give the same file name are a blocker: the analysis reports it, and generation refuses it with 422 and no model call.
+- [ ] AC-016 `[auto]`: the file list, and the command list in `process.md`, name each command file with the same file name.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -81,3 +100,4 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-1 — the dev server reaches the API for both calls | AC-001, AC-002, AC-003, AC-004 |
 | R-16-2 — the step shows the real results of a running API | AC-005, AC-006, AC-007, AC-008, AC-009 |
 | R-16-3 — the owner's end-to-end check of a generated project | AC-010 |
+| R-16-4 — the analyze request follows the pipeline schema; command files take the flow name | AC-011, AC-012, AC-013, AC-014, AC-015, AC-016 |

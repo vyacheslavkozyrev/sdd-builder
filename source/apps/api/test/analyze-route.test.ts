@@ -203,6 +203,66 @@ function expectedFindings(config: Record<string, unknown>): pipeline.Finding[] {
   return [...pipeline.analyzeStructure(parsed.config), ...pipeline.analyzeBrief(parsed.config)];
 }
 
+describe('F-14 route unexpected errors', () => {
+  it('F-14 AC-018 an error thrown by the analysis outside the model call answers 500 with a generic message and no part of the error text', async () => {
+    const sentinel = 'sentinel-analysis-3c9e';
+    const app = createApp({
+      analyze: async () => {
+        throw new Error(`analysis broke near ${sentinel}`);
+      },
+      log: () => undefined,
+    });
+    const response = await postConfig(app, successConfig());
+    const text = await response.text();
+
+    expect(response.status).toBe(500);
+    expect(JSON.parse(text)).toEqual({ error: 'Internal error' });
+    expect(text).not.toContain(sentinel);
+    expect(text).not.toContain('sentinel');
+    expect(text).not.toContain('analysis broke');
+  });
+
+  it('F-14 AC-018 the 500 path logs the event and the status only, never the error text', async () => {
+    const sentinel = 'sentinel-analysis-8b21';
+    const lines: string[] = [];
+    const app = createApp({
+      analyze: async () => {
+        throw new Error(sentinel);
+      },
+      log: (line) => lines.push(line),
+    });
+    await postConfig(app, successConfig());
+
+    expect(lines).toEqual(['route=/analyze event=analysis-failed status=500']);
+    expect(lines.join('\n')).not.toContain(sentinel);
+  });
+
+  it('F-14 AC-019 the 500 reply is JSON with the error field the 400 replies use', async () => {
+    const app = createApp({
+      analyze: async () => {
+        throw new Error('sentinel-analysis-5d07');
+      },
+      log: () => undefined,
+    });
+    const response = await postConfig(app, successConfig());
+
+    expect(response.status).toBe(500);
+    expect(response.headers.get('Content-Type')).toContain('application/json');
+    const body = (await response.json()) as Record<string, unknown>;
+    expect(Object.keys(body)).toEqual(['error']);
+    expect(typeof body.error).toBe('string');
+
+    const refused = await app.request('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{',
+    });
+    const refusedBody = (await refused.json()) as Record<string, unknown>;
+    expect(refused.status).toBe(400);
+    expect(Object.keys(refusedBody)).toEqual(['error']);
+  });
+});
+
 describe('F-14 route review failures', () => {
   it('F-14 AC-013 with no model a valid config answers 200 with a failed review and the findings in full', async () => {
     const config = successConfig({ idea: '' });

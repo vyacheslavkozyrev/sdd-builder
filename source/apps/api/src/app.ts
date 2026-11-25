@@ -31,8 +31,15 @@ export function createApp(deps: AppDeps): Hono {
         : c.json({ error: body.error, problems: body.problems }, 400);
     }
     // One analysis, one model call at most (AC-017). The reply carries the findings and the review, nothing else.
-    const result = await deps.analyze(body.config);
-    return c.json({ findings: result.findings, review: result.review }, 200);
+    // An error that escapes the analysis is logged by its event and status only, and answered with a generic message
+    // so that no part of the error text reaches the client (AC-018, AC-019).
+    try {
+      const result = await deps.analyze(body.config);
+      return c.json({ findings: result.findings, review: result.review }, 200);
+    } catch {
+      deps.log('route=/analyze event=analysis-failed status=500');
+      return c.json({ error: 'Internal error' }, 500);
+    }
   });
 
   app.notFound((c) => c.json({ error: 'Not found' }, 404));

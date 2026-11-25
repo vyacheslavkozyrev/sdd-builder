@@ -48,6 +48,7 @@ const PIPELINE_VALUES = [
   'configProblems',
   'defaultPipeline',
   'flowArrowOrder',
+  'flowFileName',
   'listFiles',
   'parseProjectConfig',
   'planGeneration',

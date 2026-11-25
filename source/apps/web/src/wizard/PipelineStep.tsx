@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
+import { pipeline } from '@sddbuilder/core';
 import { AgentPanel, ConditionPanel, EndPanel, StartPanel } from '../builder/BlockPanel.js';
 import { BlockArrowPanel, ConnectionPanel } from '../builder/ConnectionPanel.js';
 import { BlockCanvas } from '../builder/BlockCanvas.js';
@@ -230,7 +231,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
     const findingsFor = (blockId: string) => findingsOfBlock(marks, flow.id, blockId);
     const flowHeader = (): PropertiesHeader => ({
       title: `Flow: ${flow.name}`,
-      subtitle: `Generates .claude/commands/${flow.name}.md`,
+      subtitle: `Generates .claude/commands/${pipeline.flowFileName(flow)}.md`,
     });
     const panelOf = (): { readonly header: PropertiesHeader | null; readonly body: ReactNode } => {
       switch (shown.kind) {
@@ -373,7 +374,7 @@ export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
         const flow = flowNamed(pipelineState, selection.id);
         return {
           title: `Flow: ${flow.name}`,
-          subtitle: `Generates .claude/commands/${flow.name}.md`,
+          subtitle: `Generates .claude/commands/${pipeline.flowFileName(flow)}.md`,
           body: (
             <FlowPanel
               key={flow.id}

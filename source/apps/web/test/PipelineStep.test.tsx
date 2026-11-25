@@ -414,6 +414,24 @@ describe('F-11 AC-031 after a confirmed delete the selection is cleared and the 
   });
 });
 
+// The default pipeline with `flowId` renamed, so a test can show a name that needs a file name.
+function withFlowName(values: WizardValues, flowId: string, name: string): WizardValues {
+  const pipeline = defaultPipelineValue();
+  const flows = pipeline.flows.map((flow) => (flow.id === flowId ? { ...flow, name } : flow));
+  return { ...values, pipeline: { ...pipeline, flows } };
+}
+
+describe('F-16 AC-016 the subtitle names the command file with the flow file name', () => {
+  it('F-16 AC-016 a flow named "Build Code" shows build-code.md as its command file', () => {
+    renderStep(withFlowName(valuesWith('Tracker', ''), 'ux', 'Build Code'));
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+    });
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Build Code' })).toBeTruthy();
+    expect(within(propertiesCard()).getByText('Generates .claude/commands/build-code.md')).toBeTruthy();
+  });
+});
+
 describe('F-11 AC-042 the properties card shows the panel of the selection', () => {
   it('F-11 AC-042 shows the pipeline panel with its command file line when nothing is selected', () => {
     renderStep();
@@ -428,7 +446,7 @@ describe('F-11 AC-042 the properties card shows the panel of the selection', () 
       flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: UX' })).toBeTruthy();
-    expect(within(propertiesCard()).getByText('Generates .claude/commands/UX.md')).toBeTruthy();
+    expect(within(propertiesCard()).getByText('Generates .claude/commands/ux.md')).toBeTruthy();
   });
 
   it('F-11 AC-042 a selected arrow shows the Connection panel', () => {

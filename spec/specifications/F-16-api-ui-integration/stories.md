@@ -151,6 +151,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-009: Arguments are kept when the selection changes (owner blocker, 2026-11-25)
+
+**As a** user
+**I want to** keep the arguments I add
+**So that** they are still there when I come back to the block or the pipeline
+
+**Requirements:** R-16-10
+
+#### Acceptance Criteria
+
+- [ ] AC-023 `[auto]`: an argument added to a block or to the pipeline is saved at once; after the user selects another block and returns, the argument is still listed with its values.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -163,4 +177,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-6 — a new project starts empty | AC-019 |
 | R-16-8 — block ids are unique across the pipeline | AC-021 |
 | R-16-9 — error messages name flows and blocks | AC-022 |
+| R-16-10 — arguments are kept when the selection changes | AC-023 |
 | R-16-7 — the flow body accepts typing | AC-020 |

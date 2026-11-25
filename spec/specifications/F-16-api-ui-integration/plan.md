@@ -32,6 +32,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T012 [Web] Error messages name flows and blocks, not ids and paths (owner request, 2026-11-25): the builder's error and warning list (`source/apps/web/src/builder/ErrorPanel.tsx` and the view-model that feeds it) shows each problem's location as the flow name and, for a block, the block name (an Agent's name; `Start`, `End`; a Condition's description or `Condition N`), with the pipeline as `pipeline`; a message that quotes a path or a block or flow id (for example `pipeline.flows.0.blocks.0.id` or `block-1`) is rewritten with the same names. The parser's messages and paths in core are not changed. Test names `F-16 AC-022`; the existing builder tests that asserted the raw path text change where they assert the message text (name each one in the report) — covers AC-022
 
+- [ ] T013 [Web] Blocker (owner, 2026-11-25): arguments added in the builder are lost when the user selects another block and returns (for every block, and for the pipeline). Reproduce first with a test: add an argument to a block or the pipeline, select another block, select the first again, and assert the argument is still there. The cause is likely the argument row draft kept in component state while the saved value is not written, or the panel re-mounting from a state that does not hold the new argument. Fix the root cause so an accepted argument is saved to the pipeline state at once. Test names `F-16 AC-023` — covers AC-023
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 12 of 12 tasks committed (T012 added by owner request 2026-11-25) |
+| Build    | 🔄 In Progress |      | 12 of 13 tasks committed (T013 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -142,6 +142,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blocker: arguments lost on selection change)
+**Changed**: stories.md gains US-009 (AC-023, R-16-10); plan.md gains T013.
+**Reason**: arguments added in the builder are gone after another block is selected and the first is selected again, for any block and the pipeline.
+**Impact**: Build reopens for T013; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner request: error messages name flows and blocks)

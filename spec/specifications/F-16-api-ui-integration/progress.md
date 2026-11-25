@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 16 of 16 tasks committed (T016 added by owner blocker 2026-11-25) |
+| Build    | 🔄 In Progress |      | 16 of 21 tasks committed (T017 to T021 added by owner decision 2026-11-25: all IDs are GUIDs) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -150,6 +150,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner decision: every ID is a generated GUID)
+**Changed**: stories.md gains US-013 (AC-027, AC-028, AC-029, R-16-14); plan.md gains T017 to T021.
+**Reason**: the owner asked that the user never types an ID, to avoid confusion with names. Command and rule file names come from names.
+**Impact**: Build reopens for T017 to T021; the core model, parser, generator, default template, builder and docs change; tests that used word ids change to GUIDs; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blocker: argument named F-XX dropped silently)

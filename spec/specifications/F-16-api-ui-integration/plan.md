@@ -34,6 +34,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T013 [Web] Blocker (owner, 2026-11-25): arguments added in the builder are lost when the user selects another block and returns (for every block, and for the pipeline). Reproduce first with a test: add an argument to a block or the pipeline, select another block, select the first again, and assert the argument is still there. The cause is likely the argument row draft kept in component state while the saved value is not written, or the panel re-mounting from a state that does not hold the new argument. Fix the root cause so an accepted argument is saved to the pipeline state at once. Test names `F-16 AC-023` — covers AC-023
 
+- [ ] T014 [Web] Blocker (owner, 2026-11-25): the End block's Produced artifact dropdown shows the first artifact while the saved value is blank, so the analyze request sends `producedArtifact: ""` and is refused (400). Fix in `source/apps/web/src/builder/BlockPanel.tsx` (the End panel, `block-end-artifact` select): when the saved value is blank, show a blank placeholder option (for example `Choose an artifact`), so the displayed value is the saved value; show the required reason under the select when blank, as the Body does; picking the placeholder again is refused with the parser's reason. Tests name `F-16 AC-024`: a new End block shows the placeholder and saves nothing; picking an artifact saves it; a blank End shows the required reason. Covers AC-024
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

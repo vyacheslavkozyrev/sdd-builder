@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 13 of 13 tasks committed (T013 added by owner blocker 2026-11-25) |
+| Build    | 🔄 In Progress |      | 13 of 14 tasks committed (T014 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -145,6 +145,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner blocker: End artifact shows a value that is not saved)
+**Changed**: stories.md gains US-010 (AC-024, R-16-11); plan.md gains T014.
+**Reason**: the Produced artifact dropdown shows the first artifact while the saved value is blank; the analysis is then refused.
+**Impact**: Build reopens for T014; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner blocker: arguments lost on selection change)

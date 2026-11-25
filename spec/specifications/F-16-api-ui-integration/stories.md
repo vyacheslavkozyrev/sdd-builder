@@ -165,6 +165,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-010: The End block shows its saved artifact (owner blocker, 2026-11-25)
+
+**As a** user
+**I want to** see the produced artifact an End block really has
+**So that** the analysis is not refused for a blank value I cannot see
+
+**Requirements:** R-16-11
+
+#### Acceptance Criteria
+
+- [ ] AC-024 `[auto]`: an End block whose produced artifact is blank shows a blank placeholder in the Produced artifact control and the required reason under it; the control shows an artifact only when that artifact is saved.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -178,4 +192,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-8 — block ids are unique across the pipeline | AC-021 |
 | R-16-9 — error messages name flows and blocks | AC-022 |
 | R-16-10 — arguments are kept when the selection changes | AC-023 |
+| R-16-11 — the End block shows its saved artifact | AC-024 |
 | R-16-7 — the flow body accepts typing | AC-020 |

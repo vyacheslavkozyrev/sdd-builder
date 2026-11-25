@@ -230,6 +230,14 @@ describe('F-11 AC-024 flow argument rows: edit changes one row and a refused edi
     expect(flowOf(saved, 'plan').arguments[1]?.id).toBe('depth');
   });
 
+  it('F-11 AC-024 refuses an edit to the id of a later row, and keeps the saved row (F-16 T015 clash scope)', () => {
+    const saved = withTwoRows();
+    const result = editFlowArgument(saved, RULES, 'plan', 0, row('depth'));
+    expect(result).toMatchObject({ ok: false });
+    expect(result).toMatchObject({ reason: expect.stringMatching(/^must be unique: the id depth is /) });
+    expect(flowOf(saved, 'plan').arguments[0]?.id).toBe('topic');
+  });
+
   it('refuses a hint of 101 characters and keeps the saved hint', () => {
     const saved = withTwoRows();
     const result = editFlowArgument(saved, RULES, 'plan', 0, row('topic', { hint: 'x'.repeat(101) }));

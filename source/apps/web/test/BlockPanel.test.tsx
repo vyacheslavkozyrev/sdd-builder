@@ -687,6 +687,16 @@ describe('F-12 AC-033 and AC-034 round limit', () => {
     expect(screen.getByLabelText('Round limit')).toHaveProperty('value', '3');
   });
 
+  it('F-12 AC-033 refuses a round limit for a problem in the false route, with the parser reason (F-16 T015)', () => {
+    const blocks = conditionBlocks().map((block) =>
+      block.id === 'check' && block.kind === 'condition' ? { ...block, false: { to: 'pre', roundLimit: 3 } } : block,
+    );
+    const pipelineState = conditionPipeline(blocks);
+    const result = setConditionRoundLimit(pipelineState, [], 'plan', 'check', '4');
+
+    expect(result).toEqual({ ok: false, field: 'roundLimit', reason: expect.stringContaining('got pre') });
+  });
+
   it('F-12 AC-033 saves an accepted round limit through the parser', () => {
     const pipelineState = conditionPipeline();
     const { onChange } = renderCondition(pipelineState, 'check');

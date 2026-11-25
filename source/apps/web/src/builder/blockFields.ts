@@ -128,6 +128,7 @@ export function editAgentField(
       ),
     }),
     `pipeline.flows.${flowPosition}.blocks.${blockPosition}.${edit.field}`,
+    edit.field === 'name' ? 'clash' : 'field',
   );
   if (problem !== undefined) {
     const reason = edit.field === 'name' && isNameClash(problem, edited) ? NAME_CLASH_REASON : problem.message;

@@ -367,3 +367,77 @@ describe('F-11 AC-045 the pipeline rule tags are rows: a rule of the project is 
     expect(() => removePipelineRuleTag(linkedPipeline(), 0)).toThrow('F-11: the pipeline has no rule tag row 0');
   });
 });
+
+// F-16 AC-025 and AC-023: the pipeline of a new project with two flows from Add flow. Each flow has a blank body and
+// no link, so the parser reports the missing links; it reports them only once the pipeline name is not blank.
+function newFlowsPipeline(name: string): Pipeline {
+  const added = (index: number, id: string): Flow => ({
+    index,
+    id,
+    name: id,
+    arguments: [],
+    body: '',
+    artifacts: [],
+    approval: false,
+    blocks: [],
+  });
+  return { name, description: '', arguments: [], flows: [added(0, 'flow-1'), added(1, 'flow-2')] };
+}
+
+describe('F-16 AC-025 the pipeline name can be typed while a flow has no link', () => {
+  it('F-16 AC-025 keeps each character typed into the name, and saves each one', () => {
+    let saved = newFlowsPipeline('');
+    let text = '';
+    for (const character of 'Pipeline') {
+      text += character;
+      saved = changed(edit(saved, { field: 'name', value: text }));
+      expect(saved.name).toBe(text);
+    }
+  });
+
+  it('F-16 AC-025 keeps the name typed when the name was blank and the flows have no link', () => {
+    const next = changed(edit(newFlowsPipeline(''), { field: 'name', value: 'P' }));
+    expect(next.name).toBe('P');
+  });
+
+  it.each<[PipelineFieldEdit, unknown]>([
+    [{ field: 'description', value: 'Writes the plan.' }, 'Writes the plan.'],
+    [{ field: 'body', value: 'Runs the feature.' }, 'Runs the feature.'],
+    [{ field: 'tools', value: 'Read, Write' }, ['Read', 'Write']],
+  ])('F-16 AC-025 accepts %j typed into a blank-name pipeline whose two flows have no link, and saves it', (fieldEdit, expected) => {
+    const next = changed(edit(newFlowsPipeline(''), fieldEdit));
+    expect(next).toMatchObject({ [fieldEdit.field]: expected });
+  });
+
+  it('F-16 AC-025 negative case: a blank name is still refused, with the parser reason at the name', () => {
+    const result = fieldRefusal(edit(newFlowsPipeline('Demo'), { field: 'name', value: '   ' }));
+    expect(result).toEqual({ field: 'name', reason: reasonAt({ ...documentOf(newFlowsPipeline('')) }, 'pipeline.name') });
+  });
+
+  it('F-16 AC-025 negative case: a name over 100 characters is still refused at the name, with the parser reason', () => {
+    const result = fieldRefusal(edit(newFlowsPipeline('Demo'), { field: 'name', value: 'x'.repeat(101) }));
+    expect(result).toEqual({ field: 'name', reason: 'must be at most 100 characters' });
+  });
+});
+
+describe('F-16 AC-023 an argument added to the pipeline is accepted while a flow has no link', () => {
+  it('F-16 AC-023 accepts an argument added to the pipeline and saves it', () => {
+    const next = accepted(addPipelineArgument(newFlowsPipeline('Demo'), RULES, row('topic')));
+    expect(next.arguments).toEqual([{ index: 0, id: 'topic', required: false, hint: 'The topic value.' }]);
+  });
+
+  it('F-16 AC-023 accepts an argument added to a flow of the document and saves it', () => {
+    const next = accepted(addFlowArgument(newFlowsPipeline('Demo'), RULES, 'flow-2', row('topic')));
+    expect(next.flows[1]?.arguments).toEqual([{ index: 0, id: 'topic', required: false, hint: 'The topic value.' }]);
+  });
+
+  it('F-16 AC-023 negative case: an id that another flow already has is refused with the parser reason', () => {
+    const saved = newFlowsPipeline('Demo');
+    const withTopic: Pipeline = {
+      ...saved,
+      flows: [{ ...saved.flows[0], arguments: [{ index: 0, id: 'topic', required: false, hint: 'The topic.' }] } as Flow, saved.flows[1] as Flow],
+    };
+    const reason = rowRefusal(addPipelineArgument(withTopic, RULES, row('topic')));
+    expect(reason).toMatch(/^must be unique: the id topic is /);
+  });
+});

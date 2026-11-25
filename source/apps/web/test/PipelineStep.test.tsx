@@ -10,12 +10,12 @@ import { getCanvasStyles } from '../src/builder/canvasStyles.js';
 import { getConnectionPanelStyles } from '../src/builder/connectionPanelStyles.js';
 import { getFlowPanelStyles } from '../src/builder/flowPanelStyles.js';
 import { getRowEditorStyles } from '../src/builder/rowEditorStyles.js';
-import type { Pipeline } from '../src/builder/model.js';
+import { addFlow, type Pipeline } from '../src/builder/model.js';
 import { theme } from '../src/theme.js';
 import { builderRules, PipelineStep } from '../src/wizard/PipelineStep.js';
 import { getPipelineStepStyles } from '../src/wizard/pipelineStepStyles.js';
 import type { RuleValues, WizardValues } from '../src/wizard/state.js';
-import { defaultPipelineValue } from '../src/wizard/state.js';
+import { defaultPipelineValue, emptyPipelineValue } from '../src/wizard/state.js';
 import { valuesWith } from './wizardValues.js';
 
 // The Workflow step (F-11 AC-002, AC-031, screen 01 and 06). The canvas is React Flow, so its props are
@@ -987,5 +987,42 @@ describe('F-16 AC-023 an edited saved argument id not yet left survives a select
     expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
     expect(JSON.stringify(lastValues.pipeline)).not.toContain('"subject"');
     expect(savedAgentArgumentIds('Specify', 'specify')).toBeUndefined();
+  });
+});
+
+// F-16 AC-023 (browser case): a document with flows from Add flow that have no link yet, in a pipeline with a blank name
+// (a new project). The arguments added in it are saved and listed again after a selection change.
+describe('F-16 AC-023 an argument added in a document with new flows survives a selection change', () => {
+  it('F-16 AC-023 an argument added to the pipeline in a blank-name document with two new flows is saved and listed again', () => {
+    const one = addFlow(emptyPipelineValue());
+    const two = addFlow(one.pipeline);
+    renderStep({ ...valuesWith('Tracker', ''), pipeline: two.pipeline });
+
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: one.flowId } as Parameters<NodeClick>[1]);
+    });
+    act(() => {
+      flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
+    });
+
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedPipelineArgumentIds()).toEqual(['topic']);
+  });
+
+  it('F-16 AC-023 an argument added to an Agent block with a new flow in the pipeline is saved and listed again', () => {
+    const withNew = addFlow(defaultPipelineValue());
+    renderStep({ ...valuesWith('Tracker', ''), pipeline: withNew.pipeline });
+
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
   });
 });

@@ -65,6 +65,7 @@ function commit(
       ),
     }),
     placePath,
+    field === 'arguments' ? 'clash' : 'field',
   );
   if (problem !== undefined) return { ok: false, field, reason: problem.message };
   return { ok: true, pipeline: withAgent(pipelineState, location, next()) };

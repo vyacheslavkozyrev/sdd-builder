@@ -129,27 +129,47 @@ function isUnder(path: string, placePath: string): boolean {
   return path === placePath || path.startsWith(`${placePath}.`);
 }
 
-// What an edit may be refused for. `'field'`: only a problem at the edited value (`placePath`, or under it).
-// `'document'`: also a new problem at another path, such as a duplicate name, which the parser reports at the
-// other flow. A body, description or model edit cannot cause a problem at another path, so it is refused at its
-// own field only.
-export type RefusalScope = 'field' | 'document';
+// The starts of the parser's messages for a name or id that another place already has: a duplicate flow name, a
+// repeated argument id, an Agent name shared by two Agents (core `check/ids.ts` and `check/flow-links.ts`), and a
+// repeated artifact label of a flow (core `parse/artifact.ts`).
+const UNIQUENESS_MESSAGES: readonly string[] = ['must be unique', 'repeats '];
+
+// What an edit may be refused for, besides a problem at the edited value (`placePath`, or under it):
+// - `'field'`: nothing else. A problem the parser reports elsewhere, such as a flow with no link that the parser
+//   checks only once the pipeline name is not blank (F-16 AC-025), does not refuse the edit.
+// - `'clash'`: also a new uniqueness problem at another path. The edit makes the name, id or label repeat, and the
+//   parser reports the repeat at the other occurrence (the later flow, the later argument, the other Agent, the later
+//   artifact).
+// - `'document'`: also any new problem at another path. Used only where the edit can leave a reference to a
+//   removed value at another block (an End that names a removed artifact).
+export type RefusalScope = 'field' | 'clash' | 'document';
+
+function reachesOtherPlace(scope: RefusalScope, problem: Problem): boolean {
+  switch (scope) {
+    case 'field':
+      return false;
+    case 'clash':
+      return UNIQUENESS_MESSAGES.some((start) => problem.message.startsWith(start));
+    case 'document':
+      return true;
+  }
+}
 
 // The parser's problem for an edit, or undefined when the edit is accepted. The problems the saved pipeline
 // already had are left out, so an edit is refused only for what it causes. A problem at the edited value
-// (`placePath`, or under it) is the problem when there is one; otherwise the first new problem is (`'document'` only).
+// (`placePath`, or under it) is the problem when there is one; otherwise the first new problem the scope reaches is.
 export function refusalProblemOf(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   holder: Holder,
   change: DocumentChange,
   placePath: string,
-  scope: RefusalScope = 'document',
+  scope: RefusalScope,
 ): Problem | undefined {
   const before = new Set(problemsOf(checkedDocument(pipelineState), rules).map(problemKey));
   const refusals = problemsOf(documentWith(pipelineState, holder, change), rules).filter(
     (problem) =>
-      isUnder(problem.path, placePath) || (scope === 'document' && !before.has(problemKey(problem))),
+      isUnder(problem.path, placePath) || (reachesOtherPlace(scope, problem) && !before.has(problemKey(problem))),
   );
   return refusals.find((problem) => isUnder(problem.path, placePath)) ?? refusals[0];
 }
@@ -161,7 +181,7 @@ export function refusalOf(
   holder: Holder,
   change: DocumentChange,
   placePath: string,
-  scope: RefusalScope = 'document',
+  scope: RefusalScope,
 ): string | undefined {
   return refusalProblemOf(pipelineState, rules, holder, change, placePath, scope)?.message;
 }
@@ -255,8 +275,8 @@ function editedFlow(flow: Flow, edit: FlowFieldEdit): Flow {
 
 // Applies one field edit to the flow `flowId`. The name is trimmed first (AC-020); the other values
 // are kept as written. The parser checks the copy. The edit is refused when the copy has a problem at
-// the edited field. A name is also refused for a problem it causes at another path: a duplicate name is reported
-// at the other flow. The other fields are refused only at their own path. A flow with a blank body is checked
+// the edited field. A name is also refused for a duplicate name, which the parser reports at the other flow
+// (scope `'clash'`). The other fields are refused only at their own path. A flow with a blank body is checked
 // with the placeholder body (see `checkedDocument`), so its rows are checked and the saved body stays blank (F-16 AC-020).
 export function editFlowField(
   pipelineState: Pipeline,
@@ -267,7 +287,7 @@ export function editFlowField(
   const position = positionOf(pipelineState, flowId);
   const flow = flowIn(pipelineState, position);
   const prepared: FlowFieldEdit = edit.field === 'name' ? { field: 'name', value: edit.value.trim() } : edit;
-  const scope: RefusalScope = prepared.field === 'name' ? 'document' : 'field';
+  const scope: RefusalScope = prepared.field === 'name' ? 'clash' : 'field';
 
   const reason = refusalOf(
     pipelineState,
@@ -301,6 +321,7 @@ export function setFlowApproval(
     position,
     (document) => ({ ...document, approval }),
     `${holderPath(position)}.approval`,
+    'field',
   );
   if (reason !== undefined) return { ok: false, reason };
 
@@ -324,6 +345,7 @@ export function addArgument(
     holder,
     (document) => ({ ...document, arguments: [...rows.map(toDocument), argumentDocument(row)] }),
     rowPath(holder, 'arguments', rowPosition),
+    'clash',
   );
   if (reason !== undefined) return { ok: false, reason };
 
@@ -352,6 +374,7 @@ export function editArgument(
       arguments: rows.map((item, index) => (index === rowPosition ? argumentDocument(row) : toDocument(item))),
     }),
     rowPath(holder, 'arguments', rowPosition),
+    'clash',
   );
   if (reason !== undefined) return { ok: false, reason };
 
@@ -380,6 +403,7 @@ export function addRuleTag(pipelineState: Pipeline, rules: readonly Rule[], hold
     holder,
     (document) => ({ ...document, ruleTags: [...tags.map((tag) => tag.ruleId), ruleId] }),
     rowPath(holder, 'ruleTags', tags.length),
+    'field',
   );
   if (reason !== undefined) return { ok: false, reason };
 
@@ -495,6 +519,7 @@ export function addFlowArtifact(
       artifacts: [...flow.artifacts.map(artifactDocument), artifactDocument(row)],
     }),
     placePath,
+    'clash',
   );
   if (problem !== undefined) {
     return { ok: false, field: refusedField(problem, placePath), reason: problem.message };
@@ -539,6 +564,7 @@ export function editFlowArtifact(
         : document.blocks,
     }),
     editedPath,
+    edit.field === 'label' ? 'clash' : 'field',
   );
   if (problem !== undefined) {
     return { ok: false, field: refusedField(problem, placePath), reason: problem.message };
@@ -610,6 +636,7 @@ export function removeFlowArtifact(
     position,
     removalChange(kept, removed.label),
     `${holderPath(position)}.artifacts`,
+    'document',
   );
   if (problem !== undefined) {
     const endNamesIt = isUnder(problem.path, `${holderPath(position)}.blocks`) && problem.path.endsWith('.producedArtifact');

@@ -88,9 +88,9 @@ function editedPipeline(pipelineState: Pipeline, edit: PreparedEdit): Pipeline {
   }
 }
 
-// Applies one field edit to the pipeline. The parser checks a copy of it; the edit is refused when the copy
-// has a problem at the edited field, or a problem the saved pipeline did not have, and the reason is the
-// parser's. A refused edit returns no pipeline, so the saved value stays.
+// Applies one field edit to the pipeline. The parser checks a copy of it; the edit is refused only when the copy
+// has a problem at the edited field, and the reason is the parser's. A problem elsewhere in the pipeline does not
+// refuse it: the text typed is kept (F-16 AC-025). A refused edit returns no pipeline, so the saved value stays.
 export function editPipelineField(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -103,6 +103,7 @@ export function editPipelineField(
     'pipeline',
     fieldChange(prepared.field, prepared.value),
     `pipeline.${prepared.field}`,
+    'field',
   );
   if (reason !== undefined) {
     return { ok: false, field: prepared.field, reason };

@@ -80,6 +80,7 @@ function editEnd(
       ),
     }),
     `pipeline.flows.${flowPosition}.blocks.${blockPosition}.${field}`,
+    'field',
   );
   if (problem !== undefined) return { ok: false, field, reason: problem.message };
   const edited = next(block);

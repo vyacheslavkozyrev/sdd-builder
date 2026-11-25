@@ -279,3 +279,28 @@ describe('F-16 AC-020 the body refusal is about the body', () => {
     expect(result).toMatchObject({ ok: true });
   });
 });
+
+// F-16 AC-025: a new flow from Add flow next to a flow with a link, in a pipeline whose name is blank (a new project).
+// The parser reports the missing link of the new flow only once the name is not blank.
+function blankNamePipeline(): Pipeline {
+  const base = newFlowPipeline();
+  return { ...base, name: '', flows: base.flows.map((item) => (item.id === 'flow-1' ? { ...item, name: 'flow-1' } : item)) };
+}
+
+describe('F-16 AC-025 a flow name is typed while another flow has no link', () => {
+  it('F-16 AC-025 keeps a flow name typed while the pipeline name is blank and a new flow has no link', () => {
+    const result = edit(blankNamePipeline(), 'flow-1', { field: 'name', value: 'Draft' });
+    expect(result).toMatchObject({ ok: true });
+    if (!result.ok) return;
+    expect(flowOf(result.pipeline, 'flow-1').name).toBe('Draft');
+  });
+
+  it('F-16 AC-025 negative case: a flow renamed to the name of another flow is refused at the name, with the parser reason', () => {
+    const result = edit(linkedPipeline(), 'build', { field: 'name', value: 'Plan' });
+    expect(result).toEqual({
+      ok: false,
+      field: 'name',
+      reason: 'must be unique among the flows, got Plan, which another flow already has',
+    });
+  });
+});

@@ -192,6 +192,20 @@ describe('F-11 AC-025 flow artifacts: edit changes the label or the template of 
     expect(artifactsOf(saved, 'plan')[1]).toEqual({ label: 'spec.md', template: 'the spec' });
   });
 
+  it('F-11 AC-025 refuses a label that a later row of the flow has, at the label field (F-16 T015 clash scope)', () => {
+    const saved = linkedPipeline([
+      { label: 'plan.md', template: 'the plan' },
+      { label: 'spec.md', template: 'the spec' },
+    ]);
+    const result = editFlowArtifact(saved, RULES, 'plan', 0, { field: 'label', value: 'spec.md' });
+    expect(result).toEqual({
+      ok: false,
+      field: 'label',
+      reason: 'repeats spec.md; each artifact of a flow needs its own label',
+    });
+    expect(artifactsOf(saved, 'plan')[0]).toEqual({ label: 'plan.md', template: 'the plan' });
+  });
+
   it('throws for a row the flow does not have', () => {
     expect(() => editFlowArtifact(linkedPipeline(), RULES, 'plan', 3, { field: 'label', value: 'x.md' })).toThrow(
       'F-11: the flow "plan" has no artifact row 3',

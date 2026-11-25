@@ -114,6 +114,7 @@ export function editConditionDescription(
       ),
     }),
     `pipeline.flows.${flowPosition}.blocks.${blockPosition}.description`,
+    'field',
   );
   if (problem !== undefined) return { ok: false, field: 'description', reason: problem.message };
   return withBlock(pipelineState, location, { ...block, description: value });
@@ -157,9 +158,10 @@ export function setConditionRoundLimit(
         index === blockPosition ? { ...item, false: { to: route.target, roundLimit } } : item,
       ),
     }),
-    `pipeline.flows.${flowPosition}.blocks.${blockPosition}.false.roundLimit`,
+    `pipeline.flows.${flowPosition}.blocks.${blockPosition}.false`,
+    'field',
   );
-  if (problem !== undefined) return { ok: false, field: 'roundLimit', reason: ROUND_LIMIT_REASON };
+  if (problem !== undefined) return { ok: false, field: 'roundLimit', reason: problem.message };
   return withBlock(pipelineState, location, { ...block, false: { to: route.target, roundLimit } });
 }
 

@@ -326,3 +326,56 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
     expect(screen.getByText(reason).parentElement).not.toBe(controlBoxOf(input));
   });
 });
+
+// F-16 AC-025: the pipeline of a new project with two flows from Add flow. Each flow has a blank body and no link, and
+// the name is blank until the user types it. The parser reports the missing links only once the name is not blank.
+function newFlowsPipeline(): Pipeline {
+  const added = (index: number, id: string): Flow => ({
+    index,
+    id,
+    name: id,
+    arguments: [],
+    body: '',
+    artifacts: [],
+    approval: false,
+    blocks: [],
+  });
+  return { name: '', description: '', arguments: [], flows: [added(0, 'flow-1'), added(1, 'flow-2')] };
+}
+
+// Types `value` into the field one character at a time, as the user does, and checks each character is kept.
+function typeEachCharacter(label: string, value: string) {
+  let text = '';
+  for (const character of value) {
+    text += character;
+    fireEvent.change(screen.getByLabelText(label), { target: { value: text } });
+    expect(screen.getByLabelText(label)).toHaveProperty('value', text);
+  }
+}
+
+describe('F-16 AC-025 the pipeline text fields can be typed into while a flow has no link', () => {
+  it.each([
+    ['Name', 'Pipeline', 'name', 'Pipeline'],
+    ['Description', 'Writes the plan.', 'description', 'Writes the plan.'],
+    ['Body', 'Runs the feature.', 'body', 'Runs the feature.'],
+    ['Tools', 'Read, Write', 'tools', ['Read', 'Write']],
+  ])('F-16 AC-025 keeps each character typed into %s, and saves it', (label, value, key, expected) => {
+    const { onChange } = renderPanel(newFlowsPipeline());
+
+    typeEachCharacter(label, value);
+
+    expect(onChange.mock.calls.at(-1)?.[0]).toMatchObject({ [key]: expected });
+  });
+
+  it('F-16 AC-025 negative case: a blank name still shows the parser reason under the Name field', () => {
+    const saved: Pipeline = { ...newFlowsPipeline(), name: 'Demo' };
+    const reason = parserReason(saved, { field: 'name', value: '' });
+    renderPanel(saved);
+    const input = screen.getByLabelText('Name');
+
+    fireEvent.change(input, { target: { value: '  ' } });
+    fireEvent.keyUp(input, { key: ' ' });
+
+    expect(screen.getByText(reason).id).toBe('pipeline-name-refusal');
+  });
+});

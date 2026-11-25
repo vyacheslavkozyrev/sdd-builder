@@ -768,3 +768,224 @@ describe('F-11 AC-006 layout points 2 and 3: the cards fill the height and only 
     expect(styles.canvasArea).not.toHaveProperty('overflowY');
   });
 });
+
+describe('F-16 AC-023 a deleted block or flow is not written back by a line still open', () => {
+  it('F-16 AC-023 negative case: a block deleted while a line is open stays deleted and the line is not saved', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    const blocksBefore = lastValues.pipeline.flows.find((flow) => flow.name === 'Specify')?.blocks.length;
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
+    const specify = lastValues.pipeline.flows.find((flow) => flow.name === 'Specify');
+    expect(specify?.blocks.length).toBe((blocksBefore ?? 0) - 1);
+    expect(JSON.stringify(lastValues.pipeline)).not.toContain('"topic"');
+  });
+
+  it('F-16 AC-023 negative case: a flow deleted while a line is open stays deleted and the line is not saved', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(lastValues.pipeline.flows.map((flow) => flow.name)).not.toContain('Specify');
+    expect(JSON.stringify(lastValues.pipeline)).not.toContain('"topic"');
+  });
+});
+
+// The argument ids saved in the pipeline, in a flow named `flowName`, or in the Agent block named `blockName` of a flow
+// (F-16 AC-023). A flow or block that is gone gives undefined, so an assertion on it fails instead of passing on [].
+function savedPipelineArgumentIds(): string[] {
+  return lastValues.pipeline.arguments.map((argument) => argument.id);
+}
+
+function savedFlowArgumentIds(flowName: string): string[] | undefined {
+  return lastValues.pipeline.flows.find((flow) => flow.name === flowName)?.arguments.map((argument) => argument.id);
+}
+
+function savedAgentArgumentIds(flowName: string, blockName: string): string[] | undefined {
+  const block = lastValues.pipeline.flows
+    .find((flow) => flow.name === flowName)
+    ?.blocks.find((item) => item.kind === 'agent' && item.name === blockName);
+  return block?.kind === 'agent' ? block.arguments.map((argument) => argument.id) : undefined;
+}
+
+describe('F-16 AC-023 an argument added in the builder survives a selection change', () => {
+  it('F-16 AC-023 a line typed in a block and not yet left is saved when another block is selected', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+  });
+
+  it('F-16 AC-023 a line typed in the pipeline and not yet left is saved when a flow is selected', () => {
+    renderStep();
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+    });
+    act(() => {
+      flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
+    });
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
+    expect(within(propertiesCard()).getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
+    expect(savedPipelineArgumentIds()).toEqual(['feature-id', 'topic']);
+  });
+
+  it('F-16 AC-023 negative case: a line typed and then refused by the parser is dropped on selection, with no error', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'Bad Id!' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).queryByLabelText('Argument 1 id')).toBeNull();
+    expect(lastPipelineChange).not.toHaveBeenCalled();
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+  });
+
+  it('F-16 AC-023 an argument added to an Agent block is still listed with its values after another block is selected and the first is selected again', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Start' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+  });
+
+  it('F-16 AC-023 an argument added to a flow survives a selection change and comes back', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByLabelText('Flow canvas').querySelector('svg') as SVGSVGElement);
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedFlowArgumentIds('Specify')).toEqual(['topic']);
+  });
+
+  it('F-16 AC-023 an argument added to the pipeline survives a selection change and comes back', () => {
+    renderStep();
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    act(() => {
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+    });
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: UX' })).toBeTruthy();
+    act(() => {
+      flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
+    });
+    expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
+    expect(within(propertiesCard()).getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
+    expect(savedPipelineArgumentIds()).toEqual(['feature-id', 'topic']);
+  });
+
+  it('F-16 AC-023 negative case: a blank line left open is discarded on selection, with no error and no saved change', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).queryByLabelText('New argument id')).toBeNull();
+    expect(lastPipelineChange).not.toHaveBeenCalled();
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+  });
+
+  it('F-16 AC-023 negative case: a removed argument stays removed after a selection change', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Remove argument 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).queryByLabelText('Argument 1 id')).toBeNull();
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+  });
+});
+
+describe('F-16 AC-023 an edited saved argument id not yet left survives a selection change', () => {
+  it('F-16 AC-023 a saved argument id edited and not left is saved when another block is selected and the first is selected again', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'subject');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['subject']);
+  });
+
+  it('F-16 AC-023 an edited saved id and a line still open are both saved, the id first, when another block is selected', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'extra' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['subject', 'extra']);
+  });
+
+
+  it('F-16 AC-023 negative case: an edited saved id refused by the parser leaves the saved argument unchanged on selection', () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'Bad Id!' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+  });
+
+  it('F-16 AC-023 negative case: an edited saved id whose block is deleted is not restored', async () => {
+    renderStep();
+    fireEvent.click(tabNamed('Specify'));
+    fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
+    expect(JSON.stringify(lastValues.pipeline)).not.toContain('"subject"');
+    expect(savedAgentArgumentIds('Specify', 'specify')).toBeUndefined();
+  });
+});

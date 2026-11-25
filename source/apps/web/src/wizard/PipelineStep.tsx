@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { pipeline } from '@sddbuilder/core';
@@ -15,6 +15,7 @@ import type { BlockKind } from '../builder/blocks.js';
 import type { Rule } from '../builder/fields.js';
 import { ErrorPanel } from '../builder/ErrorPanel.js';
 import { FlowPanel } from '../builder/FlowPanel.js';
+import { CurrentPipelineContext } from '../builder/RowEditors.js';
 import { canvasLayout } from '../builder/layout.js';
 import { findingsOfBlock, WarningNote, warningsAt } from '../builder/MarkViews.js';
 import { structureMarks } from '../builder/marks.js';
@@ -122,7 +123,21 @@ export interface PipelineStepProps {
   readonly onPipelineChange: (pipeline: Pipeline) => void;
 }
 
+// The step gives its lists the pipeline it holds now (F-16 AC-023), set after each render, so a list that unmounts in the
+// same step as a delete does not write back the pipeline it last rendered.
 export function PipelineStep({ values, onPipelineChange }: PipelineStepProps) {
+  const latestPipeline = useRef(values.pipeline);
+  useLayoutEffect(() => {
+    latestPipeline.current = values.pipeline;
+  });
+  return (
+    <CurrentPipelineContext.Provider value={latestPipeline}>
+      <PipelineStepView values={values} onPipelineChange={onPipelineChange} />
+    </CurrentPipelineContext.Provider>
+  );
+}
+
+function PipelineStepView({ values, onPipelineChange }: PipelineStepProps) {
   const styles = getPipelineStepStyles(useTheme());
   const pipelineState = values.pipeline;
   const [panel, setPanel] = useState<PanelState>(INITIAL_PANEL);

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, useState } from 'react';
 import type { FocusEventHandler, KeyboardEvent, ReactNode } from 'react';
 import { Box, Button, Checkbox, FormControlLabel, TextField, Typography, useTheme } from '@mui/material';
 import type { pipeline as core } from '@sddbuilder/core';
@@ -254,11 +254,68 @@ interface NewArgument {
   readonly refusal: string | undefined;
 }
 
+// A saved row whose id was typed and not yet left: its position and the text in the field.
+interface SavedEdit {
+  readonly position: number;
+  readonly text: string;
+}
+
 // The last refusal of a saved row: its position, the parser's reason, and a count that changes on each refusal.
 interface ArgumentRefusal {
   readonly position: number;
   readonly reason: string | undefined;
   readonly attempt: number;
+}
+
+// The pipeline the step holds now. The step sets it after each render, so a list that unmounts reads the pipeline as it
+// is at that moment, not the one the list last rendered: a flow or block deleted in the same step is not written back.
+export const CurrentPipelineContext = createContext<{ readonly current: Pipeline } | undefined>(undefined);
+
+// Whether the holder of a list is still in the pipeline (its flow, and for an Agent its block).
+function holderExists(pipelineState: Pipeline, target: ListTarget): boolean {
+  switch (target.kind) {
+    case 'pipeline':
+      return true;
+    case 'flow':
+      return pipelineState.flows.some((flow) => flow.id === target.flowId);
+    case 'agent':
+      return pipelineState.flows.some(
+        (flow) =>
+          flow.id === target.flowId && flow.blocks.some((block) => block.id === target.blockId && block.kind === 'agent'),
+      );
+  }
+}
+
+// The list with a saved row's edited id written in, or undefined when the row is gone, its id is unchanged, or the parser
+// refuses the id. A refused edit is discarded with no error, as the saved list keeps its id (F-16 AC-023).
+function withEditedId(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  target: ListTarget,
+  edit: SavedEdit,
+): Pipeline | undefined {
+  const saved = argumentsOf(pipelineState, target)[edit.position];
+  if (saved === undefined || edit.text === saved.id) return undefined;
+  const result = editArgumentAt(pipelineState, rules, target, edit.position, {
+    id: edit.text,
+    required: saved.required,
+    hint: saved.hint,
+  });
+  return result.ok ? result.pipeline : undefined;
+}
+
+// The list with a new line added, or undefined when the line is blank or the parser refuses its id. A refused line is
+// discarded with no error (device fix 2026-11-24).
+function withNewLine(
+  pipelineState: Pipeline,
+  rules: readonly Rule[],
+  target: ListTarget,
+  text: string,
+  required: boolean,
+): Pipeline | undefined {
+  if (isEmptyText(text)) return undefined;
+  const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
+  return result.ok ? result.pipeline : undefined;
 }
 
 // Enter ends the edit of a one-line field, as losing focus does. Enter that ends an IME composition is not an edit end.
@@ -273,6 +330,9 @@ export function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 // a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's id: an
 // accepted line is saved with the id as its hint and the required flag the checkbox shows (a new one starts unrequired).
 // A blank line is discarded on blur. A refused id with text discards the line too, with no error (device fix 2026-11-24).
+// A line still open when the list unmounts (another block or flow is selected, or its holder is deleted) is saved as
+// blur would save it, unless its holder is gone. A saved id typed and not yet left is saved the same way, and a refused
+// one is discarded (F-16 AC-023).
 export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
   const styles = getRowEditorStyles(useTheme());
   const idBase = useId();
@@ -281,13 +341,39 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
   const rows = argumentsOf(pipelineState, target);
   const newRefusalId = `${idBase}-new-refusal`;
 
+  const current = useContext(CurrentPipelineContext);
+
+  // The saved id typed and not yet left. It is set on each change and cleared when the field loses focus.
+  const edited = useRef<SavedEdit | undefined>(undefined);
+
+  // The values of the last commit, read when the list unmounts.
+  const latest = useRef({ pipelineState, rules, target, onChange, adding, current });
+  useEffect(() => {
+    latest.current = { pipelineState, rules, target, onChange, adding, current };
+  });
+
+  // A line is held in state until focus leaves it, and so is a saved id. When another block or flow is selected the list
+  // unmounts first, so an accepted line or id is saved then, as losing focus would have saved it (F-16 AC-023). The
+  // pipeline is the step's current one: when the holder was deleted, the line or id goes with it and nothing is written.
+  useEffect(
+    () => () => {
+      const { pipelineState: rendered, rules: ruleList, target: holder, onChange: change, adding: line, current: step } =
+        latest.current;
+      const state = step?.current ?? rendered;
+      if (!holderExists(state, holder)) return;
+      const savedId = edited.current === undefined ? undefined : withEditedId(state, ruleList, holder, edited.current);
+      const base = savedId ?? state;
+      const next = line === undefined ? savedId : (withNewLine(base, ruleList, holder, line.text, line.required) ?? savedId);
+      if (next !== undefined) change(next);
+    },
+    [],
+  );
+
   // A blank line is discarded on blur. A line with text is sent to the parser and discarded when the parser refuses it:
   // a refused text with content reverts to the saved list, with no error (device fix 2026-11-24).
   function commitNew(text: string, required: boolean) {
-    if (!isEmptyText(text)) {
-      const result = addArgumentTo(pipelineState, rules, target, { id: text, required, hint: text });
-      if (result.ok) onChange(result.pipeline);
-    }
+    const next = withNewLine(pipelineState, rules, target, text, required);
+    if (next !== undefined) onChange(next);
     setAdding(undefined);
   }
 
@@ -350,6 +436,8 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
   }
 
   function removeAt(position: number) {
+    // A pending saved id is dropped: the rows after the removed one move up, so its position would name another row.
+    edited.current = undefined;
     onChange(removeArgumentAt(pipelineState, target, position));
     setRefused((current) => removedRefusal(current, position));
   }
@@ -385,7 +473,11 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
                 key={`${item.id}-${isRefused ? refused.attempt : 0}`}
                 defaultValue={item.id}
                 error={reason !== undefined}
+                onChange={(event) => {
+                  edited.current = { position, text: event.target.value };
+                }}
                 onBlur={(event) => {
+                  edited.current = undefined;
                   commitEdit(position, item, event.target.value);
                 }}
                 sx={styles.input}

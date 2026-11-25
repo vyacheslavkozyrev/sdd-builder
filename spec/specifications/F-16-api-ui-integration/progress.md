@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 12 of 13 tasks committed (T013 added by owner blocker 2026-11-25) |
+| Build    | ✅ Complete |      | 13 of 13 tasks committed (T013 added by owner blocker 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -44,6 +44,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T010 | Blocker: the flow Body field accepts typed text. A refused edit no longer clears the body: edits are scoped to their field, a blank-body flow is checked against a never-saved placeholder in the web (parser unchanged), an over-limit body shows the parser reason under the field (AC-020) | 0 blockers; 2 warnings fixed (over-limit reason hidden by the key press in a new flow; artifact and approval edits on a blank-body flow untested); owner decisions applied | task check passed: api 258 of 258, web 1951 of 1951, core 1254 of 1254 |
 | T011 | Blocker: block ids unique across the pipeline; `nextBlockId` checks every flow, and the toolbox no longer makes ids (AC-021) | 0 blockers, 1 warning fixed (the flow's own ids when the list leaves it out), 2 suggestions fixed (a repeat from an earlier session is marked, not extended; arrow wrapping) | task check passed: api 258 of 258, web 1956 of 1956, core 1254 of 1254 |
 | T012 | Builder errors and block panels name flows and blocks, not paths and ids (`builder/problemLabel.ts`; AC-022) | 0 blockers, 2 warnings fixed (a path ending in a list index left a fragment; tests that could not fail on a label mix-up), 2 suggestions fixed; 6 deferred (refusal reasons in fields/blockEnd/blockCondition/blockFields and the analyze findings still show raw ids: owner follow-up) | task check passed: api 258 of 258, web 1975 of 1975, core 1254 of 1254 |
+| T013 | Blocker: arguments kept on selection change; an open new line and an edited saved id are saved when the list unmounts, never into a deleted holder (`RowEditors.tsx`) | 0 blockers; 1 warning fixed (no test for the write order), 3 suggestions fixed; the owner's edited-id case fixed in this task | task check passed: api 258 of 258, web 1989 of 1989, core 1254 of 1254 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -91,6 +92,8 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 (SUGGESTION, deferred): some added lines in `source/apps/web/test/ErrorPanel.test.tsx`, `PipelineStep.test.tsx` and `builder-problem-label.test.ts` are longer than 120 characters. The repository has no formatter configured and existing test files have longer lines too; not reflowed in this task.
 
 ---
+
+- T013 (note): the unmount commit of an open line reads the step's current pipeline (`CurrentPipelineContext`, set in `PipelineStep` by a layout effect), and skips the line when its flow or Agent block was deleted in the same step. Before this, a deleted block or flow was written back with the line (`PipelineStep.test.tsx`, F-16 AC-023 negative cases).
 
 ## Test Results
 

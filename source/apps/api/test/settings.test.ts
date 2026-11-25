@@ -37,6 +37,26 @@ describe('F-14 AC-022 SDDBUILDER_ANALYZER_MODEL', () => {
   });
 });
 
+describe('F-15 AC-023 SDDBUILDER_GENERATOR_MODEL', () => {
+  it.each([
+    ['unset', {}, 'claude-opus-5-5'],
+    ['set to a model name', { SDDBUILDER_GENERATOR_MODEL: 'claude-sonnet-5-5' }, 'claude-sonnet-5-5'],
+    ['an empty string', { SDDBUILDER_GENERATOR_MODEL: '' }, 'claude-opus-5-5'],
+    ['only spaces', { SDDBUILDER_GENERATOR_MODEL: '   ' }, 'claude-opus-5-5'],
+  ])('uses the model when SDDBUILDER_GENERATOR_MODEL is %s', (_label, env: Environment, model) => {
+    expect(readSettings(env).generatorModel).toBe(model);
+  });
+
+  it('F-15 AC-023 the generator model is independent of the analyzer model', () => {
+    const settings = readSettings({
+      SDDBUILDER_ANALYZER_MODEL: 'analyzer-x',
+      SDDBUILDER_GENERATOR_MODEL: 'generator-y',
+    });
+    expect(settings.analyzerModel).toBe('analyzer-x');
+    expect(settings.generatorModel).toBe('generator-y');
+  });
+});
+
 describe('F-14 AC-023 ANTHROPIC_API_KEY is not an error when absent', () => {
   it.each([
     ['unset', {}, undefined],

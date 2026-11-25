@@ -4,6 +4,7 @@
 export interface Settings {
   readonly port: number;
   readonly analyzerModel: string;
+  readonly generatorModel: string;
   readonly apiKey: string | undefined;
 }
 
@@ -11,6 +12,7 @@ export type Environment = Readonly<Record<string, string | undefined>>;
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_ANALYZER_MODEL = 'claude-sonnet-5-5';
+const DEFAULT_GENERATOR_MODEL = 'claude-opus-5-5';
 const MIN_PORT = 1;
 const MAX_PORT = 65535;
 
@@ -28,10 +30,13 @@ function readPort(value: string | undefined): number {
 // A blank model or key (empty, or only spaces) counts as not set: it would otherwise be sent to the provider.
 export function readSettings(env: Environment): Settings {
   const model = env.SDDBUILDER_ANALYZER_MODEL;
+  const generatorModel = env.SDDBUILDER_GENERATOR_MODEL;
   const key = env.ANTHROPIC_API_KEY;
   return {
     port: readPort(env.PORT),
     analyzerModel: model === undefined || model.trim() === '' ? DEFAULT_ANALYZER_MODEL : model,
+    generatorModel:
+      generatorModel === undefined || generatorModel.trim() === '' ? DEFAULT_GENERATOR_MODEL : generatorModel,
     apiKey: key === undefined || key.trim() === '' ? undefined : key,
   };
 }

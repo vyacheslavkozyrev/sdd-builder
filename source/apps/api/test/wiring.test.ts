@@ -10,7 +10,7 @@ import { buildAnalyzeDeps } from '../src/wiring.js';
 const SENTINEL = 'sk-sentinel-F14-key-000';
 
 function settingsWith(apiKey: string | undefined): Settings {
-  return { port: 3000, analyzerModel: 'model-under-test', apiKey };
+  return { port: 3000, analyzerModel: 'model-under-test', generatorModel: 'generator-under-test', apiKey };
 }
 
 // A fake client factory. It records the key it is given and the client it makes; the client records each call and

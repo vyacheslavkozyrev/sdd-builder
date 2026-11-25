@@ -1,0 +1,83 @@
+# User Stories — API and UI integration (F-16)
+
+Feature entry: `spec/documents/features.md` → F-16
+Requirements owned by this feature: R-16-1 (the dev server reaches the API for both calls), R-16-2 (the step shows the real results of a running API), R-16-3 (the owner's end-to-end check of a generated project).
+
+The web app already sends the requests (F-13: `POST /analyze` and `POST /generate` from the analyze step). F-16 connects them to the running API and proves the whole path works. The owner runs the end-to-end check in a browser with a real provider key.
+
+## Out of Scope
+
+- Browser tests (Playwright or similar) and any new test library: the owner runs the end-to-end check by hand.
+- Any change to the requests, the findings list, the gate or the preview: F-13 owns them and is complete.
+- The production build and its hosting: the MVP runs the dev server with the API beside it.
+- Rate limits, daily ceilings and input caps: F-17.
+- Saving projects, autosave and share links: F-08, F-19, F-20 (post MVP).
+- A new API route or a change to the API's reply shapes: F-14 and F-15 are complete.
+
+---
+
+## Stories
+
+Acceptance criteria are tagged by how they are verified:
+
+- `[auto]` — an automated test can prove it.
+- `[device]` — needs a person, a real device, drive or network; verified with a checklist.
+
+Every automated test names the feature and criterion it covers (`F-16 AC-003`).
+
+### US-001: The dev server reaches the API for both calls
+
+**As a** developer running the app
+**I want to** have the browser's calls to `/analyze` and `/generate` reach the API
+**So that** the analyze step works against the real server
+
+**Requirements:** R-16-1
+
+#### Acceptance Criteria
+
+- [ ] AC-001 `[auto]`: the dev server's proxy forwards `/analyze` and `/generate` to the API on the same target (`http://localhost:<PORT>`, the port the API uses, 3000 when unset).
+- [ ] AC-002 `[auto]`: the proxy forwards no other path to the API: a request to another path (for example `/`, `/generate/x` or `/analyzer`) is not forwarded.
+- [ ] AC-003 `[auto]`: the proxy's timeout for both paths is 300 seconds, the same as the API's generation timeout, so a generation that takes minutes is not cut off by the proxy.
+- [ ] AC-004 `[auto]`: the proxy reads `PORT` the way the API does: unset or blank gives 3000, and any other value is used as given.
+
+---
+
+### US-002: The step shows the real results of a running API
+
+**As a** user
+**I want to** run Analyze and Generate and see the real findings and the real zip
+**So that** I can trust the generated project
+
+**Requirements:** R-16-2
+
+#### Acceptance Criteria
+
+- [ ] AC-005 `[device]`: with the API and the dev server running and `ANTHROPIC_API_KEY` set, Analyze on a filled-in brief shows the findings the API returns (the structural findings, then the review findings), and no "not found" text.
+- [ ] AC-006 `[device]`: with `ANTHROPIC_API_KEY` unset, Analyze shows the structural findings and the "did not finish" note (F-13 AC-009), and Generate stays disabled with its reason.
+- [ ] AC-007 `[device]`: with a green analysis, Generate and download saves `sddbuilder-project.zip` through the browser.
+- [ ] AC-008 `[device]`: the saved zip, unpacked, holds the files of the project preview in the same order, and each file has text (none is empty).
+- [ ] AC-009 `[device]`: with the API stopped, Analyze shows a network error as text beside it (F-13 AC-010) and the entered values stay as they were.
+
+---
+
+### US-003: The owner's end-to-end check of a generated project
+
+**As the** owner
+**I want to** generate a project from the browser and check its result
+**So that** I know the whole app works before I rely on it
+
+**Requirements:** R-16-3
+
+#### Acceptance Criteria
+
+- [ ] AC-010 `[device]`: the owner fills in a brief, runs Analyze to a green result, generates the project and checks that the process it describes matches the brief (the owner's judgement, recorded on the checklist).
+
+---
+
+## Requirement Coverage
+
+| Requirement | Covered by |
+|---|---|
+| R-16-1 — the dev server reaches the API for both calls | AC-001, AC-002, AC-003, AC-004 |
+| R-16-2 — the step shows the real results of a running API | AC-005, AC-006, AC-007, AC-008, AC-009 |
+| R-16-3 — the owner's end-to-end check of a generated project | AC-010 |

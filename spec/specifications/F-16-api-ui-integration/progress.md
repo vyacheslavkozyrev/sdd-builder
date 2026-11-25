@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 2 of 3 tasks committed (T003 added by Amendment) |
+| Build    | ✅ Complete |      | 3 of 3 tasks committed (T003 added by Amendment) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -23,7 +23,7 @@ Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional /
 
 ## Current Task
 
-T002 — implemented
+None
 
 _While a task is in flight, this holds its ID and the step reached: `implemented`, `reviewed` or `tested`. Cleared in the commit that completes the task._
 
@@ -35,12 +35,15 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | ---- | ------- | ------ | ----- |
 | T001 | Dev proxy `dev-proxy.ts`: `devProxy(env)` forwards `^/analyze(\?.*)?$` and `^/generate(\?.*)?$` (anchored: Vite treats a plain key as a prefix) to `http://localhost:<PORT>` with timeouts of 300000 ms; `vite.config.ts` calls it | 0 blockers, 1 warning (PORT differs from the API for blank and invalid values; resolved by owner decision, see T003 and the Amendment), 2 suggestions fixed (comment; exact keys asserted) | task check passed: api 246 of 246, web 1916 of 1916, core 1217 of 1217 |
 | T003 | API PORT rule matches the proxy: `readPort` trims, blank gives 3000, a whole number from 1 to 65535 otherwise, else refused naming PORT | 0 blockers, 0 warnings, 1 suggestion fixed (comment), 1 deferred (the proxy passes a non-numeric PORT through; the API refuses it at start; dev-only) | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
+| T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
 
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T002: `architecture.md` decision 13 (about line 131) still says the Vite dev server forwards `/analyze` only. Outside T002's sections (§1 and §5). Needs the same change in a later docs pass.
 
 - T001 (WARNING, unresolved, needs an owner decision): `source/apps/web/dev-proxy.ts` and AC-004 assume the API maps a blank `PORT` to 3000. It does not: `readPort` in `source/apps/api/src/settings.ts` throws on `''`, on a space-padded value and on a non-numeric value, so the API refuses to start. The proxy follows the approved AC-004 wording (blank gives 3000, any other value is used as given, trimmed), so the two differ for blank and invalid values. Fixing the proxy to throw would contradict AC-004; changing the API is outside T001. Options: (a) the API treats a blank `PORT` as unset (small change in F-14's `settings.ts`, with a test), or (b) amend AC-004 to say the API rejects a blank PORT. Impact is dev-only and limited to a misconfigured `PORT`.
 
@@ -51,6 +54,41 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run 2026-11-24 (QA, verify mode). Branch `main`, working tree clean at start.
+
+**Preconditions**: branch and clean tree pass. Plan tasks T001, T002 and T003 are ticked and committed (T002 is in git as `7b9329a`). **Not met:** `Current Task` still reads "None" (the T002 commit did not clear it, as the header requires), and the Build row says "2 of 3 tasks committed". Both are stale bookkeeping; the owner or the caller clears them.
+
+**Check run** (`source/scripts/task-check.sh`, exit 0, no timeouts; log in the session scratchpad):
+
+| Package | Test files | Tests |
+| ------- | ---------- | ----- |
+| api | 17 of 17 | 251 of 251 |
+| web | 84 of 84 | 1916 of 1916 |
+| core | 59 of 59 | 1217 of 1217 |
+
+Typecheck passed for all workspaces. Total: 3384 tests passed, 0 failed.
+
+**Acceptance criteria matrix**
+
+| Criterion | Tag | Covering tests (file › test name) | Result |
+| --------- | --- | --------------------------------- | ------ |
+| AC-001 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-001 forwards /analyze, /analyze?debug=1, /generate to the API`; `F-16 AC-001 targets http://localhost:<PORT> for env {}, {"PORT":"3000"}, {"PORT":"4100"}` | pass (6 tests) |
+| AC-002 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-002 does not forward /, /generate/x, /analyzer, /analyze/x, /src/main.tsx, /api/analyze`; `F-16 AC-002 negative case: the proxy has entries for /analyze and /generate only` | pass (7 tests) |
+| AC-003 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-003 sets 300000 ms on ^/analyze(\?.*)?$`; `... on ^/generate(\?.*)?$` | pass (2 tests) |
+| AC-004 | auto | `source/apps/web/test/dev-proxy.test.ts` › `F-16 AC-004 gives the target for PORT unset, empty, only spaces, a port value, a port with surrounding spaces, a value used as given, not validated`; `source/apps/api/test/settings.test.ts` › `F-16 AC-004 PORT matches the dev proxy` (blank, space-only, space-padded 8080, and refusals of 0, 80.5, abc naming PORT) | pass (6 web tests, 6 API tests) |
+| AC-005 | device | Manual checklist item 1 | pending |
+| AC-006 | device | Manual checklist item 2 | pending |
+| AC-007 | device | Manual checklist item 3 | pending |
+| AC-008 | device | Manual checklist item 4 | pending |
+| AC-009 | device | Manual checklist item 5 | pending |
+| AC-010 | device | Manual checklist item 6 | pending |
+
+Gaps: none for the `[auto]` criteria. Failing tests: none.
+
+Scope check (`spec/documents/features.md` F-16): "the step sends the configuration, shows findings, generates and downloads" is covered by AC-005 (findings), AC-007 (generate and download) and AC-001 to AC-004 (the calls reach the API). The error text for 400, 422, 429, 500 and 502 is owned by F-13 and no F-16 criterion covers it; AC-009 covers the network case on the checklist.
+
+**Manual checklist**: `spec/specifications/F-16-api-ui-integration/checklist.md`, 6 items, all pending. Verify is **AWAITING CONFIRMATION** for these items; it is not complete.
 
 ---
 

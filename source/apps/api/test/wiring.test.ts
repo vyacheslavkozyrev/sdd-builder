@@ -2,12 +2,22 @@ import type Anthropic from '@anthropic-ai/sdk';
 import { pipeline } from '@sddbuilder/core';
 import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
+import type { GenerationTemplates } from '../src/generate/load-templates.js';
 import type { ReviewClient } from '../src/review/anthropic.js';
 import type { Settings } from '../src/settings.js';
-import { buildAnalyzeDeps } from '../src/wiring.js';
+import { buildDeps } from '../src/wiring.js';
 
 // A sentinel key stands in for a real one. No test reaches the network: the client is a fake.
 const SENTINEL = 'sk-sentinel-F14-key-000';
+
+// Fixed layouts given as data: no template file is read.
+const TEMPLATES: GenerationTemplates = {
+  base: [{ path: 'CLAUDE.md', layout: 'Project instructions.' }],
+  pipeline: 'Pipeline.',
+  flow: 'Flow.',
+  agent: 'Agent.',
+  rule: 'Rule.',
+};
 
 function settingsWith(apiKey: string | undefined): Settings {
   return { port: 3000, analyzerModel: 'model-under-test', generatorModel: 'generator-under-test', apiKey };
@@ -60,7 +70,7 @@ describe('F-14 AC-023 wiring without ANTHROPIC_API_KEY', () => {
   it('F-14 AC-023 with no key the client factory is never called and the analysis runs with no model', async () => {
     const { factory, keys } = fakeFactory();
     const lines: string[] = [];
-    const deps = buildAnalyzeDeps(settingsWith(undefined), factory, (line) => lines.push(line));
+    const deps = buildDeps(settingsWith(undefined), factory, TEMPLATES, (line) => lines.push(line));
     const response = await postConfig(createApp(deps), JSON.stringify(validConfig()));
 
     expect(keys).toEqual([]);
@@ -71,9 +81,9 @@ describe('F-14 AC-023 wiring without ANTHROPIC_API_KEY', () => {
 
   it('F-14 AC-023 the startup log line names ANTHROPIC_API_KEY as missing', () => {
     const lines: string[] = [];
-    buildAnalyzeDeps(settingsWith(undefined), fakeFactory().factory, (line) => lines.push(line));
+    buildDeps(settingsWith(undefined), fakeFactory().factory, TEMPLATES, (line) => lines.push(line));
 
-    expect(lines).toEqual(['startup review=off missing=ANTHROPIC_API_KEY']);
+    expect(lines).toEqual(['startup review=off generation=off missing=ANTHROPIC_API_KEY']);
     expect(lines.join('\n')).toContain('ANTHROPIC_API_KEY');
   });
 });
@@ -81,7 +91,7 @@ describe('F-14 AC-023 wiring without ANTHROPIC_API_KEY', () => {
 describe('F-14 AC-024 the key goes to the client factory only', () => {
   it('F-14 AC-024 with a key the factory is given the key once and the model calls the client with the analyzer model', async () => {
     const { factory, keys, calls } = fakeFactory();
-    const deps = buildAnalyzeDeps(settingsWith(SENTINEL), factory, () => undefined);
+    const deps = buildDeps(settingsWith(SENTINEL), factory, TEMPLATES, () => undefined);
     const response = await postConfig(createApp(deps), JSON.stringify(validConfig()));
 
     expect(response.status).toBe(200);
@@ -94,7 +104,7 @@ describe('F-14 AC-024 the key goes to the client factory only', () => {
 
   it('F-14 AC-024 the sentinel key appears in no response of the app, on success, 400, 404 or 405', async () => {
     const { factory } = fakeFactory();
-    const app = createApp(buildAnalyzeDeps(settingsWith(SENTINEL), factory, () => undefined));
+    const app = createApp(buildDeps(settingsWith(SENTINEL), factory, TEMPLATES, () => undefined));
     const responses = [
       await postConfig(app, JSON.stringify(validConfig())),
       await postConfig(app, '{"not": "a config"'),
@@ -112,13 +122,76 @@ describe('F-14 AC-024 the key goes to the client factory only', () => {
   it('F-14 AC-024 the sentinel key appears in no log line, even when the review call throws an error that carries it', async () => {
     const { factory } = fakeFactory({ throwsSentinel: true });
     const lines: string[] = [];
-    const deps = buildAnalyzeDeps(settingsWith(SENTINEL), factory, (line) => lines.push(line));
+    const deps = buildDeps(settingsWith(SENTINEL), factory, TEMPLATES, (line) => lines.push(line));
     const app = createApp(deps);
     const response = await postConfig(app, JSON.stringify(validConfig()));
     await postConfig(app, '{"not": "a config"');
 
     expect(response.status).toBe(200);
     expect(lines.length).toBeGreaterThan(0);
+    for (const line of lines) {
+      expect(line).not.toContain(SENTINEL);
+    }
+  });
+});
+
+async function postGenerate(app: ReturnType<typeof createApp>, body: string) {
+  return app.request('/generate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+  });
+}
+
+describe('F-15 AC-022 generation without ANTHROPIC_API_KEY', () => {
+  it('F-15 AC-022 with no key POST /generate gives 503 with an error and the client factory is never called', async () => {
+    const { factory, keys, calls } = fakeFactory();
+    const response = await postGenerate(
+      createApp(buildDeps(settingsWith(undefined), factory, TEMPLATES, () => undefined)),
+      JSON.stringify(validConfig()),
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toHaveProperty('error');
+    expect(keys).toEqual([]);
+    expect(calls).toEqual([]);
+  });
+});
+
+describe('F-15 AC-023 the generation model is the generator model setting', () => {
+  it('F-15 AC-023 every generation call names settings.generatorModel', async () => {
+    const { factory, calls } = fakeFactory();
+    const response = await postGenerate(
+      createApp(buildDeps(settingsWith(SENTINEL), factory, TEMPLATES, () => undefined)),
+      JSON.stringify(validConfig()),
+    );
+
+    expect(response.status).toBe(502);
+    expect(calls.length).toBeGreaterThan(0);
+    for (const call of calls) {
+      expect(call.body.model).toBe('generator-under-test');
+    }
+  });
+});
+
+describe('F-15 AC-024 generation keeps the key server-side', () => {
+  it('F-15 AC-024 the sentinel key appears in no generate response or log line, even when the provider error carries it', async () => {
+    const { factory, keys } = fakeFactory({ throwsSentinel: true });
+    const lines: string[] = [];
+    const app = createApp(buildDeps(settingsWith(SENTINEL), factory, TEMPLATES, (line) => lines.push(line)));
+    const responses = [
+      await postGenerate(app, JSON.stringify(validConfig())),
+      await postGenerate(app, '{"not": "a config"'),
+      await app.request('/generate', { method: 'GET' }),
+    ];
+
+    const texts = await Promise.all(responses.map((response) => response.text()));
+    expect(keys).toEqual([SENTINEL]);
+    expect(responses.map((response) => response.status)).toEqual([502, 400, 405]);
+    for (const text of texts) {
+      expect(text).not.toContain(SENTINEL);
+    }
+    expect(lines).toContain('route=/generate event=provider-error status=502');
     for (const line of lines) {
       expect(line).not.toContain(SENTINEL);
     }

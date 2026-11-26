@@ -83,6 +83,43 @@ function renderPanel(pipelineState: Pipeline, blockId = 'f09bba4a-ce3a-507e-9c22
   return { onChange };
 }
 
+// F-16 AC-030: the plan pipeline with the planner's name blanked, and the planner's flow and block.
+function blankPlannerPanel() {
+  const pipelineState = planPipeline();
+  const blank: Pipeline = {
+    ...pipelineState,
+    flows: pipelineState.flows.map((flow) => ({
+      ...flow,
+      blocks: flow.blocks.map((block) =>
+        block.kind === 'agent' && block.id === 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0' ? { ...block, name: '' } : block,
+      ),
+    })),
+  };
+  const flow = blank.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
+  if (flow === undefined) throw new Error('no plan flow in the test pipeline');
+  return { blank, flow, block: agentOf(blank, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0') };
+}
+
+// F-16 AC-030: a new Agent's panel shows an empty Name field and no id.
+describe('F-16 AC-030 (UI) a blank Agent name in its panel', () => {
+  it('F-16 AC-030 (UI) shows an empty Name field and no id for an Agent with a blank name', () => {
+    const { blank, flow, block } = blankPlannerPanel();
+    const { container } = render(<AgentPanel pipelineState={blank} rules={[]} flow={flow} block={block} onChange={vi.fn()} />);
+    expect(screen.getByLabelText('Name')).toHaveProperty('value', '');
+    expect(container.textContent).not.toContain('f09bba4a-ce3a-507e-9c22-6f1aa828c2a0');
+  });
+
+  it('F-16 AC-030 (UI) names a blank Agent "Agent" in the Delete block confirmation, never its id', () => {
+    const { blank, flow, block } = blankPlannerPanel();
+    render(<AgentPanel pipelineState={blank} rules={[]} flow={flow} block={block} onChange={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
+
+    expect(screen.getByRole('dialog', { name: "Delete block 'Agent'?" })).toBeTruthy();
+    expect(document.body.textContent).not.toContain('f09bba4a-ce3a-507e-9c22-6f1aa828c2a0');
+  });
+});
+
 // The parser's reason for an edit of the planner's field, which the panel must show exactly. The edit is
 // expected to be refused.
 function parserReason(pipelineState: Pipeline, change: Parameters<typeof editAgentField>[4]): string {

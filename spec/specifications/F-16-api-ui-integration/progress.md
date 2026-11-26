@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 21 of 22 tasks committed (T022 added by owner bugs 2026-11-25) |
+| Build    | ✅ Complete |      | 22 of 22 tasks committed (T022 added by owner bugs 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -48,6 +48,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T014 | Blocker: the End's Produced artifact control shows the saved value; a blank value shows a placeholder and the required reason, and a stale saved artifact stays shown (AC-024) | 0 blockers, 1 warning fixed (a stale saved artifact was shown as another one) | task check passed: api 258 of 258, web 1995 of 1995, core 1254 of 1254 |
 | T015 | Blockers: the pipeline Name (and every builder edit) states its refusal scope; a keystroke is refused only for a problem at its own path, or a new uniqueness clash (AC-025). The argument loss (AC-023) is not reproduced: owner steps requested | 0 blockers left after review (1 fixed: a repeated artifact label accepted; 1 warning fixed: a misleading round-limit reason; 2 suggestions fixed) | task check passed: api 258 of 258, web 2017 of 2017, core 1254 of 1254 |
 | T016 | Blocker: a new argument's id is generated from the typed name (`F-XX` gives `f-xx`); a refused line stays open with the parser's reason, not dropped (AC-026) | 0 blockers; 2 warnings fixed (ui.md description; digit-start test), 2 suggestions fixed (test names); ASCII-id note deferred for owner confirmation | task check passed: api 258 of 258, web 2024 of 2024, core 1254 of 1254 |
+| T022 | Owner bugs: rule dropdowns show rule titles (values stay ids); a blank Agent name shows no id on the card, arrow panel or delete title (AC-030) | 0 blockers; 1 warning fixed (delete title test), 1 suggestion fixed; 1 deferred (two blank Agents read `Agent`) | task check passed: api 258 of 258, web 2040 of 2040, core 1272 of 1272 |
 | T017 to T021 | Every id is a generated GUID (AC-027, AC-028, AC-029): the parser accepts only GUIDs and keeps uniqueness; command and rule file names come from names (blank and clashing names are blockers); rule tags name rule files; the default pipeline has GUIDs; the builder generates ids and shows no id input; the wizard's rule file line uses core's name. One commit by owner approval | Review of the whole change: 1 blocker fixed (rule-block preview crash), 1 warning fixed (agent name message), comments fixed; the wizard rule name warning resolved by owner decision; 2 owner follow-ups recorded (GUIDs shown in process.md and pipeline.md; the 60-character file-name message) | task check passed: api 258 of 258, web 2032 of 2032, core 1272 of 1272 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
@@ -56,6 +57,8 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 ## Deferred Findings
 
 _Review suggestions intentionally not applied, with the reason._
+
+- T022 (SUGGESTION, deferred): `source/apps/web/src/builder/blockArrows.ts` `blockName` shows a blank Agent as `Agent` (arrow panel, delete title, Condition subtitle), so two blank Agents read the same. `problemLabel.ts` numbers them (`Agent N`). Numbering would need the block's ordinal passed to `blockName` at every call site; left for a later pass since AC-030 only requires no id.
 
 - T002: `architecture.md` decision 13 (about line 131) still says the Vite dev server forwards `/analyze` only. Outside T002's sections (§1 and §5). Needs the same change in a later docs pass.
 

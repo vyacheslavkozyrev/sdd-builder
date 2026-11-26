@@ -441,6 +441,56 @@ describe('F-11 AC-043 pipeline argument rows', () => {
   });
 });
 
+// The texts and values of a dropdown's options (F-16 AC-030): the value is the rule id, the text is its title.
+function optionsOf(select: HTMLElement): { text: string; value: string }[] {
+  return Array.from((select as HTMLSelectElement).options).map((option) => ({ text: option.text, value: option.value }));
+}
+
+describe('F-16 AC-030 rule dropdown options', () => {
+  it('F-16 AC-030 shows each rule title as the option text and keeps the rule id as the value', () => {
+    renderTags(basePipeline());
+    expect(optionsOf(screen.getByLabelText('Rule tag 1 rule'))).toEqual([
+      { text: 'General', value: '1b206118-4f23-5ed9-8340-8256dd24178c' },
+      { text: 'QA', value: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' },
+    ]);
+  });
+
+  it('F-16 AC-030 shows the rule titles in the dropdown of a new rule tag', () => {
+    renderTags(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add rule tag' }));
+    expect(optionsOf(screen.getByLabelText('New rule tag rule')).slice(1)).toEqual([
+      { text: 'General', value: '1b206118-4f23-5ed9-8340-8256dd24178c' },
+      { text: 'QA', value: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' },
+    ]);
+  });
+
+  it('F-16 AC-030 shows the position of a rule with a blank title, not its id', () => {
+    const onChange = vi.fn();
+    const blankTitle: Rule[] = [RULES[0] as Rule, { ...(RULES[1] as Rule), title: '  ' }];
+    render(
+      <RuleTagRows
+        pipelineState={basePipeline()}
+        rules={blankTitle}
+        target={{ kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }}
+        onChange={onChange}
+      />,
+    );
+    expect(optionsOf(screen.getByLabelText('Rule tag 1 rule')).map((option) => option.text)).toEqual(['General', 'Rule 2']);
+    expect(screen.queryByText('2146d294-d7bb-5ff8-af8d-1981e7f569d7')).toBeNull();
+  });
+
+  it('F-16 AC-030 shows a missing rule, not the id, for a saved tag that is no longer a rule', () => {
+    const missing = pipelineOf({
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
+      ruleTags: [{ index: 0, ruleId: '7c1e2f0a-3b4d-5e6f-8a9b-0c1d2e3f4a5b' }],
+    });
+    renderTags(missing);
+    const select = screen.getByLabelText('Rule tag 1 rule') as HTMLSelectElement;
+    expect(select.value).toBe('7c1e2f0a-3b4d-5e6f-8a9b-0c1d2e3f4a5b');
+    expect(select.selectedOptions[0]?.text).toBe('Missing rule');
+  });
+});
+
 describe('F-11 AC-026 rule tag rows', () => {
   it('F-11 AC-026 shows a dropdown that offers only the rules of the Technical details step', () => {
     renderTags(basePipeline());

@@ -211,8 +211,8 @@ describe('F-12 AC-011 arrow panel data', () => {
     expect(arrowPanel(flow, arrow)).toEqual({ source, target });
   });
 
-  it('F-12 AC-011 falls back to the id for an Agent with a blank name', () => {
-    expect(blockName(agent('bd340ac7-507d-5fab-92e1-ff4770993105', '', ''))).toBe('bd340ac7-507d-5fab-92e1-ff4770993105');
+  it('F-16 AC-030 names an Agent with a blank name plainly, never with its id', () => {
+    expect(blockName(agent('bd340ac7-507d-5fab-92e1-ff4770993105', '', ''))).toBe('Agent');
   });
 
   it('F-12 AC-011 names a Condition without a description plainly', () => {

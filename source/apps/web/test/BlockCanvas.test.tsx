@@ -99,6 +99,21 @@ describe('F-12 AC-010 (UI) the heading and the count line', () => {
   });
 });
 
+describe('F-16 AC-030 (UI) a blank Agent name on the canvas', () => {
+  it('F-16 AC-030 (UI) shows no name and no id on the card of a new Agent', () => {
+    const flow: Flow = {
+      ...loopFlow,
+      blocks: loopFlow.blocks.map((block) => (block.kind === 'agent' ? { ...block, name: '' } : block)),
+    };
+    const { container } = renderWithTheme(
+      <BlockCanvas flow={flow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('button', { name: 'Agent block' })).toBeTruthy();
+    expect(container.textContent).not.toContain('3c045e8c-3b6a-5804-b19c-75424d4e43aa');
+    expect(container.textContent).not.toContain('planner');
+  });
+});
+
 describe('F-12 AC-007 AC-008 (UI) drawn blocks and arrows', () => {
   it('F-12 AC-007 (UI) draws each block with its kind and its text', () => {
     renderWithTheme(<BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />);

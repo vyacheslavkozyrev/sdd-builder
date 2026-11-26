@@ -127,6 +127,16 @@ function argumentsOf(pipelineState: Pipeline, target: ListTarget): readonly Argu
   }
 }
 
+// The text a rule dropdown shows for a rule id (F-16 AC-030): the rule's title, or "Rule N" for its position when the
+// title is blank. The id is the option's value only, never its text. A saved id that is no longer a rule shows as
+// a missing rule.
+function ruleOptionText(rules: readonly Rule[], ruleId: string): string {
+  const position = rules.findIndex((rule) => rule.id === ruleId);
+  const rule = rules[position];
+  if (rule === undefined) return 'Missing rule';
+  return rule.title.trim() === '' ? `Rule ${position + 1}` : rule.title;
+}
+
 function tagsOf(pipelineState: Pipeline, target: ListTarget): readonly RuleTagValue[] {
   switch (target.kind) {
     case 'pipeline':
@@ -700,7 +710,7 @@ export function RuleTagRows({ target, pipelineState, rules, onChange }: TargetLi
               >
                 {optionsFor(tag.ruleId).map((ruleId) => (
                   <option key={ruleId} value={ruleId}>
-                    {ruleId}
+                    {ruleOptionText(rules, ruleId)}
                   </option>
                 ))}
               </TextField>
@@ -736,7 +746,7 @@ export function RuleTagRows({ target, pipelineState, rules, onChange }: TargetLi
               <option value="" />
               {ruleIds.map((ruleId) => (
                 <option key={ruleId} value={ruleId}>
-                  {ruleId}
+                  {ruleOptionText(rules, ruleId)}
                 </option>
               ))}
             </TextField>

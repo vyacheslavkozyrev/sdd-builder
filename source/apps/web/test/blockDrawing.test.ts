@@ -98,6 +98,17 @@ describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input
   });
 });
 
+describe('F-16 AC-030 (data) a blank Agent name', () => {
+  it('F-16 AC-030 (data) gives a blank Agent an empty name and an accessible name with no id', () => {
+    const flow: Flow = {
+      ...loopFlow,
+      blocks: loopFlow.blocks.map((block) => (block.kind === 'agent' ? { ...block, name: '' } : block)),
+    };
+    const agent = blockDrawingOf(flow).blocks.find((block) => block.kind === 'agent');
+    expect(agent).toMatchObject({ name: '', accessibleName: 'Agent block' });
+  });
+});
+
 describe('F-12 AC-007 (logic) block shapes and their text', () => {
   it('F-12 AC-007 (logic) names Start and End and gives a Condition whose false route returns its description below it', () => {
     const [start, agent, condition, end] = blockDrawingOf(loopFlow).blocks;

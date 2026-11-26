@@ -46,7 +46,7 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 - [x] T020 [Core] The default pipeline (`source/templates/pipeline/default.json`) and every template or fixture id become GUIDs, with the tests that read them (F-02, F-04, F-05, F-06 expectations that name ids change); the generated output is still deterministic (the GUIDs are fixed in the template, not generated at run time) — covers AC-027 (the template side)
 - [x] T021 [Docs] `spec/documents/architecture.md` (§3 and §12, the id rules) and `spec/documents/ui.md` (the id fields are removed from the builder screens) and `spec/documents/pipeline-schema.md` (the GUID rule) describe the GUID ids and the name-based file names — covers no criterion (docs)
 
-- [ ] T022 [Web] Bugs (owner, 2026-11-25): (1) the rule dropdowns (`RowEditors.tsx`, the rule-tag and rule-list selects) show each rule's id; they show the rule's title, and the value stays the id. (2) A new Agent block shows its id on the canvas and in its panel when its name is blank; the name stays empty and nothing shows an id in its place. Tests `F-16 AC-030`. Covers AC-030
+- [x] T022 [Web] Bugs (owner, 2026-11-25): (1) the rule dropdowns (`RowEditors.tsx`, the rule-tag and rule-list selects) show each rule's id; they show the rule's title, and the value stays the id. (2) A new Agent block shows its id on the canvas and in its panel when its name is blank; the name stays empty and nothing shows an id in its place. Tests `F-16 AC-030`. Covers AC-030
 
 ## Rationale
 

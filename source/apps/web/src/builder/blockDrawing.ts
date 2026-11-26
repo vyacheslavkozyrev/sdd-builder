@@ -318,7 +318,7 @@ function accessibleBlockName(block: Block): string {
     case 'end':
       return 'End block';
     case 'agent':
-      return `Agent block: ${blockName(block)}`;
+      return block.name === '' ? 'Agent block' : `Agent block: ${block.name}`;
     case 'condition':
       return block.description === '' ? 'Condition block' : `Condition block: ${block.description}`;
   }
@@ -406,7 +406,7 @@ export function blockDrawingOf(
       captionX: captionX.x,
       captionY: captionYOf(block, placed.cy, returns > 0),
       captionAnchor: captionX.anchor,
-      name: block.kind === 'agent' ? cutText(blockName(block), nameLimit) : '',
+      name: block.kind === 'agent' ? cutText(block.name, nameLimit) : '',
       summary: block.kind === 'agent' ? cutText(block.description, summaryLimit) : '',
       accessibleName: accessibleBlockName(block),
     };

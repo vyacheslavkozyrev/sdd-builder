@@ -106,7 +106,7 @@ export function flowArrows(flow: Flow): readonly BlockArrow[] {
   return arrows;
 }
 
-// The name of a block as the arrow panel shows it: an Agent's name (its id while blank), "Start",
+// The name of a block as the arrow panel shows it: an Agent's name ("Agent" while blank, never its id), "Start",
 // "End", and a Condition with its description.
 export function blockName(block: Block): string {
   switch (block.kind) {
@@ -115,7 +115,7 @@ export function blockName(block: Block): string {
     case 'end':
       return 'End';
     case 'agent':
-      return block.name === '' ? block.id : block.name;
+      return block.name === '' ? 'Agent' : block.name;
     case 'condition':
       return block.description === '' ? 'Condition' : `Condition: ${block.description}`;
   }

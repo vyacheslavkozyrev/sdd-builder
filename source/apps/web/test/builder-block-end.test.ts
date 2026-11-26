@@ -114,7 +114,7 @@ describe('F-12 AC-035 End outcome: done or stopped, a new End starts done', () =
   });
 });
 
-describe('F-12 AC-036 End produced artifact: one of the flow outcome artifacts, required', () => {
+describe('F-12 AC-036 End produced artifact: one of the flow outcome artifacts, or none', () => {
   it('F-12 AC-036 offers the outcome artifact labels of the flow, in order, with no "none"', () => {
     const planFlow = flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', [
       { label: 'plan.md', template: 'the plan' },
@@ -163,9 +163,21 @@ describe('F-12 AC-036 End produced artifact: one of the flow outcome artifacts, 
     });
   });
 
-  it('F-12 AC-036 refuses a blank produced artifact, since the field is required', () => {
+  it('F-16 AC-024 accepts a blank produced artifact (None): the End produces no artifact', () => {
     const result = editEndArtifact(specifyPipeline([]), RULES, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '5f555f10-723d-5e0b-94a7-3933be0a0850', '');
-    expect(result).toEqual({ ok: false, field: 'producedArtifact', reason: 'must be at least 1 character' });
+    if (!result.ok) throw new Error(`the parser refused None: ${result.reason}`);
+    expect(blocksOf(result.pipeline, '2d8eebb4-9a34-5eae-ae8d-88813520de08')[0]).toEqual({
+      index: 0,
+      id: '5f555f10-723d-5e0b-94a7-3933be0a0850',
+      kind: 'end',
+      outcome: 'done',
+      producedArtifact: '',
+    });
+  });
+
+  it('F-16 AC-024 refuses a label that is not an artifact of the flow, with the parser reason', () => {
+    const result = editEndArtifact(specifyPipeline([]), RULES, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '5f555f10-723d-5e0b-94a7-3933be0a0850', 'report.md');
+    expect(result).toEqual({ ok: false, field: 'producedArtifact', reason: 'must name an artifact of this flow, got report.md' });
   });
 });
 

@@ -104,7 +104,8 @@ export function editEndOutcome(
 }
 
 // Sets the produced artifact of the End `blockId` of the flow `flowId` to one of the flow's outcome artifact
-// labels (AC-036). Any other label is refused by the parser with its reason, and the saved End keeps its value.
+// labels (AC-036), or to '' for None: an End that produces no artifact (F-16 AC-024). Any other label is refused by
+// the parser with its reason, and the saved End keeps its value.
 export function editEndArtifact(
   pipelineState: Pipeline,
   rules: readonly Rule[],

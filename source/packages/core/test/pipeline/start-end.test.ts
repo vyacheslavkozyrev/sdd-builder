@@ -81,7 +81,7 @@ describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifa
     });
   });
 
-  it.each(['id', 'kind', 'outcome', 'producedArtifact'])('refuses an end missing %s at the block path', (key) => {
+  it.each(['id', 'kind', 'outcome'])('refuses an end missing %s at the block path', (key) => {
     const value: Record<string, unknown> = { ...validEnd };
     delete value[key];
     expect(readE(value)).toEqual({
@@ -122,12 +122,30 @@ describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifa
     });
   });
 
-  it('refuses an empty producedArtifact at the path of producedArtifact', () => {
+  it('F-16 AC-024 accepts an empty producedArtifact as an end that produces no artifact', () => {
     expect(readE({ ...validEnd, producedArtifact: '' })).toEqual({
-      block: undefined,
-      problems: [
-        { path: `${END}.producedArtifact`, message: 'must be at least 1 character' },
-      ],
+      block: { index: 5, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: '' },
+      problems: [],
+    });
+  });
+
+  it.each([[' '], ['\n \t']])('F-16 AC-024 reads the blank producedArtifact %j as no artifact', (blank) => {
+    expect(readE({ ...validEnd, producedArtifact: blank })).toEqual({
+      block: { index: 5, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: '' },
+      problems: [],
+    });
+  });
+
+  it('F-16 AC-024 reads the text none as a label; the check refuses it unless an artifact is labelled none', () => {
+    expect(readE({ ...validEnd, producedArtifact: 'none' }).block?.producedArtifact).toBe('none');
+  });
+
+  it('F-16 AC-024 accepts an end with no producedArtifact key, read as no artifact', () => {
+    const withoutKey: Record<string, unknown> = { ...validEnd };
+    delete withoutKey.producedArtifact;
+    expect(readE(withoutKey)).toEqual({
+      block: { index: 5, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: '' },
+      problems: [],
     });
   });
 

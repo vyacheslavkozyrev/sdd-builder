@@ -175,7 +175,8 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 #### Acceptance Criteria
 
-- [ ] AC-024 `[auto]`: an End block whose produced artifact is blank shows a blank placeholder in the Produced artifact control and the required reason under it; the control shows an artifact only when that artifact is saved.
+- [ ] AC-024 `[auto]`: the produced artifact of an End is optional. An End whose produced artifact is blank produces no artifact: the Produced artifact control offers `None` (the blank value), shows it for a blank End with no reason, and a blank End is valid through the parser, the check and the generator (a plain End step). The control shows an artifact only when that artifact is saved.
+- [ ] AC-031 `[auto]`: choosing an artifact, or `None`, in an End block's Produced artifact control saves it at once; the saved value is shown in the control, and the saved pipeline passes `pipeline.parseProjectConfig`. This holds for a new End, for a second End added after the first, and for an End in a flow whose artifact was added after the End.
 
 ---
 
@@ -250,7 +251,7 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-8 — block ids are unique across the pipeline | AC-021 |
 | R-16-9 — error messages name flows and blocks | AC-022 |
 | R-16-10 — arguments are kept when the selection changes | AC-023 |
-| R-16-11 — the End block shows its saved artifact | AC-024 |
+| R-16-11 — the End block shows its saved artifact | AC-024, AC-031 |
 | R-16-12 — the pipeline fields can be typed into | AC-025 |
 | R-16-13 — a refused new argument is shown, not dropped | AC-026 |
 | R-16-14 — every id is a generated GUID | AC-027, AC-028, AC-029 |

@@ -55,7 +55,6 @@ describe('F-02 AC-040 a flow has at least two blocks', () => {
       blocks: [{ ...validStart, index: 0 }],
       problems: [
         { path: `${BLOCKS}.1`, message: 'is missing the key outcome' },
-        { path: `${BLOCKS}.1`, message: 'is missing the key producedArtifact' },
       ],
     });
   });
@@ -169,7 +168,6 @@ describe('F-02 blocks: the list keeps the blocks that parse, in order', () => {
     expect(result.blocks).toEqual([{ ...validStart, index: 0 }, { ...validEnd, index: 2 }]);
     expect(result.problems).toEqual([
       { path: `${BLOCKS}.1`, message: 'is missing the key outcome' },
-      { path: `${BLOCKS}.1`, message: 'is missing the key producedArtifact' },
     ]);
   });
 });

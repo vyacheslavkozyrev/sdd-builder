@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { editAgentField } from '../src/builder/blockFields.js';
 import { AgentPanel, ConditionPanel, EndPanel, StartPanel } from '../src/builder/BlockPanel.js';
 import { editConditionDescription, setConditionRoundLimit } from '../src/builder/blockCondition.js';
-import { editEndArtifact } from '../src/builder/blockEnd.js';
 import type { Pipeline } from '../src/builder/fields.js';
 
 // The Agent panel is rendered in the DOM, so this file runs in jsdom (architecture.md §5).
@@ -821,7 +820,7 @@ describe('F-12 AC-036 End produced artifact', () => {
     }));
     renderEnd(pipelineState);
 
-    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
+    expect(optionValues('Produced artifact')).toEqual(['', 'plan.md', 'notes.md']);
   });
 
   it('F-12 AC-036 saves a chosen artifact label through the parser', () => {
@@ -839,23 +838,6 @@ describe('F-12 AC-036 End produced artifact', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
     expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').producedArtifact).toBe('notes.md');
-  });
-
-  it('F-12 AC-036 refuses an empty produced artifact with the parser reason, and keeps the saved one', () => {
-    const pipelineState = planPipeline();
-    const refused = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
-    if (refused.ok) throw new Error('the parser accepted an empty produced artifact');
-    const { onChange } = renderEnd(pipelineState);
-
-    // A value that no option carries leaves the select with the empty value, as a refused choice would.
-    fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: '' } });
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(refused.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBe(
-      'block-end-producedArtifact-refusal',
-    );
-    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'plan.md');
   });
 
   it('F-12 AC-036 shows the empty text in place of the choices when the flow has no outcome artifacts', () => {
@@ -886,13 +868,13 @@ function blankEndPipeline(): Pipeline {
 }
 
 describe('F-16 AC-024 End produced artifact placeholder', () => {
-  it('F-16 AC-024 shows the blank placeholder for a new End and saves nothing', () => {
+  it('F-16 AC-024 shows None first for a new End and saves nothing', () => {
     const pipelineState = blankEndPipeline();
     const { onChange } = renderEnd(pipelineState);
 
     const select = screen.getByLabelText('Produced artifact');
     expect(optionValues('Produced artifact')).toEqual(['', 'plan.md', 'notes.md']);
-    expect(select.querySelector('option')?.textContent).toBe('Choose an artifact');
+    expect(select.querySelector('option')?.textContent).toBe('None');
     expect(select).toHaveProperty('value', '');
     expect(onChange).not.toHaveBeenCalled();
   });
@@ -929,33 +911,26 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
       />,
     );
     expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'notes.md');
-    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
-    expect(screen.queryByText('Choose an artifact')).toBeNull();
+    expect(optionValues('Produced artifact')).toEqual(['', 'plan.md', 'notes.md']);
+    expect(screen.getByText('None')).toBeTruthy();
   });
 
-  it('F-16 AC-024 shows the required reason under a blank End, with the control described by it', () => {
-    const pipelineState = blankEndPipeline();
-    const required = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
-    if (required.ok) throw new Error('the parser accepted a blank produced artifact');
-    renderEnd(pipelineState);
+  it('F-16 AC-024 a blank End shows no reason: the produced artifact is optional', () => {
+    renderEnd(blankEndPipeline());
 
-    expect(screen.getByText(required.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBe(
-      'block-end-producedArtifact-refusal',
-    );
+    expect(screen.queryByText(/must be at least 1 character/)).toBeNull();
+    expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBeNull();
   });
 
-  it('F-16 AC-024 refuses the placeholder when it is picked again, and keeps the blank saved value', () => {
-    const pipelineState = blankEndPipeline();
-    const refused = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
-    if (refused.ok) throw new Error('the parser accepted a blank produced artifact');
+  it('F-16 AC-024 picking None saves a blank produced artifact and shows no reason', () => {
+    const pipelineState = planPipeline();
     const { onChange } = renderEnd(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Produced artifact'), { target: { value: '' } });
 
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByText(refused.reason)).toBeTruthy();
-    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', '');
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const saved = onChange.mock.calls[0]?.[0] as Pipeline;
+    expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').producedArtifact).toBe('');
   });
 
   it('F-16 AC-024 shows the saved artifact when the flow no longer has it, not another artifact', () => {
@@ -965,15 +940,15 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
     }));
     renderEnd(pipelineState);
 
-    expect(optionValues('Produced artifact')).toEqual(['plan.md', 'notes.md']);
+    expect(optionValues('Produced artifact')).toEqual(['', 'plan.md', 'notes.md']);
     expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'plan.md');
-    expect(screen.queryByText('Choose an artifact')).toBeNull();
+    expect(screen.getByText('None')).toBeTruthy();
   });
 
-  it('F-16 AC-024 shows no placeholder and no reason when the End has a produced artifact', () => {
+  it('F-16 AC-024 shows the saved artifact and no reason when the End has a produced artifact', () => {
     renderEnd(planPipeline());
 
-    expect(screen.queryByText('Choose an artifact')).toBeNull();
+    expect(screen.getByLabelText('Produced artifact')).toHaveProperty('value', 'plan.md');
     expect(screen.getByLabelText('Produced artifact').getAttribute('aria-describedby')).toBeNull();
   });
 });

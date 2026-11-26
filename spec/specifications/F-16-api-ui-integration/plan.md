@@ -48,6 +48,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T022 [Web] Bugs (owner, 2026-11-25): (1) the rule dropdowns (`RowEditors.tsx`, the rule-tag and rule-list selects) show each rule's id; they show the rule's title, and the value stays the id. (2) A new Agent block shows its id on the canvas and in its panel when its name is blank; the name stays empty and nothing shows an id in its place. Tests `F-16 AC-030`. Covers AC-030
 
+- [x] T023 [Web] [Core] Owner bug and decision (2026-11-25): an End's Produced artifact is optional, and the builder saves a picked artifact (or `None`) at once. Reproduction: a picked artifact is saved and shown in the End panel for a new End, a second End and an End whose flow got its artifact later (`F-16 AC-031`, `source/apps/web/test/builder-end-artifact.test.tsx`). The owner's run predates the placeholder of T014, when the control showed the first artifact over a blank value, so picking that artifact fired no change. The change: the End panel offers `None` (value '') as the blank choice and shows no required reason (`source/apps/web/src/builder/BlockPanel.tsx`); the parser reads an empty or absent `producedArtifact` as no artifact (`source/packages/core/src/pipeline/parse/end.ts`), and the artifact check accepts it (`check/end-artifact.ts`); `spec/documents/pipeline-schema.md` says it is optional. Covers AC-024 (updated) and AC-031
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

@@ -47,11 +47,9 @@ describe('F-02 AC-064 an end names an artifact of its flow', () => {
     ]);
   });
 
-  it('refuses the empty string', () => {
+  it('F-16 AC-024 accepts the empty string: an end that produces no artifact names none', () => {
     const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', '')])];
-    expect(checkEndArtifacts(config(flows))).toEqual([
-      { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got ' },
-    ]);
+    expect(checkEndArtifacts(config(flows))).toEqual([]);
   });
 
   it('refuses "none" when no artifact of the flow is labelled none', () => {

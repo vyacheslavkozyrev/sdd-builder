@@ -9,11 +9,14 @@ import {
 import type { EndBlock } from '../model.js';
 
 // The End block of a flow (pipeline-schema.md §2, `blockEnd`; AC-063). An end requires `id`,
-// `kind`, `outcome` and `producedArtifact`, and has no other key (such as `next`): an unknown key
-// is refused at the path of that key. `outcome` is `done` or `stopped`. `producedArtifact` must name
-// an artifact of its flow; that link is checked later (AC-064, AC-065). An invalid end is left out.
+// `kind` and `outcome`, and has no other key (such as `next`): an unknown key is refused at the path
+// of that key. `outcome` is `done` or `stopped`. `producedArtifact` is optional (owner decision
+// 2026-11-25): a blank value (empty or white space), or no key, is an end that produces no artifact;
+// a non-empty value must name an artifact of its flow, a link checked later (AC-064, AC-065).
+// An invalid end is left out.
 
 const END_KEYS: readonly string[] = ['id', 'kind', 'outcome', 'producedArtifact'];
+const REQUIRED_END_KEYS: readonly string[] = ['id', 'kind', 'outcome'];
 const OUTCOMES: readonly EndBlock['outcome'][] = ['done', 'stopped'];
 
 function readOutcome(value: unknown, path: string, problems: ProblemCollector): EndBlock['outcome'] | undefined {
@@ -39,7 +42,7 @@ export function readEnd(
       complete = false;
     }
   }
-  for (const key of END_KEYS) {
+  for (const key of REQUIRED_END_KEYS) {
     if (!Object.hasOwn(record, key)) {
       problems.add(path, `is missing the key ${key}`);
       complete = false;
@@ -53,12 +56,16 @@ export function readEnd(
     return undefined;
   }
   const outcome = readOutcome(record.outcome, childPath(path, 'outcome'), problems);
-  const producedArtifact = readText(
-    record.producedArtifact,
-    childPath(path, 'producedArtifact'),
-    { max: 200, min: 1 },
-    problems,
-  );
+  const producedArtifact = Object.hasOwn(record, 'producedArtifact')
+    ? readProducedArtifact(record.producedArtifact, childPath(path, 'producedArtifact'), problems)
+    : '';
   if (id === undefined || outcome === undefined || producedArtifact === undefined) return undefined;
   return { index, id, kind: 'end', outcome, producedArtifact };
+}
+
+// A blank value (empty, or only white space) is no artifact and is read as ''. Any other text is a label
+// of at most 200 code points; it is checked against the flow's artifacts later.
+function readProducedArtifact(value: unknown, path: string, problems: ProblemCollector): string | undefined {
+  if (typeof value === 'string' && !/\S/.test(value)) return '';
+  return readText(value, path, { max: 200 }, problems);
 }

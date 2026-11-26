@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 23 of 23 tasks committed (T023 added by owner decision 2026-11-25: the produced artifact is optional) |
+| Build    | 🔄 In Progress |      | 23 of 24 tasks committed (T024 added by owner decision 2026-11-26) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -159,6 +159,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-26 (owner: 'none' is not an artifact)
+**Changed**: stories.md gains US-015 (AC-032, R-16-16); plan.md gains T024.
+**Reason**: the schema says 'none' is not allowed as a produced artifact, but the parser accepts it when a flow artifact is labelled none.
+**Impact**: Build reopens for T024; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner bugs: rule dropdowns show ids; new Agent shows its id)

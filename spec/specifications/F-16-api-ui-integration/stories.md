@@ -238,6 +238,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-015: 'none' is not an artifact (owner, 2026-11-26)
+
+**As a** user
+**I want to** say that an End produces no artifact by leaving it blank
+**So that** the word 'none' is never a produced artifact
+
+**Requirements:** R-16-16
+
+#### Acceptance Criteria
+
+- [ ] AC-032 `[auto]`: an End whose produced artifact is the text `none` is refused by the parser with its reason; a blank produced artifact remains the way to say the End produces no artifact.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -256,4 +270,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-13 — a refused new argument is shown, not dropped | AC-026 |
 | R-16-14 — every id is a generated GUID | AC-027, AC-028, AC-029 |
 | R-16-15 — names are shown, not ids | AC-030 |
+| R-16-16 — 'none' is not an artifact | AC-032 |
 | R-16-7 — the flow body accepts typing | AC-020 |

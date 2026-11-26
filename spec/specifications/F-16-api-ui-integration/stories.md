@@ -252,6 +252,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-016: The Project files dialog shows its full list (owner bug, 2026-11-26)
+
+**As a** user
+**I want to** see the whole list of project files in the dialog
+**So that** I can read it
+
+**Requirements:** R-16-17
+
+#### Acceptance Criteria
+
+- [ ] AC-033 `[auto]`: the Project files dialog's list panel keeps its height (440 px) and does not shrink in the dialog's column; it scrolls inside itself, and the page's preview panel keeps its flexible height.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -271,4 +285,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-14 — every id is a generated GUID | AC-027, AC-028, AC-029 |
 | R-16-15 — names are shown, not ids | AC-030 |
 | R-16-16 — 'none' is not an artifact | AC-032 |
+| R-16-17 — the Project files dialog shows its full list | AC-033 |
 | R-16-7 — the flow body accepts typing | AC-020 |

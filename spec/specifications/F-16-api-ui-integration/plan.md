@@ -52,6 +52,8 @@ Paths are relative to the repository root. Web tests live in `source/apps/web/te
 
 - [x] T024 [Core] The text `none` is refused as a produced artifact (owner, 2026-11-26): `source/packages/core/src/pipeline/parse/end.ts` and `check/end-artifact.ts` refuse a `producedArtifact` of `none` with the reason (`'none' is not an artifact: leave it blank for an End that produces no artifact`); blank stays the way to say no artifact; `spec/documents/pipeline-schema.md` §2/§3 and the End rule state the refusal; the T023 test that accepted a flow artifact named `none` changes to refuse it; tests name `F-16 AC-032`. Covers AC-032
 
+- [ ] T025 [Web] Bug (owner, 2026-11-26): the Project files dialog (`ProjectTreeDialog.tsx`) shows its list squeezed to a thin strip, so only the first row is visible. Cause: `dialogPanel` in `projectPreviewStyles.ts` spreads the page panel, which has `flex: 1 1 0` and `minHeight: 0`; inside the dialog's flex column the list shrinks to almost nothing. Fix: the dialog list keeps its height (`flex: 0 0 auto`, height 440) and scrolls inside itself. Test `F-16 AC-033`: the dialog's list panel does not shrink (flex-shrink 0, its height is 440, overflow scrolls); the page panel keeps its flexible height. Covers AC-033
+
 ## Rationale
 
 - **One code task (T001).** The four `[auto]` criteria are all about the proxy settings, and a pure function of `env` lets them be tested without a server. The config file stays a thin caller.

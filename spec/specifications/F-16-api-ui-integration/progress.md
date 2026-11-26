@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 24 of 24 tasks committed (T024 added by owner decision 2026-11-26: 'none' is not an artifact) |
+| Build    | 🔄 In Progress |      | 24 of 25 tasks committed (T025 added by owner bug 2026-11-26) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -160,6 +160,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-26 (owner bug: Project files dialog shows one row)
+**Changed**: stories.md gains US-016 (AC-033, R-16-17); plan.md gains T025.
+**Reason**: the dialog's list is squeezed by the page panel's flexible sizing.
+**Impact**: Build reopens for T025; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-26 (owner: 'none' is not an artifact)

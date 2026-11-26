@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | ✅ Complete |      | 21 of 21 tasks committed (T017 to T021 added by owner decision 2026-11-25: every ID is a GUID) |
+| Build    | 🔄 In Progress |      | 21 of 22 tasks committed (T022 added by owner bugs 2026-11-25) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -155,6 +155,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 ---
 
 ## Amendments
+
+```
+### Amendment — 2026-11-25 (owner bugs: rule dropdowns show ids; new Agent shows its id)
+**Changed**: stories.md gains US-014 (AC-030, R-16-15); plan.md gains T022.
+**Reason**: the rule dropdowns show the rule ids and a new Agent shows its id while its name is blank.
+**Impact**: Build reopens for T022; Verify re-runs.
+```
 
 ```
 ### Amendment — 2026-11-25 (owner decision: every ID is a generated GUID)

@@ -223,6 +223,20 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 
 ---
 
+### US-014: Names are shown, not ids (owner bugs, 2026-11-25)
+
+**As a** user
+**I want to** see names, never ids, in the builder
+**So that** I choose and read rules and Agents by their names
+
+**Requirements:** R-16-15
+
+#### Acceptance Criteria
+
+- [ ] AC-030 `[auto]`: each rule dropdown shows the rule block's title for each option, and a new Agent block with a blank name shows an empty name field and no id on the canvas or in its panel.
+
+---
+
 ## Requirement Coverage
 
 | Requirement | Covered by |
@@ -240,4 +254,5 @@ Every automated test names the feature and criterion it covers (`F-16 AC-003`).
 | R-16-12 — the pipeline fields can be typed into | AC-025 |
 | R-16-13 — a refused new argument is shown, not dropped | AC-026 |
 | R-16-14 — every id is a generated GUID | AC-027, AC-028, AC-029 |
+| R-16-15 — names are shown, not ids | AC-030 |
 | R-16-7 — the flow body accepts typing | AC-020 |

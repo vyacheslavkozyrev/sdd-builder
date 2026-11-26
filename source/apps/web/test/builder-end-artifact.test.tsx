@@ -92,6 +92,41 @@ function savedArtifactOf(pipelineState: Pipeline, blockId: string): string {
   return block.producedArtifact;
 }
 
+describe('F-16 AC-032 the text none is never a produced artifact choice', () => {
+  it('F-16 AC-032 offers None and the other artifacts, but no choice for an artifact labelled none', () => {
+    const pipelineState = specifyPipeline();
+    const withNone: Pipeline = {
+      ...pipelineState,
+      flows: pipelineState.flows.map((flow) => ({
+        ...flow,
+        artifacts: [{ label: 'none', template: 'the none file' }, ...flow.artifacts],
+      })),
+    };
+    render(<Harness initial={withNone} blockId={END} onSave={() => undefined} />);
+
+    const values = Array.from(screen.getByLabelText('Produced artifact').querySelectorAll('option')).map((option) => option.value);
+    expect(values).toEqual(['', 'stories.md']);
+  });
+
+  it('F-16 AC-032 shows a saved none as the value of a disabled option, never as a choice', () => {
+    const pipelineState = specifyPipeline();
+    const savedNone: Pipeline = {
+      ...pipelineState,
+      flows: pipelineState.flows.map((flow) => ({
+        ...flow,
+        blocks: flow.blocks.map((block) => (block.kind === 'end' ? { ...block, producedArtifact: 'none' } : block)),
+      })),
+    };
+    render(<Harness initial={savedNone} blockId={END} onSave={() => undefined} />);
+
+    const select = screen.getByLabelText('Produced artifact') as HTMLSelectElement;
+    expect(select.value).toBe('none');
+    const options = Array.from(select.querySelectorAll('option'));
+    expect(options.find((option) => option.value === 'none')?.disabled).toBe(true);
+    expect(options.filter((option) => !option.disabled).map((option) => option.value)).toEqual(['', 'stories.md']);
+  });
+});
+
 describe('F-16 AC-031 choosing an artifact or None saves it', () => {
   it('F-16 AC-031 saves a picked artifact, shows it, and the parser reads the saved value', () => {
     const saves: Pipeline[] = [];

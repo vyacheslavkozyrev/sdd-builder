@@ -616,8 +616,9 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
 
   const choices = producedArtifactChoices(flow);
   const artifactNote = producedArtifactNote(flow);
-  // A saved artifact the flow no longer has (the structure check marks it) is kept as the one option, so the control
-  // shows the saved value and never another artifact. A blank value is None: the End produces no artifact (AC-024).
+  // A saved value the flow does not offer (the structure check marks it, and for `none` the reason is refused) is kept as
+  // one disabled option, so the control shows the saved value without offering it as a choice (F-16 AC-032). A blank
+  // value is None: the End produces no artifact (AC-024).
   const saved = block.producedArtifact;
   const staleArtifact = saved !== '' && !choices.includes(saved) ? saved : undefined;
 
@@ -705,7 +706,11 @@ export function EndPanel({ pipelineState, rules, flow, block, onChange, findings
               }}
             >
               <option value="">None</option>
-              {staleArtifact !== undefined && <option value={staleArtifact}>{staleArtifact}</option>}
+              {staleArtifact !== undefined && (
+                <option value={staleArtifact} disabled>
+                  {staleArtifact}
+                </option>
+              )}
               {choices.map((label) => (
                 <option key={label} value={label}>
                   {label}

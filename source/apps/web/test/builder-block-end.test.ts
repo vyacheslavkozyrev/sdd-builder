@@ -179,6 +179,33 @@ describe('F-12 AC-036 End produced artifact: one of the flow outcome artifacts, 
     const result = editEndArtifact(specifyPipeline([]), RULES, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '5f555f10-723d-5e0b-94a7-3933be0a0850', 'report.md');
     expect(result).toEqual({ ok: false, field: 'producedArtifact', reason: 'must name an artifact of this flow, got report.md' });
   });
+
+  it('F-16 AC-032 offers no none choice, even when the flow has an artifact labelled none', () => {
+    const specify = flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', [
+      { label: 'none', template: 'the none file' },
+      { label: 'stories.md', template: 'the stories' },
+    ]);
+    expect(producedArtifactChoices(specify)).toEqual(['stories.md']);
+  });
+
+  it('F-16 AC-032 refuses none as a produced artifact with the parser reason, even when the flow has an artifact labelled none', () => {
+    const pipelineState = pipelineOf(
+      flow(
+        '2d8eebb4-9a34-5eae-ae8d-88813520de08',
+        [
+          { label: 'none', template: 'the none file' },
+          { label: 'stories.md', template: 'the stories' },
+        ],
+        [{ index: 0, id: '5f555f10-723d-5e0b-94a7-3933be0a0850', kind: 'end', outcome: 'done', producedArtifact: 'stories.md' }],
+      ),
+    );
+    const result = editEndArtifact(pipelineState, RULES, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '5f555f10-723d-5e0b-94a7-3933be0a0850', 'none');
+    expect(result).toEqual({
+      ok: false,
+      field: 'producedArtifact',
+      reason: "'none' is not an artifact: leave it blank for an End that produces no artifact",
+    });
+  });
 });
 
 describe('F-12 AC-037 an outcome artifact named by an End moves or renames with the End', () => {

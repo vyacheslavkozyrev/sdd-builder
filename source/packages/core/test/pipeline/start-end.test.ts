@@ -136,8 +136,20 @@ describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifa
     });
   });
 
-  it('F-16 AC-024 reads the text none as a label; the check refuses it unless an artifact is labelled none', () => {
-    expect(readE({ ...validEnd, producedArtifact: 'none' }).block?.producedArtifact).toBe('none');
+  it('F-16 AC-032 refuses the text none as a produced artifact at its path, with the reason', () => {
+    expect(readE({ ...validEnd, producedArtifact: 'none' })).toEqual({
+      block: undefined,
+      problems: [
+        {
+          path: `${END}.producedArtifact`,
+          message: "'none' is not an artifact: leave it blank for an End that produces no artifact",
+        },
+      ],
+    });
+  });
+
+  it('F-16 AC-032 matches none exactly: padded text is read as an ordinary label, not refused here', () => {
+    expect(readE({ ...validEnd, producedArtifact: ' none ' }).block?.producedArtifact).toBe(' none ');
   });
 
   it('F-16 AC-024 accepts an end with no producedArtifact key, read as no artifact', () => {

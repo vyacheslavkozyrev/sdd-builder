@@ -52,16 +52,24 @@ describe('F-02 AC-064 an end names an artifact of its flow', () => {
     expect(checkEndArtifacts(config(flows))).toEqual([]);
   });
 
-  it('refuses "none" when no artifact of the flow is labelled none', () => {
+  it('F-16 AC-032 refuses "none" when no artifact of the flow is labelled none, with the reason', () => {
     const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'none')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
-      { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got none' },
+      {
+        path: 'pipeline.flows.0.blocks.0.producedArtifact',
+        message: "'none' is not an artifact: leave it blank for an End that produces no artifact",
+      },
     ]);
   });
 
-  it('accepts "none" when an artifact of the flow is labelled none', () => {
+  it('F-16 AC-032 refuses "none" even when an artifact of the flow is labelled none, with the reason', () => {
     const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('none')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'none')])];
-    expect(checkEndArtifacts(config(flows))).toEqual([]);
+    expect(checkEndArtifacts(config(flows))).toEqual([
+      {
+        path: 'pipeline.flows.0.blocks.0.producedArtifact',
+        message: "'none' is not an artifact: leave it blank for an End that produces no artifact",
+      },
+    ]);
   });
 
   it('compares labels exactly, so a label that differs only in case is refused', () => {

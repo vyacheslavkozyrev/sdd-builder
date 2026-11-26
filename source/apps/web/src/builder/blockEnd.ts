@@ -24,9 +24,9 @@ export const END_OUTCOMES: readonly EndOutcome[] = ['done', 'stopped'];
 export const NO_OUTCOME_ARTIFACT_TEXT = 'Add an outcome artifact on the flow panel first.';
 
 // The labels the produced artifact can take: the outcome artifacts of the End's flow, in their order. "none"
-// is not among them (AC-036).
+// is never a choice, even when the flow has an artifact labelled none: the parser refuses it (AC-036, F-16 AC-032).
 export function producedArtifactChoices(flow: Flow): string[] {
-  return flow.artifacts.map((artifact) => artifact.label);
+  return flow.artifacts.map((artifact) => artifact.label).filter((label) => label !== 'none');
 }
 
 // The note shown in place of the produced artifact choices when the flow has no outcome artifacts (AC-036),

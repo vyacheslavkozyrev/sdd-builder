@@ -19,6 +19,11 @@ export interface TextRule {
 
 export const ROOT_PATH = 'root';
 
+// The text `none` is not an artifact of an End, whether or not a flow has one labelled none (owner decision
+// 2026-11-26; F-16 AC-032). Blank is the way to say an End produces no artifact.
+export const NONE_TEXT = 'none';
+export const NONE_REFUSAL = `'none' is not an artifact: leave it blank for an End that produces no artifact`;
+
 const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 const ID_MAX = 60;
 const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;

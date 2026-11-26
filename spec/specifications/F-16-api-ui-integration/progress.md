@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 24 of 25 tasks committed (T025 added by owner bug 2026-11-26) |
+| Build    | ✅ Complete |      | 25 of 25 tasks committed (T025 added by owner bug 2026-11-26) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -51,6 +51,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T022 | Owner bugs: rule dropdowns show rule titles (values stay ids); a blank Agent name shows no id on the card, arrow panel or delete title (AC-030) | 0 blockers; 1 warning fixed (delete title test), 1 suggestion fixed; 1 deferred (two blank Agents read `Agent`) | task check passed: api 258 of 258, web 2040 of 2040, core 1272 of 1272 |
 | T023 | The End's produced artifact is optional: a blank (or white-space) value is no artifact, the builder offers `None`, a non-blank label must name an artifact of its flow (AC-024, AC-031) | 0 blockers; 3 warnings fixed (white-space read as a label; schema text on 'none'; AC-031 tests that did not check the saved value), 1 suggestion fixed; owner question on 'none' open | task check passed: api 258 of 258, web 2045 of 2045, core 1275 of 1275 |
 | T024 | The text `none` is refused as a produced artifact, whether or not a flow artifact is labelled none; blank stays 'no artifact' (AC-032) | 0 blockers; 1 warning fixed (a saved `none` shown as an enabled choice), 2 suggestions fixed (comment width; padded-text rule documented and tested) | task check passed: api 258 of 258, web 2049 of 2049, core 1276 of 1276 |
+| T025 | Bug: the Project files dialog list keeps its 440 px height and scrolls inside itself; the page panel stays flexible (AC-033) | 0 blockers, 0 findings (round 1) | task check passed: api 258 of 258, web 2050 of 2050, core 1276 of 1276 |
 | T017 to T021 | Every id is a generated GUID (AC-027, AC-028, AC-029): the parser accepts only GUIDs and keeps uniqueness; command and rule file names come from names (blank and clashing names are blockers); rule tags name rule files; the default pipeline has GUIDs; the builder generates ids and shows no id input; the wizard's rule file line uses core's name. One commit by owner approval | Review of the whole change: 1 blocker fixed (rule-block preview crash), 1 warning fixed (agent name message), comments fixed; the wizard rule name warning resolved by owner decision; 2 owner follow-ups recorded (GUIDs shown in process.md and pipeline.md; the 60-character file-name message) | task check passed: api 258 of 258, web 2032 of 2032, core 1272 of 1272 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
@@ -113,6 +114,65 @@ _Review suggestions intentionally not applied, with the reason._
 ## Test Results
 
 _Criteria coverage matrix and manual checklist outcome._
+
+Verify run 2026-11-26 (QA, verify mode, after T024 and the T025 amendment). **Verify is not complete: the preconditions fail.** Current Task reads `T025 — implemented`, T025 is not committed, and the tree has staged edits (`plan.md`, `progress.md`, `projectPreviewStyles.ts`, `ProjectPreview.test.tsx`). Untracked `spec/documents/manual-test-input.md` is left unstaged, as the owner asked. The matrix below is for the `[auto]` criteria of the run; re-run Verify after T025 is committed.
+
+**Check run** (`source/scripts/task-check.sh`, exit 0, no timeouts; log at `/private/tmp/claude-501/-Users-vyacheslavkozyrev-Projects-SDDBuilder/66b1aef7-4def-458a-9ec2-b298ecb92676/scratchpad/check.log`; the run overlapped the in-flight T025 edits, so re-run it):
+
+| Package | Test files | Tests |
+| ------- | ---------- | ----- |
+| api | 17 of 17 | 258 of 258 |
+| web | 86 of 86 | 2049 of 2049 |
+| core | 60 of 60 | 1276 of 1276 |
+
+Total: 3583 tests passed, 0 failed.
+
+**Acceptance criteria matrix** (`[auto]` criteria AC-001 to AC-004 and AC-011 to AC-032; every test names its criterion; all pass in the run)
+
+| Criterion | Covering tests (file › test name prefix) | Result |
+| --------- | ---------------------------------------- | ------ |
+| AC-001 | `web/test/dev-proxy.test.ts` › `F-16 AC-001 the dev server forwards both API calls to the API target` (describe) | pass |
+| AC-002 | `web/test/dev-proxy.test.ts` › `F-16 AC-002 no other path is forwarded` (describe); `F-16 AC-002 negative case` | pass |
+| AC-003 | `web/test/dev-proxy.test.ts` › `F-16 AC-003 sets 300000 ms on ...` | pass |
+| AC-004 | `web/test/dev-proxy.test.ts` › `F-16 AC-004 the proxy reads PORT the way the API does`; `api/test/settings.test.ts` › `F-16 AC-004 PORT matches the dev proxy` | pass |
+| AC-011 | `web/test/analyze-config.test.ts` › `F-16 AC-011 has no index key at any level ...` | pass |
+| AC-012 | `web/test/analyze-config.test.ts` › `F-16 AC-012 is accepted by parseProjectConfig ...` | pass |
+| AC-013 | `core/test/pipeline/command-file.test.ts` › `F-16 AC-013 names the command file from the name, not from the flow id` | pass |
+| AC-014 | `core/test/pipeline/command-file.test.ts` › `F-16 AC-014 refuses the name ...`; `... is reported by the refusal gate` | pass (422 with no model call proven at the refusal gate, see note) |
+| AC-015 | `core/test/pipeline/command-file.test.ts` › `F-16 AC-015 gives the clash for each later flow ...`; `... is reported by the refusal gate` | pass (same note) |
+| AC-016 | `core/test/pipeline/command-file.test.ts` › `F-16 AC-016 lists every flow command file ...`; `web/test/PipelineStep.test.tsx` › `F-16 AC-016 a flow named "Build Code" ...` | pass |
+| AC-017 | `api/test/analyze-route.test.ts` › `F-16 AC-017 a structural and a brief finding each have ...`; `api/test/analyze.test.ts` › `F-16 AC-017 a brief finding names ...` | pass |
+| AC-018 | `web/test/analyze-reply.test.ts` › `F-16 AC-018 lists every finding of a reply ...` | pass |
+| AC-019 | `web/test/wizard-pipeline.test.ts` › `F-16 AC-019 a new wizard state has zero flows ...`; `... a restart has zero flows ...` | pass |
+| AC-020 | `web/test/builder-fields.test.ts` › `F-16 AC-020 accepts the body %j typed into a new flow`; `web/test/builder-rows.test.ts` › `F-16 AC-020 refuses a rule tag ...`; `web/test/FlowPanel.test.tsx` | pass |
+| AC-021 | `web/test/builder-blocks.test.ts` › `F-16 AC-021 gives a block added to a second flow an id no block of any flow has` | pass |
+| AC-022 | `web/test/builder-problem-label.test.ts` › `F-16 AC-022 a duplicate block id is named ...`; `web/test/ErrorPanel.test.tsx` › `F-16 AC-022 the error list names flows and blocks ...` | pass |
+| AC-023 | `web/test/builder-pipeline-fields.test.ts` › `F-16 AC-023 accepts an argument added to the pipeline and saves it`; `web/test/PipelineStep.test.tsx` › `F-16 AC-023 ...` | pass |
+| AC-024 | `core/test/pipeline/start-end.test.ts` › `F-16 AC-024 accepts an empty producedArtifact ...`; `web/test/builder-block-end.test.ts` › `F-16 AC-024 accepts a blank produced artifact (None) ...` | pass |
+| AC-025 | `web/test/builder-pipeline-fields.test.ts` › `F-16 AC-025 keeps each character typed into the name ...`; `web/test/builder-fields.test.ts` › `F-16 AC-025 ...` | pass |
+| AC-026 | `web/test/RowEditors.test.tsx` › `F-16 AC-026 a corrected name typed into the kept line ...`; `web/test/AgentRows.test.tsx` › `F-16 AC-026 ...` | pass |
+| AC-027 | `web/test/builder-blocks.test.ts` › `F-16 AC-027 gives a new block a lower-case GUID id, whatever its kind` | pass |
+| AC-028 | `core/test/pipeline/ids.test.ts` › `F-16 AC-028 refuses a GUID block id that repeats in a later flow` (describe `F-16 AC-028 every id is a GUID ...`) | pass |
+| AC-029 | `core/test/pipeline/command-file.test.ts` › `F-16 AC-029 gives the clash for each later rule ...`; `web/test/technical.test.ts` › `F-10 AC-014 F-16 AC-029 derives the file name of ...` | pass |
+| AC-030 | `web/test/RowEditors.test.tsx` › `F-16 AC-030 shows each rule title as the option text ...`; `web/test/BlockCanvas.test.tsx` › `F-16 AC-030 (UI) shows no name and no id ...` | pass |
+| AC-031 | `web/test/builder-end-artifact.test.tsx` › `F-16 AC-031 saves a picked artifact, shows it, and the parser reads the saved value` | pass |
+| AC-032 | `core/test/pipeline/end-artifact.test.ts` › `F-16 AC-032 refuses "none" when no artifact of the flow is labelled none ...`; `web/test/builder-block-end.test.ts` › `F-16 AC-032 refuses none as a produced artifact ...` | pass |
+| AC-033 (`[auto]`, US-016, added 2026-11-26) | `web/test/ProjectPreview.test.tsx` › `F-16 AC-033 the Project files dialog list keeps its height` | in the run, but T025 is not committed: verify again after the commit |
+| AC-005 to AC-010 (`[device]`) | Manual checklist items 1 to 6 | pending |
+
+Gaps: none for the `[auto]` criteria AC-001 to AC-004 and AC-011 to AC-032. Failing tests: none. Criterion AC-033 cannot be closed until T025 is committed.
+
+Note (AC-014, AC-015): the 422 with no model call is proven by composition: the blockers are in `configProblems` (core test above), which `generate/plan.ts` calls before any model call, and the 422 reply shape is F-15's (`api/test/generate-route.test.ts`). No API test names these two criteria.
+
+Scope check (`spec/documents/features.md` F-16): covered by AC-011 and AC-012 (the request body), AC-005 and AC-007 (findings, generate and download, on the checklist), and AC-001 to AC-004 (the calls reach the API).
+
+**Manual checklist**: `spec/specifications/F-16-api-ui-integration/checklist.md`, 6 items, all pending. In this run the Setup gained a "valid brief" block (the workflow starts empty since T009), and items 1, 2, 3, 5 and 6 now point to it.
+
+**Verify status**: blocked at preconditions (T025 uncommitted, Current Task not None, tree not clean). Verify is not complete; re-run after T025 is committed and the tree is clean on `main`.
+
+---
+
+### Earlier run: 2026-11-24
 
 Verify run 2026-11-24 (QA, verify mode, after the US-004 bug fix: AC-011 to AC-016). Branch `main`, working tree clean at start.
 

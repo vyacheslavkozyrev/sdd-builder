@@ -113,7 +113,8 @@ export function getProjectPreviewStyles(theme: Theme): ProjectPreviewStyles {
     },
     dialogTitle: { m: 0, fontSize: 24, fontWeight: 500, lineHeight: '32px', color: theme.palette.text.primary },
     dialogCount: { ...common.secondaryText, fontSize: 13, mt: '4px' },
-    dialogPanel: { ...panel, height: 440, mt: '12px' },
+    // The dialog's list keeps its 440 px and scrolls inside itself: it does not take the page panel's flexible height.
+    dialogPanel: { ...panel, flex: '0 0 auto', minHeight: 'auto', height: 440, mt: '12px' },
     dialogActions: { display: 'flex', justifyContent: 'flex-end', mt: '16px' },
     close: { ...common.outlineButton, minWidth: 92 },
   };

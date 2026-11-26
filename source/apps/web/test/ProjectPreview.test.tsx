@@ -84,6 +84,15 @@ describe('F-13 AC-023 the full list opens in a dialog', () => {
   });
 });
 
+describe('F-16 AC-033 the Project files dialog list keeps its height', () => {
+  it('keeps the dialog list at 440 px and lets the page panel stay flexible', () => {
+    const styles = getProjectPreviewStyles(theme);
+    expect(styles.dialogPanel).toMatchObject({ flex: '0 0 auto', height: 440, overflowY: 'auto' });
+    expect(styles.dialogPanel).not.toMatchObject({ minHeight: 0 });
+    expect(styles.panel).toMatchObject({ flex: '1 1 0' });
+  });
+});
+
 describe('F-13 AC-025 Generate and download stays disabled with its reason', () => {
   const cases: ReadonlyArray<[string, AnalysisState, string]> = [
     ['not run', { kind: 'not-run' }, 'Run Analyze first'],

@@ -4,11 +4,11 @@ import { readFlow } from '../../src/pipeline/parse/flow.js';
 
 const FLOW = 'pipeline.flows.0';
 const validBlocks = [
-  { id: 'start', kind: 'start', next: 'end' },
-  { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+  { id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
+  { id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
 ];
 const validFlow = {
-  id: 'plan',
+  id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
   name: 'Plan',
   body: 'Plans the work.',
   arguments: [],
@@ -34,15 +34,15 @@ describe('F-02 AC-020 a flow requires id, name, body, arguments, artifacts, appr
     expect(readF(validFlow)).toEqual({
       flow: {
         index: 0,
-        id: 'plan',
+        id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
         name: 'Plan',
         body: 'Plans the work.',
         arguments: [],
         artifacts: [],
         approval: false,
         blocks: [
-          { index: 0, id: 'start', kind: 'start', next: 'end' },
-          { index: 1, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+          { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
+          { index: 1, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
         ],
       },
       problems: [],
@@ -82,15 +82,15 @@ describe('F-02 AC-021 a flow may omit description, model, ruleTags and next', ()
       ...validFlow,
       description: 'The plan.',
       model: 'sonnet',
-      ruleTags: ['style'],
-      next: 'build',
+      ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593'],
+      next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6',
     });
     expect(problems).toEqual([]);
     expect(flow).toMatchObject({
       description: 'The plan.',
       model: 'sonnet',
-      ruleTags: [{ ruleId: 'style', index: 0 }],
-      next: 'build',
+      ruleTags: [{ ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 }],
+      next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6',
     });
   });
 });
@@ -149,53 +149,53 @@ describe('F-02 AC-030 a flow model takes haiku, sonnet, opus or inherit', () => 
 
 describe('F-02 AC-024 AC-071 AC-072 a flow ruleTags list follows the rule-tag rules', () => {
   it('accepts a list of distinct ids', () => {
-    expect(readF({ ...validFlow, ruleTags: ['style', 'tests'] }).problems).toEqual([]);
+    expect(readF({ ...validFlow, ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593', 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08'] }).problems).toEqual([]);
   });
 
   it('drops a tag that is not an id at the path of the tag, and keeps the flow and the other tags', () => {
-    const { flow, problems } = readF({ ...validFlow, ruleTags: ['style', 'Style Rule', 'tests'] });
+    const { flow, problems } = readF({ ...validFlow, ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593', 'Style Rule', 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08'] });
     expect(problems).toEqual([
       {
         path: `${FLOW}.ruleTags.1`,
         message:
-          'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
+          'must be a GUID',
       },
     ]);
     expect(flow).toMatchObject({
       ruleTags: [
-        { ruleId: 'style', index: 0 },
-        { ruleId: 'tests', index: 2 },
+        { ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 },
+        { ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 2 },
       ],
     });
   });
 
   it('drops a tag listed twice at the path of the second entry, and keeps the flow', () => {
-    const { flow, problems } = readF({ ...validFlow, ruleTags: ['style', 'style', 'tests'] });
+    const { flow, problems } = readF({ ...validFlow, ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593', '8f99cc27-78ab-5895-8637-5c13d7429593', 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08'] });
     expect(problems).toEqual([
-      { path: `${FLOW}.ruleTags.1`, message: 'repeats style; each entry must be listed once' },
+      { path: `${FLOW}.ruleTags.1`, message: 'repeats 8f99cc27-78ab-5895-8637-5c13d7429593; each entry must be listed once' },
     ]);
     expect(flow).toMatchObject({
       ruleTags: [
-        { ruleId: 'style', index: 0 },
-        { ruleId: 'tests', index: 2 },
+        { ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 },
+        { ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 2 },
       ],
     });
   });
 });
 
-describe('F-02 AC-025 a flow id follows the id rule', () => {
-  it.each(['Plan', 'plan_1', '1plan', ''])('refuses the id %j at the path of the id', (id) => {
+describe('F-16 AC-028 a flow id is a lower-case GUID', () => {
+  it.each(['Plan', 'plan_1', '1plan', '', 'A56AAB15-5743-5847-9B77-B39B2124C91B', 'a'.repeat(60)])('refuses the id %j at the path of the id', (id) => {
     const result = readF({ ...validFlow, id });
     expect(result.flow).toBeUndefined();
     expect(result.problems).toContainEqual({
       path: `${FLOW}.id`,
       message:
-        'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
+        'must be a GUID',
     });
   });
 
-  it('accepts an id of 60 characters', () => {
-    expect(readF({ ...validFlow, id: `a${'b'.repeat(59)}` }).problems).toEqual([]);
+  it('accepts a lower-case GUID id', () => {
+    expect(readF({ ...validFlow, id: 'a56aab15-5743-5847-9b77-b39b2124c91b' }).problems).toEqual([]);
   });
 });
 
@@ -222,7 +222,7 @@ describe('F-02 AC-021 AC-023 AC-024 a present but invalid optional key makes the
     [
       'next',
       'Build Step',
-      'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
+      'must be a GUID',
     ],
     ['ruleTags', 'style', 'must be a list, got text'],
     ['description', null, 'must be text, got null'],

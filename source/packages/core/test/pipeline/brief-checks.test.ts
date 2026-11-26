@@ -4,7 +4,7 @@ import type { Finding } from '../../src/pipeline/analyze/finding.js';
 import type { ProjectConfig, Stack } from '../../src/pipeline/model.js';
 import { validConfig } from './analyze-fixture.js';
 
-const RULE = { index: 0, id: 'style', title: 'Style', text: 'Keep it short.' };
+const RULE = { index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' };
 
 // The valid config with its brief set by `brief`. The pipeline is the fixture's, so only the brief varies.
 function withBrief(brief: { name?: string; idea?: string; stack?: Stack; rules?: ProjectConfig['rules'] }): ProjectConfig {
@@ -115,7 +115,7 @@ describe('F-06 AC-003 an empty rules list is a warning at rules', () => {
   });
 
   it('a list with several rules gives no rules warning', () => {
-    const rules = [RULE, { index: 1, id: 'tone', title: 'Tone', text: 'Be plain.' }];
+    const rules = [RULE, { index: 1, id: '6f8a017e-70e9-5db0-a40d-8fd8e312a084', title: 'Tone', text: 'Be plain.' }];
     expect(findingsOf(withBrief({ name: 'Demo', idea: 'Idea', stack: COMPLETE_STACK, rules }))).toEqual([]);
   });
 });

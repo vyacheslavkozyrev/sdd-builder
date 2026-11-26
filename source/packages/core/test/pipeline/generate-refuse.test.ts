@@ -6,12 +6,12 @@ import { parseProjectConfig } from '../../src/pipeline/parse/index.js';
 import type { ProjectConfig } from '../../src/pipeline/model.js';
 import { validConfig, withFlow } from './analyze-fixture.js';
 
-// A config with several blockers: the flow is named `pipeline` (AC-022) and its End block is removed (F-03 AC-004),
-// so the Agent's `next` names no block.
+// A config with several blockers: the flow is named `Pipeline!`, whose command file would be pipeline.md (AC-022), and its
+// End block is removed (F-03 AC-004), so the Agent's `next` names no block.
 function manyBlockers(): ProjectConfig {
   return withFlow((flow) => ({
     ...flow,
-    id: 'pipeline',
+    name: 'Pipeline!',
     blocks: flow.blocks.filter((block) => block.kind !== 'end'),
   }));
 }
@@ -24,7 +24,7 @@ describe('F-04 AC-019 the refusal returns exactly the blockers of the analysis, 
     const problems = configProblems(manyBlockers());
     expect(problems.map(({ severity, rule, path }) => ({ severity, rule, path }))).toEqual([
       { severity: 'blocker', rule: 'flow-end', path: 'pipeline.flows.0' },
-      { severity: 'blocker', rule: 'flow-id', path: 'pipeline.flows.0.id' },
+      { severity: 'blocker', rule: 'command-file-clash', path: 'pipeline.flows.0.name' },
       { severity: 'blocker', rule: 'block-link', path: 'pipeline.flows.0.blocks.1.next' },
     ]);
   });
@@ -58,20 +58,20 @@ describe('F-04 AC-021 warnings do not refuse a configuration', () => {
   });
 });
 
-describe('F-04 AC-022 a flow named pipeline is refused at the flow path', () => {
-  it('gives one blocker at the id of the flow, because its command file would clash with the pipeline command', () => {
-    const problems = configProblems(withFlow((flow) => ({ ...flow, id: 'pipeline' })));
+describe('F-04 AC-022 a flow named pipeline is refused at the flow name path', () => {
+  it('gives one blocker at the name of the flow, because its command file would clash with the pipeline command', () => {
+    const problems = configProblems(withFlow((flow) => ({ ...flow, name: 'Pipeline!' })));
     expect(problems).toEqual([
       expect.objectContaining({
         severity: 'blocker',
-        rule: 'flow-id',
-        path: 'pipeline.flows.0.id',
+        rule: 'command-file-clash',
+        path: 'pipeline.flows.0.name',
       }),
     ]);
   });
 
   it('reports the same blocker as the analysis (AC-019)', () => {
-    const config = withFlow((flow) => ({ ...flow, id: 'pipeline' }));
+    const config = withFlow((flow) => ({ ...flow, name: 'Pipeline!' }));
     expect(configProblems(config)).toEqual(blockersOf(analyzeStructure(config)));
   });
 });

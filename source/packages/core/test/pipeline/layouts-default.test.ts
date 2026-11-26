@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ProjectConfig } from '../../src/pipeline/model.js';
 import { planGeneration, type PlannedFile } from '../../src/pipeline/generate/plan.js';
 import { flowFileName } from '../../src/pipeline/generate/flow-file.js';
+import { ruleFileName } from '../../src/pipeline/generate/rule-file.js';
 import type { BaseTemplate, GenerationTemplates } from '../../src/pipeline/generate/templates.js';
 import { defaultPipelineConfig, readLayout } from './layouts-loader.js';
 
@@ -77,7 +78,7 @@ const CLAUDE_CODE_HEADING = '## Claude Code layout';
 const ROW = /^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`[^|]*\|$/;
 
 // The output paths of the Claude Code layout table in `source/templates/README.md`, read in test code only. A row with
-// a placeholder (`<flow id>`, `<agent name>`, `<rule id>`) stands for one path per flow, Agent block or rule of the config.
+// a placeholder (`<flow file name>`, `<agent name>`, `<rule title name>`) stands for one path per flow, Agent block or rule of the config.
 function readmePaths(config: ProjectConfig): string[] {
   const lines = readLayout(README_PATH).split('\n');
   const start = lines.indexOf(CLAUDE_CODE_HEADING);
@@ -86,21 +87,19 @@ function readmePaths(config: ProjectConfig): string[] {
   const end = rest.findIndex((line) => line.startsWith('## '));
   const section = end === -1 ? rest : rest.slice(0, end);
 
-  const flowIds = config.pipeline.flows.map((flow) => flow.id);
   const flowFileNames = config.pipeline.flows.map((flow) => flowFileName(flow));
   const agentNames = config.pipeline.flows.flatMap((flow) =>
     flow.blocks.flatMap((block) => (block.kind === 'agent' ? [block.name] : [])),
   );
-  const ruleIds = config.rules.map((rule) => rule.id);
+  const ruleFileNames = config.rules.map((rule) => ruleFileName(rule));
 
   return section.flatMap((line) => {
     const match = ROW.exec(line);
     if (match === null) return [];
     const path = match[2] ?? '';
-    if (path.includes('<flow id>')) return flowIds.map((id) => path.replace('<flow id>', id));
     if (path.includes('<flow file name>')) return flowFileNames.map((name) => path.replace('<flow file name>', name));
     if (path.includes('<agent name>')) return agentNames.map((name) => path.replace('<agent name>', name));
-    if (path.includes('<rule id>')) return ruleIds.map((id) => path.replace('<rule id>', id));
+    if (path.includes('<rule title name>')) return ruleFileNames.map((name) => path.replace('<rule title name>', name));
     return [path];
   });
 }

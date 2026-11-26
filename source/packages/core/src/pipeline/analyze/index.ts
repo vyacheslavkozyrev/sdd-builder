@@ -2,7 +2,7 @@ import type { ProjectConfig } from '../model.js';
 import type { Finding, PositionedFinding, Position } from './finding.js';
 import { startAndEndRule } from './start-end.js';
 import { identityAndTextRule } from './text.js';
-import { commandFileRule } from './command-file.js';
+import { commandFileRule, ruleFileRule } from './command-file.js';
 import { conditionRule } from './condition.js';
 import { reuseRule } from './reuse.js';
 import { linksRule } from './links.js';
@@ -22,6 +22,7 @@ const RULE_MODULES: readonly RuleModule[] = [
   startAndEndRule,
   identityAndTextRule,
   commandFileRule,
+  ruleFileRule,
   conditionRule,
   reuseRule,
   linksRule,

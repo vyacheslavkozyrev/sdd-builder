@@ -6,7 +6,7 @@ import type { Flow } from '../src/builder/model.js';
 
 const emptyFlow: Flow = {
   index: 0,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   name: 'plan',
   arguments: [],
   body: '',
@@ -19,17 +19,17 @@ const emptyFlow: Flow = {
 const loopFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-    { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: 'Writes the plan', arguments: [], next: 'b3' },
+    { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+    { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: 'Writes the plan', arguments: [], next: '17a26a22-3474-5299-aa00-927fbce3d617' },
     {
       index: 2,
-      id: 'b3',
+      id: '17a26a22-3474-5299-aa00-927fbce3d617',
       kind: 'condition',
       description: 'The reviewer approves',
-      true: { to: 'b4' },
-      false: { to: 'b2', roundLimit: 3 },
+      true: { to: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' },
+      false: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11', roundLimit: 3 },
     },
-    { index: 3, id: 'b4', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ],
 };
 
@@ -37,10 +37,10 @@ const loopFlow: Flow = {
 const forwardFalseFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-    { index: 1, id: 'b2', kind: 'condition', description: 'The brief is complete', true: { to: 'b3' }, false: { to: 'b4' } },
-    { index: 2, id: 'b3', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b4' },
-    { index: 3, id: 'b4', kind: 'end', outcome: 'stopped', producedArtifact: '' },
+    { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+    { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'condition', description: 'The brief is complete', true: { to: '17a26a22-3474-5299-aa00-927fbce3d617' }, false: { to: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' } },
+    { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' },
+    { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'end', outcome: 'stopped', producedArtifact: '' },
   ],
 };
 
@@ -57,12 +57,12 @@ describe('F-12 AC-006 (data) an empty flow has no drawing', () => {
 describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input gives the same drawing', () => {
   it('F-12 AC-009 (data) places the blocks left to right in the order of their arrows from Start', () => {
     const drawing = blockDrawingOf(loopFlow);
-    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4']);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['76d07354-68e4-5d68-ac8b-8678cdcb75e9', '2feb88e1-9032-5420-9d7e-81c4160e7f11', '17a26a22-3474-5299-aa00-927fbce3d617', 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a']);
     expect(drawing.blocks.map((block) => block.cx)).toEqual([46, 166, 294, 374]);
   });
 
   it('F-12 AC-009 (data) gives an identical drawing for the same flow and selection', () => {
-    const selection = { kind: 'block', blockId: 'b2' } as const;
+    const selection = { kind: 'block', blockId: '2feb88e1-9032-5420-9d7e-81c4160e7f11' } as const;
     expect(blockDrawingOf(loopFlow, selection)).toEqual(blockDrawingOf(loopFlow, selection));
   });
 
@@ -71,11 +71,11 @@ describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input
       ...loopFlow,
       blocks: [
         ...loopFlow.blocks,
-        { index: 4, id: 'b5', kind: 'agent', name: 'loose', description: '', arguments: [], next: '' },
+        { index: 4, id: '12781004-2e10-5ef3-9c99-97c2404c6529', kind: 'agent', name: 'loose', description: '', arguments: [], next: '' },
       ],
     };
     const drawing = blockDrawingOf(flow);
-    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b5', 'b4']);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['76d07354-68e4-5d68-ac8b-8678cdcb75e9', '2feb88e1-9032-5420-9d7e-81c4160e7f11', '17a26a22-3474-5299-aa00-927fbce3d617', '12781004-2e10-5ef3-9c99-97c2404c6529', 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a']);
     expect(drawing.blocks[4]?.cx).toBeGreaterThan(drawing.blocks[3]?.cx ?? Infinity);
   });
 
@@ -85,14 +85,14 @@ describe('F-12 AC-009 (data) blocks are placed in arrow order and the same input
     const flow: Flow = {
       ...emptyFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b4' },
-        { index: 2, id: 'b3', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
-        { index: 3, id: 'b4', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+        { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' },
+        { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
+        { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const drawing = blockDrawingOf(flow);
-    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4']);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['76d07354-68e4-5d68-ac8b-8678cdcb75e9', '2feb88e1-9032-5420-9d7e-81c4160e7f11', '17a26a22-3474-5299-aa00-927fbce3d617', 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a']);
     const [, , reviewer, end] = drawing.blocks;
     expect(end?.cx).toBeGreaterThan(reviewer?.cx ?? Infinity);
   });
@@ -116,11 +116,11 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b3' },
-        { index: 2, id: 'b3', kind: 'condition', description: 'Mid check', true: { to: 'b4' }, false: { to: 'b5' } },
-        { index: 3, id: 'b4', kind: 'agent', name: 'writer', description: '', arguments: [], next: 'b5' },
-        { index: 4, id: 'b5', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+        { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: '', arguments: [], next: '17a26a22-3474-5299-aa00-927fbce3d617' },
+        { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'condition', description: 'Mid check', true: { to: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' }, false: { to: '12781004-2e10-5ef3-9c99-97c2404c6529' } },
+        { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'agent', name: 'writer', description: '', arguments: [], next: '12781004-2e10-5ef3-9c99-97c2404c6529' },
+        { index: 4, id: '12781004-2e10-5ef3-9c99-97c2404c6529', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const condition = blockDrawingOf(flow).blocks[2];
@@ -131,11 +131,11 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b3' },
-        { index: 2, id: 'b3', kind: 'agent', name: 'writer', description: '', arguments: [], next: 'b4' },
-        { index: 3, id: 'b4', kind: 'condition', description: 'Mid check', true: { to: 'b5' }, false: { to: 'b2', roundLimit: 2 } },
-        { index: 4, id: 'b5', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+        { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: '', arguments: [], next: '17a26a22-3474-5299-aa00-927fbce3d617' },
+        { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'agent', name: 'writer', description: '', arguments: [], next: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' },
+        { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'condition', description: 'Mid check', true: { to: '12781004-2e10-5ef3-9c99-97c2404c6529' }, false: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11', roundLimit: 2 } },
+        { index: 4, id: '12781004-2e10-5ef3-9c99-97c2404c6529', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const condition = blockDrawingOf(flow).blocks[3];
@@ -146,14 +146,14 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b3' },
-        { index: 2, id: 'b3', kind: 'condition', description: 'Retry check', true: { to: 'b2', roundLimit: 2 }, false: { to: 'b4' } },
-        { index: 3, id: 'b4', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+        { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: '', arguments: [], next: '17a26a22-3474-5299-aa00-927fbce3d617' },
+        { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'condition', description: 'Retry check', true: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11', roundLimit: 2 }, false: { to: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' } },
+        { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const drawing = blockDrawingOf(flow);
-    expect(drawing.arrows.find((arrow) => arrow.fromId === 'b3' && arrow.output === 'true')?.isReturn).toBe(true);
+    expect(drawing.arrows.find((arrow) => arrow.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && arrow.output === 'true')?.isReturn).toBe(true);
     expect(drawing.blocks[2]).toMatchObject({ kind: 'condition', caption: 'Retry check', captionY: 470 });
   });
 
@@ -161,13 +161,13 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: loopFlow.blocks.map((block) =>
-        block.id === 'b3' && block.kind === 'condition'
-          ? { ...block, true: { to: 'b2', roundLimit: 2 } }
+        block.id === '17a26a22-3474-5299-aa00-927fbce3d617' && block.kind === 'condition'
+          ? { ...block, true: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11', roundLimit: 2 } }
           : block,
       ),
     };
     const drawing = blockDrawingOf(flow);
-    expect(drawing.arrows.filter((arrow) => arrow.fromId === 'b3' && arrow.isReturn)).toHaveLength(2);
+    expect(drawing.arrows.filter((arrow) => arrow.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && arrow.isReturn)).toHaveLength(2);
     expect(drawing.blocks[2]).toMatchObject({ kind: 'condition', captionY: 470 });
   });
 
@@ -175,15 +175,15 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
-        { index: 1, id: 'b2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'b3' },
-        { index: 2, id: 'b3', kind: 'condition', description: 'The retry is needed', true: { to: 'b2', roundLimit: 2 }, false: { to: 'b4' } },
-        { index: 3, id: 'b4', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
+        { index: 1, id: '2feb88e1-9032-5420-9d7e-81c4160e7f11', kind: 'agent', name: 'planner', description: '', arguments: [], next: '17a26a22-3474-5299-aa00-927fbce3d617' },
+        { index: 2, id: '17a26a22-3474-5299-aa00-927fbce3d617', kind: 'condition', description: 'The retry is needed', true: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11', roundLimit: 2 }, false: { to: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a' } },
+        { index: 3, id: 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const drawing = blockDrawingOf(flow);
     const condition = drawing.blocks[2];
-    const forwardFalse = drawing.arrows.find((arrow) => arrow.fromId === 'b3' && arrow.output === 'false');
+    const forwardFalse = drawing.arrows.find((arrow) => arrow.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && arrow.output === 'false');
     expect(condition).toMatchObject({ kind: 'condition', captionY: 470, captionAnchor: 'end' });
     expect(condition?.captionX).toBe((condition?.cx ?? NaN) - 8);
     // The false line drops from the bottom vertex at the centre, so the caption ends before it.
@@ -197,7 +197,7 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
   it('F-12 AC-007 (logic) ends the description left of a Condition whose false route returns and whose true route goes forward', () => {
     const drawing = blockDrawingOf(loopFlow);
     const condition = drawing.blocks[2];
-    const forwardTrue = drawing.arrows.find((arrow) => arrow.fromId === 'b3' && arrow.output === 'true');
+    const forwardTrue = drawing.arrows.find((arrow) => arrow.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && arrow.output === 'true');
     expect(condition).toMatchObject({ kind: 'condition', captionY: 470, captionAnchor: 'end' });
     expect(condition?.captionX).toBe((condition?.cx ?? NaN) - 8);
     // The true route leaves the right vertex on the main line, away from the caption on the left.
@@ -214,10 +214,10 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
     const flow: Flow = {
       ...loopFlow,
       blocks: [
-        { index: 0, id: 'b1', kind: 'start', next: 'b2' },
+        { index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '2feb88e1-9032-5420-9d7e-81c4160e7f11' },
         {
           index: 1,
-          id: 'b2',
+          id: '2feb88e1-9032-5420-9d7e-81c4160e7f11',
           kind: 'agent',
           name: 'a-very-long-agent-name-for-the-box',
           description: 'abcdefghijklmnopqrstuvwxyz',
@@ -232,7 +232,7 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
   });
 
   it('F-12 AC-007 (logic) marks only the selected block', () => {
-    const blocks = blockDrawingOf(loopFlow, { kind: 'block', blockId: 'b3' }).blocks;
+    const blocks = blockDrawingOf(loopFlow, { kind: 'block', blockId: '17a26a22-3474-5299-aa00-927fbce3d617' }).blocks;
     expect(blocks.map((block) => block.selected)).toEqual([false, false, true, false]);
     expect(blockDrawingOf(loopFlow).blocks.some((block) => block.selected)).toBe(false);
   });
@@ -240,7 +240,7 @@ describe('F-12 AC-007 (logic) block shapes and their text', () => {
 
 describe('F-12 AC-008 (logic) arrows: straight, return, forward false and their labels', () => {
   it('F-12 AC-008 (logic) draws a forward true arrow straight with its true label above it', () => {
-    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === 'b3' && candidate.output === 'true');
+    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && candidate.output === 'true');
     expect(arrow?.points).toEqual([
       { x: 324, y: 420 },
       { x: 352, y: 420 },
@@ -251,7 +251,7 @@ describe('F-12 AC-008 (logic) arrows: straight, return, forward false and their 
   });
 
   it('F-12 AC-008 (logic) draws a return over the top, dashed, with its false label and up to N rounds', () => {
-    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === 'b3' && candidate.output === 'false');
+    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && candidate.output === 'false');
     expect(arrow?.isReturn).toBe(true);
     expect(arrow?.points).toEqual([
       { x: 294, y: 390 },
@@ -265,7 +265,7 @@ describe('F-12 AC-008 (logic) arrows: straight, return, forward false and their 
 
   it('F-12 AC-008 (logic) draws a forward false arrow under the line with no round label', () => {
     const arrow = blockDrawingOf(forwardFalseFlow).arrows.find(
-      (candidate) => candidate.fromId === 'b2' && candidate.output === 'false',
+      (candidate) => candidate.fromId === '2feb88e1-9032-5420-9d7e-81c4160e7f11' && candidate.output === 'false',
     );
     expect(arrow?.isReturn).toBe(false);
     expect(arrow?.points).toEqual([
@@ -282,21 +282,21 @@ describe('F-12 AC-008 (logic) arrows: straight, return, forward false and their 
     const flow: Flow = {
       ...loopFlow,
       blocks: loopFlow.blocks.map((block) =>
-        block.id === 'b3' && block.kind === 'condition' ? { ...block, false: { to: 'b2' } } : block,
+        block.id === '17a26a22-3474-5299-aa00-927fbce3d617' && block.kind === 'condition' ? { ...block, false: { to: '2feb88e1-9032-5420-9d7e-81c4160e7f11' } } : block,
       ),
     };
-    const arrow = blockDrawingOf(flow).arrows.find((candidate) => candidate.fromId === 'b3' && candidate.output === 'false');
+    const arrow = blockDrawingOf(flow).arrows.find((candidate) => candidate.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && candidate.output === 'false');
     expect(arrow?.isReturn).toBe(true);
     expect(arrow?.rounds).toBeNull();
   });
 
   it('F-12 AC-008 (logic) marks only the selected arrow, by its block and output', () => {
-    const arrows = blockDrawingOf(loopFlow, { kind: 'blockArrow', fromId: 'b3', output: 'false' }).arrows;
+    const arrows = blockDrawingOf(loopFlow, { kind: 'blockArrow', fromId: '17a26a22-3474-5299-aa00-927fbce3d617', output: 'false' }).arrows;
     expect(arrows.map((arrow) => [arrow.fromId, arrow.output, arrow.selected])).toEqual([
-      ['b1', 'next', false],
-      ['b2', 'next', false],
-      ['b3', 'true', false],
-      ['b3', 'false', true],
+      ['76d07354-68e4-5d68-ac8b-8678cdcb75e9', 'next', false],
+      ['2feb88e1-9032-5420-9d7e-81c4160e7f11', 'next', false],
+      ['17a26a22-3474-5299-aa00-927fbce3d617', 'true', false],
+      ['17a26a22-3474-5299-aa00-927fbce3d617', 'false', true],
     ]);
   });
 
@@ -327,26 +327,26 @@ describe('F-12 AC-007 (logic) cutText', () => {
 
 describe('F-12 (no criterion: Verify device fix 2026-11-23) a dragged block keeps its dragged centre', () => {
   it('draws the dragged block at its centre, and its arrows start and end on it', () => {
-    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 200, y: 300 } });
-    const planner = drawing.blocks.find((block) => block.blockId === 'b2');
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { '2feb88e1-9032-5420-9d7e-81c4160e7f11': { x: 200, y: 300 } });
+    const planner = drawing.blocks.find((block) => block.blockId === '2feb88e1-9032-5420-9d7e-81c4160e7f11');
     expect({ cx: planner?.cx, cy: planner?.cy }).toEqual({ cx: 200, cy: 300 });
-    const into = drawing.arrows.find((arrow) => arrow.fromId === 'b1');
-    const out = drawing.arrows.find((arrow) => arrow.fromId === 'b2' && arrow.output === 'next');
+    const into = drawing.arrows.find((arrow) => arrow.fromId === '76d07354-68e4-5d68-ac8b-8678cdcb75e9');
+    const out = drawing.arrows.find((arrow) => arrow.fromId === '2feb88e1-9032-5420-9d7e-81c4160e7f11' && arrow.output === 'next');
     expect(into?.points[into.points.length - 1]).toEqual({ x: 130, y: 300 });
     expect(out?.points[0]).toEqual({ x: 270, y: 300 });
   });
 
   it('keeps the width of the layout and the other blocks on the main line', () => {
     const plain = blockDrawingOf(loopFlow);
-    const dragged = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 200, y: 300 } });
+    const dragged = blockDrawingOf(loopFlow, { kind: 'none' }, { '2feb88e1-9032-5420-9d7e-81c4160e7f11': { x: 200, y: 300 } });
     expect(dragged.width).toBe(plain.width);
-    expect(dragged.blocks.find((block) => block.blockId === 'b4')).toEqual(plain.blocks.find((block) => block.blockId === 'b4'));
+    expect(dragged.blocks.find((block) => block.blockId === 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a')).toEqual(plain.blocks.find((block) => block.blockId === 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a'));
   });
 
   it('moves the return label and the caption of a Condition with the Condition', () => {
-    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b3: { x: 400, y: 200 } });
-    const condition = drawing.blocks.find((block) => block.blockId === 'b3');
-    const back = drawing.arrows.find((arrow) => arrow.fromId === 'b3' && arrow.output === 'false');
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { '17a26a22-3474-5299-aa00-927fbce3d617': { x: 400, y: 200 } });
+    const condition = drawing.blocks.find((block) => block.blockId === '17a26a22-3474-5299-aa00-927fbce3d617');
+    const back = drawing.arrows.find((arrow) => arrow.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && arrow.output === 'false');
     expect(condition?.captionY).toBe(250);
     expect(back?.branch?.y).toBe(146);
   });
@@ -374,13 +374,13 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the blocks spread ac
     expect(drawing.blocks.map((block) => [block.halfWidth, block.halfHeight])).toEqual(
       natural.blocks.map((block) => [block.halfWidth, block.halfHeight]),
     );
-    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['b1', 'b2', 'b3', 'b4']);
+    expect(drawing.blocks.map((block) => block.blockId)).toEqual(['76d07354-68e4-5d68-ac8b-8678cdcb75e9', '2feb88e1-9032-5420-9d7e-81c4160e7f11', '17a26a22-3474-5299-aa00-927fbce3d617', 'eb81d6dd-e9c0-518e-9669-f3105dfd0c3a']);
     const cxs = drawing.blocks.map((block) => block.cx);
     expect([...cxs].sort((a, b) => a - b)).toEqual(cxs);
   });
 
   it('F-12 (no criterion: Verify device fix 2026-11-23) centres a lone block in a wider area', () => {
-    const lone: Flow = { ...emptyFlow, blocks: [{ index: 0, id: 'b1', kind: 'start', next: '' }] };
+    const lone: Flow = { ...emptyFlow, blocks: [{ index: 0, id: '76d07354-68e4-5d68-ac8b-8678cdcb75e9', kind: 'start', next: '' }] };
     const drawing = blockDrawingOf(lone, { kind: 'none' }, {}, { width: 1000, height: 560 });
     expect(drawing.blocks[0]?.cx).toBe(500);
     expect(drawing.width).toBe(1000);
@@ -398,7 +398,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the blocks spread ac
     expect(drawing.blocks.map((block) => block.cy)).toEqual(natural.blocks.map(() => 420 * scale));
     const back = drawing.arrows.find((arrow) => arrow.isReturn);
     expect(back?.points[1]?.y).toBeCloseTo(320 * scale, 9);
-    const forwardFalse = drawing.blocks.find((block) => block.blockId === 'b3');
+    const forwardFalse = drawing.blocks.find((block) => block.blockId === '17a26a22-3474-5299-aa00-927fbce3d617');
     expect(forwardFalse?.captionY).toBeCloseTo(420 * scale + 50, 9);
   });
 
@@ -407,8 +407,8 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the blocks spread ac
   });
 
   it('F-12 (no criterion: Verify device fix 2026-11-23) keeps a dragged block inside the drawing when the area has shrunk', () => {
-    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { b2: { x: 5000, y: 5000 } });
-    const planner = drawing.blocks.find((block) => block.blockId === 'b2');
+    const drawing = blockDrawingOf(loopFlow, { kind: 'none' }, { '2feb88e1-9032-5420-9d7e-81c4160e7f11': { x: 5000, y: 5000 } });
+    const planner = drawing.blocks.find((block) => block.blockId === '2feb88e1-9032-5420-9d7e-81c4160e7f11');
     expect(planner?.cx).toBe(drawing.width - (planner?.halfWidth ?? NaN));
     expect(planner?.cy).toBe(drawing.height - (planner?.halfHeight ?? NaN));
   });
@@ -433,7 +433,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) arrows are smooth cu
   });
 
   it('gives a return arrow a curve from the top of its source to the top of its target, peaking on the upper lane', () => {
-    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === 'b3' && candidate.output === 'false');
+    const arrow = blockDrawingOf(loopFlow).arrows.find((candidate) => candidate.fromId === '17a26a22-3474-5299-aa00-927fbce3d617' && candidate.output === 'false');
     // The return from b3 (top at y 390) to b2 (top at y 384), with the upper lane at y 320: the curve's peak is
     // (390 + 384) / 8 + 3 / 4 * control, so the control sits at (8 * 320 - 390 - 384) / 6.
     const control = (8 * 320 - 390 - 384) / 6;

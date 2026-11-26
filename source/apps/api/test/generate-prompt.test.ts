@@ -12,7 +12,7 @@ function plannedFile(path: string, extra: Partial<GeneratedPlan['files'][number]
     path,
     layout: `# ${path}\n\nThe layout of ${path}.`,
     description: `The description of ${path}.`,
-    ruleTags: [{ ruleId: 'tests-first', index: 0 }],
+    ruleTags: [{ ruleFile: 'style-guide', index: 0 }],
     ...extra,
   };
 }
@@ -40,14 +40,14 @@ describe('F-15 AC-015 generation request', () => {
 
   it('F-15 AC-015 the content carries the layout, the description and the rule tags of each file', () => {
     const parsed = JSON.parse(generationRequest(plan).content) as {
-      files: { path: string; layout: string; description: string; ruleTags: { ruleId: string; index: number }[] }[];
+      files: { path: string; layout: string; description: string; ruleTags: { ruleFile: string; index: number }[] }[];
     };
 
     expect(parsed.files[0]).toEqual({
       path: 'CLAUDE.md',
       layout: '# CLAUDE.md\n\nThe layout of CLAUDE.md.',
       description: 'The description of CLAUDE.md.',
-      ruleTags: [{ ruleId: 'tests-first', index: 0 }],
+      ruleTags: [{ ruleFile: 'style-guide', index: 0 }],
     });
     expect(parsed.files[2]).toEqual({
       path: '.claude/agents/review.md',
@@ -79,13 +79,13 @@ describe('F-15 AC-015 generation request', () => {
     expect(contentPaths(request.content)).toEqual([tricky]);
   });
 
-  it('F-15 AC-015 a rule tag with a quote in its id stays one JSON value', () => {
+  it('F-15 AC-015 a rule tag with a quote in its file name stays one JSON value', () => {
     const request = generationRequest({
-      files: [plannedFile('a.md', { ruleTags: [{ ruleId: 'a"b\\c', index: 2 }] })],
+      files: [plannedFile('a.md', { ruleTags: [{ ruleFile: 'a"b\\c', index: 2 }] })],
     });
-    const parsed = JSON.parse(request.content) as { files: { ruleTags: { ruleId: string; index: number }[] }[] };
+    const parsed = JSON.parse(request.content) as { files: { ruleTags: { ruleFile: string; index: number }[] }[] };
 
-    expect(parsed.files[0]?.ruleTags).toEqual([{ ruleId: 'a"b\\c', index: 2 }]);
+    expect(parsed.files[0]?.ruleTags).toEqual([{ ruleFile: 'a"b\\c', index: 2 }]);
   });
 
   it('F-15 AC-015 an empty plan gives content with no files', () => {

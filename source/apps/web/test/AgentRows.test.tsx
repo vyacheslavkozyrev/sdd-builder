@@ -18,28 +18,28 @@ type Block = core.Block;
 type AgentBlock = core.AgentBlock;
 
 const RULES: readonly Rule[] = [
-  { index: 0, id: 'no-secrets', title: 'No secrets', text: 'Never write a secret to a file.' },
-  { index: 1, id: 'plain-words', title: 'Plain words', text: 'Use plain words in the text.' },
+  { index: 0, id: '0c71d478-327b-5b57-b985-9e4352721ab6', title: 'No secrets', text: 'Never write a secret to a file.' },
+  { index: 1, id: 'a73b7d64-46a6-567c-b9e5-d381e24f8157', title: 'Plain words', text: 'Use plain words in the text.' },
 ];
 
 // The plan flow has two outcome artifacts; the planner has one argument, one tool and one rule tag, so each list
 // starts with a saved value.
 function pipelineWithLists(): Pipeline {
   const blocks: Block[] = [
-    { index: 0, id: 'start', kind: 'start', next: 'planner' },
+    { index: 0, id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0' },
     {
       index: 1,
-      id: 'planner',
+      id: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0',
       kind: 'agent',
       name: 'planner',
       description: 'Writes the plan from the brief.',
-      arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'feature-id' }],
+      arguments: [{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: 'The feature' }],
       tools: ['Read'],
-      ruleTags: [{ index: 0, ruleId: 'no-secrets' }],
-      next: 'done',
+      ruleTags: [{ index: 0, ruleId: '0c71d478-327b-5b57-b985-9e4352721ab6' }],
+      next: 'e9921352-41c9-5771-a013-0c63c6a49697',
       body: 'Reads the brief and writes plan.md.',
     },
-    { index: 2, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { index: 2, id: 'e9921352-41c9-5771-a013-0c63c6a49697', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ];
   return {
     name: 'Demo',
@@ -48,7 +48,7 @@ function pipelineWithLists(): Pipeline {
     flows: [
       {
         index: 0,
-        id: 'plan',
+        id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
         name: 'Plan',
         description: 'The plan step.',
         arguments: [],
@@ -65,7 +65,7 @@ function pipelineWithLists(): Pipeline {
 }
 
 function plannerOf(pipelineState: Pipeline): AgentBlock {
-  const block = pipelineState.flows[0]?.blocks.find((item) => item.id === 'planner');
+  const block = pipelineState.flows[0]?.blocks.find((item) => item.id === 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0');
   if (block === undefined || block.kind !== 'agent') throw new Error('no planner in the test pipeline');
   return block;
 }
@@ -98,12 +98,15 @@ function typeAndLeave(input: HTMLElement, value: string) {
   fireEvent.blur(input);
 }
 
+// A lower-case GUID in the 8-4-4-4-12 form (F-16 AC-027).
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe('F-12 AC-022 Agent argument rows', () => {
-  it('F-12 AC-022 shows each saved argument as a field with its id, a required checkbox and a minus', () => {
+  it('F-12 AC-022 shows each saved argument as a field with its name, a required checkbox and a minus', () => {
     renderPanel(pipelineWithLists());
 
     const row = screen.getByRole('group', { name: 'Argument 1' });
-    expect(within(row).getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
+    expect(within(row).getByLabelText('Argument 1 name')).toHaveProperty('value', 'The feature');
     expect(within(row).getByRole('checkbox')).toHaveProperty('checked', true);
     expect(within(row).getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
   });
@@ -115,32 +118,30 @@ describe('F-12 AC-022 Agent argument rows', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(plannerOf(saved).arguments).toEqual([{ index: 0, id: 'feature-id', required: false, hint: 'feature-id' }]);
+    expect(plannerOf(saved).arguments).toEqual([{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: false, hint: 'The feature' }]);
   });
 
-  it('F-12 AC-022 a new argument line saves a valid id on blur, unrequired, with the id as its hint', () => {
+  it('F-12 AC-022 a new argument line saves a valid name on blur, unrequired, with a GUID id and the name as its hint', () => {
     const { onChange } = renderPanel(pipelineWithLists());
 
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    typeAndLeave(screen.getByLabelText('New argument id'), 'topic');
+    typeAndLeave(screen.getByLabelText('New argument name'), 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
     expect(plannerOf(saved).arguments.map((item) => [item.id, item.required, item.hint])).toEqual([
-      ['feature-id', true, 'feature-id'],
-      ['topic', false, 'topic'],
+      ['82f01964-ec89-5b1a-8ccc-5a29c72f2adf', true, 'The feature'],
+      [expect.stringMatching(GUID), false, 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038'],
     ]);
   });
 
   it('F-12 AC-022 F-16 AC-026 a new argument name with no letter or digit stays on the line with the parser reason, and nothing is saved', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
-    const reason = reasonOf(
-      addAgentArgument(pipelineState, RULES, 'plan', 'planner', { id: '', required: false, hint: '' }),
-    );
+    const reason = 'Needs a letter or digit.';
 
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    typeAndLeave(screen.getByLabelText('New argument id'), '!!!');
+    typeAndLeave(screen.getByLabelText('New argument name'), '!!!');
 
     expect(onChange).not.toHaveBeenCalled();
     expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
@@ -150,10 +151,10 @@ describe('F-12 AC-022 Agent argument rows', () => {
     const { onChange } = renderPanel(pipelineWithLists());
 
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    fireEvent.blur(screen.getByLabelText('New argument id'));
+    fireEvent.blur(screen.getByLabelText('New argument name'));
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByLabelText('New argument id')).toBeNull();
+    expect(screen.queryByLabelText('New argument name')).toBeNull();
   });
 });
 
@@ -205,7 +206,7 @@ describe('F-12 AC-022 Agent tools', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
     const tooLong = 't'.repeat(101);
-    const reason = reasonOf(addAgentTool(pipelineState, RULES, 'plan', 'planner', tooLong));
+    const reason = reasonOf(addAgentTool(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', tooLong));
 
     fireEvent.click(screen.getByRole('button', { name: 'Add tool' }));
     typeAndLeave(screen.getByLabelText('New tool text'), tooLong);
@@ -218,7 +219,7 @@ describe('F-12 AC-022 Agent tools', () => {
   it('F-12 (no criterion: Verify device fix 2026-11-24) a repeated tool shows the reason beneath the list and keeps the saved tools', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
-    const reason = reasonOf(addAgentTool(pipelineState, RULES, 'plan', 'planner', 'Read'));
+    const reason = reasonOf(addAgentTool(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', 'Read'));
     expect(reason).toBe('repeats Read; each tool must be listed once');
 
     fireEvent.click(screen.getByRole('button', { name: 'Add tool' }));
@@ -264,7 +265,7 @@ describe('F-12 AC-027 Agent rule tags', () => {
     renderPanel(pipelineWithLists());
 
     const row = screen.getByRole('group', { name: 'Rule tag 1' });
-    expect(within(row).getByLabelText('Rule tag 1 rule')).toHaveProperty('value', 'no-secrets');
+    expect(within(row).getByLabelText('Rule tag 1 rule')).toHaveProperty('value', '0c71d478-327b-5b57-b985-9e4352721ab6');
     expect(within(row).getByRole('button', { name: 'Remove rule tag 1' })).toBeTruthy();
   });
 
@@ -272,22 +273,22 @@ describe('F-12 AC-027 Agent rule tags', () => {
     const { onChange } = renderPanel(pipelineWithLists());
 
     fireEvent.click(screen.getByRole('button', { name: 'Add rule tag' }));
-    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: 'plain-words' } });
+    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: 'a73b7d64-46a6-567c-b9e5-d381e24f8157' } });
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(plannerOf(onChange.mock.calls[0]?.[0] as Pipeline).ruleTags?.map((tag) => tag.ruleId)).toEqual([
-      'no-secrets',
-      'plain-words',
+      '0c71d478-327b-5b57-b985-9e4352721ab6',
+      'a73b7d64-46a6-567c-b9e5-d381e24f8157',
     ]);
   });
 
   it('F-12 AC-027 refuses a rule the Agent already has, with the parser reason, and keeps the saved tags', () => {
     const pipelineState = pipelineWithLists();
     const { onChange } = renderPanel(pipelineState);
-    const reason = reasonOf(addAgentRuleTag(pipelineState, RULES, 'plan', 'planner', 'no-secrets'));
+    const reason = reasonOf(addAgentRuleTag(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', '0c71d478-327b-5b57-b985-9e4352721ab6'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Add rule tag' }));
-    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: 'no-secrets' } });
+    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: '0c71d478-327b-5b57-b985-9e4352721ab6' } });
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.getByText(reason)).toBeTruthy();
@@ -295,10 +296,10 @@ describe('F-12 AC-027 Agent rule tags', () => {
 
   it('F-12 AC-027 an unknown rule is refused by the parser with its reason', () => {
     const pipelineState = pipelineWithLists();
-    const result = addAgentRuleTag(pipelineState, RULES, 'plan', 'planner', 'ghost-rule');
+    const result = addAgentRuleTag(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', '1fedffc1-5c79-5aab-a165-4df0949d84f5');
 
     expect(result.ok).toBe(false);
-    expect(reasonOf(result)).toMatch(/ghost-rule/);
+    expect(reasonOf(result)).toMatch(/1fedffc1-5c79-5aab-a165-4df0949d84f5/);
   });
 
   it('F-12 AC-027 the minus of a rule tag removes it', () => {

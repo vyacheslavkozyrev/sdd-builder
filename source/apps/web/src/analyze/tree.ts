@@ -27,16 +27,27 @@ export interface TreeFolder {
 
 export type TreeNode = TreeFile | TreeFolder;
 
+// The path of one rule block's file, as `listFiles` plans it for a configuration with only that block (F-16 AC-029).
+// A single block cannot clash with itself, so the call does not throw.
+function ruleFilePath(config: ProjectConfig, rule: ProjectConfig['rules'][number], templates: GenerationTemplates): string {
+  const planned = pipeline.listFiles({ ...config, rules: [rule] }, templates).find((file) => file.source.kind === 'rule');
+  return planned?.path ?? '';
+}
+
 // The tree of the files of the configuration. Folders come first on each level, then the rest, each group by name.
 export function projectTree(config: ProjectConfig, templates: GenerationTemplates): TreeNode[] {
+  // Two rule blocks with the same file name are both left out (F-16 AC-029). The file name is the one `listFiles` plans,
+  // so each valid rule block is planned alone to get its path; titles that differ in the wizard's ASCII id but give one
+  // file name then cannot reach `listFiles` together.
   const valid = config.rules.filter((rule) => ruleIdProblem(rule.title) === 'none');
+  const paths = new Map(valid.map((rule) => [rule, ruleFilePath(config, rule, templates)] as const));
   const counts = new Map<string, number>();
-  for (const rule of valid) {
-    counts.set(rule.id, (counts.get(rule.id) ?? 0) + 1);
+  for (const path of paths.values()) {
+    counts.set(path, (counts.get(path) ?? 0) + 1);
   }
   const usable: ProjectConfig = {
     ...config,
-    rules: valid.filter((rule) => counts.get(rule.id) === 1),
+    rules: valid.filter((rule) => counts.get(paths.get(rule) ?? '') === 1),
   };
   const root: MutableFolder = { kind: 'folder', name: '', path: '', children: new Map() };
   for (const file of pipeline.listFiles(usable, templates)) {

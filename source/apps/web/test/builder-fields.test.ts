@@ -33,7 +33,7 @@ function pipelineOf(...flows: Flow[]): Pipeline {
 
 // The saved pipeline of most tests: two connected flows, so no link problem is reported.
 function linkedPipeline(): Pipeline {
-  return pipelineOf(flow('plan', 'Plan', 'build'), flow('build', 'Build'));
+  return pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
 }
 
 function edit(pipelineState: Pipeline, flowId: string, change: FlowFieldEdit) {
@@ -49,34 +49,34 @@ function flowOf(pipelineState: Pipeline, id: string): Flow {
 
 describe('F-11 AC-020 the flow name is required, trimmed and unique among the flows', () => {
   it('stores the trimmed name', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'name', value: '  Draft plan  ' });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '  Draft plan  ' });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'plan').name).toBe('Draft plan');
+    expect(flowOf(result.pipeline, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').name).toBe('Draft plan');
   });
 
   it.each(['', '   ', '\n\t'])('refuses the blank name %j with the parser reason and keeps the saved name', (value) => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'name', value });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value });
     expect(result).toEqual({ ok: false, field: 'name', reason: 'must not be blank' });
-    expect(flowOf(saved, 'plan').name).toBe('Plan');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').name).toBe('Plan');
   });
 
   it('refuses a name that another flow already has, with the parser reason', () => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'name', value: 'Build' });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'Build' });
     expect(result).toEqual({
       ok: false,
       field: 'name',
       reason: 'must be unique among the flows, got Build, which another flow already has',
     });
-    expect(flowOf(saved, 'plan').name).toBe('Plan');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').name).toBe('Plan');
   });
 
   it('refuses a duplicate name when the other flow is the later one, and when it is the earlier one', () => {
-    const pipelineState = pipelineOf(flow('first', 'Alpha'), flow('second', 'Beta', 'third'), flow('third', 'Gamma'));
-    const earlier = edit(pipelineState, 'second', { field: 'name', value: 'Alpha' });
-    const later = edit(pipelineState, 'first', { field: 'name', value: 'Gamma' });
+    const pipelineState = pipelineOf(flow('059aad66-4634-5108-80b4-48f465996d27', 'Alpha'), flow('511cb588-296c-58ee-95e0-c7b9cdb35445', 'Beta', 'eba2b431-0c8f-54bb-b072-e6ce9d4525a1'), flow('eba2b431-0c8f-54bb-b072-e6ce9d4525a1', 'Gamma'));
+    const earlier = edit(pipelineState, '511cb588-296c-58ee-95e0-c7b9cdb35445', { field: 'name', value: 'Alpha' });
+    const later = edit(pipelineState, '059aad66-4634-5108-80b4-48f465996d27', { field: 'name', value: 'Gamma' });
     expect(earlier).toEqual({
       ok: false,
       field: 'name',
@@ -87,100 +87,100 @@ describe('F-11 AC-020 the flow name is required, trimmed and unique among the fl
       field: 'name',
       reason: 'must be unique among the flows, got Gamma, which another flow already has',
     });
-    expect(flowOf(pipelineState, 'second').name).toBe('Beta');
-    expect(flowOf(pipelineState, 'first').name).toBe('Alpha');
+    expect(flowOf(pipelineState, '511cb588-296c-58ee-95e0-c7b9cdb35445').name).toBe('Beta');
+    expect(flowOf(pipelineState, '059aad66-4634-5108-80b4-48f465996d27').name).toBe('Alpha');
   });
 
   it('accepts a name that differs from another flow only in case, since names are compared as written', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'name', value: 'build' });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('accepts the flow keeping its own name', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'name', value: 'Plan' });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'Plan' });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('refuses a name longer than 100 characters with the parser reason', () => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'name', value: 'a'.repeat(101) });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'a'.repeat(101) });
     expect(result).toEqual({ ok: false, field: 'name', reason: 'must be at most 100 characters' });
-    expect(flowOf(saved, 'plan').name).toBe('Plan');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').name).toBe('Plan');
   });
 });
 
 describe('F-11 AC-021 the flow description is optional text of at most 1000 characters', () => {
   it('accepts a description of 1000 characters', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'description', value: 'x'.repeat(1000) });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: 'x'.repeat(1000) });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('accepts an empty description', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'description', value: '' });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: '' });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('refuses a description of 1001 characters with the parser reason and keeps the saved one', () => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'description', value: 'x'.repeat(1001) });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: 'x'.repeat(1001) });
     expect(result).toEqual({ ok: false, field: 'description', reason: 'must be at most 1000 characters' });
-    expect(flowOf(saved, 'plan').description).toBe('The Plan step.');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').description).toBe('The Plan step.');
   });
 });
 
 describe('F-11 AC-022 the flow body is at most 1000 code points', () => {
   it('accepts a body of 1000 code points', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'body', value: 'x'.repeat(1000) });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: 'x'.repeat(1000) });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('counts an emoji as one code point, so 1000 emoji are accepted', () => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'body', value: '😀'.repeat(1000) });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: '😀'.repeat(1000) });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('refuses 1001 code points with the parser reason and keeps the saved body', () => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'body', value: '😀'.repeat(1001) });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: '😀'.repeat(1001) });
     expect(result).toEqual({ ok: false, field: 'body', reason: 'must be at most 1000 characters' });
-    expect(flowOf(saved, 'plan').body).toBe('Do the Plan work.');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').body).toBe('Do the Plan work.');
   });
 
   it("F-11 AC-022 refuses a blank body with the parser's reason and keeps the saved body", () => {
     for (const value of ['', '   ', '\n\t']) {
       const saved = linkedPipeline();
-      const result = edit(saved, 'plan', { field: 'body', value });
+      const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value });
       expect(result).toEqual({ ok: false, field: 'body', reason: 'must not be blank' });
-      expect(flowOf(saved, 'plan').body).toBe('Do the Plan work.');
+      expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').body).toBe('Do the Plan work.');
     }
   });
 });
 
 describe('F-11 AC-023 the flow model is haiku, sonnet, opus, inherit or unset', () => {
   it.each(['haiku', 'sonnet', 'opus', 'inherit'])('stores the model %s', (value) => {
-    const result = edit(linkedPipeline(), 'plan', { field: 'model', value });
+    const result = edit(linkedPipeline(), 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'model', value });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'plan').model).toBe(value);
+    expect(flowOf(result.pipeline, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').model).toBe(value);
   });
 
   it('unsets the model when the value is undefined', () => {
-    const pipelineState = pipelineOf({ ...flow('plan', 'Plan', 'build'), model: 'opus' }, flow('build', 'Build'));
-    const result = edit(pipelineState, 'plan', { field: 'model', value: undefined });
+    const pipelineState = pipelineOf({ ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), model: 'opus' }, flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
+    const result = edit(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'model', value: undefined });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'plan')).not.toHaveProperty('model');
+    expect(flowOf(result.pipeline, 'ea3211a4-b64b-5204-9451-6fe12fd7c655')).not.toHaveProperty('model');
   });
 
   it.each(['gpt', 'Opus', ''])('refuses the model %j with the parser reason and stores nothing', (value) => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'model', value });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'model', value });
     expect(result).toEqual({
       ok: false,
       field: 'model',
       reason: `must be one of haiku, sonnet, opus, inherit, got text`,
     });
-    expect(flowOf(saved, 'plan')).not.toHaveProperty('model');
+    expect(flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655')).not.toHaveProperty('model');
   });
 });
 
@@ -188,10 +188,10 @@ describe('F-11 AC-028 every flow field edit goes through the parser', () => {
   it('returns the parser reason for the field path, as parseProjectConfig reports it', () => {
     const saved = linkedPipeline();
     const value = 'x'.repeat(1001);
-    const result = edit(saved, 'plan', { field: 'description', value });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value });
     // The document form of the pipeline: the model's `index` is not a document key.
     const document = saved.flows.map(({ index: _index, ...item }) =>
-      item.id === 'plan' ? { ...item, description: value } : item,
+      item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655' ? { ...item, description: value } : item,
     );
     const parsed = core.parseProjectConfig({
       schemaVersion: 2,
@@ -207,24 +207,24 @@ describe('F-11 AC-028 every flow field edit goes through the parser', () => {
   it('never changes the input pipeline, whether the edit is accepted or refused', () => {
     const saved = linkedPipeline();
     const snapshot = structuredClone(saved);
-    edit(saved, 'plan', { field: 'name', value: 'Build' });
-    edit(saved, 'plan', { field: 'body', value: 'x'.repeat(1001) });
-    edit(saved, 'plan', { field: 'name', value: 'Renamed' });
+    edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'Build' });
+    edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: 'x'.repeat(1001) });
+    edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'Renamed' });
     expect(saved).toEqual(snapshot);
   });
 
   it('changes only the edited flow and keeps its other fields', () => {
     const saved = linkedPipeline();
-    const result = edit(saved, 'plan', { field: 'body', value: 'A new body.' });
+    const result = edit(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: 'A new body.' });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'plan')).toEqual({ ...flowOf(saved, 'plan'), body: 'A new body.' });
-    expect(flowOf(result.pipeline, 'build')).toEqual(flowOf(saved, 'build'));
+    expect(flowOf(result.pipeline, 'ea3211a4-b64b-5204-9451-6fe12fd7c655')).toEqual({ ...flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), body: 'A new body.' });
+    expect(flowOf(result.pipeline, 'a0c3aad4-8765-5b23-8df5-7c03d481233c')).toEqual(flowOf(saved, 'a0c3aad4-8765-5b23-8df5-7c03d481233c'));
   });
 
   it('accepts an edit of a flow that has no link yet, since the link problem was there before the edit', () => {
-    const unlinked = pipelineOf(flow('plan', 'Plan'), flow('build', 'Build'));
-    const result = edit(unlinked, 'plan', { field: 'description', value: 'Edited.' });
+    const unlinked = pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
+    const result = edit(unlinked, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: 'Edited.' });
     expect(result).toMatchObject({ ok: true });
   });
 
@@ -240,7 +240,7 @@ describe('F-11 AC-028 every flow field edit goes through the parser', () => {
 function newFlowPipeline(): Pipeline {
   const added: Flow = {
     index: 2,
-    id: 'flow-1',
+    id: '40174c6b-ffc9-5a01-af92-33a352fc884a',
     name: 'flow-1',
     arguments: [],
     body: '',
@@ -253,29 +253,29 @@ function newFlowPipeline(): Pipeline {
 
 describe('F-16 AC-020 the body refusal is about the body', () => {
   it('F-16 AC-020 accepts the first character of the body of a new flow that no flow links to yet', () => {
-    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: 'a' });
+    const result = edit(newFlowPipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'body', value: 'a' });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'flow-1').body).toBe('a');
+    expect(flowOf(result.pipeline, '40174c6b-ffc9-5a01-af92-33a352fc884a').body).toBe('a');
   });
 
   it.each(['a ', 'a\n', 'a\nb', 'x'.repeat(300)])('F-16 AC-020 accepts the body %j typed into a new flow', (value) => {
-    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value });
+    const result = edit(newFlowPipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'body', value });
     expect(result).toMatchObject({ ok: true });
   });
 
   it('F-16 AC-020 keeps the parser reason for a body over the limit', () => {
-    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: 'x'.repeat(1001) });
+    const result = edit(newFlowPipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'body', value: 'x'.repeat(1001) });
     expect(result).toEqual({ ok: false, field: 'body', reason: 'must be at most 1000 characters' });
   });
 
   it('F-16 AC-020 refuses a blank body of a new flow with the parser reason at the body', () => {
-    const result = edit(newFlowPipeline(), 'flow-1', { field: 'body', value: ' ' });
+    const result = edit(newFlowPipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'body', value: ' ' });
     expect(result).toEqual({ ok: false, field: 'body', reason: 'must not be blank' });
   });
 
   it('F-16 AC-020 accepts a description typed into a new flow that no flow links to yet', () => {
-    const result = edit(newFlowPipeline(), 'flow-1', { field: 'description', value: 'Writes the plan.' });
+    const result = edit(newFlowPipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'description', value: 'Writes the plan.' });
     expect(result).toMatchObject({ ok: true });
   });
 });
@@ -284,19 +284,19 @@ describe('F-16 AC-020 the body refusal is about the body', () => {
 // The parser reports the missing link of the new flow only once the name is not blank.
 function blankNamePipeline(): Pipeline {
   const base = newFlowPipeline();
-  return { ...base, name: '', flows: base.flows.map((item) => (item.id === 'flow-1' ? { ...item, name: 'flow-1' } : item)) };
+  return { ...base, name: '', flows: base.flows.map((item) => (item.id === '40174c6b-ffc9-5a01-af92-33a352fc884a' ? { ...item, name: 'flow-1' } : item)) };
 }
 
 describe('F-16 AC-025 a flow name is typed while another flow has no link', () => {
   it('F-16 AC-025 keeps a flow name typed while the pipeline name is blank and a new flow has no link', () => {
-    const result = edit(blankNamePipeline(), 'flow-1', { field: 'name', value: 'Draft' });
+    const result = edit(blankNamePipeline(), '40174c6b-ffc9-5a01-af92-33a352fc884a', { field: 'name', value: 'Draft' });
     expect(result).toMatchObject({ ok: true });
     if (!result.ok) return;
-    expect(flowOf(result.pipeline, 'flow-1').name).toBe('Draft');
+    expect(flowOf(result.pipeline, '40174c6b-ffc9-5a01-af92-33a352fc884a').name).toBe('Draft');
   });
 
   it('F-16 AC-025 negative case: a flow renamed to the name of another flow is refused at the name, with the parser reason', () => {
-    const result = edit(linkedPipeline(), 'build', { field: 'name', value: 'Plan' });
+    const result = edit(linkedPipeline(), 'a0c3aad4-8765-5b23-8df5-7c03d481233c', { field: 'name', value: 'Plan' });
     expect(result).toEqual({
       ok: false,
       field: 'name',

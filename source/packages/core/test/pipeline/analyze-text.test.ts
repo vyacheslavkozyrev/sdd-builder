@@ -11,15 +11,6 @@ function withAgent(change: (agent: AgentBlock) => AgentBlock): ProjectConfig {
   }));
 }
 
-// The valid config with a second flow, index 1, whose id is `id`. The paths of its findings use the index.
-function withSecondFlowId(id: string): ProjectConfig {
-  const base = validConfig();
-  const first = base.pipeline.flows[0];
-  if (first === undefined) throw new Error('the fixture has no flow');
-  const second: Flow = { ...first, index: 1, id };
-  return { ...base, pipeline: { ...base.pipeline, flows: [first, second] } };
-}
-
 interface Expected {
   readonly rule: string;
   readonly path: string;
@@ -29,7 +20,6 @@ function blockersOf(config: ProjectConfig): Expected[] {
   return identityAndTextRule(config).map((finding) => ({ rule: finding.rule, path: finding.path }));
 }
 
-const FLOW_ID_0: Expected[] = [{ rule: 'flow-id', path: 'pipeline.flows.0.id' }];
 const AGENT_NAME_1: Expected[] = [{ rule: 'agent-name', path: 'pipeline.flows.0.blocks.1.name' }];
 const AGENT_DESCRIPTION_1: Expected[] = [
   { rule: 'agent-description', path: 'pipeline.flows.0.blocks.1.description' },
@@ -40,33 +30,13 @@ const AGENT_DESCRIPTION_1: Expected[] = [
 const cases: Array<[string, ProjectConfig, Expected[]]> = [
   ['F-03 AC-026 a valid flow id and names have no finding', validConfig(), []],
   [
-    'F-03 AC-026 a flow id with an uppercase letter gives a blocker at the id path',
+    'F-16 AC-029 a flow id is not a file name, so a GUID that starts with a digit has no finding',
+    withFlow((flow) => ({ ...flow, id: '47a9474f-4ec9-5f78-802c-4d3a72f4c7c1' })),
+    [],
+  ],
+  [
+    'F-16 AC-029 a flow id is not checked here, since the parser refuses any id that is not a GUID (AC-028)',
     withFlow((flow) => ({ ...flow, id: 'Build' })),
-    FLOW_ID_0,
-  ],
-  [
-    'F-03 AC-026 a flow id with an underscore gives a blocker at the id path',
-    withFlow((flow) => ({ ...flow, id: 'build_flow' })),
-    FLOW_ID_0,
-  ],
-  [
-    'F-03 AC-026 a flow id that starts with a digit gives a blocker at the id path',
-    withFlow((flow) => ({ ...flow, id: '1build' })),
-    FLOW_ID_0,
-  ],
-  ['F-03 AC-026 an empty flow id gives a blocker at the id path', withFlow((flow) => ({ ...flow, id: '' })), FLOW_ID_0],
-  [
-    'F-03 AC-026 a flow id named pipeline gives a blocker at the id path',
-    withFlow((flow) => ({ ...flow, id: 'pipeline' })),
-    FLOW_ID_0,
-  ],
-  ['F-03 AC-026 a second flow with a bad id gives a blocker at its own index path', withSecondFlowId('Review'), [
-    { rule: 'flow-id', path: 'pipeline.flows.1.id' },
-  ]],
-  ['F-03 AC-026 a single-letter flow id is file-safe and has no finding', withFlow((flow) => ({ ...flow, id: 'a' })), []],
-  [
-    'F-03 AC-026 a flow id with digits and hyphens has no finding',
-    withFlow((flow) => ({ ...flow, id: 'build-2' })),
     [],
   ],
   [
@@ -132,12 +102,5 @@ describe('F-03 identity and required text', () => {
   it.each(cases)('%s', (_name, config, expected) => {
     expect(identityAndTextRule(config).every((finding) => finding.severity === 'blocker')).toBe(true);
     expect(blockersOf(config)).toEqual(expected);
-  });
-
-  it('F-03 AC-026 is run by the analysis entry, so a flow id that is not file-safe is refused by analyzeStructure', () => {
-    const badId = withFlow((flow) => ({ ...flow, id: 'Build' }));
-    expect(analyzeStructure(badId)).toContainEqual(
-      expect.objectContaining({ severity: 'blocker', rule: 'flow-id', path: 'pipeline.flows.0.id' }),
-    );
   });
 });

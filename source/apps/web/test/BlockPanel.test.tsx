@@ -22,33 +22,33 @@ type ConditionBlock = core.ConditionBlock;
 // The plan flow: start, planner, reviewer, end. The planner has no model; the reviewer is set to sonnet.
 function planPipeline(): Pipeline {
   const blocks: Block[] = [
-    { index: 0, id: 'start', kind: 'start', next: 'planner' },
+    { index: 0, id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0' },
     {
       index: 1,
-      id: 'planner',
+      id: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0',
       kind: 'agent',
       name: 'planner',
       description: 'Writes the plan from the brief.',
       arguments: [],
-      next: 'reviewer',
+      next: '1954b5cf-b131-5509-9c06-eb5b22e8aaad',
       body: 'Reads the brief and writes plan.md.',
     },
     {
       index: 2,
-      id: 'reviewer',
+      id: '1954b5cf-b131-5509-9c06-eb5b22e8aaad',
       kind: 'agent',
       name: 'reviewer',
       description: 'Checks the plan.',
       arguments: [],
-      next: 'done',
+      next: 'e9921352-41c9-5771-a013-0c63c6a49697',
       model: 'sonnet',
       body: 'Checks plan.md against the stories.',
     },
-    { index: 3, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { index: 3, id: 'e9921352-41c9-5771-a013-0c63c6a49697', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ];
   const plan: Flow = {
     index: 0,
-    id: 'plan',
+    id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
     name: 'Plan',
     description: 'The plan step.',
     arguments: [],
@@ -61,15 +61,15 @@ function planPipeline(): Pipeline {
 }
 
 function agentOf(pipelineState: Pipeline, blockId: string): AgentBlock {
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   const block = flow?.blocks.find((item) => item.id === blockId);
   if (block === undefined || block.kind !== 'agent') throw new Error(`no Agent ${blockId} in the test pipeline`);
   return block;
 }
 
-function renderPanel(pipelineState: Pipeline, blockId = 'planner') {
+function renderPanel(pipelineState: Pipeline, blockId = 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0') {
   const onChange = vi.fn();
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   if (flow === undefined) throw new Error('no plan flow in the test pipeline');
   render(
     <AgentPanel
@@ -86,7 +86,7 @@ function renderPanel(pipelineState: Pipeline, blockId = 'planner') {
 // The parser's reason for an edit of the planner's field, which the panel must show exactly. The edit is
 // expected to be refused.
 function parserReason(pipelineState: Pipeline, change: Parameters<typeof editAgentField>[4]): string {
-  const result = editAgentField(pipelineState, [], 'plan', 'planner', change);
+  const result = editAgentField(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', change);
   if (result.ok) throw new Error('the test edit was accepted by the parser');
   return result.reason;
 }
@@ -118,8 +118,8 @@ describe('F-12 AC-022 Agent panel fields', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'planner').description).toBe('Writes the plan.');
-    expect(agentOf(saved, 'reviewer')).toEqual(agentOf(pipelineState, 'reviewer'));
+    expect(agentOf(saved, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').description).toBe('Writes the plan.');
+    expect(agentOf(saved, '1954b5cf-b131-5509-9c06-eb5b22e8aaad')).toEqual(agentOf(pipelineState, '1954b5cf-b131-5509-9c06-eb5b22e8aaad'));
   });
 });
 
@@ -132,13 +132,13 @@ describe('F-12 AC-023 Agent name', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'planner').name).toBe('writer');
+    expect(agentOf(saved, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('writer');
   });
 
   it('F-12 AC-023 refuses a name that another Agent has with no error shown, and keeps the saved name', () => {
     const { onChange } = renderPanel(planPipeline());
 
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'reviewer' } });
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: '1954b5cf-b131-5509-9c06-eb5b22e8aaad' } });
     fireEvent.blur(screen.getByLabelText('Name'));
 
     expect(onChange).not.toHaveBeenCalled();
@@ -194,7 +194,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'planner').name).toBe('s');
+    expect(agentOf(saved, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('s');
     expect(screen.queryByText(/must be an id/)).toBeNull();
     expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
   });
@@ -208,7 +208,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     fireEvent.keyDown(input, { key: 'Enter' });
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('s');
     expect(screen.queryByText(/must be an id/)).toBeNull();
   });
 
@@ -244,7 +244,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     fireEvent.blur(input);
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('s');
     expect(screen.queryByText(/must be an id/)).toBeNull();
   });
 
@@ -285,14 +285,14 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     fireEvent.blur(input);
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('s');
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('s');
   });
 
   it('F-12 (no criterion: Verify device fix 2026-11-24) does not show a refused name after a valid commit', () => {
     const { onChange } = renderPanel(planPipeline());
     const input = screen.getByLabelText('Name');
 
-    fireEvent.change(input, { target: { value: 'reviewer' } });
+    fireEvent.change(input, { target: { value: '1954b5cf-b131-5509-9c06-eb5b22e8aaad' } });
     fireEvent.blur(input);
     expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
 
@@ -300,7 +300,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) Agent name', () => {
     fireEvent.blur(input);
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'planner').name).toBe('writer');
+    expect(agentOf(onChange.mock.calls[0]?.[0] as Pipeline, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').name).toBe('writer');
     expect(screen.queryByText('Another Agent already has this name.')).toBeNull();
     expect(input.getAttribute('aria-describedby')).toBeNull();
   });
@@ -350,7 +350,7 @@ describe('F-12 AC-024 Agent description', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'planner').description).toBe(text);
+    expect(agentOf(saved, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').description).toBe(text);
   });
 });
 
@@ -371,17 +371,17 @@ describe('F-12 AC-025 Agent model', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'planner').model).toBe('opus');
+    expect(agentOf(saved, 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0').model).toBe('opus');
   });
 
   it('F-12 AC-025 unsets the model when the blank option is chosen', () => {
-    const { onChange } = renderPanel(planPipeline(), 'reviewer');
+    const { onChange } = renderPanel(planPipeline(), '1954b5cf-b131-5509-9c06-eb5b22e8aaad');
 
     fireEvent.change(screen.getByLabelText('Model'), { target: { value: '' } });
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(agentOf(saved, 'reviewer').model).toBeUndefined();
+    expect(agentOf(saved, '1954b5cf-b131-5509-9c06-eb5b22e8aaad').model).toBeUndefined();
   });
 });
 
@@ -470,7 +470,7 @@ describe('F-12 AC-028 Agent body', () => {
 function conditionPipeline(blocks: Block[] = conditionBlocks()): Pipeline {
   const plan: Flow = {
     index: 0,
-    id: 'plan',
+    id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
     name: 'Plan',
     arguments: [],
     body: 'Plan the work.',
@@ -483,39 +483,39 @@ function conditionPipeline(blocks: Block[] = conditionBlocks()): Pipeline {
 
 function conditionBlocks(): Block[] {
   return [
-    { index: 0, id: 'start', kind: 'start', next: 'pre' },
+    { index: 0, id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: 'c045cda9-9761-5373-941f-b21a3f878ede' },
     {
       index: 1,
-      id: 'pre',
+      id: 'c045cda9-9761-5373-941f-b21a3f878ede',
       kind: 'condition',
       description: 'The previous step is complete',
-      true: { to: 'planner' },
+      true: { to: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0' },
       false: { stop: true },
     },
     {
       index: 2,
-      id: 'planner',
+      id: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0',
       kind: 'agent',
       name: 'planner',
       description: 'Writes the plan.',
       arguments: [],
-      next: 'check',
+      next: '8f16ac90-f4a1-5d2b-95fa-129518a01467',
       body: 'Writes plan.md.',
     },
     {
       index: 3,
-      id: 'check',
+      id: '8f16ac90-f4a1-5d2b-95fa-129518a01467',
       kind: 'condition',
       description: 'The reviewer approves',
-      true: { to: 'done' },
-      false: { to: 'planner', roundLimit: 3 },
+      true: { to: 'e9921352-41c9-5771-a013-0c63c6a49697' },
+      false: { to: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', roundLimit: 3 },
     },
-    { index: 4, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { index: 4, id: 'e9921352-41c9-5771-a013-0c63c6a49697', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ];
 }
 
 function conditionOf(pipelineState: Pipeline, blockId: string): ConditionBlock {
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   const block = flow?.blocks.find((item) => item.id === blockId);
   if (block === undefined || block.kind !== 'condition') {
     throw new Error(`no Condition ${blockId} in the test pipeline`);
@@ -525,7 +525,7 @@ function conditionOf(pipelineState: Pipeline, blockId: string): ConditionBlock {
 
 function renderCondition(pipelineState: Pipeline, blockId: string) {
   const onChange = vi.fn();
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   if (flow === undefined) throw new Error('no plan flow in the test pipeline');
   render(
     <ConditionPanel
@@ -545,14 +545,14 @@ function labelsShown(): string[] {
 
 describe('F-12 AC-030 Condition description', () => {
   it('F-12 AC-030 shows the title as an end check and the subtitle with the arrow target', () => {
-    renderCondition(conditionPipeline(), 'check');
+    renderCondition(conditionPipeline(), '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     expect(screen.getByText('Condition: end check')).toBeTruthy();
     expect(screen.getByText('Check on the arrow before End')).toBeTruthy();
   });
 
   it('F-12 AC-030 shows the title as a pre-check when the true route does not go to End', () => {
-    renderCondition(conditionPipeline(), 'pre');
+    renderCondition(conditionPipeline(), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('Condition: pre-check')).toBeTruthy();
     expect(screen.getByText('Check on the arrow before planner')).toBeTruthy();
@@ -562,20 +562,20 @@ describe('F-12 AC-030 Condition description', () => {
     const blocks = conditionBlocks();
     blocks[1] = {
       index: 1,
-      id: 'pre',
+      id: 'c045cda9-9761-5373-941f-b21a3f878ede',
       kind: 'condition',
       description: 'Check',
       true: { to: '' },
       false: { stop: true },
     };
-    renderCondition(conditionPipeline(blocks), 'pre');
+    renderCondition(conditionPipeline(blocks), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('Condition: pre-check')).toBeTruthy();
     expect(screen.getByText('Check on the arrow')).toBeTruthy();
   });
 
   it('F-12 AC-030 shows the saved description and its counter', () => {
-    renderCondition(conditionPipeline(), 'check');
+    renderCondition(conditionPipeline(), '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     expect(screen.getByLabelText('What it checks')).toHaveProperty('value', 'The reviewer approves');
     expect(screen.getByText('21 / 1000 characters')).toBeTruthy();
@@ -583,20 +583,20 @@ describe('F-12 AC-030 Condition description', () => {
 
   it('F-12 AC-030 saves a changed description through the parser', () => {
     const pipelineState = conditionPipeline();
-    const { onChange } = renderCondition(pipelineState, 'check');
+    const { onChange } = renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     fireEvent.change(screen.getByLabelText('What it checks'), { target: { value: 'The tests pass' } });
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(conditionOf(saved, 'check').description).toBe('The tests pass');
-    expect(conditionOf(saved, 'pre')).toEqual(conditionOf(pipelineState, 'pre'));
+    expect(conditionOf(saved, '8f16ac90-f4a1-5d2b-95fa-129518a01467').description).toBe('The tests pass');
+    expect(conditionOf(saved, 'c045cda9-9761-5373-941f-b21a3f878ede')).toEqual(conditionOf(pipelineState, 'c045cda9-9761-5373-941f-b21a3f878ede'));
   });
 
   it('F-12 AC-030 refuses a blank description with the parser reason and keeps the saved value', () => {
     const pipelineState = conditionPipeline();
-    const { onChange } = renderCondition(pipelineState, 'check');
-    const result = editConditionDescription(pipelineState, [], 'plan', 'check', '   ');
+    const { onChange } = renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
+    const result = editConditionDescription(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '8f16ac90-f4a1-5d2b-95fa-129518a01467', '   ');
     if (result.ok) throw new Error('the parser accepted a blank description');
 
     fireEvent.change(screen.getByLabelText('What it checks'), { target: { value: '   ' } });
@@ -611,7 +611,7 @@ describe('F-12 AC-030 Condition description', () => {
 
 describe('F-12 AC-031 and AC-032 route texts', () => {
   it('F-12 AC-031 shows the true route as the next block, read-only', () => {
-    renderCondition(conditionPipeline(), 'pre');
+    renderCondition(conditionPipeline(), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('Next: planner')).toBeTruthy();
   });
@@ -620,25 +620,25 @@ describe('F-12 AC-031 and AC-032 route texts', () => {
     const blocks = conditionBlocks();
     blocks[1] = {
       index: 1,
-      id: 'pre',
+      id: 'c045cda9-9761-5373-941f-b21a3f878ede',
       kind: 'condition',
       description: 'Check',
       true: { to: '' },
       false: { stop: true },
     };
-    renderCondition(conditionPipeline(blocks), 'pre');
+    renderCondition(conditionPipeline(blocks), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('No arrow yet')).toBeTruthy();
   });
 
   it('F-12 AC-032 shows "Stop the flow and ask the user" for a false route with no arrow', () => {
-    renderCondition(conditionPipeline(), 'pre');
+    renderCondition(conditionPipeline(), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('Stop the flow and ask the user')).toBeTruthy();
   });
 
   it('F-12 AC-032 shows "Returns to <name>, up to N rounds" for a return', () => {
-    renderCondition(conditionPipeline(), 'check');
+    renderCondition(conditionPipeline(), '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     expect(screen.getByText('Returns to planner, up to 3 rounds')).toBeTruthy();
   });
@@ -647,13 +647,13 @@ describe('F-12 AC-031 and AC-032 route texts', () => {
     const blocks = conditionBlocks();
     blocks[1] = {
       index: 1,
-      id: 'pre',
+      id: 'c045cda9-9761-5373-941f-b21a3f878ede',
       kind: 'condition',
       description: 'Check',
-      true: { to: 'planner' },
-      false: { to: 'check' },
+      true: { to: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0' },
+      false: { to: '8f16ac90-f4a1-5d2b-95fa-129518a01467' },
     };
-    renderCondition(conditionPipeline(blocks), 'pre');
+    renderCondition(conditionPipeline(blocks), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.getByText('Goes to Condition: The reviewer approves')).toBeTruthy();
   });
@@ -661,14 +661,14 @@ describe('F-12 AC-031 and AC-032 route texts', () => {
 
 describe('F-12 AC-033 and AC-034 round limit', () => {
   it('F-12 AC-033 shows the round limit and "rounds" for a return only', () => {
-    renderCondition(conditionPipeline(), 'check');
+    renderCondition(conditionPipeline(), '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     expect(screen.getByLabelText('Round limit')).toHaveProperty('value', '3');
     expect(screen.getByText('rounds')).toBeTruthy();
   });
 
   it('F-12 AC-034 shows no round field for a false route to a later block or no arrow', () => {
-    renderCondition(conditionPipeline(), 'pre');
+    renderCondition(conditionPipeline(), 'c045cda9-9761-5373-941f-b21a3f878ede');
 
     expect(screen.queryByLabelText('Round limit')).toBeNull();
     expect(labelsShown()).not.toContain('Round limit');
@@ -676,8 +676,8 @@ describe('F-12 AC-033 and AC-034 round limit', () => {
 
   it.each(['0', '6', '2.5', ''])('F-12 AC-033 refuses the round limit "%s" and keeps the saved one', (text) => {
     const pipelineState = conditionPipeline();
-    const { onChange } = renderCondition(pipelineState, 'check');
-    const result = setConditionRoundLimit(pipelineState, [], 'plan', 'check', text);
+    const { onChange } = renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
+    const result = setConditionRoundLimit(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '8f16ac90-f4a1-5d2b-95fa-129518a01467', text);
     if (result.ok) throw new Error(`the parser accepted the round limit "${text}"`);
 
     fireEvent.change(screen.getByLabelText('Round limit'), { target: { value: text } });
@@ -689,23 +689,23 @@ describe('F-12 AC-033 and AC-034 round limit', () => {
 
   it('F-12 AC-033 refuses a round limit for a problem in the false route, with the parser reason (F-16 T015)', () => {
     const blocks = conditionBlocks().map((block) =>
-      block.id === 'check' && block.kind === 'condition' ? { ...block, false: { to: 'pre', roundLimit: 3 } } : block,
+      block.id === '8f16ac90-f4a1-5d2b-95fa-129518a01467' && block.kind === 'condition' ? { ...block, false: { to: 'c045cda9-9761-5373-941f-b21a3f878ede', roundLimit: 3 } } : block,
     );
     const pipelineState = conditionPipeline(blocks);
-    const result = setConditionRoundLimit(pipelineState, [], 'plan', 'check', '4');
+    const result = setConditionRoundLimit(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '8f16ac90-f4a1-5d2b-95fa-129518a01467', '4');
 
-    expect(result).toEqual({ ok: false, field: 'roundLimit', reason: expect.stringContaining('got pre') });
+    expect(result).toEqual({ ok: false, field: 'roundLimit', reason: expect.stringContaining('got c045cda9-9761-5373-941f-b21a3f878ede') });
   });
 
   it('F-12 AC-033 saves an accepted round limit through the parser', () => {
     const pipelineState = conditionPipeline();
-    const { onChange } = renderCondition(pipelineState, 'check');
+    const { onChange } = renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     fireEvent.change(screen.getByLabelText('Round limit'), { target: { value: '5' } });
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(conditionOf(saved, 'check').false).toEqual({ to: 'planner', roundLimit: 5 });
+    expect(conditionOf(saved, '8f16ac90-f4a1-5d2b-95fa-129518a01467').false).toEqual({ to: 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', roundLimit: 5 });
   });
 });
 
@@ -718,15 +718,15 @@ function flowWith(change: (flow: Flow) => Flow): Pipeline {
 }
 
 function endOf(pipelineState: Pipeline, blockId: string): core.EndBlock {
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   const block = flow?.blocks.find((item) => item.id === blockId);
   if (block === undefined || block.kind !== 'end') throw new Error(`no End ${blockId} in the test pipeline`);
   return block;
 }
 
-function renderEnd(pipelineState: Pipeline, blockId = 'done') {
+function renderEnd(pipelineState: Pipeline, blockId = 'e9921352-41c9-5771-a013-0c63c6a49697') {
   const onChange = vi.fn();
-  const flow = pipelineState.flows.find((item) => item.id === 'plan');
+  const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
   if (flow === undefined) throw new Error('no plan flow in the test pipeline');
   render(
     <EndPanel
@@ -768,8 +768,8 @@ describe('F-12 AC-035 End outcome', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(endOf(saved, 'done').outcome).toBe('stopped');
-    expect(endOf(saved, 'done').producedArtifact).toBe('plan.md');
+    expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').outcome).toBe('stopped');
+    expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').producedArtifact).toBe('plan.md');
   });
 });
 
@@ -801,12 +801,12 @@ describe('F-12 AC-036 End produced artifact', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(endOf(saved, 'done').producedArtifact).toBe('notes.md');
+    expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').producedArtifact).toBe('notes.md');
   });
 
   it('F-12 AC-036 refuses an empty produced artifact with the parser reason, and keeps the saved one', () => {
     const pipelineState = planPipeline();
-    const refused = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    const refused = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
     if (refused.ok) throw new Error('the parser accepted an empty produced artifact');
     const { onChange } = renderEnd(pipelineState);
 
@@ -863,14 +863,14 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
   it('F-16 AC-024 saves a picked artifact and shows it in place of the placeholder', () => {
     const pipelineState = blankEndPipeline();
     const onChange = vi.fn();
-    const flow = pipelineState.flows.find((item) => item.id === 'plan');
+    const flow = pipelineState.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     if (flow === undefined) throw new Error('no plan flow in the test pipeline');
     const view = render(
       <EndPanel
         pipelineState={pipelineState}
         rules={[]}
         flow={flow}
-        block={endOf(pipelineState, 'done')}
+        block={endOf(pipelineState, 'e9921352-41c9-5771-a013-0c63c6a49697')}
         onChange={onChange}
       />,
     );
@@ -879,15 +879,15 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const saved = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(endOf(saved, 'done').producedArtifact).toBe('notes.md');
-    const savedFlow = saved.flows.find((item) => item.id === 'plan');
+    expect(endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697').producedArtifact).toBe('notes.md');
+    const savedFlow = saved.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     if (savedFlow === undefined) throw new Error('no plan flow in the saved pipeline');
     view.rerender(
       <EndPanel
         pipelineState={saved}
         rules={[]}
         flow={savedFlow}
-        block={endOf(saved, 'done')}
+        block={endOf(saved, 'e9921352-41c9-5771-a013-0c63c6a49697')}
         onChange={onChange}
       />,
     );
@@ -898,7 +898,7 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
 
   it('F-16 AC-024 shows the required reason under a blank End, with the control described by it', () => {
     const pipelineState = blankEndPipeline();
-    const required = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    const required = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
     if (required.ok) throw new Error('the parser accepted a blank produced artifact');
     renderEnd(pipelineState);
 
@@ -910,7 +910,7 @@ describe('F-16 AC-024 End produced artifact placeholder', () => {
 
   it('F-16 AC-024 refuses the placeholder when it is picked again, and keeps the blank saved value', () => {
     const pipelineState = blankEndPipeline();
-    const refused = editEndArtifact(pipelineState, [], 'plan', 'done', '');
+    const refused = editEndArtifact(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'e9921352-41c9-5771-a013-0c63c6a49697', '');
     if (refused.ok) throw new Error('the parser accepted a blank produced artifact');
     const { onChange } = renderEnd(pipelineState);
 
@@ -994,12 +994,12 @@ describe('F-12 AC-039 Delete block confirmation', () => {
     const pipelineState = flowWith((flow) => ({
       ...flow,
       blocks: [
-        { index: 0, id: 'start', kind: 'start', next: 'done' },
-        { index: 1, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+        { index: 0, id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: 'e9921352-41c9-5771-a013-0c63c6a49697' },
+        { index: 1, id: 'e9921352-41c9-5771-a013-0c63c6a49697', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
         { index: 2, id: 'stopped', kind: 'end', outcome: 'stopped', producedArtifact: 'plan.md' },
       ],
     }));
-    renderEnd(pipelineState, 'done');
+    renderEnd(pipelineState, 'e9921352-41c9-5771-a013-0c63c6a49697');
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
 
@@ -1014,13 +1014,13 @@ describe('F-12 AC-039 Delete block confirmation', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
 
     const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
-    expect(blocks.map((block) => block.id)).toEqual(['start', 'reviewer', 'done']);
+    expect(blocks.map((block) => block.id)).toEqual(['15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', '1954b5cf-b131-5509-9c06-eb5b22e8aaad', 'e9921352-41c9-5771-a013-0c63c6a49697']);
     expect(blocks[0]).toEqual({ ...pipelineState.flows[0]?.blocks[0], next: '' });
     expect(blocks[1]).toEqual(pipelineState.flows[0]?.blocks[2]);
   });
 
   it('F-12 AC-039 names a Condition by its description and counts its three arrows', () => {
-    renderCondition(conditionPipeline(), 'check');
+    renderCondition(conditionPipeline(), '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
 
@@ -1030,13 +1030,13 @@ describe('F-12 AC-039 Delete block confirmation', () => {
 
   it('F-12 AC-040 Confirm on a Condition clears the routes that pointed to it', () => {
     const pipelineState = conditionPipeline();
-    const { onChange } = renderCondition(pipelineState, 'check');
+    const { onChange } = renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete block' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
 
     const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
-    expect(blocks.map((block) => block.id)).toEqual(['start', 'pre', 'planner', 'done']);
+    expect(blocks.map((block) => block.id)).toEqual(['15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', 'c045cda9-9761-5373-941f-b21a3f878ede', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', 'e9921352-41c9-5771-a013-0c63c6a49697']);
     expect(blocks[2]).toEqual({ ...pipelineState.flows[0]?.blocks[2], next: '' });
   });
 
@@ -1054,7 +1054,7 @@ describe('F-12 AC-039 Delete block confirmation', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
 
     const blocks = (onChange.mock.calls[0]?.[0] as Pipeline).flows[0]?.blocks ?? [];
-    expect(blocks.map((block) => block.id)).toEqual(['start', 'planner', 'reviewer', 'done']);
+    expect(blocks.map((block) => block.id)).toEqual(['15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', 'f09bba4a-ce3a-507e-9c22-6f1aa828c2a0', '1954b5cf-b131-5509-9c06-eb5b22e8aaad', 'e9921352-41c9-5771-a013-0c63c6a49697']);
   });
 });
 
@@ -1123,9 +1123,9 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) required Agent text 
 
   it('F-12 (no criterion: Verify device fix 2026-11-24) shows the empty-description error of a Condition on the key press that empties it, and hides it once text is typed', () => {
     const pipelineState = conditionPipeline();
-    const result = editConditionDescription(pipelineState, [], 'plan', 'check', '');
+    const result = editConditionDescription(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '8f16ac90-f4a1-5d2b-95fa-129518a01467', '');
     if (result.ok) throw new Error('the parser accepted a blank description');
-    renderCondition(pipelineState, 'check');
+    renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
     const input = screen.getByLabelText('What it checks');
 
     fireEvent.change(input, { target: { value: '' } });
@@ -1176,9 +1176,9 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) error inside its fie
 
   it('F-12 (no criterion: Verify device fix 2026-11-24) draws a refused round limit inside its control box, beneath the rounds row', () => {
     const pipelineState = conditionPipeline();
-    renderCondition(pipelineState, 'check');
+    renderCondition(pipelineState, '8f16ac90-f4a1-5d2b-95fa-129518a01467');
     const input = screen.getByLabelText('Round limit');
-    const result = setConditionRoundLimit(pipelineState, [], 'plan', 'check', '0');
+    const result = setConditionRoundLimit(pipelineState, [], 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '8f16ac90-f4a1-5d2b-95fa-129518a01467', '0');
     if (result.ok) throw new Error('the parser accepted the round limit "0"');
 
     fireEvent.change(input, { target: { value: '0' } });

@@ -21,6 +21,7 @@ export const ROOT_PATH = 'root';
 
 const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
 const ID_MAX = 60;
+const GUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // The file-safe form of an id: lowercase letters, digits and hyphens, starting with a letter. Shared by the
 // readers and the structural analysis, so both use one pattern (F-03 AC-026, AC-027).
@@ -113,12 +114,23 @@ export function readText(
   return value;
 }
 
+// An id is a lower-case GUID (AC-028): the builder generates it, and the user never types it.
 export function readId(value: unknown, path: string, problems: ProblemCollector): string | undefined {
   if (typeof value !== 'string') return refuse(value, path, problems, 'an id (text)');
+  if (!GUID_PATTERN.test(value)) {
+    problems.add(path, 'must be a GUID');
+    return undefined;
+  }
+  return value;
+}
+
+// A file-safe name (an agent's `name`, which becomes a file name): not an id, so it is not a GUID (F-02 AC-048).
+export function readFileSafeName(value: unknown, path: string, problems: ProblemCollector): string | undefined {
+  if (typeof value !== 'string') return refuse(value, path, problems, 'a file-safe name (text)');
   if (!isFileSafeId(value) || codePoints(value) > ID_MAX) {
     problems.add(
       path,
-      'must be an id: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
+      'must be a file-safe name: lowercase letters, digits and hyphens, starting with a letter, at most 60 characters',
     );
     return undefined;
   }

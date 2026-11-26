@@ -52,6 +52,7 @@ const PIPELINE_VALUES = [
   'listFiles',
   'parseProjectConfig',
   'planGeneration',
+  'ruleFileName',
 ];
 const ANALYSIS_TYPES = ['Finding', 'ReviewEntry', 'ReviewResult', 'Severity'];
 const GENERATE_TYPES = ['FileSource', 'ListedFile'];

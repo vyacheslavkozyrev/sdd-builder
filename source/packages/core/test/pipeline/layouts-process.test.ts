@@ -79,32 +79,32 @@ function loopConfig(): ProjectConfig {
   if (flow === undefined) throw new Error('the fixture has no flow');
   const draft: AgentBlock = {
     index: 1,
-    id: 'draft',
+    id: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63',
     kind: 'agent',
     name: 'draft-agent',
     description: 'Drafts the text.',
     arguments: [],
-    next: 'review',
+    next: '82c969a4-365a-5525-8168-6ae1093b1867',
   };
   const review: ConditionBlock = {
     index: 2,
-    id: 'review',
+    id: '82c969a4-365a-5525-8168-6ae1093b1867',
     kind: 'condition',
     description: 'Is the text complete?',
-    true: { to: 'publish' },
-    false: { to: 'draft', roundLimit: 2 },
+    true: { to: '9ed0bdfe-f040-5934-9233-bdec297f9995' },
+    false: { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit: 2 },
   };
   const publish: AgentBlock = {
     index: 3,
-    id: 'publish',
+    id: '9ed0bdfe-f040-5934-9233-bdec297f9995',
     kind: 'agent',
     name: 'publish-agent',
     description: 'Publishes the text.',
     arguments: [],
-    next: 'end',
+    next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
   };
-  const end: Block = { index: 4, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
-  const blocks: Block[] = [{ index: 0, id: 'start', kind: 'start', next: 'draft' }, draft, review, publish, end];
+  const end: Block = { index: 4, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
+  const blocks: Block[] = [{ index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' }, draft, review, publish, end];
   const changed: Flow = { ...flow, blocks };
   return { ...base, pipeline: { ...base.pipeline, flows: [changed] } };
 }
@@ -144,7 +144,7 @@ describe('F-05 layouts: the base manifest lists process.md', () => {
     const text = processOf(validConfig());
     expect(text.startsWith('# Process\n')).toBe(true);
     expect(text).not.toContain('{{');
-    expect(text).toContain('- Build (`build`): ');
+    expect(text).toContain(`- Build (\`${validConfig().pipeline.flows[0]?.id}\`): `);
     expect(text.endsWith('```\n')).toBe(true);
   });
 
@@ -186,7 +186,7 @@ describe('F-05 layouts: process.md lists each flow once, in order, with its appr
       ...base,
       pipeline: { ...base.pipeline, flows: [{ ...flow, approval: true, description: 'Builds the project.' }] },
     };
-    expect(processLines(processOf(config))).toEqual([`- Build (\`build\`): Builds the project. ${STOPS}`]);
+    expect(processLines(processOf(config))).toEqual([`- Build (\`${flow.id}\`): Builds the project. ${STOPS}`]);
   });
 
   it('F-05 AC-029 writes the conditions and the retry route of a flow as text under its line', () => {

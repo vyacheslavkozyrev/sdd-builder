@@ -5,7 +5,7 @@ import { problemsOf } from './problems-of.js';
 import { readRules } from '../../src/pipeline/parse/rules.js';
 
 const validRoot = { schemaVersion: 2, rules: [], pipeline: defaultPipeline };
-const validRule = { id: 'style', title: 'Style', text: 'Keep it short.' };
+const validRule = { id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' };
 
 describe('F-02 AC-066 a rule requires id, title and text', () => {
   it('accepts a rule with exactly id, title and text', () => {
@@ -28,12 +28,12 @@ describe('F-02 AC-066 a rule requires id, title and text', () => {
 
   it('refuses a rule id that does not follow the id rule, at the path of the id', () => {
     expect(problemsOf({ ...validRoot, rules: [{ ...validRule, id: 'Style Rule' }] })).toEqual([
-      { path: 'rules.0.id', message: expect.stringContaining('must be an id') },
+      { path: 'rules.0.id', message: expect.stringContaining('must be a GUID') },
     ]);
   });
 
   it('refuses a rule that is not an object, at the rule path', () => {
-    expect(problemsOf({ ...validRoot, rules: ['style'] })).toEqual([
+    expect(problemsOf({ ...validRoot, rules: ['8f99cc27-78ab-5895-8637-5c13d7429593'] })).toEqual([
       { path: 'rules.0', message: expect.stringContaining('must be an object') },
     ]);
   });
@@ -42,12 +42,12 @@ describe('F-02 AC-066 a rule requires id, title and text', () => {
     expect(
       problemsOf({
         ...validRoot,
-        rules: [{ id: 'a' }, validRule, { ...validRule, id: 'B' }],
+        rules: [{ id: 'fdac7165-b540-5201-bca7-029a056ea40e' }, validRule, { ...validRule, id: 'B' }],
       }),
     ).toEqual([
       { path: 'rules.0', message: 'is missing the key title' },
       { path: 'rules.0', message: 'is missing the key text' },
-      { path: 'rules.2.id', message: expect.stringContaining('must be an id') },
+      { path: 'rules.2.id', message: expect.stringContaining('must be a GUID') },
     ]);
   });
 });
@@ -77,8 +77,8 @@ describe('F-02 AC-067 a rule title is at most 100 and a rule text at most 1,000 
 describe('F-02 AC-066 invalid rules are dropped and the others are kept', () => {
   it('returns the rules that parse, in document order, and reports the invalid ones', () => {
     const problems = createProblemCollector();
-    const second = { id: 'second', title: 'Second', text: 'Keep it plain.' };
-    const rules = readRules([{ id: 'a' }, validRule, { ...validRule, id: 'B' }, second], 'rules', problems);
+    const second = { id: '9c7ec703-c07d-5128-b056-24c54e49081f', title: 'Second', text: 'Keep it plain.' };
+    const rules = readRules([{ id: 'fdac7165-b540-5201-bca7-029a056ea40e' }, validRule, { ...validRule, id: 'B' }, second], 'rules', problems);
     expect(rules).toEqual([
       { ...validRule, index: 1 },
       { ...second, index: 3 },
@@ -88,7 +88,7 @@ describe('F-02 AC-066 invalid rules are dropped and the others are kept', () => 
 
   it('returns undefined and one problem when rules is not a list', () => {
     const problems = createProblemCollector();
-    expect(readRules({ id: 'style' }, 'rules', problems)).toBeUndefined();
+    expect(readRules({ id: '8f99cc27-78ab-5895-8637-5c13d7429593' }, 'rules', problems)).toBeUndefined();
     expect(problems.list()).toEqual([{ path: 'rules', message: expect.stringContaining('must be a list') }]);
   });
 });

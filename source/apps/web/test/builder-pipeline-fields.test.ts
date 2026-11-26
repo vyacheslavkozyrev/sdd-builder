@@ -43,17 +43,17 @@ function pipelineOf(...flows: Flow[]): Pipeline {
 
 // Two connected flows: `plan` links to `build`, so no link problem is reported.
 function linkedPipeline(): Pipeline {
-  return pipelineOf(flow('plan', 'Plan', 'build'), flow('build', 'Build'));
+  return pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
 }
 
 function rule(id: string): Rule {
   return { index: 0, id, title: id, text: `The ${id} rule.` };
 }
 
-const RULES: readonly Rule[] = [rule('style'), rule('security')];
+const RULES: readonly Rule[] = [rule('0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'), rule('5d1d8905-7a0e-5281-b85f-92d26b3a346b')];
 
 function row(id: string, overrides: Partial<ArgumentRow> = {}): ArgumentRow {
-  return { id, required: false, hint: `The ${id} value.`, ...overrides };
+  return { id, required: false, hint: 'The value.', ...overrides };
 }
 
 function changed(result: PipelineFieldResult): Pipeline {
@@ -243,11 +243,11 @@ describe('F-11 AC-028 every pipeline field edit goes through the parser and touc
 
 describe('F-11 AC-043 the pipeline arguments are rows: add, edit and remove each row on its own', () => {
   it('appends a row after the saved ones, keeping its index as its position', () => {
-    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('topic', { required: true })));
-    const second = accepted(addPipelineArgument(first, RULES, row('depth')));
+    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038', { required: true })));
+    const second = accepted(addPipelineArgument(first, RULES, row('f6669861-3c54-5758-b031-ec6a8d50ffe2')));
     expect(second.arguments).toEqual([
-      { index: 0, id: 'topic', required: true, hint: 'The topic value.' },
-      { index: 1, id: 'depth', required: false, hint: 'The depth value.' },
+      { index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: true, hint: 'The value.' },
+      { index: 1, id: 'f6669861-3c54-5758-b031-ec6a8d50ffe2', required: false, hint: 'The value.' },
     ]);
     expect(second.flows).toEqual(linkedPipeline().flows);
   });
@@ -265,10 +265,10 @@ describe('F-11 AC-043 the pipeline arguments are rows: add, edit and remove each
   it('refuses a hint of 101 characters with the parser reason', () => {
     const saved = linkedPipeline();
     const hint = 'h'.repeat(101);
-    const reason = rowRefusal(addPipelineArgument(saved, RULES, row('topic', { hint })));
+    const reason = rowRefusal(addPipelineArgument(saved, RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038', { hint })));
     expect(reason).toBe(
       reasonAt(
-        { ...documentOf(saved), arguments: [{ id: 'topic', required: false, hint }] },
+        { ...documentOf(saved), arguments: [{ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint }] },
         'pipeline.arguments.0.hint',
       ),
     );
@@ -276,18 +276,18 @@ describe('F-11 AC-043 the pipeline arguments are rows: add, edit and remove each
 
   it('accepts a hint of exactly 100 characters', () => {
     const hint = 'h'.repeat(100);
-    const next = accepted(addPipelineArgument(linkedPipeline(), RULES, row('topic', { hint })));
+    const next = accepted(addPipelineArgument(linkedPipeline(), RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038', { hint })));
     expect(next.arguments[0]?.hint).toBe(hint);
   });
 
   it('refuses an id that a flow argument of the project already has, since the ids share one pool', () => {
-    const saved = accepted(addFlowArgument(linkedPipeline(), RULES, 'plan', row('topic')));
-    const reason = rowRefusal(addPipelineArgument(saved, RULES, row('topic')));
+    const saved = accepted(addFlowArgument(linkedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    const reason = rowRefusal(addPipelineArgument(saved, RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
     expect(reason).toBe(
       reasonAt(
         {
           ...documentOf(saved),
-          arguments: [{ id: 'topic', required: false, hint: 'The topic value.' }],
+          arguments: [{ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The value.' }],
         },
         'pipeline.flows.0.arguments.0.id',
       ),
@@ -296,41 +296,41 @@ describe('F-11 AC-043 the pipeline arguments are rows: add, edit and remove each
   });
 
   it('edits one row and a refused edit keeps the saved row with the parser reason', () => {
-    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('topic')));
-    const second = accepted(addPipelineArgument(first, RULES, row('depth')));
-    const edited = accepted(editPipelineArgument(second, RULES, 1, row('depth', { required: true })));
-    expect(edited.arguments[1]).toEqual({ index: 1, id: 'depth', required: true, hint: 'The depth value.' });
+    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    const second = accepted(addPipelineArgument(first, RULES, row('f6669861-3c54-5758-b031-ec6a8d50ffe2')));
+    const edited = accepted(editPipelineArgument(second, RULES, 1, row('f6669861-3c54-5758-b031-ec6a8d50ffe2', { required: true })));
+    expect(edited.arguments[1]).toEqual({ index: 1, id: 'f6669861-3c54-5758-b031-ec6a8d50ffe2', required: true, hint: 'The value.' });
     expect(edited.arguments[0]).toEqual(second.arguments[0]);
 
-    const reason = rowRefusal(editPipelineArgument(second, RULES, 1, row('topic')));
+    const reason = rowRefusal(editPipelineArgument(second, RULES, 1, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
     expect(reason).toBe(
       reasonAt(
         {
           ...documentOf(second),
           arguments: [
-            { id: 'topic', required: false, hint: 'The topic value.' },
-            { id: 'topic', required: false, hint: 'The depth value.' },
+            { id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The value.' },
+            { id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The value.' },
           ],
         },
         'pipeline.arguments.1.id',
       ),
     );
-    expect(second.arguments[1]?.id).toBe('depth');
+    expect(second.arguments[1]?.id).toBe('f6669861-3c54-5758-b031-ec6a8d50ffe2');
   });
 
   it('removes one row and renumbers the rows after it', () => {
-    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('topic')));
-    const second = accepted(addPipelineArgument(first, RULES, row('depth')));
-    const third = accepted(addPipelineArgument(second, RULES, row('scope')));
+    const first = accepted(addPipelineArgument(linkedPipeline(), RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    const second = accepted(addPipelineArgument(first, RULES, row('f6669861-3c54-5758-b031-ec6a8d50ffe2')));
+    const third = accepted(addPipelineArgument(second, RULES, row('47a64d8f-242a-5470-8e83-21d0a727d1a5')));
     const removed = removePipelineArgument(third, 0);
     expect(removed.arguments).toEqual([
-      { index: 0, id: 'depth', required: false, hint: 'The depth value.' },
-      { index: 1, id: 'scope', required: false, hint: 'The scope value.' },
+      { index: 0, id: 'f6669861-3c54-5758-b031-ec6a8d50ffe2', required: false, hint: 'The value.' },
+      { index: 1, id: '47a64d8f-242a-5470-8e83-21d0a727d1a5', required: false, hint: 'The value.' },
     ]);
   });
 
   it('throws a programmer error for an argument row the pipeline does not have', () => {
-    expect(() => editPipelineArgument(linkedPipeline(), RULES, 0, row('topic'))).toThrow(
+    expect(() => editPipelineArgument(linkedPipeline(), RULES, 0, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038'))).toThrow(
       'F-11: the pipeline has no argument row 0',
     );
     expect(() => removePipelineArgument(linkedPipeline(), 0)).toThrow('F-11: the pipeline has no argument row 0');
@@ -339,28 +339,28 @@ describe('F-11 AC-043 the pipeline arguments are rows: add, edit and remove each
 
 describe('F-11 AC-045 the pipeline rule tags are rows: a rule of the project is added, any other is refused', () => {
   it('adds a rule of the Technical details step as a tag with its position', () => {
-    const next = accepted(addPipelineRuleTag(linkedPipeline(), RULES, 'style'));
-    expect(next.ruleTags).toEqual([{ index: 0, ruleId: 'style' }]);
+    const next = accepted(addPipelineRuleTag(linkedPipeline(), RULES, '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'));
+    expect(next.ruleTags).toEqual([{ index: 0, ruleId: '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc' }]);
   });
 
   it('refuses a tag that names no rule of the project with the parser reason and stores nothing', () => {
     const saved = linkedPipeline();
-    const reason = rowRefusal(addPipelineRuleTag(saved, RULES, 'missing'));
-    expect(reason).toBe(reasonAt({ ...documentOf(saved), ruleTags: ['missing'] }, 'pipeline.ruleTags.0'));
+    const reason = rowRefusal(addPipelineRuleTag(saved, RULES, '083d3886-6635-54c4-bd03-441c22610371'));
+    expect(reason).toBe(reasonAt({ ...documentOf(saved), ruleTags: ['083d3886-6635-54c4-bd03-441c22610371'] }, 'pipeline.ruleTags.0'));
     expect(saved.ruleTags).toBeUndefined();
   });
 
   it('refuses a tag the pipeline already has with the parser reason', () => {
-    const saved = accepted(addPipelineRuleTag(linkedPipeline(), RULES, 'style'));
-    const reason = rowRefusal(addPipelineRuleTag(saved, RULES, 'style'));
-    expect(reason).toBe(reasonAt({ ...documentOf(saved), ruleTags: ['style', 'style'] }, 'pipeline.ruleTags.1'));
+    const saved = accepted(addPipelineRuleTag(linkedPipeline(), RULES, '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'));
+    const reason = rowRefusal(addPipelineRuleTag(saved, RULES, '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'));
+    expect(reason).toBe(reasonAt({ ...documentOf(saved), ruleTags: ['0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc', '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'] }, 'pipeline.ruleTags.1'));
     expect(saved.ruleTags).toHaveLength(1);
   });
 
   it('removes one tag on its own and renumbers the tags after it', () => {
-    const first = accepted(addPipelineRuleTag(linkedPipeline(), RULES, 'style'));
-    const second = accepted(addPipelineRuleTag(first, RULES, 'security'));
-    expect(removePipelineRuleTag(second, 0).ruleTags).toEqual([{ index: 0, ruleId: 'security' }]);
+    const first = accepted(addPipelineRuleTag(linkedPipeline(), RULES, '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc'));
+    const second = accepted(addPipelineRuleTag(first, RULES, '5d1d8905-7a0e-5281-b85f-92d26b3a346b'));
+    expect(removePipelineRuleTag(second, 0).ruleTags).toEqual([{ index: 0, ruleId: '5d1d8905-7a0e-5281-b85f-92d26b3a346b' }]);
   });
 
   it('throws a programmer error for a tag row the pipeline does not have', () => {
@@ -381,7 +381,7 @@ function newFlowsPipeline(name: string): Pipeline {
     approval: false,
     blocks: [],
   });
-  return { name, description: '', arguments: [], flows: [added(0, 'flow-1'), added(1, 'flow-2')] };
+  return { name, description: '', arguments: [], flows: [added(0, '40174c6b-ffc9-5a01-af92-33a352fc884a'), added(1, '02e82ffe-8c62-50f5-acea-711320561fab')] };
 }
 
 describe('F-16 AC-025 the pipeline name can be typed while a flow has no link', () => {
@@ -422,22 +422,22 @@ describe('F-16 AC-025 the pipeline name can be typed while a flow has no link', 
 
 describe('F-16 AC-023 an argument added to the pipeline is accepted while a flow has no link', () => {
   it('F-16 AC-023 accepts an argument added to the pipeline and saves it', () => {
-    const next = accepted(addPipelineArgument(newFlowsPipeline('Demo'), RULES, row('topic')));
-    expect(next.arguments).toEqual([{ index: 0, id: 'topic', required: false, hint: 'The topic value.' }]);
+    const next = accepted(addPipelineArgument(newFlowsPipeline('Demo'), RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    expect(next.arguments).toEqual([{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The value.' }]);
   });
 
   it('F-16 AC-023 accepts an argument added to a flow of the document and saves it', () => {
-    const next = accepted(addFlowArgument(newFlowsPipeline('Demo'), RULES, 'flow-2', row('topic')));
-    expect(next.flows[1]?.arguments).toEqual([{ index: 0, id: 'topic', required: false, hint: 'The topic value.' }]);
+    const next = accepted(addFlowArgument(newFlowsPipeline('Demo'), RULES, '02e82ffe-8c62-50f5-acea-711320561fab', row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    expect(next.flows[1]?.arguments).toEqual([{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The value.' }]);
   });
 
   it('F-16 AC-023 negative case: an id that another flow already has is refused with the parser reason', () => {
     const saved = newFlowsPipeline('Demo');
     const withTopic: Pipeline = {
       ...saved,
-      flows: [{ ...saved.flows[0], arguments: [{ index: 0, id: 'topic', required: false, hint: 'The topic.' }] } as Flow, saved.flows[1] as Flow],
+      flows: [{ ...saved.flows[0], arguments: [{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The topic.' }] } as Flow, saved.flows[1] as Flow],
     };
-    const reason = rowRefusal(addPipelineArgument(withTopic, RULES, row('topic')));
-    expect(reason).toMatch(/^must be unique: the id topic is /);
+    const reason = rowRefusal(addPipelineArgument(withTopic, RULES, row('f6e48fc8-29f2-5a26-9b01-9d90e8d52038')));
+    expect(reason).toMatch(/^must be unique: the id f6e48fc8-29f2-5a26-9b01-9d90e8d52038 is /);
   });
 });

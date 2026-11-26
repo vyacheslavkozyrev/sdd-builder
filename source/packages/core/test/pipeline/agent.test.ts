@@ -5,14 +5,14 @@ import { readAgent } from '../../src/pipeline/parse/agent.js';
 
 const AGENT = 'pipeline.flows.0.blocks.1';
 const validAgent = {
-  id: 'review',
+  id: '82c969a4-365a-5525-8168-6ae1093b1867',
   kind: 'agent',
   name: 'review',
   description: 'Reviews the plan.',
   arguments: [],
-  next: 'done',
+  next: '626950d9-70e8-572f-b0a9-39fc463d5ec3',
 };
-const validRow = { id: 'feature-id', required: true, hint: 'F-XX' };
+const validRow = { id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX' };
 
 function readA(value: unknown, path = AGENT, index = 1) {
   const problems = createProblemCollector();
@@ -44,12 +44,12 @@ describe('F-02 AC-047 an agent requires id, kind, name, description, arguments a
     expect(readA(validAgent)).toEqual({
       block: {
         index: 1,
-        id: 'review',
+        id: '82c969a4-365a-5525-8168-6ae1093b1867',
         kind: 'agent',
         name: 'review',
         description: 'Reviews the plan.',
         arguments: [],
-        next: 'done',
+        next: '626950d9-70e8-572f-b0a9-39fc463d5ec3',
       },
       problems: [],
     });
@@ -213,7 +213,7 @@ describe('F-02 AC-055 agent arguments are argument rows and an empty list is acc
 
 describe('F-02 AC-071 a rule tag of an agent is an id', () => {
   it('accepts a rule tag that is an id', () => {
-    expect(acceptedWith({ ruleTags: ['style-rule'] }).ruleTags).toEqual([{ ruleId: 'style-rule', index: 0 }]);
+    expect(acceptedWith({ ruleTags: ['f4bc2dd7-ba0e-5593-8110-7dd675907836'] }).ruleTags).toEqual([{ ruleId: 'f4bc2dd7-ba0e-5593-8110-7dd675907836', index: 0 }]);
   });
 
   it('refuses "Style Rule" at the path of the tag', () => {
@@ -223,9 +223,9 @@ describe('F-02 AC-071 a rule tag of an agent is an id', () => {
 
 describe('F-02 AC-072 a rule tag listed twice is refused on the agent', () => {
   it('refuses a repeated tag at the path of the second entry', () => {
-    expect(readA({ ...validAgent, ruleTags: ['style', 'style'] })).toEqual({
-      block: { ...validAgent, index: 1, ruleTags: [{ ruleId: 'style', index: 0 }] },
-      problems: [{ path: `${AGENT}.ruleTags.1`, message: expect.stringContaining('repeats style') }],
+    expect(readA({ ...validAgent, ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593', '8f99cc27-78ab-5895-8637-5c13d7429593'] })).toEqual({
+      block: { ...validAgent, index: 1, ruleTags: [{ ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 }] },
+      problems: [{ path: `${AGENT}.ruleTags.1`, message: expect.stringContaining('repeats 8f99cc27-78ab-5895-8637-5c13d7429593') }],
     });
   });
 });

@@ -6,8 +6,8 @@ import type { Argument, Block, Problem, ProjectConfig } from '../model.js';
 // the later occurrence in document order (rules first, then the pipeline's arguments, then each flow's id,
 // arguments and blocks). A flow id or an argument id that clashes with an id of another kind is refused at its
 // own path wherever that other id sits (AC-018, AC-026). Agent names are unique among the agents of the
-// pipeline, and a repeated name is refused at the path of the later `name` (AC-048). Ids that are not in the
-// file-safe form are refused by the readers, not here. Returns the problems in document order; an empty list
+// pipeline, and a repeated name is refused at the path of the later `name` (AC-048). Ids that are not GUIDs
+// are refused by the readers, not here (F-16 AC-028). Returns the problems in document order; an empty list
 // means the ids are unique.
 
 type Kind = 'rule' | 'flow' | 'block' | 'argument';

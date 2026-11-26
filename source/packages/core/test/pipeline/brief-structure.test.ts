@@ -21,7 +21,7 @@ describe('F-06 AC-005 the brief checks are not part of analyzeStructure', () => 
       name: 'Demo',
       idea: 'A demo project.',
       stack: { language: 'TypeScript', framework: 'React', platform: 'Web', buildTool: 'Vite', testFramework: 'Vitest' },
-      rules: [{ index: 0, id: 'style', title: 'Style', text: 'Keep it short.' }],
+      rules: [{ index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' }],
     };
     expect(analyzeStructure(complete)).toEqual(analyzeStructure(blank));
   });

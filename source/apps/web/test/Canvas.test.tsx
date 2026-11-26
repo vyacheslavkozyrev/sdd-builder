@@ -187,28 +187,28 @@ describe('F-11 AC-009 empty canvas', () => {
   });
 
   it('F-11 AC-009 hides the empty message once a flow is drawn', () => {
-    renderCanvas(pipelineOf(flow('specify')));
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')));
     expect(screen.queryByText('No flows yet.')).toBeNull();
   });
 });
 
 describe('F-11 AC-006 boxes in one row', () => {
   it('F-11 AC-006 draws one box per flow, left to right in pipeline order', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'ux' }), flow('ux', { next: 'plan' }), flow('plan')));
-    expect(nodeIds()).toEqual(['specify', 'ux', 'plan']);
-    expect(screen.getByText('ux')).toBeTruthy();
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: '47d4f7c9-a236-5d9b-b5a7-3f4724285515' }), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
+    expect(nodeIds()).toEqual(['2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655']);
+    expect(screen.getByText('47d4f7c9-a236-5d9b-b5a7-3f4724285515')).toBeTruthy();
   });
 
   it('F-11 AC-006 names each box and shows its block count', () => {
-    renderCanvas(pipelineOf(flow('specify', { blocks: 3 }), flow('plan', { blocks: 1 })));
-    expect(boxOf('specify').textContent).toContain('specify');
-    expect(boxOf('specify').textContent).toContain('3 blocks');
-    expect(boxOf('plan').textContent).toContain('1 block');
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { blocks: 3 }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { blocks: 1 })));
+    expect(boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08').textContent).toContain('2d8eebb4-9a34-5eae-ae8d-88813520de08');
+    expect(boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08').textContent).toContain('3 blocks');
+    expect(boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655').textContent).toContain('1 block');
   });
 
   it('F-11 AC-006 gives each box a left and a right connection point', () => {
-    renderCanvas(pipelineOf(flow('specify')));
-    const box = boxOf('specify');
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')));
+    const box = boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08');
     expect(box.querySelector('.react-flow__handle-left')).not.toBeNull();
     expect(box.querySelector('.react-flow__handle-right')).not.toBeNull();
   });
@@ -216,15 +216,15 @@ describe('F-11 AC-006 boxes in one row', () => {
 
 describe('F-11 AC-035 red box for a blocked flow', () => {
   it('F-11 AC-035 gives a blocked flow the blocker border and light red fill from the theme', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')), { blockedFlowIds: ['plan'] });
-    const blocked = getComputedStyle(boxOf('plan'));
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')), { blockedFlowIds: ['ea3211a4-b64b-5204-9451-6fe12fd7c655'] });
+    const blocked = getComputedStyle(boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     expect(blocked.borderTopColor).toBe(rgbOf(theme.palette.error.main));
     expect(blocked.backgroundColor).toBe(rgbOf(theme.palette.error.light));
   });
 
   it('F-11 AC-035 leaves an unblocked flow with the normal border and white fill', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')), { blockedFlowIds: ['plan'] });
-    const normal = getComputedStyle(boxOf('specify'));
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')), { blockedFlowIds: ['ea3211a4-b64b-5204-9451-6fe12fd7c655'] });
+    const normal = getComputedStyle(boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08'));
     expect(normal.borderTopColor).toBe(rgbOf(theme.palette.primary.main));
     expect(normal.backgroundColor).toBe(rgbOf(theme.palette.background.paper));
   });
@@ -238,20 +238,20 @@ describe('F-11 AC-035 red box for a blocked flow', () => {
 
 describe('F-11 AC-013 a link is made by a drag from a right point onto a left point', () => {
   it('F-11 AC-013 wires the drag to dropLink: a drop on another flow\'s left point sets the source next', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onConnect?.(dragTo('specify', 'plan', 'left'));
+      flowProps().onConnect?.(dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'left'));
     });
     expect(onPipelineChange).toHaveBeenCalledTimes(1);
-    expect(onPipelineChange.mock.calls[0]?.[0].flows.map((f) => f.next)).toEqual(['plan', undefined]);
+    expect(onPipelineChange.mock.calls[0]?.[0].flows.map((f) => f.next)).toEqual(['ea3211a4-b64b-5204-9451-6fe12fd7c655', undefined]);
   });
 
   it('F-11 AC-013 a drag without a left point target changes nothing', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     const drops: Connection[] = [
-      dragTo('specify', 'plan', 'right'),
-      dragTo('specify', 'plan', null),
-      dragTo('specify', 'specify', 'left'),
+      dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'right'),
+      dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', null),
+      dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'left'),
     ];
     for (const drop of drops) {
       act(() => {
@@ -263,14 +263,14 @@ describe('F-11 AC-013 a link is made by a drag from a right point onto a left po
   });
 
   it('F-11 AC-013 the canvas connects by drag only: nodes are connectable and a click does not connect', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     expect(flowProps().nodesConnectable).toBe(true);
     expect(flowProps().connectOnClick).toBe(false);
   });
 
   it('F-11 AC-013 a drag starts only at a right point: the left point cannot start a link', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')));
-    const box = boxOf('plan');
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
+    const box = boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(box.querySelector('.react-flow__handle-right.connectablestart')).not.toBeNull();
     expect(box.querySelector('.react-flow__handle-left.connectablestart')).toBeNull();
   });
@@ -279,34 +279,34 @@ describe('F-11 AC-013 a link is made by a drag from a right point onto a left po
 describe('F-11 AC-016 an arrow end moves by a drag onto a point', () => {
   it('F-11 AC-016 wires the target end drag to the repoint: the source next moves to the new target', () => {
     const { onPipelineChange } = renderCanvas(
-      pipelineOf(flow('specify', { next: 'plan' }), flow('plan'), flow('ux')),
+      pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515')),
     );
-    dragArrowEnd('target', arrowOf('specify', 'plan'), dragTo('specify', 'ux', 'left'));
+    dragArrowEnd('target', arrowOf('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'left'));
     expect(onPipelineChange).toHaveBeenCalledTimes(1);
-    expect(onPipelineChange.mock.calls[0]?.[0].flows[0]?.next).toBe('ux');
+    expect(onPipelineChange.mock.calls[0]?.[0].flows[0]?.next).toBe('47d4f7c9-a236-5d9b-b5a7-3f4724285515');
   });
 
   it('F-11 AC-016 wires the source end drag to the repoint: the arrow starts from the new flow', () => {
     const { onPipelineChange } = renderCanvas(
-      pipelineOf(flow('specify', { next: 'plan' }), flow('plan'), flow('ux')),
+      pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515')),
     );
-    dragArrowEnd('source', arrowOf('specify', 'plan'), {
-      source: 'ux',
+    dragArrowEnd('source', arrowOf('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), {
+      source: '47d4f7c9-a236-5d9b-b5a7-3f4724285515',
       sourceHandle: 'right',
-      target: 'plan',
+      target: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
       targetHandle: 'left',
     });
     expect(onPipelineChange).toHaveBeenCalledTimes(1);
     const next = onPipelineChange.mock.calls[0]?.[0].flows.map((f) => f.next);
-    expect(next).toEqual([undefined, undefined, 'plan']);
+    expect(next).toEqual([undefined, undefined, 'ea3211a4-b64b-5204-9451-6fe12fd7c655']);
   });
 
   it('F-11 AC-016 a drag of an arrow end onto a flow body changes nothing', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan'), flow('ux')));
-    dragArrowEnd('target', arrowOf('specify', 'plan'), {
-      source: 'specify',
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515')));
+    dragArrowEnd('target', arrowOf('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), {
+      source: '2d8eebb4-9a34-5eae-ae8d-88813520de08',
       sourceHandle: 'right',
-      target: 'ux',
+      target: '47d4f7c9-a236-5d9b-b5a7-3f4724285515',
       targetHandle: null,
     });
     expect(onPipelineChange).not.toHaveBeenCalled();
@@ -315,19 +315,19 @@ describe('F-11 AC-016 an arrow end moves by a drag onto a point', () => {
 
 describe('F-11 AC-014 a refused drag shows its reason in the band', () => {
   it('F-11 AC-014 shows the reason of a second outgoing arrow and draws no new arrow', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify', { next: 'ux' }), flow('ux'), flow('plan')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: '47d4f7c9-a236-5d9b-b5a7-3f4724285515' }), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onConnect?.(dragTo('specify', 'plan', 'left'));
+      flowProps().onConnect?.(dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'left'));
     });
     expect(onPipelineChange).not.toHaveBeenCalled();
-    expect(bandText()).toBe('Refused · flow "specify" already has an outgoing arrow to "ux"; remove it before adding another');
-    expect(flowProps().edges?.map((edge) => edge.id)).toEqual(['specify->ux']);
+    expect(bandText()).toBe('Refused · flow "2d8eebb4-9a34-5eae-ae8d-88813520de08" already has an outgoing arrow to "47d4f7c9-a236-5d9b-b5a7-3f4724285515"; remove it before adding another');
+    expect(flowProps().edges?.map((edge) => edge.id)).toEqual(['2d8eebb4-9a34-5eae-ae8d-88813520de08->47d4f7c9-a236-5d9b-b5a7-3f4724285515']);
   });
 
   it('F-11 AC-014 shows the reason of a loop', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onConnect?.(dragTo('plan', 'specify', 'left'));
+      flowProps().onConnect?.(dragTo('ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'left'));
     });
     expect(onPipelineChange).not.toHaveBeenCalled();
     expect(bandText()).toContain('would make a loop');
@@ -335,21 +335,21 @@ describe('F-11 AC-014 a refused drag shows its reason in the band', () => {
 
   it('F-11 AC-014 shows the reason of a refused repoint', () => {
     const { onPipelineChange } = renderCanvas(
-      pipelineOf(flow('specify', { next: 'plan' }), flow('plan'), flow('ux', { next: 'specify' })),
+      pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515', { next: '2d8eebb4-9a34-5eae-ae8d-88813520de08' })),
     );
-    dragArrowEnd('source', arrowOf('specify', 'plan'), dragTo('ux', 'plan', 'left'));
+    dragArrowEnd('source', arrowOf('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), dragTo('47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'left'));
     expect(onPipelineChange).not.toHaveBeenCalled();
-    expect(bandText()).toBe('Refused · flow "ux" already has an outgoing arrow to "specify"; remove it before adding another');
+    expect(bandText()).toBe('Refused · flow "47d4f7c9-a236-5d9b-b5a7-3f4724285515" already has an outgoing arrow to "2d8eebb4-9a34-5eae-ae8d-88813520de08"; remove it before adding another');
   });
 
   it('F-11 AC-014 clears the refusal when a later drag is accepted', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan'), flow('ux')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515')));
     act(() => {
-      flowProps().onConnect?.(dragTo('specify', 'ux', 'left'));
+      flowProps().onConnect?.(dragTo('2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'left'));
     });
     expect(bandText()).toContain('Refused');
     act(() => {
-      flowProps().onConnect?.(dragTo('ux', 'plan', 'left'));
+      flowProps().onConnect?.(dragTo('47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'left'));
     });
     expect(onPipelineChange).toHaveBeenCalledTimes(1);
     expect(bandText()).toBe('');
@@ -358,23 +358,23 @@ describe('F-11 AC-014 a refused drag shows its reason in the band', () => {
 
 describe('F-11 AC-042 the canvas reports the selection of a box, an arrow or the empty canvas', () => {
   it('F-11 AC-042 a click on a flow box selects that flow', () => {
-    const { onSelect } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    const { onSelect } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'plan' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' } as Parameters<NodeClick>[1]);
     });
-    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'flow', id: 'plan' });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'flow', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' });
   });
 
   it('F-11 AC-042 a click on an arrow selects that arrow by its two flows', () => {
-    const { onSelect } = renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
+    const { onSelect } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], { id: 'specify->plan', source: 'specify', target: 'plan' } as Edge);
+      flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], { id: '2d8eebb4-9a34-5eae-ae8d-88813520de08->ea3211a4-b64b-5204-9451-6fe12fd7c655', source: '2d8eebb4-9a34-5eae-ae8d-88813520de08', target: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' } as Edge);
     });
-    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'arrow', arrow: { source: 'specify', target: 'plan' } });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'arrow', arrow: { source: '2d8eebb4-9a34-5eae-ae8d-88813520de08', target: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' } });
   });
 
   it('F-11 AC-042 a click on the empty canvas selects the pipeline', () => {
-    const { onSelect } = renderCanvas(pipelineOf(flow('specify')));
+    const { onSelect } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')));
     act(() => {
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
     });
@@ -394,75 +394,75 @@ function edgeOf(id: string): Edge {
 
 describe('F-11 AC-042 the selected box and arrow are drawn with the selected style', () => {
   it('F-11 AC-042 the selected flow box has the 2 px primary outline; an unselected box does not', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
-      selection: { kind: 'flow', id: 'plan' },
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')), {
+      selection: { kind: 'flow', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' },
     });
-    const selected = getComputedStyle(boxOf('plan'));
+    const selected = getComputedStyle(boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     expect(selected.borderTopColor).toBe(rgbOf(theme.palette.primary.main));
     expect(selected.borderTopWidth).toBe('2px');
-    const unselected = getComputedStyle(boxOf('specify'));
+    const unselected = getComputedStyle(boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08'));
     expect(unselected.borderTopWidth).toBe('1.5px');
   });
 
   it('F-11 AC-042 the selected arrow has the primary colour and a 2.5 px stroke; the other arrows do not', () => {
     renderCanvas(
-      pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')),
-      { selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } } },
+      pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' }), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c')),
+      { selection: { kind: 'arrow', arrow: { source: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', target: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' } } },
     );
-    const selected = edgeOf('plan->build');
+    const selected = edgeOf('ea3211a4-b64b-5204-9451-6fe12fd7c655->a0c3aad4-8765-5b23-8df5-7c03d481233c');
     expect(selected.style).toEqual({ stroke: theme.palette.primary.main, strokeWidth: 2.5 });
     expect(selected.markerEnd).toMatchObject({ color: theme.palette.primary.main });
-    const other = edgeOf('specify->plan');
+    const other = edgeOf('2d8eebb4-9a34-5eae-ae8d-88813520de08->ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(other.style).toBeUndefined();
     expect(other.markerEnd).not.toMatchObject({ color: theme.palette.primary.main });
   });
 
   it('F-11 AC-042 with the pipeline selected no box and no arrow has the selected style', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')));
-    expect(getComputedStyle(boxOf('specify')).borderTopWidth).toBe('1.5px');
-    expect(getComputedStyle(boxOf('plan')).borderTopWidth).toBe('1.5px');
-    expect(edgeOf('specify->plan').style).toBeUndefined();
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
+    expect(getComputedStyle(boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08')).borderTopWidth).toBe('1.5px');
+    expect(getComputedStyle(boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655')).borderTopWidth).toBe('1.5px');
+    expect(edgeOf('2d8eebb4-9a34-5eae-ae8d-88813520de08->ea3211a4-b64b-5204-9451-6fe12fd7c655').style).toBeUndefined();
   });
 });
 
 describe('F-11 AC-005 boxes are dragged on the canvas and the pipeline is not changed', () => {
   it('F-11 AC-005 every flow box is draggable', () => {
-    renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     expect(flowProps().nodesDraggable).toBe(true);
     expect(flowProps().nodes?.every((node) => node.draggable === true)).toBe(true);
   });
 
   it('F-11 AC-005 a drag moves the box where it was dropped and reports no pipeline change', () => {
-    const { onPipelineChange } = renderCanvas(pipelineOf(flow('specify'), flow('plan')));
+    const { onPipelineChange } = renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+      flowProps().onNodesChange?.([{ type: 'position', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', position: { x: 300, y: 40 }, dragging: false }]);
     });
     expect(onPipelineChange).not.toHaveBeenCalled();
-    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="ea3211a4-b64b-5204-9451-6fe12fd7c655"]')?.style.transform).toBe(
       'translate(300px,40px)',
     );
   });
 
   it('F-11 AC-005 a dragged place is dropped when the layout changes', () => {
-    const pipeline = pipelineOf(flow('specify'), flow('plan'));
+    const pipeline = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     const { rerender } = renderWithRerender(pipeline);
     act(() => {
-      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+      flowProps().onNodesChange?.([{ type: 'position', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', position: { x: 300, y: 40 }, dragging: false }]);
     });
-    rerender(pipelineOf(flow('specify'), flow('plan', { next: 'specify' })));
-    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+    rerender(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: '2d8eebb4-9a34-5eae-ae8d-88813520de08' })));
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="ea3211a4-b64b-5204-9451-6fe12fd7c655"]')?.style.transform).toBe(
       'translate(110px,0px)',
     );
   });
 
   it('F-11 AC-005 a dragged place is not brought back when the layout returns to an earlier one', () => {
-    const { rerender } = renderWithRerender(pipelineOf(flow('specify'), flow('plan')));
+    const { rerender } = renderWithRerender(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
     act(() => {
-      flowProps().onNodesChange?.([{ type: 'position', id: 'plan', position: { x: 300, y: 40 }, dragging: false }]);
+      flowProps().onNodesChange?.([{ type: 'position', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', position: { x: 300, y: 40 }, dragging: false }]);
     });
-    rerender(pipelineOf(flow('specify'), flow('plan', { next: 'specify' })));
-    rerender(pipelineOf(flow('specify'), flow('plan')));
-    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="plan"]')?.style.transform).toBe(
+    rerender(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: '2d8eebb4-9a34-5eae-ae8d-88813520de08' })));
+    rerender(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')));
+    expect(document.querySelector<HTMLElement>('.react-flow__node[data-id="ea3211a4-b64b-5204-9451-6fe12fd7c655"]')?.style.transform).toBe(
       'translate(110px,0px)',
     );
   });
@@ -516,20 +516,20 @@ describe('F-11 AC-005 the arrows of a dragged box stay drawn', () => {
   it('F-11 AC-005 keeps every arrow drawn while a box is dragged and after it is dropped', async () => {
     renderCanvas(
       pipelineOf(
-        flow('specify', { next: 'ux' }),
-        flow('ux', { next: 'plan' }),
-        flow('plan', { next: 'build' }),
-        flow('build'),
+        flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: '47d4f7c9-a236-5d9b-b5a7-3f4724285515' }),
+        flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }),
+        flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' }),
+        flow('a0c3aad4-8765-5b23-8df5-7c03d481233c'),
       ),
     );
     await act(async () => {});
     expect(arrowCount()).toBe(3);
     act(() => {
-      flowProps().onNodesChange?.([{ type: 'position', id: 'ux', position: { x: 150, y: 40 }, dragging: true }]);
+      flowProps().onNodesChange?.([{ type: 'position', id: '47d4f7c9-a236-5d9b-b5a7-3f4724285515', position: { x: 150, y: 40 }, dragging: true }]);
     });
     expect(arrowCount()).toBe(3);
     act(() => {
-      flowProps().onNodesChange?.([{ type: 'position', id: 'ux', position: { x: 160, y: 40 }, dragging: false }]);
+      flowProps().onNodesChange?.([{ type: 'position', id: '47d4f7c9-a236-5d9b-b5a7-3f4724285515', position: { x: 160, y: 40 }, dragging: false }]);
     });
     expect(arrowCount()).toBe(3);
   });
@@ -537,11 +537,11 @@ describe('F-11 AC-005 the arrows of a dragged box stay drawn', () => {
 
 describe('F-11 (no criterion: Verify device fix 2026-11-24) the connection points of a selected box are larger', () => {
   it('F-11 Verify device fix 2026-11-24 draws both points of the selected box at 14 px with a 2 px paper ring', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
-      selection: { kind: 'flow', id: 'plan' },
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')), {
+      selection: { kind: 'flow', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' },
     });
     for (const side of ['left', 'right']) {
-      const handle = boxOf('plan').querySelector<HTMLElement>(`.react-flow__handle-${side}`);
+      const handle = boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655').querySelector<HTMLElement>(`.react-flow__handle-${side}`);
       expect(handle).not.toBeNull();
       const style = getComputedStyle(handle as HTMLElement);
       expect(style.width).toBe('14px');
@@ -552,10 +552,10 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) the connection point
   });
 
   it('F-11 Verify device fix 2026-11-24 keeps the library size on the points of a box that is not selected', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan')), {
-      selection: { kind: 'flow', id: 'plan' },
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655')), {
+      selection: { kind: 'flow', id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' },
     });
-    const handle = boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-right');
+    const handle = boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08').querySelector<HTMLElement>('.react-flow__handle-right');
     expect(handle).not.toBeNull();
     expect(handle?.style.width).toBe('');
     expect(handle?.style.height).toBe('');
@@ -565,12 +565,12 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) the connection point
 
 describe('F-11 (no criterion: Verify device fix 2026-11-24) the two ends of a selected arrow are larger', () => {
   it('F-11 Verify device fix 2026-11-24 draws the source point and the target point of the selected arrow at 14 px', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')), {
-      selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' }), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c')), {
+      selection: { kind: 'arrow', arrow: { source: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', target: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' } },
     });
     const ends = [
-      boxOf('plan').querySelector<HTMLElement>('.react-flow__handle-right'),
-      boxOf('build').querySelector<HTMLElement>('.react-flow__handle-left'),
+      boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655').querySelector<HTMLElement>('.react-flow__handle-right'),
+      boxOf('a0c3aad4-8765-5b23-8df5-7c03d481233c').querySelector<HTMLElement>('.react-flow__handle-left'),
     ];
     for (const handle of ends) {
       expect(handle).not.toBeNull();
@@ -583,14 +583,14 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) the two ends of a se
   });
 
   it('F-11 Verify device fix 2026-11-24 keeps the library size on the other points of the boxes', () => {
-    renderCanvas(pipelineOf(flow('specify', { next: 'plan' }), flow('plan', { next: 'build' }), flow('build')), {
-      selection: { kind: 'arrow', arrow: { source: 'plan', target: 'build' } },
+    renderCanvas(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', { next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', { next: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' }), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c')), {
+      selection: { kind: 'arrow', arrow: { source: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', target: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' } },
     });
     const others = [
-      boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-right'),
-      boxOf('specify').querySelector<HTMLElement>('.react-flow__handle-left'),
-      boxOf('plan').querySelector<HTMLElement>('.react-flow__handle-left'),
-      boxOf('build').querySelector<HTMLElement>('.react-flow__handle-right'),
+      boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08').querySelector<HTMLElement>('.react-flow__handle-right'),
+      boxOf('2d8eebb4-9a34-5eae-ae8d-88813520de08').querySelector<HTMLElement>('.react-flow__handle-left'),
+      boxOf('ea3211a4-b64b-5204-9451-6fe12fd7c655').querySelector<HTMLElement>('.react-flow__handle-left'),
+      boxOf('a0c3aad4-8765-5b23-8df5-7c03d481233c').querySelector<HTMLElement>('.react-flow__handle-right'),
     ];
     for (const handle of others) {
       expect(handle).not.toBeNull();

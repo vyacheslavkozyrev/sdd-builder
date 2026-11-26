@@ -3,9 +3,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { buildProjectConfig } from '../src/analyze/config.js';
 import { projectTree, type TreeNode } from '../src/analyze/tree.js';
 import { loadGenerationTemplates } from '../src/analyze/templates.js';
-import { defaultPipelineValue, type WizardValues } from '../src/wizard/state.js';
+import { defaultPipelineValue, type RuleValues, type WizardValues } from '../src/wizard/state.js';
 
-function valuesWith(rules: { name: string; description: string }[]): WizardValues {
+function valuesWith(rules: readonly RuleValues[]): WizardValues {
   return {
     name: 'Shop',
     idea: 'A shop for books.',
@@ -16,13 +16,13 @@ function valuesWith(rules: { name: string; description: string }[]): WizardValue
   };
 }
 
-function configWith(rules: { name: string; description: string }[]): pipeline.ProjectConfig {
+function configWith(rules: readonly RuleValues[]): pipeline.ProjectConfig {
   return buildProjectConfig(valuesWith(rules));
 }
 
 const TWO_RULES = [
-  { name: 'Code Style', description: 'Use two spaces.' },
-  { name: 'Error handling', description: 'Throw for bugs.' },
+  { id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' },
+  { id: '15b04a76-5bef-5b12-a677-c4e5a640107c', name: 'Error handling', description: 'Throw for bugs.' },
 ];
 
 // The leaves of a tree, depth first, as paths with their rule mark.
@@ -112,9 +112,9 @@ describe('F-13 AC-024 the list follows the rule blocks of the configuration', ()
     const templates = loadGenerationTemplates();
     const before = leaves(projectTree(configWith(TWO_RULES), templates)).map((leaf) => leaf.path);
     const added = leaves(
-      projectTree(configWith([...TWO_RULES, { name: 'Testing', description: 'Test first.' }]), templates),
+      projectTree(configWith([...TWO_RULES, { id: 'dedaaeac-9f4a-5f81-927b-43d8fe7e58c7', name: 'Testing', description: 'Test first.' }]), templates),
     ).map((leaf) => leaf.path);
-    const removed = leaves(projectTree(configWith([{ name: 'Code Style', description: 'Use two spaces.' }]), templates)).map(
+    const removed = leaves(projectTree(configWith([{ id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' }]), templates)).map(
       (leaf) => leaf.path,
     );
     expect(added).toContain('.claude/rules/testing.md');
@@ -123,16 +123,17 @@ describe('F-13 AC-024 the list follows the rule blocks of the configuration', ()
     expect(removed.length).toBe(before.length - 1);
   });
 
-  it('gives no file to a rule block whose id is refused, and does not fail', () => {
+  it('F-16 AC-029 gives no file to a rule block with no letter or digit, gives a digit-first name its file, and does not fail', () => {
     const templates = loadGenerationTemplates();
     const refused = [
-      { name: '2 tests', description: 'Starts with a digit.' },
-      { name: '!!!', description: 'No letter or digit.' },
-      { name: 'a'.repeat(61), description: 'Too long.' },
+      { id: 'f412687d-d73f-5396-8308-65fc4a9fba4f', name: '2 tests', description: 'Starts with a digit.' },
+      { id: '6639b2a4-1459-5087-93bd-ccfce9522295', name: '!!!', description: 'No letter or digit.' },
+      { id: 'bfec41ba-271c-5eb1-99a7-bdf45d2e8848', name: 'a'.repeat(61), description: 'Too long.' },
     ];
     const tree = projectTree(configWith([...TWO_RULES, ...refused]), templates);
     const paths = leaves(tree).map((leaf) => leaf.path);
     expect(paths.filter((path) => path.startsWith('.claude/rules/'))).toEqual([
+      '.claude/rules/2-tests.md',
       '.claude/rules/code-style.md',
       '.claude/rules/error-handling.md',
     ]);
@@ -140,15 +141,25 @@ describe('F-13 AC-024 the list follows the rule blocks of the configuration', ()
 
   it('gives no file to rule blocks that share an id, and does not fail while the user types a duplicate', () => {
     const templates = loadGenerationTemplates();
-    const duplicated = [...TWO_RULES, { name: 'code style', description: 'Same id as the first.' }];
+    const duplicated = [...TWO_RULES, { id: '6c41b1eb-0f6d-5444-99a9-74c60d9317d0', name: 'code style', description: 'Same id as the first.' }];
     const paths = leaves(projectTree(configWith(duplicated), templates)).map((leaf) => leaf.path);
     expect(paths.filter((path) => path.startsWith('.claude/rules/'))).toEqual(['.claude/rules/error-handling.md']);
+  });
+
+  it('F-16 AC-029 gives no file to rule blocks whose titles differ in the wizard id but give one file name, and does not fail', () => {
+    const templates = loadGenerationTemplates();
+    const clashing = [
+      { id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Testing!', description: 'Has a mark.' },
+      { id: '15b04a76-5bef-5b12-a677-c4e5a640107c', name: 'Testing', description: 'Plain.' },
+    ];
+    const paths = leaves(projectTree(configWith(clashing), templates)).map((leaf) => leaf.path);
+    expect(paths.filter((path) => path.startsWith('.claude/rules/'))).toEqual([]);
   });
 
   it('keeps the list the same when the refused rule blocks are the only change', () => {
     const templates = loadGenerationTemplates();
     expect(projectTree(configWith(TWO_RULES), templates)).toEqual(
-      projectTree(configWith([...TWO_RULES, { name: '2 tests', description: 'x' }]), templates),
+      projectTree(configWith([...TWO_RULES, { id: '841957a6-3c9a-5ba8-987e-13da0b61b1d2', name: '!!!', description: 'x' }]), templates),
     );
   });
 });

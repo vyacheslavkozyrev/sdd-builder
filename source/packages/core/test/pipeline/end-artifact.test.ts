@@ -36,38 +36,38 @@ function config(flows: readonly Flow[]): Pick<ProjectConfig, 'pipeline'> {
 
 describe('F-02 AC-064 an end names an artifact of its flow', () => {
   it('accepts a producedArtifact that is the exact label of an artifact of the flow', () => {
-    const flows = [flow('plan', [artifact('Plan'), artifact('Notes')], [end('finish', 'Notes')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan'), artifact('Notes')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'Notes')])];
     expect(checkEndArtifacts(config(flows))).toEqual([]);
   });
 
   it('refuses a label that no artifact of the flow has, at the path of producedArtifact', () => {
-    const flows = [flow('plan', [artifact('Plan')], [end('finish', 'Report')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'Report')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got Report' },
     ]);
   });
 
   it('refuses the empty string', () => {
-    const flows = [flow('plan', [artifact('Plan')], [end('finish', '')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', '')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got ' },
     ]);
   });
 
   it('refuses "none" when no artifact of the flow is labelled none', () => {
-    const flows = [flow('plan', [artifact('Plan')], [end('finish', 'none')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'none')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got none' },
     ]);
   });
 
   it('accepts "none" when an artifact of the flow is labelled none', () => {
-    const flows = [flow('plan', [artifact('none')], [end('finish', 'none')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('none')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'none')])];
     expect(checkEndArtifacts(config(flows))).toEqual([]);
   });
 
   it('compares labels exactly, so a label that differs only in case is refused', () => {
-    const flows = [flow('plan', [artifact('Plan')], [end('finish', 'plan')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'plan')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got plan' },
     ]);
@@ -75,8 +75,8 @@ describe('F-02 AC-064 an end names an artifact of its flow', () => {
 
   it('checks each end against the artifacts of its own flow, not of another flow', () => {
     const flows = [
-      flow('plan', [artifact('Plan')], [end('finish', 'Plan')]),
-      flow('build', [artifact('Code')], [end('ship', 'Plan')]),
+      flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'Plan')]),
+      flow('ea365500-e6ec-5064-90ea-fb6cc4bb49d6', [artifact('Code')], [end('f4e2c5aa-5035-5119-b2b4-a7c7bc0ede7c', 'Plan')]),
     ];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.1.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got Plan' },
@@ -86,14 +86,14 @@ describe('F-02 AC-064 an end names an artifact of its flow', () => {
 
 describe('F-02 AC-065 a flow with no artifacts cannot have a valid end', () => {
   it('refuses any producedArtifact on an end of a flow with no artifacts', () => {
-    const flows = [flow('plan', [], [end('finish', 'Plan')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [], [end('20900e02-1e63-549a-a5cf-4a09eec53bb3', 'Plan')])];
     expect(checkEndArtifacts(config(flows))).toEqual([
       { path: 'pipeline.flows.0.blocks.0.producedArtifact', message: 'must name an artifact of this flow, got Plan' },
     ]);
   });
 
   it('names the path of producedArtifact for every end of such a flow', () => {
-    const flows = [flow('plan', [], [end('first', 'Plan'), end('second', 'none')])];
+    const flows = [flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [], [end('5c0f2c3f-cca2-5a06-a76c-9f46c2f59923', 'Plan'), end('9c7ec703-c07d-5128-b056-24c54e49081f', 'none')])];
     expect(checkEndArtifacts(config(flows)).map((problem) => problem.path)).toEqual([
       'pipeline.flows.0.blocks.0.producedArtifact',
       'pipeline.flows.0.blocks.1.producedArtifact',
@@ -112,17 +112,17 @@ describe('F-02 AC-064 an end after a refused item is reported at its document in
 
   it('reports an end at the document index of its block when a block before it was refused', () => {
     const { pipeline } = parsed({
-      id: 'plan',
+      id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
       name: 'Plan',
       body: 'Body',
       arguments: [],
       artifacts: [{ label: 'Plan', template: 'plan.md' }],
       approval: false,
       blocks: [
-        { id: 'bad' },
-        { id: 's', kind: 'start', next: 'a' },
-        { id: 'a', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 'e' },
-        { id: 'e', kind: 'end', outcome: 'done', producedArtifact: 'Report' },
+        { id: 'f816750f-bf56-554f-9106-e5f4c800be80' },
+        { id: 'aaa4a9fb-6e34-59bf-ab3d-968d23868808', kind: 'start', next: 'fdac7165-b540-5201-bca7-029a056ea40e' },
+        { id: 'fdac7165-b540-5201-bca7-029a056ea40e', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 'c6aa4797-99c3-5de1-a1c5-ff4762474687' },
+        { id: 'c6aa4797-99c3-5de1-a1c5-ff4762474687', kind: 'end', outcome: 'done', producedArtifact: 'Report' },
       ],
     });
     expect(checkEndArtifacts({ pipeline })).toEqual([
@@ -132,18 +132,18 @@ describe('F-02 AC-064 an end after a refused item is reported at its document in
 
   it('reports an end at the document index of its flow when a flow before it was refused', () => {
     const { pipeline } = parsed(
-      { id: 'bad' },
+      { id: 'f816750f-bf56-554f-9106-e5f4c800be80' },
       {
-        id: 'plan',
+        id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
         name: 'Plan',
         body: 'Body',
         arguments: [],
         artifacts: [{ label: 'Plan', template: 'plan.md' }],
         approval: false,
         blocks: [
-          { id: 's', kind: 'start', next: 'a' },
-          { id: 'a', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 'e' },
-          { id: 'e', kind: 'end', outcome: 'done', producedArtifact: 'Report' },
+          { id: 'aaa4a9fb-6e34-59bf-ab3d-968d23868808', kind: 'start', next: 'fdac7165-b540-5201-bca7-029a056ea40e' },
+          { id: 'fdac7165-b540-5201-bca7-029a056ea40e', kind: 'agent', name: 'review', description: 'Agent', arguments: [], next: 'c6aa4797-99c3-5de1-a1c5-ff4762474687' },
+          { id: 'c6aa4797-99c3-5de1-a1c5-ff4762474687', kind: 'end', outcome: 'done', producedArtifact: 'Report' },
         ],
       },
     );
@@ -156,8 +156,8 @@ describe('F-02 AC-064 an end after a refused item is reported at its document in
 describe('F-02 AC-064 problems come in document order', () => {
   it('lists the problems of the first flow before those of the second', () => {
     const flows = [
-      flow('plan', [artifact('Plan')], [end('a', 'Missing'), end('b', 'Plan')]),
-      flow('build', [], [end('c', 'Code')]),
+      flow('fc358416-c66a-5fef-9c5e-a282b75cbd92', [artifact('Plan')], [end('fdac7165-b540-5201-bca7-029a056ea40e', 'Missing'), end('2cb36792-5a03-58cf-a718-bba6be0b9122', 'Plan')]),
+      flow('ea365500-e6ec-5064-90ea-fb6cc4bb49d6', [], [end('c3250c18-d047-5f77-9456-b24446aad79a', 'Code')]),
     ];
     expect(checkEndArtifacts(config(flows)).map((problem) => problem.path)).toEqual([
       'pipeline.flows.0.blocks.0.producedArtifact',

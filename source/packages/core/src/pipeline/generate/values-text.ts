@@ -1,4 +1,6 @@
-import type { Argument, RuleTag } from '../model.js';
+import type { Argument, Rule, RuleTag } from '../model.js';
+import { GenerationError } from './error.js';
+import { ruleFileName } from './rule-file.js';
 
 // The text helpers shared by the value builders (F-04, T006 and T007). A value of whole lines starts with its own line
 // break and is '' when it has no lines (plan, "Decision used by the plan"), so a layout can write it at the end of a
@@ -34,10 +36,18 @@ export function bodyText(body: string): string {
   return text === '' ? '' : `\n\n${text}`;
 }
 
-// The rule tags of a flow or an Agent block as one comma-separated list in their order; `none` when there are none
-// (F-05, AC-007 and AC-022).
-export function ruleTagsText(tags: readonly RuleTag[] | undefined): string {
-  return tags === undefined || tags.length === 0 ? 'none' : tags.map((tag) => tag.ruleId).join(', ');
+// The rule tags of a flow or an Agent block as one comma-separated list of the file names of their rules, in their order;
+// `none` when there are none (F-05, AC-007 and AC-022; F-16, AC-029).
+export function ruleTagsText(tags: readonly RuleTag[] | undefined, rules: readonly Rule[]): string {
+  return tags === undefined || tags.length === 0 ? 'none' : tags.map((tag) => ruleFileOf(tag, rules)).join(', ');
+}
+
+// The file name of the rule a tag names, without the `.md` (F-16, AC-029). The config is checked before generation, so a
+// tag that names no rule of the project is a programmer error.
+export function ruleFileOf(tag: RuleTag, rules: readonly Rule[]): string {
+  const rule = rules.find((candidate) => candidate.id === tag.ruleId);
+  if (rule === undefined) throw new GenerationError(`the rule tag ${tag.ruleId} names no rule of the project`);
+  return ruleFileName(rule);
 }
 
 // Each argument of a flow or the pipeline on its own line; `No arguments` when there are none (F-05, AC-008 and AC-001).

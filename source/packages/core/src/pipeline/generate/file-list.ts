@@ -1,6 +1,7 @@
 import type { AgentBlock, Flow, ProjectConfig, Rule } from '../model.js';
 import { GenerationError } from './error.js';
 import { flowFileName } from './flow-file.js';
+import { ruleFileName } from './rule-file.js';
 import { isSafePath } from './paths.js';
 import type { BaseTemplate, GenerationTemplates } from './templates.js';
 
@@ -17,7 +18,8 @@ export interface ListedFile {
   readonly source: FileSource;
 }
 
-// The file list of a configuration (F-04, AC-001 to AC-004, AC-006, AC-007, AC-024). It is a pure function of
+// The file list of a configuration (F-04, AC-001 to AC-004, AC-006, AC-007, AC-024). Command and rule files take their
+// names from the flow names and rule titles (F-16, AC-013 and AC-029), never from the ids. It is a pure function of
 // the config and the base templates: the same input gives the same list. The list is sorted by path in
 // code-point order. A path that is not file-safe, or a path planned twice, is a bug in the generator and
 // throws a GenerationError naming the path (a user's refusal is a finding, not this error).
@@ -40,7 +42,7 @@ export function listFiles(config: ProjectConfig, templates: GenerationTemplates)
       ),
     ),
     ...config.rules.map((rule) => ({
-      path: `.claude/rules/${rule.id}.md`,
+      path: `.claude/rules/${ruleFileName(rule)}.md`,
       source: { kind: 'rule', rule } as const,
     })),
   ];

@@ -57,7 +57,7 @@ describe('F-06 review request', () => {
   });
 
   it('F-06 AC-007 the request carries the rules, which the pipeline rule tags refer to', () => {
-    const rule = { index: 0, id: 'tests-first', title: 'Tests first', text: 'Write the test before the code.' };
+    const rule = { index: 0, id: '871db7b5-3e46-5e25-870d-c446c92931f0', title: 'Tests first', text: 'Write the test before the code.' };
     const withRule: pipeline.ProjectConfig = { ...configFixture(), rules: [rule] };
     const content = JSON.parse(reviewRequest(withRule).content) as { rules: unknown };
 

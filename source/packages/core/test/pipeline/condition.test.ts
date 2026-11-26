@@ -6,10 +6,10 @@ const COND = 'pipeline.flows.0.blocks.2';
 const TRUE = `${COND}.true`;
 const FALSE = `${COND}.false`;
 const validCondition = {
-  id: 'pre',
+  id: '67bab2cb-f703-5642-b184-54fc04b9548e',
   kind: 'condition',
   description: 'The brief is complete.',
-  true: { to: 'frame' },
+  true: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' },
   false: { stop: true },
 };
 
@@ -24,10 +24,10 @@ describe('F-02 AC-056 a condition requires id, kind, description, true and false
     expect(readC(validCondition)).toEqual({
       block: {
         index: 2,
-        id: 'pre',
+        id: '67bab2cb-f703-5642-b184-54fc04b9548e',
         kind: 'condition',
         description: 'The brief is complete.',
-        true: { to: 'frame' },
+        true: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' },
         false: { stop: true },
       },
       problems: [],
@@ -100,8 +100,8 @@ describe('F-02 AC-057 a condition description is text that is not blank and at m
 
 describe('F-02 AC-058 a route is exactly {to}, {to, roundLimit} or {stop: true}', () => {
   it.each([
-    [{ to: 'frame' }, { to: 'frame' }],
-    [{ to: 'frame', roundLimit: 2 }, { to: 'frame', roundLimit: 2 }],
+    [{ to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' }, { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' }],
+    [{ to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', roundLimit: 2 }, { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', roundLimit: 2 }],
     [{ stop: true }, { stop: true }],
   ])('accepts the route %j on the true side', (route, expected) => {
     expect(readC({ ...validCondition, true: route }).block?.true).toEqual(expected);
@@ -109,7 +109,7 @@ describe('F-02 AC-058 a route is exactly {to}, {to, roundLimit} or {stop: true}'
 
   it.each([
     ['the empty object', {}],
-    ['a route with both to and stop', { to: 'frame', stop: true }],
+    ['a route with both to and stop', { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', stop: true }],
     ['stop false', { stop: false }],
     ['roundLimit without to', { roundLimit: 2 }],
   ])('refuses %s at the path of the route', (_label, route) => {
@@ -126,13 +126,13 @@ describe('F-02 AC-058 a route is exactly {to}, {to, roundLimit} or {stop: true}'
   });
 
   it('refuses a route that is not an object at the path of the route', () => {
-    expect(readC({ ...validCondition, false: 'frame' }).problems).toEqual([
+    expect(readC({ ...validCondition, false: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' }).problems).toEqual([
       { path: FALSE, message: expect.stringContaining('must be an object') },
     ]);
   });
 
   it('refuses a route with an unknown key at the path of that key', () => {
-    expect(readC({ ...validCondition, true: { to: 'frame', gate: true } })).toEqual({
+    expect(readC({ ...validCondition, true: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', gate: true } })).toEqual({
       block: undefined,
       problems: [{ path: `${TRUE}.gate`, message: 'has an unknown key gate' }],
     });
@@ -140,14 +140,14 @@ describe('F-02 AC-058 a route is exactly {to}, {to, roundLimit} or {stop: true}'
 
   it('refuses a route whose to is not an id at the path of to', () => {
     expect(readC({ ...validCondition, true: { to: 'Frame Step' } }).problems).toEqual([
-      { path: `${TRUE}.to`, message: expect.stringContaining('must be an id') },
+      { path: `${TRUE}.to`, message: expect.stringContaining('must be a GUID') },
     ]);
   });
 });
 
 describe('F-02 AC-060 a round limit is an integer from 1 to 5', () => {
   it.each([1, 5])('accepts the round limit %s', (roundLimit) => {
-    expect(readC({ ...validCondition, false: { to: 'frame', roundLimit } }).problems).toEqual([]);
+    expect(readC({ ...validCondition, false: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', roundLimit } }).problems).toEqual([]);
   });
 
   it.each([
@@ -156,7 +156,7 @@ describe('F-02 AC-060 a round limit is an integer from 1 to 5', () => {
     [2.5, 'must be a whole number from 1 to 5, got a number'],
     ['2', 'must be a whole number from 1 to 5, got text'],
   ])('refuses the round limit %j at the path of roundLimit', (roundLimit, message) => {
-    expect(readC({ ...validCondition, false: { to: 'frame', roundLimit } })).toEqual({
+    expect(readC({ ...validCondition, false: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', roundLimit } })).toEqual({
       block: undefined,
       problems: [{ path: `${FALSE}.roundLimit`, message }],
     });
@@ -175,7 +175,7 @@ describe('F-02 AC-008 the retired keys are refused on a condition and its routes
   );
 
   it.each(['gate', 'label'])('refuses %s on a route at the path of that key', (key) => {
-    expect(readC({ ...validCondition, true: { to: 'frame', [key]: 'x' } })).toEqual({
+    expect(readC({ ...validCondition, true: { to: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e', [key]: 'x' } })).toEqual({
       block: undefined,
       problems: [{ path: `${TRUE}.${key}`, message: `has an unknown key ${key}` }],
     });

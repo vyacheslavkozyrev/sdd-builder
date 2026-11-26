@@ -93,7 +93,7 @@ describe('F-02 AC-010 an absent optional key is accepted, a null one is refused'
 
   it('reads a present optional key with a valid value', () => {
     const problems = collector();
-    expect(readOptional({ next: 'build' }, 'next', 'flow', problems, read)).toBe('build');
+    expect(readOptional({ next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' }, 'next', 'flow', problems, read)).toBe('ea365500-e6ec-5064-90ea-fb6cc4bb49d6');
     expect(problems.list()).toEqual([]);
   });
 
@@ -104,26 +104,25 @@ describe('F-02 AC-010 an absent optional key is accepted, a null one is refused'
   });
 });
 
-describe('F-02 AC-016 an argument id follows the id rule', () => {
-  it.each(['feature-id', 'a', 'plan2', 'a'.repeat(60)])('accepts %s', (id) => {
+describe('F-16 AC-028 an argument id is a lower-case GUID', () => {
+  it.each(['a56aab15-5743-5847-9b77-b39b2124c91b', '00000000-0000-4000-8000-000000000000'])('accepts %s', (id) => {
     const problems = collector();
     expect(readId(id, 'arguments[0].id', problems)).toBe(id);
     expect(problems.list()).toEqual([]);
   });
 
   it.each([
+    ['feature-id', 'a word, not a GUID'],
     ['Feature_ID', 'upper case and underscore'],
     ['1st', 'starts with a digit'],
     ['feature id', 'contains a space'],
-    ['feature.id', 'contains a dot'],
     ['', 'empty'],
-    ['a'.repeat(61), 'longer than 60 code points'],
+    ['A56AAB15-5743-5847-9B77-B39B2124C91B', 'upper-case GUID'],
+    ['a56aab15574358479b77b39b2124c91b', 'GUID without hyphens'],
   ])('refuses %s (%s) with the path of the id', (id) => {
     const problems = collector();
     expect(readId(id, 'arguments[0].id', problems)).toBeUndefined();
-    expect(problems.list()).toEqual([
-      expect.objectContaining({ path: 'arguments[0].id' }),
-    ]);
+    expect(problems.list()).toEqual([{ path: 'arguments[0].id', message: 'must be a GUID' }]);
   });
 });
 

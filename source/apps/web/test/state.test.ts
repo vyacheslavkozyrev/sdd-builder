@@ -10,6 +10,9 @@ import {
 import { isNextEnabled, isPrevEnabled, type StepNumber } from '../src/wizard/steps.js';
 import { valuesWith } from './wizardValues.js';
 
+// A lower-case GUID in the 8-4-4-4-12 form (F-16 AC-027).
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 // The values of a new project: empty fields and the empty pipeline (F-16 AC-019).
 function emptyValues(): WizardValues {
   return { ...valuesWith('', ''), pipeline: emptyPipelineValue() };
@@ -350,7 +353,7 @@ describe('F-10 AC-009 Add rule block appends one empty block after the last one'
       const start = rulesOf(...Array.from({ length: before }, (_, index) => `rule ${index}`));
       const next = wizardReducer(start, { type: 'add-rule' });
       expect(next.values.rules).toHaveLength(after);
-      expect(next.values.rules[after - 1]).toEqual({ name: '', description: '' });
+      expect(next.values.rules[after - 1]).toEqual({ id: expect.any(String), name: '', description: '' });
     });
   }
 
@@ -404,7 +407,7 @@ describe('F-10 AC-020 the rule description is stored as typed', () => {
   it('F-10 AC-020 a blank description is kept as typed and does not block Next', () => {
     const start = rulesOf('Style');
     const after = wizardReducer(start, { type: 'update-rule', index: 0, patch: { description: '   ' } });
-    expect(after.values.rules[0]).toEqual({ name: 'Style', description: '   ' });
+    expect(after.values.rules[0]).toEqual({ id: expect.any(String), name: 'Style', description: '   ' });
     expect(wizardReducer(after, { type: 'next' }).step).toBe(3);
   });
 
@@ -423,8 +426,8 @@ describe('F-10 AC-020 the rule description is stored as typed', () => {
       patch: { description: 'Line one\nline two' },
     });
     expect(after.values.rules).toEqual([
-      { name: 'one', description: '' },
-      { name: 'two', description: 'Line one\nline two' },
+      { id: expect.any(String), name: 'one', description: '' },
+      { id: expect.any(String), name: 'two', description: 'Line one\nline two' },
     ]);
   });
 });
@@ -454,7 +457,7 @@ describe('F-10 AC-022 step 2 values survive Next, Prev and a visit to step 4', (
     expect(state.step).toBe(2);
     expect(state.values.stack.language).toBe('Go');
     expect(state.values.architecture).toBe('Layers ');
-    expect(state.values.rules).toEqual([{ name: 'Style', description: 'd' }]);
+    expect(state.values.rules).toEqual([{ id: expect.stringMatching(GUID), name: 'Style', description: 'd' }]);
   });
 });
 
@@ -468,5 +471,30 @@ describe('F-10 AC-023 restart clears every step 2 value, including the rule list
     const after = wizardReducer(state, { type: 'restart' });
     expect(after.values).toEqual(emptyValues());
     expect(after.values.rules).toEqual([]);
+  });
+});
+
+describe('F-16 AC-027 rule block ids are generated GUIDs', () => {
+  it('F-16 AC-027 a new rule block gets a GUID id, kept when the block is edited', () => {
+    let state = wizardReducer(createInitialWizardState(), { type: 'add-rule' });
+    const id = state.values.rules[0]?.id;
+    expect(id).toMatch(GUID);
+    state = wizardReducer(state, { type: 'update-rule', index: 0, patch: { name: 'Style', description: 'd' } });
+    expect(state.values.rules[0]?.id).toBe(id);
+  });
+
+  it('F-16 AC-027 rule block ids stay unique after several adds and a removal', () => {
+    let state = createInitialWizardState();
+    for (let count = 0; count < 3; count += 1) {
+      state = wizardReducer(state, { type: 'add-rule' });
+    }
+    state = wizardReducer(state, { type: 'remove-rule', index: 1 });
+    state = wizardReducer(state, { type: 'add-rule' });
+    const ids = state.values.rules.map((rule) => rule.id);
+    expect(ids).toHaveLength(3);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of ids) {
+      expect(id).toMatch(GUID);
+    }
   });
 });

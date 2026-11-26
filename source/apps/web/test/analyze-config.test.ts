@@ -18,7 +18,7 @@ function indexKeysIn(value: unknown, path = '$'): string[] {
 function filledPipeline(): core.Pipeline {
   const parsed = core.parseProjectConfig({
     schemaVersion: 2,
-    rules: [{ id: 'code-style', title: 'Code Style', text: 'Use two spaces.' }],
+    rules: [{ id: '513d26bf-922f-546e-9d7f-5db6d267092c', title: 'Code Style', text: 'Use two spaces.' }],
     pipeline: structuredClone(core.defaultPipeline),
   });
   if (!parsed.ok) throw new Error('the default pipeline is refused');
@@ -27,13 +27,13 @@ function filledPipeline(): core.Pipeline {
   if (first === undefined) throw new Error('the default pipeline has no flow');
   return {
     ...base,
-    arguments: [{ index: 0, id: 'topic', required: true, hint: 'The topic.' }],
-    ruleTags: [{ index: 0, ruleId: 'code-style' }],
+    arguments: [{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: true, hint: 'The topic.' }],
+    ruleTags: [{ index: 0, ruleId: '513d26bf-922f-546e-9d7f-5db6d267092c' }],
     flows: [
       {
         ...first,
-        arguments: [{ index: 0, id: 'depth', required: false, hint: 'The depth.' }],
-        ruleTags: [{ index: 0, ruleId: 'code-style' }],
+        arguments: [{ index: 0, id: '5d0e8b7a-3c1f-5a2b-9d4e-6f7a8b9c0d1e', required: false, hint: 'The depth.' }],
+        ruleTags: [{ index: 0, ruleId: '513d26bf-922f-546e-9d7f-5db6d267092c' }],
       },
       ...rest,
     ],
@@ -47,8 +47,8 @@ function valuesWith(overrides: Partial<WizardValues>): WizardValues {
     stack: { language: 'TypeScript', framework: 'React', platform: 'Web', buildTool: 'Vite', testFramework: 'Vitest' },
     architecture: 'Layers: web, api, core.',
     rules: [
-      { name: 'Code Style', description: 'Use two spaces.' },
-      { name: 'Error handling!', description: 'Throw for bugs.' },
+      { id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' },
+      { id: '3a22e42a-b139-5990-b883-10aa38b155e1', name: 'Error handling!', description: 'Throw for bugs.' },
     ],
     pipeline: defaultPipelineValue(),
     ...overrides,
@@ -82,8 +82,8 @@ describe('F-13 AC-005 analyze request body', () => {
   it('maps each rule block to index, id, title and text', () => {
     const config = buildProjectConfig(valuesWith({}));
     expect(config.rules).toEqual([
-      { index: 0, id: 'code-style', title: 'Code Style', text: 'Use two spaces.' },
-      { index: 1, id: 'error-handling-', title: 'Error handling!', text: 'Throw for bugs.' },
+      { index: 0, id: '513d26bf-922f-546e-9d7f-5db6d267092c', title: 'Code Style', text: 'Use two spaces.' },
+      { index: 1, id: '3a22e42a-b139-5990-b883-10aa38b155e1', title: 'Error handling!', text: 'Throw for bugs.' },
     ]);
   });
 
@@ -114,12 +114,12 @@ describe('F-16 AC-011 analyze request body has no index key', () => {
 
   it('F-16 AC-011 has no index key at any level for a filled-in state with arguments, flows and rule tags', () => {
     const values = valuesWith({
-      rules: [{ name: 'Code Style', description: 'Use two spaces.' }],
+      rules: [{ id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' }],
       pipeline: filledPipeline(),
     });
     const body = buildRequestBody(values);
     expect(indexKeysIn(body)).toEqual([]);
-    expect(JSON.stringify(body)).toContain('"ruleTags":["code-style"]');
+    expect(JSON.stringify(body)).toContain('"ruleTags":["513d26bf-922f-546e-9d7f-5db6d267092c"]');
   });
 
   it('F-16 AC-011 keeps the list order and the other keys of the configuration', () => {
@@ -131,8 +131,8 @@ describe('F-16 AC-011 analyze request body has no index key', () => {
       architecture: 'Layers: web, api, core.',
       stack: { language: 'TypeScript', framework: 'React', platform: 'Web', buildTool: 'Vite', testFramework: 'Vitest' },
       rules: [
-        { id: 'code-style', title: 'Code Style', text: 'Use two spaces.' },
-        { id: 'error-handling-', title: 'Error handling!', text: 'Throw for bugs.' },
+        { id: '513d26bf-922f-546e-9d7f-5db6d267092c', title: 'Code Style', text: 'Use two spaces.' },
+        { id: '3a22e42a-b139-5990-b883-10aa38b155e1', title: 'Error handling!', text: 'Throw for bugs.' },
       ],
     });
   });
@@ -141,7 +141,7 @@ describe('F-16 AC-011 analyze request body has no index key', () => {
 describe('F-16 AC-012 analyze request body is accepted by the parser', () => {
   it('F-16 AC-012 is accepted by parseProjectConfig for a filled-in state, with the same pipeline and rules back', () => {
     const values = valuesWith({
-      rules: [{ name: 'Code Style', description: 'Use two spaces.' }],
+      rules: [{ id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' }],
       pipeline: filledPipeline(),
     });
     const parsed = core.parseProjectConfig(buildRequestBody(values));

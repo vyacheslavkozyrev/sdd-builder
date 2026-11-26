@@ -7,12 +7,12 @@ import type { GenerationTemplates } from '../../src/pipeline/generate/templates.
 import type { ProjectConfig } from '../../src/pipeline/model.js';
 import { validConfig, withFlow } from './analyze-fixture.js';
 
-// A config with several blockers: the flow is named `pipeline` (AC-022) and its End block is removed (F-03 AC-004),
-// so the Agent's `next` names no block.
+// A config with several blockers: the flow is named `Pipeline!`, whose command file would be pipeline.md (AC-022), and its
+// End block is removed (F-03 AC-004), so the Agent's `next` names no block.
 function blockedConfig(): ProjectConfig {
   return withFlow((flow) => ({
     ...flow,
-    id: 'pipeline',
+    name: 'Pipeline!',
     blocks: flow.blocks.filter((block) => block.kind !== 'end'),
   }));
 }
@@ -40,7 +40,7 @@ describe('F-04 AC-020 a config with a blocker plans no files and lists every blo
     expect(result.problems).toEqual(blockersOf(analyzeStructure(config)));
     expect(result.problems.map(({ rule, path }) => ({ rule, path }))).toEqual([
       { rule: 'flow-end', path: 'pipeline.flows.0' },
-      { rule: 'flow-id', path: 'pipeline.flows.0.id' },
+      { rule: 'command-file-clash', path: 'pipeline.flows.0.name' },
       { rule: 'block-link', path: 'pipeline.flows.0.blocks.1.next' },
     ]);
     for (const problem of result.problems) expect(problem.severity).toBe('blocker');

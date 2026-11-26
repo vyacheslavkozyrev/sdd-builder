@@ -57,13 +57,13 @@ function tabLabels(): string[] {
 
 describe('F-11 AC-001 tab row order', () => {
   it('F-11 AC-001 shows Pipeline first, then one tab per flow in pipeline order', () => {
-    renderTabs(pipelineOf(flow('specify'), flow('plan'), flow('build')));
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c')));
 
-    expect(tabLabels()).toEqual(['Pipeline', 'specify', 'plan', 'build']);
+    expect(tabLabels()).toEqual(['Pipeline', '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'a0c3aad4-8765-5b23-8df5-7c03d481233c']);
   });
 
   it('F-11 AC-001 shows the flow name on its tab, not its id', () => {
-    renderTabs(pipelineOf(flow('flow-1', 'Specify the work')));
+    renderTabs(pipelineOf(flow('40174c6b-ffc9-5a01-af92-33a352fc884a', 'Specify the work')));
 
     expect(tabLabels()).toEqual(['Pipeline', 'Specify the work']);
   });
@@ -75,7 +75,7 @@ describe('F-11 AC-001 tab row order', () => {
   });
 
   it('F-11 AC-001 draws the + control after the last flow tab, outside the tab list', () => {
-    renderTabs(pipelineOf(flow('specify'), flow('plan')));
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'specify'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'plan')));
 
     const tablist = screen.getByRole('tablist', { name: 'Pipeline tabs' });
     expect(Array.from(tablist.children).every((child) => child.getAttribute('role') === 'tab')).toBe(true);
@@ -84,7 +84,7 @@ describe('F-11 AC-001 tab row order', () => {
   });
 
   it('F-11 AC-001 has no remove control on the Pipeline tab or on any tab', () => {
-    renderTabs(pipelineOf(flow('specify')));
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'specify')));
 
     const tablist = screen.getByRole('tablist', { name: 'Pipeline tabs' });
     expect(screen.queryByRole('button', { name: /remove|delete|close/i })).toBeNull();
@@ -95,14 +95,14 @@ describe('F-11 AC-001 tab row order', () => {
 
 describe('F-11 AC-001 open tab', () => {
   it('F-11 AC-001 marks the Pipeline tab as open when it is the open tab', () => {
-    renderTabs(pipelineOf(flow('specify')), PIPELINE);
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'specify')), PIPELINE);
 
     expect(screen.getByRole('tab', { name: 'Pipeline' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'specify' }).getAttribute('aria-selected')).toBe('false');
   });
 
   it('F-11 AC-001 marks only the flow tab that is open', () => {
-    renderTabs(pipelineOf(flow('specify'), flow('plan')), flowTab('plan'));
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'specify'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'plan')), flowTab('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
 
     expect(screen.getByRole('tab', { name: 'plan' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'Pipeline' }).getAttribute('aria-selected')).toBe('false');
@@ -110,7 +110,7 @@ describe('F-11 AC-001 open tab', () => {
   });
 
   it('F-11 AC-001 marks the open flow tab by its id, even when its name differs', () => {
-    renderTabs(pipelineOf(flow('flow-1', 'specify'), flow('flow-2', 'plan')), flowTab('flow-2'));
+    renderTabs(pipelineOf(flow('40174c6b-ffc9-5a01-af92-33a352fc884a', 'specify'), flow('02e82ffe-8c62-50f5-acea-711320561fab', 'plan')), flowTab('02e82ffe-8c62-50f5-acea-711320561fab'));
 
     expect(screen.getByRole('tab', { name: 'plan' }).getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('tab', { name: 'specify' }).getAttribute('aria-selected')).toBe('false');
@@ -119,7 +119,7 @@ describe('F-11 AC-001 open tab', () => {
 
 describe('F-11 AC-001 tab clicks', () => {
   it('F-11 AC-001 calls onSelectTab with the Pipeline tab when Pipeline is clicked', () => {
-    const { onSelectTab } = renderTabs(pipelineOf(flow('specify')), flowTab('specify'));
+    const { onSelectTab } = renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')), flowTab('2d8eebb4-9a34-5eae-ae8d-88813520de08'));
 
     fireEvent.click(screen.getByRole('tab', { name: 'Pipeline' }));
 
@@ -128,16 +128,16 @@ describe('F-11 AC-001 tab clicks', () => {
   });
 
   it('F-11 AC-001 calls onSelectTab with the flow tab when a flow is clicked', () => {
-    const { onSelectTab } = renderTabs(pipelineOf(flow('specify'), flow('plan')));
+    const { onSelectTab } = renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'specify'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'plan')));
 
     fireEvent.click(screen.getByRole('tab', { name: 'plan' }));
 
     expect(onSelectTab).toHaveBeenCalledTimes(1);
-    expect(onSelectTab).toHaveBeenCalledWith(flowTab('plan'));
+    expect(onSelectTab).toHaveBeenCalledWith(flowTab('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
   });
 
   it('F-11 AC-001 does not select a tab on render, before any click', () => {
-    const { onSelectTab, onAddFlow } = renderTabs(pipelineOf(flow('specify')));
+    const { onSelectTab, onAddFlow } = renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')));
 
     expect(onSelectTab).not.toHaveBeenCalled();
     expect(onAddFlow).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ describe('F-11 AC-001 tab clicks', () => {
 
 describe('F-11 AC-003 the + control', () => {
   it('F-11 AC-003 calls onAddFlow exactly once when + is clicked', () => {
-    const { onAddFlow, onSelectTab } = renderTabs(pipelineOf(flow('specify')));
+    const { onAddFlow, onSelectTab } = renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')));
 
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
 
@@ -164,7 +164,7 @@ describe('F-11 AC-003 the + control', () => {
 
 describe('F-11 AC-004 no toolbox on the Pipeline tab', () => {
   it('F-11 AC-004 renders no Connection, Approval or Check tool with the Pipeline tab open', () => {
-    renderTabs(pipelineOf(flow('specify')), PIPELINE);
+    renderTabs(pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08')), PIPELINE);
 
     for (const name of ['Connection', 'Approval', 'Check']) {
       expect(screen.queryByRole('button', { name: new RegExp(name, 'i') })).toBeNull();

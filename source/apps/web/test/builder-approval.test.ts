@@ -26,8 +26,8 @@ function fullFlow(id: string, next?: string): Flow {
   return {
     ...flow(id, `Full ${id}`, next),
     model: 'sonnet',
-    arguments: [{ index: 0, id: 'topic', required: true, hint: 'The topic.' }],
-    ruleTags: [{ index: 0, ruleId: 'style' }],
+    arguments: [{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: true, hint: 'The topic.' }],
+    ruleTags: [{ index: 0, ruleId: '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc' }],
   };
 }
 
@@ -44,10 +44,10 @@ function pipelineOf(...flows: Flow[]): Pipeline {
 
 // Two connected flows, the first with approval off and every field set.
 function linkedPipeline(): Pipeline {
-  return pipelineOf(fullFlow('plan', 'build'), flow('build'));
+  return pipelineOf(fullFlow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c'));
 }
 
-const RULES: readonly Rule[] = [{ index: 0, id: 'style', title: 'style', text: 'The style rule.' }];
+const RULES: readonly Rule[] = [{ index: 0, id: '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc', title: '0c1e20fe-da74-5dbc-a196-e3ff90f6d6fc', text: 'The style rule.' }];
 
 // The flow `id` of a pipeline, read after an edit that must have been accepted.
 function flowOf(pipelineState: Pipeline, id: string): Flow {
@@ -64,29 +64,29 @@ function accepted(result: RowResult): Pipeline {
 
 describe('F-11 AC-027 Human approval is a checkbox: ticking it turns approval on', () => {
   it('sets the approval of the flow to true', () => {
-    const after = accepted(setFlowApproval(linkedPipeline(), RULES, 'plan', true));
-    expect(flowOf(after, 'plan').approval).toBe(true);
+    const after = accepted(setFlowApproval(linkedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    expect(flowOf(after, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').approval).toBe(true);
   });
 
   it('keeps the approval of the flow on when it is ticked again', () => {
-    const once = accepted(setFlowApproval(linkedPipeline(), RULES, 'plan', true));
-    const twice = accepted(setFlowApproval(once, RULES, 'plan', true));
-    expect(flowOf(twice, 'plan').approval).toBe(true);
+    const once = accepted(setFlowApproval(linkedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    const twice = accepted(setFlowApproval(once, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    expect(flowOf(twice, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').approval).toBe(true);
     expect(twice).toEqual(once);
   });
 });
 
 describe('F-11 AC-027 Human approval is a checkbox: unticking it turns approval off', () => {
   it('sets the approval of the flow to false', () => {
-    const on = accepted(setFlowApproval(linkedPipeline(), RULES, 'plan', true));
-    const after = accepted(setFlowApproval(on, RULES, 'plan', false));
-    expect(flowOf(after, 'plan').approval).toBe(false);
+    const on = accepted(setFlowApproval(linkedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    const after = accepted(setFlowApproval(on, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', false));
+    expect(flowOf(after, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').approval).toBe(false);
   });
 
   it('returns the pipeline it had before ticking when it is ticked and unticked', () => {
     const saved = linkedPipeline();
-    const on = accepted(setFlowApproval(saved, RULES, 'plan', true));
-    const back = accepted(setFlowApproval(on, RULES, 'plan', false));
+    const on = accepted(setFlowApproval(saved, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    const back = accepted(setFlowApproval(on, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', false));
     expect(back).toEqual(saved);
   });
 });
@@ -94,27 +94,27 @@ describe('F-11 AC-027 Human approval is a checkbox: unticking it turns approval 
 describe('F-11 AC-027 Human approval changes nothing but the approval value of its flow', () => {
   it('keeps every other field of the flow it changes', () => {
     const saved = linkedPipeline();
-    const after = accepted(setFlowApproval(saved, RULES, 'plan', true));
-    expect(flowOf(after, 'plan')).toEqual({ ...flowOf(saved, 'plan'), approval: true });
+    const after = accepted(setFlowApproval(saved, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    expect(flowOf(after, 'ea3211a4-b64b-5204-9451-6fe12fd7c655')).toEqual({ ...flowOf(saved, 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), approval: true });
   });
 
   it('keeps every other flow of the pipeline as it was', () => {
     const saved = linkedPipeline();
-    const after = accepted(setFlowApproval(saved, RULES, 'plan', true));
-    expect(flowOf(after, 'build')).toEqual(flowOf(saved, 'build'));
+    const after = accepted(setFlowApproval(saved, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true));
+    expect(flowOf(after, 'a0c3aad4-8765-5b23-8df5-7c03d481233c')).toEqual(flowOf(saved, 'a0c3aad4-8765-5b23-8df5-7c03d481233c'));
   });
 
   it('keeps the pipeline-level fields as they were', () => {
     const saved = linkedPipeline();
-    const after = accepted(setFlowApproval(saved, RULES, 'build', true));
+    const after = accepted(setFlowApproval(saved, RULES, 'a0c3aad4-8765-5b23-8df5-7c03d481233c', true));
     const { flows: _savedFlows, ...savedRest } = saved;
     const { flows: _afterFlows, ...afterRest } = after;
     expect(afterRest).toEqual(savedRest);
   });
 
   it('changes only the approval of the one flow named, among several flows', () => {
-    const saved = pipelineOf(fullFlow('plan', 'build'), flow('build', 'Build', 'ship'), flow('ship'));
-    const after = accepted(setFlowApproval(saved, RULES, 'build', true));
+    const saved = pipelineOf(fullFlow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build', 'ship'), flow('ship'));
+    const after = accepted(setFlowApproval(saved, RULES, 'a0c3aad4-8765-5b23-8df5-7c03d481233c', true));
     expect(after.flows.map((item) => item.approval)).toEqual([false, true, false]);
     expect(after.flows.map((item) => ({ ...item, approval: false }))).toEqual(
       saved.flows.map((item) => ({ ...item, approval: false })),
@@ -124,7 +124,7 @@ describe('F-11 AC-027 Human approval changes nothing but the approval value of i
   it('does not change the saved pipeline it was given', () => {
     const saved = linkedPipeline();
     const snapshot = structuredClone(saved);
-    setFlowApproval(saved, RULES, 'plan', true);
+    setFlowApproval(saved, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', true);
     expect(saved).toEqual(snapshot);
   });
 });

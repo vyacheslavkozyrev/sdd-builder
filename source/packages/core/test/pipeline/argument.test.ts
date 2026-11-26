@@ -3,7 +3,7 @@ import { createProblemCollector } from '../../src/pipeline/check/primitives.js';
 import { readArguments } from '../../src/pipeline/parse/argument.js';
 
 const LIST = 'pipeline.arguments';
-const validRow = { id: 'feature-id', required: true, hint: 'F-XX' };
+const validRow = { id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX' };
 
 function read(value: unknown, path = LIST) {
   const problems = createProblemCollector();
@@ -44,17 +44,17 @@ describe('F-02 AC-015 an argument row requires id, required and hint', () => {
   });
 
   it('refuses a value that is not a list at the list path', () => {
-    expect(read({ id: 'feature-id' })).toEqual({
+    expect(read({ id: 'a56aab15-5743-5847-9b77-b39b2124c91b' })).toEqual({
       rows: undefined,
       problems: [{ path: LIST, message: expect.stringContaining('must be a list') }],
     });
   });
 
   it('keeps the valid rows and reports each invalid row', () => {
-    const result = read([validRow, { id: 'x' }, { ...validRow, id: 'other-id' }]);
+    const result = read([validRow, { id: '6633b48d-142d-5c58-ad53-040e786cb000' }, { ...validRow, id: '9b0c773a-c45a-5315-b4d1-6beef0a163a6' }]);
     expect(result.rows).toEqual([
       { ...validRow, index: 0 },
-      { index: 2, id: 'other-id', required: true, hint: 'F-XX' },
+      { index: 2, id: '9b0c773a-c45a-5315-b4d1-6beef0a163a6', required: true, hint: 'F-XX' },
     ]);
     expect(result.problems).toEqual([
       { path: `${LIST}.1`, message: 'is missing the key required' },
@@ -63,22 +63,25 @@ describe('F-02 AC-015 an argument row requires id, required and hint', () => {
   });
 });
 
-describe('F-02 AC-016 an argument id follows the id rule', () => {
-  it.each(['feature-id', 'a', 'f1-2-3', 'a'.repeat(60)])('accepts the id %s', (id) => {
+describe('F-16 AC-028 an argument id is a lower-case GUID', () => {
+  it.each(['a56aab15-5743-5847-9b77-b39b2124c91b', '00000000-0000-4000-8000-000000000000'])('accepts the GUID id %s', (id) => {
     expect(read([{ ...validRow, id }]).problems).toEqual([]);
   });
 
   it.each([
+    ['feature-id'],
     ['Feature_ID'],
     ['1st'],
     ['feature id'],
     ['feature.id'],
     [''],
-    ['a'.repeat(61)],
+    ['A56AAB15-5743-5847-9B77-B39B2124C91B'],
+    ['a56aab15574358479b77b39b2124c91b'],
+    ['a56aab15-5743-5847-9b77-b39b2124c91'],
   ])('refuses the id %s with a problem at the path of the id', (id) => {
     expect(read([{ ...validRow, id }])).toEqual({
       rows: [],
-      problems: [{ path: `${LIST}.0.id`, message: expect.stringContaining('must be an id') }],
+      problems: [{ path: `${LIST}.0.id`, message: 'must be a GUID' }],
     });
   });
 
@@ -136,7 +139,7 @@ describe('F-02 AC-019 the same rows are checked wherever they sit', () => {
     'names the list %s in the path of a problem',
     (path) => {
       expect(read([{ ...validRow, id: 'Bad' }], path).problems).toEqual([
-        { path: `${path}.0.id`, message: expect.stringContaining('must be an id') },
+        { path: `${path}.0.id`, message: 'must be a GUID' },
       ]);
     },
   );

@@ -4,15 +4,15 @@ import { readPipeline } from '../../src/pipeline/parse/pipeline.js';
 
 const PIPELINE = 'pipeline';
 const validFlow = {
-  id: 'plan',
+  id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
   name: 'Plan',
   body: 'Plans the work.',
   arguments: [],
   artifacts: [],
   approval: false,
   blocks: [
-    { id: 'start', kind: 'start', next: 'end' },
-    { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
+    { id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ],
 };
 const validPipeline = {
@@ -45,15 +45,15 @@ describe('F-02 AC-011 a pipeline requires name, description, arguments and flows
         flows: [
           {
             index: 0,
-            id: 'plan',
+            id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92',
             name: 'Plan',
             body: 'Plans the work.',
             arguments: [],
             artifacts: [],
             approval: false,
             blocks: [
-              { index: 0, id: 'start', kind: 'start', next: 'end' },
-              { index: 1, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+              { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
+              { index: 1, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
             ],
           },
         ],
@@ -72,7 +72,7 @@ describe('F-02 AC-011 a pipeline requires name, description, arguments and flows
   );
 
   it('accepts the optional keys model, tools, ruleTags and body when they are absent or present', () => {
-    const withOptional = { ...validPipeline, model: 'sonnet', tools: ['Read'], ruleTags: ['style'], body: 'Body.' };
+    const withOptional = { ...validPipeline, model: 'sonnet', tools: ['Read'], ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593'], body: 'Body.' };
     expect(readP(withOptional).problems).toEqual([]);
     expect(readP(validPipeline).problems).toEqual([]);
   });
@@ -109,14 +109,14 @@ describe('F-02 AC-012 the pipeline name is 1 to 100 code points and not blank', 
 
 describe('F-02 AC-013 flows is a list kept in its order; a flows value that is not a list is refused', () => {
   it('keeps the flows in the order of the list', () => {
-    const second = { ...validFlow, id: 'build', name: 'Build' };
+    const second = { ...validFlow, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', name: 'Build' };
     const result = readP({ ...validPipeline, flows: [validFlow, second] });
-    expect(result.pipeline?.flows.map((flow) => flow.id)).toEqual(['plan', 'build']);
+    expect(result.pipeline?.flows.map((flow) => flow.id)).toEqual(['fc358416-c66a-5fef-9c5e-a282b75cbd92', 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6']);
     expect(result.problems).toEqual([]);
   });
 
   it.each([
-    ['an object', { id: 'plan' }],
+    ['an object', { id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92' }],
     ['text', 'plan'],
     ['a number', 3],
   ])('refuses flows that is %s at pipeline.flows', (_label, flows) => {
@@ -124,10 +124,10 @@ describe('F-02 AC-013 flows is a list kept in its order; a flows value that is n
   });
 
   it('leaves out an invalid flow, names it by its index, and keeps the others in order', () => {
-    const broken = { ...validFlow, id: 'broken', approval: 'yes' };
-    const second = { ...validFlow, id: 'build', name: 'Build' };
+    const broken = { ...validFlow, id: '3f683e0b-8991-5797-a2d0-8b3f497f37c8', approval: 'yes' };
+    const second = { ...validFlow, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', name: 'Build' };
     const result = readP({ ...validPipeline, flows: [validFlow, broken, second] });
-    expect(result.pipeline?.flows.map((flow) => flow.id)).toEqual(['plan', 'build']);
+    expect(result.pipeline?.flows.map((flow) => flow.id)).toEqual(['fc358416-c66a-5fef-9c5e-a282b75cbd92', 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6']);
     expect(result.problems).toEqual([
       { path: 'pipeline.flows.1.approval', message: expect.stringContaining('true or false') },
     ]);
@@ -170,12 +170,12 @@ describe('F-02 AC-019 the pipeline argument rows follow the argument rules and n
   it('reports an argument id that is not file-safe at pipeline.arguments.0.id', () => {
     const value = { ...validPipeline, arguments: [{ id: 'Style Rule', required: true, hint: 'h' }] };
     expect(readP(value).problems).toEqual([
-      { path: 'pipeline.arguments.0.id', message: expect.stringContaining('must be an id') },
+      { path: 'pipeline.arguments.0.id', message: expect.stringContaining('must be a GUID') },
     ]);
   });
 
   it('reports a row with an unknown key at the path of the row, as the flow arguments do', () => {
-    const value = { ...validPipeline, arguments: [{ id: 'topic', required: true, hint: 'h', extra: 1 }] };
+    const value = { ...validPipeline, arguments: [{ id: 'ccc656eb-7dbe-5012-9af8-c2559c43ae31', required: true, hint: 'h', extra: 1 }] };
     expect(readP(value).problems).toEqual([
       { path: 'pipeline.arguments.0', message: 'has an unknown key extra' },
     ]);
@@ -192,20 +192,20 @@ describe('F-02 AC-030 the pipeline model is haiku, sonnet, opus or inherit', () 
   });
 });
 
-describe('F-02 AC-071 a pipeline rule tag must be an id', () => {
+describe('F-02 AC-071 a pipeline rule tag must be a GUID', () => {
   it('refuses "Style Rule" at pipeline.ruleTags.0', () => {
     const result = readP({ ...validPipeline, ruleTags: ['Style Rule'] });
     expect(result.problems).toEqual([
-      { path: 'pipeline.ruleTags.0', message: expect.stringContaining('must be an id') },
+      { path: 'pipeline.ruleTags.0', message: expect.stringContaining('must be a GUID') },
     ]);
   });
 });
 
 describe('F-02 AC-072 a rule tag listed twice on the pipeline is refused at the second entry', () => {
   it('refuses a repeated tag at pipeline.ruleTags.1', () => {
-    const result = readP({ ...validPipeline, ruleTags: ['style', 'style'] });
+    const result = readP({ ...validPipeline, ruleTags: ['8f99cc27-78ab-5895-8637-5c13d7429593', '8f99cc27-78ab-5895-8637-5c13d7429593'] });
     expect(result.problems).toEqual([
-      { path: 'pipeline.ruleTags.1', message: 'repeats style; each entry must be listed once' },
+      { path: 'pipeline.ruleTags.1', message: 'repeats 8f99cc27-78ab-5895-8637-5c13d7429593; each entry must be listed once' },
     ]);
   });
 });

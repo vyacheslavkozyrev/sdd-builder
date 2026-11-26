@@ -23,7 +23,7 @@ function renderWithTheme(ui: ReactElement) {
 
 const emptyFlow: Flow = {
   index: 0,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   name: 'plan',
   arguments: [],
   body: '',
@@ -36,17 +36,17 @@ const emptyFlow: Flow = {
 const loopFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
-    { index: 1, id: 'block-2', kind: 'agent', name: 'planner', description: 'Writes the plan', arguments: [], next: 'block-3' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
+    { index: 1, id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', kind: 'agent', name: 'planner', description: 'Writes the plan', arguments: [], next: 'c2b443aa-3d75-5a54-8874-426073a3fc41' },
     {
       index: 2,
-      id: 'block-3',
+      id: 'c2b443aa-3d75-5a54-8874-426073a3fc41',
       kind: 'condition',
       description: 'The reviewer approves',
-      true: { to: 'block-4' },
-      false: { to: 'block-2', roundLimit: 3 },
+      true: { to: 'bf4df531-9a24-5612-8519-d9ed8b883586' },
+      false: { to: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', roundLimit: 3 },
     },
-    { index: 3, id: 'block-4', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+    { index: 3, id: 'bf4df531-9a24-5612-8519-d9ed8b883586', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
   ],
 };
 
@@ -54,17 +54,17 @@ const loopFlow: Flow = {
 const trueReturnFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
-    { index: 1, id: 'block-2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'block-3' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
+    { index: 1, id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'c2b443aa-3d75-5a54-8874-426073a3fc41' },
     {
       index: 2,
-      id: 'block-3',
+      id: 'c2b443aa-3d75-5a54-8874-426073a3fc41',
       kind: 'condition',
       description: 'The retry is needed',
-      true: { to: 'block-2', roundLimit: 2 },
-      false: { to: 'block-4' },
+      true: { to: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', roundLimit: 2 },
+      false: { to: 'bf4df531-9a24-5612-8519-d9ed8b883586' },
     },
-    { index: 3, id: 'block-4', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 3, id: 'bf4df531-9a24-5612-8519-d9ed8b883586', kind: 'end', outcome: 'done', producedArtifact: '' },
   ],
 };
 
@@ -72,9 +72,9 @@ const trueReturnFlow: Flow = {
 const precheckFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
-    { index: 1, id: 'block-2', kind: 'condition', description: 'The brief is complete', true: { to: 'block-3' }, false: { to: 'block-3' } },
-    { index: 2, id: 'block-3', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
+    { index: 1, id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', kind: 'condition', description: 'The brief is complete', true: { to: 'c2b443aa-3d75-5a54-8874-426073a3fc41' }, false: { to: 'c2b443aa-3d75-5a54-8874-426073a3fc41' } },
+    { index: 2, id: 'c2b443aa-3d75-5a54-8874-426073a3fc41', kind: 'end', outcome: 'done', producedArtifact: '' },
   ],
 };
 
@@ -167,20 +167,20 @@ describe('F-12 AC-011 (UI) clicks select a block, an arrow or nothing', () => {
     const onSelect = vi.fn<(selection: BlockSelection) => void>();
     renderWithTheme(<BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: planner' }));
-    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'block', blockId: 'block-2' });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' });
   });
 
   it('F-12 AC-011 (UI) selects the arrow that was clicked, by its block and output', () => {
     const onSelect = vi.fn<(selection: BlockSelection) => void>();
     renderWithTheme(<BlockCanvas flow={loopFlow} selection={{ kind: 'none' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'false arrow from Condition: The reviewer approves' }));
-    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'blockArrow', fromId: 'block-3', output: 'false' });
+    expect(onSelect).toHaveBeenLastCalledWith({ kind: 'blockArrow', fromId: 'c2b443aa-3d75-5a54-8874-426073a3fc41', output: 'false' });
   });
 
   it('F-12 (no criterion: user decision for T015) clears the selection when the empty canvas is clicked', () => {
     const onSelect = vi.fn<(selection: BlockSelection) => void>();
     const { container } = renderWithTheme(
-      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     const drawing = container.querySelector('svg');
     if (drawing === null) {
@@ -196,10 +196,10 @@ describe('F-12 AC-011 (UI) clicks select a block, an arrow or nothing', () => {
 const endLastFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
-    { index: 1, id: 'block-2', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'block-4' },
-    { index: 2, id: 'block-3', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
-    { index: 3, id: 'block-4', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
+    { index: 1, id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', kind: 'agent', name: 'planner', description: '', arguments: [], next: 'bf4df531-9a24-5612-8519-d9ed8b883586' },
+    { index: 2, id: 'c2b443aa-3d75-5a54-8874-426073a3fc41', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
+    { index: 3, id: 'bf4df531-9a24-5612-8519-d9ed8b883586', kind: 'end', outcome: 'done', producedArtifact: '' },
   ],
 };
 
@@ -226,17 +226,17 @@ describe('F-12 AC-002 (UI) the toolbox adds a block on this canvas', () => {
 const dragFlow: Flow = {
   ...emptyFlow,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
-    { index: 1, id: 'block-2', kind: 'agent', name: 'planner', description: '', arguments: [], next: '' },
-    { index: 2, id: 'block-3', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
-    { index: 3, id: 'block-4', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
+    { index: 1, id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', kind: 'agent', name: 'planner', description: '', arguments: [], next: '' },
+    { index: 2, id: 'c2b443aa-3d75-5a54-8874-426073a3fc41', kind: 'agent', name: 'reviewer', description: '', arguments: [], next: '' },
+    { index: 3, id: 'bf4df531-9a24-5612-8519-d9ed8b883586', kind: 'end', outcome: 'done', producedArtifact: '' },
   ],
 };
 
 // The same flow with the planner's arrow to the reviewer, for the arrow-end drags of F-12 AC-019.
 const linkedFlow: Flow = {
   ...dragFlow,
-  blocks: dragFlow.blocks.map((block) => (block.id === 'block-2' && block.kind === 'agent' ? { ...block, next: 'block-3' } : block)),
+  blocks: dragFlow.blocks.map((block) => (block.id === '3c045e8c-3b6a-5804-b19c-75424d4e43aa' && block.kind === 'agent' ? { ...block, next: 'c2b443aa-3d75-5a54-8874-426073a3fc41' } : block)),
 };
 
 // The group of a block on the drawing, by its accessible name.
@@ -331,14 +331,14 @@ describe('F-12 AC-012 (UI) a drag from an output point to an input point links t
     expect(previewOf(container)).toBeNull();
     expect(onChange).toHaveBeenCalledWith({
       ...dragFlow,
-      blocks: dragFlow.blocks.map((block) => (block.id === 'block-2' && block.kind === 'agent' ? { ...block, next: 'block-3' } : block)),
+      blocks: dragFlow.blocks.map((block) => (block.id === '3c045e8c-3b6a-5804-b19c-75424d4e43aa' && block.kind === 'agent' ? { ...block, next: 'c2b443aa-3d75-5a54-8874-426073a3fc41' } : block)),
     });
   });
 
   it('F-12 AC-012 (UI) keeps the selection after a drag: the click that follows a drop does not clear it', () => {
     const onSelect = vi.fn();
     const { container } = renderWithTheme(
-      <BlockCanvas flow={dragFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={dragFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'));
     fireEvent.pointerUp(groupOf('Agent block: reviewer'));
@@ -349,7 +349,7 @@ describe('F-12 AC-012 (UI) a drag from an output point to an input point links t
   it('F-12 AC-012 (UI) lets the next click on the empty canvas clear the selection after a drop on a block', () => {
     const onSelect = vi.fn<(selection: BlockSelection) => void>();
     const { container } = renderWithTheme(
-      <BlockCanvas flow={dragFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={dragFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     fireEvent.pointerDown(portOf(groupOf('Agent block: planner'), 'next'));
     fireEvent.pointerUp(groupOf('Agent block: reviewer'));
@@ -438,7 +438,7 @@ describe('F-12 AC-014 to AC-018 (UI) a refused drop shows its reason and changes
 });
 
 describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end', () => {
-  const selected = { kind: 'blockArrow', fromId: 'block-2', output: 'next' } as const;
+  const selected = { kind: 'blockArrow', fromId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', output: 'next' } as const;
 
   it('F-12 AC-019 (UI) draws a handle on each end of the selected arrow', () => {
     const { container } = renderWithTheme(
@@ -456,7 +456,7 @@ describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end'
     fireEvent.pointerUp(groupOf('End block'));
     expect(onChange).toHaveBeenCalledWith({
       ...linkedFlow,
-      blocks: linkedFlow.blocks.map((block) => (block.id === 'block-2' && block.kind === 'agent' ? { ...block, next: 'block-4' } : block)),
+      blocks: linkedFlow.blocks.map((block) => (block.id === '3c045e8c-3b6a-5804-b19c-75424d4e43aa' && block.kind === 'agent' ? { ...block, next: 'bf4df531-9a24-5612-8519-d9ed8b883586' } : block)),
     });
   });
 
@@ -476,7 +476,7 @@ describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end'
     // The Start's output is free in this flow, so the source end can take it.
     const freeStart: Flow = {
       ...linkedFlow,
-      blocks: linkedFlow.blocks.map((block) => (block.id === 'block-1' && block.kind === 'start' ? { ...block, next: '' } : block)),
+      blocks: linkedFlow.blocks.map((block) => (block.id === 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b' && block.kind === 'start' ? { ...block, next: '' } : block)),
     };
     const { container } = renderWithTheme(
       <BlockCanvas flow={freeStart} selection={selected} onSelect={vi.fn()} onAdd={vi.fn()} onChange={onChange} />,
@@ -486,8 +486,8 @@ describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end'
     expect(onChange).toHaveBeenCalledWith({
       ...freeStart,
       blocks: freeStart.blocks.map((block) => {
-        if (block.id === 'block-1' && block.kind === 'start') return { ...block, next: 'block-3' };
-        if (block.id === 'block-2' && block.kind === 'agent') return { ...block, next: '' };
+        if (block.id === 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b' && block.kind === 'start') return { ...block, next: 'c2b443aa-3d75-5a54-8874-426073a3fc41' };
+        if (block.id === '3c045e8c-3b6a-5804-b19c-75424d4e43aa' && block.kind === 'agent') return { ...block, next: '' };
         return block;
       }),
     });
@@ -508,7 +508,7 @@ describe('F-12 AC-019 (UI) dragging an end of the selected arrow moves that end'
 describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style matches F-11', () => {
   it('F-12 AC-007 (UI) draws a selected block with a 2 px primary outline on the paper', () => {
     renderWithTheme(
-      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={vi.fn()} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     const frame = groupOf('Agent block: planner').querySelector('rect');
     expect(frame?.getAttribute('stroke')).toBe(theme.palette.primary.main);
@@ -520,7 +520,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the selected style m
     const { container } = renderWithTheme(
       <BlockCanvas
         flow={loopFlow}
-        selection={{ kind: 'blockArrow', fromId: 'block-2', output: 'next' }}
+        selection={{ kind: 'blockArrow', fromId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', output: 'next' }}
         onSelect={vi.fn()}
         onAdd={vi.fn()}
         onChange={vi.fn()}
@@ -618,7 +618,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) a block can be dragg
       <ThemeProvider theme={theme}>
         <BlockCanvas
           flow={loopFlow}
-          selection={{ kind: 'block', blockId: 'block-2' }}
+          selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }}
           onSelect={vi.fn()}
           onAdd={vi.fn()}
           onChange={onChange}
@@ -673,7 +673,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) a block can be dragg
     fireEvent.pointerDown(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
     fireEvent.pointerUp(groupOf('Agent block: planner'), { clientX: 100, clientY: 420 });
     fireEvent.click(groupOf('Agent block: planner'));
-    expect(onSelect).toHaveBeenCalledWith({ kind: 'block', blockId: 'block-2' });
+    expect(onSelect).toHaveBeenCalledWith({ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' });
   });
 
   it('starts a link, not a move, when the press is on a connection point', () => {
@@ -694,11 +694,11 @@ describe('F-12 (no criterion: Verify device fix 2026-11-23) the error panel sits
     findings: [
       {
         finding: { severity: 'blocker', rule: 'test-rule', path: 'pipeline.flows.0', message: 'plan is not connected.' },
-        placement: { kind: 'flow', flowId: 'plan' },
-        label: { location: 'plan', message: 'plan is not connected.' },
+        placement: { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' },
+        label: { location: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', message: 'plan is not connected.' },
       },
     ],
-    blockedFlowIds: ['plan'],
+    blockedFlowIds: ['ea3211a4-b64b-5204-9451-6fe12fd7c655'],
   };
 
   it('shows the error counter inside the canvas card, under the toolbox', () => {
@@ -757,7 +757,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) a press on the empty
   it('clears the selection on a press without movement', () => {
     const onSelect = vi.fn();
     const { container } = renderWithTheme(
-      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     mockCapture(container);
     fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });
@@ -769,7 +769,7 @@ describe('F-12 (no criterion: Verify device fix 2026-11-24) a press on the empty
   it('keeps the selection after a pan: the click that ends the pan does not clear it', () => {
     const onSelect = vi.fn();
     const { container } = renderWithTheme(
-      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: 'block-2' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
+      <BlockCanvas flow={loopFlow} selection={{ kind: 'block', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' }} onSelect={onSelect} onAdd={vi.fn()} onChange={vi.fn()} />,
     );
     mockCapture(container);
     fireEvent.pointerDown(drawingOf(container), { clientX: 300, clientY: 300 });

@@ -67,6 +67,7 @@ beforeAll(() => {
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   rendered.props = undefined;
   extraMarks.findings = [];
 });
@@ -176,7 +177,7 @@ describe('F-12 AC-051 the flow tab shows the block canvas in place of the F-11 p
   });
 
   it('F-12 AC-051 negative case: a flow with no blocks shows the empty text and no block', () => {
-    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'specify'));
+    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2'));
     fireEvent.click(tabNamed('Specify'));
     expect(screen.getByText('No blocks yet.')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Start block' })).toBeNull();
@@ -210,14 +211,14 @@ describe('F-12 AC-011 selecting a block or an arrow drives the properties card',
   });
 
   it('F-12 AC-011 a block added from the toolbox is selected and its panel opens', () => {
-    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'specify'));
+    renderStep(withoutBlocks(valuesWith('Tracker', ''), 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2'));
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Start' }));
     expect(within(propertiesCard()).getByRole('heading', { name: 'Start' })).toBeTruthy();
     expect(within(propertiesCard()).getByText('A flow keeps its Start block.')).toBeTruthy();
     expect(within(propertiesCard()).queryByRole('heading', { name: 'Flow: Specify' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Start block' })).toBeTruthy();
-    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.blocks.map((block) => block.kind)).toEqual([
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2')?.blocks.map((block) => block.kind)).toEqual([
       'start',
     ]);
   });
@@ -231,7 +232,7 @@ describe('F-12 AC-011 selecting a block or an arrow drives the properties card',
           path: 'pipeline.flows.0.blocks.1.body',
           message: 'pipeline.flows.0.blocks.1.body is thin.',
         },
-        placement: { kind: 'block', flowId: 'specify', blockId: 'specify-agent' },
+        placement: { kind: 'block', flowId: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2', blockId: 'b86f903b-53da-44bf-9ac1-7bdfb71ea194' },
         label: { location: 'Specify agent', message: 'The body is thin.' },
       },
     ];
@@ -266,8 +267,8 @@ describe('F-12 AC-021 a confirmed Delete connection on a block arrow removes the
     expect(tabNamed('Specify').getAttribute('aria-selected')).toBe('true');
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Agent block: specify' })).toBeTruthy();
-    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.blocks.map((block) => block.id)).toContain(
-      'specify-agent',
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2')?.blocks.map((block) => block.id)).toContain(
+      'b86f903b-53da-44bf-9ac1-7bdfb71ea194',
     );
   });
 
@@ -355,20 +356,25 @@ describe('F-12 AC-049 the flow tab keeps each flow\'s blocks when the user switc
   });
 
   it('F-12 AC-049 a deleted flow drops its block selection, so a new flow with the same id starts with none', async () => {
+    // The first flow, then the Agent block, then the same flow id again after the delete (F-16 AC-027 ids come from randomUUID).
+    vi.spyOn(crypto, 'randomUUID')
+      .mockReturnValueOnce('40174c6b-ffc9-5a01-af92-33a352fc884a')
+      .mockReturnValueOnce('8a2c4e6f-1b3d-4a5c-9e7f-0a1b2c3d4e5f')
+      .mockReturnValueOnce('40174c6b-ffc9-5a01-af92-33a352fc884a');
     renderStep();
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent' }));
     expect(within(propertiesCard()).getByRole('heading', { name: /^Agent/ })).toBeTruthy();
     fireEvent.click(tabNamed('Pipeline'));
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'flow-1' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '40174c6b-ffc9-5a01-af92-33a352fc884a' } as Parameters<NodeClick>[1]);
     });
     fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(lastValues.pipeline.flows.map((flow) => flow.id)).not.toContain('flow-1');
+    expect(lastValues.pipeline.flows.map((flow) => flow.id)).not.toContain('40174c6b-ffc9-5a01-af92-33a352fc884a');
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
-    expect(lastValues.pipeline.flows.map((flow) => flow.id).at(-1)).toBe('flow-1');
+    expect(lastValues.pipeline.flows.map((flow) => flow.id).at(-1)).toBe('40174c6b-ffc9-5a01-af92-33a352fc884a');
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: flow-1' })).toBeTruthy();
   });
 });
@@ -377,7 +383,7 @@ describe('F-11 AC-031 after a confirmed delete the selection is cleared and the 
   it('F-11 AC-031 deleting the selected flow after confirmation moves the open tab to Pipeline and clears the selection', async () => {
     renderStep();
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'plan' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'd3882ef1-5c45-41aa-9277-a98217396d45' } as Parameters<NodeClick>[1]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Plan' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
@@ -386,20 +392,20 @@ describe('F-11 AC-031 after a confirmed delete the selection is cleared and the 
     expect(tabNamed('Pipeline').getAttribute('aria-selected')).toBe('true');
     expect(screen.queryByRole('tab', { name: 'Plan' })).toBeNull();
     expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
-    expect(lastValues.pipeline.flows.map((flow) => flow.id)).not.toContain('plan');
+    expect(lastValues.pipeline.flows.map((flow) => flow.id)).not.toContain('d3882ef1-5c45-41aa-9277-a98217396d45');
     expect(lastPipelineChange).toHaveBeenCalledTimes(1);
   });
 
   it('F-11 AC-031 negative case: Cancel keeps the flow and its panel', async () => {
     renderStep();
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'plan' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'd3882ef1-5c45-41aa-9277-a98217396d45' } as Parameters<NodeClick>[1]);
     });
     fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Plan' })).toBeTruthy();
-    expect(lastValues.pipeline.flows.map((flow) => flow.id)).toContain('plan');
+    expect(lastValues.pipeline.flows.map((flow) => flow.id)).toContain('d3882ef1-5c45-41aa-9277-a98217396d45');
     expect(lastPipelineChange).not.toHaveBeenCalled();
   });
 
@@ -407,9 +413,9 @@ describe('F-11 AC-031 after a confirmed delete the selection is cleared and the 
     renderStep();
     act(() => {
       flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], {
-        id: 'specify->ux',
-        source: 'specify',
-        target: 'ux',
+        id: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2->8a976641-9b75-4aa9-a363-fb78b4225c7a',
+        source: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2',
+        target: '8a976641-9b75-4aa9-a363-fb78b4225c7a',
       } as Edge);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Connection' })).toBeTruthy();
@@ -418,7 +424,7 @@ describe('F-11 AC-031 after a confirmed delete the selection is cleared and the 
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
     expect(tabNamed('Pipeline').getAttribute('aria-selected')).toBe('true');
-    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.next).toBeUndefined();
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2')?.next).toBeUndefined();
   });
 });
 
@@ -431,9 +437,9 @@ function withFlowName(values: WizardValues, flowId: string, name: string): Wizar
 
 describe('F-16 AC-016 the subtitle names the command file with the flow file name', () => {
   it('F-16 AC-016 a flow named "Build Code" shows build-code.md as its command file', () => {
-    renderStep(withFlowName(valuesWith('Tracker', ''), 'ux', 'Build Code'));
+    renderStep(withFlowName(valuesWith('Tracker', ''), '8a976641-9b75-4aa9-a363-fb78b4225c7a', 'Build Code'));
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Build Code' })).toBeTruthy();
     expect(within(propertiesCard()).getByText('Generates .claude/commands/build-code.md')).toBeTruthy();
@@ -451,7 +457,7 @@ describe('F-11 AC-042 the properties card shows the panel of the selection', () 
   it('F-11 AC-042 a selected flow shows "Flow: <name>" and its command file line', () => {
     renderStep();
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: UX' })).toBeTruthy();
     expect(within(propertiesCard()).getByText('Generates .claude/commands/ux.md')).toBeTruthy();
@@ -460,7 +466,7 @@ describe('F-11 AC-042 the properties card shows the panel of the selection', () 
   it('F-11 AC-042 a selected arrow shows the Connection panel', () => {
     renderStep();
     act(() => {
-      flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], { id: 'specify->ux', source: 'specify', target: 'ux' } as Edge);
+      flowProps().onEdgeClick?.({} as Parameters<EdgeClick>[0], { id: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2->8a976641-9b75-4aa9-a363-fb78b4225c7a', source: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2', target: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Edge);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Connection' })).toBeTruthy();
     expect(within(propertiesCard()).getByText('An arrow only points one flow to another.')).toBeTruthy();
@@ -469,7 +475,7 @@ describe('F-11 AC-042 the properties card shows the panel of the selection', () 
   it('F-11 AC-042 a click on the empty canvas returns the selection to the pipeline', () => {
     renderStep();
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     act(() => {
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
@@ -478,38 +484,40 @@ describe('F-11 AC-042 the properties card shows the panel of the selection', () 
   });
 
   it('F-11 AC-042 a change made on the canvas clears the selection', () => {
-    renderStep(withoutNext(valuesWith('Tracker', ''), 'specify'));
+    renderStep(withoutNext(valuesWith('Tracker', ''), 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2'));
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     act(() => {
       flowProps().onConnect?.({
-        source: 'specify',
-        target: 'ux',
+        source: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2',
+        target: '8a976641-9b75-4aa9-a363-fb78b4225c7a',
         sourceHandle: 'right',
         targetHandle: 'left',
       });
     });
     expect(lastPipelineChange).toHaveBeenCalledTimes(1);
-    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'specify')?.next).toBe('ux');
+    expect(lastValues.pipeline.flows.find((flow) => flow.id === 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2')?.next).toBe('8a976641-9b75-4aa9-a363-fb78b4225c7a');
     expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
   });
 });
 
 describe('F-11 AC-003 + adds a flow and opens its tab', () => {
   it('F-11 AC-003 the new flow gets the next flow-N id, is appended and its tab is open', () => {
+    vi.spyOn(crypto, 'randomUUID').mockReturnValueOnce('40174c6b-ffc9-5a01-af92-33a352fc884a');
     renderStep();
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
-    expect(lastValues.pipeline.flows.map((flow) => flow.id).at(-1)).toBe('flow-1');
+    expect(lastValues.pipeline.flows.map((flow) => flow.id).at(-1)).toBe('40174c6b-ffc9-5a01-af92-33a352fc884a');
     expect(tabNamed('flow-1').getAttribute('aria-selected')).toBe('true');
     expect(screen.getByRole('heading', { name: 'flow-1' })).toBeTruthy();
   });
 
   it('F-11 AC-003 the new flow is named by its id, with a blank body and no blocks or artifacts', () => {
+    vi.spyOn(crypto, 'randomUUID').mockReturnValueOnce('40174c6b-ffc9-5a01-af92-33a352fc884a');
     renderStep();
     fireEvent.click(screen.getByRole('button', { name: 'Add flow' }));
     const added = lastValues.pipeline.flows.at(-1);
-    expect(added).toMatchObject({ id: 'flow-1', name: 'flow-1', body: '', arguments: [], artifacts: [], blocks: [] });
+    expect(added).toMatchObject({ id: '40174c6b-ffc9-5a01-af92-33a352fc884a', name: 'flow-1', body: '', arguments: [], artifacts: [], blocks: [] });
   });
 });
 
@@ -551,15 +559,20 @@ describe('F-11 AC-035 AC-036 the error panel on the Pipeline tab', () => {
 describe('F-11 AC-026 the rule tags offer the rule blocks of the Technical details step', () => {
   it('F-11 AC-026 keeps the valid rule blocks, once each, in order', () => {
     const blocks: readonly RuleValues[] = [
-      { name: 'Code Style', description: 'Use the style guide.' },
-      { name: '!!!', description: 'refused id' },
-      { name: 'code-style', description: 'same id as the first' },
-      { name: 'QA', description: 'Test first.' },
+      { id: '221ef52b-eec6-57a3-830f-c43f1411ab81', name: 'Code Style', description: 'Use the style guide.' },
+      { id: '4a86af9e-5549-5ca6-b4cc-c9df4a90c109', name: '!!!', description: 'refused id' },
+      { id: 'a6c2c72d-82cc-5eb6-affd-a71313550e5a', name: 'code-style', description: 'same id as the first' },
+      { id: '574bc6de-9064-55d4-8472-0267f9c6968d', name: 'QA', description: 'Test first.' },
     ];
     expect(builderRules(blocks)).toEqual([
-      { index: 0, id: 'code-style', title: 'Code Style', text: 'Use the style guide.' },
-      { index: 1, id: 'qa', title: 'QA', text: 'Test first.' },
+      { index: 0, id: '221ef52b-eec6-57a3-830f-c43f1411ab81', title: 'Code Style', text: 'Use the style guide.' },
+      { index: 1, id: '574bc6de-9064-55d4-8472-0267f9c6968d', title: 'QA', text: 'Test first.' },
     ]);
+  });
+
+  it('F-16 AC-027 a rule offered to the builder carries the GUID id of its rule block', () => {
+    const blocks: readonly RuleValues[] = [{ id: '221ef52b-eec6-57a3-830f-c43f1411ab81', name: 'Code Style', description: 'Use the style guide.' }];
+    expect(builderRules(blocks)).toEqual([{ index: 0, id: '221ef52b-eec6-57a3-830f-c43f1411ab81', title: 'Code Style', text: 'Use the style guide.' }]);
   });
 
   it('F-11 AC-026 negative case: no rule blocks give no rules to offer', () => {
@@ -580,8 +593,8 @@ describe('F-11 AC-035 a warning shows beside the box or arrow it names', () => {
     extraMarks.findings = [
       {
         finding: warning('pipeline.flows.1', 'flow-2 is short'),
-        placement: { kind: 'flow', flowId: 'ux' },
-        label: named('ux', 'Build is short'),
+        placement: { kind: 'flow', flowId: '8a976641-9b75-4aa9-a363-fb78b4225c7a' },
+        label: named('8a976641-9b75-4aa9-a363-fb78b4225c7a', 'Build is short'),
       },
     ];
     renderStep();
@@ -593,7 +606,7 @@ describe('F-11 AC-035 a warning shows beside the box or arrow it names', () => {
     extraMarks.findings = [
       {
         finding: warning('pipeline.flows.0.next', 'specify goes far'),
-        placement: { kind: 'arrow', source: 'specify' },
+        placement: { kind: 'arrow', source: 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2' },
         label: named('Specify', 'Specify goes far'),
       },
     ];
@@ -775,7 +788,7 @@ describe('F-16 AC-023 a deleted block or flow is not written back by a line stil
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     const blocksBefore = lastValues.pipeline.flows.find((flow) => flow.name === 'Specify')?.blocks.length;
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
@@ -790,7 +803,7 @@ describe('F-16 AC-023 a deleted block or flow is not written back by a line stil
     renderStep();
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.click(screen.getByRole('button', { name: 'Delete flow' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -801,19 +814,19 @@ describe('F-16 AC-023 a deleted block or flow is not written back by a line stil
 
 // The argument ids saved in the pipeline, in a flow named `flowName`, or in the Agent block named `blockName` of a flow
 // (F-16 AC-023). A flow or block that is gone gives undefined, so an assertion on it fails instead of passing on [].
-function savedPipelineArgumentIds(): string[] {
-  return lastValues.pipeline.arguments.map((argument) => argument.id);
+function savedPipelineArgumentNames(): string[] {
+  return lastValues.pipeline.arguments.map((argument) => argument.hint);
 }
 
-function savedFlowArgumentIds(flowName: string): string[] | undefined {
-  return lastValues.pipeline.flows.find((flow) => flow.name === flowName)?.arguments.map((argument) => argument.id);
+function savedFlowArgumentNames(flowName: string): string[] | undefined {
+  return lastValues.pipeline.flows.find((flow) => flow.name === flowName)?.arguments.map((argument) => argument.hint);
 }
 
-function savedAgentArgumentIds(flowName: string, blockName: string): string[] | undefined {
+function savedAgentArgumentNames(flowName: string, blockName: string): string[] | undefined {
   const block = lastValues.pipeline.flows
     .find((flow) => flow.name === flowName)
     ?.blocks.find((item) => item.kind === 'agent' && item.name === blockName);
-  return block?.kind === 'agent' ? block.arguments.map((argument) => argument.id) : undefined;
+  return block?.kind === 'agent' ? block.arguments.map((argument) => argument.hint) : undefined;
 }
 
 describe('F-16 AC-023 an argument added in the builder survives a selection change', () => {
@@ -822,26 +835,26 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 a line typed in the pipeline and not yet left is saved when a flow is selected', () => {
     renderStep();
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     act(() => {
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
-    expect(within(propertiesCard()).getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
-    expect(savedPipelineArgumentIds()).toEqual(['feature-id', 'topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 2 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedPipelineArgumentNames()).toEqual(['F-XX', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 negative case: a line typed and then refused by the parser is dropped on selection, with no error', () => {
@@ -849,12 +862,12 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: '!!!' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: '!!!' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).queryByLabelText('Argument 1 id')).toBeNull();
+    expect(within(propertiesCard()).queryByLabelText('Argument 1 name')).toBeNull();
     expect(lastPipelineChange).not.toHaveBeenCalled();
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual([]);
   });
 
   it('F-16 AC-023 an argument added to an Agent block is still listed with its values after another block is selected and the first is selected again', () => {
@@ -862,44 +875,44 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     expect(within(propertiesCard()).getByRole('heading', { name: 'Start' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 an argument added to a flow survives a selection change and comes back', () => {
     renderStep();
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByLabelText('Flow canvas').querySelector('svg') as SVGSVGElement);
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: Specify' })).toBeTruthy();
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedFlowArgumentIds('Specify')).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedFlowArgumentNames('Specify')).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 an argument added to the pipeline survives a selection change and comes back', () => {
     renderStep();
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
     act(() => {
-      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: 'ux' } as Parameters<NodeClick>[1]);
+      flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: '8a976641-9b75-4aa9-a363-fb78b4225c7a' } as Parameters<NodeClick>[1]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Flow: UX' })).toBeTruthy();
     act(() => {
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
     });
     expect(within(propertiesCard()).getByRole('heading', { name: 'Pipeline' })).toBeTruthy();
-    expect(within(propertiesCard()).getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
-    expect(savedPipelineArgumentIds()).toEqual(['feature-id', 'topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 2 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedPipelineArgumentNames()).toEqual(['F-XX', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 negative case: a blank line left open is discarded on selection, with no error and no saved change', () => {
@@ -909,9 +922,9 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).queryByLabelText('New argument id')).toBeNull();
+    expect(within(propertiesCard()).queryByLabelText('New argument name')).toBeNull();
     expect(lastPipelineChange).not.toHaveBeenCalled();
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual([]);
   });
 
   it('F-16 AC-023 negative case: a removed argument stays removed after a selection change', () => {
@@ -919,13 +932,13 @@ describe('F-16 AC-023 an argument added in the builder survives a selection chan
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Remove argument 1' }));
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).queryByLabelText('Argument 1 id')).toBeNull();
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual([]);
+    expect(within(propertiesCard()).queryByLabelText('Argument 1 name')).toBeNull();
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual([]);
   });
 });
 
@@ -935,13 +948,13 @@ describe('F-16 AC-023 an edited saved argument id not yet left survives a select
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
-    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 name'), { target: { value: 'subject' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'subject');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['subject']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'subject');
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['subject']);
   });
 
   it('F-16 AC-023 an edited saved id and a line still open are both saved, the id first, when another block is selected', () => {
@@ -949,13 +962,13 @@ describe('F-16 AC-023 an edited saved argument id not yet left survives a select
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
-    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 name'), { target: { value: 'subject' } });
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'extra' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'extra' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['subject', 'extra']);
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['subject', 'extra']);
   });
 
 
@@ -964,13 +977,13 @@ describe('F-16 AC-023 an edited saved argument id not yet left survives a select
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
-    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'Bad Id!' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 name'), { target: { value: '!!!' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 negative case: an edited saved id whose block is deleted is not restored', async () => {
@@ -978,15 +991,15 @@ describe('F-16 AC-023 an edited saved argument id not yet left survives a select
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
-    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument id'));
-    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 id'), { target: { value: 'subject' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
+    fireEvent.blur(within(propertiesCard()).getByLabelText('New argument name'));
+    fireEvent.change(within(propertiesCard()).getByLabelText('Argument 1 name'), { target: { value: 'subject' } });
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Delete block' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.queryByRole('button', { name: 'Agent block: specify' })).toBeNull();
     expect(JSON.stringify(lastValues.pipeline)).not.toContain('"subject"');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toBeUndefined();
+    expect(savedAgentArgumentNames('Specify', 'specify')).toBeUndefined();
   });
 });
 
@@ -999,7 +1012,7 @@ describe('F-16 AC-023 an argument added in a document with new flows survives a 
     renderStep({ ...valuesWith('Tracker', ''), pipeline: two.pipeline });
 
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     act(() => {
       flowProps().onNodeClick?.({} as Parameters<NodeClick>[0], { id: one.flowId } as Parameters<NodeClick>[1]);
     });
@@ -1007,8 +1020,8 @@ describe('F-16 AC-023 an argument added in a document with new flows survives a 
       flowProps().onPaneClick?.({} as Parameters<PaneClick>[0]);
     });
 
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedPipelineArgumentIds()).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedPipelineArgumentNames()).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 
   it('F-16 AC-023 an argument added to an Agent block with a new flow in the pipeline is saved and listed again', () => {
@@ -1018,11 +1031,11 @@ describe('F-16 AC-023 an argument added in a document with new flows survives a 
     fireEvent.click(tabNamed('Specify'));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
     fireEvent.click(within(propertiesCard()).getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(within(propertiesCard()).getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(within(propertiesCard()).getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.click(screen.getByRole('button', { name: 'Start block' }));
     fireEvent.click(screen.getByRole('button', { name: 'Agent block: specify' }));
 
-    expect(within(propertiesCard()).getByLabelText('Argument 1 id')).toHaveProperty('value', 'topic');
-    expect(savedAgentArgumentIds('Specify', 'specify')).toEqual(['topic']);
+    expect(within(propertiesCard()).getByLabelText('Argument 1 name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
+    expect(savedAgentArgumentNames('Specify', 'specify')).toEqual(['f6e48fc8-29f2-5a26-9b01-9d90e8d52038']);
   });
 });

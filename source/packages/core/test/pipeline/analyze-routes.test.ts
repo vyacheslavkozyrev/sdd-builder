@@ -21,7 +21,7 @@ function start(id: string, next: string | undefined): StartBlock {
 }
 
 function agent(id: string, next: string): Block {
-  return { index: 0, id, kind: 'agent', name: id, description: 'Agent.', arguments: [], next };
+  return { index: 0, id, kind: 'agent', name: `agent-${id.slice(0, 8)}`, description: 'Agent.', arguments: [], next };
 }
 
 // A condition whose routes are the ones given; a route left out is absent from the object, as a partial model has it.
@@ -61,39 +61,39 @@ function pipelineOf(...flows: Flow[]): ProjectConfig {
 // The build flow: start, agent a, condition check (index 2), agent b, end. Its routes are the ones given.
 function linked(routes: Routes): ProjectConfig {
   return pipelineOf(
-    flowOf(0, 'build', [start('start', 'a'), agent('a', 'check'), condition('check', routes), agent('b', 'end'), end('end')]),
+    flowOf(0, 'build', [start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', 'fdac7165-b540-5201-bca7-029a056ea40e'), agent('fdac7165-b540-5201-bca7-029a056ea40e', '6235136f-9021-5aaf-9958-4bc813c4d9b1'), condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', routes), agent('2cb36792-5a03-58cf-a718-bba6be0b9122', '128fea8a-2e63-5352-bd64-02ceddc0d0cb'), end('128fea8a-2e63-5352-bd64-02ceddc0d0cb')]),
   );
 }
 
-// The condition `check` at index 2 of pipeline.flows.0, with an earlier condition `first` at index 1.
+// The condition `6235136f-9021-5aaf-9958-4bc813c4d9b1` at index 2 of pipeline.flows.0, with an earlier condition `5c0f2c3f-cca2-5a06-a76c-9f46c2f59923` at index 1.
 function afterCondition(routes: Routes): ProjectConfig {
   return pipelineOf(
     flowOf(0, 'build', [
-      start('start', 'first'),
-      condition('first', { true: { to: 'check' }, false: STOP }),
-      condition('check', routes),
-      end('end'),
+      start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', '5c0f2c3f-cca2-5a06-a76c-9f46c2f59923'),
+      condition('5c0f2c3f-cca2-5a06-a76c-9f46c2f59923', { true: { to: '6235136f-9021-5aaf-9958-4bc813c4d9b1' }, false: STOP }),
+      condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', routes),
+      end('128fea8a-2e63-5352-bd64-02ceddc0d0cb'),
     ]),
   );
 }
 
-// The condition `check` at index 2 of pipeline.flows.0, with an earlier end `early` at index 1.
+// The condition `6235136f-9021-5aaf-9958-4bc813c4d9b1` at index 2 of pipeline.flows.0, with an earlier end `f425ace6-acef-578b-9f1b-799f436aaed0` at index 1.
 function afterEnd(routes: Routes): ProjectConfig {
   return pipelineOf(
-    flowOf(0, 'build', [start('start', 'check'), end('early'), condition('check', routes), end('end')]),
+    flowOf(0, 'build', [start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', '6235136f-9021-5aaf-9958-4bc813c4d9b1'), end('f425ace6-acef-578b-9f1b-799f436aaed0'), condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', routes), end('128fea8a-2e63-5352-bd64-02ceddc0d0cb')]),
   );
 }
 
-// The condition `check` at index 3. The End `early` is listed before it but reached first in the arrow order (from
-// the condition `first`), so the End is earlier than `check` (F-12 order).
+// The condition `6235136f-9021-5aaf-9958-4bc813c4d9b1` at index 3. The End `f425ace6-acef-578b-9f1b-799f436aaed0` is listed before it but reached first in the arrow order (from
+// the condition `5c0f2c3f-cca2-5a06-a76c-9f46c2f59923`), so the End is earlier than `6235136f-9021-5aaf-9958-4bc813c4d9b1` (F-12 order).
 function endReachedFirst(routes: Routes): ProjectConfig {
   return pipelineOf(
     flowOf(0, 'build', [
-      start('start', 'first'),
-      condition('first', { true: { to: 'early' }, false: { to: 'check' } }),
-      end('early'),
-      condition('check', routes),
-      end('end'),
+      start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', '5c0f2c3f-cca2-5a06-a76c-9f46c2f59923'),
+      condition('5c0f2c3f-cca2-5a06-a76c-9f46c2f59923', { true: { to: 'f425ace6-acef-578b-9f1b-799f436aaed0' }, false: { to: '6235136f-9021-5aaf-9958-4bc813c4d9b1' } }),
+      end('f425ace6-acef-578b-9f1b-799f436aaed0'),
+      condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', routes),
+      end('128fea8a-2e63-5352-bd64-02ceddc0d0cb'),
     ]),
   );
 }
@@ -127,106 +127,106 @@ const routeCases: Array<[string, ProjectConfig, Expected[]]> = [
     'F-03 AC-016 a true route to a block of another flow gives a blocker at the to path',
     pipelineOf(
       flowOf(0, 'build', [
-        start('start', 'a'),
-        agent('a', 'check'),
-        condition('check', { true: { to: 'review-end' }, false: STOP }),
-        end('end'),
+        start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', 'fdac7165-b540-5201-bca7-029a056ea40e'),
+        agent('fdac7165-b540-5201-bca7-029a056ea40e', '6235136f-9021-5aaf-9958-4bc813c4d9b1'),
+        condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', { true: { to: 'def27884-40ef-5051-92b3-a6cfebcbd2c6' }, false: STOP }),
+        end('128fea8a-2e63-5352-bd64-02ceddc0d0cb'),
       ]),
-      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]),
+      flowOf(1, 'review', [start('ee8941a1-1a19-501e-93a2-0ee51a418e30', 'def27884-40ef-5051-92b3-a6cfebcbd2c6'), end('def27884-40ef-5051-92b3-a6cfebcbd2c6')]),
     ),
-    [{ path: TRUE_TO, message: OTHER_FLOW('review-end') }],
+    [{ path: TRUE_TO, message: OTHER_FLOW('def27884-40ef-5051-92b3-a6cfebcbd2c6') }],
   ],
   [
     'F-03 AC-016 a false route to a block of another flow gives a blocker at the to path',
     pipelineOf(
       flowOf(0, 'build', [
-        start('start', 'a'),
-        agent('a', 'check'),
-        condition('check', { true: STOP, false: { to: 'review-end' } }),
-        end('end'),
+        start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', 'fdac7165-b540-5201-bca7-029a056ea40e'),
+        agent('fdac7165-b540-5201-bca7-029a056ea40e', '6235136f-9021-5aaf-9958-4bc813c4d9b1'),
+        condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', { true: STOP, false: { to: 'def27884-40ef-5051-92b3-a6cfebcbd2c6' } }),
+        end('128fea8a-2e63-5352-bd64-02ceddc0d0cb'),
       ]),
-      flowOf(1, 'review', [start('review-start', 'review-end'), end('review-end')]),
+      flowOf(1, 'review', [start('ee8941a1-1a19-501e-93a2-0ee51a418e30', 'def27884-40ef-5051-92b3-a6cfebcbd2c6'), end('def27884-40ef-5051-92b3-a6cfebcbd2c6')]),
     ),
-    [{ path: FALSE_TO, message: OTHER_FLOW('review-end') }],
+    [{ path: FALSE_TO, message: OTHER_FLOW('def27884-40ef-5051-92b3-a6cfebcbd2c6') }],
   ],
   [
     'F-03 AC-016 a true route to an id that is no block gives a blocker at the to path',
-    linked({ true: { to: 'nowhere' }, false: STOP }),
-    [{ path: TRUE_TO, message: NO_BLOCK('nowhere') }],
+    linked({ true: { to: 'a5767084-cb93-5669-9a85-49c86b4893f6' }, false: STOP }),
+    [{ path: TRUE_TO, message: NO_BLOCK('a5767084-cb93-5669-9a85-49c86b4893f6') }],
   ],
   [
     'F-03 AC-016 a false route to an id that is no block gives a blocker at the to path',
-    linked({ true: { to: 'end' }, false: { to: 'nowhere', roundLimit: 1 } }),
-    [{ path: FALSE_TO, message: NO_BLOCK('nowhere') }],
+    linked({ true: { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, false: { to: 'a5767084-cb93-5669-9a85-49c86b4893f6', roundLimit: 1 } }),
+    [{ path: FALSE_TO, message: NO_BLOCK('a5767084-cb93-5669-9a85-49c86b4893f6') }],
   ],
   [
     'F-03 AC-017 a route to the condition itself gives a blocker at the to path, without a roundLimit',
-    linked({ true: { to: 'check' }, false: STOP }),
-    [{ path: TRUE_TO, message: SAME_FLOW_LATER('check') }],
+    linked({ true: { to: '6235136f-9021-5aaf-9958-4bc813c4d9b1' }, false: STOP }),
+    [{ path: TRUE_TO, message: SAME_FLOW_LATER('6235136f-9021-5aaf-9958-4bc813c4d9b1') }],
   ],
   [
     'F-03 AC-017 a route to the condition itself gives a blocker at the to path, with a roundLimit',
-    linked({ true: { to: 'check', roundLimit: 1 }, false: STOP }),
-    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('check') }],
+    linked({ true: { to: '6235136f-9021-5aaf-9958-4bc813c4d9b1', roundLimit: 1 }, false: STOP }),
+    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('6235136f-9021-5aaf-9958-4bc813c4d9b1') }],
   ],
   [
     'F-03 AC-017 a route to an earlier start gives a blocker at the to path, without a roundLimit',
-    linked({ true: { to: 'start' }, false: STOP }),
-    [{ path: TRUE_TO, message: SAME_FLOW_LATER('start') }],
+    linked({ true: { to: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551' }, false: STOP }),
+    [{ path: TRUE_TO, message: SAME_FLOW_LATER('f05559a1-554d-5c78-a9a6-bb9ce0bfc551') }],
   ],
   [
     'F-03 AC-017 a route to an earlier start gives a blocker at the to path, with a roundLimit',
-    linked({ true: { to: 'start', roundLimit: 2 }, false: STOP }),
-    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('start') }],
+    linked({ true: { to: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', roundLimit: 2 }, false: STOP }),
+    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('f05559a1-554d-5c78-a9a6-bb9ce0bfc551') }],
   ],
   [
     'F-03 AC-017 a route to an earlier condition gives a blocker at the to path, without a roundLimit',
-    afterCondition({ true: STOP, false: { to: 'first' } }),
-    [{ path: FALSE_TO, message: SAME_FLOW_LATER('first') }],
+    afterCondition({ true: STOP, false: { to: '5c0f2c3f-cca2-5a06-a76c-9f46c2f59923' } }),
+    [{ path: FALSE_TO, message: SAME_FLOW_LATER('5c0f2c3f-cca2-5a06-a76c-9f46c2f59923') }],
   ],
   [
     'F-03 AC-017 a route to an earlier condition gives a blocker at the to path, with a roundLimit',
-    afterCondition({ true: { to: 'first', roundLimit: 1 }, false: STOP }),
-    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('first') }],
+    afterCondition({ true: { to: '5c0f2c3f-cca2-5a06-a76c-9f46c2f59923', roundLimit: 1 }, false: STOP }),
+    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('5c0f2c3f-cca2-5a06-a76c-9f46c2f59923') }],
   ],
   [
     'F-03 AC-017 a route to an earlier end gives a blocker at the to path, without a roundLimit',
-    endReachedFirst({ true: { to: 'early' }, false: STOP }),
-    [{ path: CHECK_TRUE_TO, message: SAME_FLOW_LATER('early') }],
+    endReachedFirst({ true: { to: 'f425ace6-acef-578b-9f1b-799f436aaed0' }, false: STOP }),
+    [{ path: CHECK_TRUE_TO, message: SAME_FLOW_LATER('f425ace6-acef-578b-9f1b-799f436aaed0') }],
   ],
   [
     'F-03 AC-017 a route to an earlier end gives a blocker at the to path, with a roundLimit',
-    afterEnd({ true: STOP, false: { to: 'early', roundLimit: 3 } }),
-    [{ path: FALSE_TO, message: RETURN_NEEDS_AGENT('early') }],
+    afterEnd({ true: STOP, false: { to: 'f425ace6-acef-578b-9f1b-799f436aaed0', roundLimit: 3 } }),
+    [{ path: FALSE_TO, message: RETURN_NEEDS_AGENT('f425ace6-acef-578b-9f1b-799f436aaed0') }],
   ],
   [
     'F-03 AC-018 a roundLimit on a route to a later agent gives a blocker at the to path',
-    linked({ true: { to: 'b', roundLimit: 2 }, false: STOP }),
-    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('b') }],
+    linked({ true: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122', roundLimit: 2 }, false: STOP }),
+    [{ path: TRUE_TO, message: RETURN_NEEDS_AGENT('2cb36792-5a03-58cf-a718-bba6be0b9122') }],
   ],
   [
     'F-03 AC-018 a roundLimit on a route to a later end gives a blocker at the to path',
-    linked({ true: STOP, false: { to: 'end', roundLimit: 1 } }),
-    [{ path: FALSE_TO, message: RETURN_NEEDS_AGENT('end') }],
+    linked({ true: STOP, false: { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', roundLimit: 1 } }),
+    [{ path: FALSE_TO, message: RETURN_NEEDS_AGENT('128fea8a-2e63-5352-bd64-02ceddc0d0cb') }],
   ],
   [
     'F-03 AC-019 a return to an earlier agent without a roundLimit gives a blocker at the to path',
-    linked({ true: { to: 'a' }, false: STOP }),
-    [{ path: TRUE_TO, message: EARLIER_AGENT_NEEDS_LIMIT('a') }],
+    linked({ true: { to: 'fdac7165-b540-5201-bca7-029a056ea40e' }, false: STOP }),
+    [{ path: TRUE_TO, message: EARLIER_AGENT_NEEDS_LIMIT('fdac7165-b540-5201-bca7-029a056ea40e') }],
   ],
   [
     'F-03 AC-019 a false return to an earlier agent without a roundLimit gives a blocker at the to path',
-    linked({ true: { to: 'b' }, false: { to: 'a' } }),
-    [{ path: FALSE_TO, message: EARLIER_AGENT_NEEDS_LIMIT('a') }],
+    linked({ true: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' }, false: { to: 'fdac7165-b540-5201-bca7-029a056ea40e' } }),
+    [{ path: FALSE_TO, message: EARLIER_AGENT_NEEDS_LIMIT('fdac7165-b540-5201-bca7-029a056ea40e') }],
   ],
   [
     'F-03 AC-020 a return to an earlier agent with a roundLimit has no finding',
-    linked({ true: { to: 'a', roundLimit: 3 }, false: STOP }),
+    linked({ true: { to: 'fdac7165-b540-5201-bca7-029a056ea40e', roundLimit: 3 }, false: STOP }),
     [],
   ],
   [
     'F-03 AC-020 a route to a later block of the same flow has no finding',
-    linked({ true: { to: 'b' }, false: { to: 'end' } }),
+    linked({ true: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' }, false: { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' } }),
     [],
   ],
   [
@@ -236,7 +236,7 @@ const routeCases: Array<[string, ProjectConfig, Expected[]]> = [
   ],
   [
     'F-03 AC-020 a return with a roundLimit and a later route together have no finding',
-    linked({ true: { to: 'a', roundLimit: 1 }, false: { to: 'b' } }),
+    linked({ true: { to: 'fdac7165-b540-5201-bca7-029a056ea40e', roundLimit: 1 }, false: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' } }),
     [],
   ],
 ];
@@ -249,11 +249,11 @@ describe('F-03 AC-016, AC-017, AC-018, AC-019, AC-020 route targets of a conditi
 
 describe('F-03 AC-013 a retry route to an earlier agent with a roundLimit is not a loop', () => {
   it('F-03 AC-013 a condition that retries an earlier agent gives no finding of the analysis', () => {
-    expect(analyzeStructure(linked({ true: { to: 'a', roundLimit: 2 }, false: { to: 'b' } }))).toEqual([]);
+    expect(analyzeStructure(linked({ true: { to: 'fdac7165-b540-5201-bca7-029a056ea40e', roundLimit: 2 }, false: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' } }))).toEqual([]);
   });
 
   it('F-03 AC-013 the retry route gives no route or link finding', () => {
-    const config = linked({ true: { to: 'a', roundLimit: 2 }, false: STOP });
+    const config = linked({ true: { to: 'fdac7165-b540-5201-bca7-029a056ea40e', roundLimit: 2 }, false: STOP });
     expect(routesRule(config)).toEqual([]);
   });
 });
@@ -266,7 +266,7 @@ const outputCases: Array<[string, ProjectConfig, Expected[]]> = [
   ],
   [
     'F-03 AC-015 a condition with no false route gives a blocker at the condition path, naming the false output',
-    linked({ true: { to: 'b' } }),
+    linked({ true: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' } }),
     [{ path: CONDITION, message: 'must have a false route, got none' }],
   ],
   [
@@ -279,7 +279,7 @@ const outputCases: Array<[string, ProjectConfig, Expected[]]> = [
   ],
   [
     'F-03 AC-015 a condition with both routes has no finding',
-    linked({ true: { to: 'b' }, false: STOP }),
+    linked({ true: { to: '2cb36792-5a03-58cf-a718-bba6be0b9122' }, false: STOP }),
     [],
   ],
 ];
@@ -295,7 +295,7 @@ describe('F-03 AC-035 a partial model is analysed without a throw', () => {
   // A start with no next and a condition with no routes: the model that the parser would have refused.
   function partial(): ProjectConfig {
     return pipelineOf(
-      flowOf(0, 'build', [start('start', undefined), agent('a', 'check'), condition('check', {}), agent('b', 'end'), end('end')]),
+      flowOf(0, 'build', [start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', undefined), agent('fdac7165-b540-5201-bca7-029a056ea40e', '6235136f-9021-5aaf-9958-4bc813c4d9b1'), condition('6235136f-9021-5aaf-9958-4bc813c4d9b1', {}), agent('2cb36792-5a03-58cf-a718-bba6be0b9122', '128fea8a-2e63-5352-bd64-02ceddc0d0cb'), end('128fea8a-2e63-5352-bd64-02ceddc0d0cb')]),
     );
   }
 
@@ -322,7 +322,7 @@ describe('F-03 AC-035 a partial model is analysed without a throw', () => {
   // flowOf leaves out `next` and `description` and gives `arguments` as an empty list: a single flow with none of
   // the optional keys is valid, so the gaps of AC-035 are not reported for them.
   it('F-03 AC-035 a flow with no next, no description and no arguments is analysed without a throw and gives no finding', () => {
-    const config = pipelineOf(flowOf(0, 'build', [start('start', 'a'), agent('a', 'end'), end('end')]));
+    const config = pipelineOf(flowOf(0, 'build', [start('f05559a1-554d-5c78-a9a6-bb9ce0bfc551', 'fdac7165-b540-5201-bca7-029a056ea40e'), agent('fdac7165-b540-5201-bca7-029a056ea40e', '128fea8a-2e63-5352-bd64-02ceddc0d0cb'), end('128fea8a-2e63-5352-bd64-02ceddc0d0cb')]));
     expect(config.pipeline.flows[0]).not.toHaveProperty('next');
     expect(config.pipeline.flows[0]).not.toHaveProperty('description');
     expect(() => analyzeStructure(config)).not.toThrow();

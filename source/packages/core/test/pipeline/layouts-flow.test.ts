@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AgentBlock, Argument, Block, ConditionBlock, Flow, Route } from '../../src/pipeline/model.js';
+import type { AgentBlock, Argument, Block, ConditionBlock, Flow, Route, Rule } from '../../src/pipeline/model.js';
 import { GenerationError } from '../../src/pipeline/generate/error.js';
 import { renderLayout } from '../../src/pipeline/generate/render.js';
 import { flowValues } from '../../src/pipeline/generate/values-flow.js';
@@ -9,8 +9,14 @@ import { readLayout } from './layouts-loader.js';
 const LAYOUT_PATH = 'claude-code/flow.md';
 
 // The real layout of `source/templates/claude-code/flow.md`, rendered with the real values of the flow.
+// The rules the tags name (F-16, AC-029): a tag is written as the file name of its rule.
+const RULES: readonly Rule[] = [
+  { index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style guide', text: 'Keep it short.' },
+  { index: 1, id: 'fc7318c7-863c-5a34-9269-e28c8dd30284', title: 'Naming', text: 'Name it well.' },
+];
+
 function render(flow: Flow): string {
-  return renderLayout(readLayout(LAYOUT_PATH), flowValues(flow), LAYOUT_PATH);
+  return renderLayout(readLayout(LAYOUT_PATH), flowValues(flow, RULES), LAYOUT_PATH);
 }
 
 // The valid one-flow fixture (Start → Agent → End), with its flow changed by `change`; every other part is kept.
@@ -24,24 +30,37 @@ function argument(index: number, id: string, required: boolean, hint = ''): Argu
   return { index, id, required, hint };
 }
 
-function agent(index: number, id: string, next: string, args: readonly Argument[] = []): AgentBlock {
+// Block ids are GUIDs (F-16 AC-028). The helpers take a label: its GUID comes from this table (a GUID passes through),
+// and the label names the agent file and reads in the description.
+const IDS: Readonly<Record<string, string>> = {
+  draft: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63',
+  review: '82c969a4-365a-5525-8168-6ae1093b1867',
+  publish: '9ed0bdfe-f040-5934-9233-bdec297f9995',
+  end: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
+};
+
+function idOf(label: string): string {
+  return IDS[label] ?? label;
+}
+
+function agent(index: number, label: string, next: string, args: readonly Argument[] = []): AgentBlock {
   return {
     index,
-    id,
+    id: idOf(label),
     kind: 'agent',
-    name: `${id}-agent`,
-    description: `Runs ${id}.`,
+    name: `${label}-agent`,
+    description: `Runs ${label}.`,
     arguments: [...args],
-    next,
+    next: idOf(next),
   };
 }
 
-function condition(index: number, id: string, whenTrue: Route, whenFalse: Route): ConditionBlock {
-  return { index, id, kind: 'condition', description: `Is ${id} met?`, true: whenTrue, false: whenFalse };
+function condition(index: number, label: string, whenTrue: Route, whenFalse: Route): ConditionBlock {
+  return { index, id: idOf(label), kind: 'condition', description: `Is ${label} met?`, true: whenTrue, false: whenFalse };
 }
 
-const START: Block = { index: 0, id: 'start', kind: 'start', next: 'draft' };
-const END: Block = { index: 99, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
+const START: Block = { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' };
+const END: Block = { index: 99, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
 
 // Start → draft → review; the true route of review goes on to publish, its false route returns to draft with a
 // round limit of 2. Publish goes on to the End.
@@ -50,7 +69,7 @@ function loopFlow(): Flow {
     blocks: [
       START,
       agent(1, 'draft', 'review'),
-      condition(2, 'review', { to: 'publish' }, { to: 'draft', roundLimit: 2 }),
+      condition(2, 'review', { to: '9ed0bdfe-f040-5934-9233-bdec297f9995' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit: 2 }),
       agent(3, 'publish', 'end'),
       END,
     ],
@@ -100,10 +119,10 @@ describe('F-05 layouts: the flow command layout', () => {
 
   it('F-05 AC-007 writes the rule tags of the flow in the frontmatter, as one comma-separated list in their order', () => {
     const ruleTags = [
-      { index: 0, ruleId: 'style' },
-      { index: 1, ruleId: 'safety' },
+      { index: 0, ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593' },
+      { index: 1, ruleId: 'fc7318c7-863c-5a34-9269-e28c8dd30284' },
     ];
-    expect(render(flowOf({ ruleTags })).split('\n')[2]).toBe('rules: style, safety');
+    expect(render(flowOf({ ruleTags })).split('\n')[2]).toBe('rules: style-guide, naming');
   });
 
   it('F-05 AC-007 writes none in the frontmatter when the flow has no rule tags', () => {
@@ -112,8 +131,8 @@ describe('F-05 layouts: the flow command layout', () => {
   });
 
   it('F-05 AC-008 writes each argument on its own line, with its id, whether it is required, and its hint', () => {
-    const text = render(flowOf({ arguments: [argument(0, 'topic', true, 'the subject'), argument(1, 'scope', false)] }));
-    expect(section(text, '## Arguments')).toEqual(['- `topic` (required, the subject)', '- `scope` (optional)', '']);
+    const text = render(flowOf({ arguments: [argument(0, 'ccc656eb-7dbe-5012-9af8-c2559c43ae31', true, 'the subject'), argument(1, '80398aba-a45b-51b8-971a-54782c4bdfde', false)] }));
+    expect(section(text, '## Arguments')).toEqual(['- `ccc656eb-7dbe-5012-9af8-c2559c43ae31` (required, the subject)', '- `80398aba-a45b-51b8-971a-54782c4bdfde` (optional)', '']);
   });
 
   it('F-05 AC-008 writes No arguments under the Arguments heading when the flow has none', () => {
@@ -157,18 +176,18 @@ describe('F-05 layouts: the flow command layout', () => {
 
   it('F-05 AC-011 names the agent file of an Agent step and gives the agent description, with its arguments when it has some', () => {
     const flow = flowOf({
-      blocks: [START, agent(1, 'draft', 'end', [argument(0, 'topic', true)]), END],
+      blocks: [START, agent(1, 'draft', 'end', [argument(0, 'ccc656eb-7dbe-5012-9af8-c2559c43ae31', true)]), END],
     });
     expect(section(render(flow), '## Steps')).toContain(
-      '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `topic` (required): Runs draft.',
+      '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `ccc656eb-7dbe-5012-9af8-c2559c43ae31` (required): Runs draft.',
     );
   });
 
   it('F-05 AC-012 gives the check of a Condition step, names its true route as the next step, and writes stop and ask when the false route stops the flow', () => {
     const flow = flowOf({
       blocks: [
-        { ...START, next: 'review' },
-        condition(1, 'review', { to: 'publish' }, { stop: true }),
+        { ...START, next: '82c969a4-365a-5525-8168-6ae1093b1867' },
+        condition(1, 'review', { to: '9ed0bdfe-f040-5934-9233-bdec297f9995' }, { stop: true }),
         agent(2, 'publish', 'end'),
         END,
       ],
@@ -198,7 +217,7 @@ describe('F-05 layouts: the flow command layout', () => {
       blocks: [
         START,
         agent(1, 'draft', 'review'),
-        condition(2, 'review', { to: 'end' }, { to: 'draft', roundLimit: 6 }),
+        condition(2, 'review', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit: 6 }),
         END,
       ],
     });
@@ -207,14 +226,14 @@ describe('F-05 layouts: the flow command layout', () => {
 
   it('F-05 AC-014 names the produced artifact in the End step, and writes no artifact when the End has none', () => {
     expect(section(render(loopFlow()), '## Steps').at(-2)).toBe('5. End the flow, producing the artifact `out.md`.');
-    const plain = flowOf({ blocks: [{ ...START, next: 'end' }, { ...END, producedArtifact: '' }] });
+    const plain = flowOf({ blocks: [{ ...START, next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { ...END, producedArtifact: '' }] });
     const text = render(plain);
     expect(section(text, '## Steps')).toEqual(['1. Start the flow.', '2. End the flow.', '']);
     expect(text).not.toContain('producing');
   });
 
   it('F-05 AC-015 writes the Start and End steps and no rule for a flow with only those two blocks, and does not fail', () => {
-    const flow = flowOf({ blocks: [{ ...START, next: 'end' }, { ...END, producedArtifact: '' }] });
+    const flow = flowOf({ blocks: [{ ...START, next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { ...END, producedArtifact: '' }] });
     const text = render(flow);
     expect(text).toContain('## Steps\n1. Start the flow.\n2. End the flow.\n\n## Rules\n\n## Approval');
   });

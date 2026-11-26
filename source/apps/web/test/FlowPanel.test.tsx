@@ -42,10 +42,10 @@ function pipelineOf(...flows: Flow[]): Pipeline {
 
 // Two flows: plan (selected in most tests) and build, so a name can clash with another flow.
 function twoFlows(): Pipeline {
-  return pipelineOf(flow('plan', 'Plan', 'build'), flow('build', 'Build'));
+  return pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
 }
 
-function renderPanel(pipelineState: Pipeline, flowId = 'plan') {
+function renderPanel(pipelineState: Pipeline, flowId = 'ea3211a4-b64b-5204-9451-6fe12fd7c655') {
   const onChange = vi.fn();
   const onDelete = vi.fn();
   const selected = pipelineState.flows.find((item) => item.id === flowId);
@@ -122,7 +122,7 @@ describe('F-11 AC-020 name', () => {
 
   it('F-11 AC-020 shows the parser reason for a blank name and keeps the field empty under it', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '   ' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '   ' });
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: '   ' } });
@@ -134,7 +134,7 @@ describe('F-11 AC-020 name', () => {
 
   it('F-11 AC-020 refuses a name that another flow has with no error shown, and keeps the saved name', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: 'Build' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: 'Build' });
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Build' } });
@@ -158,7 +158,7 @@ describe('F-11 AC-021 description', () => {
   it('F-11 AC-021 refuses a description longer than 1000 characters and keeps the saved one', () => {
     const pipelineState = twoFlows();
     const longText = 'd'.repeat(1001);
-    const reason = parserReason(pipelineState, 'plan', { field: 'description', value: longText });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: longText });
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Description'), { target: { value: longText } });
@@ -182,7 +182,7 @@ describe('F-11 AC-022 body', () => {
 
   it('F-11 AC-022 shows the parser reason for a blank body and keeps the field empty under it', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: '' });
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: '' } });
@@ -195,7 +195,7 @@ describe('F-11 AC-022 body', () => {
   it('F-11 AC-022 refuses a body of 1001 characters with the parser reason under the field, and keeps the saved body and its counter', () => {
     const pipelineState = twoFlows();
     const longBody = 'b'.repeat(1001);
-    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: longBody });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: longBody });
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Body · required'), { target: { value: longBody } });
@@ -236,7 +236,7 @@ describe('F-11 AC-023 model', () => {
   });
 
   it('F-11 AC-023 unsets the model when the blank option is picked', () => {
-    const pipelineState = pipelineOf({ ...flow('plan', 'Plan', 'build'), model: 'opus' }, flow('build', 'Build'));
+    const pipelineState = pipelineOf({ ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), model: 'opus' }, flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
     const { onChange } = renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Model'), { target: { value: '' } });
@@ -259,7 +259,7 @@ describe('F-11 AC-027 Human approval', () => {
   });
 
   it('F-11 AC-027 unticking the checkbox clears the approval value', () => {
-    const pipelineState = pipelineOf({ ...flow('plan', 'Plan', 'build'), approval: true }, flow('build', 'Build'));
+    const pipelineState = pipelineOf({ ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), approval: true }, flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
     const { onChange } = renderPanel(pipelineState);
 
     expect(screen.getByLabelText('Human approval')).toHaveProperty('checked', true);
@@ -273,7 +273,7 @@ describe('F-11 AC-027 Human approval', () => {
 describe('F-11 AC-028 refusals go through the parser', () => {
   it('F-11 AC-028 shows the parser message beneath the field and keeps the saved value for a refused name', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
@@ -284,7 +284,7 @@ describe('F-11 AC-028 refusals go through the parser', () => {
 
   it('F-11 AC-028 describes the name input by its refusal only while the refusal shows', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
     expect(screen.getByLabelText('Name').getAttribute('aria-describedby')).toBeNull();
 
@@ -298,7 +298,7 @@ describe('F-11 AC-028 refusals go through the parser', () => {
 
   it('F-11 AC-028 clears a refusal once a later edit of the same field is accepted', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
 
     fireEvent.change(screen.getByLabelText('Name'), { target: { value: '' } });
@@ -351,7 +351,7 @@ describe('F-11 AC-029 delete flow asks first', () => {
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete flow' }));
 
     expect(onDelete).toHaveBeenCalledTimes(1);
-    expect(onDelete).toHaveBeenCalledWith(deleteFlow(pipelineState, 'plan'));
+    expect(onDelete).toHaveBeenCalledWith(deleteFlow(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
 });
@@ -360,11 +360,11 @@ describe('F-11 AC-029 delete flow asks first', () => {
 // each list as it was, so the lists are read before and after each edit.
 function flowWithRows(): Pipeline {
   return pipelineOf({
-    ...flow('plan', 'Plan', 'build'),
-    arguments: [{ index: 0, id: 'alpha', required: true, hint: 'The first input.' }],
+    ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'),
+    arguments: [{ index: 0, id: 'aab39af1-f7ee-5872-8009-be002cd04380', required: true, hint: 'The first input.' }],
     artifacts: [{ label: 'plan.md', template: '# Plan' }],
-    ruleTags: [{ index: 0, ruleId: 'security' }],
-  }, flow('build', 'Build'));
+    ruleTags: [{ index: 0, ruleId: '5d1d8905-7a0e-5281-b85f-92d26b3a346b' }],
+  }, flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
 }
 
 function listsOf() {
@@ -438,7 +438,7 @@ describe('F-11 AC-027 changing the model leaves the lists alone', () => {
     fireEvent.change(screen.getByLabelText('Model'), { target: { value: 'opus' } });
 
     const saved = onChange.mock.calls.at(-1)?.[0] as Pipeline | undefined;
-    expect(saved?.flows.find((item) => item.id === 'plan')?.model).toBe('opus');
+    expect(saved?.flows.find((item) => item.id === 'ea3211a4-b64b-5204-9451-6fe12fd7c655')?.model).toBe('opus');
     expect(listsOf()).toEqual(before);
     expect(before.argumentTitles).toBe(1);
     expect(before.artifactTitles).toBe(1);
@@ -448,7 +448,7 @@ describe('F-11 AC-027 changing the model leaves the lists alone', () => {
 describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and body', () => {
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows no error for a saved name that has text', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
 
     expect(screen.queryByText(reason)).toBeNull();
@@ -457,7 +457,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and bo
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-name error on the key press that empties the field', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Name');
 
@@ -470,7 +470,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and bo
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) treats whitespace alone as empty and shows the error', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Name');
 
@@ -482,7 +482,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and bo
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) hides the error once text is typed into the empty name', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Name');
     fireEvent.change(input, { target: { value: '' } });
@@ -498,7 +498,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required name and bo
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-body error on the key press that empties the body, and hides it once text is typed', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: '' });
     renderPanel(pipelineState);
     const body = screen.getByLabelText('Body · required');
 
@@ -522,7 +522,7 @@ function controlBoxOf(input: HTMLElement): HTMLElement {
 describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its field box', () => {
   it('F-11 (no criterion: Verify device fix 2026-11-24) draws the empty-name error inside the name control box, 4 px under the field', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'name', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'name', value: '' });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Name');
 
@@ -537,7 +537,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) draws the empty-body error inside the body control box, and the counter stays under the box', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: '' });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: '' });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Body · required');
 
@@ -551,7 +551,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) keeps the optional description error outside the control boxes', () => {
     const pipelineState = twoFlows();
-    const reason = parserReason(pipelineState, 'plan', { field: 'description', value: 'x'.repeat(1001) });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'description', value: 'x'.repeat(1001) });
     renderPanel(pipelineState);
     const input = screen.getByLabelText('Description');
 
@@ -582,13 +582,14 @@ function wiredFlow(id: string, name: string, next?: string): Flow {
 }
 
 function wiredPipeline(name = 'Demo'): Pipeline {
-  const flows = [wiredFlow('plan', 'Plan', 'build'), wiredFlow('build', 'Build')];
+  const flows = [wiredFlow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), wiredFlow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build')];
   return { name, description: 'A demo pipeline.', arguments: [], flows: flows.map((item, index) => ({ ...item, index })) };
 }
 
 // The pipeline after Add flow (AC-003): a third flow with a blank body, linked to no other flow.
-function withNewFlow(pipelineState: Pipeline): Pipeline {
-  return addFlow(pipelineState).pipeline;
+// The pipeline with a new flow added, and the new flow's id (a GUID, generated by the builder).
+function withNewFlow(pipelineState: Pipeline) {
+  return addFlow(pipelineState);
 }
 
 // Types `value` into the flow body the way the user does, one change event with the whole text.
@@ -636,20 +637,20 @@ describe('F-16 AC-020 typing into the flow body', () => {
   });
 
   it('F-16 AC-020 accepts the first text typed into the body of a new flow from Add flow', () => {
-    const pipelineState = withNewFlow(wiredPipeline());
-    const { onChange } = renderPanel(pipelineState, 'flow-1');
+    const added = withNewFlow(wiredPipeline());
+    const { onChange } = renderPanel(added.pipeline, added.flowId);
 
     typeBody('a');
 
     expect(onChange).toHaveBeenCalledTimes(1);
     const next = onChange.mock.calls[0]?.[0] as Pipeline;
-    expect(next.flows.find((item) => item.id === 'flow-1')?.body).toBe('a');
+    expect(next.flows.find((item) => item.id === added.flowId)?.body).toBe('a');
     expect(screen.getByLabelText('Body · required')).toHaveProperty('value', 'a');
   });
 
   it('F-16 AC-020 accepts the first text typed into the body when the pipeline name is blank', () => {
-    const pipelineState = withNewFlow(wiredPipeline(''));
-    const { onChange } = renderPanel(pipelineState, 'flow-1');
+    const added = withNewFlow(wiredPipeline(''));
+    const { onChange } = renderPanel(added.pipeline, added.flowId);
 
     typeBody('Write the plan.');
 
@@ -660,7 +661,7 @@ describe('F-16 AC-020 typing into the flow body', () => {
   it('F-16 AC-020 refuses a body over the limit, shows the parser reason under the Body field, and returns the field to the saved body', () => {
     const pipelineState = wiredPipeline();
     const tooLong = '😀'.repeat(1001);
-    const reason = parserReason(pipelineState, 'plan', { field: 'body', value: tooLong });
+    const reason = parserReason(pipelineState, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { field: 'body', value: tooLong });
     const { onChange } = renderPanel(pipelineState);
     const body = screen.getByLabelText('Body · required');
 
@@ -675,9 +676,9 @@ describe('F-16 AC-020 typing into the flow body', () => {
   });
 
   it('F-16 AC-020 keeps the parser reason of an over-limit body typed into a new flow with a blank saved body', () => {
-    const pipelineState = withNewFlow(wiredPipeline());
-    const reason = parserReason(pipelineState, 'flow-1', { field: 'body', value: 'x'.repeat(1001) });
-    const { onChange } = renderPanel(pipelineState, 'flow-1');
+    const added = withNewFlow(wiredPipeline());
+    const reason = parserReason(added.pipeline, added.flowId, { field: 'body', value: 'x'.repeat(1001) });
+    const { onChange } = renderPanel(added.pipeline, added.flowId);
     const body = screen.getByLabelText('Body · required');
 
     typeBody('x'.repeat(1001));
@@ -689,8 +690,8 @@ describe('F-16 AC-020 typing into the flow body', () => {
   });
 
   it('F-16 AC-020 shows the parser reason at the body for a blank body and keeps the blank text typed under it', () => {
-    const pipelineState = withNewFlow(wiredPipeline());
-    const { onChange } = renderPanel(pipelineState, 'flow-1');
+    const added = withNewFlow(wiredPipeline());
+    const { onChange } = renderPanel(added.pipeline, added.flowId);
 
     typeBody('   ');
 

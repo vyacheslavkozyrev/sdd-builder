@@ -35,20 +35,20 @@ function finding(severity: Finding['severity'], path: string, message: string): 
 // flow 1 is "build", with the id "flow-2" and no blocks.
 const planFlow: pipeline.Flow = {
   index: 0,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   name: 'plan',
   arguments: [],
   body: 'Plan.',
   artifacts: [],
   approval: false,
   blocks: [
-    { index: 0, id: 'plan-start', kind: 'start', next: 'plan-work' },
-    { index: 1, id: 'plan-work', kind: 'agent', name: 'Write the plan', description: '', arguments: [], next: 'plan-start' },
+    { index: 0, id: '73b60bc1-1571-5bd8-b203-54190f53a123', kind: 'start', next: 'd055ebb0-457c-5c03-944b-bce077a93d07' },
+    { index: 1, id: 'd055ebb0-457c-5c03-944b-bce077a93d07', kind: 'agent', name: 'Write the plan', description: '', arguments: [], next: '73b60bc1-1571-5bd8-b203-54190f53a123' },
   ],
 };
 const buildFlow: pipeline.Flow = {
   index: 1,
-  id: 'flow-2',
+  id: '02e82ffe-8c62-50f5-acea-711320561fab',
   name: 'build',
   arguments: [],
   body: 'Build.',
@@ -68,11 +68,11 @@ function entry(item: Finding, placement: Placement): PlacedFinding {
 }
 
 const onNothing: Placement = { kind: 'none' };
-const onFlow: Placement = { kind: 'flow', flowId: 'plan' };
+const onFlow: Placement = { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' };
 
 // Three blockers and two warnings: two of the blockers are drawn on a box, one is not drawn.
 const threeErrorsTwoWarnings: PlacedFinding[] = [
-  entry(finding('blocker', 'pipeline.flows.1', 'flow-2 is not connected.'), onFlow),
+  entry(finding('blocker', 'pipeline.flows.1', '02e82ffe-8c62-50f5-acea-711320561fab is not connected.'), onFlow),
   entry(finding('blocker', 'pipeline.flows.0.blocks.1.next', 'must point at a block of this flow'), onNothing),
   entry(finding('blocker', 'pipeline.name', 'a name is required'), onNothing),
   entry(finding('warning', 'pipeline.flows.1.body', 'is blank; the generated project will not use it'), onFlow),
@@ -185,7 +185,7 @@ describe('F-11 AC-036 a click opens every item with its kind, its path and its m
 
   it('F-11 AC-036 draws no "Not on a drawn item" section when every finding is drawn on an item', () => {
     renderWithTheme(
-      <ErrorPanel findings={[entry(finding('blocker', 'pipeline.flows.1', 'flow-2 is not connected.'), onFlow)]} />,
+      <ErrorPanel findings={[entry(finding('blocker', 'pipeline.flows.1', '02e82ffe-8c62-50f5-acea-711320561fab is not connected.'), onFlow)]} />,
     );
     fireEvent.click(screen.getByRole('button', { name: '1 error' }));
     expect(screen.queryByRole('region', { name: 'Not on a drawn item' })).toBeNull();
@@ -208,15 +208,15 @@ describe('F-16 AC-022 the error list names flows and blocks, not paths and ids',
       {
         ...planFlow,
         blocks: [
-          { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+          { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
           {
             index: 1,
-            id: 'block-1',
+            id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b',
             kind: 'agent',
             name: 'Write the plan',
             description: '',
             arguments: [],
-            next: 'block-1',
+            next: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b',
           },
         ],
       },

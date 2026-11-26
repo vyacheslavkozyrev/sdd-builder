@@ -13,11 +13,11 @@ function withCondition(description: string): ProjectConfig {
       block.kind === 'agent'
         ? ({
             index: 1,
-            id: 'check',
+            id: '6235136f-9021-5aaf-9958-4bc813c4d9b1',
             kind: 'condition',
             description,
-            true: { to: 'end' },
-            false: { to: 'end' },
+            true: { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
+            false: { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
           } satisfies ConditionBlock)
         : block,
     ),

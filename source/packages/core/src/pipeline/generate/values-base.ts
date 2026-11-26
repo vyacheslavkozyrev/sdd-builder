@@ -1,5 +1,6 @@
-import type { AgentBlock, Flow, ProjectConfig } from '../model.js';
+import type { AgentBlock, Flow, ProjectConfig, Rule } from '../model.js';
 import { flowFileName } from './flow-file.js';
+import { ruleFileName } from './rule-file.js';
 import { flowChain, processDiagram } from './mermaid.js';
 import { flowValues } from './values-flow.js';
 import { inlineText, linesOf } from './values-text.js';
@@ -17,7 +18,7 @@ export function baseValues(config: ProjectConfig): Record<string, string> {
 
   return {
     processDiagram: processDiagram(config.pipeline),
-    processFlows: linesOf(flowChain(flows).map(processItem)),
+    processFlows: linesOf(flowChain(flows).map((flow) => processItem(flow, config.rules))),
     commandList: linesOf([
       item('`.claude/commands/pipeline.md`', ''),
       ...flows.map((flow) => item(`\`.claude/commands/${flowFileName(flow)}.md\``, '')),
@@ -25,7 +26,7 @@ export function baseValues(config: ProjectConfig): Record<string, string> {
     agentList: linesOf(
       agents.map((block) => item(`\`.claude/agents/${block.name}.md\``, inlineText(block.description))),
     ),
-    ruleList: linesOf(config.rules.map((rule) => item(`\`.claude/rules/${rule.id}.md\``, inlineText(rule.title)))),
+    ruleList: linesOf(config.rules.map((rule) => item(`\`.claude/rules/${ruleFileName(rule)}.md\``, inlineText(rule.title)))),
   };
 }
 
@@ -37,8 +38,8 @@ const DOES_NOT_STOP_AT_FLOW = 'The process does not stop at the end of this flow
 // One flow of the process list (F-05, AC-029): a bullet with its name and id, then its description and its approval
 // sentence on the same line, and its conditions and retry routes under it, indented. The names, the description and
 // the conditions are the text the flow command uses (`flowValues`).
-function processItem(flow: Flow): string {
-  const values = flowValues(flow);
+function processItem(flow: Flow, rules: readonly Rule[]): string {
+  const values = flowValues(flow, rules);
   const text = (name: string): string => values[name] ?? '';
   const label = `${text('flowName')} (\`${flow.id}\`)`;
   const approval = flow.approval ? STOPS_AT_FLOW : DOES_NOT_STOP_AT_FLOW;

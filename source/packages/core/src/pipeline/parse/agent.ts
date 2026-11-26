@@ -1,6 +1,7 @@
 import {
   childPath,
   describeValue,
+  readFileSafeName,
   readId,
   readModel,
   readObject,
@@ -16,7 +17,7 @@ import { readRuleTags, readTools } from './lists.js';
 // The Agent block of a flow (pipeline-schema.md §2, `blockAgent`; AC-047 to AC-055). An agent requires
 // `id`, `kind`, `name`, `description`, `arguments` and `next`; `model`, `tools`, `ruleTags` and `body` are
 // optional; no other key is allowed (`reads` and `writes` were removed, amended 2026-11-24). An unknown key is refused at the path
-// of that key; a missing required key is refused at the path of the agent. `name` is an id, unique
+// of that key; a missing required key is refused at the path of the agent. `name` is a file-safe name, unique
 // across agents (AC-048, checked later). `description` is non-blank text of up to 1,000 code points.
 // `body` is non-blank text of up to 1,000 code points (F-12 AC-028). `next` names a block, and is checked
 // later (AC-054).
@@ -58,7 +59,7 @@ export function readAgent(
     problems.add(childPath(path, 'kind'), `must be agent, got ${describeValue(record.kind)}`);
     return undefined;
   }
-  const name = readId(record.name, childPath(path, 'name'), problems);
+  const name = readFileSafeName(record.name, childPath(path, 'name'), problems);
   const description = readText(
     record.description,
     childPath(path, 'description'),

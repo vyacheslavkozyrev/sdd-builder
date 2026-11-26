@@ -96,14 +96,14 @@ describe('F-05 layouts: the base manifest and CLAUDE.md', () => {
   it('F-05 AC-026 renders CLAUDE.md from its layout and the values of a fixture, with no placeholder left', () => {
     const config: ProjectConfig = {
       ...validConfig(),
-      rules: [rule(0, 'style', 'Plain style', 'Write short sentences.')],
+      rules: [rule(0, '8f99cc27-78ab-5895-8637-5c13d7429593', 'Style', 'Write short sentences.')],
     };
     const text = claudeMdOf(config);
     expect(text.startsWith('# Project instructions\n')).toBe(true);
     expect(text).not.toContain('{{');
     expect(text).toContain('- `.claude/commands/pipeline.md`\n- `.claude/commands/build.md`');
     expect(text).toContain('- `.claude/agents/build-agent.md`: Builds the project.');
-    expect(text).toContain('- `.claude/rules/style.md`: Plain style');
+    expect(text).toContain('- `.claude/rules/style.md`: Style');
     expect(text.endsWith('\n')).toBe(true);
   });
 
@@ -138,17 +138,17 @@ describe('F-05 layouts: CLAUDE.md lists the files the generator plans', () => {
     expect(sorted(listedLines(claudeMdOf(config), '.claude/agents/'))).toEqual(sorted(expected));
   });
 
-  it('F-05 AC-027 lists each rule file of the configuration with its title, and no other rule', () => {
+  it('F-05 AC-027 lists each rule file of the configuration with its title, and no other rule (F-16 AC-029: the file takes its name from the title)', () => {
     const config: ProjectConfig = {
       ...validConfig(),
-      rules: [rule(0, 'style', 'Plain style', 'Write short sentences.'), rule(1, 'safety', 'Safety', 'No secrets.')],
+      rules: [rule(0, '8f99cc27-78ab-5895-8637-5c13d7429593', 'Style', 'Write short sentences.'), rule(1, 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', 'Safety', 'No secrets.')],
     };
     const planned = planOf(config).map((file) => file.path);
     const rules = planned.filter((path) => path.startsWith('.claude/rules/'));
     expect(rules).toEqual(['.claude/rules/safety.md', '.claude/rules/style.md']);
     expect(sorted(listedPaths(claudeMdOf(config), '.claude/rules/'))).toEqual(sorted(rules));
     expect(listedLines(claudeMdOf(config), '.claude/rules/')).toEqual(
-      expect.arrayContaining(['- `.claude/rules/safety.md`: Safety', '- `.claude/rules/style.md`: Plain style']),
+      expect.arrayContaining(['- `.claude/rules/safety.md`: Safety', '- `.claude/rules/style.md`: Style']),
     );
   });
 

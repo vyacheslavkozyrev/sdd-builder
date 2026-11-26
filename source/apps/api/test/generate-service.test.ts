@@ -33,24 +33,24 @@ function configFixture(): pipeline.ProjectConfig {
       flows: [
         {
           index: 0,
-          id: 'build',
+          id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c',
           name: 'Build',
           arguments: [],
           body: 'Runs the build agent.',
           artifacts: [{ label: 'out.md', template: 'The output' }],
           approval: false,
           blocks: [
-            { index: 0, id: 'start', kind: 'start', next: 'agent' },
+            { index: 0, id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: '057f0771-8cfe-5f4c-aa15-11660925e7f5' },
             {
               index: 1,
-              id: 'agent',
+              id: '057f0771-8cfe-5f4c-aa15-11660925e7f5',
               kind: 'agent',
               name: 'build-agent',
               description: 'Builds the project.',
               arguments: [],
-              next: 'end',
+              next: '68609423-b775-5e49-8a2f-ad8150b098bc',
             },
-            { index: 2, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+            { index: 2, id: '68609423-b775-5e49-8a2f-ad8150b098bc', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
           ],
         },
       ],
@@ -134,8 +134,8 @@ describe('F-15 AC-008 a refused configuration makes no model call', () => {
           {
             ...flow,
             blocks: flow.blocks.map((block) => {
-              if (block.kind === 'start') return { ...block, next: 'nowhere' };
-              if (block.kind === 'agent') return { ...block, next: 'nowhere' };
+              if (block.kind === 'start') return { ...block, next: 'dd03cd5e-000f-54aa-97f5-38b954b62173' };
+              if (block.kind === 'agent') return { ...block, next: 'dd03cd5e-000f-54aa-97f5-38b954b62173' };
               return block;
             }),
           },

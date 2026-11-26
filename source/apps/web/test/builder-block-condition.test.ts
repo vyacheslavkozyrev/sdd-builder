@@ -13,17 +13,17 @@ import type { Pipeline, Rule } from '../src/builder/fields.js';
 type Block = model.Block;
 type ConditionBlock = model.ConditionBlock;
 
-const RULES: readonly Rule[] = [{ index: 0, id: 'plain-style', title: 'Plain style', text: 'Write plainly.' }];
+const RULES: readonly Rule[] = [{ index: 0, id: '98e1e77f-fb50-5bd4-bd43-d48a78098c65', title: 'Plain style', text: 'Write plainly.' }];
 
 // A plan flow with an Agent `review`, a return `check` (false to review, limit 3), a forward Condition `gate`
 // (false to the End, no limit), a Condition `halt` that stops on false, and the End `done`. Agent `review` is
 // the Agent the return points to; `check` is the block the tests edit.
 function savedPipeline(): Pipeline {
   const blocks: Block[] = [
-    { index: 0, id: 'start', kind: 'start', next: 'review' },
+    { index: 0, id: 'start', kind: 'start', next: '3220de8a-cda2-5056-9296-97da044f7176' },
     {
       index: 1,
-      id: 'review',
+      id: '3220de8a-cda2-5056-9296-97da044f7176',
       kind: 'agent',
       name: 'review',
       description: 'Reviews the plan.',
@@ -36,7 +36,7 @@ function savedPipeline(): Pipeline {
       kind: 'condition',
       description: 'The reviewer approves.',
       true: { to: 'gate' },
-      false: { to: 'review', roundLimit: 3 },
+      false: { to: '3220de8a-cda2-5056-9296-97da044f7176', roundLimit: 3 },
     },
     {
       index: 3,
@@ -63,7 +63,7 @@ function savedPipeline(): Pipeline {
     flows: [
       {
         index: 0,
-        id: 'plan',
+        id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
         name: 'Plan',
         arguments: [],
         body: 'Plan the work.',
@@ -91,7 +91,7 @@ function withoutRoundLimit(): Pipeline {
       {
         ...flow,
         blocks: flow.blocks.map((block) =>
-          block.id === 'check' && block.kind === 'condition' ? { ...block, false: { to: 'review' } } : block,
+          block.id === 'check' && block.kind === 'condition' ? { ...block, false: { to: '3220de8a-cda2-5056-9296-97da044f7176' } } : block,
         ),
       },
     ],
@@ -118,13 +118,13 @@ function refusedOf(result: ConditionFieldResult): string {
 
 describe('F-12 AC-030 Condition description', () => {
   it('saves a description as written', () => {
-    const saved = acceptedOf(editConditionDescription(savedPipeline(), RULES, 'plan', 'check', 'Checks the tests.'));
+    const saved = acceptedOf(editConditionDescription(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', 'Checks the tests.'));
     expect(conditionOf(saved, 'check').description).toBe('Checks the tests.');
   });
 
   it.each([[''], ['   ']])('refuses the blank description %j with the parser reason and keeps the saved one', (value) => {
     const pipelineState = savedPipeline();
-    expect(editConditionDescription(pipelineState, RULES, 'plan', 'check', value)).toEqual({
+    expect(editConditionDescription(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', value)).toEqual({
       ok: false,
       field: 'description',
       reason: 'must not be blank',
@@ -134,22 +134,22 @@ describe('F-12 AC-030 Condition description', () => {
 
   it('refuses a description longer than 1000 characters and accepts 1000', () => {
     const pipelineState = savedPipeline();
-    expect(editConditionDescription(pipelineState, RULES, 'plan', 'check', 'a'.repeat(1001))).toEqual({
+    expect(editConditionDescription(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', 'a'.repeat(1001))).toEqual({
       ok: false,
       field: 'description',
       reason: 'must be at most 1000 characters',
     });
-    const saved = acceptedOf(editConditionDescription(pipelineState, RULES, 'plan', 'check', 'a'.repeat(1000)));
+    const saved = acceptedOf(editConditionDescription(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', 'a'.repeat(1000)));
     expect(conditionOf(saved, 'check').description).toHaveLength(1000);
   });
 
   it('leaves the other blocks and their arrows as they were', () => {
     const pipelineState = savedPipeline();
-    const saved = acceptedOf(editConditionDescription(pipelineState, RULES, 'plan', 'check', 'Checks the tests.'));
+    const saved = acceptedOf(editConditionDescription(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', 'Checks the tests.'));
     expect(flowOf(saved).blocks.filter((block) => block.id !== 'check')).toEqual(
       flowOf(pipelineState).blocks.filter((block) => block.id !== 'check'),
     );
-    expect(conditionOf(saved, 'check').false).toEqual({ to: 'review', roundLimit: 3 });
+    expect(conditionOf(saved, 'check').false).toEqual({ to: '3220de8a-cda2-5056-9296-97da044f7176', roundLimit: 3 });
   });
 });
 
@@ -182,7 +182,7 @@ describe('F-12 AC-032 false route text', () => {
     expect(falseRouteText(flow, conditionOf(pipelineState, 'check'))).toBe('Returns to review, up to 3 rounds');
     expect(falseRouteOf(flow, conditionOf(pipelineState, 'check'))).toEqual({
       kind: 'return',
-      target: 'review',
+      target: '3220de8a-cda2-5056-9296-97da044f7176',
       roundLimit: 3,
     });
   });
@@ -202,8 +202,8 @@ describe('F-12 AC-033 round limit', () => {
     ['5', 5],
     [' 4 ', 4],
   ])('accepts the limit %j as %i', (text, expected) => {
-    const saved = acceptedOf(setConditionRoundLimit(savedPipeline(), RULES, 'plan', 'check', text));
-    expect(conditionOf(saved, 'check').false).toEqual({ to: 'review', roundLimit: expected });
+    const saved = acceptedOf(setConditionRoundLimit(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', text));
+    expect(conditionOf(saved, 'check').false).toEqual({ to: '3220de8a-cda2-5056-9296-97da044f7176', roundLimit: expected });
   });
 
   it.each([
@@ -217,18 +217,18 @@ describe('F-12 AC-033 round limit', () => {
     ['   '],
   ])('refuses the limit %j with the reason of AC-033 and keeps the saved limit', (text) => {
     const pipelineState = savedPipeline();
-    const result = setConditionRoundLimit(pipelineState, RULES, 'plan', 'check', text);
+    const result = setConditionRoundLimit(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', text);
     expect(refusedOf(result)).toBe('A return allows 1 to 5 rounds.');
-    expect(conditionOf(pipelineState, 'check').false).toEqual({ to: 'review', roundLimit: 3 });
+    expect(conditionOf(pipelineState, 'check').false).toEqual({ to: '3220de8a-cda2-5056-9296-97da044f7176', roundLimit: 3 });
   });
 
   it('sets a limit on a return whose limit is unset', () => {
-    const saved = acceptedOf(setConditionRoundLimit(withoutRoundLimit(), RULES, 'plan', 'check', '2'));
-    expect(conditionOf(saved, 'check').false).toEqual({ to: 'review', roundLimit: 2 });
+    const saved = acceptedOf(setConditionRoundLimit(withoutRoundLimit(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'check', '2'));
+    expect(conditionOf(saved, 'check').false).toEqual({ to: '3220de8a-cda2-5056-9296-97da044f7176', roundLimit: 2 });
   });
 
   it('is a programmer error to set a limit on a forward route, which shows no field (AC-034)', () => {
-    expect(() => setConditionRoundLimit(savedPipeline(), RULES, 'plan', 'gate', '2')).toThrow(/not a return/);
+    expect(() => setConditionRoundLimit(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'gate', '2')).toThrow(/not a return/);
   });
 });
 
@@ -243,17 +243,17 @@ describe('F-12 AC-034 round field only for a return', () => {
   });
 
   it('is a programmer error to set a limit on a stop route', () => {
-    expect(() => setConditionRoundLimit(savedPipeline(), RULES, 'plan', 'halt', '2')).toThrow(/not a return/);
+    expect(() => setConditionRoundLimit(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'halt', '2')).toThrow(/not a return/);
   });
 });
 
 describe('Condition edits: programmer errors', () => {
   it('throws for a block that is not a Condition', () => {
-    expect(() => editConditionDescription(savedPipeline(), RULES, 'plan', 'review', 'x')).toThrow(/not a Condition/);
+    expect(() => editConditionDescription(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3220de8a-cda2-5056-9296-97da044f7176', 'x')).toThrow(/not a Condition/);
   });
 
   it('throws for an unknown flow or block', () => {
     expect(() => editConditionDescription(savedPipeline(), RULES, 'nope', 'check', 'x')).toThrow(/no flow/);
-    expect(() => editConditionDescription(savedPipeline(), RULES, 'plan', 'nope', 'x')).toThrow(/no block/);
+    expect(() => editConditionDescription(savedPipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'nope', 'x')).toThrow(/no block/);
   });
 });

@@ -2,90 +2,90 @@
   "name": "SDD process",
   "description": "The default spec-driven process: specify, design the screens, plan, build each task, verify, complete.",
   "arguments": [
-    { "id": "feature-id", "required": true, "hint": "F-XX" }
+    { "id": "b74a414b-c3b7-41f5-b780-08c2c613df86", "required": true, "hint": "F-XX" }
   ],
   "flows": [
     {
-      "id": "specify",
+      "id": "f2cce1b4-ea0c-4dbe-9151-870598b6a4d2",
       "name": "Specify",
       "description": "Drafts the user stories and acceptance criteria of the feature.",
       "arguments": [],
       "body": "Writes stories.md from the brief and the answers to its questions.",
       "artifacts": [{ "label": "stories.md", "template": "User stories and acceptance criteria" }],
       "approval": true,
-      "next": "ux",
+      "next": "8a976641-9b75-4aa9-a363-fb78b4225c7a",
       "blocks": [
-        { "id": "specify-start", "kind": "start", "next": "specify-agent" },
-        { "id": "specify-agent", "kind": "agent", "name": "specify", "description": "Drafts stories.md.", "arguments": [], "next": "specify-end" },
-        { "id": "specify-end", "kind": "end", "outcome": "done", "producedArtifact": "stories.md" }
+        { "id": "ecc92254-8daa-4879-9bcb-2bb7c96e4289", "kind": "start", "next": "b86f903b-53da-44bf-9ac1-7bdfb71ea194" },
+        { "id": "b86f903b-53da-44bf-9ac1-7bdfb71ea194", "kind": "agent", "name": "specify", "description": "Drafts stories.md.", "arguments": [], "next": "32c059f2-a0aa-4690-b6d0-02758bd5fe48" },
+        { "id": "32c059f2-a0aa-4690-b6d0-02758bd5fe48", "kind": "end", "outcome": "done", "producedArtifact": "stories.md" }
       ]
     },
     {
-      "id": "ux",
+      "id": "8a976641-9b75-4aa9-a363-fb78b4225c7a",
       "name": "UX",
       "description": "Draws the screens of the feature for approval.",
       "arguments": [],
       "body": "Draws the screens of the feature from the stories.",
       "artifacts": [{ "label": "screens.md", "template": "Screens, their states and decisions" }],
       "approval": true,
-      "next": "plan",
+      "next": "d3882ef1-5c45-41aa-9277-a98217396d45",
       "blocks": [
-        { "id": "ux-start", "kind": "start", "next": "ux-agent" },
-        { "id": "ux-agent", "kind": "agent", "name": "ux", "description": "Draws the screens as SVG.", "arguments": [], "next": "ux-end" },
-        { "id": "ux-end", "kind": "end", "outcome": "done", "producedArtifact": "screens.md" }
+        { "id": "45981bb4-6016-436b-910d-7a7525d73871", "kind": "start", "next": "5c1b927e-66de-4974-a5b3-dec15350cce4" },
+        { "id": "5c1b927e-66de-4974-a5b3-dec15350cce4", "kind": "agent", "name": "ux", "description": "Draws the screens as SVG.", "arguments": [], "next": "9b9fc1f5-9b61-4e65-962d-e7a8c74d12cb" },
+        { "id": "9b9fc1f5-9b61-4e65-962d-e7a8c74d12cb", "kind": "end", "outcome": "done", "producedArtifact": "screens.md" }
       ]
     },
     {
-      "id": "plan",
+      "id": "d3882ef1-5c45-41aa-9277-a98217396d45",
       "name": "Plan",
       "description": "Turns the approved stories and screens into a task plan.",
       "arguments": [],
       "body": "Writes plan.md from the approved stories and screens.",
       "artifacts": [{ "label": "plan.md", "template": "Task list, in order" }],
       "approval": true,
-      "next": "build",
+      "next": "8408b4cd-929e-4963-a5f6-bfd38df9ba5b",
       "blocks": [
-        { "id": "plan-start", "kind": "start", "next": "plan-agent" },
-        { "id": "plan-agent", "kind": "agent", "name": "plan", "description": "Drafts plan.md.", "arguments": [], "next": "plan-end" },
-        { "id": "plan-end", "kind": "end", "outcome": "done", "producedArtifact": "plan.md" }
+        { "id": "3f497072-ad5c-4977-9d47-89020896dbe0", "kind": "start", "next": "28859e7d-1e3f-49a6-b0cb-eacc55c93491" },
+        { "id": "28859e7d-1e3f-49a6-b0cb-eacc55c93491", "kind": "agent", "name": "plan", "description": "Drafts plan.md.", "arguments": [], "next": "5a6365d8-901b-4f41-beab-1af054047d9d" },
+        { "id": "5a6365d8-901b-4f41-beab-1af054047d9d", "kind": "end", "outcome": "done", "producedArtifact": "plan.md" }
       ]
     },
     {
-      "id": "build",
+      "id": "8408b4cd-929e-4963-a5f6-bfd38df9ba5b",
       "name": "Build",
       "description": "Builds each task of the plan, one commit per task.",
       "arguments": [],
       "body": "Runs for each task in plan.md: implement, review, test and commit.",
       "artifacts": [{ "label": "task commit", "template": "One commit per task" }],
       "approval": false,
-      "next": "verify",
+      "next": "bab66c9b-eb9c-4cf4-b296-f40c8d7c5670",
       "blocks": [
-        { "id": "build-start", "kind": "start", "next": "build-implement" },
-        { "id": "build-implement", "kind": "agent", "name": "implement", "description": "Builds the task.", "arguments": [], "next": "build-review" },
-        { "id": "build-review", "kind": "agent", "name": "review", "description": "Reviews the staged change.", "arguments": [], "next": "build-test" },
-        { "id": "build-test", "kind": "agent", "name": "test", "description": "Runs the tests in verify mode.", "arguments": [], "next": "build-check" },
-        { "id": "build-check", "kind": "condition", "description": "the build shows 0 errors, 0 warnings, 0 lint errors and all tests pass", "true": { "to": "build-commit" }, "false": { "stop": true } },
-        { "id": "build-commit", "kind": "agent", "name": "commit", "description": "Commits the task.", "arguments": [], "next": "build-end" },
-        { "id": "build-end", "kind": "end", "outcome": "done", "producedArtifact": "task commit" }
+        { "id": "4bc03b55-3d19-4b03-8234-d2e219150936", "kind": "start", "next": "6bbdd49e-9b07-43dd-b011-7601a39a83b8" },
+        { "id": "6bbdd49e-9b07-43dd-b011-7601a39a83b8", "kind": "agent", "name": "implement", "description": "Builds the task.", "arguments": [], "next": "019bed91-c21b-4268-aebc-91ffc2ff7f8f" },
+        { "id": "019bed91-c21b-4268-aebc-91ffc2ff7f8f", "kind": "agent", "name": "review", "description": "Reviews the staged change.", "arguments": [], "next": "0ec10e27-473d-4cd4-8e69-7537192c2b76" },
+        { "id": "0ec10e27-473d-4cd4-8e69-7537192c2b76", "kind": "agent", "name": "test", "description": "Runs the tests in verify mode.", "arguments": [], "next": "beb2e8f1-fe82-4047-aa03-81354421880d" },
+        { "id": "beb2e8f1-fe82-4047-aa03-81354421880d", "kind": "condition", "description": "the build shows 0 errors, 0 warnings, 0 lint errors and all tests pass", "true": { "to": "9988871d-3547-4cdd-a194-ec453c7a79f0" }, "false": { "stop": true } },
+        { "id": "9988871d-3547-4cdd-a194-ec453c7a79f0", "kind": "agent", "name": "commit", "description": "Commits the task.", "arguments": [], "next": "a211f4b5-c1ae-47c7-b4b9-dc637ce91e29" },
+        { "id": "a211f4b5-c1ae-47c7-b4b9-dc637ce91e29", "kind": "end", "outcome": "done", "producedArtifact": "task commit" }
       ]
     },
     {
-      "id": "verify",
+      "id": "bab66c9b-eb9c-4cf4-b296-f40c8d7c5670",
       "name": "Verify",
       "description": "Verifies that every criterion of the feature is covered.",
       "arguments": [],
       "body": "Runs the feature's checks in verify mode and records the results in progress.md.",
       "artifacts": [{ "label": "progress.md", "template": "Verification results for every criterion" }],
       "approval": true,
-      "next": "complete",
+      "next": "1ecd7679-1b52-433e-bbff-ce61026ac435",
       "blocks": [
-        { "id": "verify-start", "kind": "start", "next": "verify-agent" },
-        { "id": "verify-agent", "kind": "agent", "name": "verify", "description": "Verifies every criterion.", "arguments": [], "next": "verify-end" },
-        { "id": "verify-end", "kind": "end", "outcome": "done", "producedArtifact": "progress.md" }
+        { "id": "d2a0d1d4-f5a3-47f9-8793-c5f7b5bc14b3", "kind": "start", "next": "28644130-b984-4927-94e4-728279174e0f" },
+        { "id": "28644130-b984-4927-94e4-728279174e0f", "kind": "agent", "name": "verify", "description": "Verifies every criterion.", "arguments": [], "next": "33004fc0-fced-470a-9d48-44d5412cdc73" },
+        { "id": "33004fc0-fced-470a-9d48-44d5412cdc73", "kind": "end", "outcome": "done", "producedArtifact": "progress.md" }
       ]
     },
     {
-      "id": "complete",
+      "id": "1ecd7679-1b52-433e-bbff-ce61026ac435",
       "name": "Complete",
       "description": "Marks the feature complete and commits its spec folder.",
       "arguments": [],
@@ -93,9 +93,9 @@
       "artifacts": [{ "label": "completed spec folder", "template": "The feature marked complete" }],
       "approval": false,
       "blocks": [
-        { "id": "complete-start", "kind": "start", "next": "complete-agent" },
-        { "id": "complete-agent", "kind": "agent", "name": "complete", "description": "Marks the feature complete.", "arguments": [], "next": "complete-end" },
-        { "id": "complete-end", "kind": "end", "outcome": "done", "producedArtifact": "completed spec folder" }
+        { "id": "bd0bec2d-5c7e-422c-91e3-9e6b224e10df", "kind": "start", "next": "371445ff-8124-419e-8a71-4dc1ff48f374" },
+        { "id": "371445ff-8124-419e-8a71-4dc1ff48f374", "kind": "agent", "name": "complete", "description": "Marks the feature complete.", "arguments": [], "next": "46030333-aedd-43d5-bbb3-5c8abad6ed82" },
+        { "id": "46030333-aedd-43d5-bbb3-5c8abad6ed82", "kind": "end", "outcome": "done", "producedArtifact": "completed spec folder" }
       ]
     }
   ]

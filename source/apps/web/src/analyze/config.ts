@@ -4,12 +4,11 @@
 import type { pipeline as core } from '@sddbuilder/core';
 import { toDocument } from '../builder/fields.js';
 import { ideaForConfig } from '../wizard/project.js';
-import { ruleId } from '../wizard/technical.js';
 import type { WizardValues } from '../wizard/state.js';
 
 // The configuration of the wizard values. The idea is trimmed as in F-09; the name, the stack and the
 // architecture are sent as typed. Each rule block becomes `{index, id, title, text}`, with its position as
-// the index and the id derived from its name. The pipeline is the builder's value, as it is held. This is the
+// the index and its GUID id (F-16 AC-027). The pipeline is the builder's value, as it is held. This is the
 // configuration as the parser numbers it; the request body is built from it by `buildRequestBody`.
 export function buildProjectConfig(values: WizardValues): core.ProjectConfig {
   return {
@@ -24,7 +23,7 @@ export function buildProjectConfig(values: WizardValues): core.ProjectConfig {
       buildTool: values.stack.buildTool,
       testFramework: values.stack.testFramework,
     },
-    rules: values.rules.map((rule, index) => ({ index, id: ruleId(rule.name), title: rule.name, text: rule.description })),
+    rules: values.rules.map((rule, index) => ({ index, id: rule.id, title: rule.name, text: rule.description })),
     pipeline: values.pipeline,
   };
 }

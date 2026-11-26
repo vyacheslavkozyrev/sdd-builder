@@ -5,8 +5,8 @@ import { readStart } from '../../src/pipeline/parse/start.js';
 
 const START = 'pipeline.flows.0.blocks.0';
 const END = 'pipeline.flows.0.blocks.5';
-const validStart = { id: 'start', kind: 'start', next: 'frame' };
-const validEnd = { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Brief' };
+const validStart = { id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' };
+const validEnd = { id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'Brief' };
 
 function readS(value: unknown, path = START, index = 0) {
   const problems = createProblemCollector();
@@ -23,7 +23,7 @@ function readE(value: unknown, path = END, index = 5) {
 describe('F-02 AC-044 a start block requires id, kind and next', () => {
   it('accepts a start with exactly id, kind and next', () => {
     expect(readS(validStart)).toEqual({
-      block: { index: 0, id: 'start', kind: 'start', next: 'frame' },
+      block: { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' },
       problems: [],
     });
   });
@@ -54,14 +54,14 @@ describe('F-02 AC-044 a start block requires id, kind and next', () => {
   it('refuses a start whose next is not an id, at the path of next', () => {
     expect(readS({ ...validStart, next: 'Frame Step' })).toEqual({
       block: undefined,
-      problems: [{ path: `${START}.next`, message: expect.stringContaining('must be an id') }],
+      problems: [{ path: `${START}.next`, message: expect.stringContaining('must be a GUID') }],
     });
   });
 
   it('refuses a start whose id is not an id, at the path of id', () => {
     expect(readS({ ...validStart, id: 'Start Block' })).toEqual({
       block: undefined,
-      problems: [{ path: `${START}.id`, message: expect.stringContaining('must be an id') }],
+      problems: [{ path: `${START}.id`, message: expect.stringContaining('must be a GUID') }],
     });
   });
 
@@ -76,7 +76,7 @@ describe('F-02 AC-044 a start block requires id, kind and next', () => {
 describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifact', () => {
   it('accepts an end with exactly id, kind, outcome and producedArtifact', () => {
     expect(readE(validEnd)).toEqual({
-      block: { index: 5, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'Brief' },
+      block: { index: 5, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'Brief' },
       problems: [],
     });
   });
@@ -93,7 +93,7 @@ describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifa
   it('refuses an end whose id is not an id, at the path of id', () => {
     expect(readE({ ...validEnd, id: 'End Block' })).toEqual({
       block: undefined,
-      problems: [{ path: `${END}.id`, message: expect.stringContaining('must be an id') }],
+      problems: [{ path: `${END}.id`, message: expect.stringContaining('must be a GUID') }],
     });
   });
 
@@ -116,7 +116,7 @@ describe('F-02 AC-063 an end block requires id, kind, outcome and producedArtifa
   });
 
   it('refuses an end with the key next at the path of next', () => {
-    expect(readE({ ...validEnd, next: 'frame' })).toEqual({
+    expect(readE({ ...validEnd, next: '6c0c9cc5-82a7-5b5c-afae-4c5d4133ac6e' })).toEqual({
       block: undefined,
       problems: [{ path: `${END}.next`, message: 'has an unknown key next' }],
     });

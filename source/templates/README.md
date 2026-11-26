@@ -26,7 +26,7 @@ Flow command (`flow` layout):
 | `flowName` | the flow's name (inline) |
 | `flowDescriptionYaml` | the flow's description as a double-quoted YAML string, for the `description:` frontmatter line; `""` if none |
 | `flowDescription` | the flow's description, standing alone under `## Purpose`; empty if none |
-| `flowRuleTags` | the flow's rule tags, comma-separated in their order; `none` if there are none |
+| `flowRuleTags` | the file names of the flow's rule tags (each rule's file name without `.md`, F-16 AC-029), comma-separated in their order; `none` if there are none |
 | `flowBody` | the paragraph of the flow's body, under `## Context`, with its line breaks; empty when the body is blank or missing |
 | `flowArguments` | one line per argument; `No arguments` when there are none |
 | `flowArtifacts` | each artifact as a level 3 heading with its label and its template text; `No artifacts` when the flow has none |
@@ -58,7 +58,7 @@ Agent file (`agent` layout):
 | `agentTools` | the frontmatter line `tools: …`, the list quoted when YAML would break on a tool name; empty if none |
 | `agentBody` | the `## Instructions` heading and the paragraph of the agent's body; empty when the body is blank or missing |
 | `agentArguments` | one line per argument; `No arguments` when there are none |
-| `agentRuleTags` | the agent's rule tags, comma-separated in their order, under `## Rule tags`; `none` if there are none |
+| `agentRuleTags` | the file names of the agent's rule tags (each rule's file name without `.md`), comma-separated in their order, under `## Rule tags`; `none` if there are none |
 
 Rule file (`rule` layout):
 
@@ -81,14 +81,14 @@ Base files (base layouts, listed in `source/templates/base/manifest.json`, which
 
 ## Claude Code layout
 
-Each layout file and the path it writes. The command file names come from the flow names (`flowFileName`), the agent and rule paths from the agent names and rule ids of the config; the base paths come from `source/templates/base/manifest.json`.
+Each layout file and the path it writes. The command file names come from the flow names (`flowFileName`), the agent and rule paths from the agent names and rule titles of the config; the base paths come from `source/templates/base/manifest.json`.
 
 | Layout file | Output path |
 |---|---|
 | `claude-code/pipeline.md` | `.claude/commands/pipeline.md` |
 | `claude-code/flow.md` | `.claude/commands/<flow file name>.md`, one per flow (the file name comes from the flow name, not the id) |
 | `claude-code/agent.md` | `.claude/agents/<agent name>.md`, one per Agent block |
-| `claude-code/rule.md` | `.claude/rules/<rule id>.md`, one per rule |
+| `claude-code/rule.md` | `.claude/rules/<rule title name>.md`, one per rule; the name comes from the rule's title, as a command's comes from its flow name |
 | `base/CLAUDE.md` | `CLAUDE.md` |
 | `base/process.md` | `spec/documents/process.md` |
 | `base/spec-template/stories.md` | `spec/specifications/F-00-template/stories.md` |

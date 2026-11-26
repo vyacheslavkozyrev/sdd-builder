@@ -13,7 +13,7 @@ import { defaultPipelineConfig, listLayouts, readLayout } from './layouts-loader
 type LayoutKind = 'base' | 'pipeline' | 'flow' | 'agent' | 'rule';
 
 // A rule that the default pipeline does not have, so that the rule layout's values are checked too.
-const SAMPLE_RULE: Rule = { index: 0, id: 'sample-rule', title: 'Sample rule', text: 'The sample rule text.' };
+const SAMPLE_RULE: Rule = { index: 0, id: '9ba2c4e8-8f53-5a8f-b5e8-dfd8b0f0fc38', title: 'Sample rule', text: 'The sample rule text.' };
 
 // Every placeholder a layout uses is `{{name}}`. A `{{` that does not close is kept in the match with no name, as the
 // renderer does, so it is reported too.

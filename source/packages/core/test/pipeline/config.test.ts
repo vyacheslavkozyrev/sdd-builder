@@ -40,14 +40,14 @@ describe('F-02 AC-001 a valid config is returned typed with no problems', () => 
     const result = parseProjectConfig({
       schemaVersion: 2,
       name: 'Shop',
-      rules: [{ id: 'style', title: 'Style', text: 'Keep it short.' }],
+      rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' }],
       pipeline: defaultPipeline,
     });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.config.schemaVersion).toBe(2);
     expect(result.config.name).toBe('Shop');
-    expect(result.config.rules).toEqual([{ index: 0, id: 'style', title: 'Style', text: 'Keep it short.' }]);
+    expect(result.config.rules).toEqual([{ index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' }]);
     expect(result.config.pipeline.flows).toHaveLength(6);
     expect(result).not.toHaveProperty('problems');
   });
@@ -87,7 +87,7 @@ describe('F-02 AC-005 every problem is returned, in document order, each with it
   it('returns three problems for three independent errors in three places', () => {
     const input = {
       schemaVersion: 2,
-      rules: [{ id: 'style', title: 3, text: 'Keep it short.' }],
+      rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 3, text: 'Keep it short.' }],
       pipeline: { ...cloneDefault(), name: 3 },
       zeta: 1,
     };
@@ -101,35 +101,35 @@ describe('F-02 AC-005 every problem is returned, in document order, each with it
   it('runs the cross-checks on the rules and pipeline that parsed', () => {
     const input = rootWith(cloneDefault(), {
       rules: [
-        { id: 'style', title: 'Style', text: 'Keep it short.' },
-        { id: 'style', title: 'Again', text: 'Keep it short.' },
+        { id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' },
+        { id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Again', text: 'Keep it short.' },
       ],
     });
     expect(problemsOf(input)).toEqual([
-      { path: 'rules.1.id', message: 'must be unique: the id style is already used at rules.0.id' },
+      { path: 'rules.1.id', message: 'must be unique: the id 8f99cc27-78ab-5895-8637-5c13d7429593 is already used at rules.0.id' },
     ]);
   });
 
   it('lists the cross-check problems grouped by check, in the fixed check order', () => {
     const pipeline = cloneDefault();
-    pipeline.ruleTags = ['missing'];
-    flowDoc(pipeline, 0).next = 'nowhere';
+    pipeline.ruleTags = ['71b2ecbc-b1ec-5b8f-b792-a30a35989a2e'];
+    flowDoc(pipeline, 0).next = 'a5767084-cb93-5669-9a85-49c86b4893f6';
     const input = rootWith(pipeline, {
       rules: [
-        { id: 'style', title: 'Style', text: 'Keep it short.' },
-        { id: 'style', title: 'Again', text: 'Keep it short.' },
+        { id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Keep it short.' },
+        { id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Again', text: 'Keep it short.' },
       ],
     });
     expect(problemsOf(input)).toEqual([
-      { path: 'rules.1.id', message: 'must be unique: the id style is already used at rules.0.id' },
-      { path: 'pipeline.ruleTags.0', message: 'must name a rule of this project, got missing' },
-      { path: 'pipeline.flows.0.next', message: 'must name a flow of this pipeline, got nowhere' },
+      { path: 'rules.1.id', message: 'must be unique: the id 8f99cc27-78ab-5895-8637-5c13d7429593 is already used at rules.0.id' },
+      { path: 'pipeline.ruleTags.0', message: 'must name a rule of this project, got 71b2ecbc-b1ec-5b8f-b792-a30a35989a2e' },
+      { path: 'pipeline.flows.0.next', message: 'must name a flow of this pipeline, got a5767084-cb93-5669-9a85-49c86b4893f6' },
     ]);
   });
 
   it('skips the cross-checks when the pipeline did not parse', () => {
     const pipeline = cloneDefault();
-    pipeline.ruleTags = ['missing'];
+    pipeline.ruleTags = ['71b2ecbc-b1ec-5b8f-b792-a30a35989a2e'];
     pipeline.name = 3;
     expect(problemsOf(rootWith(pipeline))).toEqual([
       { path: 'pipeline.name', message: expect.stringContaining('must be text') },
@@ -158,7 +158,7 @@ describe('F-02 AC-005 a refused item does not cause a spurious problem on its ne
     const pipeline = cloneDefault();
     blockDoc(flowDoc(pipeline, 0), 1).name = 3; // `specify-agent`, named by `specify-start`
     expect(problemsOf(rootWith(pipeline))).toEqual([
-      { path: 'pipeline.flows.0.blocks.1.name', message: expect.stringContaining('must be an id') },
+      { path: 'pipeline.flows.0.blocks.1.name', message: expect.stringContaining('must be a file-safe name') },
     ]);
   });
 
@@ -172,8 +172,8 @@ describe('F-02 AC-005 a refused item does not cause a spurious problem on its ne
 
   it('reports only the refused rule when a tag names it', () => {
     const pipeline = cloneDefault();
-    pipeline.ruleTags = ['style'];
-    expect(problemsOf(rootWith(pipeline, { rules: [{ id: 'style' }] }))).toEqual([
+    pipeline.ruleTags = ['8f99cc27-78ab-5895-8637-5c13d7429593'];
+    expect(problemsOf(rootWith(pipeline, { rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593' }] }))).toEqual([
       { path: 'rules.0', message: 'is missing the key title' },
       { path: 'rules.0', message: 'is missing the key text' },
     ]);
@@ -182,24 +182,24 @@ describe('F-02 AC-005 a refused item does not cause a spurious problem on its ne
   it('skips the link checks while a flow is refused, and reports the dangling link once it is fixed', () => {
     const pipeline = cloneDefault();
     flowDoc(pipeline, 1).name = 3;
-    flowDoc(pipeline, 2).next = 'nowhere';
+    flowDoc(pipeline, 2).next = 'a5767084-cb93-5669-9a85-49c86b4893f6';
     expect(problemsOf(rootWith(pipeline))).toEqual([
       { path: 'pipeline.flows.1.name', message: expect.stringContaining('must be text') },
     ]);
 
     flowDoc(pipeline, 1).name = 'UX';
     expect(problemsOf(rootWith(pipeline))).toEqual([
-      { path: 'pipeline.flows.2.next', message: 'must name a flow of this pipeline, got nowhere' },
+      { path: 'pipeline.flows.2.next', message: 'must name a flow of this pipeline, got a5767084-cb93-5669-9a85-49c86b4893f6' },
     ]);
   });
 
   it('reports a cross-check at the document index of its flow, not its position in the parsed list', () => {
     const pipeline = cloneDefault();
     flowDoc(pipeline, 0).name = 3;
-    flowDoc(pipeline, 2).ruleTags = ['nope'];
+    flowDoc(pipeline, 2).ruleTags = ['4eb0807b-84e6-54ea-b7f4-e73845fddbfa'];
     expect(problemsOf(rootWith(pipeline))).toEqual([
       { path: 'pipeline.flows.0.name', message: expect.stringContaining('must be text') },
-      { path: 'pipeline.flows.2.ruleTags.0', message: 'must name a rule of this project, got nope' },
+      { path: 'pipeline.flows.2.ruleTags.0', message: 'must name a rule of this project, got 4eb0807b-84e6-54ea-b7f4-e73845fddbfa' },
     ]);
   });
 });
@@ -213,7 +213,7 @@ describe('F-02 AC-006 a result is either the typed config or a non-empty problem
     ],
     [
       'a config with a rule that is refused',
-      rootWith(cloneDefault(), { rules: [{ id: 'style' }] }),
+      rootWith(cloneDefault(), { rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593' }] }),
       [
         { path: 'rules.0', message: 'is missing the key title' },
         { path: 'rules.0', message: 'is missing the key text' },
@@ -258,7 +258,7 @@ describe('F-02 AC-007 an unknown key is refused at every level, with the path of
     [
       'a rule',
       () => ({
-        input: rootWith(cloneDefault(), { rules: [{ id: 'style', title: 'Style', text: 'Text.', zeta: 1 }] }),
+        input: rootWith(cloneDefault(), { rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style', text: 'Text.', zeta: 1 }] }),
         path: 'rules.0',
       }),
     ],
@@ -434,7 +434,7 @@ describe('F-02 AC-085 the same value gives the same result and the input is not 
   });
 
   it('gives the same problems twice for an invalid document and leaves the document as it was', () => {
-    const input = rootWith(cloneDefault(), { zeta: 1, rules: [{ id: 'style' }] });
+    const input = rootWith(cloneDefault(), { zeta: 1, rules: [{ id: '8f99cc27-78ab-5895-8637-5c13d7429593' }] });
     const before = structuredClone(input);
     expect(parseProjectConfig(input)).toEqual(parseProjectConfig(input));
     expect(input).toEqual(before);

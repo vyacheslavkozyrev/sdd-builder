@@ -1,4 +1,4 @@
-import type { AgentBlock, Artifact, Block, ConditionBlock, EndBlock, Flow, Route } from '../model.js';
+import type { AgentBlock, Artifact, Block, ConditionBlock, EndBlock, Flow, Route, Rule } from '../model.js';
 import { GenerationError } from './error.js';
 import {
   argumentsText,
@@ -18,10 +18,11 @@ import { walkFlow } from './walk.js';
 // check and its true and false routes as sub-lines (F-05, AC-012); `flowConditions` is one numbered rule per Condition,
 // with the same routes as sub-lines; `flowArtifacts` is each artifact as a heading with its label and its template
 // text, `No artifacts` when the flow has none (F-05, AC-009); the End step names the produced artifact when there is
-// one (F-05, AC-014). `flowRuleTags` is the flow's rule tags as one comma-separated list, `none` when there are none
-// (F-05, AC-007). `flowDescriptionYaml` is the description as a quoted YAML string for the frontmatter line, so that a
-// description with `: ` or a quote or a leading indicator stays one YAML string; `flowDescription` is the same text
-// inline, for the Purpose line. `flowApproval` is the approval paragraph, empty when the flow's approval is off. The
+// one (F-05, AC-014). `flowRuleTags` is the flow's rule tags as one comma-separated list of their rules' file
+// names, `none` when there are none (F-05, AC-007; F-16, AC-029). `rules` are the project's rules, which the tags name.
+// `flowDescriptionYaml` is the description as a quoted YAML string for the frontmatter line, so that a description with
+// `: ` or a quote or a leading indicator stays one YAML string; `flowDescription` is the same text inline, for the Purpose
+// line. `flowApproval` is the approval paragraph, empty when the flow's approval is off. The
 // values are a pure function of the flow: the same flow always gives the same text.
 //
 // Layout rule (plan, "Decision used by the plan"): a value of whole lines or a paragraph starts with its own line
@@ -31,7 +32,7 @@ import { walkFlow } from './walk.js';
 const ROUND_LIMIT_MIN = 1;
 const ROUND_LIMIT_MAX = 5;
 
-export function flowValues(flow: Flow): Record<string, string> {
+export function flowValues(flow: Flow, rules: readonly Rule[] = []): Record<string, string> {
   const walked = walkFlow(flow);
   const steps = stepsOf(walked);
   const places = placesOf(steps);
@@ -45,7 +46,7 @@ export function flowValues(flow: Flow): Record<string, string> {
     flowArguments: argumentsText(flow.arguments),
     flowBody: bodyText(flow.body),
     flowArtifacts: artifactsText(flow.artifacts),
-    flowRuleTags: ruleTagsText(flow.ruleTags),
+    flowRuleTags: ruleTagsText(flow.ruleTags, rules),
     flowSteps: linesOf(steps.map((block, index) => stepText(block, index + 1, places, flow))),
     flowConditions: linesOf(conditions.map((block, index) => conditionRule(block, index + 1, places, flow))),
     flowApproval: flow.approval

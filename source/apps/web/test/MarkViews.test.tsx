@@ -47,15 +47,15 @@ function marksOf(
   };
 }
 
-const onPlan: Placement = { kind: 'flow', flowId: 'plan' };
-const onArrowFromPlan: Placement = { kind: 'arrow', source: 'plan' };
+const onPlan: Placement = { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' };
+const onArrowFromPlan: Placement = { kind: 'arrow', source: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' };
 const onNothing: Placement = { kind: 'none' };
 
 describe('F-11 AC-035 warning beside the item it names', () => {
   it('F-11 AC-035 returns the warnings placed on a flow box, in the analyzer order', () => {
     const marks = marksOf(
       { finding: finding('warning', 'pipeline.flows.0.name', 'first on plan'), placement: onPlan },
-      { finding: finding('warning', 'pipeline.flows.1', 'on build'), placement: { kind: 'flow', flowId: 'build' } },
+      { finding: finding('warning', 'pipeline.flows.1', 'on build'), placement: { kind: 'flow', flowId: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' } },
       { finding: finding('warning', 'pipeline.flows.0', 'second on plan'), placement: onPlan },
     );
     expect(warningsAt(marks, onPlan).map((item) => item.finding.message)).toEqual(['first on plan', 'second on plan']);
@@ -83,7 +83,7 @@ describe('F-11 AC-035 warning beside the item it names', () => {
       { finding: finding('warning', 'pipeline.flows.0', 'on plan'), placement: onPlan },
       { finding: finding('warning', 'pipeline.name', 'drawn on no item'), placement: onNothing },
     );
-    expect(warningsAt(marks, { kind: 'flow', flowId: 'verify' })).toEqual([]);
+    expect(warningsAt(marks, { kind: 'flow', flowId: '888b47d9-bbf6-5511-b91e-e344ce1da719' })).toEqual([]);
     expect(warningsAt(marks, onNothing)).toEqual([]);
   });
 
@@ -129,31 +129,31 @@ describe('F-11 AC-036 findings with no drawn item under the canvas', () => {
 // The F-12 marks on the flow tab. The flow is start, planner, end; the planner's arrow runs to the End.
 const planFlow: Flow = {
   index: 0,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   name: 'plan',
   arguments: [],
   body: '',
   artifacts: [],
   approval: false,
   blocks: [
-    { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+    { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
     {
       index: 1,
-      id: 'block-2',
+      id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa',
       kind: 'agent',
       name: 'planner',
       description: 'Writes the plan',
       arguments: [],
-      next: 'block-3',
+      next: 'c2b443aa-3d75-5a54-8874-426073a3fc41',
     },
-    { index: 2, id: 'block-3', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 2, id: 'c2b443aa-3d75-5a54-8874-426073a3fc41', kind: 'end', outcome: 'done', producedArtifact: '' },
   ],
 };
 
-const onPlannerBlock: Placement = { kind: 'block', flowId: 'plan', blockId: 'block-2' };
-const onPlannerArrow: Placement = { kind: 'block-arrow', flowId: 'plan', fromId: 'block-2', output: 'next' };
-const onEndBlock: Placement = { kind: 'block', flowId: 'plan', blockId: 'block-3' };
-const otherFlowBlock: Placement = { kind: 'block', flowId: 'build', blockId: 'block-2' };
+const onPlannerBlock: Placement = { kind: 'block', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' };
+const onPlannerArrow: Placement = { kind: 'block-arrow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', fromId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa', output: 'next' };
+const onEndBlock: Placement = { kind: 'block', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', blockId: 'c2b443aa-3d75-5a54-8874-426073a3fc41' };
+const otherFlowBlock: Placement = { kind: 'block', flowId: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', blockId: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' };
 type AgentBlock = Extract<Flow['blocks'][number], { kind: 'agent' }>;
 const planner = planFlow.blocks[1] as AgentBlock;
 const plannerState = { name: 'Demo', description: 'A demo pipeline.', arguments: [], flows: [planFlow] };
@@ -166,11 +166,11 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
       { finding: finding('warning', 'pipeline.flows.1.blocks.1', 'on another flow'), placement: otherFlowBlock },
       { finding: finding('warning', 'pipeline.name', 'on no item'), placement: onNothing },
     );
-    const items = markedItems(marks, 'plan');
-    expect([...items.blocks]).toEqual(['block-2']);
-    expect([...items.arrows]).toEqual(['block-2.next']);
-    expect([...markedItems(marks, 'build').blocks]).toEqual(['block-2']);
-    expect(markedItems(marks, 'verify').blocks.size).toBe(0);
+    const items = markedItems(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
+    expect([...items.blocks]).toEqual(['3c045e8c-3b6a-5804-b19c-75424d4e43aa']);
+    expect([...items.arrows]).toEqual(['3c045e8c-3b6a-5804-b19c-75424d4e43aa.next']);
+    expect([...markedItems(marks, 'a0c3aad4-8765-5b23-8df5-7c03d481233c').blocks]).toEqual(['3c045e8c-3b6a-5804-b19c-75424d4e43aa']);
+    expect(markedItems(marks, '888b47d9-bbf6-5511-b91e-e344ce1da719').blocks.size).toBe(0);
   });
 
   it('F-12 AC-045 (UI) draws an amber badge on the marked block and on its arrow, and none on the others', () => {
@@ -262,10 +262,10 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
       },
       { finding: finding('warning', 'pipeline.flows.0.blocks.2', 'on the end'), placement: onEndBlock },
     );
-    const findings = findingsOfBlock(marks, 'plan', 'block-2');
+    const findings = findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3c045e8c-3b6a-5804-b19c-75424d4e43aa');
     expect(findings.map((item) => item.finding.message)).toEqual(['arrow of the planner', 'the planner has no body']);
-    expect(findingsOfBlock(marks, 'plan', 'block-3').map((item) => item.finding.message)).toEqual(['on the end']);
-    expect(findingsOfBlock(marks, 'build', 'block-2')).toEqual([]);
+    expect(findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 'c2b443aa-3d75-5a54-8874-426073a3fc41').map((item) => item.finding.message)).toEqual(['on the end']);
+    expect(findingsOfBlock(marks, 'a0c3aad4-8765-5b23-8df5-7c03d481233c', '3c045e8c-3b6a-5804-b19c-75424d4e43aa')).toEqual([]);
   });
 
   it("F-12 AC-045 (UI) shows the block's findings in its panel as a list, with the kind and the message", () => {
@@ -280,7 +280,7 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
         flow={planFlow}
         block={planner}
         onChange={vi.fn()}
-        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+        findings={findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3c045e8c-3b6a-5804-b19c-75424d4e43aa')}
       />,
     );
     const list = screen.getByRole('region', { name: 'Structure marks' });
@@ -300,7 +300,7 @@ describe('F-12 AC-045 (UI) a finding is shown on the block and arrow it names', 
         flow={planFlow}
         block={planner}
         onChange={vi.fn()}
-        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+        findings={findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3c045e8c-3b6a-5804-b19c-75424d4e43aa')}
       />,
     );
     expect(screen.queryByRole('region', { name: 'Structure marks' })).toBeNull();
@@ -312,22 +312,22 @@ describe('F-12 AC-047 (UI) a new unlinked block is marked, not refused', () => {
     const unlinked: Flow = {
       ...planFlow,
       blocks: [
-        { index: 0, id: 'block-1', kind: 'start', next: 'block-2' },
+        { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '3c045e8c-3b6a-5804-b19c-75424d4e43aa' },
         {
           index: 1,
-          id: 'block-2',
+          id: '3c045e8c-3b6a-5804-b19c-75424d4e43aa',
           kind: 'agent',
           name: 'planner',
           description: 'Writes the plan',
           arguments: [],
           next: '',
         },
-        { index: 2, id: 'block-3', kind: 'end', outcome: 'done', producedArtifact: '' },
+        { index: 2, id: 'c2b443aa-3d75-5a54-8874-426073a3fc41', kind: 'end', outcome: 'done', producedArtifact: '' },
       ],
     };
     const state = { ...plannerState, flows: [unlinked] };
     const marks = structureMarks(state, []);
-    expect(markedItems(marks, 'plan').blocks.has('block-2')).toBe(true);
+    expect(markedItems(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655').blocks.has('3c045e8c-3b6a-5804-b19c-75424d4e43aa')).toBe(true);
     renderWithTheme(
       <BlockCanvas
         flow={unlinked}
@@ -347,7 +347,7 @@ describe('F-12 AC-047 (UI) a new unlinked block is marked, not refused', () => {
         flow={unlinked}
         block={unlinked.blocks[1] as AgentBlock}
         onChange={vi.fn()}
-        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+        findings={findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3c045e8c-3b6a-5804-b19c-75424d4e43aa')}
       />,
     );
     const list = screen.getByRole('region', { name: 'Structure marks' });
@@ -369,7 +369,7 @@ describe('F-12 AC-048 (UI) marks are read-only', () => {
         flow={planFlow}
         block={planner}
         onChange={vi.fn()}
-        findings={findingsOfBlock(marks, 'plan', 'block-2')}
+        findings={findingsOfBlock(marks, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '3c045e8c-3b6a-5804-b19c-75424d4e43aa')}
       />,
     );
     const list = screen.getByRole('region', { name: 'Structure marks' });

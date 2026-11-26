@@ -3,6 +3,7 @@
 
 import { pipeline as core } from '@sddbuilder/core';
 import { isNextEnabled, isPrevEnabled, type StepNumber } from './steps.js';
+import { newId } from '../builder/model.js';
 import { canAddRule } from './technical.js';
 
 // The five stack fields of step 2 (F-10). Stored as typed, like the project values.
@@ -29,8 +30,10 @@ export interface WizardValues {
   readonly pipeline: Pipeline;
 }
 
-// One rule block of step 2 (F-10): the name becomes `rules[].title` and the description `rules[].text`.
+// One rule block of step 2 (F-10): the name becomes `rules[].title` and the description `rules[].text`. The id is a
+// GUID made when the block is added (F-16 AC-027); the user never types it.
 export interface RuleValues {
+  readonly id: string;
   readonly name: string;
   readonly description: string;
 }
@@ -131,7 +134,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
       if (!canAddRule(state.values.rules.length)) return state;
       return {
         step: state.step,
-        values: { ...state.values, rules: [...state.values.rules, { name: '', description: '' }] },
+        values: { ...state.values, rules: [...state.values.rules, { id: newId(), name: '', description: '' }] },
       };
     case 'remove-rule':
       ruleAt(state.values.rules, action.index);
@@ -145,6 +148,7 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
     case 'update-rule': {
       const current = ruleAt(state.values.rules, action.index);
       const updated: RuleValues = {
+        id: current.id,
         name: action.patch.name ?? current.name,
         description: action.patch.description ?? current.description,
       };

@@ -81,7 +81,7 @@ describe('F-15 AC-018 reply text of the one call', () => {
     const { client } = fakeClient({
       content: [
         { type: 'text', text: '{"a":', citations: null },
-        { type: 'tool_use', id: 'x', name: 'n', input: {} } as Anthropic.ContentBlock,
+        { type: 'tool_use', id: 'a8a20629-71a6-50b5-ab56-f416afc01833', name: 'n', input: {} } as Anthropic.ContentBlock,
         { type: 'text', text: '"b"}', citations: null },
       ],
     });

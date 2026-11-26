@@ -41,10 +41,10 @@ function pipelineOf(...flows: Flow[]): Pipeline {
 
 // plan -> build -> verify: the arrow selected in most tests is build to verify.
 function chain(): Pipeline {
-  return pipelineOf(flow('plan', 'Plan', 'build'), flow('build', 'Build', 'verify'), flow('verify', 'Verify'));
+  return pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build', '888b47d9-bbf6-5511-b91e-e344ce1da719'), flow('888b47d9-bbf6-5511-b91e-e344ce1da719', 'Verify'));
 }
 
-const BUILD_TO_VERIFY: Arrow = { source: 'build', target: 'verify' };
+const BUILD_TO_VERIFY: Arrow = { source: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', target: '888b47d9-bbf6-5511-b91e-e344ce1da719' };
 
 function renderPanel(pipelineState: Pipeline = chain(), arrow: Arrow = BUILD_TO_VERIFY) {
   const onDelete = vi.fn();
@@ -118,7 +118,7 @@ describe('F-11 AC-018 delete connection asks first', () => {
 
   it('F-11 AC-018 Confirm on the arrow from the first flow keeps the flows it does not touch', () => {
     const pipelineState = chain();
-    const { onDelete } = renderPanel(pipelineState, { source: 'plan', target: 'build' });
+    const { onDelete } = renderPanel(pipelineState, { source: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', target: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete connection' }));
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete connection' }));
@@ -133,7 +133,7 @@ describe('F-11 AC-018 delete connection asks first', () => {
 // A flow of blocks: start to the planner Agent, which goes to End.
 function blockFlow(): core.Flow {
   return {
-    ...flow('plan', 'Plan'),
+    ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
     blocks: [
       { index: 0, id: 'start', kind: 'start', next: 'planner' },
       {

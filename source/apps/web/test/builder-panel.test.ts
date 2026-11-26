@@ -42,7 +42,7 @@ const arrowSelection = (source: string, target: string): Selection => ({
   arrow: { source, target },
 });
 
-const demo = pipelineOf(flow('intake', 'build', 'Intake'), flow('build', 'ship', 'Build'), flow('ship', undefined, 'Ship'));
+const demo = pipelineOf(flow('intake', 'a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Intake'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'ship', 'Build'), flow('ship', undefined, 'Ship'));
 
 describe('F-11 AC-042 the pipeline panel shows when nothing is selected', () => {
   it('F-11 AC-042 the pipeline selection gives the pipeline panel', () => {
@@ -65,7 +65,7 @@ describe('F-11 AC-042 the pipeline panel shows when nothing is selected', () => 
 
 describe('F-11 AC-042 a selected flow shows its flow panel', () => {
   it('F-11 AC-042 a selected flow gives the flow panel with that flow', () => {
-    const panel = panelFor(demo, flowSelection('build'));
+    const panel = panelFor(demo, flowSelection('a0c3aad4-8765-5b23-8df5-7c03d481233c'));
     expect(panel.kind).toBe('flow');
     expect(panel).toEqual({ kind: 'flow', flow: demo.flows[1] });
   });
@@ -81,7 +81,7 @@ describe('F-11 AC-042 a selected flow shows its flow panel', () => {
 
 describe('F-11 AC-042 a selected arrow shows the connection panel', () => {
   it('F-11 AC-042 a selected arrow gives the arrow panel with the two flow names', () => {
-    const panel = panelFor(demo, arrowSelection('intake', 'build'));
+    const panel = panelFor(demo, arrowSelection('intake', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'));
     expect(panel).toEqual({
       kind: 'arrow',
       arrow: { sourceName: 'Intake', targetName: 'Build' },
@@ -95,7 +95,7 @@ describe('F-11 AC-042 a selected arrow shows the connection panel', () => {
 
 describe('F-11 AC-042 one item is selected at a time', () => {
   it('F-11 AC-042 selecting an arrow after a flow shows only the arrow panel', () => {
-    expect(panelFor(demo, arrowSelection('build', 'ship'))).toEqual({
+    expect(panelFor(demo, arrowSelection('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'ship'))).toEqual({
       kind: 'arrow',
       arrow: { sourceName: 'Build', targetName: 'Ship' },
     });
@@ -109,7 +109,7 @@ describe('F-11 AC-042 one item is selected at a time', () => {
   it('F-11 AC-042 choosing a flow or an arrow does not change the pipeline', () => {
     const before = structuredClone(demo);
     panelFor(demo, flowSelection('intake'));
-    panelFor(demo, arrowSelection('intake', 'build'));
+    panelFor(demo, arrowSelection('intake', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'));
     expect(demo).toEqual(before);
   });
 });
@@ -129,10 +129,10 @@ describe('F-11 AC-031 a confirmed delete clears the selection and moves the open
 // A flow with blocks: Start, the Planner Agent, a Condition whose false route returns to the Agent
 // with a round limit of 3, and the End. The arrows are Start to Planner, Planner to the Condition,
 // the Condition's true route to the End and its false route back to the Planner.
-const START: Block = { index: 0, id: 'start', kind: 'start', next: 'plan' };
+const START: Block = { index: 0, id: 'start', kind: 'start', next: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' };
 const PLANNER: Block = {
   index: 1,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   kind: 'agent',
   name: 'Planner',
   description: 'Plans the work.',
@@ -145,10 +145,10 @@ const CHECK: Block = {
   kind: 'condition',
   description: 'Is the plan ready?',
   true: { to: 'done' },
-  false: { to: 'plan', roundLimit: 3 },
+  false: { to: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', roundLimit: 3 },
 };
 const DONE: Block = { index: 3, id: 'done', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' };
-const blocked: Flow = { ...flow('build', undefined, 'Build'), blocks: [START, PLANNER, CHECK, DONE] };
+const blocked: Flow = { ...flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', undefined, 'Build'), blocks: [START, PLANNER, CHECK, DONE] };
 
 const noSelection: BlockSelection = { kind: 'none' };
 const blockSelection = (blockId: string): BlockSelection => ({ kind: 'block', blockId });
@@ -164,7 +164,7 @@ describe('F-12 AC-011 selecting a block opens the panel of its kind', () => {
   });
 
   it('F-12 AC-011 a selected Agent gives the Agent panel with that block', () => {
-    expect(blockPanelFor(blocked, blockSelection('plan'))).toEqual({ kind: 'agent', block: PLANNER });
+    expect(blockPanelFor(blocked, blockSelection('ea3211a4-b64b-5204-9451-6fe12fd7c655'))).toEqual({ kind: 'agent', block: PLANNER });
   });
 
   it('F-12 AC-011 a selected Condition gives the Condition panel with that block', () => {
@@ -180,13 +180,13 @@ describe('F-12 AC-011 selecting a block opens the panel of its kind', () => {
   });
 
   it('F-12 AC-011 a block id is looked up in the flow given, so a block of another flow is not found', () => {
-    expect(() => blockPanelFor(flow('ship'), blockSelection('plan'))).toThrow(/has no block "plan"/);
+    expect(() => blockPanelFor(flow('ship'), blockSelection('ea3211a4-b64b-5204-9451-6fe12fd7c655'))).toThrow(/has no block "ea3211a4-b64b-5204-9451-6fe12fd7c655"/);
   });
 });
 
 describe('F-12 AC-011 selecting an arrow of a block opens the arrow panel with its two names', () => {
   it('F-12 AC-011 the arrow from the Agent gives its source and target names', () => {
-    expect(blockPanelFor(blocked, blockArrowSelection('plan', 'next'))).toEqual({
+    expect(blockPanelFor(blocked, blockArrowSelection('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'next'))).toEqual({
       kind: 'blockArrow',
       arrow: { source: 'Planner', target: 'Condition: Is the plan ready?' },
     });
@@ -231,10 +231,10 @@ describe('F-12 AC-011 nothing selected on a flow tab shows the flow panel', () =
 
 describe('F-12 AC-044 a confirmed block delete keeps the flow tab and empties the selection', () => {
   it('F-12 AC-044 the state after a block delete is the same flow tab with nothing selected', () => {
-    expect(afterDeleteBlock('build')).toEqual({ tab: { kind: 'flow', id: 'build' }, selection: noSelection });
+    expect(afterDeleteBlock('a0c3aad4-8765-5b23-8df5-7c03d481233c')).toEqual({ tab: { kind: 'flow', id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c' }, selection: noSelection });
   });
 
   it('F-12 AC-044 the tab after a block delete is a flow tab, not the Pipeline tab', () => {
-    expect(afterDeleteBlock('build').tab.kind).toBe('flow');
+    expect(afterDeleteBlock('a0c3aad4-8765-5b23-8df5-7c03d481233c').tab.kind).toBe('flow');
   });
 });

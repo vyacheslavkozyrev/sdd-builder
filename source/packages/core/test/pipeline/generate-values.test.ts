@@ -13,12 +13,12 @@ function argument(index: number, id: string, required: boolean, hint = ''): Argu
 function agent(overrides: Partial<AgentBlock> = {}): AgentBlock {
   return {
     index: 1,
-    id: 'draft',
+    id: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63',
     kind: 'agent',
     name: 'draft-agent',
     description: 'Drafts the text.',
     arguments: [],
-    next: 'end',
+    next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
     ...overrides,
   };
 }
@@ -41,7 +41,7 @@ function pipelineWith(overrides: Partial<Pipeline>): Pipeline {
   return { ...base, ...overrides };
 }
 
-const RULE: Rule = { index: 0, id: 'style', title: 'Plain style', text: 'Write short sentences.' };
+const RULE: Rule = { index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Plain style', text: 'Write short sentences.' };
 
 describe('F-04 AC-017 the pipeline command values name the arguments and list the flows in order', () => {
   it('gives the pipeline name and description for inline placeholders', () => {
@@ -54,44 +54,44 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     const base = validConfig().pipeline;
     expect(pipelineValues(base)['pipelineArguments']).toBe('\nNo arguments');
     const withArgs = pipelineWith({
-      arguments: [argument(0, 'topic', true, 'the subject'), argument(1, 'scope', false)],
+      arguments: [argument(0, 'ccc656eb-7dbe-5012-9af8-c2559c43ae31', true, 'the subject'), argument(1, '80398aba-a45b-51b8-971a-54782c4bdfde', false)],
     });
     expect(pipelineValues(withArgs)['pipelineArguments']).toBe(
-      '\n- `topic` (required, the subject)\n- `scope` (optional)',
+      '\n- `ccc656eb-7dbe-5012-9af8-c2559c43ae31` (required, the subject)\n- `80398aba-a45b-51b8-971a-54782c4bdfde` (optional)',
     );
   });
 
   it('lists each flow once, in the order of the next links, with its description, and a stop step after a flow with approval on', () => {
     const pipeline = pipelineWith({
       flows: [
-        flow({ id: 'plan', description: 'Plans the work.', approval: true, next: 'build' }),
-        flow({ id: 'build' }),
+        flow({ id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92', description: 'Plans the work.', approval: true, next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' }),
+        flow({ id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' }),
       ],
     });
     expect(pipelineValues(pipeline)['pipelineFlows']).toBe(
-      '\n1. Flow `plan`: Plans the work.' +
+      '\n1. Flow `fc358416-c66a-5fef-9c5e-a282b75cbd92`: Plans the work.' +
         "\n2. Stop and wait for the person's approval before the next flow." +
-        '\n3. Flow `build`.',
+        '\n3. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.',
     );
   });
 
   it('F-05 AC-002 lists the flows in the order of the next links, not the array order', () => {
     const pipeline = pipelineWith({
       flows: [
-        flow({ id: 'build' }),
-        flow({ id: 'plan', description: 'Plans the work.', approval: true, next: 'build' }),
+        flow({ id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' }),
+        flow({ id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92', description: 'Plans the work.', approval: true, next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' }),
       ],
     });
     expect(pipelineValues(pipeline)['pipelineFlows']).toBe(
-      '\n1. Flow `plan`: Plans the work.' +
+      '\n1. Flow `fc358416-c66a-5fef-9c5e-a282b75cbd92`: Plans the work.' +
         "\n2. Stop and wait for the person's approval before the next flow." +
-        '\n3. Flow `build`.',
+        '\n3. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.',
     );
   });
 
   it('leaves the description out of a flow line when the flow has none', () => {
-    const pipeline = pipelineWith({ flows: [flow({ id: 'build' })] });
-    expect(pipelineValues(pipeline)['pipelineFlows']).toBe('\n1. Flow `build`.');
+    const pipeline = pipelineWith({ flows: [flow({ id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' })] });
+    expect(pipelineValues(pipeline)['pipelineFlows']).toBe('\n1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.');
   });
 
   it('gives an empty flow list when the pipeline has no flows', () => {
@@ -102,12 +102,12 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     const pipeline = pipelineWith({
       name: 'Build\npipeline',
       description: 'One flow\n\nthat builds.',
-      flows: [flow({ id: 'build', description: 'Builds\nit.' })],
+      flows: [flow({ id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', description: 'Builds\nit.' })],
     });
     const values = pipelineValues(pipeline);
     expect(values['pipelineName']).toBe('Build pipeline');
     expect(values['pipelineDescription']).toBe('One flow that builds.');
-    expect(values['pipelineFlows']).toBe('\n1. Flow `build`: Builds it.');
+    expect(values['pipelineFlows']).toBe('\n1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`: Builds it.');
   });
 
   it('F-04 AC-039 gives the model and tools frontmatter lines only when the pipeline sets them', () => {
@@ -177,7 +177,7 @@ describe('F-04 AC-017 the pipeline command values name the arguments and list th
     const values = pipelineValues(pipeline);
     expect(
       renderLayout('Args:{{pipelineArguments}}\nFlows:{{pipelineFlows}}', values, '.claude/commands/pipeline.md'),
-    ).toBe('Args:\nNo arguments\nFlows:\n1. Flow `build`.');
+    ).toBe('Args:\nNo arguments\nFlows:\n1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.');
   });
 });
 
@@ -210,8 +210,8 @@ describe('F-04 AC-003 the agent values name the file and carry the optional line
 
   it('gives one line per argument with its required mark and hint, or No arguments when there are none, as the flow layout does', () => {
     expect(agentValues(agent())['agentArguments']).toBe('\nNo arguments');
-    const values = agentValues(agent({ arguments: [argument(0, 'topic', true, 'the subject')] }));
-    expect(values['agentArguments']).toBe('\n- `topic` (required, the subject)');
+    const values = agentValues(agent({ arguments: [argument(0, 'ccc656eb-7dbe-5012-9af8-c2559c43ae31', true, 'the subject')] }));
+    expect(values['agentArguments']).toBe('\n- `ccc656eb-7dbe-5012-9af8-c2559c43ae31` (required, the subject)');
   });
 
   it('fills a frontmatter layout so that the optional lines follow the description on their own lines', () => {
@@ -349,17 +349,31 @@ describe('F-05 AC-020 the agent body has an Instructions heading and is empty wh
   });
 });
 
+// The rules of the project, which the block's tags name (F-16, AC-029): a tag is written as the file name of its rule.
+const RULES: readonly Rule[] = [
+  { index: 0, id: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', title: 'Style guide', text: 'Keep it short.' },
+  { index: 1, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Naming', text: 'Name it well.' },
+];
+
 describe('F-05 AC-022 the agent rule tags are one comma-separated list in their order', () => {
   it('F-05 AC-022 writes the tags of the block in their order', () => {
     const tags = [
-      { ruleId: 'tests', index: 0 },
-      { ruleId: 'style', index: 1 },
+      { ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 0 },
+      { ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 1 },
     ];
-    expect(agentValues(agent({ ruleTags: tags }))['agentRuleTags']).toBe('tests, style');
+    expect(agentValues(agent({ ruleTags: tags }), RULES)['agentRuleTags']).toBe('style-guide, naming');
   });
 
   it('F-05 AC-022 writes one tag without a separator', () => {
-    expect(agentValues(agent({ ruleTags: [{ ruleId: 'style', index: 0 }] }))['agentRuleTags']).toBe('style');
+    expect(agentValues(agent({ ruleTags: [{ ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 }] }), RULES)['agentRuleTags']).toBe('naming');
+  });
+
+  it('F-16 AC-029 names the rule of an agent tag by its file name, and refuses a tag that names no rule', () => {
+    const tags = [{ ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 0 }];
+    expect(agentValues(agent({ ruleTags: tags }), RULES)['agentRuleTags']).toBe('style-guide');
+    expect(() => agentValues(agent({ ruleTags: [{ ruleId: '71b2ecbc-b1ec-5b8f-b792-a30a35989a2e', index: 0 }] }), RULES)).toThrow(
+      'names no rule of the project',
+    );
   });
 
   it('F-05 AC-022 writes none when the block has no tags or an empty list', () => {
@@ -371,7 +385,7 @@ describe('F-05 AC-022 the agent rule tags are one comma-separated list in their 
 describe('F-04 AC-004 the rule values give the id, the title and the text', () => {
   it('gives the id and the title for inline placeholders and the text as a paragraph', () => {
     const values = ruleValues(RULE);
-    expect(values['ruleId']).toBe('style');
+    expect(values['ruleId']).toBe('8f99cc27-78ab-5895-8637-5c13d7429593');
     expect(values['ruleTitle']).toBe('Plain style');
     expect(values['ruleText']).toBe('\n\nWrite short sentences.');
   });

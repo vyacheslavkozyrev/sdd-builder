@@ -19,7 +19,7 @@ function valuesWith(overrides: Partial<WizardValues>): WizardValues {
     idea: 'A shop for books.',
     stack: { language: 'TypeScript', framework: 'React', platform: 'Web', buildTool: 'Vite', testFramework: 'Vitest' },
     architecture: 'Layers: web, api, core.',
-    rules: [{ name: 'Code Style', description: 'Use two spaces.' }],
+    rules: [{ id: '513d26bf-922f-546e-9d7f-5db6d267092c', name: 'Code Style', description: 'Use two spaces.' }],
     pipeline: defaultPipelineValue(),
     ...overrides,
   };
@@ -129,8 +129,8 @@ describe('F-13 AC-018 and AC-019 a changed configuration makes the analysis out 
       valuesWith({ idea: 'Another idea.' }),
       valuesWith({ architecture: 'One layer.' }),
       valuesWith({ stack: { ...valuesWith({}).stack, language: 'Go' } }),
-      valuesWith({ rules: [{ name: 'Code Style', description: 'Use four spaces.' }] }),
-      valuesWith({ rules: [{ name: 'Naming', description: 'Use two spaces.' }] }),
+      valuesWith({ rules: [{ id: '1fc47f47-2646-514e-8fc4-20b5863e8499', name: 'Code Style', description: 'Use four spaces.' }] }),
+      valuesWith({ rules: [{ id: '64b490f1-f6e4-5f87-b9a5-b992ce687ee9', name: 'Naming', description: 'Use two spaces.' }] }),
     ];
     for (const values of variants) {
       expect(configKey(buildProjectConfig(values))).not.toBe(KEY);

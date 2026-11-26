@@ -10,7 +10,7 @@ type Flow = model.Flow;
 function emptyFlow(): Flow {
   return {
     index: 0,
-    id: 'verify',
+    id: '888b47d9-bbf6-5511-b91e-e344ce1da719',
     name: 'Verify',
     arguments: [],
     body: 'Verify the stories.',
@@ -24,16 +24,16 @@ function emptyFlow(): Flow {
 // after it. The Condition's true route is linked to the End, and the Start to the Condition. The
 // Condition's description and the End's artifact are set, so the analyzer could only report the route.
 function conditionToEnd(endFirst: boolean): Flow {
-  let flow = addBlock(emptyFlow(), 'start', [emptyFlow()]).flow;
+  let flow = addBlock(emptyFlow(), 'start').flow;
   let condition = '';
   let end = '';
   const addCondition = (): void => {
-    const added = addBlock(flow, 'condition', [flow]);
+    const added = addBlock(flow, 'condition');
     flow = added.flow;
     condition = added.blockId;
   };
   const addEnd = (): void => {
-    const added = addBlock(flow, 'end', [flow]);
+    const added = addBlock(flow, 'end');
     flow = added.flow;
     end = added.blockId;
   };

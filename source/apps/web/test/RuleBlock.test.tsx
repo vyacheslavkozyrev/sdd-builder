@@ -14,6 +14,9 @@ function codePoints(text: string): number {
   return Array.from(text).length;
 }
 
+// The id of a rule block in these tests: a GUID, as the wizard gives it (F-16 AC-027).
+const RULE_ID = 'c581ae49-ecc8-5bc7-986f-255d3777256c';
+
 interface BlockOptions {
   readonly duplicateOf?: number | undefined;
   readonly onChange?: (patch: RulePatch) => void;
@@ -70,7 +73,7 @@ function descriptionInput(): HTMLTextAreaElement {
   return screen.getByRole('textbox', { name: DESCRIPTION_LABEL }) as HTMLTextAreaElement;
 }
 
-const BLANK: RuleValues = { name: '', description: '' };
+const BLANK: RuleValues = { id: 'e8a93883-6d53-50cb-8b33-dd2a288536aa', name: '', description: '' };
 
 // The next wizard state from step 2 with these rule blocks; Next moves on when it is enabled.
 function nextStepWith(rules: readonly RuleValues[]): number {
@@ -96,14 +99,14 @@ afterEach(() => {
 
 describe('F-10 RuleBlock caption and remove control', () => {
   it('F-10 AC-010 shows the block number and a remove control named for the block', () => {
-    renderBlock({ name: 'Code Style', description: '' });
+    renderBlock({ id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' });
     expect(screen.getByText('Rule block 1')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Remove rule block 1' })).toBeTruthy();
   });
 
   it('F-10 AC-010 calls onRemove once when the remove control is pressed', () => {
     const onRemove = vi.fn();
-    renderBlock({ name: 'Code Style', description: '' }, { onRemove });
+    renderBlock({ id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' }, { onRemove });
     fireEvent.click(screen.getByRole('button', { name: 'Remove rule block 1' }));
     expect(onRemove).toHaveBeenCalledTimes(1);
   });
@@ -139,17 +142,18 @@ describe('F-10 AC-014 the file line shows the derived rule file', () => {
   it.each([
     ['Code Style', 'code-style'],
     ['Code   Style', 'code-style'],
-    ['Naming & Tests!', 'naming-tests-'],
+    ['Naming & Tests!', 'naming-tests'],
     ['Rule 2', 'rule-2'],
-  ])('F-10 AC-014 shows the file line for the name %s as %s', (name, id) => {
-    renderBlock({ name, description: '' });
+    ['Testing!', 'testing'],
+  ])('F-10 AC-014 F-16 AC-029 shows the file line for the name %s as %s', (name, id) => {
+    renderBlock({ id: RULE_ID, name, description: '' });
     expect(screen.getByText(`File: .claude/rules/${id}.md`)).toBeTruthy();
   });
 });
 
 describe('F-10 AC-015 a name with no letter or digit shows the message, the block is kept', () => {
   it.each(['', '   ', '!!!'])('F-10 AC-015 shows the message for the name %j instead of a file line', (name) => {
-    renderBlock({ name, description: '' });
+    renderBlock({ id: RULE_ID, name, description: '' });
     expect(screen.getByText('Needs a letter or digit.')).toBeTruthy();
     expect(screen.queryByText(/^File:/)).toBeNull();
   });
@@ -159,29 +163,24 @@ describe('F-10 AC-015 a name with no letter or digit shows the message, the bloc
     fireEvent.change(nameInput(), { target: { value: '!!!' } });
     expect(nameInput().value).toBe('!!!');
     expect(screen.getByText('Needs a letter or digit.')).toBeTruthy();
-    expect(nextStepWith([{ name: '!!!', description: '' }])).toBe(3);
+    expect(nextStepWith([{ id: '5ef69ab1-6d39-5c1c-9697-30d90384c53c', name: '!!!', description: '' }])).toBe(3);
   });
 });
 
-describe('F-10 AC-016 an id that does not start with a letter shows its message', () => {
+describe('F-10 AC-016 a name that starts with a digit shows its file line', () => {
   it.each([
-    ['2 tests', 'The id must start with a letter.'],
-    ['  Rule', 'The id must start with a letter.'],
-  ])('F-10 AC-016 shows the message for the name %j', (name, message) => {
-    renderBlock({ name, description: '' });
-    expect(screen.getByText(message)).toBeTruthy();
-    expect(screen.queryByText(/^File:/)).toBeNull();
-  });
-
-  it('F-10 AC-016 shows the file line for Rule 2, which starts with a letter', () => {
-    renderBlock({ name: 'Rule 2', description: '' });
-    expect(screen.getByText('File: .claude/rules/rule-2.md')).toBeTruthy();
+    ['2 tests', '2-tests'],
+    ['  Rule', 'rule'],
+    ['Rule 2', 'rule-2'],
+  ])('F-10 AC-016 F-16 AC-029 shows the file line for the name %j as %s', (name, file) => {
+    renderBlock({ id: RULE_ID, name, description: '' });
+    expect(screen.getByText(`File: .claude/rules/${file}.md`)).toBeTruthy();
     expect(screen.queryByText('The id must start with a letter.')).toBeNull();
   });
 
-  it('F-10 AC-016 keeps the block and Next stays enabled for an id that is refused', () => {
-    renderBlock({ name: '2 tests', description: '' });
-    expect(nextStepWith([{ name: '2 tests', description: '' }])).toBe(3);
+  it('F-10 AC-016 F-16 AC-029 keeps the block and Next stays enabled for a digit-first name', () => {
+    renderBlock({ id: '075b4602-0544-5026-80ad-2ceb45c350c2', name: '2 tests', description: '' });
+    expect(nextStepWith([{ id: '075b4602-0544-5026-80ad-2ceb45c350c2', name: '2 tests', description: '' }])).toBe(3);
   });
 });
 
@@ -191,7 +190,7 @@ describe('F-10 AC-017 an id longer than 60 characters shows its message', () => 
     [61, true],
     [100, true],
   ])('F-10 AC-017 a name of %i letters shows the message: %s', (length, refused) => {
-    renderBlock({ name: 'a'.repeat(length), description: '' });
+    renderBlock({ id: RULE_ID, name: 'a'.repeat(length), description: '' });
     if (refused) {
       expect(screen.getByText('The id is longer than 60 characters.')).toBeTruthy();
       expect(screen.queryByText(/^File:/)).toBeNull();
@@ -210,30 +209,30 @@ describe('F-10 AC-018 the file line or message follows the name as typed', () =>
     expect(screen.getByText('File: .claude/rules/ab.md')).toBeTruthy();
   });
 
-  it('F-10 AC-018 shows the message for 2, then the file line for Rule 2, with no stale message', () => {
+  it('F-10 AC-018 F-16 AC-029 shows the message for !, then the file line for Rule 2, with no stale message', () => {
     render(<Controlled initial={BLANK} />);
-    fireEvent.change(nameInput(), { target: { value: '2' } });
-    expect(screen.getByText('The id must start with a letter.')).toBeTruthy();
+    fireEvent.change(nameInput(), { target: { value: '!' } });
+    expect(screen.getByText('Needs a letter or digit.')).toBeTruthy();
     fireEvent.change(nameInput(), { target: { value: 'Rule 2' } });
     expect(screen.getByText('File: .claude/rules/rule-2.md')).toBeTruthy();
-    expect(screen.queryByText('The id must start with a letter.')).toBeNull();
+    expect(screen.queryByText('Needs a letter or digit.')).toBeNull();
   });
 });
 
 describe('F-10 AC-019 a duplicate id shows the duplicate message', () => {
   it('F-10 AC-019 shows the duplicate message naming the other block when the list flags it', () => {
-    renderBlock({ name: 'code style', description: '' }, { duplicateOf: 2 });
+    renderBlock({ id: 'f923b827-9d65-5b8c-9489-bb2ce84d707a', name: 'code style', description: '' }, { duplicateOf: 2 });
     expect(screen.getByText(duplicateMessage(2))).toBeTruthy();
     expect(screen.getByText('File: .claude/rules/code-style.md')).toBeTruthy();
   });
 
   it('F-10 AC-019 shows no duplicate message for a unique id', () => {
-    renderBlock({ name: 'Code Style', description: '' });
+    renderBlock({ id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' });
     expect(screen.queryByText(/Same file as rule block/)).toBeNull();
   });
 
   it('F-10 AC-019 shows only the id message, not a duplicate message, for a refused id', () => {
-    renderBlock({ name: '!!!', description: '' });
+    renderBlock({ id: '5ef69ab1-6d39-5c1c-9697-30d90384c53c', name: '!!!', description: '' });
     expect(screen.getByText('Needs a letter or digit.')).toBeTruthy();
     expect(screen.queryByText(/Same file as rule block/)).toBeNull();
   });
@@ -273,9 +272,19 @@ describe('F-10 AC-020 the description is a multi-line field limited to 1,000 cod
 
   it('F-10 AC-020 a blank description is kept as typed and does not block Next', () => {
     const onChange = vi.fn();
-    renderBlock({ name: 'Code Style', description: 'Old text' }, { onChange });
+    renderBlock({ id: 'e8abf532-3da9-504d-a5e4-cd57a03293d5', name: 'Code Style', description: 'Old text' }, { onChange });
     fireEvent.change(descriptionInput(), { target: { value: '' } });
     expect(onChange).toHaveBeenCalledWith({ description: '' });
-    expect(nextStepWith([{ name: 'Code Style', description: '' }])).toBe(3);
+    expect(nextStepWith([{ id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' }])).toBe(3);
+  });
+});
+
+describe('F-16 AC-027 the rule block has no id input', () => {
+  it('F-16 AC-027 the rule block draws the name and the description, and no id field', () => {
+    renderBlock({ id: '5b2f3f0e-8f4a-4c57-9d3e-2a6b7c8d9e0f', name: 'Style', description: 'Use two spaces.' });
+
+    expect(screen.queryByRole('textbox', { name: /\bid\b/i })).toBeNull();
+    expect(screen.getByLabelText(NAME_LABEL)).toBeTruthy();
+    expect(screen.getByLabelText(DESCRIPTION_LABEL)).toBeTruthy();
   });
 });

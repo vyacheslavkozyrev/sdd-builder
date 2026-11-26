@@ -2,15 +2,12 @@ import { childPath, isFileSafeId, ROOT_PATH } from '../check/primitives.js';
 import type { AgentBlock, Block, Flow, ProjectConfig } from '../model.js';
 import type { PositionedFinding, Position } from './finding.js';
 
-// Identity and required text (F-03 AC-026 to AC-029). A flow id must be file-safe and not `pipeline`, since its
-// file name comes from it (AC-026). An agent name must be file-safe (AC-027). A flow needs a name and a body, and an
-// agent needs a description, none of them blank (AC-028, AC-029). A flow's description and arguments may be empty,
-// so they are not checked here. Each finding sits at the path of the field it refuses.
+// Identity and required text (F-03 AC-026 to AC-029). A flow id is not checked here: ids are GUIDs, and the parser refuses
+// any other id (F-16 AC-028). An agent name must be file-safe (AC-027), since it names the agent file. A flow needs a name
+// and a body, and an agent needs a description, none of them blank (AC-028, AC-029). A flow's description and arguments may
+// be empty, so they are not checked here. Each finding sits at the path of the field it refuses.
 
 const FLOWS_PATH = childPath(childPath(ROOT_PATH, 'pipeline'), 'flows');
-const RESERVED_FLOW_ID = 'pipeline';
-const FLOW_ID_MESSAGE =
-  'must be a file-safe id (lowercase letters, digits and hyphens, starting with a letter), not ' + RESERVED_FLOW_ID;
 
 function flowPath(flow: Flow): string {
   return childPath(FLOWS_PATH, String(flow.index));
@@ -32,9 +29,6 @@ function identityAndTextOfFlow(flow: Flow): PositionedFinding[] {
   const position: Position = { flow: flow.index, block: -1, slot: -1 };
   const findings: PositionedFinding[] = [];
 
-  if (!isFileSafeId(flow.id) || flow.id === RESERVED_FLOW_ID) {
-    findings.push(blocker('flow-id', childPath(flowPath(flow), 'id'), position, FLOW_ID_MESSAGE));
-  }
   if (isBlank(flow.name)) {
     findings.push(blocker('flow-name', childPath(flowPath(flow), 'name'), position, 'must not be blank'));
   }

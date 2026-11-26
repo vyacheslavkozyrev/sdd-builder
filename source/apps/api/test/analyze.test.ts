@@ -239,7 +239,7 @@ describe('F-06 one call and no change to the config', () => {
         subject: 'pipeline',
         message: 'Add a review block.',
         process: { flows: [] },
-        change: { op: 'remove', blockId: 'x' },
+        change: { op: 'remove', blockId: 'a8a20629-71a6-50b5-ab56-f416afc01833' },
         flows: [],
       },
       { severity: 'blocker', subject: 'idea', message: 'Idea is vague.', pipeline: { name: 'other' } },

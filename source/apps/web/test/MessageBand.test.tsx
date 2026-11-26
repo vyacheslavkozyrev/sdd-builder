@@ -25,9 +25,9 @@ function rgbOf(hex: string): string {
 
 describe('F-11 AC-014 refusal reason in the band', () => {
   it('F-11 AC-014 shows a refused drag with its reason at the top centre of the builder', () => {
-    renderWithTheme(<MessageBand refusal={'flow "specify" already has an outgoing arrow to "plan"'} />);
+    renderWithTheme(<MessageBand refusal={'flow "2d8eebb4-9a34-5eae-ae8d-88813520de08" already has an outgoing arrow to "plan"'} />);
     const band = screen.getByRole('status');
-    expect(band.textContent).toBe('Refused · flow "specify" already has an outgoing arrow to "plan"');
+    expect(band.textContent).toBe('Refused · flow "2d8eebb4-9a34-5eae-ae8d-88813520de08" already has an outgoing arrow to "plan"');
     const style = getComputedStyle(band);
     expect(style.position).toBe('absolute');
     expect(style.left).toBe('50%');

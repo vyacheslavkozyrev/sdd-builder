@@ -30,6 +30,7 @@ import {
   removeAgentRuleTag,
 } from './blockAgentFields.js';
 import { agentAt } from './blockFields.js';
+import { newId } from './model.js';
 import {
   addPipelineArgument,
   addPipelineRuleTag,
@@ -247,14 +248,14 @@ function describedBy(shown: boolean, id: string): string | undefined {
 }
 
 // The text of a new argument line, its required flag (ticked before the line is saved) and the parser's reason
-// for it, when the parser refused the id.
+// for it, when the name was refused.
 interface NewArgument {
   readonly text: string;
   readonly required: boolean;
   readonly refusal: string | undefined;
 }
 
-// A saved row whose id was typed and not yet left: its position and the text in the field.
+// A saved row whose name was typed and not yet left: its position and the text in the field.
 interface SavedEdit {
   readonly position: number;
   readonly text: string;
@@ -286,34 +287,34 @@ function holderExists(pipelineState: Pipeline, target: ListTarget): boolean {
   }
 }
 
-// The list with a saved row's edited id written in, or undefined when the row is gone, its id is unchanged, or the parser
-// refuses the id. A refused edit is discarded with no error, as the saved list keeps its id (F-16 AC-023).
-function withEditedId(
+// The list with a saved row's edited name written in, or undefined when the row is gone, its name is unchanged, or the
+// name or the parser refuses it. A refused edit is discarded with no error, as the saved list keeps its name (F-16 AC-023).
+function withEditedName(
   pipelineState: Pipeline,
   rules: readonly Rule[],
   target: ListTarget,
   edit: SavedEdit,
 ): Pipeline | undefined {
   const saved = argumentsOf(pipelineState, target)[edit.position];
-  if (saved === undefined || edit.text === saved.id) return undefined;
+  if (saved === undefined || edit.text === saved.hint || nameRefusal(edit.text) !== undefined) return undefined;
   const result = editArgumentAt(pipelineState, rules, target, edit.position, {
-    id: edit.text,
+    id: saved.id,
     required: saved.required,
-    hint: saved.hint,
+    hint: edit.text,
   });
   return result.ok ? result.pipeline : undefined;
 }
 
-// The id of a new argument, generated from the typed name the way the command file name is: lower case, each run of
-// characters that is not a letter or digit becomes one hyphen, and the ends are trimmed. `F-XX` gives `f-xx`.
-function argumentIdOf(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+// The reason shown for a name with no letter or digit (F-16 AC-026). The name is the argument's hint; its id is a GUID.
+const NAME_REASON = 'Needs a letter or digit.';
+
+// The refusal of a typed name with no letter or digit, or undefined when the name has one. A name that passes here is
+// still checked by the parser with the rest of the row.
+function nameRefusal(name: string): RowResult | undefined {
+  return /[\p{L}\p{N}]/u.test(name) ? undefined : { ok: false, reason: NAME_REASON };
 }
 
-// The parser's answer for a new line: the row it adds, with the typed name as its hint. The parser checks the generated id.
+// The parser's answer for a new line: the row it adds, with a new GUID as its id and the typed name as its hint (F-16 AC-027).
 function addNewLine(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -321,10 +322,10 @@ function addNewLine(
   text: string,
   required: boolean,
 ): RowResult {
-  return addArgumentTo(pipelineState, rules, target, { id: argumentIdOf(text), required, hint: text });
+  return nameRefusal(text) ?? addArgumentTo(pipelineState, rules, target, { id: newId(), required, hint: text });
 }
 
-// The list with a new line added, or undefined when the line is blank or the parser refuses its generated id.
+// The list with a new line added, or undefined when the line is blank or its name or the parser refuses it.
 function withNewLine(
   pipelineState: Pipeline,
   rules: readonly Rule[],
@@ -343,15 +344,15 @@ export function endOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 }
 
 // The argument list (F-11 AC-024, AC-043; screens 01 and 07): a title with + in it, then one row per argument. A saved
-// row is a field with its id, a "required" checkbox and a minus. The field is edited in place: its id is checked by
-// the parser when it loses focus (or Enter). The checkbox saves the argument's required flag through the parser. A
-// refused edit keeps the saved values and shows the reason beneath the row. + adds one line after the list, a text box,
-// a "required" checkbox and a minus; the list is closed until + is pressed. The line's text is the argument's name: the
-// id is generated from it, and an accepted line is saved with the typed name as its hint and the required flag the
-// checkbox shows (a new one starts unrequired). A blank line is discarded on blur. A line whose generated id the parser
-// refuses stays open with the parser's reason beneath it, until a corrected name is accepted (F-16 AC-026).
+// row is a field with its name (the hint), a "required" checkbox and a minus. The name is edited in place and is
+// checked when it loses focus (or Enter). The checkbox saves the argument's required flag through the parser. A refused
+// edit keeps the saved values and shows the reason beneath the row. The user never types an id (F-16 AC-027). + adds one
+// line after the list, a text box, a "required" checkbox and a minus; the list is closed until + is pressed. The line's
+// text is the argument's name: an accepted line is saved with a new GUID id, the typed name as its hint and the required
+// flag the checkbox shows (a new one starts unrequired). A blank line is discarded on blur. A name with no letter or digit
+// stays open with the reason beneath it, until a corrected name is accepted (F-16 AC-026).
 // A line still open when the list unmounts (another block or flow is selected, or its holder is deleted) is saved as
-// blur would save it, unless its holder is gone. A saved id typed and not yet left is saved the same way, and a refused
+// blur would save it, unless its holder is gone. A saved name typed and not yet left is saved the same way, and a refused
 // one is discarded (F-16 AC-023).
 export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetListProps) {
   const styles = getRowEditorStyles(useTheme());
@@ -363,7 +364,7 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
 
   const current = useContext(CurrentPipelineContext);
 
-  // The saved id typed and not yet left. It is set on each change and cleared when the field loses focus.
+  // The saved name typed and not yet left. It is set on each change and cleared when the field loses focus.
   const edited = useRef<SavedEdit | undefined>(undefined);
 
   // The values of the last commit, read when the list unmounts.
@@ -372,24 +373,24 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
     latest.current = { pipelineState, rules, target, onChange, adding, current };
   });
 
-  // A line is held in state until focus leaves it, and so is a saved id. When another block or flow is selected the list
-  // unmounts first, so an accepted line or id is saved then, as losing focus would have saved it (F-16 AC-023). The
-  // pipeline is the step's current one: when the holder was deleted, the line or id goes with it and nothing is written.
+  // A line is held in state until focus leaves it, and so is a saved name. When another block or flow is selected the list
+  // unmounts first, so an accepted line or name is saved then, as losing focus would have saved it (F-16 AC-023). The
+  // pipeline is the step's current one: when the holder was deleted, the line or name goes with it and nothing is written.
   useEffect(
     () => () => {
       const { pipelineState: rendered, rules: ruleList, target: holder, onChange: change, adding: line, current: step } =
         latest.current;
       const state = step?.current ?? rendered;
       if (!holderExists(state, holder)) return;
-      const savedId = edited.current === undefined ? undefined : withEditedId(state, ruleList, holder, edited.current);
-      const base = savedId ?? state;
-      const next = line === undefined ? savedId : (withNewLine(base, ruleList, holder, line.text, line.required) ?? savedId);
+      const savedName = edited.current === undefined ? undefined : withEditedName(state, ruleList, holder, edited.current);
+      const base = savedName ?? state;
+      const next = line === undefined ? savedName : (withNewLine(base, ruleList, holder, line.text, line.required) ?? savedName);
       if (next !== undefined) change(next);
     },
     [],
   );
 
-  // A blank line is discarded on blur, with no message. A line with text is sent to the parser with its generated id. An
+  // A blank line is discarded on blur, with no message. A line with text is checked and sent to the parser with a new id. An
   // accepted line is saved and closes. A refused line stays open with the parser's reason beneath it, and nothing is saved
   // (F-16 AC-026).
   function commitNew(text: string, required: boolean) {
@@ -406,26 +407,19 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
     setAdding((current) => (current === undefined ? current : { ...current, refusal: result.reason }));
   }
 
-  // The key press check of a new line (device fix 2026-11-24): its error is the parser's reason for an empty id while
+  // The key press check of a new line (device fix 2026-11-24): its error is the reason for an empty name while
   // the text is empty, and nothing once text is typed.
   function checkNew(text: string) {
     setAdding((current) =>
-      current === undefined
-        ? current
-        : {
-            ...current,
-            refusal: emptyReasonOf(text, () =>
-              refusalOf(addArgumentTo(pipelineState, rules, target, { id: '', required: current.required, hint: '' })),
-            ),
-          },
+      current === undefined ? current : { ...current, refusal: emptyReasonOf(text, () => NAME_REASON) },
     );
   }
 
-  // Sends a saved row with the values given. An accepted row is saved. A refused id with text reverts to the saved id, with
-  // no error. An empty id keeps its text beneath the parser's reason. A refused flag keeps the row and shows its reason.
+  // Sends a saved row with the values given. An accepted row is saved. A refused name with text reverts to the saved name, with
+  // no error. An empty name keeps its text beneath the reason. A refused flag keeps the row and shows its reason.
   // Only the refused row is drawn again, so the field the user moved to keeps its focus.
   function saveRow(position: number, row: ArgumentRow, byText: boolean) {
-    const result = editArgumentAt(pipelineState, rules, target, position, row);
+    const result = (byText ? nameRefusal(row.hint) : undefined) ?? editArgumentAt(pipelineState, rules, target, position, row);
     if (result.ok) {
       onChange(result.pipeline);
       setRefused((current) => settledRefusal(current, position));
@@ -435,37 +429,35 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
       setRefused((current) => ({ position, reason: result.reason, attempt: attemptOf(current, position) + 1 }));
       return;
     }
-    if (isEmptyText(row.id)) {
+    if (isEmptyText(row.hint)) {
       setRefused((current) => ({ position, reason: result.reason, attempt: attemptOf(current, position) }));
       return;
     }
     setRefused((current) => ({ position, reason: undefined, attempt: attemptOf(current, position) + 1 }));
   }
 
-  // The key press check of a saved id (device fix 2026-11-24). The row keeps its count, so its text is not drawn again.
+  // The key press check of a saved name (device fix 2026-11-24). The row keeps its count, so its text is not drawn again.
   function checkRow(position: number, item: Argument, text: string) {
     setRefused((current) => ({
       position,
-      reason: emptyReasonOf(text, () =>
-        refusalOf(editArgumentAt(pipelineState, rules, target, position, { id: '', required: item.required, hint: item.hint })),
-      ),
+      reason: emptyReasonOf(text, () => NAME_REASON),
       attempt: attemptOf(current, position),
     }));
   }
 
-  // An unchanged id is not sent. The required flag and the hint are kept.
+  // An unchanged name is not sent. The id and the required flag are kept.
   function commitEdit(position: number, item: Argument, text: string) {
-    if (text === item.id) return;
-    saveRow(position, { id: text, required: item.required, hint: item.hint }, true);
+    if (text === item.hint) return;
+    saveRow(position, { id: item.id, required: item.required, hint: text }, true);
   }
 
-  // The checkbox saves the flag at once, with the saved id and hint.
+  // The checkbox saves the flag at once, with the saved id and name.
   function commitRequired(position: number, item: Argument, required: boolean) {
     saveRow(position, { id: item.id, required, hint: item.hint }, false);
   }
 
   function removeAt(position: number) {
-    // A pending saved id is dropped: the rows after the removed one move up, so its position would name another row.
+    // A pending saved name is dropped: the rows after the removed one move up, so its position would name another row.
     edited.current = undefined;
     onChange(removeArgumentAt(pipelineState, target, position));
     setRefused((current) => removedRefusal(current, position));
@@ -497,10 +489,10 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
           <Box key={position} role="group" aria-label={`Argument ${position + 1}`} sx={styles.row}>
             <Box sx={styles.rowLine}>
               <TextField
-                // Keyed by the saved id, so a row that moves up after a removal shows its own id; and by the refusal
-                // count, so a refused text is drawn again from the saved id.
-                key={`${item.id}-${isRefused ? refused.attempt : 0}`}
-                defaultValue={item.id}
+                // Keyed by the saved name, so a row that moves up after a removal shows its own name; and by the refusal
+                // count, so a refused text is drawn again from the saved name.
+                key={`${item.hint}-${isRefused ? refused.attempt : 0}`}
+                defaultValue={item.hint}
                 error={reason !== undefined}
                 onChange={(event) => {
                   edited.current = { position, text: event.target.value };
@@ -512,7 +504,7 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
                 sx={styles.input}
                 slotProps={{
                   htmlInput: {
-                    'aria-label': `Argument ${position + 1} id`,
+                    'aria-label': `Argument ${position + 1} name`,
                     'aria-describedby': describedBy(reason !== undefined, refusalId),
                     onKeyDown: endOnEnter,
                     onKeyUp: keyUpText((text) => {
@@ -574,7 +566,7 @@ export function ArgumentRows({ target, pipelineState, rules, onChange }: TargetL
               sx={styles.input}
               slotProps={{
                 htmlInput: {
-                  'aria-label': 'New argument id',
+                  'aria-label': 'New argument name',
                   'aria-describedby': describedBy(adding.refusal !== undefined, newRefusalId),
                   onKeyDown: endOnEnter,
                   onKeyUp: keyUpText((text) => {

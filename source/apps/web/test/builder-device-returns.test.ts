@@ -9,7 +9,7 @@ import type { Pipeline, Rule } from '../src/builder/fields.js';
 
 type Block = core.Block;
 
-const RULES: readonly Rule[] = [{ index: 0, id: 'plain-style', title: 'Plain style', text: 'Write plainly.' }];
+const RULES: readonly Rule[] = [{ index: 0, id: '98e1e77f-fb50-5bd4-bd43-d48a78098c65', title: 'Plain style', text: 'Write plainly.' }];
 
 // A pipeline with one empty flow `plan`, built the way the flow tab builds it: each step returns the new pipeline.
 function emptyPipeline(): Pipeline {
@@ -17,7 +17,7 @@ function emptyPipeline(): Pipeline {
     name: 'Demo',
     description: 'A demo pipeline.',
     arguments: [],
-    flows: [{ index: 0, id: 'plan', name: 'plan', arguments: [], body: 'Plan.', artifacts: [], approval: false, blocks: [] }],
+    flows: [{ index: 0, id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655', name: 'plan', arguments: [], body: 'Plan.', artifacts: [], approval: false, blocks: [] }],
   } as unknown as Pipeline;
 }
 
@@ -31,7 +31,7 @@ function blocksOf(pipelineState: Pipeline): readonly Block[] {
 // Adds a block of the kind as the toolbox does and returns the pipeline and the new block id.
 function added(pipelineState: Pipeline, kind: Block['kind']): { pipeline: Pipeline; id: string } {
   const flow = pipelineState.flows[0]!;
-  const result = addBlock(flow, kind, pipelineState.flows);
+  const result = addBlock(flow, kind);
   const next = { ...pipelineState, flows: [{ ...flow, blocks: result.flow.blocks }] } as unknown as Pipeline;
   return { pipeline: next, id: result.blockId };
 }
@@ -46,7 +46,7 @@ function linked(pipelineState: Pipeline, from: string, output: 'next' | 'true' |
 
 // The pipeline with an Agent's name set, as the panel sets it.
 function named(pipelineState: Pipeline, id: string, name: string): Pipeline {
-  const result = editAgentField(pipelineState, RULES, 'plan', id, { field: 'name', value: name } as never);
+  const result = editAgentField(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', id, { field: 'name', value: name } as never);
   if (!result.ok) throw new Error(`name refused: ${result.reason}`);
   return result.pipeline as Pipeline;
 }
@@ -104,7 +104,7 @@ describe('F-12 AC-016 AC-017 the builder and the analyzer agree on a return', ()
     const { pipeline, condition, specify } = flowWithStoriesBeforeCondition();
     const returned = linked(pipeline, condition, 'false', specify);
 
-    const result = setConditionRoundLimit(returned, RULES, 'plan', condition, '3');
+    const result = setConditionRoundLimit(returned, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', condition, '3');
     if (!result.ok) throw new Error(result.reason);
 
     expect(routeFindings(result.pipeline)).toEqual([]);
@@ -113,7 +113,7 @@ describe('F-12 AC-016 AC-017 the builder and the analyzer agree on a return', ()
   it('F-12 AC-016 keeps a forward route to a later block drawn forward', () => {
     const { pipeline, condition, specify } = flowWithStoriesBeforeCondition();
     const returned = linked(pipeline, condition, 'false', specify);
-    const withLimit = setConditionRoundLimit(returned, RULES, 'plan', condition, '3');
+    const withLimit = setConditionRoundLimit(returned, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', condition, '3');
     if (!withLimit.ok) throw new Error(withLimit.reason);
     const ended = blocksOf(withLimit.pipeline).find((block) => block.kind === 'end')!.id;
     const done = linked(withLimit.pipeline, condition, 'true', ended);

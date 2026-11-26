@@ -35,18 +35,18 @@ function pipelineState(): Pipeline {
   return {
     name: 'SDD process',
     description: 'The process we built',
-    arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'The feature' }],
+    arguments: [{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: 'The feature' }],
     model: 'inherit',
     tools: ['Read', 'Write', 'Edit', 'Bash'],
     body: 'Runs the feature from specify to complete.',
-    ruleTags: [{ ruleId: 'general', index: 0 }],
-    flows: [flow('plan', 'Plan', 'build'), flow('build', 'Build')].map((item, index) => ({ ...item, index })),
+    ruleTags: [{ ruleId: '1b206118-4f23-5ed9-8340-8256dd24178c', index: 0 }],
+    flows: [flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan', 'a0c3aad4-8765-5b23-8df5-7c03d481233c'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build')].map((item, index) => ({ ...item, index })),
   };
 }
 
 const RULES: readonly Rule[] = [
-  { index: 0, id: 'general', title: 'general', text: 'The general rule.' },
-  { index: 1, id: 'qa', title: 'qa', text: 'The qa rule.' },
+  { index: 0, id: '1b206118-4f23-5ed9-8340-8256dd24178c', title: '1b206118-4f23-5ed9-8340-8256dd24178c', text: 'The general rule.' },
+  { index: 1, id: '2146d294-d7bb-5ff8-af8d-1981e7f569d7', title: '2146d294-d7bb-5ff8-af8d-1981e7f569d7', text: 'The qa rule.' },
 ];
 
 function renderPanel(saved: Pipeline = pipelineState()) {
@@ -219,13 +219,16 @@ describe('F-11 AC-044 pipeline body', () => {
   });
 });
 
+// A lower-case GUID in the 8-4-4-4-12 form (F-16 AC-027): a new argument's id is generated, so the test does not know it.
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () => {
   it('F-11 AC-043 draws the saved feature-id argument as a field with a ticked "required" box and a minus', () => {
     const onChange = vi.fn();
     render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
 
     const row = within(screen.getByRole('group', { name: 'Argument 1' }));
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
+    expect(screen.getByLabelText('Argument 1 name')).toHaveProperty('value', 'F-XX');
     expect(row.getByRole('checkbox', { name: 'required' })).toHaveProperty('checked', true);
     expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
   });
@@ -235,7 +238,7 @@ describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () 
     render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
 
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByLabelText('New argument id')).toBeNull();
+    expect(screen.queryByLabelText('New argument name')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
     expect(screen.getByRole('group', { name: 'New argument' })).toBeTruthy();
   });
@@ -246,7 +249,7 @@ describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () 
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
 
     const line = within(screen.getByRole('group', { name: 'New argument' }));
-    expect(line.getByLabelText('New argument id')).toBeTruthy();
+    expect(line.getByLabelText('New argument name')).toBeTruthy();
     expect(line.getByRole('button', { name: 'Cancel new argument' })).toBeTruthy();
     expect(line.queryByRole('button', { name: 'Save' })).toBeNull();
     expect(line.queryByRole('button', { name: 'Cancel' })).toBeNull();
@@ -256,13 +259,16 @@ describe('F-11 AC-043 the default pipeline arguments on the pipeline panel', () 
     const onChange = vi.fn();
     render(<PipelinePanel pipelineState={defaultPipelineValue()} rules={RULES} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const input = screen.getByLabelText('New argument id');
-    fireEvent.change(input, { target: { value: 'topic' } });
+    const input = screen.getByLabelText('New argument name');
+    fireEvent.change(input, { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.blur(input);
 
     const next = onChange.mock.calls[0]?.[0] as { arguments: { id: string }[] } | undefined;
-    expect(next?.arguments.map((item) => item.id)).toEqual(['feature-id', 'topic']);
-    expect(next?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
+    expect(next?.arguments.map((item) => item.id)).toEqual([
+      'b74a414b-c3b7-41f5-b780-08c2c613df86',
+      expect.stringMatching(GUID),
+    ]);
+    expect(next?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' });
   });
 });
 
@@ -340,7 +346,7 @@ function newFlowsPipeline(): Pipeline {
     approval: false,
     blocks: [],
   });
-  return { name: '', description: '', arguments: [], flows: [added(0, 'flow-1'), added(1, 'flow-2')] };
+  return { name: '', description: '', arguments: [], flows: [added(0, '40174c6b-ffc9-5a01-af92-33a352fc884a'), added(1, '02e82ffe-8c62-50f5-acea-711320561fab')] };
 }
 
 // Types `value` into the field one character at a time, as the user does, and checks each character is kept.

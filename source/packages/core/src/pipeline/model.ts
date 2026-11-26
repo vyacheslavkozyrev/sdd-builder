@@ -4,6 +4,9 @@
 // Every list item that the cross-checks read carries `index`: its position in the document list,
 // counting the items refused before it (owner decision 2026-11-19). A check reports a problem at
 // that index, so a path names the same place in the file whatever was refused.
+//
+// Every `id` (rule, argument, flow, block) is a lower-case GUID in the 8-4-4-4-12 form (AC-028). The builder
+// generates it, and the user never types it. The type stays `string`: the parser checks the form.
 
 export type Model = 'haiku' | 'sonnet' | 'opus' | 'inherit';
 

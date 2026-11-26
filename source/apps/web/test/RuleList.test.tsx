@@ -26,7 +26,7 @@ const BLANK_VALUES: WizardValues = {
 };
 
 function rulesOf(count: number, name = ''): RuleValues[] {
-  return Array.from({ length: count }, () => ({ name, description: '' }));
+  return Array.from({ length: count }, (_item, index) => ({ id: `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`, name, description: '' }));
 }
 
 // The list driven by the real wizard reducer, so the add, update and remove actions are proved end to end.
@@ -110,8 +110,8 @@ describe('F-10 AC-009 Add rule block appends one empty block after the last one'
 
   it('F-10 AC-009 keeps the order of the blocks that were there before the add', () => {
     renderList([
-      { name: 'First', description: '' },
-      { name: 'Second', description: '' },
+      { id: '3dd7f578-0f8a-59b0-9da4-f705986b0110', name: 'First', description: '' },
+      { id: 'dc7aea2f-ed33-51f7-b1fe-911e1ab3fb6a', name: 'Second', description: '' },
     ]);
     fireEvent.click(addButton());
     expect(nameValues()).toEqual(['First', 'Second', '']);
@@ -121,9 +121,9 @@ describe('F-10 AC-009 Add rule block appends one empty block after the last one'
 describe('F-10 AC-010 Remove deletes that block and keeps the others in order', () => {
   it('F-10 AC-010 removing the middle of three blocks keeps the first and the last in place', () => {
     renderList([
-      { name: 'First', description: '' },
-      { name: 'Middle', description: '' },
-      { name: 'Last', description: '' },
+      { id: '3dd7f578-0f8a-59b0-9da4-f705986b0110', name: 'First', description: '' },
+      { id: '7ae5d90f-aed6-517b-8a2f-ea321af9394f', name: 'Middle', description: '' },
+      { id: 'c4ae75a2-fbbe-55d7-981a-6edda40687ec', name: 'Last', description: '' },
     ]);
     removeBlock(2);
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
@@ -134,8 +134,8 @@ describe('F-10 AC-010 Remove deletes that block and keeps the others in order', 
 describe('F-10 AC-011 Remove asks for confirmation first', () => {
   it('F-10 AC-011 opens the confirmation and removes nothing before it is confirmed (negative case)', () => {
     renderList([
-      { name: 'Code Style', description: '' },
-      { name: 'Testing', description: '' },
+      { id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' },
+      { id: '2b8c80df-75d5-5077-9e6d-830ac3a2b994', name: 'Testing', description: '' },
     ]);
     removeBlock(1);
     expect(screen.getByRole('dialog', { name: 'Remove rule block 1?' })).toBeTruthy();
@@ -144,7 +144,7 @@ describe('F-10 AC-011 Remove asks for confirmation first', () => {
   });
 
   it('F-10 AC-011 Cancel keeps the block unchanged and closes the confirmation', async () => {
-    renderList([{ name: 'Code Style', description: 'Use named exports.' }]);
+    renderList([{ id: '1f5eaf7a-4af1-5244-b16b-9ae31b9f9432', name: 'Code Style', description: 'Use named exports.' }]);
     removeBlock(1);
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -153,8 +153,8 @@ describe('F-10 AC-011 Remove asks for confirmation first', () => {
 
   it('F-10 AC-011 Remove block removes the confirmed block and closes the confirmation', async () => {
     renderList([
-      { name: 'Code Style', description: '' },
-      { name: 'Testing', description: '' },
+      { id: '54875099-aa80-5d30-ab8c-22b63f602993', name: 'Code Style', description: '' },
+      { id: '2b8c80df-75d5-5077-9e6d-830ac3a2b994', name: 'Testing', description: '' },
     ]);
     removeBlock(1);
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));

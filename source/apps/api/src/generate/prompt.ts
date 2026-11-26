@@ -45,13 +45,13 @@ function oneLine(text: string): string {
   return JSON.stringify(text).slice(1, -1);
 }
 
-// The keys are written in the order given here: path, layout, description, ruleTags; a rule tag has ruleId then index.
+// The keys are written in the order given here: path, layout, description, ruleTags; a rule tag has ruleFile then index.
 function planContent(plan: GeneratedPlan): string {
   const files = plan.files.map((file) => ({
     path: file.path,
     layout: file.layout,
     description: file.description,
-    ruleTags: file.ruleTags.map((tag) => ({ ruleId: tag.ruleId, index: tag.index })),
+    ruleTags: file.ruleTags.map((tag) => ({ ruleFile: tag.ruleFile, index: tag.index })),
   }));
   return JSON.stringify({ files }, null, 2);
 }

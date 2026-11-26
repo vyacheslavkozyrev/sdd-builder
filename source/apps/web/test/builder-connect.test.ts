@@ -39,19 +39,19 @@ function reasonOf(result: ReturnType<typeof connectFlows>): string {
 
 describe('F-11 AC-010 connect sets next', () => {
   it('sets the source next to the target id', () => {
-    const before = pipelineOf(flow('specify'), flow('plan'));
-    const result = connectFlows(before, 'specify', 'plan');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.pipeline.flows.map((f) => [f.id, f.next])).toEqual([
-      ['specify', 'plan'],
-      ['plan', undefined],
+      ['2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'],
+      ['ea3211a4-b64b-5204-9451-6fe12fd7c655', undefined],
     ]);
   });
 
   it('leaves the other pipeline fields and flows untouched', () => {
-    const before = pipelineOf(flow('specify'), flow('ux'), flow('plan'));
-    const result = connectFlows(before, 'ux', 'plan');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, '47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.pipeline.name).toBe('Demo');
@@ -60,108 +60,108 @@ describe('F-11 AC-010 connect sets next', () => {
   });
 
   it('does not change the pipeline it was given', () => {
-    const before = pipelineOf(flow('specify'), flow('plan'));
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     const snapshot = structuredClone(before);
-    connectFlows(before, 'specify', 'plan');
+    connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(before).toEqual(snapshot);
   });
 
   it('refuses a source that is not a flow of the pipeline', () => {
-    const before = pipelineOf(flow('specify'), flow('plan'));
-    const result = connectFlows(before, 'missing', 'plan');
-    expect(result).toEqual({ ok: false, reason: 'the source "missing" is not a flow of this pipeline' });
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, '083d3886-6635-54c4-bd03-441c22610371', 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
+    expect(result).toEqual({ ok: false, reason: 'the source "083d3886-6635-54c4-bd03-441c22610371" is not a flow of this pipeline' });
   });
 
   it('refuses a target that is not a flow of the pipeline', () => {
-    const before = pipelineOf(flow('specify'), flow('plan'));
-    const result = connectFlows(before, 'specify', 'missing');
-    expect(result).toEqual({ ok: false, reason: 'the target "missing" is not a flow of this pipeline' });
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '083d3886-6635-54c4-bd03-441c22610371');
+    expect(result).toEqual({ ok: false, reason: 'the target "083d3886-6635-54c4-bd03-441c22610371" is not a flow of this pipeline' });
   });
 
   it('refuses a flow connected to itself', () => {
-    const before = pipelineOf(flow('specify'), flow('plan'));
-    expect(connectFlows(before, 'specify', 'specify')).toEqual({
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    expect(connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '2d8eebb4-9a34-5eae-ae8d-88813520de08')).toEqual({
       ok: false,
-      reason: 'flow "specify" cannot be connected to itself',
+      reason: 'flow "2d8eebb4-9a34-5eae-ae8d-88813520de08" cannot be connected to itself',
     });
   });
 
   it('refuses a second outgoing arrow from a flow that already has a next', () => {
-    const before = pipelineOf(flow('specify', 'plan'), flow('ux'), flow('plan'));
-    expect(connectFlows(before, 'specify', 'ux').ok).toBe(false);
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    expect(connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515').ok).toBe(false);
   });
 
   it('refuses a loop: the target reaches the source along next links', () => {
-    const before = pipelineOf(flow('specify', 'ux'), flow('ux', 'plan'), flow('plan'));
-    const result = connectFlows(before, 'plan', 'specify');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08');
     expect(result.ok).toBe(false);
   });
 
   it('refuses a direct loop when the target points straight back to the source', () => {
-    const before = pipelineOf(flow('specify'), flow('plan', 'specify'));
-    const result = connectFlows(before, 'specify', 'plan');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08'));
+    const result = connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655');
     expect(result.ok).toBe(false);
   });
 
   it('allows a link to a flow that no next reaches back from', () => {
-    const before = pipelineOf(flow('specify', 'ux'), flow('ux'), flow('plan'));
-    const result = connectFlows(before, 'plan', 'ux');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const result = connectFlows(before, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '47d4f7c9-a236-5d9b-b5a7-3f4724285515');
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.pipeline.flows.map((f) => [f.id, f.next])).toEqual([
-      ['specify', 'ux'],
-      ['ux', undefined],
-      ['plan', 'ux'],
+      ['2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'],
+      ['47d4f7c9-a236-5d9b-b5a7-3f4724285515', undefined],
+      ['ea3211a4-b64b-5204-9451-6fe12fd7c655', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'],
     ]);
   });
 
   it('throws when a stored next names no flow (a programmer error)', () => {
-    const broken = pipelineOf(flow('specify', 'ghost'), flow('plan'));
-    expect(() => connectFlows(broken, 'plan', 'specify')).toThrow(/"ghost", which is not in the pipeline/);
+    const broken = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'f3e6232e-93aa-572e-b8f6-2aa47177dd3d'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    expect(() => connectFlows(broken, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08')).toThrow(/"f3e6232e-93aa-572e-b8f6-2aa47177dd3d", which is not in the pipeline/);
   });
 });
 
 describe('F-11 AC-011 refusal reasons', () => {
   it('gives each refusal its own reason text', () => {
-    const notSource = reasonOf(connectFlows(pipelineOf(flow('a'), flow('b')), 'x', 'b'));
-    const notTarget = reasonOf(connectFlows(pipelineOf(flow('a'), flow('b')), 'a', 'x'));
-    const self = reasonOf(connectFlows(pipelineOf(flow('a'), flow('b')), 'a', 'a'));
-    const second = reasonOf(connectFlows(pipelineOf(flow('a', 'b'), flow('b'), flow('c')), 'a', 'c'));
-    const loop = reasonOf(connectFlows(pipelineOf(flow('a'), flow('b', 'a')), 'a', 'b'));
+    const notSource = reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5'), flow('b0b6565e-0a17-54ad-b776-5ba6195fa34d')), 'x', 'b0b6565e-0a17-54ad-b776-5ba6195fa34d'));
+    const notTarget = reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5'), flow('b0b6565e-0a17-54ad-b776-5ba6195fa34d')), 'f8bd72d7-8ffe-5484-ba72-d246813346f5', 'x'));
+    const self = reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5'), flow('b0b6565e-0a17-54ad-b776-5ba6195fa34d')), 'f8bd72d7-8ffe-5484-ba72-d246813346f5', 'f8bd72d7-8ffe-5484-ba72-d246813346f5'));
+    const second = reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5', 'b0b6565e-0a17-54ad-b776-5ba6195fa34d'), flow('b0b6565e-0a17-54ad-b776-5ba6195fa34d'), flow('d9d115db-ccaa-5b8b-b143-1590799eb18b')), 'f8bd72d7-8ffe-5484-ba72-d246813346f5', 'd9d115db-ccaa-5b8b-b143-1590799eb18b'));
+    const loop = reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5'), flow('b0b6565e-0a17-54ad-b776-5ba6195fa34d', 'f8bd72d7-8ffe-5484-ba72-d246813346f5')), 'f8bd72d7-8ffe-5484-ba72-d246813346f5', 'b0b6565e-0a17-54ad-b776-5ba6195fa34d'));
     const reasons = [notSource, notTarget, self, second, loop];
     expect(new Set(reasons).size).toBe(reasons.length);
   });
 
   it('names the source flow in the reason for a second outgoing arrow', () => {
-    const before = pipelineOf(flow('specify', 'plan'), flow('ux'), flow('plan'));
-    expect(reasonOf(connectFlows(before, 'specify', 'ux'))).toContain('"specify"');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    expect(reasonOf(connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'))).toContain('"2d8eebb4-9a34-5eae-ae8d-88813520de08"');
   });
 
   it('names the flow that already follows the source in the second-arrow reason', () => {
-    const before = pipelineOf(flow('specify', 'plan'), flow('ux'), flow('plan'));
-    expect(reasonOf(connectFlows(before, 'specify', 'ux'))).toContain('"plan"');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    expect(reasonOf(connectFlows(before, '2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'))).toContain('"ea3211a4-b64b-5204-9451-6fe12fd7c655"');
   });
 
   it('names the source and target in the loop reason', () => {
-    const before = pipelineOf(flow('specify', 'ux'), flow('ux', 'plan'), flow('plan'));
-    const reason = reasonOf(connectFlows(before, 'plan', 'specify'));
-    expect(reason).toContain('"plan"');
-    expect(reason).toContain('"specify"');
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
+    const reason = reasonOf(connectFlows(before, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08'));
+    expect(reason).toContain('"ea3211a4-b64b-5204-9451-6fe12fd7c655"');
+    expect(reason).toContain('"2d8eebb4-9a34-5eae-ae8d-88813520de08"');
   });
 
   it('gives the not-a-flow reason for a missing source and names that flow', () => {
-    expect(reasonOf(connectFlows(pipelineOf(flow('a')), 'ghost', 'a'))).toContain('"ghost"');
+    expect(reasonOf(connectFlows(pipelineOf(flow('f8bd72d7-8ffe-5484-ba72-d246813346f5')), 'f3e6232e-93aa-572e-b8f6-2aa47177dd3d', 'f8bd72d7-8ffe-5484-ba72-d246813346f5'))).toContain('"f3e6232e-93aa-572e-b8f6-2aa47177dd3d"');
   });
 
   it('leaves the pipeline equal to its value before a refused link', () => {
-    const before = pipelineOf(flow('specify', 'plan'), flow('ux'), flow('plan'));
+    const before = pipelineOf(flow('2d8eebb4-9a34-5eae-ae8d-88813520de08', 'ea3211a4-b64b-5204-9451-6fe12fd7c655'), flow('47d4f7c9-a236-5d9b-b5a7-3f4724285515'), flow('ea3211a4-b64b-5204-9451-6fe12fd7c655'));
     const snapshot = structuredClone(before);
     const cases: Array<[string, string]> = [
-      ['specify', 'ux'],
-      ['plan', 'specify'],
-      ['ux', 'ux'],
-      ['ghost', 'ux'],
-      ['ux', 'ghost'],
+      ['2d8eebb4-9a34-5eae-ae8d-88813520de08', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'],
+      ['ea3211a4-b64b-5204-9451-6fe12fd7c655', '2d8eebb4-9a34-5eae-ae8d-88813520de08'],
+      ['47d4f7c9-a236-5d9b-b5a7-3f4724285515', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'],
+      ['f3e6232e-93aa-572e-b8f6-2aa47177dd3d', '47d4f7c9-a236-5d9b-b5a7-3f4724285515'],
+      ['47d4f7c9-a236-5d9b-b5a7-3f4724285515', 'f3e6232e-93aa-572e-b8f6-2aa47177dd3d'],
     ];
     for (const [source, target] of cases) {
       const result = connectFlows(before, source, target);

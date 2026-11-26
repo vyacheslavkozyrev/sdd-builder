@@ -51,18 +51,18 @@ const NO_BLOCK_SELECTION: BlockSelection = { kind: 'none' };
 // The block selection of each flow, by flow id (F-12 AC-049). A flow with no entry has no selection.
 type BlockSelections = Readonly<Record<string, BlockSelection>>;
 
-// The rules the builder can tag (F-11 AC-026): the rule blocks of the Technical details step with a valid id,
-// each id offered once (the first block with it). A block whose id is refused or repeated is not offered;
-// the technical step already shows that problem on the block.
+// The rules the builder can tag (F-11 AC-026): the rule blocks of the Technical details step with a valid name,
+// each file name offered once (the first block with it). A block whose name is refused or repeated is not offered;
+// the technical step already shows that problem on the block. The tag refers to the block's GUID id (F-16 AC-027).
 export function builderRules(blocks: readonly RuleValues[]): Rule[] {
   const seen = new Set<string>();
   const rules: Rule[] = [];
   for (const block of blocks) {
     if (ruleIdProblem(block.name) !== 'none') continue;
-    const id = ruleId(block.name);
-    if (seen.has(id)) continue;
-    seen.add(id);
-    rules.push({ index: rules.length, id, title: block.name, text: block.description });
+    const fileName = ruleId(block.name);
+    if (seen.has(fileName)) continue;
+    seen.add(fileName);
+    rules.push({ index: rules.length, id: block.id, title: block.name, text: block.description });
   }
   return rules;
 }
@@ -203,10 +203,10 @@ function PipelineStepView({ values, onPipelineChange }: PipelineStepProps) {
     });
   };
 
-  // A block added from the toolbox is stored and selected, so its panel opens (AC-002). Its id is unique across
-  // every flow of the pipeline (AC-021).
+  // A block added from the toolbox is stored and selected, so its panel opens (AC-002). Its id is a new GUID, so it
+  // is unique across every flow of the pipeline (F-16 AC-027).
   const blockAdded = (flow: Flow, kind: BlockKind) => {
-    const result = addBlock(flow, kind, pipelineState.flows);
+    const result = addBlock(flow, kind);
     onPipelineChange(withFlow(pipelineState, result.flow));
     selectBlockIn(result.flow.id, { kind: 'block', blockId: result.blockId });
   };

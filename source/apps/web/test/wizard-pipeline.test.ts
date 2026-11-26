@@ -24,7 +24,7 @@ function step3WithValues(): WizardState {
     ...valuesWith('Demo', 'kept idea'),
     architecture: 'layered',
     stack: { language: 'TypeScript', framework: '', platform: '', buildTool: '', testFramework: '' },
-    rules: [{ name: 'Tests', description: 'Every change has a test.' }],
+    rules: [{ id: '30aabb6e-ead3-53ea-a26a-790955058e0b', name: 'Tests', description: 'Every change has a test.' }],
   };
   return { step: 3, values: { ...values, pipeline: defaultPipelineValue() } };
 }
@@ -169,47 +169,47 @@ describe('F-12 AC-051 the default pipeline shows its blocks as the model holds t
   it('F-12 AC-051 each default flow holds the blocks of the default data', () => {
     const counts = defaultPipelineValue().flows.map((flow) => [flow.id, flow.blocks.length]);
     expect(counts).toEqual([
-      ['specify', 3],
-      ['ux', 3],
-      ['plan', 3],
-      ['build', 7],
-      ['verify', 3],
-      ['complete', 3],
+      ['f2cce1b4-ea0c-4dbe-9151-870598b6a4d2', 3],
+      ['8a976641-9b75-4aa9-a363-fb78b4225c7a', 3],
+      ['d3882ef1-5c45-41aa-9277-a98217396d45', 3],
+      ['8408b4cd-929e-4963-a5f6-bfd38df9ba5b', 7],
+      ['bab66c9b-eb9c-4cf4-b296-f40c8d7c5670', 3],
+      ['1ecd7679-1b52-433e-bbff-ce61026ac435', 3],
     ]);
   });
 
   it('F-12 AC-051 a linear flow shows its arrows of next, in block order', () => {
-    expect(flowArrows(defaultFlow('specify')).map((arrow) => [arrow.fromId, arrow.toId])).toEqual([
-      ['specify-start', 'specify-agent'],
-      ['specify-agent', 'specify-end'],
+    expect(flowArrows(defaultFlow('f2cce1b4-ea0c-4dbe-9151-870598b6a4d2')).map((arrow) => [arrow.fromId, arrow.toId])).toEqual([
+      ['ecc92254-8daa-4879-9bcb-2bb7c96e4289', 'b86f903b-53da-44bf-9ac1-7bdfb71ea194'],
+      ['b86f903b-53da-44bf-9ac1-7bdfb71ea194', '32c059f2-a0aa-4690-b6d0-02758bd5fe48'],
     ]);
   });
 
   it('F-12 AC-051 the build flow shows the true route of its condition and no arrow for the false stop', () => {
-    const arrows = flowArrows(defaultFlow('build'));
+    const arrows = flowArrows(defaultFlow('8408b4cd-929e-4963-a5f6-bfd38df9ba5b'));
     expect(arrows).toHaveLength(6);
     expect(arrows).toContainEqual({
-      fromId: 'build-check',
+      fromId: 'beb2e8f1-fe82-4047-aa03-81354421880d',
       output: 'true',
-      toId: 'build-commit',
+      toId: '9988871d-3547-4cdd-a194-ec453c7a79f0',
       isReturn: false,
       roundLimit: null,
       branchLabel: 'true',
       roundsLabel: null,
     });
-    expect(arrows.some((arrow) => arrow.fromId === 'build-check' && arrow.output === 'false')).toBe(false);
+    expect(arrows.some((arrow) => arrow.fromId === 'beb2e8f1-fe82-4047-aa03-81354421880d' && arrow.output === 'false')).toBe(false);
   });
 
   it('F-12 AC-051 the default blocks keep their ids and kinds in order (negative: no block is invented)', () => {
-    const kinds = defaultFlow('build').blocks.map((block) => `${block.id}:${block.kind}`);
+    const kinds = defaultFlow('8408b4cd-929e-4963-a5f6-bfd38df9ba5b').blocks.map((block) => `${block.id}:${block.kind}`);
     expect(kinds).toEqual([
-      'build-start:start',
-      'build-implement:agent',
-      'build-review:agent',
-      'build-test:agent',
-      'build-check:condition',
-      'build-commit:agent',
-      'build-end:end',
+      '4bc03b55-3d19-4b03-8234-d2e219150936:start',
+      '6bbdd49e-9b07-43dd-b011-7601a39a83b8:agent',
+      '019bed91-c21b-4268-aebc-91ffc2ff7f8f:agent',
+      '0ec10e27-473d-4cd4-8e69-7537192c2b76:agent',
+      'beb2e8f1-fe82-4047-aa03-81354421880d:condition',
+      '9988871d-3547-4cdd-a194-ec453c7a79f0:agent',
+      'a211f4b5-c1ae-47c7-b4b9-dc637ce91e29:end',
     ]);
   });
 });
@@ -218,7 +218,7 @@ describe('F-12 AC-053 step 3 keeps the pipeline with its blocks when the user mo
   it('F-12 AC-053 the blocks added on step 3 are the same after next and prev', () => {
     const base = step3WithValues();
     const flows = base.values.pipeline.flows.map((flow) =>
-      flow.id === 'specify' ? addBlock(flow, 'end', base.values.pipeline.flows).flow : flow,
+      flow.id === 'f2cce1b4-ea0c-4dbe-9151-870598b6a4d2' ? addBlock(flow, 'end').flow : flow,
     );
     const onStep3 = wizardReducer(base, {
       type: 'set-pipeline',

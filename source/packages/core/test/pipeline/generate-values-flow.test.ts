@@ -1,16 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import type { AgentBlock, Block, ConditionBlock, Flow, Route } from '../../src/pipeline/model.js';
+import type { AgentBlock, Block, ConditionBlock, Flow, Route, Rule } from '../../src/pipeline/model.js';
 import { GenerationError } from '../../src/pipeline/generate/error.js';
 import { renderLayout } from '../../src/pipeline/generate/render.js';
 import { flowValues } from '../../src/pipeline/generate/values-flow.js';
 import { withFlow } from './analyze-fixture.js';
 
-function agent(index: number, id: string, next: string): AgentBlock {
-  return { index, id, kind: 'agent', name: `${id}-agent`, description: `Runs ${id}.`, arguments: [], next };
+// Block ids are GUIDs (F-16 AC-028). The helpers take a label: its GUID comes from this table, and the label names
+// the agent file and reads in the description.
+const IDS: Readonly<Record<string, string>> = {
+  end: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
+  draft: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63',
+  review: '82c969a4-365a-5525-8168-6ae1093b1867',
+  publish: '9ed0bdfe-f040-5934-9233-bdec297f9995',
+  gate: '1f171f7c-f206-51eb-9702-05258a7247cd',
+  check: '6235136f-9021-5aaf-9958-4bc813c4d9b1',
+  c1: 'f970b5b8-121a-53a9-aa9f-265963505100',
+  c2: 'c8671d84-1ff2-5ef5-bd2e-437e928d23cc',
+  a: 'fdac7165-b540-5201-bca7-029a056ea40e',
+  b: '2cb36792-5a03-58cf-a718-bba6be0b9122',
+};
+
+function idOf(label: string): string {
+  const id = IDS[label];
+  if (id === undefined) throw new Error(`no id for the label ${label}`);
+  return id;
 }
 
-function condition(index: number, id: string, whenTrue: Route, whenFalse: Route): ConditionBlock {
-  return { index, id, kind: 'condition', description: `Is ${id} met?`, true: whenTrue, false: whenFalse };
+function agent(index: number, label: string, next: string): AgentBlock {
+  return { index, id: idOf(label), kind: 'agent', name: `${label}-agent`, description: `Runs ${label}.`, arguments: [], next: idOf(next) };
+}
+
+function condition(index: number, label: string, whenTrue: Route, whenFalse: Route): ConditionBlock {
+  return { index, id: idOf(label), kind: 'condition', description: `Is ${label} met?`, true: whenTrue, false: whenFalse };
 }
 
 // A flow of the given blocks, built on the valid fixture so that every other part is well formed.
@@ -21,17 +42,17 @@ function flowWith(blocks: readonly Block[], change: (flow: Flow) => Flow = (flow
   return flow;
 }
 
-const END = { index: 99, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' } as const;
+const END = { index: 99, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'out.md' } as const;
 
 // Start → draft → review; review's true route goes on to publish → gate → end, its false route returns to draft
 // (a return with a round limit of 2). The gate's false route stops the flow.
 function fixtureFlow(): Flow {
   return flowWith([
-    { index: 0, id: 'start', kind: 'start', next: 'draft' },
+    { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
     agent(1, 'draft', 'review'),
-    condition(2, 'review', { to: 'publish' }, { to: 'draft', roundLimit: 2 }),
+    condition(2, 'review', { to: '9ed0bdfe-f040-5934-9233-bdec297f9995' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit: 2 }),
     agent(3, 'publish', 'gate'),
-    condition(4, 'gate', { to: 'end' }, { stop: true }),
+    condition(4, 'gate', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { stop: true }),
     END,
   ]);
 }
@@ -40,7 +61,7 @@ describe('F-04 AC-012 the flow id and the other flow values fill the placeholder
   it('gives the flow id for a {{flowId}} placeholder', () => {
     const flow = fixtureFlow();
     expect(renderLayout('Command {{flowId}}.', flowValues(flow), '.claude/commands/build.md')).toBe(
-      'Command build.',
+      'Command ea365500-e6ec-5064-90ea-fb6cc4bb49d6.',
     );
   });
 
@@ -64,11 +85,11 @@ describe('F-04 AC-012 the flow id and the other flow values fill the placeholder
     const withArgs = {
       ...flow,
       arguments: [
-        { index: 0, id: 'feature-id', required: true, hint: 'F-XX' },
-        { index: 1, id: 'note', required: false, hint: '' },
+        { index: 0, id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX' },
+        { index: 1, id: '7c92b76d-ad71-5b3d-84d4-0b2e296f755a', required: false, hint: '' },
       ],
     };
-    expect(flowValues(withArgs)['flowArguments']).toBe('\n- `feature-id` (required, F-XX)\n- `note` (optional)');
+    expect(flowValues(withArgs)['flowArguments']).toBe('\n- `a56aab15-5743-5847-9b77-b39b2124c91b` (required, F-XX)\n- `7c92b76d-ad71-5b3d-84d4-0b2e296f755a` (optional)');
   });
 });
 
@@ -101,8 +122,8 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
   it('F-05 AC-010 moves an End reached before other blocks to the last step, and writes each block once', () => {
     // The true route of check goes to end, which is listed first; draft also leads to end, which is listed once.
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'check' },
-      condition(1, 'check', { to: 'end' }, { to: 'draft' }),
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6235136f-9021-5aaf-9958-4bc813c4d9b1' },
+      condition(1, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' }),
       agent(2, 'draft', 'end'),
       END,
     ]);
@@ -121,8 +142,8 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
 
   it('F-05 AC-010 numbers the route targets of a Condition with the same step numbers as the steps', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'check' },
-      condition(1, 'check', { to: 'draft' }, { to: 'end' }),
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6235136f-9021-5aaf-9958-4bc813c4d9b1' },
+      condition(1, 'check', { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' }, { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }),
       agent(2, 'draft', 'end'),
       END,
     ]);
@@ -150,9 +171,9 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
 
   it('F-05 AC-010 names a Condition that a route goes to by its step number and its check', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'c1' },
-      condition(1, 'c1', { to: 'c2' }, { stop: true }),
-      condition(2, 'c2', { to: 'end' }, { stop: true }),
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'f970b5b8-121a-53a9-aa9f-265963505100' },
+      condition(1, 'c1', { to: 'c8671d84-1ff2-5ef5-bd2e-437e928d23cc' }, { stop: true }),
+      condition(2, 'c2', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { stop: true }),
       END,
     ]);
     expect(flowValues(flow)['flowSteps']).toBe(
@@ -174,7 +195,7 @@ describe('F-05 AC-010 the steps follow the route from the Start block to the End
 describe('F-05 AC-011 an Agent step names the agent file and gives the agent description', () => {
   it('F-05 AC-011 names the agent file from the agent name, not its block id', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
       { ...agent(1, 'draft', 'end'), name: 'review-agent', description: 'Reviews the draft.' },
       END,
     ]);
@@ -241,12 +262,12 @@ describe('F-04 AC-015 the steps list the blocks of the walk, the Start first and
 
   it('names the arguments of an Agent, with its required and optional marks and hints', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
       {
         ...agent(1, 'draft', 'end'),
         arguments: [
-          { index: 0, id: 'feature-id', required: true, hint: 'F-XX' },
-          { index: 1, id: 'note', required: false, hint: '' },
+          { index: 0, id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX' },
+          { index: 1, id: '7c92b76d-ad71-5b3d-84d4-0b2e296f755a', required: false, hint: '' },
         ],
       },
       END,
@@ -255,14 +276,14 @@ describe('F-04 AC-015 the steps list the blocks of the walk, the Start first and
       '\n' +
       [
         '1. Start the flow.',
-        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX), `note` (optional): Runs draft.',
+        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `a56aab15-5743-5847-9b77-b39b2124c91b` (required, F-XX), `7c92b76d-ad71-5b3d-84d4-0b2e296f755a` (optional): Runs draft.',
         '3. End the flow, producing the artifact `out.md`.',
       ].join('\n'),
     );
   });
 
   it('gives only the Start and End steps for a flow with no Agent block', () => {
-    const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'end' }, END]);
+    const flow = flowWith([{ index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, END]);
     expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow, producing the artifact `out.md`.');
   });
 
@@ -291,9 +312,9 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
   it('gives a return the round limit of each value from 1 to 5', () => {
     for (const roundLimit of [1, 5]) {
       const flow = flowWith([
-        { index: 0, id: 'start', kind: 'start', next: 'draft' },
+        { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
         agent(1, 'draft', 'check'),
-        condition(2, 'check', { to: 'end' }, { to: 'draft', roundLimit }),
+        condition(2, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit }),
         END,
       ]);
       expect(flowValues(flow)['flowConditions']).toContain(
@@ -305,9 +326,9 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
   it('refuses a return whose round limit is outside 1 to 5, as a programmer error', () => {
     for (const roundLimit of [0, 6, 2.5]) {
       const flow = flowWith([
-        { index: 0, id: 'start', kind: 'start', next: 'draft' },
+        { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
         agent(1, 'draft', 'check'),
-        condition(2, 'check', { to: 'end' }, { to: 'draft', roundLimit }),
+        condition(2, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { to: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63', roundLimit }),
         END,
       ]);
       expect(() => flowValues(flow)).toThrow(GenerationError);
@@ -317,8 +338,8 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
 
   it('gives the stop route a question built from the condition description, on either side', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'check' },
-      { ...condition(1, 'check', { stop: true }, { to: 'end' }), description: 'Is the build green?' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6235136f-9021-5aaf-9958-4bc813c4d9b1' },
+      { ...condition(1, 'check', { stop: true }, { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }), description: 'Is the build green?' },
       END,
     ]);
     expect(flowValues(flow)['flowConditions']).toBe(
@@ -333,10 +354,10 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
 
   it('numbers conditions apart from Agent steps, so a rule after two agents is still rule 1', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'a' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'fdac7165-b540-5201-bca7-029a056ea40e' },
       agent(1, 'a', 'b'),
       agent(2, 'b', 'check'),
-      condition(3, 'check', { to: 'end' }, { stop: true }),
+      condition(3, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { stop: true }),
       END,
     ]);
     expect(flowValues(flow)['flowConditions']).toContain('1. Is check met?');
@@ -344,14 +365,14 @@ describe('F-04 AC-015 AC-016 the conditions are numbered rules with their routes
   });
 
   it('gives no rules for a flow with no Condition block', () => {
-    const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'draft' }, agent(1, 'draft', 'end'), END]);
+    const flow = flowWith([{ index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' }, agent(1, 'draft', 'end'), END]);
     expect(flowValues(flow)['flowConditions']).toBe('');
   });
 
   it('copies a condition description with {{...}} text as written', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'check' },
-      { ...condition(1, 'check', { to: 'end' }, { stop: true }), description: 'Does {{flowId}} pass?' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '6235136f-9021-5aaf-9958-4bc813c4d9b1' },
+      { ...condition(1, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { stop: true }), description: 'Does {{flowId}} pass?' },
       END,
     ]);
     expect(flowValues(flow)['flowConditions']).toContain('1. Does {{flowId}} pass?');
@@ -382,7 +403,7 @@ describe('F-04 AC-018 the approval line is present only when the flow approval i
 
 describe('F-04 AC-015 AC-012 an empty list leaves no blank line in a layout', () => {
   it('renders a rules section with no rules as its heading alone', () => {
-    const flow = flowWith([{ index: 0, id: 'start', kind: 'start', next: 'draft' }, agent(1, 'draft', 'end'), END]);
+    const flow = flowWith([{ index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' }, agent(1, 'draft', 'end'), END]);
     expect(renderLayout('## Rules{{flowConditions}}\n', flowValues(flow), '.claude/commands/build.md')).toBe(
       '## Rules\n',
     );
@@ -392,13 +413,13 @@ describe('F-04 AC-015 AC-012 an empty list leaves no blank line in a layout', ()
 describe('F-04 AC-040 a line break in a description or a hint does not split a numbered line', () => {
   it('writes an Agent description, a Condition description and an argument hint on one line each', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
       {
         ...agent(1, 'draft', 'check'),
         description: 'Runs\n  the draft.',
-        arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'F-XX\r\nnow' }],
+        arguments: [{ index: 0, id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX\r\nnow' }],
       },
-      { ...condition(2, 'check', { to: 'end' }, { stop: true }), description: 'Is it\r\nmet?' },
+      { ...condition(2, 'check', { to: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }, { stop: true }), description: 'Is it\r\nmet?' },
       END,
     ]);
     const values = flowValues(flow);
@@ -406,7 +427,7 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
       '\n' +
       [
         '1. Start the flow.',
-        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `feature-id` (required, F-XX now): Runs the draft.',
+        '2. Run the agent `.claude/agents/draft-agent.md` with the arguments `a56aab15-5743-5847-9b77-b39b2124c91b` (required, F-XX now): Runs the draft.',
         '3. Check to pass: Is it met?',
         '   - True: go to the end of the flow',
         '   - False: stop and ask the person what to do: "The check did not pass: Is it met? What should happen next?"',
@@ -424,8 +445,8 @@ describe('F-04 AC-040 a line break in a description or a hint does not split a n
   });
 
   it('writes a flow argument hint with a line break on one line', () => {
-    const flow = { ...fixtureFlow(), arguments: [{ index: 0, id: 'note', required: false, hint: 'a\nb' }] };
-    expect(flowValues(flow)['flowArguments']).toBe('\n- `note` (optional, a b)');
+    const flow = { ...fixtureFlow(), arguments: [{ index: 0, id: '7c92b76d-ad71-5b3d-84d4-0b2e296f755a', required: false, hint: 'a\nb' }] };
+    expect(flowValues(flow)['flowArguments']).toBe('\n- `7c92b76d-ad71-5b3d-84d4-0b2e296f755a` (optional, a b)');
   });
 });
 
@@ -461,17 +482,17 @@ describe('F-05 AC-008 each flow argument is written on its own line, or No argum
     const flow = {
       ...fixtureFlow(),
       arguments: [
-        { index: 0, id: 'feature-id', required: true, hint: 'F-XX' },
-        { index: 1, id: 'note', required: false, hint: 'A short note' },
-        { index: 2, id: 'owner', required: false, hint: '' },
+        { index: 0, id: 'a56aab15-5743-5847-9b77-b39b2124c91b', required: true, hint: 'F-XX' },
+        { index: 1, id: '7c92b76d-ad71-5b3d-84d4-0b2e296f755a', required: false, hint: 'A short note' },
+        { index: 2, id: '983b8888-e2ea-5d09-8a48-51a72711e112', required: false, hint: '' },
       ],
     };
     expect(flowValues(flow)['flowArguments']).toBe(
       [
         '',
-        '- `feature-id` (required, F-XX)',
-        '- `note` (optional, A short note)',
-        '- `owner` (optional)',
+        '- `a56aab15-5743-5847-9b77-b39b2124c91b` (required, F-XX)',
+        '- `7c92b76d-ad71-5b3d-84d4-0b2e296f755a` (optional, A short note)',
+        '- `983b8888-e2ea-5d09-8a48-51a72711e112` (optional)',
       ].join('\n'),
     );
   });
@@ -548,7 +569,7 @@ describe('F-05 AC-014 the End step names the produced artifact, or writes no art
 
   it('F-05 AC-014 writes the plain End step when the producedArtifact is empty', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'draft' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: 'ec22bab1-2420-5e5e-93ac-e548cae9ed63' },
       agent(1, 'draft', 'end'),
       { ...END, producedArtifact: '' },
     ]);
@@ -564,22 +585,39 @@ describe('F-05 AC-014 the End step names the produced artifact, or writes no art
 
   it('F-05 AC-014 writes the plain End step when the producedArtifact is blank', () => {
     const flow = flowWith([
-      { index: 0, id: 'start', kind: 'start', next: 'end' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' },
       { ...END, producedArtifact: ' \n ' },
     ]);
     expect(flowValues(flow)['flowSteps']).toBe('\n1. Start the flow.\n2. End the flow.');
   });
 });
 
+// The rules of the project, which the flow's tags name (F-16, AC-029): a tag is written as the file name of its rule.
+const RULES: readonly Rule[] = [
+  { index: 0, id: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', title: 'Style guide', text: 'Keep it short.' },
+  { index: 1, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Naming', text: 'Name it well.' },
+];
+
 describe('F-05 AC-007 the flow rule tags are one comma-separated list in their order', () => {
   it('F-05 AC-007 writes the tags of the flow in their order', () => {
-    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'tests', index: 0 }, { ruleId: 'style', index: 1 }] };
-    expect(flowValues(flow)['flowRuleTags']).toBe('tests, style');
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 0 }, { ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 1 }] };
+    expect(flowValues(flow, RULES)['flowRuleTags']).toBe('style-guide, naming');
   });
 
   it('F-05 AC-007 writes one tag without a separator', () => {
-    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'style', index: 0 }] };
-    expect(flowValues(flow)['flowRuleTags']).toBe('style');
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: '8f99cc27-78ab-5895-8637-5c13d7429593', index: 0 }] };
+    expect(flowValues(flow, RULES)['flowRuleTags']).toBe('naming');
+  });
+
+  it('F-16 AC-029 writes the file name of the rule, not its id, in the flow rule tags', () => {
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: 'e345b9a9-48a4-5f13-a7a8-34a0f6722b08', index: 0 }] };
+    expect(flowValues(flow, RULES)['flowRuleTags']).toBe('style-guide');
+    expect(flowValues(flow, RULES)['flowRuleTags']).not.toContain('e345b9a9');
+  });
+
+  it('F-16 AC-029 refuses a tag that names no rule of the project', () => {
+    const flow = { ...fixtureFlow(), ruleTags: [{ ruleId: '71b2ecbc-b1ec-5b8f-b792-a30a35989a2e', index: 0 }] };
+    expect(() => flowValues(flow, RULES)).toThrow(GenerationError);
   });
 
   it('F-05 AC-007 writes none when the flow has no tags or an empty list', () => {

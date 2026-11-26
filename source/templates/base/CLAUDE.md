@@ -16,4 +16,4 @@ The agent files are in `.claude/agents/`, one for each agent block of the flows.
 
 ## Rules
 
-The rule files are in `.claude/rules/`, one for each rule of the project. A command or an agent lists the rules it is tagged with by id; each id is the name of one rule file.{{ruleList}}
+The rule files are in `.claude/rules/`, one for each rule of the project, each named from the rule's title. A command or an agent lists the rules it is tagged with.{{ruleList}}

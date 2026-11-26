@@ -4,19 +4,19 @@ import { startAndEndRule } from '../../src/pipeline/analyze/start-end.js';
 import type { Block, Flow, ProjectConfig } from '../../src/pipeline/model.js';
 import { validConfig, withFlow } from './analyze-fixture.js';
 
-const START_0: Block = { index: 0, id: 'start', kind: 'start', next: 'agent' };
-const SECOND_START: Block = { index: 1, id: 'start-2', kind: 'start', next: 'agent' };
+const START_0: Block = { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '8ab88d48-0e83-5f68-ade2-07a171b5ac0c' };
+const SECOND_START: Block = { index: 1, id: '6c18878e-a086-52e1-98b8-fdc2886e8d35', kind: 'start', next: '8ab88d48-0e83-5f68-ade2-07a171b5ac0c' };
 const AGENT: Block = {
   index: 2,
-  id: 'agent',
+  id: '8ab88d48-0e83-5f68-ade2-07a171b5ac0c',
   kind: 'agent',
   name: 'build-agent',
   description: 'Builds the project.',
   arguments: [],
-  next: 'end',
+  next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
 };
-const END_3: Block = { index: 3, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
-const SECOND_END: Block = { index: 4, id: 'end-2', kind: 'end', outcome: 'stopped', producedArtifact: 'out.md' };
+const END_3: Block = { index: 3, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'out.md' };
+const SECOND_END: Block = { index: 4, id: '7b7048a2-e204-567d-8249-a221fe1c7f31', kind: 'end', outcome: 'stopped', producedArtifact: 'out.md' };
 
 function withBlocks(blocks: readonly Block[]): ProjectConfig {
   return withFlow((flow: Flow) => ({ ...flow, blocks }));
@@ -45,7 +45,7 @@ const cases: Array<[string, ProjectConfig, Expected[]]> = [
   ],
   [
     'F-03 AC-003 a flow with three Starts gives a blocker at each Start after the first',
-    withBlocks([START_0, SECOND_START, { ...SECOND_START, index: 2, id: 'start-3' }, AGENT, END_3]),
+    withBlocks([START_0, SECOND_START, { ...SECOND_START, index: 2, id: '1d5ee48d-ad29-524c-8bce-97db436e42a6' }, AGENT, END_3]),
     [
       { rule: 'flow-start', path: 'pipeline.flows.0.blocks.1' },
       { rule: 'flow-start', path: 'pipeline.flows.0.blocks.2' },
@@ -84,7 +84,7 @@ const cases: Array<[string, ProjectConfig, Expected[]]> = [
           ...validConfig().pipeline.flows,
           {
             index: 1,
-            id: 'second',
+            id: '9c7ec703-c07d-5128-b056-24c54e49081f',
             name: 'Second',
             arguments: [],
             body: 'Runs the second agent.',
@@ -93,12 +93,12 @@ const cases: Array<[string, ProjectConfig, Expected[]]> = [
             blocks: [
               {
                 index: 0,
-                id: 'agent-2',
+                id: 'e8a2e442-8bb9-5ea2-be8c-dceaff995e01',
                 kind: 'agent',
                 name: 'second-agent',
                 description: 'Second.',
                 arguments: [],
-                next: 'end-2',
+                next: '7b7048a2-e204-567d-8249-a221fe1c7f31',
               },
             ],
           },

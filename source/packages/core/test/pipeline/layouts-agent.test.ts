@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AgentBlock, Block, ProjectConfig, RuleTag } from '../../src/pipeline/model.js';
+import type { AgentBlock, Block, ProjectConfig, Rule, RuleTag } from '../../src/pipeline/model.js';
 import { renderLayout } from '../../src/pipeline/generate/render.js';
 import { listFiles } from '../../src/pipeline/generate/file-list.js';
 import type { GenerationTemplates } from '../../src/pipeline/generate/templates.js';
@@ -10,8 +10,14 @@ import { readLayout } from './layouts-loader.js';
 const LAYOUT_PATH = 'claude-code/agent.md';
 
 // The real layout of `source/templates/claude-code/agent.md`, rendered with the real values of the agent.
+// The rules the tags name (F-16, AC-029): a tag is written as the file name of its rule.
+const RULES: readonly Rule[] = [
+  { index: 0, id: '8f99cc27-78ab-5895-8637-5c13d7429593', title: 'Style guide', text: 'Keep it short.' },
+  { index: 1, id: 'fc7318c7-863c-5a34-9269-e28c8dd30284', title: 'Naming', text: 'Name it well.' },
+];
+
 function render(agent: AgentBlock): string {
-  return renderLayout(readLayout(LAYOUT_PATH), agentValues(agent), LAYOUT_PATH);
+  return renderLayout(readLayout(LAYOUT_PATH), agentValues(agent, RULES), LAYOUT_PATH);
 }
 
 // A valid Agent block: a review agent with no model, tools, body, artifacts, arguments or rule tags. `change` replaces
@@ -19,12 +25,12 @@ function render(agent: AgentBlock): string {
 function agentOf(change: Partial<AgentBlock> = {}): AgentBlock {
   return {
     index: 1,
-    id: 'review',
+    id: '82c969a4-365a-5525-8168-6ae1093b1867',
     kind: 'agent',
     name: 'review-agent',
     description: 'Reviews the plan.',
     arguments: [],
-    next: 'end',
+    next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb',
     ...change,
   };
 }
@@ -57,12 +63,12 @@ function configWithAgents(names: readonly string[]): ProjectConfig {
   const flow = config.pipeline.flows[0];
   if (flow === undefined) throw new Error('the fixture has no flow');
   const agents = names.map((name, index) =>
-    agentOf({ index: index + 1, id: name, name: `${name}-agent`, next: 'end' }),
+    agentOf({ index: index + 1, id: name, name: `${name}-agent`, next: '128fea8a-2e63-5352-bd64-02ceddc0d0cb' }),
   );
   const blocks: Block[] = [
-    { index: 0, id: 'start', kind: 'start', next: names[0] ?? 'end' },
+    { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: names[0] ?? 'end' },
     ...agents,
-    { index: 99, id: 'end', kind: 'end', outcome: 'done', producedArtifact: '' },
+    { index: 99, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: '' },
   ];
   return { ...config, pipeline: { ...config.pipeline, flows: [{ ...flow, blocks }] } };
 }
@@ -142,9 +148,9 @@ describe('F-05 layouts: the agent file layout', () => {
   });
 
   it('F-05 AC-022 writes the rule tags of the block as one comma-separated list under Rule tags, in their order', () => {
-    expect(section(render(agentOf({ ruleTags: ruleTags('style', 'safety') })), '## Rule tags')).toEqual([
+    expect(section(render(agentOf({ ruleTags: ruleTags('8f99cc27-78ab-5895-8637-5c13d7429593', 'fc7318c7-863c-5a34-9269-e28c8dd30284') })), '## Rule tags')).toEqual([
       '',
-      'style, safety',
+      'style-guide, naming',
       '',
     ]);
   });

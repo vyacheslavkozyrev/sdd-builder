@@ -10,60 +10,60 @@ function manyProblems(): ProjectConfig {
   const base = validConfig();
   const build: Flow = {
     index: 0,
-    id: 'build',
+    id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6',
     name: '',
     arguments: [],
     body: 'Builds the project.',
     artifacts: [{ label: 'out.md', template: 'The output' }],
     approval: false,
-    next: 'verify',
+    next: '9db17c97-0038-5730-901f-161db419c217',
     blocks: [
-      { index: 0, id: 'start', kind: 'start', next: 'agent' },
+      { index: 0, id: 'f05559a1-554d-5c78-a9a6-bb9ce0bfc551', kind: 'start', next: '8ab88d48-0e83-5f68-ade2-07a171b5ac0c' },
       {
         index: 1,
-        id: 'agent',
+        id: '8ab88d48-0e83-5f68-ade2-07a171b5ac0c',
         kind: 'agent',
         name: 'build-agent',
         description: '',
         arguments: [],
-        next: 'cond',
+        next: 'a43c79d0-c35f-5ce2-9620-c8e379373527',
       },
       {
         index: 2,
-        id: 'cond',
+        id: 'a43c79d0-c35f-5ce2-9620-c8e379373527',
         kind: 'condition',
         description: 'Checks the build.',
-        true: { to: 'nowhere' },
-        false: { to: 'missing' },
+        true: { to: 'a5767084-cb93-5669-9a85-49c86b4893f6' },
+        false: { to: '71b2ecbc-b1ec-5b8f-b792-a30a35989a2e' },
       },
-      { index: 3, id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+      { index: 3, id: '128fea8a-2e63-5352-bd64-02ceddc0d0cb', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
     ],
   };
   const verify: Flow = {
     index: 1,
-    id: 'verify',
+    id: '9db17c97-0038-5730-901f-161db419c217',
     name: 'Verify',
     arguments: [],
     body: '',
     artifacts: [{ label: 'out.md', template: 'The output' }],
     approval: false,
     blocks: [
-      { index: 0, id: 'verify-start', kind: 'start', next: 'verify-agent' },
+      { index: 0, id: 'ea1a6b62-509c-5a55-a4a4-0425dfa533f5', kind: 'start', next: '3391f01d-c30a-5c5f-858b-f203c1b8ecbc' },
       {
         index: 1,
-        id: 'verify-agent',
+        id: '3391f01d-c30a-5c5f-858b-f203c1b8ecbc',
         kind: 'agent',
         name: 'verify-agent',
         description: 'Verifies the build.',
         arguments: [],
-        next: 'verify-end',
+        next: 'd411ff37-b98f-532e-b9bf-fe7ad813999b',
       },
-      { index: 2, id: 'verify-end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+      { index: 2, id: 'd411ff37-b98f-532e-b9bf-fe7ad813999b', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
     ],
   };
   const rules = [
-    { index: 0, id: 'r-one', title: 'One', text: 'First rule.' },
-    { index: 1, id: 'r-one', title: 'Two', text: 'Second rule with the same id.' },
+    { index: 0, id: 'fb5ace87-cc29-51f9-b8e5-fcd356703753', title: 'One', text: 'First rule.' },
+    { index: 1, id: 'fb5ace87-cc29-51f9-b8e5-fcd356703753', title: 'Two', text: 'Second rule with the same id.' },
   ];
   return { ...base, rules, pipeline: { ...base.pipeline, flows: [build, verify] } };
 }

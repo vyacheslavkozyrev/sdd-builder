@@ -22,7 +22,7 @@ function renderWithTheme(ui: ReactElement) {
 // A flow with no blocks, and a copy of it with the given blocks.
 const emptyFlow: Flow = {
   index: 0,
-  id: 'plan',
+  id: 'ea3211a4-b64b-5204-9451-6fe12fd7c655',
   name: 'plan',
   arguments: [],
   body: '',
@@ -35,7 +35,7 @@ function flowWith(blocks: Flow['blocks']): Flow {
   return { ...emptyFlow, blocks };
 }
 
-const startBlock: Flow['blocks'][number] = { index: 0, id: 'block-1', kind: 'start', next: '' };
+const startBlock: Flow['blocks'][number] = { index: 0, id: 'b37d90e6-d1ca-536d-9a73-4137aeec6b9b', kind: 'start', next: '' };
 
 const reason = 'This flow already has a Start block.';
 

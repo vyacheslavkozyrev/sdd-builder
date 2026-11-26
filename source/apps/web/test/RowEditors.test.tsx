@@ -28,8 +28,8 @@ afterEach(() => {
 type Flow = core.Flow;
 
 const RULES: readonly Rule[] = [
-  { index: 0, id: 'general', title: 'General', text: 'Write short sentences.' },
-  { index: 1, id: 'qa', title: 'QA', text: 'Every criterion has a test.' },
+  { index: 0, id: '1b206118-4f23-5ed9-8340-8256dd24178c', title: 'General', text: 'Write short sentences.' },
+  { index: 1, id: '2146d294-d7bb-5ff8-af8d-1981e7f569d7', title: 'QA', text: 'Every criterion has a test.' },
 ];
 
 function flow(id: string, name = id): Flow {
@@ -38,12 +38,12 @@ function flow(id: string, name = id): Flow {
     id,
     name,
     description: `The ${name} step.`,
-    arguments: [{ index: 0, id: 'feature-id', required: true, hint: 'The feature' }],
+    arguments: [{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: 'The feature' }],
     body: `Do the ${name} work.`,
     artifacts: [{ label: 'plan.md', template: 'Task list, in order\nSecond line' }],
     approval: false,
     blocks: [],
-    ruleTags: [{ index: 0, ruleId: 'general' }],
+    ruleTags: [{ index: 0, ruleId: '1b206118-4f23-5ed9-8340-8256dd24178c' }],
   };
 }
 
@@ -52,19 +52,19 @@ function pipelineOf(...flows: Flow[]): Pipeline {
     name: 'Demo',
     description: 'A demo pipeline.',
     // An argument id is unique across the pipeline and its flows, so the pipeline's id differs from the flow's.
-    arguments: [{ index: 0, id: 'brief', required: false, hint: '' }],
-    ruleTags: [{ index: 0, ruleId: 'qa' }],
+    arguments: [{ index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' }],
+    ruleTags: [{ index: 0, ruleId: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' }],
     flows: flows.map((item, index) => ({ ...item, index })),
   };
 }
 
 function basePipeline(): Pipeline {
-  return pipelineOf(flow('plan', 'Plan'), flow('build', 'Build'));
+  return pipelineOf(flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'), flow('a0c3aad4-8765-5b23-8df5-7c03d481233c', 'Build'));
 }
 
 // A flow `plan` with the given arguments, for the argument and refusal tests.
 function withArguments(...rows: ArgumentRow[]): Pipeline {
-  return pipelineOf({ ...flow('plan', 'Plan'), arguments: rows.map((row, index) => ({ index, ...row })) });
+  return pipelineOf({ ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'), arguments: rows.map((row, index) => ({ index, ...row })) });
 }
 
 // The reason the parser gives for an argument edit it refuses. The test fails if the parser accepts it.
@@ -79,13 +79,13 @@ function commitText(input: HTMLElement, value: string) {
   fireEvent.blur(input);
 }
 
-function renderArguments(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'plan' }) {
+function renderArguments(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }) {
   const onChange = vi.fn();
   render(<ArgumentRows pipelineState={pipelineState} rules={RULES} target={target} onChange={onChange} />);
   return { onChange };
 }
 
-function renderTags(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'plan' }) {
+function renderTags(pipelineState: Pipeline, target: ListTarget = { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }) {
   const onChange = vi.fn();
   render(<RuleTagRows pipelineState={pipelineState} rules={RULES} target={target} onChange={onChange} />);
   return { onChange };
@@ -93,9 +93,12 @@ function renderTags(pipelineState: Pipeline, target: ListTarget = { kind: 'flow'
 
 function renderArtifacts(pipelineState: Pipeline) {
   const onChange = vi.fn();
-  render(<ArtifactRows pipelineState={pipelineState} rules={RULES} flowId="plan" onChange={onChange} />);
+  render(<ArtifactRows pipelineState={pipelineState} rules={RULES} flowId="ea3211a4-b64b-5204-9451-6fe12fd7c655" onChange={onChange} />);
   return { onChange };
 }
+
+// A lower-case GUID in the 8-4-4-4-12 form (F-16 AC-027).
+const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 // The pipeline the editor reports after an accepted edit: the callback's first argument.
 function reported(onChange: ReturnType<typeof vi.fn>): Pipeline {
@@ -108,14 +111,14 @@ describe('F-11 AC-024 flow argument rows', () => {
   it('F-11 AC-024 shows each saved argument as a field with its id, a "required" checkbox and a minus; no new line is open', () => {
     renderArguments(basePipeline());
     const row = within(screen.getByRole('group', { name: 'Argument 1' }));
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'feature-id');
+    expect(screen.getByLabelText('Argument 1 name')).toHaveProperty('value', 'The feature');
     expect(row.getByRole('checkbox', { name: 'required' })).toBeTruthy();
     expect(row.getByRole('button', { name: 'Remove argument 1' })).toBeTruthy();
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
   });
 
   it('F-11 AC-024 the required checkbox reflects the flag: the feature-id row is checked, an unrequired argument is not', () => {
-    renderArguments(withArguments({ id: 'feature-id', required: true, hint: '' }, { id: 'topic', required: false, hint: '' }));
+    renderArguments(withArguments({ id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: '' }, { id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '' }));
     expect(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('checkbox', { name: 'required' })).toHaveProperty(
       'checked',
       true,
@@ -127,17 +130,17 @@ describe('F-11 AC-024 flow argument rows', () => {
   });
 
   it('F-11 AC-024 ticking the required checkbox of a saved argument saves required true through the parser, keeping its id and hint', () => {
-    const { onChange } = renderArguments(withArguments({ id: 'topic', required: false, hint: 'The topic' }));
+    const { onChange } = renderArguments(withArguments({ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'The topic' }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
 
-    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'topic', required: true, hint: 'The topic' }]);
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: true, hint: 'The topic' }]);
   });
 
   it('F-11 AC-024 unticking the required checkbox of the feature-id argument saves required false, keeping its id and hint', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
 
-    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'feature-id', required: false, hint: 'The feature' }]);
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: false, hint: 'The feature' }]);
   });
 
   it('F-11 AC-024 a new argument starts unrequired: its required checkbox is not ticked', () => {
@@ -154,16 +157,16 @@ describe('F-11 AC-024 flow argument rows', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
     fireEvent.click(within(screen.getByRole('group', { name: 'New argument' })).getByRole('checkbox', { name: 'required' }));
-    expect(screen.getByLabelText('New argument id')).toHaveProperty('value', '');
-    commitText(screen.getByLabelText('New argument id'), 'topic');
+    expect(screen.getByLabelText('New argument name')).toHaveProperty('value', '');
+    commitText(screen.getByLabelText('New argument name'), 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
 
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: true, hint: 'topic' });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: true, hint: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' });
   });
 
   it('F-11 AC-024 the press on the required box of the new line keeps the focus in the line, so the line is not saved early', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(screen.getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     const label = within(screen.getByRole('group', { name: 'New argument' })).getByText('required');
 
     expect(fireEvent.mouseDown(label)).toBe(false);
@@ -175,14 +178,14 @@ describe('F-11 AC-024 flow argument rows', () => {
     const { onChange } = renderArguments(basePipeline(), { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('checkbox', { name: 'required' }));
 
-    expect(reported(onChange).arguments).toEqual([{ index: 0, id: 'brief', required: true, hint: '' }]);
+    expect(reported(onChange).arguments).toEqual([{ index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: true, hint: '' }]);
   });
 
   it('F-11 AC-024 + adds one line with a text box and a minus, and no Cancel or Save', () => {
     renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
     const line = within(screen.getByRole('group', { name: 'New argument' }));
-    expect(line.getByLabelText('New argument id')).toBeTruthy();
+    expect(line.getByLabelText('New argument name')).toBeTruthy();
     expect(line.getByRole('button', { name: 'Cancel new argument' })).toBeTruthy();
     expect(line.queryByRole('button', { name: 'Save' })).toBeNull();
     expect(line.queryByRole('button', { name: 'Cancel' })).toBeNull();
@@ -193,7 +196,7 @@ describe('F-11 AC-024 flow argument rows', () => {
   it('F-11 AC-024 a blank new line is discarded on blur and nothing is saved', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), '   ');
+    commitText(screen.getByLabelText('New argument name'), '   ');
 
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
     expect(onChange).not.toHaveBeenCalled();
@@ -202,11 +205,11 @@ describe('F-11 AC-024 flow argument rows', () => {
   it('F-11 AC-024 a valid id on blur saves a new argument through the parser: not required, the hint is the id', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'topic');
+    commitText(screen.getByLabelText('New argument name'), 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
 
     expect(reported(onChange).flows[0]?.arguments).toEqual([
-      { index: 0, id: 'feature-id', required: true, hint: 'The feature' },
-      { index: 1, id: 'topic', required: false, hint: 'topic' },
+      { index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: 'The feature' },
+      { index: 1, id: expect.stringMatching(GUID), required: false, hint: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' },
     ]);
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
   });
@@ -214,33 +217,33 @@ describe('F-11 AC-024 flow argument rows', () => {
   it('F-11 AC-024 Enter on the new line saves a valid id the same way as blur', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const input = screen.getByLabelText('New argument id');
-    fireEvent.change(input, { target: { value: 'topic' } });
+    const input = screen.getByLabelText('New argument name');
+    fireEvent.change(input, { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     input.focus();
     fireEvent.keyDown(input, { key: 'Enter' });
 
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' });
   });
 
   it('F-11 AC-024 Tab from the new line\'s id to its required box keeps the line open until the box is ticked', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const input = screen.getByLabelText('New argument id');
+    const input = screen.getByLabelText('New argument name');
     const box = within(screen.getByRole('group', { name: 'New argument' })).getByRole('checkbox', { name: 'required' });
-    fireEvent.change(input, { target: { value: 'topic' } });
+    fireEvent.change(input, { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.blur(input, { relatedTarget: box });
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.getByLabelText('New argument id')).toHaveProperty('value', 'topic');
+    expect(screen.getByLabelText('New argument name')).toHaveProperty('value', 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038');
     fireEvent.click(box);
     fireEvent.blur(box);
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: true, hint: 'topic' });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: true, hint: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' });
   });
 
   it('F-11 AC-024 a minus on the new line discards it without saving', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(screen.getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.click(screen.getByRole('button', { name: 'Cancel new argument' }));
 
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
@@ -250,7 +253,7 @@ describe('F-11 AC-024 flow argument rows', () => {
   it('F-11 AC-024 the press on the minus of the new line keeps its focus, so a typed id is not saved before the click', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    fireEvent.change(screen.getByLabelText('New argument id'), { target: { value: 'topic' } });
+    fireEvent.change(screen.getByLabelText('New argument name'), { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     const minus = screen.getByRole('button', { name: 'Cancel new argument' });
 
     expect(fireEvent.mouseDown(minus)).toBe(false);
@@ -259,58 +262,57 @@ describe('F-11 AC-024 flow argument rows', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('F-11 AC-024 an edit of a saved id is checked by the parser on blur and keeps required and the hint', () => {
+  it('F-11 AC-024 an edit of a saved name is saved on blur, keeping the id and the required flag', () => {
     const { onChange } = renderArguments(basePipeline());
-    commitText(screen.getByLabelText('Argument 1 id'), 'feature-two');
+    commitText(screen.getByLabelText('Argument 1 name'), 'Feature two');
 
-    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'feature-two', required: true, hint: 'The feature' }]);
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: '82f01964-ec89-5b1a-8ccc-5a29c72f2adf', required: true, hint: 'Feature two' }]);
   });
 
-  it('F-11 AC-024 an unchanged saved id is not sent on blur', () => {
+  it('F-11 AC-024 an unchanged saved name is not sent on blur', () => {
     const { onChange } = renderArguments(basePipeline());
-    commitText(screen.getByLabelText('Argument 1 id'), 'feature-id');
+    commitText(screen.getByLabelText('Argument 1 name'), 'The feature');
 
     expect(onChange).not.toHaveBeenCalled();
   });
 
-  it('F-11 AC-024 a refused edit repeats the id of another argument: the saved id returns with no error shown', () => {
-    const pipelineState = withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' });
+  it('F-11 AC-024 a name with no letter or digit typed into a saved row is not saved, and the saved name returns with no error shown', () => {
+    const pipelineState = withArguments({ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'Alpha' }, { id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', required: false, hint: 'Beta' });
     const { onChange } = renderArguments(pipelineState);
-    commitText(screen.getByLabelText('Argument 2 id'), 'a');
+    commitText(screen.getByLabelText('Argument 2 name'), '!!!');
 
-    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 1, { id: 'a', required: false, hint: '' }));
     expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByText(reason)).toBeNull();
-    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'b');
+    expect(screen.getByLabelText('Argument 2 name')).toHaveProperty('value', 'Beta');
+    expect(screen.queryByText('Needs a letter or digit.')).toBeNull();
   });
 
   it('F-11 AC-024 removes one row on its own and leaves the others', () => {
     const { onChange } = renderArguments(
-      withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' }),
+      withArguments({ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'Alpha' }, { id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', required: false, hint: 'Beta' }),
     );
     fireEvent.click(screen.getByRole('button', { name: 'Remove argument 1' }));
 
-    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'b', required: false, hint: '' }]);
+    expect(reported(onChange).flows[0]?.arguments).toEqual([{ index: 0, id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', required: false, hint: 'Beta' }]);
   });
 
-  it('F-11 AC-024 after a removal the field of each row shows the id that row now has', () => {
-    const pipelineState = withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' });
+  it('F-11 AC-024 after a removal the field of each row shows the name that row now has', () => {
+    const pipelineState = withArguments({ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'Alpha' }, { id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', required: false, hint: 'Beta' });
     const onChange = vi.fn();
-    const view = render(<ArgumentRows pipelineState={pipelineState} rules={RULES} target={{ kind: 'flow', flowId: 'plan' }} onChange={onChange} />);
+    const view = render(<ArgumentRows pipelineState={pipelineState} rules={RULES} target={{ kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }} onChange={onChange} />);
     fireEvent.click(screen.getByRole('button', { name: 'Remove argument 1' }));
     // The panel draws the pipeline it was handed back, so the list is drawn again from the reported state.
-    view.rerender(<ArgumentRows pipelineState={reported(onChange)} rules={RULES} target={{ kind: 'flow', flowId: 'plan' }} onChange={onChange} />);
+    view.rerender(<ArgumentRows pipelineState={reported(onChange)} rules={RULES} target={{ kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' }} onChange={onChange} />);
 
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'b');
-    expect(screen.queryByLabelText('Argument 2 id')).toBeNull();
+    expect(screen.getByLabelText('Argument 1 name')).toHaveProperty('value', 'Beta');
+    expect(screen.queryByLabelText('Argument 2 name')).toBeNull();
   });
 
   it('F-11 AC-024 a refused edit does not take the focus from the field the user moved to', () => {
-    renderArguments(withArguments({ id: 'a', required: false, hint: '' }, { id: 'b', required: false, hint: '' }));
-    const first = screen.getByLabelText('Argument 1 id');
-    const second = screen.getByLabelText('Argument 2 id');
+    renderArguments(withArguments({ id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: 'Alpha' }, { id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c', required: false, hint: 'Beta' }));
+    const first = screen.getByLabelText('Argument 1 name');
+    const second = screen.getByLabelText('Argument 2 name');
     first.focus();
-    fireEvent.change(first, { target: { value: 'bad id!' } });
+    fireEvent.change(first, { target: { value: '!!!' } });
     // The browser blurs the first field, then focuses the second one it pressed: the blur must not replace the second.
     fireEvent.blur(first);
     second.focus();
@@ -320,91 +322,63 @@ describe('F-11 AC-024 flow argument rows', () => {
 });
 
 describe('F-16 AC-026 a refused new argument line', () => {
-  function refusalOfNew(text: string): string {
-    return argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: text, required: false, hint: text }));
-  }
-
   function newLine() {
     return within(screen.getByRole('group', { name: 'New argument' }));
   }
 
-  it('F-16 AC-026 a name with capitals is saved with the id generated from it, and the typed name is kept as the hint', () => {
+  it('F-16 AC-026 a name with capitals is saved with a new GUID id, and the typed name is kept as the hint', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'F-XX');
+    commitText(screen.getByLabelText('New argument name'), 'F-XX');
 
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'f-xx', required: false, hint: 'F-XX' });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: 'F-XX' });
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
   });
 
-  it('F-16 AC-026 a name with spaces is saved with its words joined by one hyphen', () => {
+  it('F-16 AC-026 a name with spaces and punctuation is saved as typed, with a GUID id', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), '  Route   type! ');
+    commitText(screen.getByLabelText('New argument name'), '  Route   type! ');
 
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({
-      index: 1,
-      id: 'route-type',
-      required: false,
-      hint: '  Route   type! ',
-    });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: '  Route   type! ' });
   });
 
-  it('F-16 AC-026 a name with no letter or digit stays on the line with the parser reason, and nothing is saved', () => {
+  it('F-16 AC-026 a name with a digit at its start is saved: it has a letter or digit', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), '!!!');
+    commitText(screen.getByLabelText('New argument name'), '2nd topic');
 
-    expect(onChange).not.toHaveBeenCalled();
-    expect(newLine().getByLabelText('New argument id')).toHaveProperty('value', '!!!');
-    expect(newLine().getByText(refusalOfNew(''))).toBeTruthy();
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: '2nd topic' });
   });
 
-  it('F-16 AC-026 a name whose generated id starts with a digit stays on the line with the parser reason, and nothing is saved', () => {
+  it('F-16 AC-026 a name with no letter or digit stays on the line with the reason, and nothing is saved', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), '2nd topic');
+    commitText(screen.getByLabelText('New argument name'), '!!!');
 
     expect(onChange).not.toHaveBeenCalled();
-    expect(newLine().getByText(refusalOfNew('2nd-topic'))).toBeTruthy();
-  });
-
-  it('F-16 AC-026 a name whose generated id the parser refuses stays on the line with the parser reason, and nothing is saved', () => {
-    const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'Feature ID');
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(newLine().getByText(refusalOfNew('feature-id'))).toBeTruthy();
+    expect(newLine().getByLabelText('New argument name')).toHaveProperty('value', '!!!');
+    expect(newLine().getByText('Needs a letter or digit.')).toBeTruthy();
   });
 
   it('F-16 AC-026 a corrected name typed into the kept line is saved when focus leaves it, and the line closes', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'Feature ID');
-    commitText(screen.getByLabelText('New argument id'), 'Topic');
+    commitText(screen.getByLabelText('New argument name'), '!!!');
+    commitText(screen.getByLabelText('New argument name'), 'Topic');
 
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'Topic' });
+    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: 'Topic' });
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
   });
 
   it('F-16 AC-026 a blank new line is discarded when focus leaves it, with no message and nothing saved', () => {
     const { onChange } = renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), '   ');
+    commitText(screen.getByLabelText('New argument name'), '   ');
 
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
-    expect(screen.queryByText(refusalOfNew(''))).toBeNull();
-  });
-
-  it('F-16 AC-026 a valid name is saved when focus leaves the new line, as before', () => {
-    const { onChange } = renderArguments(basePipeline());
-    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'topic');
-
-    expect(reported(onChange).flows[0]?.arguments[1]).toEqual({ index: 1, id: 'topic', required: false, hint: 'topic' });
-    expect(screen.queryByRole('group', { name: 'New argument' })).toBeNull();
+    expect(screen.queryByText('Needs a letter or digit.')).toBeNull();
   });
 });
 
@@ -418,53 +392,52 @@ describe('F-11 AC-043 pipeline argument rows', () => {
 
   it('F-11 AC-043 edits the pipeline arguments on blur, not the arguments of a flow', () => {
     const { onChange } = renderArguments(basePipeline(), { kind: 'pipeline' });
-    commitText(screen.getByLabelText('Argument 1 id'), 'lead');
+    commitText(screen.getByLabelText('Argument 1 name'), 'lead');
 
     const next = reported(onChange);
-    expect(next.arguments[0]?.id).toBe('lead');
-    expect(next.flows[0]?.arguments[0]?.id).toBe('feature-id');
+    expect(next.arguments[0]?.hint).toBe('lead');
+    expect(next.arguments[0]?.id).toBe('96d4bd40-f9ee-577c-9d6a-23f3bfc6db06');
+    expect(next.flows[0]?.arguments[0]?.id).toBe('82f01964-ec89-5b1a-8ccc-5a29c72f2adf');
   });
 
-  it('F-11 AC-043 F-16 AC-026 a new pipeline argument whose id another pipeline argument already has stays on the line with the parser reason, and nothing is saved', () => {
+  it('F-11 AC-043 F-16 AC-026 a new pipeline argument whose name another pipeline argument already has is saved: names may repeat, ids are GUIDs', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    commitText(screen.getByLabelText('New argument id'), 'brief');
+    commitText(screen.getByLabelText('New argument name'), '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06');
 
-    const reason = argumentRefusal(addPipelineArgument(pipelineState, RULES, { id: 'brief', required: false, hint: 'brief' }));
-    expect(onChange).not.toHaveBeenCalled();
-    expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
+    expect(reported(onChange).arguments[1]).toEqual({ index: 1, id: expect.stringMatching(GUID), required: false, hint: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06' });
   });
 
-  it('F-11 AC-043 a pipeline argument edit that repeats another id is refused, and the saved id returns with no error shown', () => {
+  it('F-11 AC-043 a pipeline argument name that another pipeline argument has is saved: names may repeat, the ids stay', () => {
     const pipelineState: Pipeline = {
       ...basePipeline(),
       arguments: [
-        { index: 0, id: 'brief', required: false, hint: '' },
-        { index: 1, id: 'topic', required: false, hint: '' },
+        { index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' },
+        { index: 1, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '' },
       ],
     };
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
-    commitText(screen.getByLabelText('Argument 2 id'), 'brief');
+    commitText(screen.getByLabelText('Argument 2 name'), '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06');
 
-    const reason = argumentRefusal(editPipelineArgument(pipelineState, RULES, 1, { id: 'brief', required: false, hint: '' }));
-    expect(onChange).not.toHaveBeenCalled();
-    expect(screen.queryByText(reason)).toBeNull();
-    expect(screen.getByLabelText('Argument 2 id')).toHaveProperty('value', 'topic');
+    expect(reported(onChange).arguments).toEqual([
+      { index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' },
+      { index: 1, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06' },
+    ]);
   });
 
   it('F-11 AC-043 removes one pipeline argument row on its own', () => {
     const pipelineState: Pipeline = {
       ...basePipeline(),
       arguments: [
-        { index: 0, id: 'brief', required: false, hint: '' },
-        { index: 1, id: 'topic', required: false, hint: '' },
+        { index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' },
+        { index: 1, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '' },
       ],
     };
     const { onChange } = renderArguments(pipelineState, { kind: 'pipeline' });
     fireEvent.click(screen.getByRole('button', { name: 'Remove argument 2' }));
 
-    expect(reported(onChange).arguments).toEqual([{ index: 0, id: 'brief', required: false, hint: '' }]);
+    expect(reported(onChange).arguments).toEqual([{ index: 0, id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' }]);
   });
 });
 
@@ -472,18 +445,18 @@ describe('F-11 AC-026 rule tag rows', () => {
   it('F-11 AC-026 shows a dropdown that offers only the rules of the Technical details step', () => {
     renderTags(basePipeline());
     const select = screen.getByLabelText('Rule tag 1 rule') as HTMLSelectElement;
-    expect(Array.from(select.options).map((option) => option.value)).toEqual(['general', 'qa']);
-    expect(select.value).toBe('general');
+    expect(Array.from(select.options).map((option) => option.value)).toEqual(['1b206118-4f23-5ed9-8340-8256dd24178c', '2146d294-d7bb-5ff8-af8d-1981e7f569d7']);
+    expect(select.value).toBe('1b206118-4f23-5ed9-8340-8256dd24178c');
   });
 
   it('F-11 AC-026 + in the title row adds a row, and choosing a rule stores it', () => {
     const { onChange } = renderTags(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add rule tag' }));
-    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: 'qa' } });
+    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' } });
 
     expect(reported(onChange).flows[0]?.ruleTags).toEqual([
-      { index: 0, ruleId: 'general' },
-      { index: 1, ruleId: 'qa' },
+      { index: 0, ruleId: '1b206118-4f23-5ed9-8340-8256dd24178c' },
+      { index: 1, ruleId: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' },
     ]);
   });
 
@@ -491,9 +464,9 @@ describe('F-11 AC-026 rule tag rows', () => {
     const pipelineState = basePipeline();
     const { onChange } = renderTags(pipelineState);
     fireEvent.click(screen.getByRole('button', { name: 'Add rule tag' }));
-    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: 'general' } });
+    fireEvent.change(screen.getByLabelText('New rule tag rule'), { target: { value: '1b206118-4f23-5ed9-8340-8256dd24178c' } });
 
-    const result = addFlowRuleTag(pipelineState, RULES, 'plan', 'general');
+    const result = addFlowRuleTag(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', '1b206118-4f23-5ed9-8340-8256dd24178c');
     if (result.ok) throw new Error('the parser accepted a repeated rule tag');
     expect(onChange).not.toHaveBeenCalled();
     expect(within(screen.getByRole('group', { name: 'New rule tag' })).getByText(result.reason)).toBeTruthy();
@@ -501,23 +474,23 @@ describe('F-11 AC-026 rule tag rows', () => {
 
   it('F-11 AC-026 changing a saved tag adds the new rule and then removes the old one', () => {
     const { onChange } = renderTags(basePipeline());
-    fireEvent.change(screen.getByLabelText('Rule tag 1 rule'), { target: { value: 'qa' } });
+    fireEvent.change(screen.getByLabelText('Rule tag 1 rule'), { target: { value: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' } });
 
-    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: 'qa' }]);
+    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' }]);
   });
 
   it('F-11 AC-026 removes one tag row on its own, with its minus', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       ruleTags: [
-        { index: 0, ruleId: 'general' },
-        { index: 1, ruleId: 'qa' },
+        { index: 0, ruleId: '1b206118-4f23-5ed9-8340-8256dd24178c' },
+        { index: 1, ruleId: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' },
       ],
     });
     const { onChange } = renderTags(pipelineState);
     fireEvent.click(screen.getByRole('button', { name: 'Remove rule tag 1' }));
 
-    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: 'qa' }]);
+    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: '2146d294-d7bb-5ff8-af8d-1981e7f569d7' }]);
   });
 
   it('F-11 AC-026 a new row cancelled with its minus is not stored', () => {
@@ -532,11 +505,11 @@ describe('F-11 AC-026 rule tag rows', () => {
   it('F-11 AC-043 the pipeline rule tags are a list of their own, not the flow tags', () => {
     const { onChange } = renderTags(basePipeline(), { kind: 'pipeline' });
     const select = screen.getByLabelText('Rule tag 1 rule') as HTMLSelectElement;
-    expect(select.value).toBe('qa');
+    expect(select.value).toBe('2146d294-d7bb-5ff8-af8d-1981e7f569d7');
     fireEvent.click(screen.getByRole('button', { name: 'Remove rule tag 1' }));
 
     expect(reported(onChange).ruleTags).toEqual([]);
-    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: 'general' }]);
+    expect(reported(onChange).flows[0]?.ruleTags).toEqual([{ index: 0, ruleId: '1b206118-4f23-5ed9-8340-8256dd24178c' }]);
   });
 });
 
@@ -636,7 +609,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: 'kept text' } });
     fireEvent.blur(addGroup().getByLabelText('Template'));
 
-    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'plan.md', template: 'kept text' });
+    const result = addFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { label: 'plan.md', template: 'kept text' });
     if (result.ok) throw new Error('the parser accepted a repeated label');
     expect(onChange).not.toHaveBeenCalled();
     expect(screen.queryByRole('group', { name: 'New artifact' })).toBeNull();
@@ -651,7 +624,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     fireEvent.change(addGroup().getByLabelText('Template'), { target: { value: longTemplate } });
     fireEvent.blur(addGroup().getByLabelText('Template'));
 
-    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: 'notes.md', template: longTemplate });
+    const result = addFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { label: 'notes.md', template: longTemplate });
     if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
     expect(onChange).not.toHaveBeenCalled();
     expect(addGroup().getByText(result.reason)).toBeTruthy();
@@ -729,7 +702,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     fireEvent.change(labelField(1), { target: { value: '' } });
     fireEvent.blur(labelField(1));
 
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    const result = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
     expect(onChange).not.toHaveBeenCalled();
     expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
@@ -744,7 +717,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     fireEvent.change(templateField(1), { target: { value: longTemplate } });
     fireEvent.blur(templateField(1));
 
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'template', value: longTemplate });
+    const result = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'template', value: longTemplate });
     if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
     expect(onChange).not.toHaveBeenCalled();
     expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
@@ -754,7 +727,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 a refusal clears when the field is later accepted', () => {
     const { onChange } = renderArtifacts(basePipeline());
-    const refusal = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    const refusal = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (refusal.ok) throw new Error('the parser accepted a blank label');
     fireEvent.change(labelField(1), { target: { value: '' } });
     fireEvent.blur(labelField(1));
@@ -769,17 +742,17 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 removing the first of two artifacts shows the second artifact\'s own label', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       artifacts: [
         { label: 'plan.md', template: 'Plan headings' },
         { label: 'notes.md', template: 'Notes headings' },
       ],
     });
     const onChange = vi.fn();
-    const view = render(<ArtifactRows pipelineState={pipelineState} rules={RULES} flowId="plan" onChange={onChange} />);
+    const view = render(<ArtifactRows pipelineState={pipelineState} rules={RULES} flowId="ea3211a4-b64b-5204-9451-6fe12fd7c655" onChange={onChange} />);
     fireEvent.click(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' }));
     // The panel draws the pipeline it was handed back, so the list is drawn again from the reported state.
-    view.rerender(<ArtifactRows pipelineState={reported(onChange)} rules={RULES} flowId="plan" onChange={onChange} />);
+    view.rerender(<ArtifactRows pipelineState={reported(onChange)} rules={RULES} flowId="ea3211a4-b64b-5204-9451-6fe12fd7c655" onChange={onChange} />);
 
     expect(labelField(1).value).toBe('notes.md');
     expect(templateField(1).value).toBe('Notes headings');
@@ -788,7 +761,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 a refused label edit keeps the focus on the refused row\'s template and does not redraw the other rows', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       artifacts: [
         { label: 'plan.md', template: 'Plan headings' },
         { label: 'notes.md', template: 'Notes headings' },
@@ -800,7 +773,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
     const firstTemplate = templateField(1);
     const otherLabel = labelField(3);
     const otherTemplate = templateField(3);
-    const refusal = editFlowArtifact(pipelineState, RULES, 'plan', 1, { field: 'label', value: '' });
+    const refusal = editFlowArtifact(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 1, { field: 'label', value: '' });
     if (refusal.ok) throw new Error('the parser accepted a blank label');
 
     // The user types a blank label of row 2 and presses Tab into the template of row 2: the label is checked on the blur.
@@ -822,7 +795,7 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 the minus removes the artifact on its own row', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       artifacts: [
         { label: 'plan.md', template: '' },
         { label: 'notes.md', template: '' },
@@ -836,13 +809,13 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 a removal the parser refuses keeps the artifact and shows the reason beneath its row', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
-      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' }],
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
+      blocks: [{ index: 0, id: '5f555f10-723d-5e0b-94a7-3933be0a0850', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' }],
     });
     const { onChange } = renderArtifacts(pipelineState);
     fireEvent.click(artifactGroup(1).getByRole('button', { name: 'Remove artifact 1' }));
 
-    const result = removeFlowArtifact(pipelineState, RULES, 'plan', 0);
+    const result = removeFlowArtifact(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0);
     if (result.ok) throw new Error('the parser accepted the removal of an artifact an End block names');
     expect(onChange).not.toHaveBeenCalled();
     expect(artifactGroup(1).getByText(result.reason)).toBeTruthy();
@@ -851,19 +824,19 @@ describe('F-11 AC-025 outcome artifacts', () => {
 
   it('F-11 AC-025 removing an artifact an End names saves the removal and moves the End to the first remaining artifact', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       artifacts: [
         { label: 'plan.md', template: '' },
         { label: 'notes.md', template: '' },
       ],
-      blocks: [{ index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'notes.md' }],
+      blocks: [{ index: 0, id: '5f555f10-723d-5e0b-94a7-3933be0a0850', kind: 'end', outcome: 'done', producedArtifact: 'notes.md' }],
     });
     const { onChange } = renderArtifacts(pipelineState);
     fireEvent.click(artifactGroup(2).getByRole('button', { name: 'Remove artifact 2' }));
 
     expect(reported(onChange).flows[0]?.artifacts).toEqual([{ label: 'plan.md', template: '' }]);
     expect(reported(onChange).flows[0]?.blocks).toEqual([
-      { index: 0, id: 'finish', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
+      { index: 0, id: '5f555f10-723d-5e0b-94a7-3933be0a0850', kind: 'end', outcome: 'done', producedArtifact: 'plan.md' },
     ]);
   });
 });
@@ -933,10 +906,10 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
   }
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-id error on the key press that empties a saved argument id, and hides it once text is typed', () => {
-    const pipelineState = withArguments({ id: 'brief', required: false, hint: '' }, { id: 'topic', required: false, hint: '' });
+    const pipelineState = withArguments({ id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' }, { id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '' });
     renderArguments(pipelineState);
-    const input = screen.getByLabelText('Argument 1 id');
-    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
+    const input = screen.getByLabelText('Argument 1 name');
+    const reason = 'Needs a letter or digit.';
     expect(screen.queryByText(reason)).toBeNull();
 
     fireEvent.change(input, { target: { value: '   ' } });
@@ -952,21 +925,21 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-id error on the key press in a new argument line, and hides it once text is typed', () => {
     renderArguments(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
-    const input = screen.getByLabelText('New argument id');
-    const reason = argumentRefusal(addFlowArgument(basePipeline(), RULES, 'plan', { id: '', required: false, hint: '' }));
+    const input = screen.getByLabelText('New argument name');
+    const reason = 'Needs a letter or digit.';
 
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.keyUp(input, { key: 'Backspace' });
     expect(within(screen.getByRole('group', { name: 'New argument' })).getByText(reason)).toBeTruthy();
 
-    fireEvent.change(input, { target: { value: 'topic' } });
+    fireEvent.change(input, { target: { value: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038' } });
     fireEvent.keyUp(input, { key: 't' });
     expect(screen.queryByText(reason)).toBeNull();
   });
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-label error on the key press that empties a saved label, and hides it once text is typed', () => {
     renderArtifacts(basePipeline());
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    const result = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
 
     fireEvent.change(labelField(1), { target: { value: '' } });
@@ -981,7 +954,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
   it('F-11 (no criterion: Verify device fix 2026-11-24) shows the empty-label error on the key press in a new artifact group, and hides it once text is typed', () => {
     renderArtifacts(basePipeline());
     fireEvent.click(screen.getByRole('button', { name: 'Add artifact' }));
-    const result = addFlowArtifact(basePipeline(), RULES, 'plan', { label: '', template: '' });
+    const result = addFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', { label: '', template: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
 
     fireEvent.change(addGroup().getByLabelText('Label'), { target: { value: '  ' } });
@@ -999,8 +972,8 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
 
   // Leaves argument 1's id empty and blurred, so its error shows and its text stays blank.
   function blankArgumentOne(pipelineState: Pipeline) {
-    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
-    const input = screen.getByLabelText('Argument 1 id');
+    const reason = 'Needs a letter or digit.';
+    const input = screen.getByLabelText('Argument 1 name');
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.keyUp(input, { key: 'Backspace' });
     fireEvent.blur(input);
@@ -1008,44 +981,40 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
     return reason;
   }
 
-  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id is drawn again from the saved id when its row\'s required box is saved', () => {
-    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a saved row with a blank hint is saved by its required box, since the parser accepts a blank hint', () => {
+    const pipelineState = withArguments({ id: 'aab39af1-f7ee-5872-8009-be002cd04380', required: false, hint: '' }, { id: 'b133cba5-2ea9-5699-951a-69747b399921', required: false, hint: '' });
     const { onChange } = renderArguments(pipelineState);
-    const reason = blankArgumentOne(pipelineState);
 
     fireEvent.click(within(screen.getByRole('group', { name: 'Argument 1' })).getByRole('checkbox', { name: 'required' }));
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', 'alpha');
-    expect(screen.queryByText(reason)).toBeNull();
+    expect(screen.queryByText('Needs a letter or digit.')).toBeNull();
   });
 
-  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id keeps its text and its error when another row is saved', () => {
-    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+  it('F-11 (no criterion: Verify device fix 2026-11-24) a blank saved hint keeps its empty field when another row is saved', () => {
+    const pipelineState = withArguments({ id: 'aab39af1-f7ee-5872-8009-be002cd04380', required: false, hint: '' }, { id: 'b133cba5-2ea9-5699-951a-69747b399921', required: false, hint: '' });
     const { onChange } = renderArguments(pipelineState);
-    const reason = blankArgumentOne(pipelineState);
 
     fireEvent.click(within(screen.getByRole('group', { name: 'Argument 2' })).getByRole('checkbox', { name: 'required' }));
 
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', '');
+    expect(screen.getByLabelText('Argument 1 name')).toHaveProperty('value', '');
   });
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) a blank id above a removed row keeps its text and its error', () => {
-    const pipelineState = withArguments({ id: 'alpha', required: false, hint: '' }, { id: 'beta', required: false, hint: '' });
+    const pipelineState = withArguments({ id: 'aab39af1-f7ee-5872-8009-be002cd04380', required: false, hint: '' }, { id: 'b133cba5-2ea9-5699-951a-69747b399921', required: false, hint: '' });
     renderArguments(pipelineState);
     const reason = blankArgumentOne(pipelineState);
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove argument 2' }));
 
     expect(screen.getByText(reason)).toBeTruthy();
-    expect(screen.getByLabelText('Argument 1 id')).toHaveProperty('value', '');
+    expect(screen.getByLabelText('Argument 1 name')).toHaveProperty('value', '');
   });
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) a blank saved label is drawn again from the saved label when its row\'s template is saved', () => {
     const { onChange } = renderArtifacts(basePipeline());
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    const result = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
     fireEvent.change(labelField(1), { target: { value: '' } });
     fireEvent.keyUp(labelField(1), { key: 'Backspace' });
@@ -1062,14 +1031,14 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
 
   it('F-11 (no criterion: Verify device fix 2026-11-24) a blank saved label keeps its error when another artifact is removed or a new one is opened', () => {
     const pipelineState = pipelineOf({
-      ...flow('plan', 'Plan'),
+      ...flow('ea3211a4-b64b-5204-9451-6fe12fd7c655', 'Plan'),
       artifacts: [
         { label: 'plan.md', template: '' },
         { label: 'notes.md', template: '' },
       ],
     });
     renderArtifacts(pipelineState);
-    const result = editFlowArtifact(pipelineState, RULES, 'plan', 0, { field: 'label', value: '' });
+    const result = editFlowArtifact(pipelineState, RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (result.ok) throw new Error('the parser accepted a blank label');
     fireEvent.change(labelField(1), { target: { value: '' } });
     fireEvent.keyUp(labelField(1), { key: 'Backspace' });
@@ -1086,10 +1055,10 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) required argument id
 
 describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its field box', () => {
   it('F-11 (no criterion: Verify device fix 2026-11-24) draws a refused argument id inside its argument row, 4 px under the line', () => {
-    const pipelineState = withArguments({ id: 'brief', required: false, hint: '' }, { id: 'topic', required: false, hint: '' });
+    const pipelineState = withArguments({ id: '96d4bd40-f9ee-577c-9d6a-23f3bfc6db06', required: false, hint: '' }, { id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: false, hint: '' });
     renderArguments(pipelineState);
-    const input = screen.getByLabelText('Argument 1 id');
-    const reason = argumentRefusal(editFlowArgument(pipelineState, RULES, 'plan', 0, { id: '', required: false, hint: '' }));
+    const input = screen.getByLabelText('Argument 1 name');
+    const reason = 'Needs a letter or digit.';
 
     fireEvent.change(input, { target: { value: '' } });
     fireEvent.keyUp(input, { key: 'Backspace' });
@@ -1104,7 +1073,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
     renderArtifacts(basePipeline());
     const group = screen.getByRole('group', { name: 'Artifact 1' });
     const label = within(group).getByLabelText('Label') as HTMLInputElement;
-    const reason = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'label', value: '' });
+    const reason = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'label', value: '' });
     if (reason.ok) throw new Error('the parser accepted a blank label');
 
     fireEvent.change(label, { target: { value: '' } });
@@ -1120,7 +1089,7 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
     const group = within(screen.getByRole('group', { name: 'Artifact 1' }));
     const template = group.getByLabelText('Template') as HTMLTextAreaElement;
     const longTemplate = 'x'.repeat(5001);
-    const result = editFlowArtifact(basePipeline(), RULES, 'plan', 0, { field: 'template', value: longTemplate });
+    const result = editFlowArtifact(basePipeline(), RULES, 'ea3211a4-b64b-5204-9451-6fe12fd7c655', 0, { field: 'template', value: longTemplate });
     if (result.ok) throw new Error('the parser accepted a template of 5001 characters');
 
     fireEvent.change(template, { target: { value: longTemplate } });
@@ -1132,5 +1101,42 @@ describe('F-11 (no criterion: Verify device fix 2026-11-24) error inside its fie
     expect(control.contains(group.getByLabelText('Template'))).toBe(true);
     expect(control.nextElementSibling?.textContent).toBe(TEMPLATE_HELP_TEXT);
     expect(getComputedStyle(control).getPropertyValue('gap')).toBe('4px');
+  });
+});
+
+describe('F-16 AC-027 generated argument ids', () => {
+  it('F-16 AC-027 each new argument gets its own GUID id, unique after adds and a removal', () => {
+    const onChange = vi.fn();
+    const target: ListTarget = { kind: 'flow', flowId: 'ea3211a4-b64b-5204-9451-6fe12fd7c655' };
+    let state = basePipeline();
+    const view = render(<ArgumentRows pipelineState={state} rules={RULES} target={target} onChange={onChange} />);
+    const addLine = (name: string) => {
+      fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+      commitText(screen.getByLabelText('New argument name'), name);
+      state = onChange.mock.lastCall?.[0] as Pipeline;
+      view.rerender(<ArgumentRows pipelineState={state} rules={RULES} target={target} onChange={onChange} />);
+    };
+    addLine('Alpha');
+    addLine('Beta');
+    fireEvent.click(screen.getByRole('button', { name: 'Remove argument 2' }));
+    state = onChange.mock.lastCall?.[0] as Pipeline;
+    view.rerender(<ArgumentRows pipelineState={state} rules={RULES} target={target} onChange={onChange} />);
+    addLine('Gamma');
+
+    const ids = (state.flows[0]?.arguments ?? []).map((item) => item.id);
+    expect(ids).toHaveLength(3);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of ids) {
+      expect(id).toMatch(GUID);
+    }
+  });
+
+  it('F-16 AC-027 the argument rows draw no id input: the saved and the new rows show a name field only', () => {
+    renderArguments(basePipeline());
+    fireEvent.click(screen.getByRole('button', { name: 'Add argument' }));
+
+    expect(screen.queryByRole('textbox', { name: /\bid\b/i })).toBeNull();
+    expect(screen.getByLabelText('New argument name')).toBeTruthy();
+    expect(screen.getByLabelText('Argument 1 name')).toBeTruthy();
   });
 });

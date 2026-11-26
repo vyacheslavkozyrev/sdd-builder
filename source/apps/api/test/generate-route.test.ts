@@ -35,16 +35,16 @@ function bodyFixture(): Record<string, unknown> {
       arguments: [],
       flows: [
         {
-          id: 'build',
+          id: 'a0c3aad4-8765-5b23-8df5-7c03d481233c',
           name: 'Build',
           arguments: [],
           body: 'Runs the build agent.',
           artifacts: [{ label: 'out.md', template: 'The output' }],
           approval: false,
           blocks: [
-            { id: 'start', kind: 'start', next: 'agent' },
-            { id: 'agent', kind: 'agent', name: 'build-agent', description: 'Builds the project.', arguments: [], next: 'end' },
-            { id: 'end', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
+            { id: '15e362eb-af40-5e75-8c68-8ac7e7fc6a9e', kind: 'start', next: '057f0771-8cfe-5f4c-aa15-11660925e7f5' },
+            { id: '057f0771-8cfe-5f4c-aa15-11660925e7f5', kind: 'agent', name: 'build-agent', description: 'Builds the project.', arguments: [], next: '68609423-b775-5e49-8a2f-ad8150b098bc' },
+            { id: '68609423-b775-5e49-8a2f-ad8150b098bc', kind: 'end', outcome: 'done', producedArtifact: 'out.md' },
           ],
         },
       ],

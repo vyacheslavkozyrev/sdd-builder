@@ -8,7 +8,7 @@
 | Specify  | ✅ Complete | 2026-11-24 | Approved by the user; 3 stories, 10 criteria: 4 `[auto]`, 6 `[device]` (the owner's checks in the browser with a real key) |
 | UX       | ➖ Not needed |  | No new screens: the analyze step is approved in F-13 |
 | Plan     | ✅ Complete | 2026-11-24 | Approved by the user; 2 tasks (T001 to T002); 10 criteria: 4 `[auto]` covered by T001, 6 `[device]` on the Verify checklist |
-| Build    | 🔄 In Progress |      | 16 of 21 tasks committed (T017 to T021 added by owner decision 2026-11-25: all IDs are GUIDs) |
+| Build    | ✅ Complete |      | 21 of 21 tasks committed (T017 to T021 added by owner decision 2026-11-25: every ID is a GUID) |
 | Verify   | ⏳ Pending  |      | Criteria coverage and the manual checklist (the owner's end-to-end check) |
 
 Status values: ⏳ Pending · 🔄 In Progress · ✅ Complete · ➖ Optional / not needed · ⛔ Blocked
@@ -48,6 +48,7 @@ _While a task is in flight, this holds its ID and the step reached: `implemented
 | T014 | Blocker: the End's Produced artifact control shows the saved value; a blank value shows a placeholder and the required reason, and a stale saved artifact stays shown (AC-024) | 0 blockers, 1 warning fixed (a stale saved artifact was shown as another one) | task check passed: api 258 of 258, web 1995 of 1995, core 1254 of 1254 |
 | T015 | Blockers: the pipeline Name (and every builder edit) states its refusal scope; a keystroke is refused only for a problem at its own path, or a new uniqueness clash (AC-025). The argument loss (AC-023) is not reproduced: owner steps requested | 0 blockers left after review (1 fixed: a repeated artifact label accepted; 1 warning fixed: a misleading round-limit reason; 2 suggestions fixed) | task check passed: api 258 of 258, web 2017 of 2017, core 1254 of 1254 |
 | T016 | Blocker: a new argument's id is generated from the typed name (`F-XX` gives `f-xx`); a refused line stays open with the parser's reason, not dropped (AC-026) | 0 blockers; 2 warnings fixed (ui.md description; digit-start test), 2 suggestions fixed (test names); ASCII-id note deferred for owner confirmation | task check passed: api 258 of 258, web 2024 of 2024, core 1254 of 1254 |
+| T017 to T021 | Every id is a generated GUID (AC-027, AC-028, AC-029): the parser accepts only GUIDs and keeps uniqueness; command and rule file names come from names (blank and clashing names are blockers); rule tags name rule files; the default pipeline has GUIDs; the builder generates ids and shows no id input; the wizard's rule file line uses core's name. One commit by owner approval | Review of the whole change: 1 blocker fixed (rule-block preview crash), 1 warning fixed (agent name message), comments fixed; the wizard rule name warning resolved by owner decision; 2 owner follow-ups recorded (GUIDs shown in process.md and pipeline.md; the 60-character file-name message) | task check passed: api 258 of 258, web 2032 of 2032, core 1272 of 1272 |
 | T002 | Docs: `architecture.md` §1 and §5 name the dev proxy's `/analyze` and `/generate` with the 300-second timeout | 0 warnings; docs only, no test | task check passed: api 251 of 251, web 1916 of 1916, core 1217 of 1217 |
 
 ---
@@ -95,6 +96,10 @@ _Review suggestions intentionally not applied, with the reason._
 - T012 (SUGGESTION, deferred): a path that names a flow the pipeline does not have (for example `pipeline.flows.7`) is located at `pipeline`, not at a flow. Core does not produce such a path for a parsed pipeline; the fallback is pinned by a test.
 
 - T012 (SUGGESTION, deferred): some added lines in `source/apps/web/test/ErrorPanel.test.tsx`, `PipelineStep.test.tsx` and `builder-problem-label.test.ts` are longer than 120 characters. The repository has no formatter configured and existing test files have longer lines too; not reflowed in this task.
+
+- T017 to T020 review (2026-11-25, owner decision: every ID is a GUID) (WARNING, unresolved, needs an owner decision): the wizard's F-10 rule id (`source/apps/web/src/wizard/technical.ts` `ruleId`, AC-014, AC-016, AC-019) is still ASCII-only and keeps leading and trailing hyphens. It drives the rule file line shown on the block, the duplicate number, and the rule list of the builder (`PipelineStep.tsx` `builderRules`). The generated file uses core's `fileNameOf` (F-16 AC-029, the flow rule). So for `Testing!` the block shows `.claude/rules/testing-.md`, and the file written is `testing.md`; for `Café` the block shows `caf-.md`, and the file is `café.md`. Fixing it changes the F-10 AC-014 and AC-016 rules and their tests, so the owner decides. The preview (`analyze/tree.ts`) and the analysis (`command-file-clash`) do not depend on it: both use the core name.
+- T017 to T020 review (SUGGESTION, deferred): `source/packages/core/src/pipeline/generate/values-flow.ts` `flowValues` and `values-agent.ts` `agentValues` take `rules` with the default `[]`. A tag then names no rule and throws, which is loud, but the parameter could be required; the test call sites (about 90) would change, so it is kept as is.
+- T017 to T020 review (SUGGESTION, deferred): `source/packages/core/src/pipeline/generate/values-base.ts` the process list still writes each flow's id in backticks after its name (F-05 AC-029 asks for the id). The id is a GUID now, so the line is long; the owner may want the name only. Not changed: the criterion says id.
 
 ---
 
@@ -247,6 +252,13 @@ Scope check (`spec/documents/features.md` F-16): "the step sends the configurati
 **Changed**: `plan.md` gains T003 (the API's `readPort` treats a blank PORT as unset, so 3000 applies, as the proxy does). F-14's `settings.ts` is changed in T003, with its test.
 **Reason**: review of T001 found that the API refuses a blank or space-padded PORT, while the proxy used 3000. The owner chose option (a): the API treats blank as unset.
 **Impact**: T003 only. The F-14 test that asserts a blank PORT is refused changes with it.
+```
+### Amendment — 2026-11-25 (owner decision: a rule file name is core's rule, T020)
+**Changed**: F-10 AC-014 and AC-016 tests (and their AC-015 and AC-019 tests, where the same names changed) now expect core's `ruleFileName` (F-16 AC-029) in `source/apps/web/src/wizard/technical.ts`: `Testing!` shows `testing`, `Café` shows `café`, `2 tests` shows `2-tests` with no message; the start-with-a-letter message is removed. `pipeline.ruleFileName` is exported from core and pinned in the F-02 AC-089 namespace test.
+**Reason**: the wizard showed the ASCII id (`testing-.md`) while the generator wrote `testing.md`, so the file line did not match the file written.
+**Impact**: T020 only; the no-letter-or-digit blocker stays (the wizard shows no file name and the analysis reports it). Verify re-runs the F-10 rule-block checks.
+```
+
 ```
 
 ```

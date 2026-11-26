@@ -43,8 +43,8 @@ describe('F-11 AC-017 arrow panel shows the source and target names', () => {
   it.each([
     {
       name: 'flow names differ from their ids',
-      pipeline: pipelineOf(flow('flow-1', 'flow-2', 'Plan the work'), flow('flow-2', undefined, 'Build it')),
-      arrow: { source: 'flow-1', target: 'flow-2' },
+      pipeline: pipelineOf(flow('40174c6b-ffc9-5a01-af92-33a352fc884a', '02e82ffe-8c62-50f5-acea-711320561fab', 'Plan the work'), flow('02e82ffe-8c62-50f5-acea-711320561fab', undefined, 'Build it')),
+      arrow: { source: '40174c6b-ffc9-5a01-af92-33a352fc884a', target: '02e82ffe-8c62-50f5-acea-711320561fab' },
       expected: { sourceName: 'Plan the work', targetName: 'Build it' },
     },
     {

@@ -341,7 +341,7 @@ function orphanConfig(): pipeline.ProjectConfig {
   if (first === undefined) throw new Error('the default pipeline has a flow');
   const [, second] = first.blocks;
   if (second === undefined) throw new Error('the first flow has a second block');
-  const flows = [{ ...first, blocks: [...first.blocks, { ...second, id: 'orphan-block' }] }, ...rest];
+  const flows = [{ ...first, blocks: [...first.blocks, { ...second, id: 'de53bd21-3616-54b1-a267-844d27129d8b' }] }, ...rest];
   return { ...parsed.config, pipeline: { ...parsed.config.pipeline, flows } };
 }
 

@@ -46,11 +46,11 @@ describe('F-05 layouts: the pipeline command layout', () => {
     const text = render(
       pipelineWith({
         name: 'SDD process',
-        arguments: [argument(0, 'feature-id', true, 'F-XX'), argument(1, 'scope', false)],
+        arguments: [argument(0, 'a56aab15-5743-5847-9b77-b39b2124c91b', true, 'F-XX'), argument(1, '80398aba-a45b-51b8-971a-54782c4bdfde', false)],
       }),
     );
     expect(text.startsWith(`---\n${DESCRIPTION_LINE}\n---\n\n# SDD process\n`)).toBe(true);
-    expect(text).toContain('## Arguments\n- `feature-id` (required, F-XX)\n- `scope` (optional)\n\n## Flows');
+    expect(text).toContain('## Arguments\n- `a56aab15-5743-5847-9b77-b39b2124c91b` (required, F-XX)\n- `80398aba-a45b-51b8-971a-54782c4bdfde` (optional)\n\n## Flows');
   });
 
   it('F-05 AC-001 writes No arguments as a line under the Arguments heading when the pipeline has none', () => {
@@ -70,7 +70,7 @@ describe('F-05 layouts: the pipeline command layout', () => {
         'No arguments',
         '',
         '## Flows',
-        '1. Flow `build`.',
+        '1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.',
         '',
       ].join('\n'),
     );
@@ -79,79 +79,79 @@ describe('F-05 layouts: the pipeline command layout', () => {
   it('F-05 AC-002 lists every flow as a numbered step, in pipeline order, each named by its id', () => {
     const specify = flow({
       index: 0,
-      id: 'specify',
+      id: '52ed1bec-f0b1-54bc-8e7b-21076ea2ac3a',
       description: 'Drafts the stories.',
       approval: true,
-      next: 'ux',
+      next: '27dba559-bf5f-5712-9ba3-76efb3122ede',
     });
-    const ux = flow({ index: 1, id: 'ux', description: 'Draws the screens.', next: 'plan' });
-    const plan = flow({ index: 2, id: 'plan' });
+    const ux = flow({ index: 1, id: '27dba559-bf5f-5712-9ba3-76efb3122ede', description: 'Draws the screens.', next: 'fc358416-c66a-5fef-9c5e-a282b75cbd92' });
+    const plan = flow({ index: 2, id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92' });
     const text = render(pipelineWith({ flows: [specify, ux, plan] }));
     expect(numberedSteps(text)).toEqual([
-      '1. Flow `specify`: Drafts the stories.',
+      '1. Flow `52ed1bec-f0b1-54bc-8e7b-21076ea2ac3a`: Drafts the stories.',
       `2. ${STOP}`,
-      '3. Flow `ux`: Draws the screens.',
-      '4. Flow `plan`.',
+      '3. Flow `27dba559-bf5f-5712-9ba3-76efb3122ede`: Draws the screens.',
+      '4. Flow `fc358416-c66a-5fef-9c5e-a282b75cbd92`.',
     ]);
   });
 
   it('F-05 AC-003 adds a numbered stop step after a flow with approval on, worded for the end of the process when it is the last flow', () => {
-    const approved = flow({ index: 0, id: 'build', approval: true });
+    const approved = flow({ index: 0, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', approval: true });
     const text = render(pipelineWith({ flows: [approved] }));
-    expect(numberedSteps(text)).toEqual(['1. Flow `build`.', `2. ${STOP_LAST}`]);
+    expect(numberedSteps(text)).toEqual(['1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.', `2. ${STOP_LAST}`]);
   });
 
   it('F-05 AC-002 lists the flows in the order of the next links when the array lists them out of that order', () => {
-    const build = flow({ index: 0, id: 'build' });
-    const specify = flow({ index: 1, id: 'specify', description: 'Drafts the stories.', next: 'ux' });
-    const ux = flow({ index: 2, id: 'ux', description: 'Draws the screens.', next: 'build' });
+    const build = flow({ index: 0, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' });
+    const specify = flow({ index: 1, id: '52ed1bec-f0b1-54bc-8e7b-21076ea2ac3a', description: 'Drafts the stories.', next: '27dba559-bf5f-5712-9ba3-76efb3122ede' });
+    const ux = flow({ index: 2, id: '27dba559-bf5f-5712-9ba3-76efb3122ede', description: 'Draws the screens.', next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' });
     const text = render(pipelineWith({ flows: [build, specify, ux] }));
     expect(numberedSteps(text)).toEqual([
-      '1. Flow `specify`: Drafts the stories.',
-      '2. Flow `ux`: Draws the screens.',
-      '3. Flow `build`.',
+      '1. Flow `52ed1bec-f0b1-54bc-8e7b-21076ea2ac3a`: Drafts the stories.',
+      '2. Flow `27dba559-bf5f-5712-9ba3-76efb3122ede`: Draws the screens.',
+      '3. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.',
     ]);
   });
 
   it('F-05 AC-003 gives the end-of-process stop to the last flow of the next links, not the last flow of the array', () => {
-    const build = flow({ index: 0, id: 'build', approval: true });
-    const plan = flow({ index: 1, id: 'plan', approval: true, next: 'build' });
+    const build = flow({ index: 0, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', approval: true });
+    const plan = flow({ index: 1, id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92', approval: true, next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' });
     const text = render(pipelineWith({ flows: [build, plan] }));
-    expect(numberedSteps(text)).toEqual(['1. Flow `plan`.', `2. ${STOP}`, '3. Flow `build`.', `4. ${STOP_LAST}`]);
+    expect(numberedSteps(text)).toEqual(['1. Flow `fc358416-c66a-5fef-9c5e-a282b75cbd92`.', `2. ${STOP}`, '3. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.', `4. ${STOP_LAST}`]);
   });
 
   it('F-05 AC-003 numbers the stop step of each approved flow after that flow, and writes no stop step for the others', () => {
-    const first = flow({ index: 0, id: 'plan', approval: true, next: 'build' });
-    const second = flow({ index: 1, id: 'build', approval: false, next: 'test' });
-    const third = flow({ index: 2, id: 'test', approval: true });
+    const first = flow({ index: 0, id: 'fc358416-c66a-5fef-9c5e-a282b75cbd92', approval: true, next: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6' });
+    const second = flow({ index: 1, id: 'ea365500-e6ec-5064-90ea-fb6cc4bb49d6', approval: false, next: 'b856df1d-a407-5fdf-9694-e743d3a9770a' });
+    const third = flow({ index: 2, id: 'b856df1d-a407-5fdf-9694-e743d3a9770a', approval: true });
     const text = render(pipelineWith({ flows: [first, second, third] }));
     expect(numberedSteps(text)).toEqual([
-      '1. Flow `plan`.',
+      '1. Flow `fc358416-c66a-5fef-9c5e-a282b75cbd92`.',
       `2. ${STOP}`,
-      '3. Flow `build`.',
-      '4. Flow `test`.',
+      '3. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.',
+      '4. Flow `b856df1d-a407-5fdf-9694-e743d3a9770a`.',
       `5. ${STOP_LAST}`,
     ]);
   });
 
   it('F-05 AC-003 adds no stop step to a flow with approval off', () => {
     const text = render(validConfig().pipeline);
-    expect(numberedSteps(text)).toEqual(['1. Flow `build`.']);
+    expect(numberedSteps(text)).toEqual(['1. Flow `ea365500-e6ec-5064-90ea-fb6cc4bb49d6`.']);
     expect(text).not.toContain(STOP);
   });
 
   it('F-05 AC-004 renders a one-flow pipeline with one flow step and no approval step, without failing', () => {
-    const single = flow({ index: 0, id: 'only', description: 'The only flow.' });
+    const single = flow({ index: 0, id: '9cc81eb2-f7c6-591c-b23b-1a7dbec9ee0e', description: 'The only flow.' });
     const text = render(pipelineWith({ flows: [single] }));
-    expect(numberedSteps(text)).toEqual(['1. Flow `only`: The only flow.']);
+    expect(numberedSteps(text)).toEqual(['1. Flow `9cc81eb2-f7c6-591c-b23b-1a7dbec9ee0e`: The only flow.']);
     expect(text).not.toContain(STOP);
   });
 
   it('F-05 AC-004 renders a one-flow pipeline with approval on as one flow step and one stop step', () => {
-    const single = flow({ index: 0, id: 'only', approval: true });
+    const single = flow({ index: 0, id: '9cc81eb2-f7c6-591c-b23b-1a7dbec9ee0e', approval: true });
     const steps = numberedSteps(render(pipelineWith({ flows: [single] })));
     expect(steps.filter((step) => step.includes('Flow `'))).toHaveLength(1);
-    expect(steps).toEqual(['1. Flow `only`.', `2. ${STOP_LAST}`]);
+    expect(steps).toEqual(['1. Flow `9cc81eb2-f7c6-591c-b23b-1a7dbec9ee0e`.', `2. ${STOP_LAST}`]);
   });
 
   it('F-05 AC-005 writes no model or tools line when the pipeline sets neither', () => {

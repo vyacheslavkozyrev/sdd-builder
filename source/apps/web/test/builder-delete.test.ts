@@ -13,11 +13,11 @@ function fullFlow(id: string, next?: string): Flow {
     id,
     name: `Name of ${id}`,
     description: `About ${id}.`,
-    arguments: [{ index: 0, id: 'topic', required: true, hint: 'The topic.' }],
+    arguments: [{ index: 0, id: 'f6e48fc8-29f2-5a26-9b01-9d90e8d52038', required: true, hint: 'The topic.' }],
     body: 'Do the work.',
     artifacts: [{ label: `${id} output`, template: `${id}.md` }],
     approval: true,
-    ruleTags: [{ index: 0, ruleId: 'rule-a' }],
+    ruleTags: [{ index: 0, ruleId: '5073a821-b984-5a65-8064-7a357a420c39' }],
     blocks: [{ index: 0, id: `${id}-end`, kind: 'end', outcome: 'done', producedArtifact: `${id} output` }],
   };
   return next === undefined ? base : { ...base, next };

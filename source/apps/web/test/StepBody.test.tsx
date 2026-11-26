@@ -85,7 +85,7 @@ describe('F-10 AC-021 step body shows the technical details step on step 2', () 
       ...EMPTY_VALUES,
       stack: { language: 'TypeScript', framework: '', platform: '', buildTool: '', testFramework: '' },
       architecture: 'Layered',
-      rules: [{ name: 'Code Style', description: 'Use named exports.' }],
+      rules: [{ id: '1f5eaf7a-4af1-5244-b16b-9ae31b9f9432', name: 'Code Style', description: 'Use named exports.' }],
     };
     const html = markup(2, values);
     expect(html).toContain('value="TypeScript"');
